@@ -377,6 +377,14 @@ public sealed class Vama : AbstractBase
         return vama.Update(source);
     }
 
+    public static (TSeries Results, Vama Indicator) Calculate(TBarSeries source, int baseLength = 20, int shortAtrPeriod = 10, int longAtrPeriod = 50, int minLength = 5, int maxLength = 100)
+    {
+        var indicator = new Vama(baseLength, shortAtrPeriod, longAtrPeriod, minLength, maxLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
+
     /// <summary>
     /// Resets the VAMA state.
     /// </summary>

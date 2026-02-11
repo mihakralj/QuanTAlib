@@ -545,6 +545,14 @@ public sealed class Yzvama : AbstractBase
         return yzvama.Update(source);
     }
 
+    public static (TSeries Results, Yzvama Indicator) Calculate(TBarSeries source, int yzvShortPeriod = 3, int yzvLongPeriod = 50, int percentileLookback = 100, int minLength = 5, int maxLength = 100)
+    {
+        var indicator = new Yzvama(yzvShortPeriod, yzvLongPeriod, percentileLookback, minLength, maxLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
+
     /// <summary>
     /// Resets the YZVAMA state.
     /// </summary>

@@ -71,7 +71,7 @@ public sealed class UbandsValidationTests : IDisposable
                 }
 
                 // Batch mode
-                var batchResult = Ubands.Calculate(series, period, multiplier);
+                var batchResult = Ubands.Batch(series, period, multiplier);
 
                 // Compare last 100 values
                 int compareCount = Math.Min(100, series.Count - period);
@@ -119,7 +119,7 @@ public sealed class UbandsValidationTests : IDisposable
                 double[] spanMiddle = new double[series.Count];
                 double[] spanLower = new double[series.Count];
 
-                Ubands.Calculate(source.AsSpan(), spanUpper.AsSpan(), spanMiddle.AsSpan(),
+                Ubands.Batch(source.AsSpan(), spanUpper.AsSpan(), spanMiddle.AsSpan(),
                     spanLower.AsSpan(), period, multiplier);
 
                 // Compare last 100 values

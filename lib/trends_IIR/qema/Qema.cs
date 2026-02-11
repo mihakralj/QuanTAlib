@@ -561,6 +561,13 @@ public sealed class Qema : AbstractBase
         }
     }
 
+    public static (TSeries Results, Qema Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Qema(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     /// <summary>
     /// Resets the QEMA state.
     /// </summary>

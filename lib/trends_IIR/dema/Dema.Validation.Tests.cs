@@ -140,7 +140,7 @@ public sealed class DemaValidationTests : IDisposable
         {
             // Calculate QuanTAlib DEMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Dema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Dema.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib DEMA
             var retCode = TALib.Functions.Dema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);

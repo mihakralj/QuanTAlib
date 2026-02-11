@@ -16,9 +16,9 @@ public class ExptransValidationTests
         // Use log-transformed prices to keep exp in reasonable range
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 50000);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var logSource = Logtrans.Calculate(bars.Close);
+        var logSource = Logtrans.Batch(bars.Close);
 
-        var result = Exptrans.Calculate(logSource);
+        var result = Exptrans.Batch(logSource);
 
         for (int i = 0; i < logSource.Count; i++)
         {
@@ -33,7 +33,7 @@ public class ExptransValidationTests
         int count = 100;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 50001);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var logSource = Logtrans.Calculate(bars.Close);
+        var logSource = Logtrans.Batch(bars.Close);
 
         var indicator = new Exptrans();
 
@@ -51,11 +51,11 @@ public class ExptransValidationTests
         int count = 100;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 50002);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var logSource = Logtrans.Calculate(bars.Close);
+        var logSource = Logtrans.Batch(bars.Close);
 
         var values = logSource.Values.ToArray();
         var output = new double[count];
-        Exptrans.Calculate(values, output);
+        Exptrans.Batch(values, output);
 
         for (int i = 0; i < count; i++)
         {
@@ -94,8 +94,8 @@ public class ExptransValidationTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var source = bars.Close;
 
-        var logResult = Logtrans.Calculate(source);
-        var expResult = Exptrans.Calculate(logResult);
+        var logResult = Logtrans.Batch(source);
+        var expResult = Exptrans.Batch(logResult);
 
         for (int i = 0; i < source.Count; i++)
         {

@@ -23,7 +23,7 @@ public class RocValidationTests
         double[] tulipInput = source.Values.ToArray();
 
         // Get QuanTAlib ROC result
-        var quantResult = Roc.Calculate(source, TestPeriod);
+        var quantResult = Roc.Batch(source, TestPeriod);
 
         // Calculate Tulip MOM (momentum = current - past)
         var momIndicator = Tulip.Indicators.mom;
@@ -87,7 +87,7 @@ public class RocValidationTests
 
         // Get QuanTAlib ROC result via span
         var quantOutput = new double[DataPoints];
-        Roc.Calculate(source.Values, quantOutput, TestPeriod);
+        Roc.Batch(source.Values, quantOutput, TestPeriod);
 
         // Calculate Tulip MOM
         var momIndicator = Tulip.Indicators.mom;
@@ -123,7 +123,7 @@ public class RocValidationTests
         var source = bars.Close;
         double[] tulipInput = source.Values.ToArray();
 
-        var quantResult = Roc.Calculate(source, period);
+        var quantResult = Roc.Batch(source, period);
 
         // Calculate Tulip MOM
         var momIndicator = Tulip.Indicators.mom;
@@ -155,7 +155,7 @@ public class RocValidationTests
             constantData.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0), true);
         }
 
-        var result = Roc.Calculate(constantData, TestPeriod);
+        var result = Roc.Batch(constantData, TestPeriod);
 
         // Constant values should produce 0 change after warmup
         for (int i = TestPeriod; i < 100; i++)
@@ -173,7 +173,7 @@ public class RocValidationTests
             linearData.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i), true);
         }
 
-        var result = Roc.Calculate(linearData, TestPeriod);
+        var result = Roc.Batch(linearData, TestPeriod);
 
         // Linear increase by 1 per bar means ROC = period after warmup
         for (int i = TestPeriod; i < 100; i++)
@@ -189,7 +189,7 @@ public class RocValidationTests
         var source = bars.Close;
         double[] tulipInput = source.Values.ToArray();
 
-        var quantResult = Roc.Calculate(source, 1);
+        var quantResult = Roc.Batch(source, 1);
 
         // Calculate Tulip MOM with period 1
         var momIndicator = Tulip.Indicators.mom;

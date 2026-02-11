@@ -17,7 +17,7 @@ public class SqrttransValidationTests
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var source = bars.Close;
 
-        var result = Sqrttrans.Calculate(source);
+        var result = Sqrttrans.Batch(source);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -54,7 +54,7 @@ public class SqrttransValidationTests
 
         var values = source.Values.ToArray();
         var output = new double[count];
-        Sqrttrans.Calculate(values, output);
+        Sqrttrans.Batch(values, output);
 
         for (int i = 0; i < count; i++)
         {
@@ -132,7 +132,7 @@ public class SqrttransValidationTests
             squared.Add(new TValue(tv.Time, tv.Value * tv.Value));
         }
 
-        var sqrtResult = Sqrttrans.Calculate(squared);
+        var sqrtResult = Sqrttrans.Batch(squared);
 
         for (int i = 0; i < source.Count; i++)
         {

@@ -207,7 +207,7 @@ public sealed class Vortex : ITValuePublisher
         var viPlusValues = new double[len];
         var viMinusValues = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, viPlusValues, viMinusValues);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, _period, viPlusValues, viMinusValues);
 
         var tList = new List<long>(len);
         var vList = new List<double>(viPlusValues);
@@ -237,7 +237,7 @@ public sealed class Vortex : ITValuePublisher
     /// <param name="viPlus">Output VI+ values</param>
     /// <param name="viMinus">Output VI- values</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close,
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close,
                                  int period, Span<double> viPlus, Span<double> viMinus)
     {
         int len = high.Length;
@@ -313,4 +313,12 @@ public sealed class Vortex : ITValuePublisher
         var vortex = new Vortex(period);
         return vortex.Update(source);
     }
+
+    public static (TSeries Results, Vortex Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Vortex();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

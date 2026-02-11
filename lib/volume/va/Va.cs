@@ -184,7 +184,7 @@ public sealed class Va : ITValuePublisher
     /// </summary>
     /// <param name="source">The bar series.</param>
     /// <returns>The result series.</returns>
-    public static TSeries Calculate(TBarSeries source)
+    public static TSeries Batch(TBarSeries source)
     {
         if (source.Count == 0)
         {
@@ -194,7 +194,7 @@ public sealed class Va : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
 
         return new TSeries(t, v);
     }
@@ -209,7 +209,7 @@ public sealed class Va : ITValuePublisher
     /// <param name="output">The output VA span.</param>
     /// <exception cref="ArgumentException">Thrown when span lengths don't match.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != close.Length || high.Length != volume.Length)
         {
@@ -265,5 +265,12 @@ public sealed class Va : ITValuePublisher
 
             output[i] = va;
         }
+    }
+
+    public static (TSeries Results, Va Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Va();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

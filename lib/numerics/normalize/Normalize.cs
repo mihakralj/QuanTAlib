@@ -154,7 +154,7 @@ public sealed class Normalize : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period = 14)
+    public static TSeries Batch(TSeries source, int period = 14)
     {
         var indicator = new Normalize(period);
         return indicator.Update(source);
@@ -163,7 +163,7 @@ public sealed class Normalize : AbstractBase
     /// <summary>
     /// Calculates Min-Max Normalization over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 14)
     {
         if (source.Length == 0)
         {
@@ -229,6 +229,13 @@ public sealed class Normalize : AbstractBase
             lastValid = result;
             output[i] = result;
         }
+    }
+
+    public static (TSeries Results, Normalize Indicator) Calculate(TSeries source, int period = 14)
+    {
+        var indicator = new Normalize(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

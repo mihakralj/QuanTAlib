@@ -26,44 +26,6 @@ public sealed class DxValidationTests : IDisposable
         _data.Dispose();
     }
 
-    /// <summary>
-    /// Validates DX against TA-Lib. Our DX uses the standard formula:
-    /// DX = 100 × |+DI - -DI| / (+DI + -DI)
-    /// This matches the Wilder/industry standard formula.
-    ///
-    /// NOTE: TA-Lib's DX function produces different results than computing DX
-    /// from their standalone PlusDI/MinusDI functions. Our implementation matches:
-    /// - TA-Lib's individual +DI and -DI (verified in DiPlus_MatchesTalib, DiMinus_MatchesTalib)
-    /// - Tulip's DX (verified in MatchesTulip)
-    /// - Skender's DI values (verified in MatchesSkender_DiValues)
-    ///
-    /// The discrepancy appears to be in TA-Lib's DX function itself, possibly due to
-    /// internal rounding or unstable period handling that differs from the standalone DI functions.
-    /// </summary>
-    [Fact(Skip = "TA-Lib DX function differs from standard; we match TA-Lib's PlusDI/MinusDI and Tulip")]
-    public void MatchesTalib()
-    {
-        var dx = new Dx(14);
-        var results = new List<double>();
-
-        for (int i = 0; i < _data.Bars.Count; i++)
-        {
-            var res = dx.Update(_data.Bars[i]);
-            results.Add(res.Value);
-        }
-
-        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
-        double[] outReal = new double[_data.Bars.Count];
-
-        var retCode = Functions.Dx(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
-        Assert.Equal(Core.RetCode.Success, retCode);
-
-        int lookback = Functions.DxLookback(14);
-        ValidationHelper.VerifyData(results, outReal, outRange, lookback);
-    }
-
     [Fact]
     public void MatchesTulip()
     {

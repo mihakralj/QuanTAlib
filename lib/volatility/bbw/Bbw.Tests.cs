@@ -276,7 +276,7 @@ public class BbwTests
         {
             ts.Add(new TValue(times[i], close[i]));
         }
-        var batchResult = Bbw.Calculate(ts, 20);
+        var batchResult = Bbw.Batch(ts, 20);
 
         Assert.Equal(iterativeResult, batchResult[batchResult.Count - 1].Value, 1e-8);
     }
@@ -302,7 +302,7 @@ public class BbwTests
         {
             ts.Add(new TValue(times[i], close[i]));
         }
-        var bbwBatch = Bbw.Calculate(ts, 20);
+        var bbwBatch = Bbw.Batch(ts, 20);
         var smaResult = smaBatch.Update(bbwBatch);
 
         Assert.Equal(sma.Last.Value, smaResult[smaResult.Count - 1].Value, 1e-8);
@@ -321,7 +321,7 @@ public class BbwTests
             ts.Add(new TValue(times[i], close[i]));
         }
 
-        var result = Bbw.Calculate(ts, 20, 2.0);
+        var result = Bbw.Batch(ts, 20, 2.0);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -336,10 +336,10 @@ public class BbwTests
             ts.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i));
         }
 
-        Assert.Throws<ArgumentException>(() => Bbw.Calculate(ts, 0));
-        Assert.Throws<ArgumentException>(() => Bbw.Calculate(ts, -1));
-        Assert.Throws<ArgumentException>(() => Bbw.Calculate(ts, 5, 0));
-        Assert.Throws<ArgumentException>(() => Bbw.Calculate(ts, 5, -1));
+        Assert.Throws<ArgumentException>(() => Bbw.Batch(ts, 0));
+        Assert.Throws<ArgumentException>(() => Bbw.Batch(ts, -1));
+        Assert.Throws<ArgumentException>(() => Bbw.Batch(ts, 5, 0));
+        Assert.Throws<ArgumentException>(() => Bbw.Batch(ts, 5, -1));
     }
 
     [Fact]

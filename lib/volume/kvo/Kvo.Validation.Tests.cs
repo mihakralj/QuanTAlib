@@ -75,7 +75,7 @@ public class KvoValidationTests
         }
 
         // Batch
-        var batchResult = Kvo.Calculate(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var batchResult = Kvo.Batch(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -103,7 +103,7 @@ public class KvoValidationTests
         var spanKvo = new double[high.Length];
         var spanSignal = new double[high.Length];
 
-        Kvo.Calculate(high, low, close, volume, spanKvo, spanSignal, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        Kvo.Batch(high, low, close, volume, spanKvo, spanSignal, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
 
         ValidationHelper.VerifyData(streamingKvo.ToArray(), spanKvo, 0, 100, 1e-9);
         ValidationHelper.VerifyData(streamingSignal.ToArray(), spanSignal, 0, 100, 1e-9);

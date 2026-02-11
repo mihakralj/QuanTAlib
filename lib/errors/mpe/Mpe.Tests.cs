@@ -236,7 +236,7 @@ public class MpeTests
             iterativeResults.Add(mpeIterative.Update(actualSeries[i], predictedSeries[i]).Value);
         }
 
-        var batchResults = Mpe.Calculate(actualSeries, predictedSeries, 10);
+        var batchResults = Mpe.Batch(actualSeries, predictedSeries, 10);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -280,7 +280,7 @@ public class MpeTests
             predictedSeries.Add(bar.Time, bar.Close * 0.95);
         }
 
-        var tseriesResult = Mpe.Calculate(actualSeries, predictedSeries, 10);
+        var tseriesResult = Mpe.Batch(actualSeries, predictedSeries, 10);
         Mpe.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < 100; i++)
@@ -314,7 +314,7 @@ public class MpeTests
         actual.Add(DateTime.UtcNow.Ticks + 1, 100);
         predicted.Add(DateTime.UtcNow.Ticks, 90);
 
-        Assert.Throws<ArgumentException>(() => Mpe.Calculate(actual, predicted, 5));
+        Assert.Throws<ArgumentException>(() => Mpe.Batch(actual, predicted, 5));
     }
 
     [Fact]

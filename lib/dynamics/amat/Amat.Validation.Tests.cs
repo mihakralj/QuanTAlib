@@ -351,7 +351,7 @@ public sealed class AmatValidationTests : IDisposable
         double[] sourceData = _testData.RawData.ToArray();
         double[] spanTrend = new double[sourceData.Length];
         double[] spanStrength = new double[sourceData.Length];
-        Amat.Calculate(sourceData, spanTrend, spanStrength, fastPeriod, slowPeriod);
+        Amat.Batch(sourceData, spanTrend, spanStrength, fastPeriod, slowPeriod);
 
         // Compare trend values (after warmup period)
         int warmup = slowPeriod * 2; // Allow extra warmup for convergence

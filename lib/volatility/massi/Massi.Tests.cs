@@ -439,7 +439,7 @@ public class MassiTests
 
         // Span calculation
         var output = new double[series.Count];
-        Massi.Calculate(series.Values, output, 9, 25);
+        Massi.Batch(series.Values, output, 9, 25);
 
         // Compare last value
         Assert.Equal(streamingLast, output[series.Count - 1], 1e-6);
@@ -530,7 +530,7 @@ public class MassiTests
         var source = new double[10];
         var output = new double[5]; // Wrong size
 
-        var ex = Assert.Throws<ArgumentException>(() => Massi.Calculate(source, output, 9, 25));
+        var ex = Assert.Throws<ArgumentException>(() => Massi.Batch(source, output, 9, 25));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -540,7 +540,7 @@ public class MassiTests
         var source = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        var exception = Record.Exception(() => Massi.Calculate(source, output, 9, 25));
+        var exception = Record.Exception(() => Massi.Batch(source, output, 9, 25));
         Assert.Null(exception);
     }
 
@@ -550,8 +550,8 @@ public class MassiTests
         var source = new double[10];
         var output = new double[10];
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => Massi.Calculate(source, output, 0, 25));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Massi.Calculate(source, output, 9, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Massi.Batch(source, output, 0, 25));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Massi.Batch(source, output, 9, 0));
     }
 
     // ============== Edge Cases ==============

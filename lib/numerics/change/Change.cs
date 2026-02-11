@@ -28,7 +28,7 @@ public sealed class Change : AbstractBase
     public override bool IsHot => _buffer.Count > _period;
 
     /// <summary>
-    /// 
+    /// Initializes a new Change indicator with the specified lookback period.
     /// </summary>
     /// <param name="period">Lookback period (must be >= 1)</param>
     public Change(int period = 1)
@@ -45,7 +45,7 @@ public sealed class Change : AbstractBase
     }
 
     /// <summary>
-    /// 
+    /// Initializes a new Change indicator chained to a source publisher.
     /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period</param>
@@ -116,7 +116,7 @@ public sealed class Change : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period = 1)
+    public static TSeries Batch(TSeries source, int period = 1)
     {
         var indicator = new Change(period);
         return indicator.Update(source);
@@ -125,7 +125,7 @@ public sealed class Change : AbstractBase
     /// <summary>
     /// Calculates relative change over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 1)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 1)
     {
         if (source.Length == 0)
         {
@@ -202,6 +202,13 @@ public sealed class Change : AbstractBase
                 System.Buffers.ArrayPool<double>.Shared.Return(pastValidRented);
             }
         }
+    }
+
+    public static (TSeries Results, Change Indicator) Calculate(TSeries source, int period = 1)
+    {
+        var indicator = new Change(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

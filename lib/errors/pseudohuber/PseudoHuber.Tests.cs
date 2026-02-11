@@ -342,7 +342,7 @@ public class PseudoHuberTests
         }
 
         // Calculate batch
-        var batchResults = PseudoHuber.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = PseudoHuber.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         // Compare
         Assert.Equal(iterativeResults.Count, batchResults.Count);
@@ -389,7 +389,7 @@ public class PseudoHuberTests
             predictedSeries.Add(bar.Time, predictedData[i]);
         }
 
-        var tseriesResult = PseudoHuber.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = PseudoHuber.Batch(actualSeries, predictedSeries, DefaultPeriod);
         PseudoHuber.Batch(actualData.AsSpan(), predictedData.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -445,7 +445,7 @@ public class PseudoHuberTests
         actual.Add(DateTime.UtcNow, 101);
         predicted.Add(DateTime.UtcNow, 99);
 
-        Assert.Throws<ArgumentException>(() => PseudoHuber.Calculate(actual, predicted, 5));
+        Assert.Throws<ArgumentException>(() => PseudoHuber.Batch(actual, predicted, 5));
     }
 
     #endregion

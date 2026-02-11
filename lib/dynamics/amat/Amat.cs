@@ -391,7 +391,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
     /// <param name="fastPeriod">Fast EMA period</param>
     /// <param name="slowPeriod">Slow EMA period</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> trend, Span<double> strength,
+    public static void Batch(ReadOnlySpan<double> source, Span<double> trend, Span<double> strength,
         int fastPeriod = 10, int slowPeriod = 50)
     {
         if (source.Length != trend.Length)
@@ -501,7 +501,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
     /// <param name="fastPeriod">Fast EMA period</param>
     /// <param name="slowPeriod">Slow EMA period</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> trend,
+    public static void Batch(ReadOnlySpan<double> source, Span<double> trend,
         int fastPeriod = 10, int slowPeriod = 50)
     {
         if (source.Length != trend.Length)
@@ -586,6 +586,19 @@ public sealed class Amat : ITValuePublisher, IDisposable
     }
 
     /// <summary>
+    /// Calculates AMAT for the entire series using a new instance.
+    /// </summary>
+    /// <param name="source">Input series</param>
+    /// <param name="fastPeriod">Fast EMA period</param>
+    /// <param name="slowPeriod">Slow EMA period</param>
+    /// <returns>AMAT trend series</returns>
+    public static TSeries Batch(TSeries source, int fastPeriod = 10, int slowPeriod = 50)
+    {
+        var amat = new Amat(fastPeriod, slowPeriod);
+        return amat.Update(source);
+    }
+
+    /// <summary>
     /// Runs a high-performance batch calculation on history and returns
     /// a "Hot" Amat instance ready to process the next tick immediately.
     /// </summary>
@@ -600,16 +613,4 @@ public sealed class Amat : ITValuePublisher, IDisposable
         return (results, amat);
     }
 
-    /// <summary>
-    /// Calculates AMAT for the entire series using a new instance.
-    /// </summary>
-    /// <param name="source">Input series</param>
-    /// <param name="fastPeriod">Fast EMA period</param>
-    /// <param name="slowPeriod">Slow EMA period</param>
-    /// <returns>AMAT trend series</returns>
-    public static TSeries Batch(TSeries source, int fastPeriod = 10, int slowPeriod = 50)
-    {
-        var amat = new Amat(fastPeriod, slowPeriod);
-        return amat.Update(source);
-    }
 }

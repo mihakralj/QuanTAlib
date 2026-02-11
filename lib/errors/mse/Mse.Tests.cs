@@ -287,7 +287,7 @@ public class MseTests
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
         }
 
-        var results = Mse.Calculate(actual, predicted, 3);
+        var results = Mse.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // All errors are 5², so MSE should be 25

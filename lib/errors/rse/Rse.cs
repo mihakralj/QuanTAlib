@@ -166,7 +166,7 @@ public sealed class Rse : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("RSE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+        throw new NotSupportedException("RSE requires two inputs. Use Batch(actualSeries, predictedSeries, period).");
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -184,7 +184,7 @@ public sealed class Rse : AbstractBase
         Last = default;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -365,5 +365,12 @@ public sealed class Rse : AbstractBase
                 sqBaselineSum = recalcBaseline;
             }
         }
+    }
+
+    public static (TSeries Results, Rse Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Rse(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

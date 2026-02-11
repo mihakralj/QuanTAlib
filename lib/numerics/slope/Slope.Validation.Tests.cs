@@ -104,7 +104,7 @@ public class SlopeValidationTests
         double[] expected = [0, 2, 2, 2, 2, 2];
         double[] output = new double[data.Length];
 
-        Slope.Calculate(data, output);
+        Slope.Batch(data, output);
 
         for (int i = 0; i < data.Length; i++)
         {

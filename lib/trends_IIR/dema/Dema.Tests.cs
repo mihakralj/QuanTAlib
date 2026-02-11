@@ -44,7 +44,7 @@ public class DemaTests
         }
 
         // Act
-        var demaSeries = Dema.Calculate(source, period);
+        var demaSeries = Dema.Batch(source, period);
         var demaObj = new Dema(period);
 
         // Assert
@@ -71,7 +71,7 @@ public class DemaTests
         }
 
         // Act
-        Dema.Calculate(source, output, period);
+        Dema.Batch(source, output, period);
         var demaObj = new Dema(period);
 
         // Assert
@@ -130,7 +130,7 @@ public class DemaTests
         }
 
         // Act
-        var demaSeries = Dema.Calculate(source, alpha);
+        var demaSeries = Dema.Batch(source, alpha);
         var demaObj = new Dema(alpha);
 
         // Assert
@@ -157,7 +157,7 @@ public class DemaTests
         }
 
         // Act
-        Dema.Calculate(source, output, alpha);
+        Dema.Batch(source, output, alpha);
         var demaObj = new Dema(alpha);
 
         // Assert
@@ -250,8 +250,8 @@ public class DemaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Dema.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Dema.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Dema.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Dema.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public class DemaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Dema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Dema.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {
@@ -278,14 +278,14 @@ public class DemaTests
         var series = bars.Close;
 
         // 1. Batch Mode
-        var batchSeries = Dema.Calculate(series, period);
+        var batchSeries = Dema.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Dema.Calculate(spanInput, spanOutput, period);
+        Dema.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -317,7 +317,7 @@ public class DemaTests
         double[] source = { double.NaN, double.NaN, 10.0, 11.0, 12.0 };
         double[] output = new double[source.Length];
 
-        Dema.Calculate(source, output, 3);
+        Dema.Batch(source, output, 3);
 
         // We expect the first two outputs to be NaN because the input was NaN
         Assert.True(double.IsNaN(output[0]), $"Output[0] should be NaN, but was {output[0]}");

@@ -186,7 +186,7 @@ public sealed class Kalman : AbstractBase
 
         var output = new double[source.Count];
 
-        Calculate(source.Values, output, ProcessNoise, MeasurementNoise,
+        Batch(source.Values, output, ProcessNoise, MeasurementNoise,
             out double endX, out double endP, out int endSamples);
 
         var result = new TSeries();
@@ -203,19 +203,17 @@ public sealed class Kalman : AbstractBase
         return result;
     }
 
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    public static TSeries Batch(TSeries source, double q = 0.01, double r = 0.1)
     {
-        foreach (double v in source)
-        {
-            Update(new TValue(DateTime.MinValue, v), isNew: true);
-        }
+        var indicator = new Kalman(q, r);
+        return indicator.Update(source);
     }
 
     /// <summary>
     /// Batch KF. Returns final state so instance can restore without replay.
     /// NaN/Inf => prediction-only (hold x, p += q) once initialized.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> output,
         double q,
@@ -278,15 +276,30 @@ public sealed class Kalman : AbstractBase
 
     // Overload for Calculate without out params to maintain API compatibility if needed,
     // although the original Calculate signature was different anyway (returned void).
-    // The previous implementation had: public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double q, double r)
+    // The previous implementation had: public static void Batch(ReadOnlySpan<double> source, Span<double> output, double q, double r)
     // We should keep this signature valid.
 
     /// <summary>
     /// Static calculation of Kalman Filter on a span.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double q, double r)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double q, double r)
     {
-        Calculate(source, output, q, r, out _, out _, out _);
+        Batch(source, output, q, r, out _, out _, out _);
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (double v in source)
+        {
+            Update(new TValue(DateTime.MinValue, v), isNew: true);
+        }
+    }
+
+    public static (TSeries Results, Kalman Indicator) Calculate(TSeries source, double q = 0.01, double r = 0.1)
+    {
+        var indicator = new Kalman(q, r);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

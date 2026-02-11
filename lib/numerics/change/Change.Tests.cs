@@ -154,7 +154,7 @@ public class ChangeTests
     public void Change_Batch_MatchesStreaming()
     {
         int period = 5;
-        var batchResult = Change.Calculate(_source, period);
+        var batchResult = Change.Batch(_source, period);
         var indicator = new Change(period);
 
         for (int i = 0; i < _source.Count; i++)
@@ -185,8 +185,8 @@ public class ChangeTests
         var values = _source.Values.ToArray();
         var output = new double[values.Length];
 
-        Change.Calculate(values, output, period);
-        var batchResult = Change.Calculate(_source, period);
+        Change.Batch(values, output, period);
+        var batchResult = Change.Batch(_source, period);
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -200,9 +200,9 @@ public class ChangeTests
         var source = new double[10];
         var output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Change.Calculate(ReadOnlySpan<double>.Empty, output, 1));
-        Assert.Throws<ArgumentException>(() => Change.Calculate(source, output, 1));
-        Assert.Throws<ArgumentException>(() => Change.Calculate(source, new double[10], 0));
+        Assert.Throws<ArgumentException>(() => Change.Batch(ReadOnlySpan<double>.Empty, output, 1));
+        Assert.Throws<ArgumentException>(() => Change.Batch(source, output, 1));
+        Assert.Throws<ArgumentException>(() => Change.Batch(source, new double[10], 0));
     }
 
     [Fact]

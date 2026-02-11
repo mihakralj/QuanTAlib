@@ -91,7 +91,7 @@ public sealed class Solar : AbstractBase
     /// <summary>
     /// Creates a new Solar indicator and calculates cycles for the source series.
     /// </summary>
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var solar = new Solar();
         return solar.Update(source);
@@ -112,6 +112,13 @@ public sealed class Solar : AbstractBase
         {
             output[i] = CalculateCycle(timestamps[i]);
         }
+    }
+
+    public static (TSeries Results, Solar Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Solar();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

@@ -115,7 +115,7 @@ public sealed class Bpf : AbstractBase
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
-        Calculate(values, results, LowerPeriod, UpperPeriod);
+        Batch(values, results, LowerPeriod, UpperPeriod);
 
         TSeries output = [];
         for (int i = 0; i < values.Length; i++)
@@ -181,24 +181,15 @@ public sealed class Bpf : AbstractBase
         return Last;
     }
 
-    public override void Reset()
+    public static TSeries Batch(TSeries source, int lowerPeriod, int upperPeriod)
     {
-        _state = default;
-        _state.LastValid = double.NaN;
-        _p_state = default;
-        Last = default;
+        var indicator = new Bpf(lowerPeriod, upperPeriod);
+        return indicator.Update(source);
     }
 
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
-    {
-        foreach (double val in source)
-        {
-            Update(new TValue(DateTime.UtcNow, val), isNew: true);
-        }
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int lowerPeriod, int upperPeriod)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int lowerPeriod, int upperPeriod)
     {
         if (source.Length != output.Length)
         {
@@ -265,6 +256,29 @@ public sealed class Bpf : AbstractBase
             bp2 = bp1;
             bp1 = bpf;
         }
+    }
+
+    public override void Reset()
+    {
+        _state = default;
+        _state.LastValid = double.NaN;
+        _p_state = default;
+        Last = default;
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (double val in source)
+        {
+            Update(new TValue(DateTime.UtcNow, val), isNew: true);
+        }
+    }
+
+    public static (TSeries Results, Bpf Indicator) Calculate(TSeries source, int lowerPeriod, int upperPeriod)
+    {
+        var indicator = new Bpf(lowerPeriod, upperPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

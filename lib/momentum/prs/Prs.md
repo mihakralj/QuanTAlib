@@ -1,0 +1,90 @@
+# PRS: Price Relative Strength
+
+**Category:** Momentum  
+**Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio
+
+[Pine Script Implementation of PRS](https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/prs.pine)
+
+## Overview
+
+Price Relative Strength (PRS) measures the performance of one asset relative to another by calculating the ratio between their prices. This indicator helps identify which asset is outperforming and is fundamental for sector rotation, pairs trading, and relative performance analysis.
+
+Unlike the Relative Strength Index (RSI) which measures momentum within a single asset, PRS compares two different price series. A rising PRS indicates the base asset is outperforming the comparison asset; a falling PRS indicates underperformance.
+
+## Core Concepts
+
+- **Ratio-based:** Simply divides base price by comparison price
+- **Trend interpretation:** Rising = outperformance, Falling = underperformance
+- **Optional smoothing:** EMA with bias compensation removes noise while maintaining responsiveness
+- **Scale-independent:** Can compare assets with vastly different price levels
+- **Cross-market analysis:** Compare stocks, indices, commodities, or any tradeable assets
+
+## Parameters
+
+| Parameter | Default | Description | When to Adjust |
+|-----------|---------|-------------|----------------|
+| **smoothPeriod** | 1 | EMA smoothing period (1 = no smoothing) | Increase for trend analysis, decrease for signal sensitivity |
+
+**Pro Tip:** Use smoothPeriod=1 for raw ratio analysis, smoothPeriod=10-20 for trend identification, and smoothPeriod=50+ for longer-term relative strength trends.
+
+## Calculation
+
+**Simplified Explanation:**
+PRS divides the base asset's price by the comparison asset's price, then optionally smooths the result with an EMA.
+
+**Technical Formula:**
+
+```
+Raw Ratio = Base Price / Comparison Price
+Smoothed = EMA(Raw Ratio, smoothPeriod)
+```
+
+With bias-compensated EMA for accurate warmup:
+```
+α = 2 / (smoothPeriod + 1)
+EMA_biased = α × (ratio - EMA_prev) + EMA_prev
+compensation = 1 / (1 - (1-α)^n)
+Smoothed = compensation × EMA_biased
+```
+
+> **Implementation Note:** When smoothPeriod=1, the raw ratio is returned without any smoothing. Division by zero (comparison = 0) returns NaN.
+
+## Interpretation Details
+
+**Trend Analysis:**
+- **PRS rising:** Base asset outperforming comparison (bullish for base)
+- **PRS falling:** Base asset underperforming comparison (bearish for base)
+- **PRS flat:** Both assets moving in tandem
+
+**Common Comparisons:**
+- Stock vs. sector ETF (stock relative to its sector)
+- Sector vs. broad market index (sector rotation)
+- Growth vs. Value ETFs (style performance)
+- Emerging markets vs. developed markets
+- Commodity vs. currency (inflation dynamics)
+
+**Trading Signals:**
+- **PRS crossover above prior high:** Breakout in relative strength
+- **PRS crossover below prior low:** Breakdown in relative strength
+- **Divergence:** Price makes new high, PRS does not = warning
+
+## Limitations and Considerations
+
+- **No absolute measure:** Tells you relative performance, not absolute value
+- **Base dependency:** Results depend on which asset is the numerator
+- **Lagging indicator:** Smoothed version lags the raw ratio
+- **Volume ignored:** Pure price comparison, volume not considered
+- **Currency effects:** Cross-currency comparisons may include FX impact
+
+## References
+
+- Murphy, J. J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
+- Pring, M. J. (2002). *Technical Analysis Explained*. McGraw-Hill.
+- Sector rotation and relative strength analysis literature
+
+## See Also
+
+- **ROC/ROCP/ROCR:** Single-asset rate of change variants
+- **RSI:** Single-asset momentum oscillator
+- **Beta:** Statistical measure of relative volatility
+- **Correlation:** Measures how two assets move together

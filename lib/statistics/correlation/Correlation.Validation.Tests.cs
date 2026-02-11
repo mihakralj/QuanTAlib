@@ -190,7 +190,7 @@ public class CorrelationValidationTests
         }
 
         // Batch calculation
-        var batchResult = Correlation.Calculate(seriesX, seriesY, 20);
+        var batchResult = Correlation.Batch(seriesX, seriesY, 20);
 
         // Streaming calculation
         var streamingIndicator = new Correlation(20);
@@ -227,7 +227,7 @@ public class CorrelationValidationTests
         }
 
         // Span calculation
-        Correlation.Calculate(seriesX, seriesY, output, 20);
+        Correlation.Batch(seriesX, seriesY, output, 20);
 
         // Streaming calculation
         var streamingIndicator = new Correlation(20);

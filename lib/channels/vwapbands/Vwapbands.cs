@@ -364,7 +364,7 @@ public sealed class Vwapbands : AbstractBase
     /// <param name="vwap">Output span for VWAP values</param>
     /// <param name="stdDev">Output span for standard deviation values</param>
     /// <param name="multiplier">Band multiplier (default 1.0)</param>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> price,
         ReadOnlySpan<double> volume,
         Span<double> upper1,

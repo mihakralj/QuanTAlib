@@ -102,7 +102,7 @@ public sealed class AlmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib ALMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Alma.Calculate(sourceData, qOutput.AsSpan(), period, offset, sigma);
+            global::QuanTAlib.Alma.Batch(sourceData, qOutput.AsSpan(), period, offset, sigma);
 
             // Calculate Skender ALMA
             var sResult = _testData.SkenderQuotes.GetAlma(period, offset, sigma).ToList();

@@ -304,7 +304,7 @@ public class TviTests
         }
 
         // Batch
-        var batchResult = Tvi.Calculate(bars);
+        var batchResult = Tvi.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -337,7 +337,7 @@ public class TviTests
         var volume = bars.Volume.Values.ToArray();
         var output = new double[bars.Count];
 
-        Tvi.Calculate(price, volume, output);
+        Tvi.Batch(price, volume, output);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -352,7 +352,7 @@ public class TviTests
         var volume = new double[99]; // Different length
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Tvi.Calculate(price, volume, output));
+        Assert.Throws<ArgumentException>(() => Tvi.Batch(price, volume, output));
     }
 
     [Fact]
@@ -362,8 +362,8 @@ public class TviTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Tvi.Calculate(price, volume, output, minTick: 0));
-        Assert.Throws<ArgumentException>(() => Tvi.Calculate(price, volume, output, minTick: -1));
+        Assert.Throws<ArgumentException>(() => Tvi.Batch(price, volume, output, minTick: 0));
+        Assert.Throws<ArgumentException>(() => Tvi.Batch(price, volume, output, minTick: -1));
     }
 
     [Fact]
@@ -373,7 +373,7 @@ public class TviTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Tvi.Calculate(price, volume, output);
+        Tvi.Batch(price, volume, output);
 
         Assert.Empty(output);
     }

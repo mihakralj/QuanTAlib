@@ -292,7 +292,7 @@ public class MapdTests
             predicted.Add(now.AddMinutes(i), 110);
         }
 
-        var results = Mapd.Calculate(actual, predicted, 3);
+        var results = Mapd.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // |100-110|/110 * 100 = 9.0909...%
@@ -315,7 +315,7 @@ public class MapdTests
             predicted.Add(DateTime.UtcNow, i + 1);
         }
 
-        Assert.Throws<ArgumentException>(() => Mapd.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Mapd.Batch(actual, predicted, 3));
     }
 
     [Fact]

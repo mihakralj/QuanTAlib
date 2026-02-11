@@ -91,7 +91,7 @@ public class ZltemaTests
         int period = 12;
         TSeries series = BuildSeries(120, seed: 11);
 
-        TSeries batch = Zltema.Calculate(series, period);
+        TSeries batch = Zltema.Batch(series, period);
         var zltema = new Zltema(period);
 
         var streamValues = new List<double>(series.Count);
@@ -114,8 +114,8 @@ public class ZltemaTests
         double[] values = series.Values.ToArray();
         var output = new double[values.Length];
 
-        Zltema.Calculate(values, output, period);
-        TSeries batch = Zltema.Calculate(series, period);
+        Zltema.Batch(values, output, period);
+        TSeries batch = Zltema.Batch(series, period);
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -153,7 +153,7 @@ public class ZltemaTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[3];
 
-        var ex = Assert.Throws<ArgumentException>(() => Zltema.Calculate(source, output, 10));
+        var ex = Assert.Throws<ArgumentException>(() => Zltema.Batch(source, output, 10));
         Assert.Equal("output", ex.ParamName);
     }
 

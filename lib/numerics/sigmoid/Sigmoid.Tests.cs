@@ -238,7 +238,7 @@ public class SigmoidTests
             series.Add(new TValue(DateTime.UtcNow.AddSeconds(i), i - 50), isNew: true);
         }
 
-        var result = Sigmoid.Calculate(series);
+        var result = Sigmoid.Batch(series);
 
         Assert.Equal(series.Count, result.Count);
     }
@@ -251,7 +251,7 @@ public class SigmoidTests
     public void Calculate_Span_EmptySource_ThrowsArgumentException()
     {
         double[] output = new double[10];
-        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(ReadOnlySpan<double>.Empty, output.AsSpan()));
+        Assert.Throws<ArgumentException>(() => Sigmoid.Batch(ReadOnlySpan<double>.Empty, output.AsSpan()));
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public class SigmoidTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(source.AsSpan(), output.AsSpan()));
+        Assert.Throws<ArgumentException>(() => Sigmoid.Batch(source.AsSpan(), output.AsSpan()));
     }
 
     [Fact]
@@ -269,7 +269,7 @@ public class SigmoidTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(source.AsSpan(), output.AsSpan(), k: 0));
+        Assert.Throws<ArgumentException>(() => Sigmoid.Batch(source.AsSpan(), output.AsSpan(), k: 0));
     }
 
     [Fact]
@@ -283,7 +283,7 @@ public class SigmoidTests
         }
 
         double[] spanOutput = new double[source.Length];
-        Sigmoid.Calculate(source.AsSpan(), spanOutput.AsSpan());
+        Sigmoid.Batch(source.AsSpan(), spanOutput.AsSpan());
 
         var sigmoid = new Sigmoid();
         double[] streamOutput = new double[source.Length];
@@ -304,7 +304,7 @@ public class SigmoidTests
         double[] source = [1.0, double.NaN, 2.0];
         double[] output = new double[3];
 
-        Sigmoid.Calculate(source.AsSpan(), output.AsSpan());
+        Sigmoid.Batch(source.AsSpan(), output.AsSpan());
 
         Assert.True(double.IsFinite(output[0]));
         Assert.True(double.IsFinite(output[1]));  // NaN replaced with last valid

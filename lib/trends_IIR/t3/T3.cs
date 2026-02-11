@@ -368,6 +368,13 @@ public sealed class T3 : AbstractBase
         CalculateCore(source, output, p, ref state, ref lastValidValue);
     }
 
+    public static (TSeries Results, T3 Indicator) Calculate(TSeries source, int period, double vfactor = 0.7)
+    {
+        var indicator = new T3(period, vfactor);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     /// <summary>
     /// Resets the T3 state.
     /// </summary>

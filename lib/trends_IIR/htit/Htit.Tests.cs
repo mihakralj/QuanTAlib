@@ -57,7 +57,7 @@ public class HtitTests
         var spanInput = data.Values.ToArray();
         var spanOutput = new double[spanInput.Length];
 
-        Htit.Calculate(spanInput, spanOutput);
+        Htit.Batch(spanInput, spanOutput);
 
         for (int i = 0; i < resultSeries.Count; i++)
         {
@@ -134,7 +134,7 @@ public class HtitTests
         double[] source = [1, 2, 3, 4, 5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Htit.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan()));
+        Assert.Throws<ArgumentException>(() => Htit.Batch(source.AsSpan(), wrongSizeOutput.AsSpan()));
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class HtitTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Htit.Calculate(source.AsSpan(), output.AsSpan());
+        Htit.Batch(source.AsSpan(), output.AsSpan());
 
         foreach (var val in output)
         {
@@ -167,7 +167,7 @@ public class HtitTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Htit.Calculate(spanInput, spanOutput);
+        Htit.Batch(spanInput, spanOutput);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

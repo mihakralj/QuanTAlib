@@ -201,7 +201,7 @@ public class PacfValidationTests
         }
 
         // Batch
-        var batchResult = Pacf.Calculate(tSeries, period, lag);
+        var batchResult = Pacf.Batch(tSeries, period, lag);
 
         // Compare last values
         Assert.Equal(batchResult[^1].Value, streaming.Last.Value, Epsilon);
@@ -228,7 +228,7 @@ public class PacfValidationTests
         {
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
-        var tSeriesResult = Pacf.Calculate(tSeries, period, lag);
+        var tSeriesResult = Pacf.Batch(tSeries, period, lag);
 
         // Compare last 50 values
         for (int i = source.Length - 50; i < source.Length; i++)

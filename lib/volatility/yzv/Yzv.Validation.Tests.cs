@@ -167,7 +167,7 @@ public class YzvValidationTests
         int period = 14;
 
         // Using static Calculate
-        var calculateResult = Yzv.Calculate(bars, period);
+        var calculateResult = Yzv.Batch(bars, period);
 
         // Using Batch
         double[] batchOutput = new double[bars.Count];

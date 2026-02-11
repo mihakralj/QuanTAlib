@@ -202,11 +202,11 @@ public class JbandsTests
         double[] shortOut = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Jbands.Calculate(source.AsSpan(), shortOut.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14));
+            Jbands.Batch(source.AsSpan(), shortOut.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14));
         Assert.Throws<ArgumentException>(() =>
-            Jbands.Calculate(source.AsSpan(), middle.AsSpan(), shortOut.AsSpan(), lower.AsSpan(), 14));
+            Jbands.Batch(source.AsSpan(), middle.AsSpan(), shortOut.AsSpan(), lower.AsSpan(), 14));
         Assert.Throws<ArgumentException>(() =>
-            Jbands.Calculate(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), shortOut.AsSpan(), 14));
+            Jbands.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), shortOut.AsSpan(), 14));
     }
 
     [Fact]
@@ -223,7 +223,7 @@ public class JbandsTests
         double[] upper = new double[100];
         double[] lower = new double[100];
 
-        Jbands.Calculate(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
+        Jbands.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
 
         var jStream = new Jbands(14);
         for (int i = 0; i < source.Length; i++)

@@ -29,7 +29,7 @@ public class MmaValidationTests
         double[] reference = new double[series.Count];
 
         ReferenceMma(series.Values, reference, period);
-        TSeries batch = Mma.Calculate(series, period);
+        TSeries batch = Mma.Batch(series, period);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -47,7 +47,7 @@ public class MmaValidationTests
         var reference = new double[values.Length];
 
         ReferenceMma(values, reference, period);
-        Mma.Calculate(values, output, period);
+        Mma.Batch(values, output, period);
 
         for (int i = 0; i < values.Length; i++)
         {

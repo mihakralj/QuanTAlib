@@ -299,7 +299,7 @@ public sealed class Ccv : AbstractBase
     /// <summary>
     /// Calculates CCV for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, int method = 1)
+    public static TSeries Batch(TSeries source, int period, int method = 1)
     {
         if (period <= 0)
         {
@@ -447,5 +447,12 @@ public sealed class Ccv : AbstractBase
 
             output[i] = double.IsFinite(result) ? result : 0.0;
         }
+    }
+
+    public static (TSeries Results, Ccv Indicator) Calculate(TSeries source, int period, int method = 1)
+    {
+        var indicator = new Ccv(period, method);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

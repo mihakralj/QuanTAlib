@@ -275,7 +275,7 @@ public sealed class Vwma : ITValuePublisher
     /// <param name="source">Source bar series</param>
     /// <param name="period">Lookback period for VWMA</param>
     /// <returns>TSeries containing VWMA values</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 20)
+    public static TSeries Batch(TBarSeries source, int period = 20)
     {
         if (source.Count == 0)
         {
@@ -285,7 +285,7 @@ public sealed class Vwma : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
@@ -296,7 +296,7 @@ public sealed class Vwma : ITValuePublisher
     /// <param name="source">Source value series</param>
     /// <param name="period">Lookback period for VWMA</param>
     /// <returns>TSeries containing VWMA values</returns>
-    public static TSeries Calculate(TSeries source, int period = 20)
+    public static TSeries Batch(TSeries source, int period = 20)
     {
         if (source.Count == 0)
         {
@@ -310,7 +310,7 @@ public sealed class Vwma : ITValuePublisher
         Span<double> unitVolume = stackalloc double[source.Count];
         unitVolume.Fill(1.0);
 
-        Calculate(source.Values, unitVolume, v, period);
+        Batch(source.Values, unitVolume, v, period);
 
         return new TSeries(t, v);
     }
@@ -323,7 +323,7 @@ public sealed class Vwma : ITValuePublisher
     /// <param name="output">Output span for VWMA values</param>
     /// <param name="period">Lookback period for VWMA</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> source, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
+    public static void Batch(ReadOnlySpan<double> source, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
     {
         if (source.Length != volume.Length)
         {
@@ -476,5 +476,12 @@ public sealed class Vwma : ITValuePublisher
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedVol);
             }
         }
+    }
+
+    public static (TSeries Results, Vwma Indicator) Calculate(TBarSeries source, int period = 20)
+    {
+        var indicator = new Vwma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

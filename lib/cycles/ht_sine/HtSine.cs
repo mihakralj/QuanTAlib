@@ -496,7 +496,7 @@ public sealed class HtSine : AbstractBase
     /// <summary>
     /// Calculates HT_SINE for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var htSine = new HtSine();
         return htSine.Update(source);
@@ -533,5 +533,12 @@ public sealed class HtSine : AbstractBase
             sine[i] = htSine.Last.Value;
             leadSine[i] = htSine.LeadSine;
         }
+    }
+
+    public static (TSeries Results, HtSine Indicator) Calculate(TSeries source)
+    {
+        var indicator = new HtSine();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

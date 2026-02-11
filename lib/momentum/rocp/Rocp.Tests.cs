@@ -272,7 +272,7 @@ public class RocpTests
     public void AllModes_ProduceSameResults()
     {
         // Mode 1: Batch via TSeries
-        var batchResult = Rocp.Calculate(_gbm, TestPeriod);
+        var batchResult = Rocp.Batch(_gbm, TestPeriod);
 
         // Mode 2: Streaming
         var streamingRocp = new Rocp(TestPeriod);
@@ -285,7 +285,7 @@ public class RocpTests
 
         // Mode 3: Span-based
         Span<double> spanOutput = stackalloc double[DataPoints];
-        Rocp.Calculate(_gbm.Values, spanOutput, TestPeriod);
+        Rocp.Batch(_gbm.Values, spanOutput, TestPeriod);
 
         // Mode 4: Event-driven
         var eventRocp = new Rocp(TestPeriod);
@@ -316,7 +316,7 @@ public class RocpTests
         {
             ReadOnlySpan<double> empty = [];
             Span<double> output = stackalloc double[1];
-            Rocp.Calculate(empty, output, TestPeriod);
+            Rocp.Batch(empty, output, TestPeriod);
         });
         Assert.Equal("source", ex.ParamName);
     }
@@ -328,7 +328,7 @@ public class RocpTests
         {
             ReadOnlySpan<double> source = stackalloc double[] { 1, 2, 3, 4, 5 };
             Span<double> output = stackalloc double[3];
-            Rocp.Calculate(source, output, TestPeriod);
+            Rocp.Batch(source, output, TestPeriod);
         });
         Assert.Equal("output", ex.ParamName);
     }
@@ -340,7 +340,7 @@ public class RocpTests
         {
             ReadOnlySpan<double> source = stackalloc double[] { 1, 2, 3, 4, 5 };
             Span<double> output = stackalloc double[5];
-            Rocp.Calculate(source, output, 0);
+            Rocp.Batch(source, output, 0);
         });
         Assert.Equal("period", ex.ParamName);
     }
@@ -348,10 +348,10 @@ public class RocpTests
     [Fact]
     public void Calculate_Span_MatchesTSeries()
     {
-        var batchResult = Rocp.Calculate(_gbm, TestPeriod);
+        var batchResult = Rocp.Batch(_gbm, TestPeriod);
 
         Span<double> spanOutput = stackalloc double[DataPoints];
-        Rocp.Calculate(_gbm.Values, spanOutput, TestPeriod);
+        Rocp.Batch(_gbm.Values, spanOutput, TestPeriod);
 
         for (int i = 0; i < DataPoints; i++)
         {
@@ -371,7 +371,7 @@ public class RocpTests
             source[i] = 100.0 + i * 0.1;
         }
 
-        Rocp.Calculate(source, output, TestPeriod);
+        Rocp.Batch(source, output, TestPeriod);
         Assert.Equal(largeSize, output.Length);
     }
 

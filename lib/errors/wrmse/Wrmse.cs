@@ -197,7 +197,7 @@ public sealed class Wrmse : AbstractBase
     /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("WRMSE requires two inputs. Use Calculate(actualSeries, predictedSeries, period) or Calculate(actualSeries, predictedSeries, weightsSeries, period).");
+        throw new NotSupportedException("WRMSE requires two inputs. Use Batch(actualSeries, predictedSeries, period) or Batch(actualSeries, predictedSeries, weightsSeries, period).");
     }
 
     /// <inheritdoc/>
@@ -221,7 +221,7 @@ public sealed class Wrmse : AbstractBase
     /// <summary>
     /// Calculates WRMSE for entire series with uniform weights.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -246,7 +246,7 @@ public sealed class Wrmse : AbstractBase
     /// <summary>
     /// Calculates WRMSE for entire series with custom weights.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, TSeries weights, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, TSeries weights, int period)
     {
         if (actual.Count != predicted.Count || actual.Count != weights.Count)
         {
@@ -331,5 +331,12 @@ public sealed class Wrmse : AbstractBase
 
         ErrorHelpers.ComputeWeightedErrors(actual, predicted, weights, weightedErrors);
         ErrorHelpers.ApplyRollingWeightedMeanSqrt(weightedErrors, weights, output, period);
+    }
+
+    public static (TSeries Results, Wrmse Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Wrmse(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

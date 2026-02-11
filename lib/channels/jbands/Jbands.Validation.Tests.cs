@@ -103,7 +103,7 @@ public class JbandsValidationTests
         double[] upper = new double[200];
         double[] lower = new double[200];
 
-        Jbands.Calculate(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
+        Jbands.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
 
         var jStream = new Jbands(14);
         for (int i = 0; i < source.Length; i++)
@@ -144,7 +144,7 @@ public class JbandsValidationTests
         double[] middleSpan = new double[150];
         double[] upperSpan = new double[150];
         double[] lowerSpan = new double[150];
-        Jbands.Calculate(rawValues.AsSpan(), middleSpan.AsSpan(), upperSpan.AsSpan(), lowerSpan.AsSpan(), 14, 25, 0.45);
+        Jbands.Batch(rawValues.AsSpan(), middleSpan.AsSpan(), upperSpan.AsSpan(), lowerSpan.AsSpan(), 14, 25, 0.45);
 
         // Mode 4: Event-based
         var jEvent = new Jbands(14, 25, 0.45);
@@ -240,7 +240,7 @@ public class JbandsValidationTests
         double[] middle = new double[50];
         double[] upper = new double[50];
         double[] lower = new double[50];
-        Jbands.Calculate(rawValues.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
+        Jbands.Batch(rawValues.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 14);
 
         // After warmup, values should be stable and match
         for (int i = warmupPeriod; i < rawValues.Length; i++)

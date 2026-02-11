@@ -124,7 +124,7 @@ public sealed class Lineartrans : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, double slope = 1.0, double intercept = 0.0)
+    public static TSeries Batch(TSeries source, double slope = 1.0, double intercept = 0.0)
     {
         var indicator = new Lineartrans(slope, intercept);
         return indicator.Update(source);
@@ -134,7 +134,7 @@ public sealed class Lineartrans : AbstractBase
     /// Calculates linear transformation over a span of values using SIMD when available.
     /// Uses FMA intrinsics for y = slope * x + intercept.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output,
                                   double slope = 1.0, double intercept = 0.0)
     {
         if (source.Length == 0)
@@ -248,6 +248,13 @@ public sealed class Lineartrans : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Lineartrans Indicator) Calculate(TSeries source, double slope = 1.0, double intercept = 0.0)
+    {
+        var indicator = new Lineartrans(slope, intercept);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

@@ -26,7 +26,7 @@ public class TwapValidationTests
         }
 
         // Batch
-        var batchResult = Twap.Calculate(_data.Bars, period);
+        var batchResult = Twap.Batch(_data.Bars, period);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -55,7 +55,7 @@ public class TwapValidationTests
 
         // Span
         var spanOutput = new double[typicalPrices.Length];
-        Twap.Calculate(typicalPrices, spanOutput, period);
+        Twap.Batch(typicalPrices, spanOutput, period);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }
@@ -138,12 +138,12 @@ public class TwapValidationTests
             }
 
             // Batch
-            var batchResult = Twap.Calculate(_data.Bars, period);
+            var batchResult = Twap.Batch(_data.Bars, period);
             var batchValues = batchResult.Values.ToArray();
 
             // Span
             var spanOutput = new double[typicalPrices.Length];
-            Twap.Calculate(typicalPrices, spanOutput, period);
+            Twap.Batch(typicalPrices, spanOutput, period);
 
             // Verify all modes match
             ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);

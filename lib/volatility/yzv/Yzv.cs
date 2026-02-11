@@ -280,7 +280,7 @@ public sealed class Yzv : AbstractBase
     /// <summary>
     /// Calculates YZV for a TBarSeries (static).
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int period = 20)
+    public static TSeries Batch(TBarSeries source, int period = 20)
     {
         var yzv = new Yzv(period);
         return yzv.Update(source);
@@ -441,4 +441,12 @@ public sealed class Yzv : AbstractBase
             output[i] = yzv;
         }
     }
+
+    public static (TSeries Results, Yzv Indicator) Calculate(TBarSeries source, int period = 20)
+    {
+        var indicator = new Yzv(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

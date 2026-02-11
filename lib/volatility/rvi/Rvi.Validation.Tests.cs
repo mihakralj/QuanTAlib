@@ -204,7 +204,7 @@ public class RviValidationTests
         }
 
         // Batch calculation
-        var batchResult = Rvi.Calculate(prices, 10, 14);
+        var batchResult = Rvi.Batch(prices, 10, 14);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingRvi.Last.Value, 8);

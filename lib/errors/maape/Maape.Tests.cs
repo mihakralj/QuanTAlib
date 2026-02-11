@@ -212,7 +212,7 @@ public class MaapeTests
             streamingResults[i] = maapeIterative.Update(actualArr[i], predictedArr[i]).Value;
         }
 
-        var batchResults = Maape.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = Maape.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         Assert.Equal(count, batchResults.Count);
         for (int i = 0; i < count; i++)
@@ -256,7 +256,7 @@ public class MaapeTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = Maape.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = Maape.Batch(actualSeries, predictedSeries, DefaultPeriod);
         Maape.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -305,7 +305,7 @@ public class MaapeTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => Maape.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => Maape.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

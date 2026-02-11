@@ -91,7 +91,7 @@ public class HemaTests
         int period = 12;
         TSeries series = BuildSeries(120, seed: 11);
 
-        TSeries batch = Hema.Calculate(series, period);
+        TSeries batch = Hema.Batch(series, period);
         var hema = new Hema(period);
 
         var streamValues = new List<double>(series.Count);
@@ -114,8 +114,8 @@ public class HemaTests
         double[] values = series.Values.ToArray();
         var output = new double[values.Length];
 
-        Hema.Calculate(values, output, period);
-        TSeries batch = Hema.Calculate(series, period);
+        Hema.Batch(values, output, period);
+        TSeries batch = Hema.Batch(series, period);
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -153,7 +153,7 @@ public class HemaTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[3];
 
-        var ex = Assert.Throws<ArgumentException>(() => Hema.Calculate(source, output, 10));
+        var ex = Assert.Throws<ArgumentException>(() => Hema.Batch(source, output, 10));
         Assert.Equal("output", ex.ParamName);
     }
 

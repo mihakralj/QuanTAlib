@@ -225,7 +225,7 @@ public class EfiTests
         bars.Add(new TBar(time.AddMinutes(1), 10, 12, 8, 12, 200));
         bars.Add(new TBar(time.AddMinutes(2), 12, 12, 8, 8, 100));
 
-        var result = Efi.Calculate(bars, 3);
+        var result = Efi.Batch(bars, 3);
 
         Assert.Equal(3, result.Count);
     }
@@ -240,7 +240,7 @@ public class EfiTests
         double[] volume = { 100, 200, 100 };
         double[] output = new double[3];
 
-        Efi.Calculate(close, volume, output, 3);
+        Efi.Batch(close, volume, output, 3);
 
         // Bar 0: raw force = 0, result = 0
         Assert.Equal(0, output[0]);
@@ -258,7 +258,7 @@ public class EfiTests
         double[] output = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Efi.Calculate(close, volume, output, 3));
+            Efi.Batch(close, volume, output, 3));
     }
 
     [Fact]
@@ -269,14 +269,14 @@ public class EfiTests
         double[] output = new double[1];
 
         Assert.Throws<ArgumentException>(() =>
-            Efi.Calculate(close, volume, output, 0));
+            Efi.Batch(close, volume, output, 0));
     }
 
     [Fact]
     public void Efi_Calculate_EmptySeries_ReturnsEmpty()
     {
         var bars = new TBarSeries();
-        var result = Efi.Calculate(bars);
+        var result = Efi.Batch(bars);
         Assert.Empty(result);
     }
 
@@ -300,7 +300,7 @@ public class EfiTests
         }
 
         // Batch
-        var batchResult = Efi.Calculate(bars, 13);
+        var batchResult = Efi.Batch(bars, 13);
 
         // Compare all values
         for (int i = 0; i < 100; i++)

@@ -160,7 +160,7 @@ public class EwmaValidationTests
         }
 
         // Batch
-        var batchResult = Ewma.Calculate(ts, DefaultPeriod, DefaultAnnualize, DefaultAnnualPeriods);
+        var batchResult = Ewma.Batch(ts, DefaultPeriod, DefaultAnnualize, DefaultAnnualPeriods);
 
         Assert.Equal(ewmaStream.Last.Value, batchResult[batchResult.Count - 1].Value, StreamingTolerance);
     }
@@ -226,7 +226,7 @@ public class EwmaValidationTests
         double tseriesValue = tseriesResult[tseriesResult.Count - 1].Value;
 
         // Mode 3: Static Calculate
-        var batchResult = Ewma.Calculate(ts, DefaultPeriod, DefaultAnnualize, DefaultAnnualPeriods);
+        var batchResult = Ewma.Batch(ts, DefaultPeriod, DefaultAnnualize, DefaultAnnualPeriods);
         double batchValue = batchResult[batchResult.Count - 1].Value;
 
         // Mode 4: Span Batch

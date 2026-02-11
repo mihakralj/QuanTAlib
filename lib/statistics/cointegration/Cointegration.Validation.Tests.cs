@@ -125,7 +125,7 @@ public class CointegrationValidationTests
         }
 
         // Batch calculation
-        var batchResult = Cointegration.Calculate(seriesA, seriesB, 20);
+        var batchResult = Cointegration.Batch(seriesA, seriesB, 20);
 
         // Streaming calculation
         var streamingIndicator = new Cointegration(20);
@@ -160,7 +160,7 @@ public class CointegrationValidationTests
         }
 
         // Span calculation
-        Cointegration.Calculate(seriesA, seriesB, output, 20);
+        Cointegration.Batch(seriesA, seriesB, output, 20);
 
         // Streaming calculation
         var streamingIndicator = new Cointegration(20);

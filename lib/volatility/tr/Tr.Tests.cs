@@ -343,7 +343,7 @@ public class TrTests
         }
 
         // Mode 2: Batch via TBarSeries
-        var batchResult = Tr.Calculate(bars);
+        var batchResult = Tr.Batch(bars);
 
         // Mode 3: Span-based
         double[] highs = new double[dataLen];
@@ -523,7 +523,7 @@ public class TrTests
     {
         var bars = GenerateBars(50);
 
-        var result = Tr.Calculate(bars);
+        var result = Tr.Batch(bars);
 
         Assert.Equal(50, result.Count);
         Assert.All(result.Values.ToArray(), v => Assert.True(v >= 0));

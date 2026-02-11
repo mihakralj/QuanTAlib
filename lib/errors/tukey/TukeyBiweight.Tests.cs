@@ -235,7 +235,7 @@ public class TukeyBiweightTests
             iterativeResults.Add(tukeyIterative.Update(actual, predicted).Value);
         }
 
-        var batchResults = TukeyBiweight.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = TukeyBiweight.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -282,7 +282,7 @@ public class TukeyBiweightTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = TukeyBiweight.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = TukeyBiweight.Batch(actualSeries, predictedSeries, DefaultPeriod);
         TukeyBiweight.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -331,7 +331,7 @@ public class TukeyBiweightTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => TukeyBiweight.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => TukeyBiweight.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

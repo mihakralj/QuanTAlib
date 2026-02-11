@@ -100,7 +100,7 @@ public sealed class BbandsValidationTests : IDisposable
             double[] qMiddle = new double[sourceData.Length];
             double[] qUpper = new double[sourceData.Length];
             double[] qLower = new double[sourceData.Length];
-            Bbands.Calculate(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
+            Bbands.Batch(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
 
             // Calculate Skender Bollinger Bands
             var sResult = _testData.SkenderQuotes.GetBollingerBands(period, multiplier).ToList();
@@ -215,7 +215,7 @@ public sealed class BbandsValidationTests : IDisposable
             double[] qMiddle = new double[sourceData.Length];
             double[] qUpper = new double[sourceData.Length];
             double[] qLower = new double[sourceData.Length];
-            Bbands.Calculate(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
+            Bbands.Batch(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
 
             // Calculate TA-Lib Bollinger Bands
             var retCode = Functions.Bbands<double>(
@@ -321,7 +321,7 @@ public sealed class BbandsValidationTests : IDisposable
             double[] qMiddle = new double[sourceData.Length];
             double[] qUpper = new double[sourceData.Length];
             double[] qLower = new double[sourceData.Length];
-            Bbands.Calculate(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
+            Bbands.Batch(sourceData.AsSpan(), qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(), period, multiplier);
 
             // Calculate Tulip Bollinger Bands
             var bbandsIndicator = Tulip.Indicators.bbands;

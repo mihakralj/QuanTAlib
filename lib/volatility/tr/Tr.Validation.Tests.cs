@@ -210,7 +210,7 @@ public class TrValidationTests
         }
 
         // Batch via TBarSeries
-        var batchResult = Tr.Calculate(bars);
+        var batchResult = Tr.Batch(bars);
 
         Assert.Equal(streamingTr.Last.Value, batchResult.Last.Value, 10);
     }

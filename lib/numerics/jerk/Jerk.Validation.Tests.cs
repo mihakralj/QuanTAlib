@@ -128,7 +128,7 @@ public class JerkValidationTests
         double[] expected = [0, 0, 0, 6, 6, 6];
         double[] output = new double[data.Length];
 
-        Jerk.Calculate(data, output);
+        Jerk.Batch(data, output);
 
         for (int i = 0; i < data.Length; i++)
         {

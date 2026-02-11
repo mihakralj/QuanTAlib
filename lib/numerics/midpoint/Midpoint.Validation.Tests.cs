@@ -103,7 +103,7 @@ public sealed class MidpointValidationTests : IDisposable
         {
             // Calculate QuanTAlib Midpoint (Span API)
             double[] qOutput = new double[sourceData.Length];
-            Midpoint.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            Midpoint.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib MIDPOINT
             var retCode = TALib.Functions.MidPoint<double>(sourceData, 0..^0, talibOutput, out var outRange, period);

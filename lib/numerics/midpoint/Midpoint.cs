@@ -23,6 +23,7 @@ public sealed class Midpoint : AbstractBase
     private readonly Lowest _lowest;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _handler;
+    private bool _disposed;
 
     public override bool IsHot => _highest.IsHot && _lowest.IsHot;
 
@@ -57,9 +58,13 @@ public sealed class Midpoint : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _handler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null && _handler != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -106,7 +111,7 @@ public sealed class Midpoint : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var indicator = new Midpoint(period);
         return indicator.Update(source);
@@ -115,7 +120,7 @@ public sealed class Midpoint : AbstractBase
     /// <summary>
     /// Calculates rolling midpoint over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length == 0)
         {
@@ -150,8 +155,8 @@ public sealed class Midpoint : AbstractBase
 
         try
         {
-            Highest.Calculate(source, highBuffer, period);
-            Lowest.Calculate(source, lowBuffer, period);
+            Highest.Batch(source, highBuffer, period);
+            Lowest.Batch(source, lowBuffer, period);
 
             for (int i = 0; i < len; i++)
             {
@@ -170,6 +175,13 @@ public sealed class Midpoint : AbstractBase
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedLow);
             }
         }
+    }
+
+    public static (TSeries Results, Midpoint Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Midpoint(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

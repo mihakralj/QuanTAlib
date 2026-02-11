@@ -131,7 +131,7 @@ public class SkewTests
         var series = new TSeries(times, values);
 
         // 1. Batch Mode (static method)
-        var batchSeries = Skew.Calculate(series, period);
+        var batchSeries = Skew.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode (static method with spans)
@@ -192,7 +192,7 @@ public class SkewTests
 
         var series = new TSeries(times, values);
 
-        var tseriesResult = Skew.Calculate(series, 10);
+        var tseriesResult = Skew.Batch(series, 10);
         Skew.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < count; i++)
@@ -313,7 +313,7 @@ public class SkewTests
 
         // Batch
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[data.Length]), new System.Collections.Generic.List<double>(data));
-        var batchResult = Skew.Calculate(series, period);
+        var batchResult = Skew.Batch(series, period);
 
         for (int i = 0; i < data.Length; i++)
         {
@@ -391,7 +391,7 @@ public class SkewTests
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
 
         // Batch calculation
-        var batchResult = Skew.Calculate(series, 10);
+        var batchResult = Skew.Batch(series, 10);
 
         // Verify last value against streaming
         var skew = new Skew(10);

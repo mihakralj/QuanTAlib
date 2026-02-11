@@ -208,7 +208,7 @@ public sealed class Eom : ITValuePublisher
     /// <param name="period">The smoothing period</param>
     /// <param name="volumeScale">The volume scaling factor</param>
     /// <returns>A TSeries containing the EOM values</returns>
-    public static TSeries Calculate(TBarSeries bars, int period = 14, double volumeScale = 10000)
+    public static TSeries Batch(TBarSeries bars, int period = 14, double volumeScale = 10000)
     {
         if (bars.Count == 0)
         {
@@ -218,7 +218,7 @@ public sealed class Eom : ITValuePublisher
         var t = bars.Open.Times.ToArray();
         var v = new double[bars.Count];
 
-        Calculate(bars.High.Values, bars.Low.Values, bars.Volume.Values, v, period, volumeScale);
+        Batch(bars.High.Values, bars.Low.Values, bars.Volume.Values, v, period, volumeScale);
 
         return new TSeries(t, v);
     }
@@ -234,7 +234,7 @@ public sealed class Eom : ITValuePublisher
     /// <param name="volumeScale">The volume scaling factor</param>
     /// <exception cref="ArgumentException">Thrown when spans have different lengths</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
         ReadOnlySpan<double> volume, Span<double> output, int period = 14, double volumeScale = 10000)
     {
         if (high.Length != low.Length)
@@ -331,5 +331,12 @@ public sealed class Eom : ITValuePublisher
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedBuffer);
             }
         }
+    }
+
+    public static (TSeries Results, Eom Indicator) Calculate(TBarSeries bars, int period = 14, double volumeScale = 10000)
+    {
+        var indicator = new Eom(period, volumeScale);
+        TSeries results = indicator.Update(bars);
+        return (results, indicator);
     }
 }

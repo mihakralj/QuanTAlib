@@ -202,7 +202,7 @@ public sealed class Vf : ITValuePublisher
     /// <param name="source">The bar series.</param>
     /// <param name="period">The smoothing period (default: 14).</param>
     /// <returns>The result series.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 14)
+    public static TSeries Batch(TBarSeries source, int period = 14)
     {
         if (source.Count == 0)
         {
@@ -212,7 +212,7 @@ public sealed class Vf : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
@@ -226,7 +226,7 @@ public sealed class Vf : ITValuePublisher
     /// <param name="period">The smoothing period (default: 14).</param>
     /// <exception cref="ArgumentException">Thrown when span lengths don't match or period is invalid.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 14)
+    public static void Batch(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 14)
     {
         if (period < 1)
         {
@@ -306,5 +306,12 @@ public sealed class Vf : ITValuePublisher
             output[i] = vfResult;
             prevClose = c;
         }
+    }
+
+    public static (TSeries Results, Vf Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Vf(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

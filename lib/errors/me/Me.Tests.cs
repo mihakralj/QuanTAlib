@@ -334,7 +334,7 @@ public class MeTests
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
         }
 
-        var results = Me.Calculate(actual, predicted, 3);
+        var results = Me.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // All errors are -5, so ME should be -5
@@ -357,7 +357,7 @@ public class MeTests
             predicted.Add(DateTime.UtcNow, i);
         }
 
-        Assert.Throws<ArgumentException>(() => Me.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Me.Batch(actual, predicted, 3));
     }
 
     [Fact]

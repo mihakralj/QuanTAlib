@@ -285,7 +285,7 @@ public class UbandsTests
         TSeries series = bars.Close;
 
         // 1. Batch Mode
-        var batchResult = Ubands.Calculate(series, period, multiplier);
+        var batchResult = Ubands.Batch(series, period, multiplier);
         double batchLast = batchResult.Last.Value;
 
         // 2. Span Mode
@@ -293,7 +293,7 @@ public class UbandsTests
         double[] spanUpper = new double[source.Length];
         double[] spanMiddle = new double[source.Length];
         double[] spanLower = new double[source.Length];
-        Ubands.Calculate(source.AsSpan(), spanUpper.AsSpan(), spanMiddle.AsSpan(), spanLower.AsSpan(), period, multiplier);
+        Ubands.Batch(source.AsSpan(), spanUpper.AsSpan(), spanMiddle.AsSpan(), spanLower.AsSpan(), period, multiplier);
         double spanLast = spanMiddle[^1];
 
         // 3. Streaming Mode
@@ -319,13 +319,13 @@ public class UbandsTests
 
         // Period must be >= 1
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Ubands.Calculate(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 0));
+            Ubands.Batch(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 0));
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Ubands.Calculate(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), -1));
+            Ubands.Batch(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), -1));
 
         // All arrays must be same length
         Assert.Throws<ArgumentException>(() =>
-            Ubands.Calculate(source.AsSpan(), wrongSize.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3));
+            Ubands.Batch(source.AsSpan(), wrongSize.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3));
     }
 
     [Fact]
@@ -336,7 +336,7 @@ public class UbandsTests
         double[] middle = new double[5];
         double[] lower = new double[5];
 
-        Ubands.Calculate(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3, 1.0);
+        Ubands.Batch(source.AsSpan(), upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3, 1.0);
 
         foreach (var val in middle)
         {
@@ -404,7 +404,7 @@ public class UbandsTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         TSeries series = bars.Close;
 
-        var result = Ubands.Calculate(series, 10, 1.0);
+        var result = Ubands.Batch(series, 10, 1.0);
 
         Assert.Equal(50, result.Count);
         Assert.True(double.IsFinite(result.Last.Value));

@@ -44,7 +44,7 @@ public class WienerTests
         // 3. Span Mode
         double[] spanInput = series.Values.ToArray();
         double[] spanOutput = new double[spanInput.Length];
-        Wiener.Calculate(spanInput, spanOutput, period, smoothPeriod);
+        Wiener.Batch(spanInput, spanOutput, period, smoothPeriod);
 
         // Assert
         for (int i = 0; i < series.Count; i++)

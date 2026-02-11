@@ -402,7 +402,7 @@ public sealed class HtDcperiod : AbstractBase
         }
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (output.Length < source.Length)
         {
@@ -416,9 +416,16 @@ public sealed class HtDcperiod : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var ht = new HtDcperiod();
         return ht.Update(source);
+    }
+
+    public static (TSeries Results, HtDcperiod Indicator) Calculate(TSeries source)
+    {
+        var indicator = new HtDcperiod();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

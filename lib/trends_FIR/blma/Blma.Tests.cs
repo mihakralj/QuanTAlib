@@ -57,7 +57,7 @@ public class BlmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Blma.Calculate(spanInput, spanOutput, period);
+        Blma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

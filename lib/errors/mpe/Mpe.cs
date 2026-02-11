@@ -52,7 +52,7 @@ public sealed class Mpe : BiInputIndicatorBase
     /// <summary>
     /// Calculates MPE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -76,6 +76,13 @@ public sealed class Mpe : BiInputIndicatorBase
 
         ComputeSignedPercentageErrors(actual, predicted, errors);
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, Mpe Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mpe(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

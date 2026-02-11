@@ -57,7 +57,7 @@ public class EfiValidationTests
         }
 
         // Batch
-        var batchResult = Efi.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Efi.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-12);
@@ -79,7 +79,7 @@ public class EfiValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[close.Length];
 
-        Efi.Calculate(close, volume, spanValues, DefaultPeriod);
+        Efi.Batch(close, volume, spanValues, DefaultPeriod);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-12);
     }

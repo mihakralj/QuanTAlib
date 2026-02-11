@@ -191,7 +191,7 @@ public class GkvValidationTests
         }
 
         // Batch calculation
-        var batchResult = Gkv.Calculate(bars, 14);
+        var batchResult = Gkv.Batch(bars, 14);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingGkv.Last.Value, 8);

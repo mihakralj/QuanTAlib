@@ -50,7 +50,7 @@ public class BbwpValidationTests
         {
             ts.Add(new TValue(times[i], close[i]));
         }
-        var batchResults = Bbwp.Calculate(ts, 10, 2.0, 50);
+        var batchResults = Bbwp.Batch(ts, 10, 2.0, 50);
 
         // Compare results (should be identical)
         for (int i = 0; i < bars.Count; i++)

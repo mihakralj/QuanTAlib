@@ -66,7 +66,7 @@ public sealed class ApchannelValidationTests : IDisposable
             double[] spanUpper = new double[bars.Count];
             double[] spanLower = new double[bars.Count];
 
-            Apchannel.Calculate(high, low, spanUpper, spanLower, alpha);
+            Apchannel.Batch(high, low, spanUpper, spanLower, alpha);
 
             // 3. Batch Mode (Calculate)
             var (batchResults, _) = Apchannel.Calculate(bars, alpha);
@@ -156,7 +156,7 @@ public sealed class ApchannelValidationTests : IDisposable
         double[] apchannelUpper = new double[high.Length];
         double[] apchannelLower = new double[low.Length];
 
-        Apchannel.Calculate(high, low, apchannelUpper, apchannelLower, alpha);
+        Apchannel.Batch(high, low, apchannelUpper, apchannelLower, alpha);
 
         // Calculate using Skender EMA for comparison
         var skenderQuotesForHigh = bars.Select(b => new Quote
@@ -333,7 +333,7 @@ public sealed class ApchannelValidationTests : IDisposable
             double[] low = bars.Select(b => b.Low).ToArray();
             double[] spanUpper = new double[size];
             double[] spanLower = new double[size];
-            Apchannel.Calculate(high, low, spanUpper, spanLower, alpha);
+            Apchannel.Batch(high, low, spanUpper, spanLower, alpha);
 
             // Compare last values
             Assert.Equal(streamingApc.UpperBand, spanUpper[^1], ValidationHelper.SkenderTolerance);

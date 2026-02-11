@@ -428,8 +428,8 @@ public sealed class Decaychannel : ITValuePublisher
 
         try
         {
-            QuanTAlib.Highest.Calculate(high, rawMaxArr.AsSpan(0, len), period);
-            QuanTAlib.Lowest.Calculate(low, rawMinArr.AsSpan(0, len), period);
+            QuanTAlib.Highest.Batch(high, rawMaxArr.AsSpan(0, len), period);
+            QuanTAlib.Lowest.Batch(low, rawMinArr.AsSpan(0, len), period);
 
             double currentMax = double.NaN;
             double currentMin = double.NaN;

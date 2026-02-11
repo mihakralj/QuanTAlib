@@ -318,7 +318,7 @@ public class PvoTests
         }
 
         // Batch
-        var batchResult = Pvo.Calculate(bars);
+        var batchResult = Pvo.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -357,7 +357,7 @@ public class PvoTests
         var spanSignal = new double[bars.Count];
         var spanHistogram = new double[bars.Count];
 
-        Pvo.Calculate(volume, spanPvo, spanSignal, spanHistogram);
+        Pvo.Batch(volume, spanPvo, spanSignal, spanHistogram);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -375,7 +375,7 @@ public class PvoTests
         var signal = new double[100];
         var histogram = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvo.Calculate(volume, output, signal, histogram));
+        Assert.Throws<ArgumentException>(() => Pvo.Batch(volume, output, signal, histogram));
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public class PvoTests
         var signal = new double[100];
         var histogram = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvo.Calculate(volume, output, signal, histogram, fastPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Pvo.Batch(volume, output, signal, histogram, fastPeriod: 0));
     }
 
     [Fact]
@@ -397,7 +397,7 @@ public class PvoTests
         var signal = new double[100];
         var histogram = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvo.Calculate(volume, output, signal, histogram, slowPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Pvo.Batch(volume, output, signal, histogram, slowPeriod: 0));
     }
 
     [Fact]
@@ -408,7 +408,7 @@ public class PvoTests
         var signal = new double[100];
         var histogram = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvo.Calculate(volume, output, signal, histogram, signalPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Pvo.Batch(volume, output, signal, histogram, signalPeriod: 0));
     }
 
     [Fact]
@@ -419,7 +419,7 @@ public class PvoTests
         var signal = new double[100];
         var histogram = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvo.Calculate(volume, output, signal, histogram, fastPeriod: 26, slowPeriod: 26));
+        Assert.Throws<ArgumentException>(() => Pvo.Batch(volume, output, signal, histogram, fastPeriod: 26, slowPeriod: 26));
     }
 
     [Fact]
@@ -431,7 +431,7 @@ public class PvoTests
         var histogram = Array.Empty<double>();
 
         // Should not throw
-        Pvo.Calculate(volume, output, signal, histogram);
+        Pvo.Batch(volume, output, signal, histogram);
 
         Assert.Empty(output);
     }

@@ -425,7 +425,7 @@ public class CgTests
         var batchResult = batchIndicator.Update(tSeries);
 
         // Mode 3: Static Calculate
-        var staticResult = Cg.Calculate(tSeries, period);
+        var staticResult = Cg.Batch(tSeries, period);
 
         // Mode 4: Span-based Batch
         double[] sourceArray = new double[dataLen];

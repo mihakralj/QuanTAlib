@@ -132,7 +132,7 @@ public sealed class Adxr : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
 
         var tList = new List<long>(len);
         var vList = new List<double>(v);
@@ -153,7 +153,7 @@ public sealed class Adxr : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
     {
         int len = high.Length;
         if (len == 0 || len != low.Length || len != close.Length || len != destination.Length)
@@ -180,7 +180,7 @@ public sealed class Adxr : ITValuePublisher
 
         try
         {
-            Adx.Calculate(high, low, close, period, adxSpan);
+            Adx.Batch(high, low, close, period, adxSpan);
 
             destination.Clear();
 
@@ -223,7 +223,7 @@ public sealed class Adxr : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, period, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -233,5 +233,12 @@ public sealed class Adxr : ITValuePublisher
         }
 
         return new TSeries(tList, [.. v]);
+    }
+
+    public static (TSeries Results, Adxr Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Adxr(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

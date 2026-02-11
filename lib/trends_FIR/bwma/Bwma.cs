@@ -26,6 +26,7 @@ public sealed class Bwma : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State
@@ -81,9 +82,13 @@ public sealed class Bwma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -199,7 +204,7 @@ public sealed class Bwma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _order);
+        Batch(source.Values, vSpan, _period, _order);
         source.Times.CopyTo(tSpan);
 
         _buffer.Clear();
@@ -338,7 +343,7 @@ public sealed class Bwma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int order = 0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int order = 0)
     {
         if (period <= 0)
         {
@@ -475,6 +480,13 @@ public sealed class Bwma : AbstractBase
                 ArrayPool<double>.Shared.Return(ringArray);
             }
         }
+    }
+
+    public static (TSeries Results, Bwma Indicator) Calculate(TSeries source, int period, int order = 0)
+    {
+        var indicator = new Bwma(period, order);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

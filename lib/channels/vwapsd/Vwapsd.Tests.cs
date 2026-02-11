@@ -472,17 +472,17 @@ public class VwapsdTests
 
         // NumDevs must be >= MinNumDevs
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
+            Vwapsd.Batch(price.AsSpan(), volume.AsSpan(),
                 upper.AsSpan(), lower.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 0));
 
         // NumDevs must be <= MaxNumDevs
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
+            Vwapsd.Batch(price.AsSpan(), volume.AsSpan(),
                 upper.AsSpan(), lower.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 6.0));
 
         // All arrays must be same length
         Assert.Throws<ArgumentException>(() =>
-            Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
+            Vwapsd.Batch(price.AsSpan(), volume.AsSpan(),
                 wrongSize.AsSpan(), lower.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 1.0));
     }
 
@@ -496,7 +496,7 @@ public class VwapsdTests
         double[] vwap = new double[5];
         double[] stdDev = new double[5];
 
-        Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
+        Vwapsd.Batch(price.AsSpan(), volume.AsSpan(),
             upper.AsSpan(), lower.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 1.0);
 
         foreach (var val in vwap)

@@ -114,7 +114,7 @@ public sealed class Roc : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period = 9)
+    public static TSeries Batch(TSeries source, int period = 9)
     {
         var indicator = new Roc(period);
         return indicator.Update(source);
@@ -123,7 +123,7 @@ public sealed class Roc : AbstractBase
     /// <summary>
     /// Calculates absolute change over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 9)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 9)
     {
         if (source.Length == 0)
         {
@@ -144,6 +144,13 @@ public sealed class Roc : AbstractBase
         {
             output[i] = i < period ? 0.0 : source[i] - source[i - period];
         }
+    }
+
+    public static (TSeries Results, Roc Indicator) Calculate(TSeries source, int period = 9)
+    {
+        var indicator = new Roc(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

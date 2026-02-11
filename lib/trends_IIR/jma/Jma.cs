@@ -36,6 +36,7 @@ public sealed class Jma : AbstractBase
     private readonly RingBuffer _volBuffer;
     private readonly TValuePublishedHandler _handler;
     private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     // Streaming state (current + previous snapshot for isNew=false)
     private State _state;
@@ -203,11 +204,11 @@ public sealed class Jma : AbstractBase
     private double CalculateJma(double value)
     {
         // 1. Local deviation: |price - {UpperBand, LowerBand}|
-        double diffA = value - _state.UpperBand;
-        double diffB = value - _state.LowerBand;
-        double absA = Math.Abs(diffA);
-        double absB = Math.Abs(diffB);
-        double absValue = absA > absB ? absA : absB;
+        double uBand = value - _state.UpperBand;
+        double lBand = value - _state.LowerBand;
+        double absUBand = Math.Abs(uBand);
+        double absLBand = Math.Abs(lBand);
+        double absValue = absUBand > absLBand ? absUBand : absLBand;
         double deviation = absValue + 1e-10;
 
         // 2. 10-bar SMA of local deviation -> "volatility"
@@ -338,9 +339,13 @@ public sealed class Jma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -362,7 +367,7 @@ public sealed class Jma : AbstractBase
     /// <summary>
     /// Static helper compatible with your existing signature.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source,
+    public static void Batch(ReadOnlySpan<double> source,
                                  Span<double> output,
                                  int period,
                                  int phase = 0,
@@ -383,6 +388,13 @@ public sealed class Jma : AbstractBase
         {
             output[i] = jma.Step(source[i], isNew: true);
         }
+    }
+
+    public static (TSeries Results, Jma Indicator) Calculate(TSeries source, int period, int phase = 0, double power = 0.45)
+    {
+        var indicator = new Jma(period, phase, power);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

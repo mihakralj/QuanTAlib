@@ -109,7 +109,7 @@ public class SgmaTests
         double[] input = series.Values.ToArray();
         double[] output = new double[input.Length];
 
-        Sgma.Calculate(input.AsSpan(), output.AsSpan(), 9);
+        Sgma.Batch(input.AsSpan(), output.AsSpan(), 9);
 
         for (int i = 0; i < input.Length; i++)
         {
@@ -268,7 +268,7 @@ public class SgmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Sgma.Calculate(spanInput, spanOutput, period);
+        Sgma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         var streamingInd = new Sgma(period);
@@ -298,9 +298,9 @@ public class SgmaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Sgma.Calculate(source.AsSpan(), output.AsSpan(), 2));
-        Assert.Throws<ArgumentException>(() => Sgma.Calculate(source.AsSpan(), output.AsSpan(), 5, 5));
-        Assert.Throws<ArgumentException>(() => Sgma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Sgma.Batch(source.AsSpan(), output.AsSpan(), 2));
+        Assert.Throws<ArgumentException>(() => Sgma.Batch(source.AsSpan(), output.AsSpan(), 5, 5));
+        Assert.Throws<ArgumentException>(() => Sgma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -309,7 +309,7 @@ public class SgmaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Sgma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Sgma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {

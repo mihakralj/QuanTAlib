@@ -234,7 +234,7 @@ public class EomTests
         }
 
         // Batch
-        var batchResult = Eom.Calculate(bars);
+        var batchResult = Eom.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -268,7 +268,7 @@ public class EomTests
         var volume = bars.Volume.Values.ToArray();
         var spanValues = new double[bars.Count];
 
-        Eom.Calculate(high, low, volume, spanValues);
+        Eom.Batch(high, low, volume, spanValues);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -284,7 +284,7 @@ public class EomTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Eom.Calculate(high, low, volume, output));
+        Assert.Throws<ArgumentException>(() => Eom.Batch(high, low, volume, output));
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class EomTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Eom.Calculate(high, low, volume, output, period: 0));
+        Assert.Throws<ArgumentException>(() => Eom.Batch(high, low, volume, output, period: 0));
     }
 
     [Fact]
@@ -306,7 +306,7 @@ public class EomTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Eom.Calculate(high, low, volume, output, volumeScale: 0));
+        Assert.Throws<ArgumentException>(() => Eom.Batch(high, low, volume, output, volumeScale: 0));
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public class EomTests
         }
 
         // Should not throw
-        Eom.Calculate(high, low, volume, output);
+        Eom.Batch(high, low, volume, output);
         Assert.True(double.IsFinite(output[size - 1]));
     }
 

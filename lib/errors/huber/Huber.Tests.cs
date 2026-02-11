@@ -332,7 +332,7 @@ public class HuberTests
             predicted.Add(now.AddMinutes(i), 100.5); // Small constant error
         }
 
-        var results = Huber.Calculate(actual, predicted, 3);
+        var results = Huber.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // Error = 0.5, Huber (small error) = 0.5 * 0.5^2 = 0.125
@@ -355,7 +355,7 @@ public class HuberTests
             predicted.Add(DateTime.UtcNow, i);
         }
 
-        Assert.Throws<ArgumentException>(() => Huber.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Huber.Batch(actual, predicted, 3));
     }
 
     [Fact]

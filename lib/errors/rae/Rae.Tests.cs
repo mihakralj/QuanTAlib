@@ -230,7 +230,7 @@ public class RaeTests
             iterativeResults.Add(raeIterative.Update(actual[i], predicted[i]).Value);
         }
 
-        var batchResults = Rae.Calculate(actual, predicted, Period);
+        var batchResults = Rae.Batch(actual, predicted, Period);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -271,7 +271,7 @@ public class RaeTests
         double[] predictedArr = predictedSeries.Values.ToArray();
         double[] output = new double[100];
 
-        var tseriesResult = Rae.Calculate(actualSeries, predictedSeries, Period);
+        var tseriesResult = Rae.Batch(actualSeries, predictedSeries, Period);
         Rae.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), Period);
 
         for (int i = 0; i < 100; i++)
@@ -292,7 +292,7 @@ public class RaeTests
         }
 
         // 1. Batch Mode (static method)
-        var batchSeries = Rae.Calculate(actualSeries, predictedSeries, Period);
+        var batchSeries = Rae.Batch(actualSeries, predictedSeries, Period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

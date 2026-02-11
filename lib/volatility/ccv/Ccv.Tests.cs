@@ -268,7 +268,7 @@ public class CcvTests
         {
             ts.Add(new TValue(times[i], close[i]));
         }
-        var batchResult = Ccv.Calculate(ts, 20);
+        var batchResult = Ccv.Batch(ts, 20);
 
         Assert.Equal(iterativeResult, batchResult[batchResult.Count - 1].Value, 1e-8);
     }
@@ -286,7 +286,7 @@ public class CcvTests
             ts.Add(new TValue(times[i], close[i]));
         }
 
-        var result = Ccv.Calculate(ts, 20);
+        var result = Ccv.Batch(ts, 20);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -301,10 +301,10 @@ public class CcvTests
             ts.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i));
         }
 
-        Assert.Throws<ArgumentException>(() => Ccv.Calculate(ts, 0));
-        Assert.Throws<ArgumentException>(() => Ccv.Calculate(ts, -1));
-        Assert.Throws<ArgumentException>(() => Ccv.Calculate(ts, 5, 0));
-        Assert.Throws<ArgumentException>(() => Ccv.Calculate(ts, 5, 4));
+        Assert.Throws<ArgumentException>(() => Ccv.Batch(ts, 0));
+        Assert.Throws<ArgumentException>(() => Ccv.Batch(ts, -1));
+        Assert.Throws<ArgumentException>(() => Ccv.Batch(ts, 5, 0));
+        Assert.Throws<ArgumentException>(() => Ccv.Batch(ts, 5, 4));
     }
 
     [Fact]

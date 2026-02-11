@@ -49,7 +49,7 @@ public sealed class Rmsle : BiInputIndicatorBase
     /// <summary>
     /// Calculates RMSLE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -73,6 +73,13 @@ public sealed class Rmsle : BiInputIndicatorBase
 
         ComputeLogSquaredErrors(actual, predicted, errors);
         ErrorHelpers.ApplyRollingMeanSqrt(errors, output, period);
+    }
+
+    public static (TSeries Results, Rmsle Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Rmsle(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

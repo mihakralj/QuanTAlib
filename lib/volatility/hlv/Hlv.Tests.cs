@@ -415,7 +415,7 @@ public class HlvTests
         const int dataCount = 50;
         var barSeries = GenerateTestData(dataCount);
 
-        var result = Hlv.Calculate(barSeries, period: 10);
+        var result = Hlv.Batch(barSeries, period: 10);
 
         Assert.Equal(dataCount, result.Count);
     }
@@ -599,7 +599,7 @@ public class HlvTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Hlv.Calculate(bars, period: 14);
+        var result = Hlv.Batch(bars, period: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -610,9 +610,9 @@ public class HlvTests
     {
         var bars = GenerateTestData(10);
 
-        Assert.Throws<ArgumentException>(() => Hlv.Calculate(bars, period: 0));
-        Assert.Throws<ArgumentException>(() => Hlv.Calculate(bars, period: -1));
-        Assert.Throws<ArgumentException>(() => Hlv.Calculate(bars, period: 10, annualize: true, annualPeriods: 0));
+        Assert.Throws<ArgumentException>(() => Hlv.Batch(bars, period: 0));
+        Assert.Throws<ArgumentException>(() => Hlv.Batch(bars, period: -1));
+        Assert.Throws<ArgumentException>(() => Hlv.Batch(bars, period: 10, annualize: true, annualPeriods: 0));
     }
 
     [Fact]

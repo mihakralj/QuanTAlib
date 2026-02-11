@@ -424,7 +424,7 @@ public class JvoltynTests
 
         // Span calculation
         var output = new double[series.Count];
-        Jvoltyn.Calculate(series.Values, output, 10);
+        Jvoltyn.Batch(series.Values, output, 10);
 
         // Compare last value (after warmup)
         Assert.Equal(streamingLast, output[series.Count - 1], 1e-6);
@@ -503,7 +503,7 @@ public class JvoltynTests
         var source = new double[10];
         var output = new double[5]; // Wrong size
 
-        var ex = Assert.Throws<ArgumentException>(() => Jvoltyn.Calculate(source, output, 10));
+        var ex = Assert.Throws<ArgumentException>(() => Jvoltyn.Batch(source, output, 10));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -513,7 +513,7 @@ public class JvoltynTests
         var source = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        var exception = Record.Exception(() => Jvoltyn.Calculate(source, output, 10));
+        var exception = Record.Exception(() => Jvoltyn.Batch(source, output, 10));
         Assert.Null(exception);
     }
 
@@ -523,7 +523,7 @@ public class JvoltynTests
         var source = new double[10];
         var output = new double[10];
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => Jvoltyn.Calculate(source, output, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jvoltyn.Batch(source, output, 0));
     }
 
     // ============== Edge Cases ==============

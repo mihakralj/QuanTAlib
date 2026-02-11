@@ -99,7 +99,7 @@ public sealed class Logtrans : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var indicator = new Logtrans();
         return indicator.Update(source);
@@ -109,7 +109,7 @@ public sealed class Logtrans : AbstractBase
     /// Calculates natural logarithm over a span of values.
     /// Note: Math.Log has no SIMD intrinsic; uses scalar path with last-valid substitution.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
         {
@@ -136,6 +136,13 @@ public sealed class Logtrans : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Logtrans Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Logtrans();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

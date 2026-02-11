@@ -328,7 +328,7 @@ public class AmatTests
         var tValues = _testData.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Amat.Calculate(spanInput, spanOutput, fastPeriod, slowPeriod);
+        Amat.Batch(spanInput, spanOutput, fastPeriod, slowPeriod);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode (instance, one value at a time)
@@ -363,13 +363,13 @@ public class AmatTests
         double[] wrongSize = new double[3];
 
         Assert.Throws<ArgumentException>(() =>
-            Amat.Calculate(source.AsSpan(), wrongSize.AsSpan(), strength.AsSpan(), 5, 10));
+            Amat.Batch(source.AsSpan(), wrongSize.AsSpan(), strength.AsSpan(), 5, 10));
         Assert.Throws<ArgumentException>(() =>
-            Amat.Calculate(source.AsSpan(), trend.AsSpan(), wrongSize.AsSpan(), 5, 10));
+            Amat.Batch(source.AsSpan(), trend.AsSpan(), wrongSize.AsSpan(), 5, 10));
         Assert.Throws<ArgumentException>(() =>
-            Amat.Calculate(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 0, 10));
+            Amat.Batch(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 0, 10));
         Assert.Throws<ArgumentException>(() =>
-            Amat.Calculate(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 10, 5)); // fast >= slow
+            Amat.Batch(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 10, 5)); // fast >= slow
     }
 
     [Fact]
@@ -379,7 +379,7 @@ public class AmatTests
         double[] trend = new double[source.Length];
 
         var tseriesResult = Amat.Batch(_testData, 10, 30);
-        Amat.Calculate(source.AsSpan(), trend.AsSpan(), 10, 30);
+        Amat.Batch(source.AsSpan(), trend.AsSpan(), 10, 30);
 
         // Since trend values are discrete (-1, 0, 1), check after warmup where
         // both methods should converge. Early values may differ due to EMA initialization.
@@ -404,7 +404,7 @@ public class AmatTests
         double[] trend = new double[10];
         double[] strength = new double[10];
 
-        Amat.Calculate(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 3, 5);
+        Amat.Batch(source.AsSpan(), trend.AsSpan(), strength.AsSpan(), 3, 5);
 
         foreach (var val in trend)
         {

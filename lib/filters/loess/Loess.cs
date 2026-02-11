@@ -163,7 +163,7 @@ public sealed class Loess : AbstractBase
 
         // Use static Calculate for performance on the whole series
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, Period);
+        Batch(source.Values, resultValues, Period);
 
         var result = new TSeries();
         var times = source.Times;
@@ -198,6 +198,48 @@ public sealed class Loess : AbstractBase
         }
 
         return result;
+    }
+
+    public static TSeries Batch(TSeries source, int period)
+    {
+        var indicator = new Loess(period);
+        return indicator.Update(source);
+    }
+
+    /// <summary>
+    /// Static stateless calculation optimized for SIMD.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
+        }
+
+        if (period < 3)
+        {
+            throw new ArgumentOutOfRangeException(nameof(period), "Period must be at least 3.");
+        }
+
+        int adjPeriod = (period & 1) == 0 ? period + 1 : period;
+
+        double[] kernel = new double[adjPeriod];
+        GenerateKernelOldestFirst(adjPeriod, kernel);
+
+        ReadOnlySpan<double> kSpan = new ReadOnlySpan<double>(kernel);
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (i < adjPeriod - 1)
+            {
+                output[i] = source[i];
+                continue;
+            }
+
+            var window = source.Slice(i - adjPeriod + 1, adjPeriod);
+            output[i] = DotProduct(window, kSpan);
+        }
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -310,40 +352,11 @@ public sealed class Loess : AbstractBase
         return sum;
     }
 
-    /// <summary>
-    /// Static stateless calculation optimized for SIMD.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static (TSeries Results, Loess Indicator) Calculate(TSeries source, int period)
     {
-        if (source.Length != output.Length)
-        {
-            throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
-        }
-
-        if (period < 3)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be at least 3.");
-        }
-
-        int adjPeriod = (period & 1) == 0 ? period + 1 : period;
-
-        double[] kernel = new double[adjPeriod];
-        GenerateKernelOldestFirst(adjPeriod, kernel);
-
-        ReadOnlySpan<double> kSpan = new ReadOnlySpan<double>(kernel);
-
-        for (int i = 0; i < source.Length; i++)
-        {
-            if (i < adjPeriod - 1)
-            {
-                output[i] = source[i];
-                continue;
-            }
-
-            var window = source.Slice(i - adjPeriod + 1, adjPeriod);
-            output[i] = DotProduct(window, kSpan);
-        }
+        var indicator = new Loess(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

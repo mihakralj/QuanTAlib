@@ -386,7 +386,7 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         return jbands.Update(source);
     }
 
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> middle,
         Span<double> upper,

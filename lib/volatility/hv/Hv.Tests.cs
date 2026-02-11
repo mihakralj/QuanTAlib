@@ -465,7 +465,7 @@ public class HvTests
         const int dataCount = 50;
         var priceSeries = GeneratePriceSeries(dataCount);
 
-        var result = Hv.Calculate(priceSeries, period: 10);
+        var result = Hv.Batch(priceSeries, period: 10);
 
         Assert.Equal(dataCount, result.Count);
     }
@@ -657,7 +657,7 @@ public class HvTests
     {
         var prices = GeneratePriceSeries(100);
 
-        var result = Hv.Calculate(prices, period: 14);
+        var result = Hv.Batch(prices, period: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -668,7 +668,7 @@ public class HvTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Hv.Calculate(bars, period: 14);
+        var result = Hv.Batch(bars, period: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -679,10 +679,10 @@ public class HvTests
     {
         var prices = GeneratePriceSeries(10);
 
-        Assert.Throws<ArgumentException>(() => Hv.Calculate(prices, period: 1));
-        Assert.Throws<ArgumentException>(() => Hv.Calculate(prices, period: 0));
-        Assert.Throws<ArgumentException>(() => Hv.Calculate(prices, period: -1));
-        Assert.Throws<ArgumentException>(() => Hv.Calculate(prices, period: 10, annualize: true, annualPeriods: 0));
+        Assert.Throws<ArgumentException>(() => Hv.Batch(prices, period: 1));
+        Assert.Throws<ArgumentException>(() => Hv.Batch(prices, period: 0));
+        Assert.Throws<ArgumentException>(() => Hv.Batch(prices, period: -1));
+        Assert.Throws<ArgumentException>(() => Hv.Batch(prices, period: 10, annualize: true, annualPeriods: 0));
     }
 
     [Fact]

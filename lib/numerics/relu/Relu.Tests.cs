@@ -179,7 +179,7 @@ public class ReluTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42000);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         // Use returns (which can be negative) for meaningful ReLU test
-        var source = Change.Calculate(bars.Close);
+        var source = Change.Batch(bars.Close);
 
         // Streaming
         var streaming = new Relu();
@@ -191,7 +191,7 @@ public class ReluTests
         }
 
         // Batch
-        var batch = Relu.Calculate(source);
+        var batch = Relu.Batch(source);
 
         // Compare all values
         for (int i = 0; i < source.Count; i++)
@@ -206,15 +206,15 @@ public class ReluTests
         int count = 50;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42001);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var source = Change.Calculate(bars.Close);
+        var source = Change.Batch(bars.Close);
 
         // TSeries batch
-        var batchResult = Relu.Calculate(source);
+        var batchResult = Relu.Batch(source);
 
         // Span calculation
         var values = source.Values.ToArray();
         var output = new double[count];
-        Relu.Calculate(values, output);
+        Relu.Batch(values, output);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -228,14 +228,14 @@ public class ReluTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Relu.Calculate(ReadOnlySpan<double>.Empty, output);
+            Relu.Batch(ReadOnlySpan<double>.Empty, output);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Relu.Calculate(source, output);
+            Relu.Batch(source, output);
         });
     }
 

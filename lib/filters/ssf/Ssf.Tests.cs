@@ -231,7 +231,7 @@ public class SsfTests
         var tseriesResult = Ssf.Calculate(series, 10).Results;
 
         // Calculate with Span API
-        Ssf.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Ssf.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)
@@ -257,7 +257,7 @@ public class SsfTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Ssf.Calculate(spanInput, spanOutput, period);
+        Ssf.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

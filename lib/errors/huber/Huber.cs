@@ -67,7 +67,7 @@ public sealed class Huber : BiInputIndicatorBase
     /// <summary>
     /// Calculates Huber Loss for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double delta = 1.345)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period, double delta = 1.345)
     {
         if (actual.Count != predicted.Count)
         {
@@ -126,5 +126,12 @@ public sealed class Huber : BiInputIndicatorBase
 
         // Apply rolling mean
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, Huber Indicator) Calculate(TSeries actual, TSeries predicted, int period, double delta = 1.345)
+    {
+        var indicator = new Huber(period, delta);
+        TSeries results = Batch(actual, predicted, period, delta);
+        return (results, indicator);
     }
 }

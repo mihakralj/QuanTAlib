@@ -37,12 +37,12 @@ public class NotchTests
         var data = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
 
-        // 1. Static Calculate (TSeries)
-        var staticResult = Notch.Calculate(series, period, q);
+        // 1. Static Batch(TSeries)
+        var staticResult = Notch.Batch(series, period, q);
 
-        // 2. Static Calculate (Span)
+        // 2. Static Batch(Span)
         double[] spanResult = new double[series.Count];
-        Notch.Calculate(series.Values, spanResult.AsSpan(), period, q);
+        Notch.Batch(series.Values, spanResult.AsSpan(), period, q);
 
         // 3. Instance Update (TSeries)
         var instance = new Notch(period, q);

@@ -181,7 +181,7 @@ public sealed class Bbands : AbstractBase
             Span<double> upperSpan = upperRented.AsSpan(0, len);
             Span<double> lowerSpan = lowerRented.AsSpan(0, len);
 
-            Calculate(sourceSpan, middleSpan, upperSpan, lowerSpan, _period, _multiplier);
+            Batch(sourceSpan, middleSpan, upperSpan, lowerSpan, _period, _multiplier);
 
             for (int i = 0; i < len; i++)
             {
@@ -230,7 +230,7 @@ public sealed class Bbands : AbstractBase
     /// <summary>
     /// Calculates Bollinger Bands for the entire series and returns the middle band series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    public static TSeries Batch(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
     {
         Bbands bbands = new(period, multiplier);
         return bbands.Update(source);
@@ -239,7 +239,7 @@ public sealed class Bbands : AbstractBase
     /// <summary>
     /// Calculates Bollinger Bands across all input values using SIMD-optimized operations where possible.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> middle,
         Span<double> upper,
@@ -360,4 +360,12 @@ public sealed class Bbands : AbstractBase
             }
         }
     }
+
+    public static (TSeries Results, Bbands Indicator) Calculate(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    {
+        var indicator = new Bbands(period, multiplier);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

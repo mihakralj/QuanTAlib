@@ -270,4 +270,11 @@ public sealed class Atrp : AbstractBase
         var atrp = new Atrp(period);
         return atrp.Update(source);
     }
+
+    public static (TSeries Results, Atrp Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Atrp(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }

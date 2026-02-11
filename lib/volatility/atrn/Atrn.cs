@@ -289,6 +289,13 @@ public sealed class Atrn : AbstractBase
         return atrn.Update(source);
     }
 
+    public static (TSeries Results, Atrn Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Atrn(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetMax()
     {

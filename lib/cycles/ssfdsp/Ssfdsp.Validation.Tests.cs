@@ -292,7 +292,7 @@ public class SsfdspValidationTests
         }
 
         // TSeries Calculate
-        var tsResult = Ssfdsp.Calculate(tSeries, period);
+        var tsResult = Ssfdsp.Batch(tSeries, period);
 
         // Streaming
         var streaming = new Ssfdsp(period);

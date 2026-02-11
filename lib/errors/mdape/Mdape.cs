@@ -68,7 +68,7 @@ public sealed class Mdape : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("MdAPE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+        throw new NotSupportedException("MdAPE requires two inputs. Use Batch(actualSeries, predictedSeries, period).");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,7 +164,7 @@ public sealed class Mdape : AbstractBase
         return (_sortBuffer[mid - 1] + _sortBuffer[mid]) * 0.5;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -261,6 +261,13 @@ public sealed class Mdape : AbstractBase
             // Get median in O(1)
             output[i] = slidingMedian.GetMedian();
         }
+    }
+
+    public static (TSeries Results, Mdape Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mdape(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     /// <summary>

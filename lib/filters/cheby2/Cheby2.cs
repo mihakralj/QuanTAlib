@@ -136,7 +136,7 @@ public sealed class Cheby2 : AbstractBase
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
-        Calculate(values, results, Period, Attenuation);
+        Batch(values, results, Period, Attenuation);
 
         TSeries output = [];
         for (int i = 0; i < values.Length; i++)
@@ -217,8 +217,14 @@ public sealed class Cheby2 : AbstractBase
         Last = default;
     }
 
+    public static TSeries Batch(TSeries source, int period, double attenuation = 5.0)
+    {
+        var indicator = new Cheby2(period, attenuation);
+        return indicator.Update(source);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double attenuation = 5.0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double attenuation = 5.0)
     {
         if (source.Length != output.Length)
         {
@@ -321,6 +327,12 @@ public sealed class Cheby2 : AbstractBase
             filt2 = filt1;
             filt1 = filt;
         }
+    }
+    public static (TSeries Results, Cheby2 Indicator) Calculate(TSeries source, int period, double attenuation = 5.0)
+    {
+        var indicator = new Cheby2(period, attenuation);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

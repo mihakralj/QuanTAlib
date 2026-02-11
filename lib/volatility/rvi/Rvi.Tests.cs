@@ -423,7 +423,7 @@ public class RviTests
 
         // Mode 2: Batch via TSeries
         var tSeries = new TSeries(new List<long>(times), new List<double>(prices));
-        var batchResult = Rvi.Calculate(tSeries, stdevLength: 10, rmaLength: 14);
+        var batchResult = Rvi.Batch(tSeries, stdevLength: 10, rmaLength: 14);
 
         // Mode 3: Span-based
         double[] spanOutput = new double[dataLen];
@@ -636,7 +636,7 @@ public class RviTests
             source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5));
         }
 
-        var result = Rvi.Calculate(source, stdevLength: 10, rmaLength: 14);
+        var result = Rvi.Batch(source, stdevLength: 10, rmaLength: 14);
 
         Assert.Equal(50, result.Count);
         // Allow small floating-point tolerance beyond [0,100]
@@ -654,7 +654,7 @@ public class RviTests
             source.Add(new TBar(time, price - 1, price + 1, price - 2, price, 1000));
         }
 
-        var result = Rvi.Calculate(source, stdevLength: 10, rmaLength: 14);
+        var result = Rvi.Batch(source, stdevLength: 10, rmaLength: 14);
 
         Assert.Equal(50, result.Count);
     }

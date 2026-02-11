@@ -279,7 +279,7 @@ public sealed class LinReg : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         double initialLastValid = _state.LastValidValue;
-        Calculate(source.Values, vSpan, _period, _offset, initialLastValid);
+        Batch(source.Values, vSpan, _period, _offset, initialLastValid);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -334,7 +334,7 @@ public sealed class LinReg : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
         if (source.Length != output.Length)
         {
@@ -456,6 +456,13 @@ public sealed class LinReg : AbstractBase
                 ArrayPool<double>.Shared.Return(rentedBuffer);
             }
         }
+    }
+
+    public static (TSeries Results, LinReg Indicator) Calculate(TSeries source, int period, int offset = 0)
+    {
+        var indicator = new LinReg(period, offset);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

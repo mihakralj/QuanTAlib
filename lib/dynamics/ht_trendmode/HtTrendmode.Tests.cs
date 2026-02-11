@@ -221,7 +221,7 @@ public class HtTrendmodeTests
             input[i] = 100.0 + Math.Sin(i * 0.15) * 8;
         }
 
-        HtTrendmode.Calculate(input.AsSpan(), output.AsSpan());
+        HtTrendmode.Batch(input.AsSpan(), output.AsSpan());
 
         // After warmup, all values should be 0 or 1
         for (int i = 40; i < output.Length; i++)
@@ -241,7 +241,7 @@ public class HtTrendmodeTests
             series.Add(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.25) * 12);
         }
 
-        var result = HtTrendmode.Calculate(series);
+        var result = HtTrendmode.Batch(series);
 
         Assert.Equal(100, result.Count);
     }

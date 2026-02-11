@@ -207,7 +207,7 @@ public class LowestTests
         }
 
         // Batch
-        var batch = Lowest.Calculate(source, period);
+        var batch = Lowest.Batch(source, period);
 
         // Compare last values (after warmup)
         for (int i = period; i < source.Count; i++)
@@ -226,12 +226,12 @@ public class LowestTests
         var source = bars.Close;
 
         // TSeries batch
-        var batchResult = Lowest.Calculate(source, period);
+        var batchResult = Lowest.Batch(source, period);
 
         // Span calculation
         var values = source.Values.ToArray();
         var output = new double[count];
-        Lowest.Calculate(values, output, period);
+        Lowest.Batch(values, output, period);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -245,21 +245,21 @@ public class LowestTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Lowest.Calculate(ReadOnlySpan<double>.Empty, output, 5);
+            Lowest.Batch(ReadOnlySpan<double>.Empty, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Lowest.Calculate(source, output, 5);
+            Lowest.Batch(source, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[10];
-            Lowest.Calculate(source, output, 0);
+            Lowest.Batch(source, output, 0);
         });
     }
 

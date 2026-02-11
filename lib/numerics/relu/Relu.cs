@@ -25,6 +25,7 @@ public sealed class Relu : AbstractBase
     private State _state, _p_state;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _handler;
+    private bool _disposed;
 
     public override bool IsHot => true;  // No warmup needed
 
@@ -35,7 +36,7 @@ public sealed class Relu : AbstractBase
     }
 
     /// <summary>
-    /// 
+    /// Initializes a new ReLU indicator chained to a source publisher.
     /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     public Relu(ITValuePublisher source) : this()
@@ -47,9 +48,13 @@ public sealed class Relu : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _handler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null && _handler != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -104,7 +109,7 @@ public sealed class Relu : AbstractBase
         var vSpan = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(v);
 
         // Use vectorized Calculate for batch processing
-        Calculate(source.Values, vSpan);
+        Batch(source.Values, vSpan);
         source.Times.CopyTo(tSpan);
 
         // Restore state from last value
@@ -130,7 +135,7 @@ public sealed class Relu : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var indicator = new Relu();
         return indicator.Update(source);
@@ -139,7 +144,7 @@ public sealed class Relu : AbstractBase
     /// <summary>
     /// Calculates ReLU over a span of values with SIMD optimization.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
         {
@@ -211,6 +216,13 @@ public sealed class Relu : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Relu Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Relu();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

@@ -127,7 +127,7 @@ public sealed class Cointegration : AbstractBase
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesA, seriesB, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("Cointegration requires two inputs. Use Calculate(seriesA, seriesB, period).");
+        throw new NotSupportedException("Cointegration requires two inputs. Use Batch(seriesA, seriesB, period).");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -472,7 +472,7 @@ public sealed class Cointegration : AbstractBase
     /// <summary>
     /// Calculates cointegration for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries seriesA, TSeries seriesB, int period = 20)
+    public static TSeries Batch(TSeries seriesA, TSeries seriesB, int period = 20)
     {
         if (seriesA.Count != seriesB.Count)
         {
@@ -499,7 +499,7 @@ public sealed class Cointegration : AbstractBase
     /// <summary>
     /// Static batch calculation for span-based processing.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> seriesA,
         ReadOnlySpan<double> seriesB,
         Span<double> output,
@@ -528,4 +528,12 @@ public sealed class Cointegration : AbstractBase
             output[i] = result.Value;
         }
     }
+
+    public static (TSeries Results, Cointegration Indicator) Calculate(TSeries seriesA, TSeries seriesB, int period = 20)
+    {
+        var indicator = new Cointegration(period);
+        TSeries results = Batch(seriesA, seriesB, period);
+        return (results, indicator);
+    }
+
 }

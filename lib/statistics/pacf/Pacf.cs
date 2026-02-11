@@ -303,7 +303,7 @@ public sealed class Pacf : AbstractBase
     /// <summary>
     /// Calculates PACF for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, int lag = 1)
+    public static TSeries Batch(TSeries source, int period, int lag = 1)
     {
         var pacf = new Pacf(period, lag);
         return pacf.Update(source);
@@ -337,6 +337,13 @@ public sealed class Pacf : AbstractBase
         }
 
         CalculateScalarCore(source, output, period, lag);
+    }
+
+    public static (TSeries Results, Pacf Indicator) Calculate(TSeries source, int period, int lag = 1)
+    {
+        var indicator = new Pacf(period, lag);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

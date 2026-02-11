@@ -487,12 +487,6 @@ public sealed class Ema : AbstractBase
     /// <param name="source">Historical time series</param>
     /// <param name="period">EMA Period</param>
     /// <returns>A tuple containing the full calculation results and the hot indicator instance</returns>
-    public static (TSeries Results, Ema Indicator) Calculate(TSeries source, int period)
-    {
-        var ema = new Ema(period);
-        TSeries results = ema.Update(source);
-        return (results, ema);
-    }
 
     /// <summary>
     /// Calculates EMA for the entire series using a new instance.
@@ -579,6 +573,12 @@ public sealed class Ema : AbstractBase
         }
 
         CalculateCore(source, output, alpha, ref state, ref lastValid);
+    }
+    public static (TSeries Results, Ema Indicator) Calculate(TSeries source, int period)
+    {
+        var ema = new Ema(period);
+        TSeries results = ema.Update(source);
+        return (results, ema);
     }
 
     /// <summary>

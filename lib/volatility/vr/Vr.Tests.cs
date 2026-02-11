@@ -377,7 +377,7 @@ public class VrTests
     {
         var bars = GenerateBarData(100);
 
-        var result = Vr.Calculate(bars, period: 10);
+        var result = Vr.Batch(bars, period: 10);
 
         Assert.Equal(bars.Count, result.Count);
         for (int i = 0; i < result.Count; i++)
@@ -472,7 +472,7 @@ public class VrTests
         }
 
         // Mode 2: TBarSeries batch
-        var batchResult = Vr.Calculate(bars, period);
+        var batchResult = Vr.Batch(bars, period);
 
         // Mode 3: Span batch
         double[] spanOutput = new double[bars.Count];

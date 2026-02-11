@@ -286,7 +286,7 @@ public sealed class Cv : AbstractBase
     /// <summary>
     /// Calculates CV for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 20, double alpha = 0.2, double beta = 0.7)
+    public static TSeries Batch(TSeries source, int period = 20, double alpha = 0.2, double beta = 0.7)
     {
         if (period <= 0)
         {
@@ -429,5 +429,12 @@ public sealed class Cv : AbstractBase
             double result = Math.Sqrt(DaysInYear * prevVariance) * 100.0;
             output[i] = double.IsFinite(result) ? result : 0.0;
         }
+    }
+
+    public static (TSeries Results, Cv Indicator) Calculate(TSeries source, int period = 20, double alpha = 0.2, double beta = 0.7)
+    {
+        var indicator = new Cv(period, alpha, beta);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

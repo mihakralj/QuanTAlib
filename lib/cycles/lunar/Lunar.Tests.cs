@@ -171,7 +171,7 @@ public class LunarTests
             series.Add(new TValue(startDate.AddDays(i), 100.0 + i));
         }
 
-        var result = Lunar.Calculate(series);
+        var result = Lunar.Batch(series);
 
         Assert.Equal(30, result.Count);
 

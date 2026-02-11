@@ -192,7 +192,7 @@ public class MdaeTests
             iterativeResults.Add(mdaeIterative.Update(actual, predicted).Value);
         }
 
-        var batchResults = Mdae.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = Mdae.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         Assert.Equal(100, iterativeResults.Count);
         Assert.Equal(iterativeResults.Count, batchResults.Count);
@@ -237,7 +237,7 @@ public class MdaeTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = Mdae.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = Mdae.Batch(actualSeries, predictedSeries, DefaultPeriod);
         Mdae.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -286,7 +286,7 @@ public class MdaeTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => Mdae.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => Mdae.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

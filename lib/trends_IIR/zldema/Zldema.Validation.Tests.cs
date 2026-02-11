@@ -29,7 +29,7 @@ public class ZldemaValidationTests
         double[] reference = new double[series.Count];
 
         ReferenceZldema(series.Values, reference, period);
-        TSeries batch = Zldema.Calculate(series, period);
+        TSeries batch = Zldema.Batch(series, period);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -47,7 +47,7 @@ public class ZldemaValidationTests
         var reference = new double[values.Length];
 
         ReferenceZldema(values, reference, period);
-        Zldema.Calculate(values, output, period);
+        Zldema.Batch(values, output, period);
 
         for (int i = 0; i < values.Length; i++)
         {

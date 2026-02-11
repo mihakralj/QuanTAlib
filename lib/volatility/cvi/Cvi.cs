@@ -276,7 +276,7 @@ public sealed class Cvi : AbstractBase
     /// <summary>
     /// Calculates CVI for entire TBarSeries.
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int rocLength = 10, int smoothLength = 10)
+    public static TSeries Batch(TBarSeries source, int rocLength = 10, int smoothLength = 10)
     {
         var cvi = new Cvi(rocLength, smoothLength);
         return cvi.Update(source);
@@ -285,7 +285,7 @@ public sealed class Cvi : AbstractBase
     /// <summary>
     /// Calculates CVI for entire series (assumes values are pre-calculated ranges).
     /// </summary>
-    public static TSeries Calculate(TSeries source, int rocLength = 10, int smoothLength = 10)
+    public static TSeries Batch(TSeries source, int rocLength = 10, int smoothLength = 10)
     {
         if (rocLength <= 0)
         {
@@ -380,5 +380,12 @@ public sealed class Cvi : AbstractBase
 
             output[i] = double.IsFinite(result) ? result : 0.0;
         }
+    }
+
+    public static (TSeries Results, Cvi Indicator) Calculate(TBarSeries source, int rocLength = 10, int smoothLength = 10)
+    {
+        var indicator = new Cvi(rocLength, smoothLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

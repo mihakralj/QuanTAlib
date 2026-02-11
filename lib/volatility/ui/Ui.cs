@@ -263,7 +263,7 @@ public sealed class Ui : AbstractBase
     /// <param name="source">The source series.</param>
     /// <param name="period">The lookback period.</param>
     /// <returns>A TSeries containing the Ulcer Index values.</returns>
-    public static TSeries Calculate(TSeries source, int period = 14)
+    public static TSeries Batch(TSeries source, int period = 14)
     {
         var ui = new Ui(period);
         return ui.Update(source);
@@ -398,4 +398,12 @@ public sealed class Ui : AbstractBase
             }
         }
     }
+
+    public static (TSeries Results, Ui Indicator) Calculate(TSeries source, int period = 14)
+    {
+        var indicator = new Ui(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

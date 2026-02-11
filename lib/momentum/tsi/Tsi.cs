@@ -194,7 +194,7 @@ public sealed class Tsi : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         // Batch calculate
-        Calculate(source.Values, vSpan, LongPeriod, ShortPeriod);
+        Batch(source.Values, vSpan, LongPeriod, ShortPeriod);
         source.Times.CopyTo(tSpan);
 
         // Restore state for streaming by replaying
@@ -231,7 +231,7 @@ public sealed class Tsi : AbstractBase
     /// Batch calculates TSI values (without signal line).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int longPeriod = DefaultLongPeriod, int shortPeriod = DefaultShortPeriod)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int longPeriod = DefaultLongPeriod, int shortPeriod = DefaultShortPeriod)
     {
         if (source.Length != output.Length)
         {
@@ -297,6 +297,13 @@ public sealed class Tsi : AbstractBase
         System.Buffers.ArrayPool<double>.Shared.Return(absMom);
         System.Buffers.ArrayPool<double>.Shared.Return(smoothedMom);
         System.Buffers.ArrayPool<double>.Shared.Return(smoothedAbsMom);
+    }
+
+    public static (TSeries Results, Tsi Indicator) Calculate(TSeries source, int longPeriod = DefaultLongPeriod, int shortPeriod = DefaultShortPeriod, int signalPeriod = DefaultSignalPeriod)
+    {
+        var indicator = new Tsi(longPeriod, shortPeriod, signalPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

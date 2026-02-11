@@ -25,6 +25,7 @@ public sealed class Gwma : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State
@@ -84,9 +85,13 @@ public sealed class Gwma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -178,7 +183,7 @@ public sealed class Gwma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _sigma);
+        Batch(source.Values, vSpan, _period, _sigma);
         source.Times.CopyTo(tSpan);
 
         // Restore internal state to match the streaming path:
@@ -288,7 +293,7 @@ public sealed class Gwma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double sigma = 0.4)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double sigma = 0.4)
     {
         if (period <= 0)
         {
@@ -436,6 +441,13 @@ public sealed class Gwma : AbstractBase
                 ArrayPool<double>.Shared.Return(ringArray);
             }
         }
+    }
+
+    public static (TSeries Results, Gwma Indicator) Calculate(TSeries source, int period, double sigma = 0.4)
+    {
+        var indicator = new Gwma(period, sigma);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

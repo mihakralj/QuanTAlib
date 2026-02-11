@@ -70,7 +70,7 @@ public class UchannelValidationTests
         double[] spanUpper = new double[highArr.Length];
         double[] spanMiddle = new double[highArr.Length];
         double[] spanLower = new double[highArr.Length];
-        Uchannel.Calculate(highArr.AsSpan(), lowArr.AsSpan(), closeArr.AsSpan(),
+        Uchannel.Batch(highArr.AsSpan(), lowArr.AsSpan(), closeArr.AsSpan(),
             spanUpper.AsSpan(), spanMiddle.AsSpan(), spanLower.AsSpan(),
             DefaultStrPeriod, DefaultCenterPeriod, DefaultMultiplier);
 

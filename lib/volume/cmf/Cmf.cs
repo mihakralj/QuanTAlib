@@ -174,7 +174,7 @@ public sealed class Cmf : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period = 20)
+    public static TSeries Batch(TBarSeries source, int period = 20)
     {
         if (source.Count == 0)
         {
@@ -184,13 +184,13 @@ public sealed class Cmf : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
     {
         if (high.Length != low.Length)
         {
@@ -281,5 +281,12 @@ public sealed class Cmf : ITValuePublisher
 
             output[i] = sumVol > double.Epsilon ? sumMfv / sumVol : 0;
         }
+    }
+
+    public static (TSeries Results, Cmf Indicator) Calculate(TBarSeries source, int period = 20)
+    {
+        var indicator = new Cmf(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

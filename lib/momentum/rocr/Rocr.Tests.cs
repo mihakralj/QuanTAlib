@@ -277,7 +277,7 @@ public class RocrTests
     public void AllModes_ProduceSameResults()
     {
         // Mode 1: Batch via TSeries
-        var batchResult = Rocr.Calculate(_gbm, TestPeriod);
+        var batchResult = Rocr.Batch(_gbm, TestPeriod);
 
         // Mode 2: Streaming
         var streamingRocr = new Rocr(TestPeriod);
@@ -290,7 +290,7 @@ public class RocrTests
 
         // Mode 3: Span-based
         Span<double> spanOutput = stackalloc double[DataPoints];
-        Rocr.Calculate(_gbm.Values, spanOutput, TestPeriod);
+        Rocr.Batch(_gbm.Values, spanOutput, TestPeriod);
 
         // Mode 4: Event-driven
         var eventRocr = new Rocr(TestPeriod);
@@ -322,7 +322,7 @@ public class RocrTests
         {
             ReadOnlySpan<double> empty = [];
             Span<double> output = stackalloc double[1];
-            Rocr.Calculate(empty, output, TestPeriod);
+            Rocr.Batch(empty, output, TestPeriod);
         });
         Assert.Equal("source", ex.ParamName);
     }
@@ -334,7 +334,7 @@ public class RocrTests
         {
             ReadOnlySpan<double> source = stackalloc double[] { 1, 2, 3, 4, 5 };
             Span<double> output = stackalloc double[3]; // too short
-            Rocr.Calculate(source, output, TestPeriod);
+            Rocr.Batch(source, output, TestPeriod);
         });
         Assert.Equal("output", ex.ParamName);
     }
@@ -346,7 +346,7 @@ public class RocrTests
         {
             ReadOnlySpan<double> source = stackalloc double[] { 1, 2, 3, 4, 5 };
             Span<double> output = stackalloc double[5];
-            Rocr.Calculate(source, output, 0);
+            Rocr.Batch(source, output, 0);
         });
         Assert.Equal("period", ex.ParamName);
     }
@@ -354,10 +354,10 @@ public class RocrTests
     [Fact]
     public void Calculate_Span_MatchesTSeries()
     {
-        var batchResult = Rocr.Calculate(_gbm, TestPeriod);
+        var batchResult = Rocr.Batch(_gbm, TestPeriod);
 
         Span<double> spanOutput = stackalloc double[DataPoints];
-        Rocr.Calculate(_gbm.Values, spanOutput, TestPeriod);
+        Rocr.Batch(_gbm.Values, spanOutput, TestPeriod);
 
         for (int i = 0; i < DataPoints; i++)
         {
@@ -372,7 +372,7 @@ public class RocrTests
         Span<double> output = stackalloc double[5];
 
         // Should not throw
-        Rocr.Calculate(source, output, 2);
+        Rocr.Batch(source, output, 2);
 
         // First element after warmup divides by 0
         Assert.Equal(1.0, output[2]); // 102 / 0 = 1.0 (safe default)
@@ -391,7 +391,7 @@ public class RocrTests
         }
 
         // Should not throw
-        Rocr.Calculate(source, output, TestPeriod);
+        Rocr.Batch(source, output, TestPeriod);
 
         Assert.Equal(largeSize, output.Length);
     }

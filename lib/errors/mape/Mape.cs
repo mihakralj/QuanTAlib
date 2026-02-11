@@ -41,7 +41,7 @@ public sealed class Mape : BiInputIndicatorBase
     /// <summary>
     /// Calculates MAPE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -64,5 +64,12 @@ public sealed class Mape : BiInputIndicatorBase
 
         ErrorHelpers.ComputePercentageErrors(actual, predicted, percentErrors, Epsilon);
         ErrorHelpers.ApplyRollingMean(percentErrors, output, period);
+    }
+
+    public static (TSeries Results, Mape Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mape(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

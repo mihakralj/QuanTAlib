@@ -241,7 +241,7 @@ public class TwapTests
         }
 
         // Batch
-        var batchResult = Twap.Calculate(bars, period: 10);
+        var batchResult = Twap.Batch(bars, period: 10);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -272,7 +272,7 @@ public class TwapTests
 
         // Span
         var output = new double[prices.Length];
-        Twap.Calculate(prices, output, period: 10);
+        Twap.Batch(prices, output, period: 10);
 
         for (int i = 0; i < prices.Length; i++)
         {
@@ -286,7 +286,7 @@ public class TwapTests
         var price = new double[100];
         var output = new double[99]; // Different length
 
-        Assert.Throws<ArgumentException>(() => Twap.Calculate(price, output));
+        Assert.Throws<ArgumentException>(() => Twap.Batch(price, output));
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class TwapTests
         var price = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Twap.Calculate(price, output, period: -1));
+        Assert.Throws<ArgumentException>(() => Twap.Batch(price, output, period: -1));
     }
 
     [Fact]
@@ -304,7 +304,7 @@ public class TwapTests
         var price = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Twap.Calculate(price, output);
+        Twap.Batch(price, output);
 
         Assert.Empty(output);
     }

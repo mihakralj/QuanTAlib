@@ -175,7 +175,7 @@ public sealed class Pwma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -234,7 +234,7 @@ public sealed class Pwma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -253,6 +253,13 @@ public sealed class Pwma : AbstractBase
         }
 
         CalculateScalarCore(source, output, period);
+    }
+
+    public static (TSeries Results, Pwma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Pwma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

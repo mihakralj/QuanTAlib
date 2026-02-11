@@ -196,7 +196,7 @@ public class EacpValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Eacp.Calculate(tSeries, minPeriod, maxPeriod);
+        var batch = Eacp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -219,7 +219,7 @@ public class EacpValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var tSeriesResult = Eacp.Calculate(tSeries, minPeriod, maxPeriod);
+        var tSeriesResult = Eacp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Span approach
         double[] source = new double[dataLen];

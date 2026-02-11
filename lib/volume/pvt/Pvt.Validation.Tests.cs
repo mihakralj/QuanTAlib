@@ -59,7 +59,7 @@ public class PvtValidationTests
         }
 
         // Batch
-        var batchResult = Pvt.Calculate(_data.Bars);
+        var batchResult = Pvt.Batch(_data.Bars);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -81,7 +81,7 @@ public class PvtValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[close.Length];
 
-        Pvt.Calculate(close, volume, spanOutput);
+        Pvt.Batch(close, volume, spanOutput);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }

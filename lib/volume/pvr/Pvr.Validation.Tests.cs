@@ -49,7 +49,7 @@ public class PvrValidationTests
         }
 
         // Batch
-        var batchResult = Pvr.Calculate(_data.Bars);
+        var batchResult = Pvr.Batch(_data.Bars);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -71,7 +71,7 @@ public class PvrValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[price.Length];
 
-        Pvr.Calculate(price, volume, spanOutput);
+        Pvr.Batch(price, volume, spanOutput);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }
@@ -122,14 +122,14 @@ public class PvrValidationTests
         }
 
         // Mode 3: Batch
-        var mode3Result = Pvr.Calculate(_data.Bars);
+        var mode3Result = Pvr.Batch(_data.Bars);
         var mode3Values = mode3Result.Values.ToArray();
 
         // Mode 4: Span
         var price = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
         var mode4Values = new double[price.Length];
-        Pvr.Calculate(price, volume, mode4Values);
+        Pvr.Batch(price, volume, mode4Values);
 
         // All modes should match
         ValidationHelper.VerifyData(mode1Values.ToArray(), mode2Values.ToArray(), 0, 100, 1e-9);

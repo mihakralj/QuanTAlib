@@ -279,7 +279,7 @@ public class StbandsTests
         TBarSeries bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Act
-        TSeries result = Stbands.Calculate(bars, period: 5, multiplier: 2.0);
+        TSeries result = Stbands.Batch(bars, period: 5, multiplier: 2.0);
 
         // Assert
         Assert.Equal(bars.Count, result.Count);
@@ -302,7 +302,7 @@ public class StbandsTests
         double[] trend = new double[bars.Count];
 
         // Act
-        Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
+        Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
 
         // Assert
         for (int i = 0; i < bars.Count; i++)
@@ -327,7 +327,7 @@ public class StbandsTests
 
         // Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(
-            () => Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan()));
+            () => Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan()));
         Assert.Equal("high", exception.ParamName);
     }
 
@@ -348,7 +348,7 @@ public class StbandsTests
         }
 
         // Batch
-        TSeries batchResult = Stbands.Calculate(bars, period, multiplier);
+        TSeries batchResult = Stbands.Batch(bars, period, multiplier);
 
         // Assert - Last values should match
         Assert.Equal(batchResult[^1].Value, streamingStbands.Last.Value, precision: 8);
@@ -377,7 +377,7 @@ public class StbandsTests
         double[] upper = new double[bars.Count];
         double[] lower = new double[bars.Count];
         double[] trend = new double[bars.Count];
-        Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
+        Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(), upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
 
         // Assert - Last values should match
         Assert.Equal(upper[^1], streamingStbands.Upper.Value, precision: 8);

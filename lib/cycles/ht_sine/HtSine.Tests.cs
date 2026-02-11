@@ -300,7 +300,7 @@ public class HtSineTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = HtSine.Calculate(tSeries);
+        var batch = HtSine.Batch(tSeries);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);

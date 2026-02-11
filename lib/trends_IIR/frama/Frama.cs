@@ -193,7 +193,7 @@ public sealed class Frama : ITValuePublisher, IDisposable
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, _periodEven, v);
+        Batch(source.High.Values, source.Low.Values, _periodEven, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -242,7 +242,7 @@ public sealed class Frama : ITValuePublisher, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != output.Length)
         {
@@ -260,7 +260,7 @@ public sealed class Frama : ITValuePublisher, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -286,7 +286,7 @@ public sealed class Frama : ITValuePublisher, IDisposable
 
         int len = source.Count;
         var v = new double[len];
-        Calculate(source.High.Values, source.Low.Values, period, v);
+        Batch(source.High.Values, source.Low.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -296,6 +296,13 @@ public sealed class Frama : ITValuePublisher, IDisposable
         }
 
         return new TSeries(tList, [.. v]);
+    }
+
+    public static (TSeries Results, Frama Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Frama(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

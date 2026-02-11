@@ -86,7 +86,7 @@ public class KamaTests
 
         var instanceResults = new Kama(10).Update(series);
         var staticResults = new double[series.Count];
-        Kama.Calculate(series.Values.ToArray().AsSpan(), staticResults.AsSpan(), 10);
+        Kama.Batch(series.Values.ToArray().AsSpan(), staticResults.AsSpan(), 10);
 
         for (int i = 0; i < instanceResults.Count; i++)
         {
@@ -214,8 +214,8 @@ public class KamaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Kama.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Kama.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Kama.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Kama.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -224,7 +224,7 @@ public class KamaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Kama.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Kama.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {
@@ -249,7 +249,7 @@ public class KamaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Kama.Calculate(spanInput, spanOutput, period);
+        Kama.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

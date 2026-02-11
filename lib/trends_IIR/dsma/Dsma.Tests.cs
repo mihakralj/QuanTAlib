@@ -352,7 +352,7 @@ public class DsmaTests
 
         // Act - Span
         var spanOutput = new double[values.Length];
-        Dsma.Calculate(values, spanOutput, period, scale);
+        Dsma.Batch(values, spanOutput, period, scale);
 
         // Assert
         for (int i = 0; i < values.Length; i++)
@@ -386,7 +386,7 @@ public class DsmaTests
 
         // Act - Span
         var spanOutput = new double[values.Length];
-        Dsma.Calculate(values, spanOutput, period, scale);
+        Dsma.Batch(values, spanOutput, period, scale);
 
         // Assert
         for (int i = 0; i < values.Length; i++)
@@ -439,7 +439,7 @@ public class DsmaTests
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() =>
-            Dsma.Calculate(source, shortOutput, period: 10));
+            Dsma.Batch(source, shortOutput, period: 10));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -457,7 +457,7 @@ public class DsmaTests
         var output = new double[50];
 
         // Act
-        Dsma.Calculate(values, output, period: 10, scaleFactor: 0.5);
+        Dsma.Batch(values, output, period: 10, scaleFactor: 0.5);
 
         // Assert
         Assert.All(output, val => Assert.True(double.IsFinite(val)));
@@ -477,7 +477,7 @@ public class DsmaTests
         var output = new double[100];
 
         // Act
-        Dsma.Calculate(values, output, period: 10, scaleFactor: 0.5);
+        Dsma.Batch(values, output, period: 10, scaleFactor: 0.5);
 
         // Assert
         Assert.All(output.Take(50), val => Assert.True(double.IsFinite(val)));
@@ -493,7 +493,7 @@ public class DsmaTests
         var output = new double[20];
 
         // Act
-        Dsma.Calculate(values, output, period: 5, scaleFactor: 0.5);
+        Dsma.Batch(values, output, period: 5, scaleFactor: 0.5);
 
         // Assert
         Assert.All(output, val => Assert.True(double.IsFinite(val)));

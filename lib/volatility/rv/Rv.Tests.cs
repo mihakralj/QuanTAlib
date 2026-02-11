@@ -439,7 +439,7 @@ public class RvTests
         const int dataCount = 50;
         var priceSeries = GeneratePriceSeries(dataCount);
 
-        var result = Rv.Calculate(priceSeries, period: 5, smoothingPeriod: 10);
+        var result = Rv.Batch(priceSeries, period: 5, smoothingPeriod: 10);
 
         Assert.Equal(dataCount, result.Count);
     }
@@ -617,7 +617,7 @@ public class RvTests
     {
         var prices = GeneratePriceSeries(100);
 
-        var result = Rv.Calculate(prices, period: 5, smoothingPeriod: 14);
+        var result = Rv.Batch(prices, period: 5, smoothingPeriod: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -628,7 +628,7 @@ public class RvTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Rv.Calculate(bars, period: 5, smoothingPeriod: 14);
+        var result = Rv.Batch(bars, period: 5, smoothingPeriod: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -639,10 +639,10 @@ public class RvTests
     {
         var prices = GeneratePriceSeries(10);
 
-        Assert.Throws<ArgumentException>(() => Rv.Calculate(prices, period: 0));
-        Assert.Throws<ArgumentException>(() => Rv.Calculate(prices, period: -1));
-        Assert.Throws<ArgumentException>(() => Rv.Calculate(prices, period: 5, smoothingPeriod: 0));
-        Assert.Throws<ArgumentException>(() => Rv.Calculate(prices, period: 5, smoothingPeriod: 10, annualize: true, annualPeriods: 0));
+        Assert.Throws<ArgumentException>(() => Rv.Batch(prices, period: 0));
+        Assert.Throws<ArgumentException>(() => Rv.Batch(prices, period: -1));
+        Assert.Throws<ArgumentException>(() => Rv.Batch(prices, period: 5, smoothingPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Rv.Batch(prices, period: 5, smoothingPeriod: 10, annualize: true, annualPeriods: 0));
     }
 
     [Fact]

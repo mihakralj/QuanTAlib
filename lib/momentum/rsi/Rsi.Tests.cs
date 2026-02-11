@@ -329,7 +329,7 @@ public class RsiTests
         var source = new double[10];
         var output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Rsi.Calculate(source, output, 14));
+        Assert.Throws<ArgumentException>(() => Rsi.Batch(source, output, 14));
     }
 
     [Fact]
@@ -338,8 +338,8 @@ public class RsiTests
         var source = new double[10];
         var output = new double[10];
 
-        Assert.Throws<ArgumentException>(() => Rsi.Calculate(source, output, 0));
-        Assert.Throws<ArgumentException>(() => Rsi.Calculate(source, output, -1));
+        Assert.Throws<ArgumentException>(() => Rsi.Batch(source, output, 0));
+        Assert.Throws<ArgumentException>(() => Rsi.Batch(source, output, -1));
     }
 
     [Fact]
@@ -351,7 +351,7 @@ public class RsiTests
         var batchResults = Rsi.Batch(series.Close, 14);
 
         var output = new double[series.Count];
-        Rsi.Calculate(series.Close.Values, output, 14);
+        Rsi.Batch(series.Close.Values, output, 14);
 
         for (int i = 0; i < output.Length; i++)
         {
@@ -375,7 +375,7 @@ public class RsiTests
         source[15] = double.NaN;
 
         var output = new double[20];
-        Rsi.Calculate(source, output, 10);
+        Rsi.Batch(source, output, 10);
 
         // Should not crash and produce finite results
         for (int i = 0; i < output.Length; i++)
@@ -397,7 +397,7 @@ public class RsiTests
 
         // 2. Span Mode
         var spanOutput = new double[series.Count];
-        Rsi.Calculate(series.Close.Values, spanOutput, period);
+        Rsi.Batch(series.Close.Values, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

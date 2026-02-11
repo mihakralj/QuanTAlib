@@ -201,7 +201,7 @@ public class MacdTests
         var batchResult = macd.Update(series);
 
         var output = new double[series.Count];
-        Macd.Calculate(series.Values, output, 12, 26);
+        Macd.Batch(series.Values, output, 12, 26);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -222,7 +222,7 @@ public class MacdTests
 
         // 2. Span Mode
         var spanOutput = new double[series.Count];
-        Macd.Calculate(series.Close.Values, spanOutput, 12, 26);
+        Macd.Batch(series.Close.Values, spanOutput, 12, 26);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -256,8 +256,8 @@ public class MacdTests
         double[] output = new double[5];
         double[] wrongSize = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Macd.Calculate(source, wrongSize, 12, 26));
-        Assert.Throws<ArgumentException>(() => Macd.Calculate(source, output, 0, 26));
-        Assert.Throws<ArgumentException>(() => Macd.Calculate(source, output, 12, 0));
+        Assert.Throws<ArgumentException>(() => Macd.Batch(source, wrongSize, 12, 26));
+        Assert.Throws<ArgumentException>(() => Macd.Batch(source, output, 0, 26));
+        Assert.Throws<ArgumentException>(() => Macd.Batch(source, output, 12, 0));
     }
 }

@@ -92,7 +92,7 @@ public class AdoscTests
         }
 
         var spanOutput = new double[_bars.Count];
-        Adosc.Calculate(_bars.High.Values, _bars.Low.Values, _bars.Close.Values, _bars.Volume.Values, spanOutput, 3, 10);
+        Adosc.Batch(_bars.High.Values, _bars.Low.Values, _bars.Close.Values, _bars.Volume.Values, spanOutput, 3, 10);
 
         for (int i = 0; i < _bars.Count; i++)
         {
@@ -176,7 +176,7 @@ public class AdoscTests
         double[] volume = [1000, 1100, 1200, 1300, 1400];
         double[] output = new double[5];
 
-        Adosc.Calculate(high, low, close, volume, output, 3, 5);
+        Adosc.Batch(high, low, close, volume, output, 3, 5);
 
         // Verify output is finite
         for (int i = 0; i < output.Length; i++)
@@ -191,7 +191,7 @@ public class AdoscTests
         var batchResult = Adosc.Batch(_bars, 3, 10);
 
         var spanOutput = new double[_bars.Count];
-        Adosc.Calculate(_bars.High.Values, _bars.Low.Values, _bars.Close.Values, _bars.Volume.Values, spanOutput, 3, 10);
+        Adosc.Batch(_bars.High.Values, _bars.Low.Values, _bars.Close.Values, _bars.Volume.Values, spanOutput, 3, 10);
 
         for (int i = 0; i < _bars.Count; i++)
         {

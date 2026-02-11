@@ -192,7 +192,7 @@ public class HlvValidationTests
         }
 
         // Batch calculation
-        var batchResult = Hlv.Calculate(bars, 14);
+        var batchResult = Hlv.Batch(bars, 14);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingHlv.Last.Value, 8);

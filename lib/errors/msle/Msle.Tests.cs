@@ -241,7 +241,7 @@ public class MsleTests
             iterativeResults.Add(msleIterative.Update(actualSeries[i], predictedSeries[i]).Value);
         }
 
-        var batchResults = Msle.Calculate(actualSeries, predictedSeries, 10);
+        var batchResults = Msle.Batch(actualSeries, predictedSeries, 10);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -285,7 +285,7 @@ public class MsleTests
             predictedSeries.Add(bar.Time, bar.Close * 0.95);
         }
 
-        var tseriesResult = Msle.Calculate(actualSeries, predictedSeries, 10);
+        var tseriesResult = Msle.Batch(actualSeries, predictedSeries, 10);
         Msle.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < 100; i++)
@@ -319,7 +319,7 @@ public class MsleTests
         actual.Add(DateTime.UtcNow.Ticks + 1, 100);
         predicted.Add(DateTime.UtcNow.Ticks, 90);
 
-        Assert.Throws<ArgumentException>(() => Msle.Calculate(actual, predicted, 5));
+        Assert.Throws<ArgumentException>(() => Msle.Batch(actual, predicted, 5));
     }
 
     [Fact]

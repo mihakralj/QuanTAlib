@@ -290,7 +290,7 @@ public class RsquaredTests
             iterativeResults.Add(r2Iterative.Update(actual[i], predicted[i]).Value);
         }
 
-        var batchResults = Rsquared.Calculate(actual, predicted, Period);
+        var batchResults = Rsquared.Batch(actual, predicted, Period);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -331,7 +331,7 @@ public class RsquaredTests
         double[] predictedArr = predictedSeries.Values.ToArray();
         double[] output = new double[100];
 
-        var tseriesResult = Rsquared.Calculate(actualSeries, predictedSeries, Period);
+        var tseriesResult = Rsquared.Batch(actualSeries, predictedSeries, Period);
         Rsquared.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), Period);
 
         for (int i = 0; i < 100; i++)
@@ -352,7 +352,7 @@ public class RsquaredTests
         }
 
         // 1. Batch Mode (static method)
-        var batchSeries = Rsquared.Calculate(actualSeries, predictedSeries, Period);
+        var batchSeries = Rsquared.Batch(actualSeries, predictedSeries, Period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

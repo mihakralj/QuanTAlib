@@ -219,7 +219,7 @@ public class CgValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Cg.Calculate(tSeries, period);
+        var batch = Cg.Batch(tSeries, period);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -241,7 +241,7 @@ public class CgValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var tSeriesResult = Cg.Calculate(tSeries, period);
+        var tSeriesResult = Cg.Batch(tSeries, period);
 
         // Span approach
         double[] source = new double[dataLen];

@@ -98,7 +98,7 @@ public sealed class Bop : ITValuePublisher
     /// Calculates BOP for a series of bars.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, Span<double> destination)
+    public static void Batch(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, Span<double> destination)
     {
         int len = Math.Min(open.Length, Math.Min(high.Length, Math.Min(low.Length, close.Length)));
         if (destination.Length < len)
@@ -170,8 +170,15 @@ public sealed class Bop : ITValuePublisher
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         source.Open.Times.CopyTo(tSpan);
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, vSpan);
+        Batch(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, vSpan);
 
         return new TSeries(t, v);
+    }
+
+    public static (TSeries Results, Bop Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Bop();
+        TSeries results = Bop.Update(source);
+        return (results, indicator);
     }
 }

@@ -308,7 +308,7 @@ public class MaeTests
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
         }
 
-        var results = Mae.Calculate(actual, predicted, 3);
+        var results = Mae.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // All errors are 5, so MAE should be 5
@@ -331,7 +331,7 @@ public class MaeTests
             predicted.Add(DateTime.UtcNow, i);
         }
 
-        Assert.Throws<ArgumentException>(() => Mae.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Mae.Batch(actual, predicted, 3));
     }
 
     [Fact]

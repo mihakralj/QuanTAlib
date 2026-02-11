@@ -414,7 +414,7 @@ public class PacfTests
         var batchResult = batchIndicator.Update(tSeries);
 
         // Mode 3: Static Calculate
-        var staticResult = Pacf.Calculate(tSeries, period, lag);
+        var staticResult = Pacf.Batch(tSeries, period, lag);
 
         // Mode 4: Span-based Batch
         double[] sourceArray = new double[dataLen];

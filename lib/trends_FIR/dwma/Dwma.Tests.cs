@@ -150,8 +150,8 @@ public class DwmaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Dwma.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Dwma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -160,7 +160,7 @@ public class DwmaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Dwma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Dwma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {
@@ -185,7 +185,7 @@ public class DwmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Dwma.Calculate(spanInput, spanOutput, period);
+        Dwma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

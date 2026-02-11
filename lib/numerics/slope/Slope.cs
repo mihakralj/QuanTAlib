@@ -114,7 +114,7 @@ public sealed class Slope : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(sourceValues, vSpan);
+        Batch(sourceValues, vSpan);
         sourceTimes.CopyTo(tSpan);
 
         // Prime state with last value
@@ -145,7 +145,7 @@ public sealed class Slope : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var slope = new Slope();
         return slope.Update(source);
@@ -155,7 +155,7 @@ public sealed class Slope : AbstractBase
     /// Calculates first derivative (slope) for a span.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
         {
@@ -289,5 +289,12 @@ public sealed class Slope : AbstractBase
 
             output[i] = curr - prev;
         }
+    }
+
+    public static (TSeries Results, Slope Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Slope();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

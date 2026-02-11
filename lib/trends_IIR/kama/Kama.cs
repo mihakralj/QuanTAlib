@@ -239,7 +239,7 @@ public sealed class Kama : AbstractBase
         return kama.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int fastPeriod = 2, int slowPeriod = 30)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int fastPeriod = 2, int slowPeriod = 30)
     {
         if (period <= 0)
         {
@@ -361,6 +361,13 @@ public sealed class Kama : AbstractBase
                 output[i] = kama;
             }
         }
+    }
+
+    public static (TSeries Results, Kama Indicator) Calculate(TSeries source, int period, int fastPeriod = 2, int slowPeriod = 30)
+    {
+        var indicator = new Kama(period, fastPeriod, slowPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

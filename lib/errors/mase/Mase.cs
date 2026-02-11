@@ -162,7 +162,7 @@ public sealed class Mase : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("MASE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+        throw new NotSupportedException("MASE requires two inputs. Use Batch(actualSeries, predictedSeries, period).");
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -179,7 +179,7 @@ public sealed class Mase : AbstractBase
         Last = default;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -351,5 +351,12 @@ public sealed class Mase : AbstractBase
                 scaleSum = recalcScale;
             }
         }
+    }
+
+    public static (TSeries Results, Mase Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mase(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

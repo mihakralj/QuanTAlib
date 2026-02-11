@@ -50,7 +50,7 @@ public class VwadValidationTests
         }
 
         // Batch
-        var batchResult = Vwad.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Vwad.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         // Cumulative indicators accumulate floating-point errors over many bars
@@ -76,7 +76,7 @@ public class VwadValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Vwad.Calculate(high, low, close, volume, spanValues, DefaultPeriod);
+        Vwad.Batch(high, low, close, volume, spanValues, DefaultPeriod);
 
         // Cumulative indicators accumulate floating-point errors over many bars
         // 1e-10 tolerance is appropriate for ~5000 bar cumulative calculations
@@ -87,7 +87,7 @@ public class VwadValidationTests
     public void Vwad_Batch_Matches_Span()
     {
         // Batch
-        var batchResult = Vwad.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Vwad.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         // Span
@@ -97,7 +97,7 @@ public class VwadValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Vwad.Calculate(high, low, close, volume, spanValues, DefaultPeriod);
+        Vwad.Batch(high, low, close, volume, spanValues, DefaultPeriod);
 
         // Batch and Span use identical code path, should match exactly
         ValidationHelper.VerifyData(batchValues, spanValues, 0, 100, 1e-12);

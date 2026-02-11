@@ -229,7 +229,7 @@ public sealed class Vwad : ITValuePublisher
     /// <param name="source">Source bar series</param>
     /// <param name="period">Lookback period for volume weighting</param>
     /// <returns>TSeries containing VWAD values</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 20)
+    public static TSeries Batch(TBarSeries source, int period = 20)
     {
         if (source.Count == 0)
         {
@@ -239,7 +239,7 @@ public sealed class Vwad : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
@@ -254,7 +254,7 @@ public sealed class Vwad : ITValuePublisher
     /// <param name="output">Output span for VWAD values</param>
     /// <param name="period">Lookback period for volume weighting</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
     {
         if (high.Length != low.Length)
         {
@@ -377,5 +377,12 @@ public sealed class Vwad : ITValuePublisher
             cumulativeVwad += weightedMfv;
             output[i] = cumulativeVwad;
         }
+    }
+
+    public static (TSeries Results, Vwad Indicator) Calculate(TBarSeries source, int period = 20)
+    {
+        var indicator = new Vwad(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

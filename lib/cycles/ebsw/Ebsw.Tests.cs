@@ -320,7 +320,7 @@ public class EbswTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Ebsw.Calculate(tSeries, hpLength, ssfLength);
+        var batch = Ebsw.Batch(tSeries, hpLength, ssfLength);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);

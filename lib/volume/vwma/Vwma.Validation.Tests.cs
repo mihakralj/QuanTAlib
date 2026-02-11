@@ -19,7 +19,7 @@ public class VwmaValidationTests
         int period = 20;
 
         // QuanTAlib batch
-        var quantalibResult = Vwma.Calculate(_data.Bars, period);
+        var quantalibResult = Vwma.Batch(_data.Bars, period);
         var quantalibValues = quantalibResult.Values.ToArray();
 
         // Skender
@@ -91,7 +91,7 @@ public class VwmaValidationTests
         var price = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
         var quantalibValues = new double[price.Length];
-        Vwma.Calculate(price, volume, quantalibValues, period);
+        Vwma.Batch(price, volume, quantalibValues, period);
 
         // Skender
         var quotes = _data.Bars.Select(b => new Quote
@@ -153,7 +153,7 @@ public class VwmaValidationTests
         }
 
         // Batch
-        var batchResult = Vwma.Calculate(_data.Bars, period);
+        var batchResult = Vwma.Batch(_data.Bars, period);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-10);
@@ -176,7 +176,7 @@ public class VwmaValidationTests
         var price = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[price.Length];
-        Vwma.Calculate(price, volume, spanValues, period);
+        Vwma.Batch(price, volume, spanValues, period);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-10);
     }
@@ -187,14 +187,14 @@ public class VwmaValidationTests
         int period = 20;
 
         // Batch
-        var batchResult = Vwma.Calculate(_data.Bars, period);
+        var batchResult = Vwma.Batch(_data.Bars, period);
         var batchValues = batchResult.Values.ToArray();
 
         // Span
         var price = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[price.Length];
-        Vwma.Calculate(price, volume, spanValues, period);
+        Vwma.Batch(price, volume, spanValues, period);
 
         // Batch and Span use identical code path, should match exactly
         ValidationHelper.VerifyData(batchValues, spanValues, 0, 100, 1e-12);

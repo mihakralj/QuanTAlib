@@ -239,7 +239,7 @@ public class LogCoshTests
             iterativeResults[i] = logCoshIterative.Update(actualSeries[i], predictedSeries[i]).Value;
         }
 
-        var batchResults = LogCosh.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = LogCosh.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         Assert.Equal(count, batchResults.Count);
         for (int i = 0; i < count; i++)
@@ -283,7 +283,7 @@ public class LogCoshTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = LogCosh.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = LogCosh.Batch(actualSeries, predictedSeries, DefaultPeriod);
         LogCosh.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -332,7 +332,7 @@ public class LogCoshTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => LogCosh.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => LogCosh.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

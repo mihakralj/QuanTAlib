@@ -252,8 +252,8 @@ public sealed class Mmchannel : ITValuePublisher
             return;
         }
 
-        Highest.Calculate(high, upper, period);
-        Lowest.Calculate(low, lower, period);
+        Highest.Batch(high, upper, period);
+        Lowest.Batch(low, lower, period);
     }
 
     public static (TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period)

@@ -316,7 +316,7 @@ public class VwapTests
     [Fact]
     public void Calculate_Static_ShouldReturnTSeries()
     {
-        var result = Vwap.Calculate(_bars);
+        var result = Vwap.Batch(_bars);
 
         Assert.NotNull(result);
         Assert.Equal(_bars.Count, result.Count);
@@ -325,7 +325,7 @@ public class VwapTests
     [Fact]
     public void Calculate_Static_WithPeriod_ShouldWork()
     {
-        var result = Vwap.Calculate(_bars, 100);
+        var result = Vwap.Batch(_bars, 100);
 
         Assert.NotNull(result);
         Assert.Equal(_bars.Count, result.Count);
@@ -336,7 +336,7 @@ public class VwapTests
     [Fact]
     public void Calculate_Span_ShouldMatchBatch()
     {
-        var batchResult = Vwap.Calculate(_bars);
+        var batchResult = Vwap.Batch(_bars);
 
         var high = _bars.High.Values.ToArray();
         var low = _bars.Low.Values.ToArray();
@@ -344,7 +344,7 @@ public class VwapTests
         var volume = _bars.Volume.Values.ToArray();
         var spanOutput = new double[_bars.Count];
 
-        Vwap.Calculate(high, low, close, volume, spanOutput);
+        Vwap.Batch(high, low, close, volume, spanOutput);
 
         for (int i = 0; i < _bars.Count; i++)
         {
@@ -361,7 +361,7 @@ public class VwapTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Vwap.Calculate(high, low, close, volume, output));
+        Assert.Throws<ArgumentException>(() => Vwap.Batch(high, low, close, volume, output));
     }
 
     [Fact]
@@ -373,7 +373,7 @@ public class VwapTests
         var volume = new double[100];
         var output = new double[50]; // Mismatched
 
-        Assert.Throws<ArgumentException>(() => Vwap.Calculate(high, low, close, volume, output));
+        Assert.Throws<ArgumentException>(() => Vwap.Batch(high, low, close, volume, output));
     }
 
     [Fact]
@@ -385,7 +385,7 @@ public class VwapTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Vwap.Calculate(high, low, close, volume, output, -1));
+        Assert.Throws<ArgumentException>(() => Vwap.Batch(high, low, close, volume, output, -1));
     }
 
     // ============ Event Tests ============
@@ -418,7 +418,7 @@ public class VwapTests
         }
 
         // Batch
-        var batchResult = Vwap.Calculate(_bars);
+        var batchResult = Vwap.Batch(_bars);
 
         // Compare last 100 values
         for (int i = _bars.Count - 100; i < _bars.Count; i++)

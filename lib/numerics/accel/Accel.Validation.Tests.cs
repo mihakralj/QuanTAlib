@@ -109,7 +109,7 @@ public class AccelValidationTests
         double[] expected = [0, 0, 2, 2, 2, 2];
         double[] output = new double[data.Length];
 
-        Accel.Calculate(data, output);
+        Accel.Batch(data, output);
 
         for (int i = 0; i < data.Length; i++)
         {

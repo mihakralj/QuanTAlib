@@ -265,7 +265,7 @@ public class ObvTests
         }
 
         // Batch
-        var batchResult = Obv.Calculate(bars);
+        var batchResult = Obv.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -298,7 +298,7 @@ public class ObvTests
         var volume = bars.Volume.Values.ToArray();
         var output = new double[bars.Count];
 
-        Obv.Calculate(close, volume, output);
+        Obv.Batch(close, volume, output);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -313,7 +313,7 @@ public class ObvTests
         var volume = new double[99]; // Different length
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Obv.Calculate(close, volume, output));
+        Assert.Throws<ArgumentException>(() => Obv.Batch(close, volume, output));
     }
 
     [Fact]
@@ -323,7 +323,7 @@ public class ObvTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Obv.Calculate(close, volume, output);
+        Obv.Batch(close, volume, output);
 
         Assert.Empty(output);
     }

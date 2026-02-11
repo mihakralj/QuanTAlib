@@ -317,7 +317,7 @@ public class UsfTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Usf.Calculate(spanInput, spanOutput, period);
+        Usf.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -370,11 +370,11 @@ public class UsfTests
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentException>(() => Usf.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Usf.Calculate(source.AsSpan(), output.AsSpan(), -1));
+        Assert.Throws<ArgumentException>(() => Usf.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Usf.Batch(source.AsSpan(), output.AsSpan(), -1));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Usf.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Usf.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -396,7 +396,7 @@ public class UsfTests
         var (tseriesResult, _) = Usf.Calculate(series, 10);
 
         // Calculate with Span API
-        Usf.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Usf.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)
@@ -418,7 +418,7 @@ public class UsfTests
         }
 
         // Warm up
-        Usf.Calculate(source.AsSpan(), output.AsSpan(), 100);
+        Usf.Batch(source.AsSpan(), output.AsSpan(), 100);
 
         // This test verifies the method runs without throwing
         Assert.True(double.IsFinite(output[^1]));
@@ -430,7 +430,7 @@ public class UsfTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Usf.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Usf.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // All outputs should be finite
         foreach (var val in output)

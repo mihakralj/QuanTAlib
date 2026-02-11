@@ -269,7 +269,7 @@ public sealed class Vr : AbstractBase
     /// <summary>
     /// Calculates VR for a TBarSeries (static).
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int period = 14)
+    public static TSeries Batch(TBarSeries source, int period = 14)
     {
         var vr = new Vr(period);
         return vr.Update(source);
@@ -411,4 +411,12 @@ public sealed class Vr : AbstractBase
             output[i] = vr;
         }
     }
+
+    public static (TSeries Results, Vr Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Vr(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

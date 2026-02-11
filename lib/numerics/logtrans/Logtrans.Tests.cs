@@ -197,7 +197,7 @@ public class LogtransTests
         }
 
         // Batch
-        var batch = Logtrans.Calculate(source);
+        var batch = Logtrans.Batch(source);
 
         // Compare all values
         for (int i = 0; i < source.Count; i++)
@@ -215,12 +215,12 @@ public class LogtransTests
         var source = bars.Close;
 
         // TSeries batch
-        var batchResult = Logtrans.Calculate(source);
+        var batchResult = Logtrans.Batch(source);
 
         // Span calculation
         var values = source.Values.ToArray();
         var output = new double[count];
-        Logtrans.Calculate(values, output);
+        Logtrans.Batch(values, output);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -234,14 +234,14 @@ public class LogtransTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Logtrans.Calculate(ReadOnlySpan<double>.Empty, output);
+            Logtrans.Batch(ReadOnlySpan<double>.Empty, output);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Logtrans.Calculate(source, output);
+            Logtrans.Batch(source, output);
         });
     }
 

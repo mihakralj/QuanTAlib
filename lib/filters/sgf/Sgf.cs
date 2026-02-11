@@ -177,7 +177,7 @@ public sealed class Sgf : AbstractBase
         }
 
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, _period, _polyOrder);
+        Batch(source.Values, resultValues, _period, _polyOrder);
 
         var result = new TSeries();
         var times = source.Times;
@@ -197,16 +197,14 @@ public sealed class Sgf : AbstractBase
         return result;
     }
 
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    public static TSeries Batch(TSeries source, int period, int polyOrder = 2)
     {
-        foreach (double value in source)
-        {
-            Update(new TValue(DateTime.MinValue, value), isNew: true);
-        }
+        var indicator = new Sgf(period, polyOrder);
+        return indicator.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int polyOrder = 2)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int polyOrder = 2)
     {
         if (source.Length != output.Length)
         {
@@ -260,6 +258,21 @@ public sealed class Sgf : AbstractBase
                 output[i] = count < adjPeriod ? source[i] : double.NaN;
             }
         }
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (double value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
+        }
+    }
+
+    public static (TSeries Results, Sgf Indicator) Calculate(TSeries source, int period, int polyOrder = 2)
+    {
+        var indicator = new Sgf(period, polyOrder);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

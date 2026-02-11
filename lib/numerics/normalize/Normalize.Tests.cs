@@ -205,7 +205,7 @@ public class NormalizeTests
         }
 
         // Static calculation
-        var staticResult = Normalize.Calculate(tseries, 14);
+        var staticResult = Normalize.Batch(tseries, 14);
 
         // Streaming calculation
         var streamNorm = new Normalize(14);
@@ -230,7 +230,7 @@ public class NormalizeTests
         double[] output = new double[values.Length];
 
         // Span calculation
-        Normalize.Calculate(values, output, 14);
+        Normalize.Batch(values, output, 14);
 
         // Streaming calculation
         var norm = new Normalize(14);
@@ -247,9 +247,9 @@ public class NormalizeTests
         double[] source = { 1, 2, 3, 4, 5 };
         double[] output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Normalize.Calculate(Array.Empty<double>(), output));
-        Assert.Throws<ArgumentException>(() => Normalize.Calculate(source, new double[3]));
-        Assert.Throws<ArgumentException>(() => Normalize.Calculate(source, output, 0));
+        Assert.Throws<ArgumentException>(() => Normalize.Batch(Array.Empty<double>(), output));
+        Assert.Throws<ArgumentException>(() => Normalize.Batch(source, new double[3]));
+        Assert.Throws<ArgumentException>(() => Normalize.Batch(source, output, 0));
     }
 
     [Fact]

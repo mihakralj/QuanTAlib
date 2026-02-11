@@ -299,7 +299,7 @@ public sealed class Dx : ITValuePublisher
         var v = new double[len];
 
         // Use the static Calculate method for performance
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
 
         // Create lists for TSeries
         var tList = new List<long>(len);
@@ -356,7 +356,7 @@ public sealed class Dx : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
     {
         int len = high.Length;
         if (len < period + 1)
@@ -419,7 +419,7 @@ public sealed class Dx : ITValuePublisher
 
         var len = source.Count;
         var v = new double[len];
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, period, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -429,5 +429,12 @@ public sealed class Dx : ITValuePublisher
         }
 
         return new TSeries(tList, [.. v]);
+    }
+
+    public static (TSeries Results, Dx Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Dx(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

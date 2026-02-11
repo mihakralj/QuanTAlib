@@ -24,6 +24,7 @@ public sealed class Vidya : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -59,9 +60,13 @@ public sealed class Vidya : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -387,5 +392,12 @@ public sealed class Vidya : AbstractBase
             System.Buffers.ArrayPool<double>.Shared.Return(ups);
             System.Buffers.ArrayPool<double>.Shared.Return(downs);
         }
+    }
+
+    public static (TSeries Results, Vidya Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Vidya(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

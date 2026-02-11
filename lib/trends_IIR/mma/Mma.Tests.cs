@@ -91,7 +91,7 @@ public class MmaTests
         int period = 12;
         TSeries series = BuildSeries(120, seed: 11);
 
-        TSeries batch = Mma.Calculate(series, period);
+        TSeries batch = Mma.Batch(series, period);
         var mma = new Mma(period);
 
         var streamValues = new List<double>(series.Count);
@@ -114,8 +114,8 @@ public class MmaTests
         double[] values = series.Values.ToArray();
         var output = new double[values.Length];
 
-        Mma.Calculate(values, output, period);
-        TSeries batch = Mma.Calculate(series, period);
+        Mma.Batch(values, output, period);
+        TSeries batch = Mma.Batch(series, period);
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -153,7 +153,7 @@ public class MmaTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[3];
 
-        var ex = Assert.Throws<ArgumentException>(() => Mma.Calculate(source, output, 10));
+        var ex = Assert.Throws<ArgumentException>(() => Mma.Batch(source, output, 10));
         Assert.Equal("output", ex.ParamName);
     }
 

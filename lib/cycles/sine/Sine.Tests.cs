@@ -185,7 +185,7 @@ public class SineTests
             series.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var result = Sine.Calculate(series);
+        var result = Sine.Batch(series);
 
         Assert.Equal(100, result.Count);
     }
@@ -201,7 +201,7 @@ public class SineTests
             series.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var result = Sine.Calculate(series, hpPeriod: 20, ssfPeriod: 5);
+        var result = Sine.Batch(series, hpPeriod: 20, ssfPeriod: 5);
 
         Assert.Equal(100, result.Count);
     }
@@ -252,7 +252,7 @@ public class SineTests
         }
 
         // Batch calculation
-        var batchResult = Sine.Calculate(series);
+        var batchResult = Sine.Batch(series);
 
         // Compare last 100 values (after warmup)
         for (int i = 100; i < 200; i++)

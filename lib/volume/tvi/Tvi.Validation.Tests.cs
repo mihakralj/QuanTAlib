@@ -26,7 +26,7 @@ public class TviValidationTests
         }
 
         // Batch
-        var batchResult = Tvi.Calculate(_data.Bars, minTick);
+        var batchResult = Tvi.Batch(_data.Bars, minTick);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -50,7 +50,7 @@ public class TviValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[close.Length];
 
-        Tvi.Calculate(close, volume, spanOutput, minTick);
+        Tvi.Batch(close, volume, spanOutput, minTick);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }
@@ -139,14 +139,14 @@ public class TviValidationTests
             }
 
             // Batch
-            var batchResult = Tvi.Calculate(_data.Bars, minTick);
+            var batchResult = Tvi.Batch(_data.Bars, minTick);
             var batchValues = batchResult.Values.ToArray();
 
             // Span
             var close = _data.Bars.Close.Values.ToArray();
             var volume = _data.Bars.Volume.Values.ToArray();
             var spanOutput = new double[close.Length];
-            Tvi.Calculate(close, volume, spanOutput, minTick);
+            Tvi.Batch(close, volume, spanOutput, minTick);
 
             // Verify all modes match
             ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);

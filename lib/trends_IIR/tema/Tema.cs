@@ -470,6 +470,13 @@ public sealed class Tema : AbstractBase
         }
     }
 
+    public static (TSeries Results, Tema Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Tema(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     public override void Reset()
     {
         _state1 = EmaState.New();

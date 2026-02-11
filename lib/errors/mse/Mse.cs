@@ -46,7 +46,7 @@ public sealed class Mse : BiInputIndicatorBase
     /// <param name="predicted">Predicted values series</param>
     /// <param name="period">MSE period</param>
     /// <returns>MSE series</returns>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -77,5 +77,12 @@ public sealed class Mse : BiInputIndicatorBase
 
         // Apply rolling mean using shared helper
         ErrorHelpers.ApplyRollingMean(sqErrors, output, period);
+    }
+
+    public static (TSeries Results, Mse Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mse(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

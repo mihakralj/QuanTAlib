@@ -60,7 +60,7 @@ public sealed class BwmaValidationTests : IDisposable
                 // 3. Span API
                 ReadOnlySpan<double> sourceData = _testData.RawData.Span;
                 double[] spanOutput = new double[sourceData.Length];
-                Bwma.Calculate(sourceData, spanOutput.AsSpan(), period, order);
+                Bwma.Batch(sourceData, spanOutput.AsSpan(), period, order);
 
                 // Verify streaming vs batch
                 Assert.Equal(streamingResults.Count, batchResults.Count);
@@ -257,7 +257,7 @@ public sealed class BwmaValidationTests : IDisposable
 
         // Span
         double[] spanOutput = new double[dataWithNaN.Count];
-        Bwma.Calculate(dataWithNaN.Values, spanOutput.AsSpan(), period);
+        Bwma.Batch(dataWithNaN.Values, spanOutput.AsSpan(), period);
 
         // Verify all produce same results
         for (int i = 0; i < streamingResults.Count; i++)

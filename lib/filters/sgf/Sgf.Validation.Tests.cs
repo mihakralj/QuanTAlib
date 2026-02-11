@@ -201,7 +201,7 @@ public class SgfValidationTests : IDisposable
         foreach (var (period, order) in scenarios)
         {
             double[] output = new double[source.Length];
-            Sgf.Calculate(source.AsSpan(), output.AsSpan(), period, order);
+            Sgf.Batch(source.AsSpan(), output.AsSpan(), period, order);
 
             var expected = CalculateExpectedSgf(source, period, order);
 

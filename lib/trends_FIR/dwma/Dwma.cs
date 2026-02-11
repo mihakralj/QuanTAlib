@@ -22,6 +22,7 @@ public sealed class Dwma : AbstractBase
     private readonly Wma _wma2;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _handler;
+    private bool _disposed;
     private int _sampleCount;
 
     public override bool IsHot => _sampleCount >= WarmupPeriod;
@@ -53,9 +54,13 @@ public sealed class Dwma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _handler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null && _handler != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -91,7 +96,7 @@ public sealed class Dwma : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         source.Times.CopyTo(tSpan);
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
 
         Reset();
 
@@ -129,7 +134,7 @@ public sealed class Dwma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
         {
@@ -164,6 +169,13 @@ public sealed class Dwma : AbstractBase
                 ArrayPool<double>.Shared.Return(tempArray);
             }
         }
+    }
+
+    public static (TSeries Results, Dwma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Dwma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

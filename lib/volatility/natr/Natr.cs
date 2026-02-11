@@ -275,4 +275,11 @@ public sealed class Natr : AbstractBase
         var natr = new Natr(period);
         return natr.Update(source);
     }
+
+    public static (TSeries Results, Natr Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Natr(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }

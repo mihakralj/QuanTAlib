@@ -166,7 +166,7 @@ public sealed class Dmx : ITValuePublisher
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         // Span-based batch calculation
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, vSpan);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, _period, vSpan);
         source.Close.Times.CopyTo(tSpan);
 
         // Restore streaming state by replaying only tail bars (JMA needs ~2*period for full warmup)
@@ -182,7 +182,7 @@ public sealed class Dmx : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high,
+    public static void Batch(ReadOnlySpan<double> high,
                                  ReadOnlySpan<double> low,
                                  ReadOnlySpan<double> close,
                                  int period,
@@ -271,9 +271,9 @@ public sealed class Dmx : ITValuePublisher
                 tr[i] = trRaw;
             }
 
-            Jma.Calculate(dmPlus, dmPlusSmooth, period);
-            Jma.Calculate(dmMinus, dmMinusSmooth, period);
-            Jma.Calculate(tr, trSmooth, period);
+            Jma.Batch(dmPlus, dmPlusSmooth, period);
+            Jma.Batch(dmMinus, dmMinusSmooth, period);
+            Jma.Batch(tr, trSmooth, period);
 
             for (int i = 0; i < len; i++)
             {
@@ -303,5 +303,12 @@ public sealed class Dmx : ITValuePublisher
     {
         var dmx = new Dmx(period);
         return dmx.Update(source);
+    }
+
+    public static (TSeries Results, Dmx Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Dmx(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

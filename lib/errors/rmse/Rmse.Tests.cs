@@ -241,7 +241,7 @@ public class RmseTests
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
         }
 
-        var results = Rmse.Calculate(actual, predicted, 3);
+        var results = Rmse.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // All errors are 5, MSE = 25, RMSE = 5

@@ -21,14 +21,14 @@ namespace QuanTAlib;
 /// This is significantly faster than O(N log N) full sort for each update.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Median : AbstractBase, IDisposable
+public sealed class Median : AbstractBase
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly double[] _sortedBuffer;
     private readonly double[] _p_sortedBuffer;
     private readonly TValuePublishedHandler _handler;
-    private ITValuePublisher? _source;
+    private readonly ITValuePublisher? _source;
     private bool _disposed;
 
     /// <summary>
@@ -312,6 +312,13 @@ public sealed class Median : AbstractBase, IDisposable
         }
     }
 
+    public static (TSeries Results, Median Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Median(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int BinarySearchSpan(Span<double> span, int length, double value)
     {
@@ -352,19 +359,16 @@ public sealed class Median : AbstractBase, IDisposable
     /// <summary>
     /// Disposes the indicator and unsubscribes from the source.
     /// </summary>
-    public new void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        if (_disposed)
+        if (!_disposed)
         {
-            return;
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
-
-        if (_source != null)
-        {
-            _source.Pub -= _handler;
-            _source = null;
-        }
-
-        _disposed = true;
+        base.Dispose(disposing);
     }
 }

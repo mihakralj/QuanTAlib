@@ -61,7 +61,7 @@ public sealed class RsiValidationTests(ITestOutputHelper output) : IDisposable
         foreach (var period in periods)
         {
             double[] qOutput = new double[tData.Length];
-            Rsi.Calculate(tData.AsSpan(), qOutput.AsSpan(), period);
+            Rsi.Batch(tData.AsSpan(), qOutput.AsSpan(), period);
 
             double[] tOutput = new double[tData.Length];
             var retCode = TALib.Functions.Rsi<double>(tData, 0..^0, tOutput, out var outRange, period);
@@ -86,7 +86,7 @@ public sealed class RsiValidationTests(ITestOutputHelper output) : IDisposable
         {
             // Calculate QuanTAlib RSI (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Rsi.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Rsi.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Skender RSI
             var sResult = _testData.SkenderQuotes.GetRsi(period).ToList();
@@ -106,7 +106,7 @@ public sealed class RsiValidationTests(ITestOutputHelper output) : IDisposable
         foreach (var period in periods)
         {
             double[] qOutput = new double[tData.Length];
-            Rsi.Calculate(tData.AsSpan(), qOutput.AsSpan(), period);
+            Rsi.Batch(tData.AsSpan(), qOutput.AsSpan(), period);
 
             var rsiIndicator = Tulip.Indicators.rsi;
             double[][] inputs = { tData };

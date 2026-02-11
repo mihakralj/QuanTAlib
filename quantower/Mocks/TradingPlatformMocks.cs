@@ -349,6 +349,15 @@ public class LineSeries(string name, Color color, int width, LineStyle style)
     public IReadOnlyList<double> Values => _values;
 }
 
+/// <summary>
+/// Line level for indicator horizontal lines
+/// </summary>
+public class LineLevel(double value, string name, Color color, int width, LineStyle style)
+    : Line(name, color, width, style)
+{
+    public double Value { get; set; } = value;
+}
+
 #endregion
 
 #region Paint Chart Event Args
@@ -424,6 +433,7 @@ public interface IWatchlistIndicator
 public abstract class Indicator
 {
     private readonly List<LineSeries> _lineSeries = [];
+    private readonly List<LineLevel> _lineLevels = [];
 
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -439,10 +449,16 @@ public abstract class Indicator
     public int Count => HistoricalData.Count;
 
     public IReadOnlyList<LineSeries> LinesSeries => _lineSeries;
+    public IReadOnlyList<LineLevel> LineLevels => _lineLevels;
 
     protected void AddLineSeries(LineSeries series)
     {
         _lineSeries.Add(series);
+    }
+
+    protected void AddLineLevel(double value, string name, Color color, int width, LineStyle style)
+    {
+        _lineLevels.Add(new LineLevel(value, name, color, width, style));
     }
 
     /// <summary>

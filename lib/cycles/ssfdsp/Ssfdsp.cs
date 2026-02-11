@@ -229,7 +229,7 @@ public sealed class Ssfdsp : AbstractBase
     /// <summary>
     /// Calculates SSF-DSP for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 40)
+    public static TSeries Batch(TSeries source, int period = 40)
     {
         var ssfdsp = new Ssfdsp(period);
         return ssfdsp.Update(source);
@@ -327,5 +327,12 @@ public sealed class Ssfdsp : AbstractBase
 
             output[i] = ssfFast - ssfSlow;
         }
+    }
+
+    public static (TSeries Results, Ssfdsp Indicator) Calculate(TSeries source, int period = 40)
+    {
+        var indicator = new Ssfdsp(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

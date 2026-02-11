@@ -440,7 +440,7 @@ public class VrocTests
         }
 
         // Batch
-        var batchResult = Vroc.Calculate(_bars, period: 12, usePercent: true);
+        var batchResult = Vroc.Batch(_bars, period: 12, usePercent: true);
 
         Assert.Equal(streamingResults.Count, batchResult.Count);
         for (int i = 0; i < streamingResults.Count; i++)
@@ -465,7 +465,7 @@ public class VrocTests
         // Span - pass arrays directly (implicit span conversion)
         var volume = _bars.Volume.Values.ToArray();
         var output = new double[_bars.Count];
-        Vroc.Calculate(volume, output, period: 12, usePercent: true);
+        Vroc.Batch(volume, output, period: 12, usePercent: true);
 
         for (int i = 0; i < streamingResults.Count; i++)
         {
@@ -507,7 +507,7 @@ public class VrocTests
         // Span - pass arrays directly (implicit span conversion)
         var volume = _bars.Volume.Values.ToArray();
         var output = new double[_bars.Count];
-        Vroc.Calculate(volume, output, period: 12, usePercent: false);
+        Vroc.Batch(volume, output, period: 12, usePercent: false);
 
         for (int i = 0; i < streamingResults.Count; i++)
         {
@@ -528,7 +528,7 @@ public class VrocTests
         ArgumentException? caught = null;
         try
         {
-            Vroc.Calculate(volume, output, period: 12, usePercent: true);
+            Vroc.Batch(volume, output, period: 12, usePercent: true);
         }
         catch (ArgumentException ex)
         {
@@ -548,7 +548,7 @@ public class VrocTests
         ArgumentException? caught = null;
         try
         {
-            Vroc.Calculate(volume, output, period: 0, usePercent: true);
+            Vroc.Batch(volume, output, period: 0, usePercent: true);
         }
         catch (ArgumentException ex)
         {
@@ -566,7 +566,7 @@ public class VrocTests
         double[] outputArr = [];
 
         // Should not throw
-        Vroc.Calculate(volumeArr, outputArr, period: 12, usePercent: true);
+        Vroc.Batch(volumeArr, outputArr, period: 12, usePercent: true);
 
         Assert.Empty(outputArr);
     }
@@ -582,7 +582,7 @@ public class VrocTests
             volume[i] = i == 10 ? double.NaN : 500 + i;
         }
 
-        Vroc.Calculate(volume, output, period: 5, usePercent: true);
+        Vroc.Batch(volume, output, period: 5, usePercent: true);
 
         foreach (var val in output)
         {
@@ -602,7 +602,7 @@ public class VrocTests
         }
 
         // Should not throw stack overflow
-        Vroc.Calculate(volume, output, period: 100, usePercent: true);
+        Vroc.Batch(volume, output, period: 100, usePercent: true);
 
         Assert.True(double.IsFinite(output[^1]));
     }

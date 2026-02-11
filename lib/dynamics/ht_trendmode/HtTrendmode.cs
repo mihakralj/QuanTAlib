@@ -587,7 +587,7 @@ public sealed class HtTrendmode : AbstractBase
         }
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (output.Length < source.Length)
         {
@@ -601,9 +601,16 @@ public sealed class HtTrendmode : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var ht = new HtTrendmode();
         return ht.Update(source);
+    }
+
+    public static (TSeries Results, HtTrendmode Indicator) Calculate(TSeries source)
+    {
+        var indicator = new HtTrendmode();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

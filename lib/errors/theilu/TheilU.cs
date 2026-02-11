@@ -75,7 +75,7 @@ public sealed class TheilU : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("TheilU requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+        throw new NotSupportedException("TheilU requires two inputs. Use Batch(actualSeries, predictedSeries, period).");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -170,7 +170,7 @@ public sealed class TheilU : AbstractBase
         Last = default;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -351,5 +351,12 @@ public sealed class TheilU : AbstractBase
                 sqPredSum = recalcSqPred;
             }
         }
+    }
+
+    public static (TSeries Results, TheilU Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new TheilU(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

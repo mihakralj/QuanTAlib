@@ -165,4 +165,11 @@ public sealed class Trima : AbstractBase
             ArrayPool<double>.Shared.Return(tempArray);
         }
     }
+
+    public static (TSeries Results, Trima Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Trima(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }

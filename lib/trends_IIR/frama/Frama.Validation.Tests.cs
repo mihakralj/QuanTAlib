@@ -46,7 +46,7 @@ public class FramaValidationTests
         double[] reference = new double[series.Count];
 
         ReferenceFrama(series.High.Values, series.Low.Values, period, reference);
-        Frama.Calculate(series.High.Values, series.Low.Values, period, output);
+        Frama.Batch(series.High.Values, series.Low.Values, period, output);
 
         for (int i = 0; i < series.Count; i++)
         {

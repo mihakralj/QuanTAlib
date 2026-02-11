@@ -13,7 +13,7 @@ public class WadValidationTests
     public void Wad_BatchMatchesStreaming()
     {
         // Batch calculation
-        var batchResult = Wad.Calculate(_data.Bars);
+        var batchResult = Wad.Batch(_data.Bars);
 
         // Streaming calculation
         var wad = new Wad();
@@ -37,7 +37,7 @@ public class WadValidationTests
         var spanOutput = new double[high.Length];
 
         // Span calculation
-        Wad.Calculate(high, low, close, volume, spanOutput);
+        Wad.Batch(high, low, close, volume, spanOutput);
 
         // Streaming calculation
         var wad = new Wad();

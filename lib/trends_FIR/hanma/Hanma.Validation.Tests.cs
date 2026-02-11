@@ -104,7 +104,7 @@ public class HanmaValidationTests
         // Span
         double[] input = series.Values.ToArray();
         double[] spanOutput = new double[input.Length];
-        Hanma.Calculate(input.AsSpan(), spanOutput.AsSpan(), period);
+        Hanma.Batch(input.AsSpan(), spanOutput.AsSpan(), period);
 
         // All should match
         for (int i = 0; i < series.Count; i++)

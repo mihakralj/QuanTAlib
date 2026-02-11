@@ -32,9 +32,9 @@ public class BpfValidationTests
         double[] out100 = new double[T];
 
         // Instantiate BPF with LowerPeriod=40 (HP cutoff), UpperPeriod=10 (LP cutoff)
-        Bpf.Calculate(sine5, out5, 40, 10);
-        Bpf.Calculate(sine15, out15, 40, 10);
-        Bpf.Calculate(sine100, out100, 40, 10);
+        Bpf.Batch(sine5, out5, 40, 10);
+        Bpf.Batch(sine15, out15, 40, 10);
+        Bpf.Batch(sine100, out100, 40, 10);
 
         // Analysis of results (last 100 samples to avoid warmup)
         double amp5 = GetAmplitude(out5);

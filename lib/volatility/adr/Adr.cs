@@ -209,6 +209,13 @@ public sealed class Adr : AbstractBase
         var adr = new Adr(period, method);
         return adr.Update(source);
     }
+
+    public static (TSeries Results, Adr Indicator) Calculate(TBarSeries source, int period, AdrMethod method = AdrMethod.Sma)
+    {
+        var indicator = new Adr(period, method);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }
 
 /// <summary>

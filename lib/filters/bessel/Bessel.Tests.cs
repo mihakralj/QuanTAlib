@@ -28,11 +28,11 @@ public class BesselTests
         double[] output = new double[5];
 
         var exLength = Assert.Throws<ArgumentException>(() =>
-            Bessel.Calculate(source.AsSpan(), output.AsSpan(), 1));
+            Bessel.Batch(source.AsSpan(), output.AsSpan(), 1));
         Assert.Equal("length", exLength.ParamName);
 
         var exLengthZero = Assert.Throws<ArgumentException>(() =>
-            Bessel.Calculate(source.AsSpan(), output.AsSpan(), 0));
+            Bessel.Batch(source.AsSpan(), output.AsSpan(), 0));
         Assert.Equal("length", exLengthZero.ParamName);
     }
 
@@ -43,7 +43,7 @@ public class BesselTests
         double[] wrongSizeOutput = new double[3];
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Bessel.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 14));
+            Bessel.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 14));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -252,7 +252,7 @@ public class BesselTests
 
         var tseriesResult = Bessel.Calculate(series, 14).Results;
 
-        Bessel.Calculate(source.AsSpan(), output.AsSpan(), 14);
+        Bessel.Batch(source.AsSpan(), output.AsSpan(), 14);
 
         for (int i = 0; i < 100; i++)
         {
@@ -276,7 +276,7 @@ public class BesselTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Bessel.Calculate(spanInput, spanOutput, length);
+        Bessel.Batch(spanInput, spanOutput, length);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

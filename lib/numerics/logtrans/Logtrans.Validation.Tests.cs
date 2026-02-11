@@ -18,7 +18,7 @@ public class LogtransValidationTests
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var source = bars.Close;
 
-        var result = Logtrans.Calculate(source);
+        var result = Logtrans.Batch(source);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -55,7 +55,7 @@ public class LogtransValidationTests
 
         var values = source.Values.ToArray();
         var output = new double[count];
-        Logtrans.Calculate(values, output);
+        Logtrans.Batch(values, output);
 
         for (int i = 0; i < count; i++)
         {
@@ -199,7 +199,7 @@ public class LogtransValidationTests
         var values = new double[] { 2.0, 0.0, 3.0 };
         var output = new double[3];
 
-        Logtrans.Calculate(values, output);
+        Logtrans.Batch(values, output);
 
         Assert.Equal(Math.Log(2.0), output[0], Tolerance);  // ln(2)
         Assert.Equal(Math.Log(2.0), output[1], Tolerance);  // zero -> uses last valid (ln(2))
@@ -213,7 +213,7 @@ public class LogtransValidationTests
         var values = new double[] { 2.0, -5.0, 3.0 };
         var output = new double[3];
 
-        Logtrans.Calculate(values, output);
+        Logtrans.Batch(values, output);
 
         Assert.Equal(Math.Log(2.0), output[0], Tolerance);  // ln(2)
         Assert.Equal(Math.Log(2.0), output[1], Tolerance);  // negative -> uses last valid (ln(2))

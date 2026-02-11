@@ -134,7 +134,7 @@ public sealed class Mgdi : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _k);
+        Batch(source.Values, vSpan, _period, _k);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -164,7 +164,7 @@ public sealed class Mgdi : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14, double k = 0.6)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 14, double k = 0.6)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
         if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0)
@@ -227,6 +227,13 @@ public sealed class Mgdi : AbstractBase
 
             output[i] = lastMgdi;
         }
+    }
+
+    public static (TSeries Results, Mgdi Indicator) Calculate(TSeries source, int period = 14, double k = 0.6)
+    {
+        var indicator = new Mgdi(period, k);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

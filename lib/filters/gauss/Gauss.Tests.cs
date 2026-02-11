@@ -61,7 +61,7 @@ public class GaussTests
 
         // Static calculate comparison
         double[] output = new double[source.Count];
-        Gauss.Calculate(source.Values, output, 1.0);
+        Gauss.Batch(source.Values, output, 1.0);
         for (int i = 0; i < source.Count; i++)
         {
             Assert.Equal(seriesResult[i].Value, output[i], 1e-9);

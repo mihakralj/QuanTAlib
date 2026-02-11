@@ -163,7 +163,7 @@ public class GaussValidationTests : IDisposable
         foreach (var sigma in sigmas)
         {
             double[] output = new double[source.Length];
-            Gauss.Calculate(source.AsSpan(), output.AsSpan(), sigma);
+            Gauss.Batch(source.AsSpan(), output.AsSpan(), sigma);
 
             var expected = CalculateExpectedGauss(source, sigma);
 

@@ -182,7 +182,7 @@ public sealed class Apo : ITValuePublisher, IDisposable
     /// <param name="fastPeriod">Fast EMA period (default 12)</param>
     /// <param name="slowPeriod">Slow EMA period (default 26)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int fastPeriod = 12, int slowPeriod = 26)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != output.Length)
         {
@@ -196,6 +196,13 @@ public sealed class Apo : ITValuePublisher, IDisposable
         Ema.Batch(source, slowEma, slowPeriod);
 
         SimdExtensions.Subtract(fastEma, slowEma, output);
+    }
+
+    public static (TSeries Results, Apo Indicator) Calculate(TSeries source, int fastPeriod = 12, int slowPeriod = 26)
+    {
+        var indicator = new Apo(fastPeriod, slowPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

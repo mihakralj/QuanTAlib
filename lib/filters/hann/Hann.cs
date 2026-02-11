@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// This filter provides strong smoothing properties but introduces lag, as the weights
 /// typically start and end at zero.
 /// </summary>
+[SkipLocalsInit]
 public sealed class Hann : AbstractBase
 {
     private readonly double[] _weights;
@@ -156,7 +157,7 @@ public sealed class Hann : AbstractBase
         }
 
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, Length);
+        Batch(source.Values, resultValues, Length);
 
         // Convert to TSeries
         var result = new TSeries();
@@ -176,12 +177,10 @@ public sealed class Hann : AbstractBase
         return result;
     }
 
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    public static TSeries Batch(TSeries source, int length)
     {
-        foreach (double value in source)
-        {
-            Update(new TValue(DateTime.MinValue, value), isNew: true);
-        }
+        var indicator = new Hann(length);
+        return indicator.Update(source);
     }
 
     /// <summary>
@@ -191,7 +190,7 @@ public sealed class Hann : AbstractBase
     /// <param name="output">Output buffer (must be same length as source)</param>
     /// <param name="length">Lookback length</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int length)
     {
         if (length <= 1)
         {
@@ -247,6 +246,21 @@ public sealed class Hann : AbstractBase
             }
             lastValue = output[i];
         }
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (double value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
+        }
+    }
+
+    public static (TSeries Results, Hann Indicator) Calculate(TSeries source, int length)
+    {
+        var indicator = new Hann(length);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

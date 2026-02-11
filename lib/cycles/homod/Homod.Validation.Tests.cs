@@ -160,7 +160,7 @@ public class HomodValidationTests
         {
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
-        var tSeriesResult = Homod.Calculate(tSeries, 6, 50);
+        var tSeriesResult = Homod.Batch(tSeries, 6, 50);
 
         // Compare all values
         for (int i = 0; i < bars.Count; i++)

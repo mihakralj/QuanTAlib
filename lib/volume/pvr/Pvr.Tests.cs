@@ -215,7 +215,7 @@ public class PvrTests
         }
 
         // Batch
-        var batchResult = Pvr.Calculate(bars);
+        var batchResult = Pvr.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -248,7 +248,7 @@ public class PvrTests
         var volume = bars.Volume.Values.ToArray();
         var spanOutput = new double[bars.Count];
 
-        Pvr.Calculate(price, volume, spanOutput);
+        Pvr.Batch(price, volume, spanOutput);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -263,7 +263,7 @@ public class PvrTests
         var volume = new double[100];
         var output = new double[99]; // Different length
 
-        Assert.Throws<ArgumentException>(() => Pvr.Calculate(price, volume, output));
+        Assert.Throws<ArgumentException>(() => Pvr.Batch(price, volume, output));
     }
 
     [Fact]
@@ -274,7 +274,7 @@ public class PvrTests
         var output = Array.Empty<double>();
 
         // Should not throw
-        Pvr.Calculate(price, volume, output);
+        Pvr.Batch(price, volume, output);
 
         Assert.Empty(output);
     }

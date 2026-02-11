@@ -22,6 +22,7 @@ public sealed class Conv : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _subHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     private record struct State(double LastValidValue);
     private State _state;
@@ -56,9 +57,13 @@ public sealed class Conv : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (_source != null && _subHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _subHandler;
+            if (disposing && _source != null && _subHandler != null)
+            {
+                _source.Pub -= _subHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -274,6 +279,13 @@ public sealed class Conv : AbstractBase
 
             output[i] = sum;
         }
+    }
+
+    public static (TSeries Results, Conv Indicator) Calculate(TSeries source, double[] kernel)
+    {
+        var indicator = new Conv(kernel);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

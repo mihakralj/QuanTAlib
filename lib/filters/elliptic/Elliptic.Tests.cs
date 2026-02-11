@@ -41,7 +41,7 @@ public class EllipticTests
         // 3. Span
         double[] spanInput = series.Values.ToArray();
         double[] spanOutput = new double[spanInput.Length];
-        Elliptic.Calculate(spanInput, spanOutput, period);
+        Elliptic.Batch(spanInput, spanOutput, period);
 
         // Assert
         for (int i = 0; i < series.Count; i++)

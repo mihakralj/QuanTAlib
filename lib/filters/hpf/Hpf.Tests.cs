@@ -70,7 +70,7 @@ public class HpfTests
         var tseriesResult = hpf.Update(source);
         var spanOutput = new double[source.Count];
 
-        Hpf.Calculate(source.Values, spanOutput, 40, out _);
+        Hpf.Batch(source.Values, spanOutput, 40, out _);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -118,6 +118,6 @@ public class HpfTests
     {
         double[] src = new double[10];
         double[] dst = new double[5];
-        Assert.Throws<ArgumentException>(() => Hpf.Calculate(src, dst, 40, out _));
+        Assert.Throws<ArgumentException>(() => Hpf.Batch(src, dst, 40, out _));
     }
 }

@@ -120,11 +120,11 @@ public class LinRegTests
 
         // Period must be > 0
         Assert.Throws<ArgumentException>(() =>
-            LinReg.Calculate(source.AsSpan(), output.AsSpan(), 0));
+            LinReg.Batch(source.AsSpan(), output.AsSpan(), 0));
 
         // Output must be same length as source
         Assert.Throws<ArgumentException>(() =>
-            LinReg.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+            LinReg.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class LinRegTests
         var tseriesResult = LinReg.Batch(series, period);
 
         double[] output = new double[100];
-        LinReg.Calculate(source.AsSpan(), output.AsSpan(), period);
+        LinReg.Batch(source.AsSpan(), output.AsSpan(), period);
 
         for (int i = 0; i < 100; i++)
         {
@@ -213,7 +213,7 @@ public class LinRegTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        LinReg.Calculate(spanInput, spanOutput, period);
+        LinReg.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

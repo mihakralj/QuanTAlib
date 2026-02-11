@@ -306,7 +306,7 @@ public class UchannelTests
         double[] spanUpper = new double[highArr.Length];
         double[] spanMiddle = new double[highArr.Length];
         double[] spanLower = new double[highArr.Length];
-        Uchannel.Calculate(highArr.AsSpan(), lowArr.AsSpan(), closeArr.AsSpan(),
+        Uchannel.Batch(highArr.AsSpan(), lowArr.AsSpan(), closeArr.AsSpan(),
             spanUpper.AsSpan(), spanMiddle.AsSpan(), spanLower.AsSpan(),
             strPeriod, centerPeriod, multiplier);
         double spanLast = spanMiddle[^1];
@@ -336,15 +336,15 @@ public class UchannelTests
 
         // Period must be >= 1
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Uchannel.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+            Uchannel.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
                 upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 0));
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Uchannel.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+            Uchannel.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
                 upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), -1));
 
         // All arrays must be same length
         Assert.Throws<ArgumentException>(() =>
-            Uchannel.Calculate(high.AsSpan(), wrongSize.AsSpan(), close.AsSpan(),
+            Uchannel.Batch(high.AsSpan(), wrongSize.AsSpan(), close.AsSpan(),
                 upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3));
     }
 
@@ -358,7 +358,7 @@ public class UchannelTests
         double[] middle = new double[5];
         double[] lower = new double[5];
 
-        Uchannel.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+        Uchannel.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
             upper.AsSpan(), middle.AsSpan(), lower.AsSpan(), 3, 3, 1.0);
 
         foreach (var val in middle)

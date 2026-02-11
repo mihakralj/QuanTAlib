@@ -263,7 +263,7 @@ public class MfiTests
         }
 
         // Batch
-        var batchResult = Mfi.Calculate(bars);
+        var batchResult = Mfi.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -298,7 +298,7 @@ public class MfiTests
         var volume = bars.Volume.Values.ToArray();
         var output = new double[bars.Count];
 
-        Mfi.Calculate(high, low, close, volume, output);
+        Mfi.Batch(high, low, close, volume, output);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -315,7 +315,7 @@ public class MfiTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Mfi.Calculate(high, low, close, volume, output));
+        Assert.Throws<ArgumentException>(() => Mfi.Batch(high, low, close, volume, output));
     }
 
     [Fact]
@@ -327,7 +327,7 @@ public class MfiTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Mfi.Calculate(high, low, close, volume, output, period: 0));
+        Assert.Throws<ArgumentException>(() => Mfi.Batch(high, low, close, volume, output, period: 0));
     }
 
     [Fact]
@@ -339,7 +339,7 @@ public class MfiTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Mfi.Calculate(high, low, close, volume, output);
+        Mfi.Batch(high, low, close, volume, output);
 
         Assert.Empty(output);
     }

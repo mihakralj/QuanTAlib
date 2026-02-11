@@ -268,7 +268,7 @@ public sealed class Pvo : ITValuePublisher
     /// <param name="slowPeriod">The slow EMA period</param>
     /// <param name="signalPeriod">The signal line EMA period</param>
     /// <returns>A TSeries containing the PVO values</returns>
-    public static TSeries Calculate(TBarSeries bars, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
+    public static TSeries Batch(TBarSeries bars, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
     {
         if (bars.Count == 0)
         {
@@ -280,7 +280,7 @@ public sealed class Pvo : ITValuePublisher
         var signal = new double[bars.Count];
         var histogram = new double[bars.Count];
 
-        Calculate(bars.Volume.Values, v, signal, histogram, fastPeriod, slowPeriod, signalPeriod);
+        Batch(bars.Volume.Values, v, signal, histogram, fastPeriod, slowPeriod, signalPeriod);
 
         return new TSeries(t, v);
     }
@@ -297,7 +297,7 @@ public sealed class Pvo : ITValuePublisher
     /// <param name="signalPeriod">The signal line EMA period</param>
     /// <exception cref="ArgumentException">Thrown when spans have different lengths or parameters are invalid</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> volume, Span<double> output, Span<double> signal,
+    public static void Batch(ReadOnlySpan<double> volume, Span<double> output, Span<double> signal,
         Span<double> histogram, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
     {
         if (volume.Length != output.Length)
@@ -399,5 +399,12 @@ public sealed class Pvo : ITValuePublisher
             // Calculate histogram
             histogram[i] = pvoValue - signalValue;
         }
+    }
+
+    public static (TSeries Results, Pvo Indicator) Calculate(TBarSeries bars, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
+    {
+        var indicator = new Pvo(fastPeriod, slowPeriod, signalPeriod);
+        TSeries results = indicator.Update(bars);
+        return (results, indicator);
     }
 }

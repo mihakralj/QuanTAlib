@@ -99,7 +99,7 @@ public sealed class Sqrttrans : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var indicator = new Sqrttrans();
         return indicator.Update(source);
@@ -108,7 +108,7 @@ public sealed class Sqrttrans : AbstractBase
     /// <summary>
     /// Calculates square root over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
         {
@@ -135,6 +135,13 @@ public sealed class Sqrttrans : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Sqrttrans Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Sqrttrans();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

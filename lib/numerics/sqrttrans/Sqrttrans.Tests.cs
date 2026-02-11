@@ -201,7 +201,7 @@ public class SqrttransTests
         }
 
         // Batch
-        var batch = Sqrttrans.Calculate(source);
+        var batch = Sqrttrans.Batch(source);
 
         // Compare all values
         for (int i = 0; i < source.Count; i++)
@@ -219,12 +219,12 @@ public class SqrttransTests
         var source = bars.Close;
 
         // TSeries batch
-        var batchResult = Sqrttrans.Calculate(source);
+        var batchResult = Sqrttrans.Batch(source);
 
         // Span calculation
         var values = source.Values.ToArray();
         var output = new double[count];
-        Sqrttrans.Calculate(values, output);
+        Sqrttrans.Batch(values, output);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -238,14 +238,14 @@ public class SqrttransTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Sqrttrans.Calculate(ReadOnlySpan<double>.Empty, output);
+            Sqrttrans.Batch(ReadOnlySpan<double>.Empty, output);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Sqrttrans.Calculate(source, output);
+            Sqrttrans.Batch(source, output);
         });
     }
 

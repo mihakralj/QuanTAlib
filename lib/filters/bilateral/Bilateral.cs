@@ -332,17 +332,11 @@ public sealed class Bilateral : AbstractBase
     /// <summary>
     /// Calculates bilateral filter values for a TSeries and returns both results and a primed indicator.
     /// </summary>
-    public static (TSeries Results, Bilateral Indicator) Calculate(TSeries source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
-    {
-        var indicator = new Bilateral(period, sigmaSRatio, sigmaRMult);
-        var results = indicator.Update(source);
-        return (results, indicator);
-    }
 
     /// <summary>
     /// Calculates bilateral filter values using spans (zero allocation in hot path).
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
+    private static void BatchCore(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
     {
         if (period <= 0)
         {
@@ -520,7 +514,13 @@ public sealed class Bilateral : AbstractBase
     /// </summary>
     public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
     {
-        Calculate(source, destination, period, sigmaSRatio, sigmaRMult);
+        BatchCore(source, destination, period, sigmaSRatio, sigmaRMult);
+    }
+    public static (TSeries Results, Bilateral Indicator) Calculate(TSeries source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
+    {
+        var indicator = new Bilateral(period, sigmaSRatio, sigmaRMult);
+        var results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

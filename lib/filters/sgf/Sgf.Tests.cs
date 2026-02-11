@@ -44,7 +44,7 @@ public class SgfTests
         // 3. Span Mode
         double[] spanInput = series.Values.ToArray();
         double[] spanOutput = new double[spanInput.Length];
-        Sgf.Calculate(spanInput, spanOutput, period, polyOrder);
+        Sgf.Batch(spanInput, spanOutput, period, polyOrder);
 
         // Assert
         for (int i = 0; i < series.Count; i++)

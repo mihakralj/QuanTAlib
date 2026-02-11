@@ -204,7 +204,7 @@ public class VaTests
         }
 
         // Batch
-        var batchResult = Va.Calculate(bars);
+        var batchResult = Va.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -243,7 +243,7 @@ public class VaTests
 
         // Span
         var output = new double[count];
-        Va.Calculate(high, low, close, volume, output);
+        Va.Batch(high, low, close, volume, output);
 
         for (int i = 0; i < count; i++)
         {
@@ -260,7 +260,7 @@ public class VaTests
         var volume = new double[99]; // Different length
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Va.Calculate(high, low, close, volume, output));
+        Assert.Throws<ArgumentException>(() => Va.Batch(high, low, close, volume, output));
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public class VaTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Va.Calculate(high, low, close, volume, output);
+        Va.Batch(high, low, close, volume, output);
 
         Assert.Empty(output);
     }

@@ -161,13 +161,20 @@ public sealed class Vel : ITValuePublisher, IDisposable
         }
     }
 
+    public static (TSeries Results, Vel Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Vel(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void BatchStackalloc(ReadOnlySpan<double> source, Span<double> output, int period, int len)
     {
         Span<double> pwma = stackalloc double[len];
         Span<double> wma = stackalloc double[len];
 
-        Pwma.Calculate(source, pwma, period);
+        Pwma.Batch(source, pwma, period);
         Wma.Batch(source, wma, period);
         SimdExtensions.Subtract(pwma, wma, output);
     }
@@ -183,7 +190,7 @@ public sealed class Vel : ITValuePublisher, IDisposable
             Span<double> pwma = rentedPwma.AsSpan(0, len);
             Span<double> wma = rentedWma.AsSpan(0, len);
 
-            Pwma.Calculate(source, pwma, period);
+            Pwma.Batch(source, pwma, period);
             Wma.Batch(source, wma, period);
             SimdExtensions.Subtract(pwma, wma, output);
         }

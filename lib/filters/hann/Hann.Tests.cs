@@ -125,7 +125,7 @@ public class HannTests
         }
 
         var tseriesResult = new Hann(length).Update(series);
-        Hann.Calculate(input.AsSpan(), output.AsSpan(), length);
+        Hann.Batch(input.AsSpan(), output.AsSpan(), length);
 
         for (int i = 0; i < 100; i++)
         {

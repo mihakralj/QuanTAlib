@@ -300,11 +300,11 @@ public class PwmaTests
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentException>(() => Pwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Pwma.Calculate(source.AsSpan(), output.AsSpan(), -1));
+        Assert.Throws<ArgumentException>(() => Pwma.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Pwma.Batch(source.AsSpan(), output.AsSpan(), -1));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Pwma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Pwma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public class PwmaTests
         var tseriesResult = Pwma.Batch(series, 10);
 
         // Calculate with Span API
-        Pwma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Pwma.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)
@@ -341,7 +341,7 @@ public class PwmaTests
         double[] source = [10, 20, 30];
         double[] output = new double[3];
 
-        Pwma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Pwma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // PWMA(3) warmup:
         // i=0: 10 (1^2*10 / 1^2) = 10
@@ -369,7 +369,7 @@ public class PwmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Pwma.Calculate(spanInput, spanOutput, period);
+        Pwma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

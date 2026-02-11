@@ -128,7 +128,7 @@ public sealed class Rsi : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
         // Restore state for streaming
@@ -166,7 +166,7 @@ public sealed class Rsi : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -291,6 +291,13 @@ public sealed class Rsi : AbstractBase
 
         System.Buffers.ArrayPool<double>.Shared.Return(gains);
         System.Buffers.ArrayPool<double>.Shared.Return(losses);
+    }
+
+    public static (TSeries Results, Rsi Indicator) Calculate(TSeries source, int period = 14)
+    {
+        var indicator = new Rsi(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

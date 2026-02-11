@@ -321,6 +321,13 @@ public sealed class Rsx : ITValuePublisher
         }
     }
 
+    public static (TSeries Results, Rsx Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Rsx(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     public void Reset()
     {
         _state = default;

@@ -209,7 +209,7 @@ public class HighestTests
         }
 
         // Batch
-        var batch = Highest.Calculate(source, period);
+        var batch = Highest.Batch(source, period);
 
         // Compare last values (after warmup)
         for (int i = period; i < source.Count; i++)
@@ -228,12 +228,12 @@ public class HighestTests
         var source = bars.Close;
 
         // TSeries batch
-        var batchResult = Highest.Calculate(source, period);
+        var batchResult = Highest.Batch(source, period);
 
         // Span calculation
         var values = source.Values.ToArray();
         var output = new double[count];
-        Highest.Calculate(values, output, period);
+        Highest.Batch(values, output, period);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -247,21 +247,21 @@ public class HighestTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Highest.Calculate(ReadOnlySpan<double>.Empty, output, 5);
+            Highest.Batch(ReadOnlySpan<double>.Empty, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Highest.Calculate(source, output, 5);
+            Highest.Batch(source, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[10];
-            Highest.Calculate(source, output, 0);
+            Highest.Batch(source, output, 0);
         });
     }
 

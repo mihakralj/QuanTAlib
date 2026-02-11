@@ -217,7 +217,7 @@ public class SmapeTests
             iterativeResults.Add(smapeIterative.Update(actualSeries[i], predictedSeries[i]).Value);
         }
 
-        var batchResults = Smape.Calculate(actualSeries, predictedSeries, 10);
+        var batchResults = Smape.Batch(actualSeries, predictedSeries, 10);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -261,7 +261,7 @@ public class SmapeTests
             predictedSeries.Add(bar.Time, bar.Close * 0.95);
         }
 
-        var tseriesResult = Smape.Calculate(actualSeries, predictedSeries, 10);
+        var tseriesResult = Smape.Batch(actualSeries, predictedSeries, 10);
         Smape.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < 100; i++)
@@ -295,7 +295,7 @@ public class SmapeTests
         actual.Add(DateTime.UtcNow.Ticks + 1, 100);
         predicted.Add(DateTime.UtcNow.Ticks, 90);
 
-        Assert.Throws<ArgumentException>(() => Smape.Calculate(actual, predicted, 5));
+        Assert.Throws<ArgumentException>(() => Smape.Batch(actual, predicted, 5));
     }
 
     [Fact]

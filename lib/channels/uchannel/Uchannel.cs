@@ -377,7 +377,7 @@ public sealed class Uchannel : AbstractBase
     /// <param name="strPeriod">Period for STR smoothing.</param>
     /// <param name="centerPeriod">Period for centerline smoothing.</param>
     /// <param name="multiplier">Band multiplier.</param>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
         ReadOnlySpan<double> close,

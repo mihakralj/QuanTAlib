@@ -108,7 +108,7 @@ public class HammaTests
         double[] input = series.Values.ToArray();
         double[] output = new double[input.Length];
 
-        Hamma.Calculate(input.AsSpan(), output.AsSpan(), 10);
+        Hamma.Batch(input.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < input.Length; i++)
         {
@@ -277,7 +277,7 @@ public class HammaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Hamma.Calculate(spanInput, spanOutput, period);
+        Hamma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -310,8 +310,8 @@ public class HammaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Hamma.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Hamma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Hamma.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Hamma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -320,7 +320,7 @@ public class HammaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Hamma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Hamma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {

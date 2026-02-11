@@ -201,6 +201,19 @@ public sealed class Elliptic : AbstractBase
         return Last;
     }
 
+    public static TSeries Batch(TSeries source, int period)
+    {
+        var indicator = new Elliptic(period);
+        return indicator.Update(source);
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        CalculateWithState(source, output, period, out _);
+    }
+
     public override void Reset()
     {
         _state = default;
@@ -209,10 +222,11 @@ public sealed class Elliptic : AbstractBase
         Last = default;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static (TSeries Results, Elliptic Indicator) Calculate(TSeries source, int period)
     {
-        CalculateWithState(source, output, period, out _);
+        var indicator = new Elliptic(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

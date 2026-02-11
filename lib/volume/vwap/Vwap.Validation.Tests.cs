@@ -50,7 +50,7 @@ public class VwapValidationTests
         }
 
         // Batch
-        var batchResult = Vwap.Calculate(_data.Bars);
+        var batchResult = Vwap.Batch(_data.Bars);
         var batchValues = batchResult.Values.ToArray();
 
         // Cumulative indicators accumulate floating-point errors over many bars
@@ -75,7 +75,7 @@ public class VwapValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Vwap.Calculate(high, low, close, volume, spanValues);
+        Vwap.Batch(high, low, close, volume, spanValues);
 
         // Cumulative indicators accumulate floating-point errors over many bars
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-10);
@@ -85,7 +85,7 @@ public class VwapValidationTests
     public void Vwap_Batch_Matches_Span()
     {
         // Batch
-        var batchResult = Vwap.Calculate(_data.Bars);
+        var batchResult = Vwap.Batch(_data.Bars);
         var batchValues = batchResult.Values.ToArray();
 
         // Span
@@ -95,7 +95,7 @@ public class VwapValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Vwap.Calculate(high, low, close, volume, spanValues);
+        Vwap.Batch(high, low, close, volume, spanValues);
 
         // Batch and Span use identical code path, should match exactly
         ValidationHelper.VerifyData(batchValues, spanValues, 0, 100, 1e-12);

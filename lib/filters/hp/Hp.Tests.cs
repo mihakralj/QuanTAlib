@@ -68,7 +68,7 @@ public class HpTests
         var tseriesResult = hp.Update(source);
         var spanOutput = new double[source.Count];
 
-        Hp.Calculate(source.Values, spanOutput, 1600);
+        Hp.Batch(source.Values, spanOutput, 1600);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -116,6 +116,6 @@ public class HpTests
     {
         double[] src = new double[10];
         double[] dst = new double[5];
-        Assert.Throws<ArgumentException>(() => Hp.Calculate(src, dst, 1600));
+        Assert.Throws<ArgumentException>(() => Hp.Batch(src, dst, 1600));
     }
 }

@@ -97,7 +97,7 @@ public sealed class KamaValidationTests : IDisposable
         {
             // Calculate QuanTAlib KAMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Kama.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period, fastPeriod, slowPeriod);
+            global::QuanTAlib.Kama.Batch(_testData.RawData.Span, qOutput.AsSpan(), period, fastPeriod, slowPeriod);
 
             // Calculate Skender KAMA
             var sResult = _testData.SkenderQuotes.GetKama(period, fastPeriod, slowPeriod).ToList();

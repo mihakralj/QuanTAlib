@@ -225,7 +225,7 @@ public class CmfTests
         bars.Add(new TBar(time.AddMinutes(1), 10, 12, 8, 12, 200));
         bars.Add(new TBar(time.AddMinutes(2), 12, 12, 8, 8, 100));
 
-        var result = Cmf.Calculate(bars, 3);
+        var result = Cmf.Batch(bars, 3);
 
         Assert.Equal(3, result.Count);
     }
@@ -239,7 +239,7 @@ public class CmfTests
         double[] volume = { 100, 200, 100 };
         double[] output = new double[3];
 
-        Cmf.Calculate(high, low, close, volume, output, 3);
+        Cmf.Batch(high, low, close, volume, output, 3);
 
         // Bar 0: MFV=0, Vol=100 -> CMF=0/100=0
         Assert.Equal(0, output[0]);
@@ -259,7 +259,7 @@ public class CmfTests
         double[] output = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Cmf.Calculate(high, low, close, volume, output, 3));
+            Cmf.Batch(high, low, close, volume, output, 3));
     }
 
     [Fact]
@@ -272,14 +272,14 @@ public class CmfTests
         double[] output = new double[1];
 
         Assert.Throws<ArgumentException>(() =>
-            Cmf.Calculate(high, low, close, volume, output, 0));
+            Cmf.Batch(high, low, close, volume, output, 0));
     }
 
     [Fact]
     public void Cmf_Calculate_EmptySeries_ReturnsEmpty()
     {
         var bars = new TBarSeries();
-        var result = Cmf.Calculate(bars);
+        var result = Cmf.Batch(bars);
         Assert.Empty(result);
     }
 
@@ -302,7 +302,7 @@ public class CmfTests
             volume[i] = 10;
         }
 
-        Cmf.Calculate(high, low, close, volume, output, 20);
+        Cmf.Batch(high, low, close, volume, output, 20);
 
         // All bars have MFM=1, so CMF should be 1.0 once we have enough data
         for (int i = 19; i < count; i++)
@@ -331,7 +331,7 @@ public class CmfTests
         }
 
         // Batch
-        var batchResult = Cmf.Calculate(bars, 20);
+        var batchResult = Cmf.Batch(bars, 20);
 
         // Compare last 80 values (after warmup)
         for (int i = 20; i < 100; i++)

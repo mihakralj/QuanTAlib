@@ -250,7 +250,7 @@ public sealed class Pvd : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int pricePeriod = 14, int volumePeriod = 14, int smoothingPeriod = 3)
+    public static TSeries Batch(TBarSeries source, int pricePeriod = 14, int volumePeriod = 14, int smoothingPeriod = 3)
     {
         if (source.Count == 0)
         {
@@ -260,13 +260,13 @@ public sealed class Pvd : ITValuePublisher
         var t = source.Close.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, v, pricePeriod, volumePeriod, smoothingPeriod);
+        Batch(source.Close.Values, source.Volume.Values, v, pricePeriod, volumePeriod, smoothingPeriod);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output,
+    public static void Batch(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output,
         int pricePeriod = 14, int volumePeriod = 14, int smoothingPeriod = 3)
     {
         if (close.Length != volume.Length)
@@ -378,5 +378,12 @@ public sealed class Pvd : ITValuePublisher
                 output[i] = validCount > 0 ? sum / validCount : 0.0;
             }
         }
+    }
+
+    public static (TSeries Results, Pvd Indicator) Calculate(TBarSeries source, int pricePeriod = 14, int volumePeriod = 14, int smoothingPeriod = 3)
+    {
+        var indicator = new Pvd(pricePeriod, volumePeriod, smoothingPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -99,7 +99,7 @@ public class HwmaValidationTests
         // Span
         double[] input = series.Values.ToArray();
         double[] spanOutput = new double[input.Length];
-        Hwma.Calculate(input.AsSpan(), spanOutput.AsSpan(), period);
+        Hwma.Batch(input.AsSpan(), spanOutput.AsSpan(), period);
 
         // All should match
         for (int i = 0; i < series.Count; i++)

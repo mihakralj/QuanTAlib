@@ -405,7 +405,7 @@ public sealed class Eacp : AbstractBase
     /// <summary>
     /// Calculates EACP for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int minPeriod = 8, int maxPeriod = 48,
+    public static TSeries Batch(TSeries source, int minPeriod = 8, int maxPeriod = 48,
                                      int avgLength = 3, bool enhance = true)
     {
         var eacp = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
@@ -446,5 +446,12 @@ public sealed class Eacp : AbstractBase
             var result = eacp.Update(new TValue(DateTime.UtcNow, source[i]));
             output[i] = result.Value;
         }
+    }
+
+    public static (TSeries Results, Eacp Indicator) Calculate(TSeries source, int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
+    {
+        var indicator = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -136,7 +136,7 @@ public class HannValidationTests : IDisposable
         foreach (var len in lengths)
         {
             double[] output = new double[source.Length];
-            Hann.Calculate(source.AsSpan(), output.AsSpan(), len);
+            Hann.Batch(source.AsSpan(), output.AsSpan(), len);
 
             var expected = CalculateExpectedHann(source, len);
 

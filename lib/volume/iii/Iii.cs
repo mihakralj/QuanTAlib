@@ -211,7 +211,7 @@ public sealed class Iii : ITValuePublisher
     /// <param name="period">The smoothing period</param>
     /// <param name="cumulative">Whether to use cumulative mode</param>
     /// <returns>A TSeries containing the III values</returns>
-    public static TSeries Calculate(TBarSeries bars, int period = 14, bool cumulative = false)
+    public static TSeries Batch(TBarSeries bars, int period = 14, bool cumulative = false)
     {
         if (bars.Count == 0)
         {
@@ -221,7 +221,7 @@ public sealed class Iii : ITValuePublisher
         var t = bars.Open.Times.ToArray();
         var v = new double[bars.Count];
 
-        Calculate(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values, v, period, cumulative);
+        Batch(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values, v, period, cumulative);
 
         return new TSeries(t, v);
     }
@@ -238,7 +238,7 @@ public sealed class Iii : ITValuePublisher
     /// <param name="cumulative">Whether to use cumulative mode</param>
     /// <exception cref="ArgumentException">Thrown when spans have different lengths</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
         ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output,
         int period = 14, bool cumulative = false)
     {
@@ -336,5 +336,12 @@ public sealed class Iii : ITValuePublisher
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedBuffer);
             }
         }
+    }
+
+    public static (TSeries Results, Iii Indicator) Calculate(TBarSeries bars, int period = 14, bool cumulative = false)
+    {
+        var indicator = new Iii(period, cumulative);
+        TSeries results = indicator.Update(bars);
+        return (results, indicator);
     }
 }

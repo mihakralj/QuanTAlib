@@ -96,7 +96,7 @@ public sealed class BilateralValidationTests : IDisposable
         {
             // Calculate QuanTAlib Bilateral (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Bilateral.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period, sigmaSRatio, sigmaRMult);
+            global::QuanTAlib.Bilateral.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period, sigmaSRatio, sigmaRMult);
 
             // Calculate Reference Bilateral
             var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);

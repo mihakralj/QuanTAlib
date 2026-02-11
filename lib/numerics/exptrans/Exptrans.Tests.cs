@@ -187,7 +187,7 @@ public class ExptransTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 40000);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         // Use log of close prices to stay in reasonable exp range
-        var logSource = Logtrans.Calculate(bars.Close);
+        var logSource = Logtrans.Batch(bars.Close);
 
         // Streaming
         var streaming = new Exptrans();
@@ -199,7 +199,7 @@ public class ExptransTests
         }
 
         // Batch
-        var batch = Exptrans.Calculate(logSource);
+        var batch = Exptrans.Batch(logSource);
 
         // Compare all values
         for (int i = 0; i < logSource.Count; i++)
@@ -214,15 +214,15 @@ public class ExptransTests
         int count = 50;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 40001);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var logSource = Logtrans.Calculate(bars.Close);
+        var logSource = Logtrans.Batch(bars.Close);
 
         // TSeries batch
-        var batchResult = Exptrans.Calculate(logSource);
+        var batchResult = Exptrans.Batch(logSource);
 
         // Span calculation
         var values = logSource.Values.ToArray();
         var output = new double[count];
-        Exptrans.Calculate(values, output);
+        Exptrans.Batch(values, output);
 
         for (int i = 0; i < logSource.Count; i++)
         {
@@ -236,14 +236,14 @@ public class ExptransTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Exptrans.Calculate(ReadOnlySpan<double>.Empty, output);
+            Exptrans.Batch(ReadOnlySpan<double>.Empty, output);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Exptrans.Calculate(source, output);
+            Exptrans.Batch(source, output);
         });
     }
 

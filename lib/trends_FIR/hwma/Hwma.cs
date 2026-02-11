@@ -26,6 +26,7 @@ public sealed class Hwma : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -118,9 +119,13 @@ public sealed class Hwma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -263,7 +268,7 @@ public sealed class Hwma : AbstractBase
     /// <param name="period">Period for smoothing factors (default: 10)</param>
     /// <exception cref="ArgumentException">Thrown when output length doesn't match source length.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 10)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 10)
     {
         if (period <= 0)
         {
@@ -340,6 +345,13 @@ public sealed class Hwma : AbstractBase
                 output[i] = F + V + 0.5 * A;
             }
         }
+    }
+
+    public static (TSeries Results, Hwma Indicator) Calculate(TSeries source, int period = 10)
+    {
+        var indicator = new Hwma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

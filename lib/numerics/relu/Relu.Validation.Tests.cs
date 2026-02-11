@@ -39,7 +39,7 @@ public class ReluValidationTests
             time = time.AddMinutes(1);
         }
 
-        var result = Relu.Calculate(source);
+        var result = Relu.Batch(source);
 
         for (int i = 0; i < testValues.Length; i++)
         {
@@ -54,7 +54,7 @@ public class ReluValidationTests
         double[] testValues = { -10.0, -5.0, -1.0, -0.5, 0.0, 0.5, 1.0, 5.0, 10.0 };
         double[] output = new double[testValues.Length];
 
-        Relu.Calculate(testValues, output);
+        Relu.Batch(testValues, output);
 
         for (int i = 0; i < testValues.Length; i++)
         {
@@ -70,9 +70,9 @@ public class ReluValidationTests
         int count = 100;
         var gbm = new GBM(startPrice: 100, mu: 0.0, sigma: 0.5, seed: 43000);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var source = Change.Calculate(bars.Close);
+        var source = Change.Batch(bars.Close);
 
-        var result = Relu.Calculate(source);
+        var result = Relu.Batch(source);
 
         for (int i = 0; i < result.Count; i++)
         {
@@ -87,7 +87,7 @@ public class ReluValidationTests
         double[] positiveValues = { 0.001, 0.1, 1.0, 10.0, 100.0, 1000.0 };
         double[] output = new double[positiveValues.Length];
 
-        Relu.Calculate(positiveValues, output);
+        Relu.Batch(positiveValues, output);
 
         for (int i = 0; i < positiveValues.Length; i++)
         {
@@ -102,7 +102,7 @@ public class ReluValidationTests
         double[] negativeValues = { -0.001, -0.1, -1.0, -10.0, -100.0, -1000.0 };
         double[] output = new double[negativeValues.Length];
 
-        Relu.Calculate(negativeValues, output);
+        Relu.Batch(negativeValues, output);
 
         for (int i = 0; i < negativeValues.Length; i++)
         {
@@ -125,7 +125,7 @@ public class ReluValidationTests
         int count = 100;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.3, seed: 43001);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var source = Change.Calculate(bars.Close);
+        var source = Change.Batch(bars.Close);
 
         // Streaming
         var streaming = new Relu();
@@ -137,11 +137,11 @@ public class ReluValidationTests
         }
 
         // Batch
-        var batch = Relu.Calculate(source);
+        var batch = Relu.Batch(source);
 
         // Span
         var spanOutput = new double[source.Count];
-        Relu.Calculate(source.Values.ToArray(), spanOutput);
+        Relu.Batch(source.Values.ToArray(), spanOutput);
 
         // All three should match
         for (int i = 0; i < source.Count; i++)

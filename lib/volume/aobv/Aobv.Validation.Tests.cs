@@ -86,7 +86,7 @@ public class AobvValidationTests
         var spanFast = new double[close.Length];
         var spanSlow = new double[close.Length];
 
-        Aobv.Calculate(close, volume, spanFast, spanSlow);
+        Aobv.Batch(close, volume, spanFast, spanSlow);
 
         ValidationHelper.VerifyData(streamingFast.ToArray(), spanFast, 0, 100, 1e-12);
     }

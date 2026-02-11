@@ -69,7 +69,7 @@ public sealed class StbandsValidationTests : IDisposable
                 }
 
                 // Batch mode
-                var batchResult = Stbands.Calculate(bars, period, multiplier);
+                var batchResult = Stbands.Batch(bars, period, multiplier);
 
                 // Compare last 100 values
                 int compareCount = Math.Min(100, bars.Count - period);
@@ -118,7 +118,7 @@ public sealed class StbandsValidationTests : IDisposable
                 double[] spanLower = new double[bars.Count];
                 double[] spanTrend = new double[bars.Count];
 
-                Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+                Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
                     spanUpper.AsSpan(), spanLower.AsSpan(), spanTrend.AsSpan(), period, multiplier);
 
                 // Compare last 100 values
@@ -155,7 +155,7 @@ public sealed class StbandsValidationTests : IDisposable
         double[] lower = new double[bars.Count];
         double[] trend = new double[bars.Count];
 
-        Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+        Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
             upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
 
         // Verify Upper >= Lower for all points
@@ -192,7 +192,7 @@ public sealed class StbandsValidationTests : IDisposable
         double[] lower = new double[bars.Count];
         double[] trend = new double[bars.Count];
 
-        Stbands.Calculate(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+        Stbands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
             upper.AsSpan(), lower.AsSpan(), trend.AsSpan(), period, multiplier);
 
         int trendChanges = 0;

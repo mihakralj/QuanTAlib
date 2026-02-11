@@ -179,7 +179,7 @@ public sealed class Covariance : AbstractBase
         _sumXY = sumXY;
     }
 
-    public static TSeries Calculate(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
+    public static TSeries Batch(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
     {
         if (sourceX.Count != sourceY.Count)
         {
@@ -229,6 +229,13 @@ public sealed class Covariance : AbstractBase
         }
 
         CalculateScalarCore(sourceX, sourceY, output, period, isPopulation);
+    }
+
+    public static (TSeries Results, Covariance Indicator) Calculate(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
+    {
+        var indicator = new Covariance(period, isPopulation);
+        TSeries results = Batch(sourceX, sourceY, period, isPopulation);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -335,7 +335,7 @@ public sealed class Hlv : AbstractBase
     /// <param name="annualize">Whether to annualize.</param>
     /// <param name="annualPeriods">Periods per year.</param>
     /// <returns>A TSeries containing the volatility values.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         var hlv = new Hlv(period, annualize, annualPeriods);
         return hlv.Update(source);
@@ -344,7 +344,7 @@ public sealed class Hlv : AbstractBase
     /// <summary>
     /// Calculates HLV for a TSeries (treats values as pre-computed Parkinson estimators).
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period <= 0)
         {
@@ -473,6 +473,14 @@ public sealed class Hlv : AbstractBase
             output[i] = volatility;
         }
     }
+
+    public static (TSeries Results, Hlv Indicator) Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Hlv(period, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 
     /// <summary>
     /// Batch calculation from pre-computed Parkinson estimators.

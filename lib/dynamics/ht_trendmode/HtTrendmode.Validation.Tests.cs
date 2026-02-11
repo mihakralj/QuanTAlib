@@ -102,7 +102,7 @@ public sealed class HtTrendmodeValidationTests : IDisposable
         }
 
         // Act - Batch
-        var batchResult = HtTrendmode.Calculate(series);
+        var batchResult = HtTrendmode.Batch(series);
 
         // Assert
         Assert.Equal(streamingResults.Count, batchResult.Count);

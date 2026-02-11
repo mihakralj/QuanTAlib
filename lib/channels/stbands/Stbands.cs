@@ -286,7 +286,7 @@ public sealed class Stbands : AbstractBase
     /// <summary>
     /// Calculates Super Trend Bands for the entire bar series.
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    public static TSeries Batch(TBarSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
     {
         Stbands stbands = new(period, multiplier);
         return stbands.Update(source);
@@ -295,7 +295,7 @@ public sealed class Stbands : AbstractBase
     /// <summary>
     /// Calculates Super Trend Bands across OHLC data using spans.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
         ReadOnlySpan<double> close,
@@ -399,4 +399,12 @@ public sealed class Stbands : AbstractBase
             prevClose = c;
         }
     }
+
+    public static (TSeries Results, Stbands Indicator) Calculate(TBarSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    {
+        var indicator = new Stbands(period, multiplier);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

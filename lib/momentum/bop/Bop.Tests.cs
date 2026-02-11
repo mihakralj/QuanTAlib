@@ -195,7 +195,7 @@ public class BopTests
         var batchResult = Bop.Batch(bars);
 
         var output = new double[bars.Count];
-        Bop.Calculate(bars.Open.Values, bars.High.Values, bars.Low.Values, bars.Close.Values, output);
+        Bop.Batch(bars.Open.Values, bars.High.Values, bars.Low.Values, bars.Close.Values, output);
 
         Assert.Equal(batchResult[0].Value, output[0]);
         Assert.Equal(batchResult[1].Value, output[1]);
@@ -213,7 +213,7 @@ public class BopTests
 
         // 2. Span Mode
         var spanOutput = new double[bars.Count];
-        Bop.Calculate(bars.Open.Values, bars.High.Values, bars.Low.Values, bars.Close.Values, spanOutput);
+        Bop.Batch(bars.Open.Values, bars.High.Values, bars.Low.Values, bars.Close.Values, spanOutput);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -241,7 +241,7 @@ public class BopTests
         double[] smallOutput = new double[2];
 
         // This should process 2 elements (minimum of all array lengths)
-        Bop.Calculate(open, high, low, close, smallOutput);
+        Bop.Batch(open, high, low, close, smallOutput);
 
         // Verify values are calculated for the first 2 elements
         Assert.Equal(0.25, smallOutput[0], 6); // (1.5 - 1) / (2 - 0) = 0.5/2 = 0.25

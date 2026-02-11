@@ -186,7 +186,7 @@ public class WmapeTests
             predictedSeries.Add(bar.Time, bar.Close * (1 + (i % 2 == 0 ? 0.02 : -0.02)));
         }
 
-        var batchResults = Wmape.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = Wmape.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         var iterativeResults = new List<double>();
         for (int i = 0; i < actualSeries.Count; i++)
@@ -236,7 +236,7 @@ public class WmapeTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = Wmape.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = Wmape.Batch(actualSeries, predictedSeries, DefaultPeriod);
         Wmape.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -285,7 +285,7 @@ public class WmapeTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => Wmape.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => Wmape.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

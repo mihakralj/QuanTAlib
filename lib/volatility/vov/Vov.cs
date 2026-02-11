@@ -308,7 +308,7 @@ public sealed class Vov : AbstractBase
     /// <param name="volatilityPeriod">The volatility period.</param>
     /// <param name="vovPeriod">The VOV period.</param>
     /// <returns>A TSeries containing the VOV values.</returns>
-    public static TSeries Calculate(TSeries source, int volatilityPeriod = 20, int vovPeriod = 10)
+    public static TSeries Batch(TSeries source, int volatilityPeriod = 20, int vovPeriod = 10)
     {
         var vov = new Vov(volatilityPeriod, vovPeriod);
         return vov.Update(source);
@@ -462,4 +462,12 @@ public sealed class Vov : AbstractBase
             }
         }
     }
+
+    public static (TSeries Results, Vov Indicator) Calculate(TSeries source, int volatilityPeriod = 20, int vovPeriod = 10)
+    {
+        var indicator = new Vov(volatilityPeriod, vovPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

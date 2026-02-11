@@ -253,7 +253,7 @@ public class RseTests
             iterativeResults.Add(rseIterative.Update(actual[i], predicted[i]).Value);
         }
 
-        var batchResults = Rse.Calculate(actual, predicted, Period);
+        var batchResults = Rse.Batch(actual, predicted, Period);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -294,7 +294,7 @@ public class RseTests
         double[] predictedArr = predictedSeries.Values.ToArray();
         double[] output = new double[100];
 
-        var tseriesResult = Rse.Calculate(actualSeries, predictedSeries, Period);
+        var tseriesResult = Rse.Batch(actualSeries, predictedSeries, Period);
         Rse.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), Period);
 
         for (int i = 0; i < 100; i++)
@@ -315,7 +315,7 @@ public class RseTests
         }
 
         // 1. Batch Mode (static method)
-        var batchSeries = Rse.Calculate(actualSeries, predictedSeries, Period);
+        var batchSeries = Rse.Batch(actualSeries, predictedSeries, Period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

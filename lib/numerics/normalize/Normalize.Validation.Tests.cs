@@ -203,7 +203,7 @@ public class NormalizeValidationTests
 
         // Batch
         double[] batchResults = new double[values.Length];
-        Normalize.Calculate(values, batchResults, 14);
+        Normalize.Batch(values, batchResults, 14);
 
         // Compare all values
         for (int i = 0; i < values.Length; i++)
@@ -233,12 +233,12 @@ public class NormalizeValidationTests
             tseries.Add(new TValue(bar.Time, bar.Close), true);
         }
 
-        var results2 = Normalize.Calculate(tseries, period);
+        var results2 = Normalize.Batch(tseries, period);
 
         // Mode 3: Static span Calculate
         double[] values = series.Select(b => b.Close).ToArray();
         double[] results3 = new double[values.Length];
-        Normalize.Calculate(values, results3, period);
+        Normalize.Batch(values, results3, period);
 
         // Mode 4: Event-based chaining
         var source = new TSeries();

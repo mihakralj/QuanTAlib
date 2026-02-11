@@ -172,7 +172,7 @@ public sealed class Pvr : ITValuePublisher
     /// <summary>
     /// Calculates PVR for a series of bars.
     /// </summary>
-    public static TSeries Calculate(TBarSeries bars)
+    public static TSeries Batch(TBarSeries bars)
     {
         if (bars.Count == 0)
         {
@@ -182,7 +182,7 @@ public sealed class Pvr : ITValuePublisher
         var t = bars.Open.Times.ToArray();
         var v = new double[bars.Count];
 
-        Calculate(bars.Close.Values, bars.Volume.Values, v);
+        Batch(bars.Close.Values, bars.Volume.Values, v);
 
         return new TSeries(t, v);
     }
@@ -191,7 +191,7 @@ public sealed class Pvr : ITValuePublisher
     /// Calculates PVR values using span-based processing.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> price, ReadOnlySpan<double> volume, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> price, ReadOnlySpan<double> volume, Span<double> output)
     {
         if (price.Length != output.Length)
         {
@@ -246,5 +246,12 @@ public sealed class Pvr : ITValuePublisher
             prevPrice = currentPrice;
             prevVolume = currentVolume;
         }
+    }
+
+    public static (TSeries Results, Pvr Indicator) Calculate(TBarSeries bars)
+    {
+        var indicator = new Pvr();
+        TSeries results = indicator.Update(bars);
+        return (results, indicator);
     }
 }

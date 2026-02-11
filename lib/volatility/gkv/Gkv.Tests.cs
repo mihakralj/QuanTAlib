@@ -420,7 +420,7 @@ public class GkvTests
         const int dataCount = 50;
         var barSeries = GenerateTestData(dataCount);
 
-        var result = Gkv.Calculate(barSeries, period: 10);
+        var result = Gkv.Batch(barSeries, period: 10);
 
         Assert.Equal(dataCount, result.Count);
     }
@@ -614,7 +614,7 @@ public class GkvTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Gkv.Calculate(bars, period: 14);
+        var result = Gkv.Batch(bars, period: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -625,9 +625,9 @@ public class GkvTests
     {
         var bars = GenerateTestData(10);
 
-        Assert.Throws<ArgumentException>(() => Gkv.Calculate(bars, period: 0));
-        Assert.Throws<ArgumentException>(() => Gkv.Calculate(bars, period: -1));
-        Assert.Throws<ArgumentException>(() => Gkv.Calculate(bars, period: 10, annualize: true, annualPeriods: 0));
+        Assert.Throws<ArgumentException>(() => Gkv.Batch(bars, period: 0));
+        Assert.Throws<ArgumentException>(() => Gkv.Batch(bars, period: -1));
+        Assert.Throws<ArgumentException>(() => Gkv.Batch(bars, period: 10, annualize: true, annualPeriods: 0));
     }
 
     [Fact]

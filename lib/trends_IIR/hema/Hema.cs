@@ -276,13 +276,13 @@ public sealed class Hema : AbstractBase
         return fastResult;
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var hema = new Hema(period);
         return hema.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -404,6 +404,13 @@ public sealed class Hema : AbstractBase
                 output[i] = result;
             }
         }
+    }
+
+    public static (TSeries Results, Hema Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Hema(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

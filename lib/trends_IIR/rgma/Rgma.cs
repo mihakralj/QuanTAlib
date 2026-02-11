@@ -379,12 +379,6 @@ public sealed class Rgma : AbstractBase
     /// <summary>
     /// Runs a high-performance batch calculation and returns a hot RGMA instance.
     /// </summary>
-    public static (TSeries Results, Rgma Indicator) Calculate(TSeries source, int period, int passes = 3)
-    {
-        var rgma = new Rgma(period, passes);
-        TSeries results = rgma.Update(source);
-        return (results, rgma);
-    }
 
     /// <summary>
     /// Calculates RGMA for the entire series using a new instance.
@@ -462,6 +456,12 @@ public sealed class Rgma : AbstractBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
+    }
+    public static (TSeries Results, Rgma Indicator) Calculate(TSeries source, int period, int passes = 3)
+    {
+        var rgma = new Rgma(period, passes);
+        TSeries results = rgma.Update(source);
+        return (results, rgma);
     }
 
     /// <inheritdoc/>

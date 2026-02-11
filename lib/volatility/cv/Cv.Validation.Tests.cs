@@ -229,13 +229,13 @@ public class CvValidationTests
             streamingCv.Update(new TValue(times[i], close[i]));
         }
 
-        // Batch calculation using Calculate (TSeries -> TSeries)
+        // Batch calculation using Batch(TSeries -> TSeries)
         var source = new TSeries();
         for (int i = 0; i < bars.Count; i++)
         {
             source.Add(times[i], close[i]);
         }
-        var batchResult = Cv.Calculate(source, 20, 0.2, 0.7);
+        var batchResult = Cv.Batch(source, 20, 0.2, 0.7);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingCv.Last.Value, 8);
@@ -266,7 +266,7 @@ public class CvValidationTests
         }
 
         // TSeries batch using Calculate
-        var batch = Cv.Calculate(source, 20, 0.2, 0.7);
+        var batch = Cv.Batch(source, 20, 0.2, 0.7);
 
         // Compare
         Assert.Equal(batch.Last.Value, streaming.Last.Value, 10);

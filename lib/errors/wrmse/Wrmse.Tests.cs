@@ -320,7 +320,7 @@ public class WrmseTests
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
         }
 
-        var results = Wrmse.Calculate(actual, predicted, 3);
+        var results = Wrmse.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         // All errors are 5, MSE = 25, RMSE = 5
@@ -342,7 +342,7 @@ public class WrmseTests
             weights.Add(now.AddMinutes(i), 2.0); // Weight = 2
         }
 
-        var results = Wrmse.Calculate(actual, predicted, weights, 3);
+        var results = Wrmse.Batch(actual, predicted, weights, 3);
 
         Assert.Equal(10, results.Count);
         // Weighted error = 2 * 100 = 200 per point, sum weights = 6 (period=3)
@@ -366,7 +366,7 @@ public class WrmseTests
             }
         }
 
-        Assert.Throws<ArgumentException>(() => Wrmse.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Wrmse.Batch(actual, predicted, 3));
     }
 
     [Fact]
@@ -387,7 +387,7 @@ public class WrmseTests
             }
         }
 
-        Assert.Throws<ArgumentException>(() => Wrmse.Calculate(actual, predicted, weights, 3));
+        Assert.Throws<ArgumentException>(() => Wrmse.Batch(actual, predicted, weights, 3));
     }
 
     [Fact]

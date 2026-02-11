@@ -301,7 +301,11 @@
 | [TRIX](oscillators/trix/Trix.md) | Triple Exponential Average | Oscillators |
 | TSF | Time Series Forecast | Statistics |
 | [TSI](momentum/tsi/Tsi.md) | True Strength Index | Momentum |
-| [TTM](dynamics/ttm/Ttm.md) | TTM Trend | Dynamics |
+| [TTM_LRC](channels/ttm_lrc/TtmLrc.md) | TTM Linear Regression Channel | Channels |
+| [TTM_SCALPER](reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | Reversals |
+| [TTM_SQUEEZE](dynamics/ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | Dynamics |
+| [TTM_TREND](dynamics/ttm_trend/TtmTrend.md) | TTM Trend | Dynamics |
+| [TTM_WAVE](oscillators/ttm_wave/TtmWave.md) | TTM Wave | Oscillators |
 | [TUKEY](errors/tukey/Tukey.md) | Tukey Biweight Loss | Errors |
 | [TVI](volume/tvi/Tvi.md) | Trade Volume Index | Volume |
 | [TWAP](volume/twap/Twap.md) | Time Weighted Average Price | Volume |

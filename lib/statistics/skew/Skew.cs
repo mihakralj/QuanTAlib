@@ -222,7 +222,7 @@ public sealed class Skew : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period, bool isPopulation = false)
+    public static TSeries Batch(TSeries source, int period, bool isPopulation = false)
     {
         var skew = new Skew(period, isPopulation);
         return skew.Update(source);
@@ -258,6 +258,13 @@ public sealed class Skew : AbstractBase
 
         // Scalar path
         CalculateScalarCore(source, output, period, isPopulation);
+    }
+
+    public static (TSeries Results, Skew Indicator) Calculate(TSeries source, int period, bool isPopulation = false)
+    {
+        var indicator = new Skew(period, isPopulation);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

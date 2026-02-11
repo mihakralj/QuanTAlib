@@ -416,7 +416,7 @@ public class AcfTests
         var batchResult = batchIndicator.Update(tSeries);
 
         // Mode 3: Static Calculate
-        var staticResult = Acf.Calculate(tSeries, period, lag);
+        var staticResult = Acf.Batch(tSeries, period, lag);
 
         // Mode 4: Span-based Batch
         double[] sourceArray = new double[dataLen];

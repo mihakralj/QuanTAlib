@@ -73,7 +73,7 @@ public class PvoValidationTests
         }
 
         // Batch
-        var batchResult = Pvo.Calculate(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var batchResult = Pvo.Batch(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -101,7 +101,7 @@ public class PvoValidationTests
         var spanSignal = new double[volume.Length];
         var spanHistogram = new double[volume.Length];
 
-        Pvo.Calculate(volume, spanPvo, spanSignal, spanHistogram, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        Pvo.Batch(volume, spanPvo, spanSignal, spanHistogram, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
 
         ValidationHelper.VerifyData(streamingPvo.ToArray(), spanPvo, 0, 100, 1e-9);
         ValidationHelper.VerifyData(streamingSignal.ToArray(), spanSignal, 0, 100, 1e-9);
@@ -212,7 +212,7 @@ public class PvoValidationTests
         }
 
         // Mode 3: Batch
-        var mode3Result = Pvo.Calculate(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var mode3Result = Pvo.Batch(_data.Bars, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
         var mode3Values = mode3Result.Values.ToArray();
 
         // Mode 4: Span
@@ -220,7 +220,7 @@ public class PvoValidationTests
         var mode4Values = new double[volume.Length];
         var mode4Signal = new double[volume.Length];
         var mode4Histogram = new double[volume.Length];
-        Pvo.Calculate(volume, mode4Values, mode4Signal, mode4Histogram, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        Pvo.Batch(volume, mode4Values, mode4Signal, mode4Histogram, DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
 
         // All modes should match
         ValidationHelper.VerifyData(mode1Values.ToArray(), mode2Values.ToArray(), 0, 100, 1e-9);

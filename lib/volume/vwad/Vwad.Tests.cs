@@ -228,7 +228,7 @@ public class VwadTests
         bars.Add(new TBar(time.AddMinutes(1), 10, 12, 8, 12, 200));
         bars.Add(new TBar(time.AddMinutes(2), 12, 12, 8, 8, 100));
 
-        var result = Vwad.Calculate(bars, 3);
+        var result = Vwad.Batch(bars, 3);
 
         Assert.Equal(3, result.Count);
     }
@@ -242,7 +242,7 @@ public class VwadTests
         double[] volume = [100, 200, 100];
         double[] output = new double[3];
 
-        Vwad.Calculate(high, low, close, volume, output, 3);
+        Vwad.Batch(high, low, close, volume, output, 3);
 
         // Bar 0: MFM=0, Vol=100, SumVol=100, VolWeight=1, WeightedMFV=0
         Assert.Equal(0, output[0]);
@@ -268,7 +268,7 @@ public class VwadTests
         double[] output = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Vwad.Calculate(high, low, close, volume, output, 3));
+            Vwad.Batch(high, low, close, volume, output, 3));
     }
 
     [Fact]
@@ -281,14 +281,14 @@ public class VwadTests
         double[] output = new double[1];
 
         Assert.Throws<ArgumentException>(() =>
-            Vwad.Calculate(high, low, close, volume, output, 0));
+            Vwad.Batch(high, low, close, volume, output, 0));
     }
 
     [Fact]
     public void Vwad_Calculate_EmptySeries_ReturnsEmpty()
     {
         var bars = new TBarSeries();
-        var result = Vwad.Calculate(bars);
+        var result = Vwad.Batch(bars);
         Assert.Empty(result);
     }
 
@@ -312,7 +312,7 @@ public class VwadTests
         }
 
         // Batch
-        var batchResult = Vwad.Calculate(bars, 20);
+        var batchResult = Vwad.Batch(bars, 20);
 
         // Compare all values
         for (int i = 0; i < 100; i++)
@@ -366,7 +366,7 @@ public class VwadTests
         double[] volume = [100, 200, 100, double.PositiveInfinity, 100];
         double[] output = new double[5];
 
-        Vwad.Calculate(high, low, close, volume, output, 3);
+        Vwad.Batch(high, low, close, volume, output, 3);
 
         // All outputs should be finite
         foreach (var val in output)
@@ -386,7 +386,7 @@ public class VwadTests
             bars.Add(gbm.Next());
         }
 
-        var result = Vwad.Calculate(bars, 10);
+        var result = Vwad.Batch(bars, 10);
 
         // In a bullish trend, VWAD should generally be positive and growing
         // (this is a statistical expectation, not a guarantee)
@@ -406,12 +406,12 @@ public class VwadTests
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // 1. Batch Mode
-        var batchSeries = Vwad.Calculate(bars, period);
+        var batchSeries = Vwad.Batch(bars, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
         var spanOutput = new double[bars.Count];
-        Vwad.Calculate(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values, spanOutput, period);
+        Vwad.Batch(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

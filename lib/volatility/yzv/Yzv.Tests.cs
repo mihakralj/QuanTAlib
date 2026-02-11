@@ -374,7 +374,7 @@ public class YzvTests
     {
         var bars = GenerateBarData(100);
 
-        var result = Yzv.Calculate(bars, period: 10);
+        var result = Yzv.Batch(bars, period: 10);
 
         Assert.Equal(bars.Count, result.Count);
         for (int i = 0; i < result.Count; i++)
@@ -471,7 +471,7 @@ public class YzvTests
         }
 
         // Mode 2: TBarSeries batch
-        var batchResult = Yzv.Calculate(bars, period);
+        var batchResult = Yzv.Batch(bars, period);
 
         // Mode 3: Span batch
         double[] spanOutput = new double[bars.Count];

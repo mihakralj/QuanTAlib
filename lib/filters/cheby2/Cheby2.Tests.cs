@@ -101,7 +101,7 @@ public class Cheby2Tests
 
         // Span
         var spanResults = new double[count];
-        Cheby2.Calculate(values, spanResults, period, 5.0);
+        Cheby2.Batch(values, spanResults, period, 5.0);
 
         // Compare
         for (int i = 0; i < count; i++)

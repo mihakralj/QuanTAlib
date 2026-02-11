@@ -66,7 +66,7 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
         return _cSquaredOver6 * (1.0 - cubed);
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double c = DefaultC)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period, double c = DefaultC)
     {
         if (actual.Count != predicted.Count)
         {
@@ -128,5 +128,12 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
         {
             ArrayPool<double>.Shared.Return(rented, clearArray: false);
         }
+    }
+
+    public static (TSeries Results, TukeyBiweight Indicator) Calculate(TSeries actual, TSeries predicted, int period, double c = DefaultC)
+    {
+        var indicator = new TukeyBiweight(period, c);
+        TSeries results = Batch(actual, predicted, period, c);
+        return (results, indicator);
     }
 }

@@ -219,7 +219,7 @@ public sealed class Bbw : AbstractBase
     /// <summary>
     /// Calculates BBW for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, double multiplier = 2.0)
+    public static TSeries Batch(TSeries source, int period, double multiplier = 2.0)
     {
         int len = source.Count;
         var t = new List<long>(len);
@@ -307,5 +307,12 @@ public sealed class Bbw : AbstractBase
             // BBW = 2 × multiplier × StdDev / SMA (normalized)
             output[i] = mean > 0 ? (mult2 * stddev) / mean : 0.0;
         }
+    }
+
+    public static (TSeries Results, Bbw Indicator) Calculate(TSeries source, int period, double multiplier = 2.0)
+    {
+        var indicator = new Bbw(period, multiplier);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

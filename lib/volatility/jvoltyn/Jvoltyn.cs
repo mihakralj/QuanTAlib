@@ -38,6 +38,7 @@ public sealed class Jvoltyn : AbstractBase
     private readonly RingBuffer _volBuffer;
     private readonly TValuePublishedHandler _handler;
     private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     // Streaming state (current + previous snapshot for isNew=false)
     private State _s;
@@ -305,9 +306,13 @@ public sealed class Jvoltyn : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -332,7 +337,7 @@ public sealed class Jvoltyn : AbstractBase
     /// <summary>
     /// Static helper for span-based calculation.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source,
+    public static void Batch(ReadOnlySpan<double> source,
                                  Span<double> output,
                                  int period)
     {
@@ -351,6 +356,13 @@ public sealed class Jvoltyn : AbstractBase
         {
             output[i] = jvoltyn.Step(source[i], isNew: true);
         }
+    }
+
+    public static (TSeries Results, Jvoltyn Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Jvoltyn(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

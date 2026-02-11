@@ -64,7 +64,7 @@ public sealed class PseudoHuber : BiInputIndicatorBase
     /// <summary>
     /// Calculates Pseudo-Huber Loss for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double delta = 1.0)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period, double delta = 1.0)
     {
         if (actual.Count != predicted.Count)
         {
@@ -123,5 +123,12 @@ public sealed class PseudoHuber : BiInputIndicatorBase
 
         // Apply rolling mean
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, PseudoHuber Indicator) Calculate(TSeries actual, TSeries predicted, int period, double delta = 1.0)
+    {
+        var indicator = new PseudoHuber(period, delta);
+        TSeries results = Batch(actual, predicted, period, delta);
+        return (results, indicator);
     }
 }

@@ -160,7 +160,7 @@ public class SolarTests
             series.Add(new TValue(startDate.AddDays(i), 100.0 + i));
         }
 
-        var result = Solar.Calculate(series);
+        var result = Solar.Batch(series);
 
         Assert.Equal(30, result.Count);
 

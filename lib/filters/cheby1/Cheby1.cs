@@ -118,7 +118,7 @@ public sealed class Cheby1 : AbstractBase
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
-        Calculate(values, results, Period, Ripple);
+        Batch(values, results, Period, Ripple);
 
         TSeries output = [];
         for (int i = 0; i < values.Length; i++)
@@ -196,15 +196,15 @@ public sealed class Cheby1 : AbstractBase
         return Last;
     }
 
-    public override void Reset()
+    public static TSeries Batch(TSeries source, int period, double ripple = 1.0)
     {
-        _state = default;
-        _p_state = default;
-        Last = default;
+        var indicator = new Cheby1(period, ripple);
+        return indicator.Update(source);
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double ripple = 1.0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double ripple = 1.0)
     {
         if (source.Length != output.Length)
         {
@@ -292,6 +292,20 @@ public sealed class Cheby1 : AbstractBase
             filt2 = filt1;
             filt1 = filt;
         }
+    }
+
+    public override void Reset()
+    {
+        _state = default;
+        _p_state = default;
+        Last = default;
+    }
+
+    public static (TSeries Results, Cheby1 Indicator) Calculate(TSeries source, int period, double ripple = 1.0)
+    {
+        var indicator = new Cheby1(period, ripple);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

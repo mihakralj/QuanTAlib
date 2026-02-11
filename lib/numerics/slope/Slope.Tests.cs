@@ -94,7 +94,7 @@ public class SlopeTests
 
         // Output must be same length as source
         Assert.Throws<ArgumentException>(() =>
-            Slope.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan()));
+            Slope.Batch(source.AsSpan(), wrongSizeOutput.AsSpan()));
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class SlopeTests
         // 1. Batch Mode (static span)
         var tValues = series.Values.ToArray();
         var batchOutput = new double[tValues.Length];
-        Slope.Calculate(tValues, batchOutput);
+        Slope.Batch(tValues, batchOutput);
         double expected = batchOutput[^1];
 
         // 2. Streaming Mode
@@ -119,7 +119,7 @@ public class SlopeTests
         double streamingResult = streamingInd.Last.Value;
 
         // 3. TSeries Batch Mode
-        var batchSeriesResult = Slope.Calculate(series);
+        var batchSeriesResult = Slope.Batch(series);
         double tseriesResult = batchSeriesResult.Last.Value;
 
         Assert.Equal(expected, streamingResult, precision: 9);
@@ -194,7 +194,7 @@ public class SlopeTests
 
         // Batch
         var batchResults = new double[count];
-        Slope.Calculate(data, batchResults);
+        Slope.Batch(data, batchResults);
 
         // Compare
         for (int i = 0; i < count; i++)

@@ -419,7 +419,7 @@ public class RsvTests
         const int dataCount = 50;
         var barSeries = GenerateTestData(dataCount);
 
-        var result = Rsv.Calculate(barSeries, period: 10);
+        var result = Rsv.Batch(barSeries, period: 10);
 
         Assert.Equal(dataCount, result.Count);
     }
@@ -685,7 +685,7 @@ public class RsvTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Rsv.Calculate(bars, period: 14);
+        var result = Rsv.Batch(bars, period: 14);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -696,9 +696,9 @@ public class RsvTests
     {
         var bars = GenerateTestData(10);
 
-        Assert.Throws<ArgumentException>(() => Rsv.Calculate(bars, period: 0));
-        Assert.Throws<ArgumentException>(() => Rsv.Calculate(bars, period: -1));
-        Assert.Throws<ArgumentException>(() => Rsv.Calculate(bars, period: 10, annualize: true, annualPeriods: 0));
+        Assert.Throws<ArgumentException>(() => Rsv.Batch(bars, period: 0));
+        Assert.Throws<ArgumentException>(() => Rsv.Batch(bars, period: -1));
+        Assert.Throws<ArgumentException>(() => Rsv.Batch(bars, period: 10, annualize: true, annualPeriods: 0));
     }
 
     [Fact]

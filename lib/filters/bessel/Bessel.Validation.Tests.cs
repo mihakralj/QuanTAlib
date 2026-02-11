@@ -47,7 +47,7 @@ public sealed class BesselValidationTests : IDisposable
             // Same data via Span API
             var src = _testData.Data.Values.ToArray();
             var outSpan = new double[src.Length];
-            Bessel.Calculate(src.AsSpan(), outSpan.AsSpan(), length);
+            Bessel.Batch(src.AsSpan(), outSpan.AsSpan(), length);
 
             // Verify last window for convergence and consistency
             ValidationHelper.VerifyData(qResult, outSpan, lookback: 0, skip: length, tolerance: ValidationHelper.DefaultTolerance);

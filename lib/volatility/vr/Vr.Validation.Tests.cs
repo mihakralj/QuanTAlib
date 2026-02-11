@@ -167,7 +167,7 @@ public class VrValidationTests
         int period = 14;
 
         // Using static Calculate
-        var calculateResult = Vr.Calculate(bars, period);
+        var calculateResult = Vr.Batch(bars, period);
 
         // Using Batch
         double[] batchOutput = new double[bars.Count];

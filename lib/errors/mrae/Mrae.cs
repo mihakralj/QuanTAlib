@@ -49,7 +49,7 @@ public sealed class Mrae : BiInputIndicatorBase
     /// <summary>
     /// Calculates Mean Relative Absolute Error for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -102,6 +102,13 @@ public sealed class Mrae : BiInputIndicatorBase
 
         // Apply rolling mean
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, Mrae Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mrae(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     /// <summary>

@@ -303,7 +303,7 @@ public sealed class Kvo : ITValuePublisher
     /// <param name="slowPeriod">The slow EMA period</param>
     /// <param name="signalPeriod">The signal line EMA period</param>
     /// <returns>A TSeries containing the KVO values</returns>
-    public static TSeries Calculate(TBarSeries bars, int fastPeriod = 34, int slowPeriod = 55, int signalPeriod = 13)
+    public static TSeries Batch(TBarSeries bars, int fastPeriod = 34, int slowPeriod = 55, int signalPeriod = 13)
     {
         if (bars.Count == 0)
         {
@@ -314,7 +314,7 @@ public sealed class Kvo : ITValuePublisher
         var v = new double[bars.Count];
         var signal = new double[bars.Count];
 
-        Calculate(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values,
+        Batch(bars.High.Values, bars.Low.Values, bars.Close.Values, bars.Volume.Values,
             v, signal, fastPeriod, slowPeriod, signalPeriod);
 
         return new TSeries(t, v);
@@ -334,7 +334,7 @@ public sealed class Kvo : ITValuePublisher
     /// <param name="signalPeriod">The signal line EMA period</param>
     /// <exception cref="ArgumentException">Thrown when spans have different lengths or parameters are invalid</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low,
         ReadOnlySpan<double> close, ReadOnlySpan<double> volume,
         Span<double> output, Span<double> signal,
         int fastPeriod = 34, int slowPeriod = 55, int signalPeriod = 13)
@@ -477,5 +477,12 @@ public sealed class Kvo : ITValuePublisher
 
             prevHlc3 = hlc3;
         }
+    }
+
+    public static (TSeries Results, Kvo Indicator) Calculate(TBarSeries bars, int fastPeriod = 34, int slowPeriod = 55, int signalPeriod = 13)
+    {
+        var indicator = new Kvo(fastPeriod, slowPeriod, signalPeriod);
+        TSeries results = indicator.Update(bars);
+        return (results, indicator);
     }
 }

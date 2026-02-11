@@ -296,7 +296,7 @@ public sealed class Acf : AbstractBase
     /// <summary>
     /// Calculates ACF for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, int lag = 1)
+    public static TSeries Batch(TSeries source, int period, int lag = 1)
     {
         var acf = new Acf(period, lag);
         return acf.Update(source);
@@ -330,6 +330,13 @@ public sealed class Acf : AbstractBase
         }
 
         CalculateScalarCore(source, output, period, lag);
+    }
+
+    public static (TSeries Results, Acf Indicator) Calculate(TSeries source, int period, int lag = 1)
+    {
+        var indicator = new Acf(period, lag);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

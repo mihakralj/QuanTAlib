@@ -401,7 +401,7 @@ public class CointegrationTests
             seriesB.Add(barB.Time, barB.Close);
         }
 
-        var result = Cointegration.Calculate(seriesA, seriesB, DefaultPeriod);
+        var result = Cointegration.Batch(seriesA, seriesB, DefaultPeriod);
 
         Assert.Equal(seriesA.Count, result.Count);
     }
@@ -423,7 +423,7 @@ public class CointegrationTests
         }
 
         // Batch calculation
-        var batchResult = Cointegration.Calculate(seriesA, seriesB, DefaultPeriod);
+        var batchResult = Cointegration.Batch(seriesA, seriesB, DefaultPeriod);
 
         // Streaming calculation
         var streamingIndicator = new Cointegration(DefaultPeriod);
@@ -464,7 +464,7 @@ public class CointegrationTests
             seriesB.Add(bar.Time, bar.Close);
         }
 
-        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Calculate(seriesA, seriesB, DefaultPeriod));
+        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Batch(seriesA, seriesB, DefaultPeriod));
         Assert.Equal("seriesB", ex.ParamName);
     }
 
@@ -485,7 +485,7 @@ public class CointegrationTests
         }
 
         // Span calculation
-        Cointegration.Calculate(seriesA, seriesB, output, DefaultPeriod);
+        Cointegration.Batch(seriesA, seriesB, output, DefaultPeriod);
 
         // Streaming calculation
         var streamingIndicator = new Cointegration(DefaultPeriod);
@@ -515,7 +515,7 @@ public class CointegrationTests
         var seriesB = new double[30];
         var output = new double[50];
 
-        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Calculate(seriesA, seriesB, output, DefaultPeriod));
+        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Batch(seriesA, seriesB, output, DefaultPeriod));
         Assert.Equal("seriesB", ex.ParamName);
     }
 
@@ -526,7 +526,7 @@ public class CointegrationTests
         var seriesB = new double[50];
         var output = new double[30];
 
-        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Calculate(seriesA, seriesB, output, DefaultPeriod));
+        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Batch(seriesA, seriesB, output, DefaultPeriod));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -537,7 +537,7 @@ public class CointegrationTests
         var seriesB = new double[50];
         var output = new double[50];
 
-        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Calculate(seriesA, seriesB, output, 1));
+        var ex = Assert.Throws<ArgumentException>(() => Cointegration.Batch(seriesA, seriesB, output, 1));
         Assert.Equal("period", ex.ParamName);
     }
 

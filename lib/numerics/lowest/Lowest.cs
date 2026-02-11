@@ -106,7 +106,7 @@ public sealed class Lowest : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var indicator = new Lowest(period);
         return indicator.Update(source);
@@ -115,7 +115,7 @@ public sealed class Lowest : AbstractBase
     /// <summary>
     /// Calculates rolling minimum over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length == 0)
         {
@@ -215,6 +215,13 @@ public sealed class Lowest : AbstractBase
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedValues);
             }
         }
+    }
+
+    public static (TSeries Results, Lowest Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Lowest(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

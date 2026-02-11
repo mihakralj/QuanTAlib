@@ -67,7 +67,7 @@ public class LsmaValidationTests
         {
             // Calculate QuanTAlib LSMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Lsma.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Lsma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate Skender EPMA
             var sResult = _testData.SkenderQuotes.GetEpma(period).ToList();

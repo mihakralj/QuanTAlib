@@ -161,7 +161,7 @@ public class LsmaTests
             values[i] = bar.Close;
         }
 
-        Lsma.Calculate(values, output, period);
+        Lsma.Batch(values, output, period);
 
         var lsma = new Lsma(period);
         for (int i = 0; i < count; i++)

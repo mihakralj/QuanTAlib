@@ -274,7 +274,7 @@ public class EwmaTests
         {
             ts.Add(new TValue(times[i], close[i]));
         }
-        var batchResult = Ewma.Calculate(ts, 20);
+        var batchResult = Ewma.Batch(ts, 20);
 
         Assert.Equal(iterativeResult, batchResult[batchResult.Count - 1].Value, 1e-8);
     }
@@ -292,7 +292,7 @@ public class EwmaTests
             ts.Add(new TValue(times[i], close[i]));
         }
 
-        var result = Ewma.Calculate(ts, 20);
+        var result = Ewma.Batch(ts, 20);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -307,10 +307,10 @@ public class EwmaTests
             ts.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i));
         }
 
-        Assert.Throws<ArgumentException>(() => Ewma.Calculate(ts, 0));
-        Assert.Throws<ArgumentException>(() => Ewma.Calculate(ts, -1));
-        Assert.Throws<ArgumentException>(() => Ewma.Calculate(ts, 5, true, 0));
-        Assert.Throws<ArgumentException>(() => Ewma.Calculate(ts, 5, true, -1));
+        Assert.Throws<ArgumentException>(() => Ewma.Batch(ts, 0));
+        Assert.Throws<ArgumentException>(() => Ewma.Batch(ts, -1));
+        Assert.Throws<ArgumentException>(() => Ewma.Batch(ts, 5, true, 0));
+        Assert.Throws<ArgumentException>(() => Ewma.Batch(ts, 5, true, -1));
     }
 
     [Fact]

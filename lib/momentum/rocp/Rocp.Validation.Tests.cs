@@ -178,7 +178,7 @@ public class RocpValidationTests
         }
 
         // Batch
-        var batchResult = Rocp.Calculate(source, 5);
+        var batchResult = Rocp.Batch(source, 5);
 
         for (int i = 0; i < source.Count; i++)
         {

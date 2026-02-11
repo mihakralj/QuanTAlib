@@ -103,7 +103,7 @@ public class Cheby1Tests
 
         // Span
         var spanResults = new double[count];
-        Cheby1.Calculate(values, spanResults, period, 1.0);
+        Cheby1.Batch(values, spanResults, period, 1.0);
 
         // Compare
         for (int i = 0; i < count; i++)

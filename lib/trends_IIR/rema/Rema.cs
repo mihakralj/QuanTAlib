@@ -383,12 +383,6 @@ public sealed class Rema : AbstractBase
     /// <summary>
     /// Runs a high-performance batch calculation and returns a hot REMA instance.
     /// </summary>
-    public static (TSeries Results, Rema Indicator) Calculate(TSeries source, int period, double lambda = 0.5)
-    {
-        var rema = new Rema(period, lambda);
-        TSeries results = rema.Update(source);
-        return (results, rema);
-    }
 
     /// <summary>
     /// Calculates REMA for the entire series using a new instance.
@@ -449,6 +443,12 @@ public sealed class Rema : AbstractBase
         }
 
         CalculateCore(source, output, alpha, lambda, ref state, ref lastValid);
+    }
+    public static (TSeries Results, Rema Indicator) Calculate(TSeries source, int period, double lambda = 0.5)
+    {
+        var rema = new Rema(period, lambda);
+        TSeries results = rema.Update(source);
+        return (results, rema);
     }
 
     /// <inheritdoc/>

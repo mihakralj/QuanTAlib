@@ -349,7 +349,7 @@ public sealed class Rv : AbstractBase
     /// <param name="annualize">Whether to annualize.</param>
     /// <param name="annualPeriods">Periods per year.</param>
     /// <returns>A TSeries containing the volatility values.</returns>
-    public static TSeries Calculate(TSeries source, int period = 5, int smoothingPeriod = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 5, int smoothingPeriod = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period < 1)
         {
@@ -382,7 +382,7 @@ public sealed class Rv : AbstractBase
     /// <summary>
     /// Calculates RV for a bar series (static).
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int period = 5, int smoothingPeriod = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TBarSeries source, int period = 5, int smoothingPeriod = 20, bool annualize = true, int annualPeriods = 252)
     {
         var rv = new Rv(period, smoothingPeriod, annualize, annualPeriods);
         return rv.Update(source);
@@ -524,4 +524,12 @@ public sealed class Rv : AbstractBase
             output[i] = result;
         }
     }
+
+    public static (TSeries Results, Rv Indicator) Calculate(TSeries source, int period = 5, int smoothingPeriod = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Rv(period, smoothingPeriod, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

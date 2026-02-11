@@ -181,7 +181,7 @@ public sealed class Hpf : AbstractBase
 
         var output = new double[source.Count];
 
-        Calculate(source.Values, output, Length, out var endState);
+        Batch(source.Values, output, Length, out var endState);
 
         _state = new State
         {
@@ -206,17 +206,22 @@ public sealed class Hpf : AbstractBase
         return result;
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
+    public static TSeries Batch(TSeries source, int length = 40)
     {
-        Calculate(source, output, length, out _);
+        var indicator = new Hpf(length);
+        return indicator.Update(source);
     }
 
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int length)
+    {
+        Batch(source, output, length, out _);
+    }
     /// <summary>
     /// Batch HPF. Returns end state so callers can restore streaming state without replay.
     /// NaN/Inf => carry-forward last finite source.
     /// Outputs 0 for the first two finite samples, then runs the 2-pole recursion.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> output,
         int length,
@@ -303,6 +308,14 @@ public sealed class Hpf : AbstractBase
 
         state = (hp1, hp2, src1, src2, samples, hasSrc);
     }
+
+    public static (TSeries Results, Hpf Indicator) Calculate(TSeries source, int length = 40)
+    {
+        var indicator = new Hpf(length);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 
     /// <summary>
     /// Unsubscribes from the source publisher if one was provided during construction.

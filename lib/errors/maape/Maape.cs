@@ -49,7 +49,7 @@ public sealed class Maape : BiInputIndicatorBase
     /// <summary>
     /// Calculates Mean Arctangent Absolute Percentage Error for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -114,6 +114,13 @@ public sealed class Maape : BiInputIndicatorBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
+    }
+
+    public static (TSeries Results, Maape Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Maape(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     /// <summary>

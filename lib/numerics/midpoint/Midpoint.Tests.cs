@@ -215,7 +215,7 @@ public class MidpointTests
         }
 
         // Batch
-        var batch = Midpoint.Calculate(source, period);
+        var batch = Midpoint.Batch(source, period);
 
         // Compare last values (after warmup)
         for (int i = period; i < source.Count; i++)
@@ -234,12 +234,12 @@ public class MidpointTests
         var source = bars.Close;
 
         // TSeries batch
-        var batchResult = Midpoint.Calculate(source, period);
+        var batchResult = Midpoint.Batch(source, period);
 
         // Span calculation
         var sourceArray = source.Values.ToArray();
         var output = new double[count];
-        Midpoint.Calculate(sourceArray.AsSpan(), output.AsSpan(), period);
+        Midpoint.Batch(sourceArray.AsSpan(), output.AsSpan(), period);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -253,21 +253,21 @@ public class MidpointTests
         Assert.Throws<ArgumentException>(() =>
         {
             Span<double> output = stackalloc double[10];
-            Midpoint.Calculate(ReadOnlySpan<double>.Empty, output, 5);
+            Midpoint.Batch(ReadOnlySpan<double>.Empty, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[5];
-            Midpoint.Calculate(source, output, 5);
+            Midpoint.Batch(source, output, 5);
         });
 
         Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[10];
             Span<double> output = stackalloc double[10];
-            Midpoint.Calculate(source, output, 0);
+            Midpoint.Batch(source, output, 0);
         });
     }
 

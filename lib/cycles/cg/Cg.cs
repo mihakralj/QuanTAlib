@@ -213,7 +213,7 @@ public sealed class Cg : AbstractBase
     /// <summary>
     /// Calculates CG for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 10)
+    public static TSeries Batch(TSeries source, int period = 10)
     {
         var cg = new Cg(period);
         return cg.Update(source);
@@ -242,6 +242,13 @@ public sealed class Cg : AbstractBase
         }
 
         CalculateScalarCore(source, output, period);
+    }
+
+    public static (TSeries Results, Cg Indicator) Calculate(TSeries source, int period = 10)
+    {
+        var indicator = new Cg(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

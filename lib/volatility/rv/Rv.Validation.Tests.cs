@@ -178,7 +178,7 @@ public class RvValidationTests
         }
 
         // Batch calculation
-        var batchResult = Rv.Calculate(prices, 5, 10);
+        var batchResult = Rv.Batch(prices, 5, 10);
 
         Assert.Equal(batchResult.Last.Value, streamingRv.Last.Value, 8);
     }

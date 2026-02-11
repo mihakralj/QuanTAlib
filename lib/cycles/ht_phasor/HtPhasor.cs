@@ -415,7 +415,7 @@ public sealed class HtPhasor : AbstractBase
     /// <summary>
     /// Calculates HT_PHASOR for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var htPhasor = new HtPhasor();
         return htPhasor.Update(source);
@@ -452,5 +452,12 @@ public sealed class HtPhasor : AbstractBase
             inPhase[i] = htPhasor.Last.Value;
             quadrature[i] = htPhasor.Quadrature;
         }
+    }
+
+    public static (TSeries Results, HtPhasor Indicator) Calculate(TSeries source)
+    {
+        var indicator = new HtPhasor();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -307,7 +307,7 @@ public class SsfdspTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Ssfdsp.Calculate(tSeries, period);
+        var batch = Ssfdsp.Batch(tSeries, period);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);

@@ -49,6 +49,7 @@ public sealed class Rsv : AbstractBase
 
     // Event source for disposal
     private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -363,9 +364,13 @@ public sealed class Rsv : AbstractBase
     /// <param name="disposing">True if disposing managed resources.</param>
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source is not null)
+        if (!_disposed)
         {
-            _source.Pub -= Handle;
+            if (disposing && _source is not null)
+            {
+                _source.Pub -= Handle;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -378,7 +383,7 @@ public sealed class Rsv : AbstractBase
     /// <param name="annualize">Whether to annualize.</param>
     /// <param name="annualPeriods">Periods per year.</param>
     /// <returns>A TSeries containing the volatility values.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         var rsv = new Rsv(period, annualize, annualPeriods);
         return rsv.Update(source);
@@ -387,7 +392,7 @@ public sealed class Rsv : AbstractBase
     /// <summary>
     /// Calculates RSV for a TSeries (treats values as pre-computed RS variances).
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period <= 0)
         {
@@ -522,6 +527,14 @@ public sealed class Rsv : AbstractBase
             output[i] = volatility;
         }
     }
+
+    public static (TSeries Results, Rsv Indicator) Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Rsv(period, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 
     /// <summary>
     /// Batch calculation from pre-computed RS variances.

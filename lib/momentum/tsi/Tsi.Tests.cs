@@ -346,7 +346,7 @@ public class TsiTests
             source[i] = 100.0 + random.NextDouble() * 20;
         }
 
-        Tsi.Calculate(source, output, 5, 3);
+        Tsi.Batch(source, output, 5, 3);
 
         var series = new TSeries();
         for (int i = 0; i < 50; i++)
@@ -368,7 +368,7 @@ public class TsiTests
         double[] source = new double[10];
         double[] output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Tsi.Calculate(source, output));
+        Assert.Throws<ArgumentException>(() => Tsi.Batch(source, output));
     }
 
     [Fact]
@@ -377,8 +377,8 @@ public class TsiTests
         double[] source = new double[10];
         double[] output = new double[10];
 
-        Assert.Throws<ArgumentException>(() => Tsi.Calculate(source, output, 0, 3));
-        Assert.Throws<ArgumentException>(() => Tsi.Calculate(source, output, 5, 0));
+        Assert.Throws<ArgumentException>(() => Tsi.Batch(source, output, 0, 3));
+        Assert.Throws<ArgumentException>(() => Tsi.Batch(source, output, 5, 0));
     }
 
     [Fact]
@@ -387,7 +387,7 @@ public class TsiTests
         double[] source = [];
         double[] output = [];
 
-        var exception = Record.Exception(() => Tsi.Calculate(source, output));
+        var exception = Record.Exception(() => Tsi.Batch(source, output));
         Assert.Null(exception);
     }
 

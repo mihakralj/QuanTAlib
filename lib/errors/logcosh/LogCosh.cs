@@ -58,7 +58,7 @@ public sealed class LogCosh : BiInputIndicatorBase
     /// <summary>
     /// Calculates LogCosh for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -96,5 +96,12 @@ public sealed class LogCosh : BiInputIndicatorBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
+    }
+
+    public static (TSeries Results, LogCosh Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new LogCosh(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

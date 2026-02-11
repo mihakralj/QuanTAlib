@@ -481,12 +481,6 @@ public sealed class Bessel : AbstractBase
     /// <para><b>Complexity:</b> O(n) where n = source.Count</para>
     /// <para>The returned indicator maintains state and can continue processing new values.</para>
     /// </remarks>
-    public static (TSeries Results, Bessel Indicator) Calculate(TSeries source, int length)
-    {
-        var bessel = new Bessel(length);
-        TSeries results = bessel.Update(source);
-        return (results, bessel);
-    }
 
     /// <summary>
     /// Calculates filtered values for a span of doubles (stateless batch processing).
@@ -504,7 +498,7 @@ public sealed class Bessel : AbstractBase
     /// <para>SIMD optimization is not applicable due to IIR recursive data dependency.</para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int length)
     {
         if (length < 2)
         {
@@ -530,6 +524,12 @@ public sealed class Bessel : AbstractBase
         var state = State.New();
 
         CalculateCore(source, output, c1, c2, c3, length, ref state);
+    }
+    public static (TSeries Results, Bessel Indicator) Calculate(TSeries source, int length)
+    {
+        var bessel = new Bessel(length);
+        TSeries results = bessel.Update(source);
+        return (results, bessel);
     }
 
     /// <summary>

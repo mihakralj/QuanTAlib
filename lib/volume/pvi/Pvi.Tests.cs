@@ -286,7 +286,7 @@ public class PviTests
         }
 
         // Batch
-        var batchResult = Pvi.Calculate(bars);
+        var batchResult = Pvi.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -319,7 +319,7 @@ public class PviTests
         var volume = bars.Volume.Values.ToArray();
         var output = new double[bars.Count];
 
-        Pvi.Calculate(close, volume, output);
+        Pvi.Batch(close, volume, output);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -334,7 +334,7 @@ public class PviTests
         var volume = new double[99]; // Different length
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvi.Calculate(close, volume, output));
+        Assert.Throws<ArgumentException>(() => Pvi.Batch(close, volume, output));
     }
 
     [Fact]
@@ -344,7 +344,7 @@ public class PviTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Pvi.Calculate(close, volume, output, startValue: 0));
+        Assert.Throws<ArgumentException>(() => Pvi.Batch(close, volume, output, startValue: 0));
     }
 
     [Fact]
@@ -354,7 +354,7 @@ public class PviTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Pvi.Calculate(close, volume, output);
+        Pvi.Batch(close, volume, output);
 
         Assert.Empty(output);
     }

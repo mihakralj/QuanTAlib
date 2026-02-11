@@ -129,7 +129,7 @@ public sealed class Accel : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(sourceValues, vSpan);
+        Batch(sourceValues, vSpan);
         sourceTimes.CopyTo(tSpan);
 
         // Prime state with last two values using cached span
@@ -176,7 +176,7 @@ public sealed class Accel : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var accel = new Accel();
         return accel.Update(source);
@@ -187,7 +187,7 @@ public sealed class Accel : AbstractBase
     /// accel[i] = source[i] - 2*source[i-1] + source[i-2]
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
         {
@@ -312,6 +312,13 @@ public sealed class Accel : AbstractBase
             // accel = curr - 2*prev1 + prev2
             output[i] = Math.FusedMultiplyAdd(-2.0, p1, curr + p2);
         }
+    }
+
+    public static (TSeries Results, Accel Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Accel();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

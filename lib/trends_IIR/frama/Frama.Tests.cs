@@ -101,7 +101,7 @@ public class FramaTests
         var series = BuildSeries(60, seed: 21);
         double[] output = new double[series.Count];
 
-        Frama.Calculate(series.High.Values, series.Low.Values, period, output);
+        Frama.Batch(series.High.Values, series.Low.Values, period, output);
         TSeries batch = FramaBatch(series, period);
 
         for (int i = 0; i < series.Count; i++)

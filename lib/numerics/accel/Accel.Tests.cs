@@ -97,7 +97,7 @@ public class AccelTests
 
         // Output must be same length as source
         Assert.Throws<ArgumentException>(() =>
-            Accel.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan()));
+            Accel.Batch(source.AsSpan(), wrongSizeOutput.AsSpan()));
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class AccelTests
         // 1. Batch Mode (static span)
         var tValues = series.Values.ToArray();
         var batchOutput = new double[tValues.Length];
-        Accel.Calculate(tValues, batchOutput);
+        Accel.Batch(tValues, batchOutput);
         double expected = batchOutput[^1];
 
         // 2. Streaming Mode
@@ -122,7 +122,7 @@ public class AccelTests
         double streamingResult = streamingInd.Last.Value;
 
         // 3. TSeries Batch Mode
-        var batchSeriesResult = Accel.Calculate(series);
+        var batchSeriesResult = Accel.Batch(series);
         double tseriesResult = batchSeriesResult.Last.Value;
 
         Assert.Equal(expected, streamingResult, precision: 9);
@@ -207,7 +207,7 @@ public class AccelTests
 
         // Batch
         var batchResults = new double[count];
-        Accel.Calculate(data, batchResults);
+        Accel.Batch(data, batchResults);
 
         // Compare
         for (int i = 0; i < count; i++)

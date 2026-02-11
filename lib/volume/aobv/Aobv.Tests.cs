@@ -232,7 +232,7 @@ public class AobvTests
         double[] outputFast = new double[5];
         double[] outputSlow = new double[5];
 
-        Aobv.Calculate(close, volume, outputFast, outputSlow);
+        Aobv.Batch(close, volume, outputFast, outputSlow);
 
         for (int i = 0; i < 5; i++)
         {
@@ -250,7 +250,7 @@ public class AobvTests
         double[] outputSlow = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Aobv.Calculate(close, volume, outputFast, outputSlow));
+            Aobv.Batch(close, volume, outputFast, outputSlow));
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public class AobvTests
         double[] outputSlow = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Aobv.Calculate(close, volume, outputFast, outputSlow));
+            Aobv.Batch(close, volume, outputFast, outputSlow));
     }
 
     [Fact]

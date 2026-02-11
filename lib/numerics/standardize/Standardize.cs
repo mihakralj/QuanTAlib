@@ -175,7 +175,7 @@ public sealed class Standardize : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period = 20)
+    public static TSeries Batch(TSeries source, int period = 20)
     {
         var indicator = new Standardize(period);
         return indicator.Update(source);
@@ -184,7 +184,7 @@ public sealed class Standardize : AbstractBase
     /// <summary>
     /// Calculates Z-score normalization over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 20)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 20)
     {
         if (source.Length == 0)
         {
@@ -262,6 +262,13 @@ public sealed class Standardize : AbstractBase
             lastValid = result;
             output[i] = result;
         }
+    }
+
+    public static (TSeries Results, Standardize Indicator) Calculate(TSeries source, int period = 20)
+    {
+        var indicator = new Standardize(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

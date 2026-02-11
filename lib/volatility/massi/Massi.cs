@@ -30,6 +30,7 @@ public sealed class Massi : AbstractBase
     private readonly RingBuffer _sumBuffer;
     private readonly TValuePublishedHandler _handler;
     private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     private State _s;
     private State _ps;
@@ -324,9 +325,13 @@ public sealed class Massi : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -363,7 +368,7 @@ public sealed class Massi : AbstractBase
     /// <summary>
     /// Static helper for span-based calculation (assumes input is H-L range).
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output,
                                  int emaLength = 9, int sumLength = 25)
     {
         if (output.Length != source.Length)
@@ -381,5 +386,12 @@ public sealed class Massi : AbstractBase
         {
             output[i] = massi.CalculateMassiStep(source[i]);
         }
+    }
+
+    public static (TSeries Results, Massi Indicator) Calculate(TBarSeries source, int emaLength = 9, int sumLength = 25)
+    {
+        var indicator = new Massi(emaLength, sumLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

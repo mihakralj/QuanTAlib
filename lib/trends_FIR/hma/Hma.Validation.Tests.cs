@@ -140,7 +140,7 @@ public sealed class HmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib HMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Hma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Hma.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Skender HMA
             var sResult = _testData.SkenderQuotes.GetHma(period).ToList();

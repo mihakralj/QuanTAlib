@@ -106,7 +106,7 @@ public sealed class LoessTests
 
         // 2. Span Batch
         var resSpan = new double[data.Length];
-        Loess.Calculate(data.AsSpan(), resSpan.AsSpan(), period);
+        Loess.Batch(data.AsSpan(), resSpan.AsSpan(), period);
 
         // 3. Streaming
         var loessStream = new Loess(period);

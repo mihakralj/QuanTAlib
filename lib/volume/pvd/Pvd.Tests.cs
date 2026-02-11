@@ -341,7 +341,7 @@ public class PvdTests
         double[] volumes = [1000, 1100, 1200, 1300, 1400];
         double[] output = new double[5];
 
-        Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
+        Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
 
         // Should handle NaN gracefully - result might be NaN or computed value
         Assert.True(output.Length == 5);
@@ -373,10 +373,10 @@ public class PvdTests
         var pvdBatch = new Pvd(pricePeriod: period, volumePeriod: period, smoothingPeriod: 3);
         var batchResult = pvdBatch.Update(_bars);
 
-        // Mode 3: Static Calculate(TBarSeries)
-        var staticResult = Pvd.Calculate(_bars, pricePeriod: period, volumePeriod: period, smoothingPeriod: 3);
+        // Mode 3: Static Batch(TBarSeries)
+        var staticResult = Pvd.Batch(_bars, pricePeriod: period, volumePeriod: period, smoothingPeriod: 3);
 
-        // Mode 4: Static Calculate(Span)
+        // Mode 4: Static Batch(Span)
         double[] closes = new double[_bars.Count];
         double[] volumes = new double[_bars.Count];
         double[] spanOutput = new double[_bars.Count];
@@ -385,7 +385,7 @@ public class PvdTests
             closes[i] = _bars[i].Close;
             volumes[i] = _bars[i].Volume;
         }
-        Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), spanOutput.AsSpan(), pricePeriod: period, volumePeriod: period, smoothingPeriod: 3);
+        Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), spanOutput.AsSpan(), pricePeriod: period, volumePeriod: period, smoothingPeriod: 3);
 
         // Compare last 100 values (after warmup)
         int compareStart = _bars.Count - 100;
@@ -408,7 +408,7 @@ public class PvdTests
         double[] output = new double[5];
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan()));
+            Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan()));
         Assert.Equal("volume", ex.ParamName);
     }
 
@@ -420,7 +420,7 @@ public class PvdTests
         double[] output = new double[3]; // Too short
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan()));
+            Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan()));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -432,7 +432,7 @@ public class PvdTests
         double[] output = new double[5];
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), pricePeriod: 0));
+            Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), pricePeriod: 0));
         Assert.Equal("pricePeriod", ex.ParamName);
     }
 
@@ -444,7 +444,7 @@ public class PvdTests
         double[] output = new double[5];
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), volumePeriod: 0));
+            Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), volumePeriod: 0));
         Assert.Equal("volumePeriod", ex.ParamName);
     }
 
@@ -456,7 +456,7 @@ public class PvdTests
         double[] output = new double[5];
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), smoothingPeriod: 0));
+            Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan(), smoothingPeriod: 0));
         Assert.Equal("smoothingPeriod", ex.ParamName);
     }
 
@@ -475,7 +475,7 @@ public class PvdTests
         }
 
         // Should not stack overflow
-        Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), output.AsSpan());
+        Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), output.AsSpan());
 
         Assert.True(double.IsFinite(output[size - 1]));
     }

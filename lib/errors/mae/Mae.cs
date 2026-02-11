@@ -45,7 +45,7 @@ public sealed class Mae : BiInputIndicatorBase
     /// <param name="predicted">Predicted values series</param>
     /// <param name="period">MAE period</param>
     /// <returns>MAE series</returns>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -88,5 +88,12 @@ public sealed class Mae : BiInputIndicatorBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
+    }
+
+    public static (TSeries Results, Mae Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mae(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

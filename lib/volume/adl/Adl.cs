@@ -121,7 +121,7 @@ public sealed class Adl : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source)
+    public static TSeries Batch(TBarSeries source)
     {
         if (source.Count == 0)
         {
@@ -131,13 +131,13 @@ public sealed class Adl : ITValuePublisher
         var t = source.Open.Times.ToArray(); // Times are same for all series
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != close.Length || high.Length != volume.Length || high.Length != output.Length)
         {
@@ -194,5 +194,12 @@ public sealed class Adl : ITValuePublisher
             sum += output[i];
             output[i] = sum;
         }
+    }
+
+    public static (TSeries Results, Adl Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Adl();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

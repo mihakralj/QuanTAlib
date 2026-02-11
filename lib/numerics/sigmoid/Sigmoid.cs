@@ -136,7 +136,7 @@ public sealed class Sigmoid : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, double k = 1.0, double x0 = 0.0)
+    public static TSeries Batch(TSeries source, double k = 1.0, double x0 = 0.0)
     {
         var indicator = new Sigmoid(k, x0);
         return indicator.Update(source);
@@ -145,7 +145,7 @@ public sealed class Sigmoid : AbstractBase
     /// <summary>
     /// Calculates Sigmoid over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double k = 1.0, double x0 = 0.0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double k = 1.0, double x0 = 0.0)
     {
         if (source.Length == 0)
         {
@@ -188,6 +188,13 @@ public sealed class Sigmoid : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Sigmoid Indicator) Calculate(TSeries source, double k = 1.0, double x0 = 0.0)
+    {
+        var indicator = new Sigmoid(k, x0);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

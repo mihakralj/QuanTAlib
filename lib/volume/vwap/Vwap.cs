@@ -220,7 +220,7 @@ public sealed class Vwap : ITValuePublisher
     /// <param name="source">Source bar series</param>
     /// <param name="period">Period for VWAP reset (0 = no reset)</param>
     /// <returns>TSeries containing VWAP values</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 0)
+    public static TSeries Batch(TBarSeries source, int period = 0)
     {
         if (source.Count == 0)
         {
@@ -230,7 +230,7 @@ public sealed class Vwap : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
@@ -245,7 +245,7 @@ public sealed class Vwap : ITValuePublisher
     /// <param name="output">Output span for VWAP values</param>
     /// <param name="period">Period for VWAP reset (0 = no reset)</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 0)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 0)
     {
         if (high.Length != low.Length)
         {
@@ -367,5 +367,12 @@ public sealed class Vwap : ITValuePublisher
             output[i] = sumVol > double.Epsilon ? sumPV / sumVol : typicalPrice;
             barsSinceReset++;
         }
+    }
+
+    public static (TSeries Results, Vwap Indicator) Calculate(TBarSeries source, int period = 0)
+    {
+        var indicator = new Vwap(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

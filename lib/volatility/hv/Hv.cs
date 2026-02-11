@@ -335,7 +335,7 @@ public sealed class Hv : AbstractBase
     /// <param name="annualize">Whether to annualize.</param>
     /// <param name="annualPeriods">Periods per year.</param>
     /// <returns>A TSeries containing the volatility values.</returns>
-    public static TSeries Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period < 2)
         {
@@ -364,7 +364,7 @@ public sealed class Hv : AbstractBase
     /// <summary>
     /// Calculates HV for a bar series (static).
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         var hv = new Hv(period, annualize, annualPeriods);
         return hv.Update(source);
@@ -492,4 +492,12 @@ public sealed class Hv : AbstractBase
             output[i] = volatility;
         }
     }
+
+    public static (TSeries Results, Hv Indicator) Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Hv(period, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

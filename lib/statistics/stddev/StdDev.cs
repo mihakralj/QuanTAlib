@@ -108,7 +108,7 @@ public sealed class StdDev : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period, bool isPopulation = false)
+    public static TSeries Batch(TSeries source, int period, bool isPopulation = false)
     {
         var stdDev = new StdDev(period, isPopulation);
         return stdDev.Update(source);
@@ -125,6 +125,13 @@ public sealed class StdDev : AbstractBase
 
         // 2. Sqrt
         SqrtSpan(output);
+    }
+
+    public static (TSeries Results, StdDev Indicator) Calculate(TSeries source, int period, bool isPopulation = false)
+    {
+        var indicator = new StdDev(period, isPopulation);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

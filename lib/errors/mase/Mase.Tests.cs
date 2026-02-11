@@ -241,7 +241,7 @@ public class MaseTests
             iterativeResults.Add(maseIterative.Update(actual[i], predicted[i]).Value);
         }
 
-        var batchResults = Mase.Calculate(actual, predicted, Period);
+        var batchResults = Mase.Batch(actual, predicted, Period);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -282,7 +282,7 @@ public class MaseTests
         double[] predictedArr = predictedSeries.Values.ToArray();
         double[] output = new double[100];
 
-        var tseriesResult = Mase.Calculate(actualSeries, predictedSeries, Period);
+        var tseriesResult = Mase.Batch(actualSeries, predictedSeries, Period);
         Mase.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), Period);
 
         for (int i = 0; i < 100; i++)
@@ -303,7 +303,7 @@ public class MaseTests
         }
 
         // 1. Batch Mode (static method)
-        var batchSeries = Mase.Calculate(actualSeries, predictedSeries, Period);
+        var batchSeries = Mase.Batch(actualSeries, predictedSeries, Period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

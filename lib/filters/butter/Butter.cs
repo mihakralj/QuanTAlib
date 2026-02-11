@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public sealed class Butter : AbstractBase
 {
     private readonly int _period;
@@ -146,7 +147,7 @@ public sealed class Butter : AbstractBase
     {
         var result = new TSeries();
         Span<double> output = new double[source.Count];
-        Calculate(source.Values, output, _period, double.NaN);
+        Batch(source.Values, output, _period, double.NaN);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -168,7 +169,13 @@ public sealed class Butter : AbstractBase
         return result;
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, double initialLast)
+    public static TSeries Batch(TSeries source, int period)
+    {
+        var indicator = new Butter(period);
+        return indicator.Update(source);
+    }
+
+    public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period, double initialLast)
     {
         if (period < 2)
         {
@@ -215,6 +222,12 @@ public sealed class Butter : AbstractBase
 
             destination[i] = y;
         }
+    }
+    public static (TSeries Results, Butter Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Butter(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

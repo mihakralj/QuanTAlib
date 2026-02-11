@@ -141,7 +141,7 @@ public class BbwnValidationTests
         {
             source.Add(new TValue(bars.Times[i], bars.CloseValues[i]));
         }
-        var result = Bbwn.Calculate(source, period: 10, multiplier: 2.0, lookback: 20);
+        var result = Bbwn.Batch(source, period: 10, multiplier: 2.0, lookback: 20);
 
         Assert.Equal(source.Count, result.Count);
 

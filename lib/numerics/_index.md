@@ -20,4 +20,4 @@ Basic mathematical transforms and utility functions for time series. These build
 | [SIGMOID](sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform. |
 | [SLOPE](slope/Slope.md) | Rate of Change | First derivative; velocity of price movement. |
 | [SQRTTRANS](sqrttrans/Sqrttrans.md) | Square Root Transform | Variance-stabilizing transformation. |
-| [STANDARDIZE](standardize/Standardize.md) | Z-Score Normalization | (x - mean) / stddev; zero-mean unit-variance transform. |
+| [STANDARDIZE](standardize/Standardize.cs) | Z-Score Normalization | (x - mean) / stddev; zero-mean unit-variance transform. |

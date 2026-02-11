@@ -184,7 +184,7 @@ public class RsvValidationTests
         }
 
         // Batch calculation
-        var batchResult = Rsv.Calculate(bars, 14);
+        var batchResult = Rsv.Batch(bars, 14);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingRsv.Last.Value, 8);

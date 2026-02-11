@@ -201,13 +201,13 @@ public sealed class Zldema : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var zldema = new Zldema(period);
         return zldema.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -222,10 +222,10 @@ public sealed class Zldema : AbstractBase
         }
 
         double alpha = 2.0 / (period + 1);
-        Calculate(source, output, alpha, period);
+        BatchCore(source, output, alpha, period);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
         {
@@ -243,7 +243,14 @@ public sealed class Zldema : AbstractBase
         }
 
         double period = (2.0 / alpha) - 1.0;
-        Calculate(source, output, alpha, period);
+        BatchCore(source, output, alpha, period);
+    }
+
+    public static (TSeries Results, Zldema Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Zldema(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -344,7 +351,7 @@ public sealed class Zldema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
-    private static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha, double period)
+    private static void BatchCore(ReadOnlySpan<double> source, Span<double> output, double alpha, double period)
     {
         int lag = ComputeLag(period);
         int bufferSize = lag + 1;

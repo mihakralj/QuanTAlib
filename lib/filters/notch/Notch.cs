@@ -138,7 +138,7 @@ public sealed class Notch : AbstractBase
         ReadOnlySpan<double> srcSpan = source.Values;
         double[] outArray = new double[srcSpan.Length];
 
-        Calculate(srcSpan, outArray.AsSpan(), NotchFreq, Bandwidth);
+        Batch(srcSpan, outArray.AsSpan(), NotchFreq, Bandwidth);
 
         for (int i = 0; i < outArray.Length; i++)
         {
@@ -159,7 +159,7 @@ public sealed class Notch : AbstractBase
         return result;
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double q = 1.0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double q = 1.0)
     {
         if (source.Length != output.Length)
         {
@@ -210,13 +210,13 @@ public sealed class Notch : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period, double q = 1.0)
+    public static TSeries Batch(TSeries source, int period, double q = 1.0)
     {
         var result = new TSeries();
         ReadOnlySpan<double> srcSpan = source.Values;
         double[] outArray = new double[srcSpan.Length];
 
-        Calculate(srcSpan, outArray.AsSpan(), period, q);
+        Batch(srcSpan, outArray.AsSpan(), period, q);
 
         for (int i = 0; i < outArray.Length; i++)
         {
@@ -224,6 +224,13 @@ public sealed class Notch : AbstractBase
         }
 
         return result;
+    }
+
+    public static (TSeries Results, Notch Indicator) Calculate(TSeries source, int period, double q = 1.0)
+    {
+        var indicator = new Notch(period, q);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

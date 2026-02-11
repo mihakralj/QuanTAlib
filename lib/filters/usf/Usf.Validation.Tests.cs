@@ -68,7 +68,7 @@ public sealed class UsfValidationTests : IDisposable
             // 3. Span Mode
             double[] sourceData = _testData.RawData.ToArray();
             double[] spanOutput = new double[sourceData.Length];
-            Usf.Calculate(sourceData.AsSpan(), spanOutput.AsSpan(), period);
+            Usf.Batch(sourceData.AsSpan(), spanOutput.AsSpan(), period);
 
             // Compare batch vs streaming
             Assert.Equal(batchResult.Count, streamingResults.Count);

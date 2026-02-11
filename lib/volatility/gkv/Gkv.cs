@@ -350,7 +350,7 @@ public sealed class Gkv : AbstractBase
     /// <param name="annualize">Whether to annualize.</param>
     /// <param name="annualPeriods">Periods per year.</param>
     /// <returns>A TSeries containing the volatility values.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         var gkv = new Gkv(period, annualize, annualPeriods);
         return gkv.Update(source);
@@ -359,7 +359,7 @@ public sealed class Gkv : AbstractBase
     /// <summary>
     /// Calculates GKV for a TSeries (treats values as pre-computed GK estimators).
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period <= 0)
         {
@@ -495,6 +495,14 @@ public sealed class Gkv : AbstractBase
             output[i] = volatility;
         }
     }
+
+    public static (TSeries Results, Gkv Indicator) Calculate(TBarSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Gkv(period, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 
     /// <summary>
     /// Batch calculation from pre-computed GK estimators.

@@ -306,7 +306,7 @@ public class KvoTests
         }
 
         // Batch
-        var batchResult = Kvo.Calculate(bars);
+        var batchResult = Kvo.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -345,7 +345,7 @@ public class KvoTests
         var spanKvo = new double[bars.Count];
         var spanSignal = new double[bars.Count];
 
-        Kvo.Calculate(high, low, close, volume, spanKvo, spanSignal);
+        Kvo.Batch(high, low, close, volume, spanKvo, spanSignal);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -364,7 +364,7 @@ public class KvoTests
         var output = new double[100];
         var signal = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Kvo.Calculate(high, low, close, volume, output, signal));
+        Assert.Throws<ArgumentException>(() => Kvo.Batch(high, low, close, volume, output, signal));
     }
 
     [Fact]
@@ -377,7 +377,7 @@ public class KvoTests
         var output = new double[100];
         var signal = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Kvo.Calculate(high, low, close, volume, output, signal, fastPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Kvo.Batch(high, low, close, volume, output, signal, fastPeriod: 0));
     }
 
     [Fact]
@@ -390,7 +390,7 @@ public class KvoTests
         var output = new double[100];
         var signal = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Kvo.Calculate(high, low, close, volume, output, signal, slowPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Kvo.Batch(high, low, close, volume, output, signal, slowPeriod: 0));
     }
 
     [Fact]
@@ -403,7 +403,7 @@ public class KvoTests
         var output = new double[100];
         var signal = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Kvo.Calculate(high, low, close, volume, output, signal, signalPeriod: 0));
+        Assert.Throws<ArgumentException>(() => Kvo.Batch(high, low, close, volume, output, signal, signalPeriod: 0));
     }
 
     [Fact]
@@ -417,7 +417,7 @@ public class KvoTests
         var signal = Array.Empty<double>();
 
         // Should not throw
-        Kvo.Calculate(high, low, close, volume, output, signal);
+        Kvo.Batch(high, low, close, volume, output, signal);
 
         // Verify arrays remain empty (no out-of-bounds writes)
         Assert.Empty(output);

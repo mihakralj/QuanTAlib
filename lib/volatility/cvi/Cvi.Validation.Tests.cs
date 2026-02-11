@@ -196,7 +196,7 @@ public class CviValidationTests
         }
 
         // Batch calculation
-        var batchResult = Cvi.Calculate(bars, 10, 10);
+        var batchResult = Cvi.Batch(bars, 10, 10);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingCvi.Last.Value, 8);

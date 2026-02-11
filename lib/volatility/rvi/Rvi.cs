@@ -370,7 +370,7 @@ public sealed class Rvi : AbstractBase
     /// <param name="stdevLength">The lookback period for standard deviation.</param>
     /// <param name="rmaLength">The lookback period for RMA smoothing.</param>
     /// <returns>A TSeries containing the RVI values.</returns>
-    public static TSeries Calculate(TSeries source, int stdevLength = 10, int rmaLength = 14)
+    public static TSeries Batch(TSeries source, int stdevLength = 10, int rmaLength = 14)
     {
         if (stdevLength < 2)
         {
@@ -399,7 +399,7 @@ public sealed class Rvi : AbstractBase
     /// <summary>
     /// Calculates RVI for a bar series (static).
     /// </summary>
-    public static TSeries Calculate(TBarSeries source, int stdevLength = 10, int rmaLength = 14)
+    public static TSeries Batch(TBarSeries source, int stdevLength = 10, int rmaLength = 14)
     {
         var rvi = new Rvi(stdevLength, rmaLength);
         return rvi.Update(source);
@@ -563,4 +563,12 @@ public sealed class Rvi : AbstractBase
             output[i] = rviValue;
         }
     }
+
+    public static (TSeries Results, Rvi Indicator) Calculate(TSeries source, int stdevLength = 10, int rmaLength = 14)
+    {
+        var indicator = new Rvi(stdevLength, rmaLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

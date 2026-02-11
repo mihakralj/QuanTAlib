@@ -45,7 +45,7 @@ public sealed class Rmse : BiInputIndicatorBase
     /// <summary>
     /// Calculates RMSE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -69,5 +69,12 @@ public sealed class Rmse : BiInputIndicatorBase
 
         ErrorHelpers.ComputeSquaredErrors(actual, predicted, sqErrors);
         ErrorHelpers.ApplyRollingMeanSqrt(sqErrors, output, period);
+    }
+
+    public static (TSeries Results, Rmse Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Rmse(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

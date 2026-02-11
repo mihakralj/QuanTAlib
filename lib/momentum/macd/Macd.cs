@@ -129,16 +129,17 @@ public sealed class Macd : ITValuePublisher, IDisposable
         return new TSeries(t, v);
     }
 
-    private void Handle(object? sender, in TValueEventArgs args)
+    public static TSeries Batch(TSeries source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
     {
-        Update(args.Value, args.IsNew);
+        var indicator = new Macd(fastPeriod, slowPeriod, signalPeriod);
+        return indicator.Update(source);
     }
 
     /// <summary>
     /// Calculates the MACD Line (Fast EMA - Slow EMA).
     /// Does not calculate Signal or Histogram.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int fastPeriod = 12, int slowPeriod = 26)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != destination.Length)
         {
@@ -164,5 +165,17 @@ public sealed class Macd : ITValuePublisher, IDisposable
             ArrayPool<double>.Shared.Return(fastBuffer);
             ArrayPool<double>.Shared.Return(slowBuffer);
         }
+    }
+
+    private void Handle(object? sender, in TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
+    public static (TSeries Results, Macd Indicator) Calculate(TSeries source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
+    {
+        var indicator = new Macd(fastPeriod, slowPeriod, signalPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

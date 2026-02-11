@@ -179,7 +179,7 @@ public sealed class Ao : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, v, _fastPeriod, _slowPeriod);
+        Batch(source.High.Values, source.Low.Values, v, _fastPeriod, _slowPeriod);
 
         // Bulk copy timestamps using CollectionsMarshal
         var tList = new List<long>(len);
@@ -212,7 +212,7 @@ public sealed class Ao : ITValuePublisher
     /// <param name="slowPeriod">Slow SMA period (default 34)</param>
     /// <param name="destination">Output AO values</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, Span<double> destination, int fastPeriod = 5, int slowPeriod = 34)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, Span<double> destination, int fastPeriod = 5, int slowPeriod = 34)
     {
         if (high.Length != low.Length || high.Length != destination.Length)
         {
@@ -267,7 +267,7 @@ public sealed class Ao : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, v, fastPeriod, slowPeriod);
+        Batch(source.High.Values, source.Low.Values, v, fastPeriod, slowPeriod);
 
         // Bulk copy timestamps using CollectionsMarshal
         var tList = new List<long>(len);
@@ -282,5 +282,12 @@ public sealed class Ao : ITValuePublisher
         v.AsSpan().CopyTo(vSpan);
 
         return new TSeries(tList, vList);
+    }
+
+    public static (TSeries Results, Ao Indicator) Calculate(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
+    {
+        var indicator = new Ao(fastPeriod, slowPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -51,7 +51,7 @@ public class EomValidationTests
         }
 
         // Batch
-        var batchResult = Eom.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Eom.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -74,7 +74,7 @@ public class EomValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Eom.Calculate(high, low, volume, spanValues, DefaultPeriod);
+        Eom.Batch(high, low, volume, spanValues, DefaultPeriod);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-9);
     }

@@ -256,4 +256,12 @@ public sealed class Chop : ITValuePublisher
         var indicator = new Chop(period);
         return indicator.Update(source);
     }
+
+    public static (TSeries Results, Chop Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Chop();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

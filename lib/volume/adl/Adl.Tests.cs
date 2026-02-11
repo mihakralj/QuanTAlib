@@ -134,7 +134,7 @@ public class AdlTests
         bars.Add(new TBar(time.AddMinutes(1), 10, 12, 8, 12, 200));
         bars.Add(new TBar(time.AddMinutes(2), 12, 12, 8, 8, 100));
 
-        var result = Adl.Calculate(bars);
+        var result = Adl.Batch(bars);
 
         Assert.Equal(3, result.Count);
         Assert.Equal(0, result[0].Value);
@@ -151,7 +151,7 @@ public class AdlTests
         double[] volume = { 100, 200, 100 };
         double[] output = new double[3];
 
-        Adl.Calculate(high, low, close, volume, output);
+        Adl.Batch(high, low, close, volume, output);
 
         Assert.Equal(0, output[0]);
         Assert.Equal(200, output[1]);
@@ -168,14 +168,14 @@ public class AdlTests
         double[] output = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Adl.Calculate(high, low, close, volume, output));
+            Adl.Batch(high, low, close, volume, output));
     }
 
     [Fact]
     public void Adl_Calculate_EmptySeries_ReturnsEmpty()
     {
         var bars = new TBarSeries();
-        var result = Adl.Calculate(bars);
+        var result = Adl.Batch(bars);
         Assert.Empty(result);
     }
 
@@ -199,7 +199,7 @@ public class AdlTests
             volume[i] = 10;
         }
 
-        Adl.Calculate(high, low, close, volume, output);
+        Adl.Batch(high, low, close, volume, output);
 
         for (int i = 0; i < count; i++)
         {

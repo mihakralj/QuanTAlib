@@ -29,7 +29,7 @@ public class HemaValidationTests
         double[] reference = new double[series.Count];
 
         ReferenceHema(series.Values, reference, period);
-        TSeries batch = Hema.Calculate(series, period);
+        TSeries batch = Hema.Batch(series, period);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -47,7 +47,7 @@ public class HemaValidationTests
         var reference = new double[values.Length];
 
         ReferenceHema(values, reference, period);
-        Hema.Calculate(values, output, period);
+        Hema.Batch(values, output, period);
 
         for (int i = 0; i < values.Length; i++)
         {

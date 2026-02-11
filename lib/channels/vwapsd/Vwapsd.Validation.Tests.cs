@@ -120,7 +120,7 @@ public sealed class VwapsdValidationTests : IDisposable
             double[] spanLower = new double[bars.Count];
             double[] spanStdDev = new double[bars.Count];
 
-            Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
+            Vwapsd.Batch(price.AsSpan(), volume.AsSpan(),
                 spanUpper.AsSpan(), spanLower.AsSpan(),
                 spanVwap.AsSpan(), spanStdDev.AsSpan(), numDevs);
 

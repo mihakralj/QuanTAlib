@@ -290,7 +290,7 @@ public sealed class UltoscValidationTests : IDisposable
         double[] spanOutput = new double[hData.Length];
 
         // Calculate using span method
-        Ultosc.Calculate(hData, lData, cData, spanOutput, p1, p2, p3);
+        Ultosc.Batch(hData, lData, cData, spanOutput, p1, p2, p3);
 
         // Calculate using TBarSeries batch
         var ultosc = new Ultosc(p1, p2, p3);

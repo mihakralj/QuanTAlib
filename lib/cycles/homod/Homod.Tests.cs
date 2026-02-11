@@ -297,7 +297,7 @@ public class HomodTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Homod.Calculate(tSeries, minPeriod, maxPeriod);
+        var batch = Homod.Batch(tSeries, minPeriod, maxPeriod);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);

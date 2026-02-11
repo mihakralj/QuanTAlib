@@ -273,7 +273,7 @@ public sealed class Bbwn : AbstractBase
     /// <summary>
     /// Calculates BBWN for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
+    public static TSeries Batch(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
     {
         int len = source.Count;
         var t = new List<long>(len);
@@ -381,5 +381,12 @@ public sealed class Bbwn : AbstractBase
             // Clamp to [0,1] range
             output[i] = Math.Max(0.0, Math.Min(1.0, bbwn));
         }
+    }
+
+    public static (TSeries Results, Bbwn Indicator) Calculate(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
+    {
+        var indicator = new Bbwn(period, multiplier, lookback);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

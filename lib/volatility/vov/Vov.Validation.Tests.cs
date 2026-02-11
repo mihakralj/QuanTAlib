@@ -187,7 +187,7 @@ public class VovValidationTests
         }
 
         // Batch via TSeries
-        var batchResult = Vov.Calculate(data, DefaultVolatilityPeriod, DefaultVovPeriod);
+        var batchResult = Vov.Batch(data, DefaultVolatilityPeriod, DefaultVovPeriod);
 
         Assert.Equal(streamingVov.Last.Value, batchResult.Last.Value, 10);
     }

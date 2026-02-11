@@ -66,7 +66,7 @@ public sealed class AdoscValidationTests : IDisposable
 
         // 3. Span Mode
         double[] spanOutput = new double[close.Length];
-        Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
+        Adosc.Batch(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, outRange, lookback: slowPeriod - 1, tolerance: ValidationHelper.TalibTolerance);
     }
 
@@ -105,7 +105,7 @@ public sealed class AdoscValidationTests : IDisposable
 
         // 3. Span Mode
         double[] spanOutput = new double[close.Length];
-        Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
+        Adosc.Batch(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, lookback: start, tolerance: ValidationHelper.TulipTolerance);
     }
 
@@ -137,7 +137,7 @@ public sealed class AdoscValidationTests : IDisposable
         double[] close = _testData.Bars.Close.Values.ToArray();
         double[] volume = _testData.Bars.Volume.Values.ToArray();
         double[] spanOutput = new double[close.Length];
-        Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
+        Adosc.Batch(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
         ValidationHelper.VerifyData<ChaikinOscResult>(spanOutput, skenderResults, (x) => x.Oscillator, tolerance: ValidationHelper.SkenderTolerance);
     }
 
@@ -181,7 +181,7 @@ public sealed class AdoscValidationTests : IDisposable
         double[] close = _testData.Bars.Close.Values.ToArray();
         double[] volume = _testData.Bars.Volume.Values.ToArray();
         double[] spanOutput = new double[close.Length];
-        Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
+        Adosc.Batch(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

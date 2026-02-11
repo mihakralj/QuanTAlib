@@ -83,7 +83,7 @@ public sealed class GwmaValidationTests : IDisposable
             {
                 // Calculate QuanTAlib GWMA (Span API)
                 double[] spanOutput = new double[sourceData.Length];
-                Gwma.Calculate(sourceData, spanOutput.AsSpan(), period, sigma);
+                Gwma.Batch(sourceData, spanOutput.AsSpan(), period, sigma);
 
                 // Calculate QuanTAlib GWMA (batch TSeries)
                 var gwmaBatch = new Gwma(period, sigma);

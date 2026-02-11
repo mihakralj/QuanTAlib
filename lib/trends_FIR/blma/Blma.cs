@@ -151,7 +151,7 @@ public sealed class Blma : AbstractBase
 
         try
         {
-            Calculate(source.Values, output, _period);
+            BatchCore(source.Values, output, _period);
 
             for (int i = 0; i < len; i++)
             {
@@ -243,17 +243,11 @@ public sealed class Blma : AbstractBase
     /// <summary>
     /// Calculates BLMA values for a TSeries and returns both results and a primed indicator.
     /// </summary>
-    public static (TSeries Results, Blma Indicator) Calculate(TSeries source, int period)
-    {
-        var indicator = new Blma(period);
-        var results = indicator.Update(source);
-        return (results, indicator);
-    }
 
     /// <summary>
-    /// Calculates BLMA values using spans (high-performance batch API).
+    /// Core batch calculation of BLMA values using spans (high-performance batch API).
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
+    private static void BatchCore(ReadOnlySpan<double> source, Span<double> destination, int period)
     {
         if (period < 1)
         {
@@ -377,6 +371,12 @@ public sealed class Blma : AbstractBase
     /// </summary>
     public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period)
     {
-        Calculate(source, destination, period);
+        BatchCore(source, destination, period);
+    }
+    public static (TSeries Results, Blma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Blma(period);
+        var results = indicator.Update(source);
+        return (results, indicator);
     }
 }

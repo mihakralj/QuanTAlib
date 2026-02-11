@@ -24,6 +24,7 @@ public sealed class Wma : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _handler;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount, bool HasSeenValidData);
@@ -68,9 +69,13 @@ public sealed class Wma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (_source != null && _handler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null && _handler != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -296,6 +301,13 @@ public sealed class Wma : AbstractBase
         }
 
         CalculateScalarCore(source, output, period);
+    }
+
+    public static (TSeries Results, Wma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Wma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

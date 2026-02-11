@@ -433,4 +433,11 @@ public sealed class Cfb : ITValuePublisher, IDisposable
             prevCfb = cfb;
         }
     }
+
+    public static (TSeries Results, Cfb Indicator) Calculate(TSeries source, int[]? lengths = null)
+    {
+        var indicator = new Cfb(lengths);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }

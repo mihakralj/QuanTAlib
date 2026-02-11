@@ -207,7 +207,7 @@ public sealed class Tvi : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, double minTick = 0.125)
+    public static TSeries Batch(TBarSeries source, double minTick = 0.125)
     {
         if (source.Count == 0)
         {
@@ -217,13 +217,13 @@ public sealed class Tvi : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, v, minTick);
+        Batch(source.Close.Values, source.Volume.Values, v, minTick);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> price, ReadOnlySpan<double> volume, Span<double> output, double minTick = 0.125)
+    public static void Batch(ReadOnlySpan<double> price, ReadOnlySpan<double> volume, Span<double> output, double minTick = 0.125)
     {
         if (price.Length != volume.Length)
         {
@@ -303,5 +303,12 @@ public sealed class Tvi : ITValuePublisher
                 prevPrice = price[i];
             }
         }
+    }
+
+    public static (TSeries Results, Tvi Indicator) Calculate(TBarSeries source, double minTick = 0.125)
+    {
+        var indicator = new Tvi(minTick);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

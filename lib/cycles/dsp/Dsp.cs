@@ -210,7 +210,7 @@ public sealed class Dsp : AbstractBase
     /// <summary>
     /// Calculates DSP for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 40)
+    public static TSeries Batch(TSeries source, int period = 40)
     {
         var dsp = new Dsp(period);
         return dsp.Update(source);
@@ -289,5 +289,12 @@ public sealed class Dsp : AbstractBase
 
             output[i] = emaFast - emaSlow;
         }
+    }
+
+    public static (TSeries Results, Dsp Indicator) Calculate(TSeries source, int period = 40)
+    {
+        var indicator = new Dsp(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

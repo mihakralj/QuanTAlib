@@ -192,7 +192,7 @@ public class HvValidationTests
         }
 
         // Batch calculation
-        var batchResult = Hv.Calculate(prices, 14);
+        var batchResult = Hv.Batch(prices, 14);
 
         // Compare last values
         Assert.Equal(batchResult.Last.Value, streamingHv.Last.Value, 8);

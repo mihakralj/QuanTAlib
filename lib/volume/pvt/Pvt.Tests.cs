@@ -265,7 +265,7 @@ public class PvtTests
             streamingResults[i] = pvtStreaming.Update(bars[i]).Value;
         }
 
-        var batchResult = Pvt.Calculate(bars);
+        var batchResult = Pvt.Batch(bars);
 
         // Compare last 45 values (after warmup)
         for (int i = 5; i < bars.Count; i++)
@@ -299,7 +299,7 @@ public class PvtTests
         }
 
         var spanResult = new double[bars.Count];
-        Pvt.Calculate(close, volume, spanResult);
+        Pvt.Batch(close, volume, spanResult);
 
         // Compare values after first bar
         for (int i = 1; i < bars.Count; i++)
@@ -343,7 +343,7 @@ public class PvtTests
         var volume = new double[8];  // Different length
         var output = new double[10];
 
-        Assert.Throws<ArgumentException>(() => Pvt.Calculate(close, volume, output));
+        Assert.Throws<ArgumentException>(() => Pvt.Batch(close, volume, output));
     }
 
     [Fact]
@@ -353,7 +353,7 @@ public class PvtTests
         var volume = new double[10];
         var output = new double[8];  // Wrong length
 
-        Assert.Throws<ArgumentException>(() => Pvt.Calculate(close, volume, output));
+        Assert.Throws<ArgumentException>(() => Pvt.Batch(close, volume, output));
     }
 
     [Fact]
@@ -363,7 +363,7 @@ public class PvtTests
         var volume = Array.Empty<double>();
         var output = Array.Empty<double>();
 
-        Pvt.Calculate(close, volume, output);  // Should not throw
+        Pvt.Batch(close, volume, output);  // Should not throw
         Assert.Empty(output);
     }
 
@@ -374,7 +374,7 @@ public class PvtTests
         var volume = new double[] { 1000.0 };
         var output = new double[1];
 
-        Pvt.Calculate(close, volume, output);
+        Pvt.Batch(close, volume, output);
 
         Assert.Equal(0.0, output[0]);
     }

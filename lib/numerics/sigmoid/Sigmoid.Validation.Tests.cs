@@ -228,7 +228,7 @@ public class SigmoidValidationTests
 
         // Span calculation
         double[] spanOutput = new double[source.Length];
-        Sigmoid.Calculate(source.AsSpan(), spanOutput.AsSpan(), k, x0);
+        Sigmoid.Batch(source.AsSpan(), spanOutput.AsSpan(), k, x0);
 
         // Streaming calculation
         var sigmoid = new Sigmoid(k, x0);

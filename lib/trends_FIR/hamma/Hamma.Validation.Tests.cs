@@ -75,7 +75,7 @@ public sealed class HammaValidationTests : IDisposable
         {
             // Calculate QuanTAlib HAMMA (Span API)
             double[] spanOutput = new double[sourceData.Length];
-            Hamma.Calculate(sourceData, spanOutput.AsSpan(), period);
+            Hamma.Batch(sourceData, spanOutput.AsSpan(), period);
 
             // Calculate QuanTAlib HAMMA (batch TSeries)
             var hammaBatch = new Hamma(period);

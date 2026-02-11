@@ -113,7 +113,7 @@ public sealed class Correlation : AbstractBase
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesX, seriesY, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("Correlation requires two inputs. Use Calculate(seriesX, seriesY, period).");
+        throw new NotSupportedException("Correlation requires two inputs. Use Batch(seriesX, seriesY, period).");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -286,7 +286,7 @@ public sealed class Correlation : AbstractBase
     /// <summary>
     /// Calculates correlation for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries seriesX, TSeries seriesY, int period = 20)
+    public static TSeries Batch(TSeries seriesX, TSeries seriesY, int period = 20)
     {
         if (seriesX.Count != seriesY.Count)
         {
@@ -313,7 +313,7 @@ public sealed class Correlation : AbstractBase
     /// <summary>
     /// Static batch calculation for span-based processing.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> seriesX,
         ReadOnlySpan<double> seriesY,
         Span<double> output,
@@ -342,4 +342,12 @@ public sealed class Correlation : AbstractBase
             output[i] = result.Value;
         }
     }
+
+    public static (TSeries Results, Correlation Indicator) Calculate(TSeries seriesX, TSeries seriesY, int period = 20)
+    {
+        var indicator = new Correlation(period);
+        TSeries results = Batch(seriesX, seriesY, period);
+        return (results, indicator);
+    }
+
 }

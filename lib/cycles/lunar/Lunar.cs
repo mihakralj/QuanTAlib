@@ -91,7 +91,7 @@ public sealed class Lunar : AbstractBase
     /// <summary>
     /// Creates a new Lunar indicator and calculates phases for the source series.
     /// </summary>
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var lunar = new Lunar();
         return lunar.Update(source);
@@ -112,6 +112,13 @@ public sealed class Lunar : AbstractBase
         {
             output[i] = CalculatePhase(timestamps[i]);
         }
+    }
+
+    public static (TSeries Results, Lunar Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Lunar();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

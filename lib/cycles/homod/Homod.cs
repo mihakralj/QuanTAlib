@@ -381,7 +381,7 @@ public sealed class Homod : AbstractBase
     /// <summary>
     /// Calculates Homodyne Discriminator for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, double minPeriod = 6.0, double maxPeriod = 50.0)
+    public static TSeries Batch(TSeries source, double minPeriod = 6.0, double maxPeriod = 50.0)
     {
         var homod = new Homod(minPeriod, maxPeriod);
         return homod.Update(source);
@@ -420,5 +420,12 @@ public sealed class Homod : AbstractBase
             var result = homod.Update(new TValue(DateTime.UtcNow, source[i]));
             output[i] = result.Value;
         }
+    }
+
+    public static (TSeries Results, Homod Indicator) Calculate(TSeries source, double minPeriod = 6.0, double maxPeriod = 50.0)
+    {
+        var indicator = new Homod(minPeriod, maxPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

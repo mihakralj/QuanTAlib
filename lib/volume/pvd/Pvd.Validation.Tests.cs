@@ -41,7 +41,7 @@ public class PvdValidationTests
         }
 
         // Batch calculation (uses static Calculate which uses span internally)
-        var batchResults = Pvd.Calculate(_data, pricePeriod, volumePeriod, smoothingPeriod);
+        var batchResults = Pvd.Batch(_data, pricePeriod, volumePeriod, smoothingPeriod);
 
         // Compare after full warmup (streaming and span may differ during warmup due to smoothing initialization)
         Assert.Equal(_data.Count, batchResults.Count);
@@ -70,10 +70,10 @@ public class PvdValidationTests
 
         // Span calculation
         double[] spanResults = new double[_data.Count];
-        Pvd.Calculate(closes.AsSpan(), volumes.AsSpan(), spanResults.AsSpan(), pricePeriod, volumePeriod, smoothingPeriod);
+        Pvd.Batch(closes.AsSpan(), volumes.AsSpan(), spanResults.AsSpan(), pricePeriod, volumePeriod, smoothingPeriod);
 
         // Batch calculation
-        var batchResults = Pvd.Calculate(_data, pricePeriod, volumePeriod, smoothingPeriod);
+        var batchResults = Pvd.Batch(_data, pricePeriod, volumePeriod, smoothingPeriod);
 
         // Compare after warmup
         int startCompare = Math.Max(pricePeriod, volumePeriod) + smoothingPeriod;
@@ -86,8 +86,8 @@ public class PvdValidationTests
     [Fact]
     public void Pvd_DifferentPeriods_ProduceDifferentResults()
     {
-        var pvd1 = Pvd.Calculate(_data, pricePeriod: 5, volumePeriod: 5, smoothingPeriod: 3);
-        var pvd2 = Pvd.Calculate(_data, pricePeriod: 20, volumePeriod: 20, smoothingPeriod: 3);
+        var pvd1 = Pvd.Batch(_data, pricePeriod: 5, volumePeriod: 5, smoothingPeriod: 3);
+        var pvd2 = Pvd.Batch(_data, pricePeriod: 20, volumePeriod: 20, smoothingPeriod: 3);
 
         // After warmup, values should differ
         int compareIdx = _data.Count - 1;
@@ -98,10 +98,10 @@ public class PvdValidationTests
     public void Pvd_AsymmetricPeriods_Work()
     {
         // Price period longer than volume period
-        var pvd1 = Pvd.Calculate(_data, pricePeriod: 20, volumePeriod: 5, smoothingPeriod: 3);
+        var pvd1 = Pvd.Batch(_data, pricePeriod: 20, volumePeriod: 5, smoothingPeriod: 3);
 
         // Volume period longer than price period
-        var pvd2 = Pvd.Calculate(_data, pricePeriod: 5, volumePeriod: 20, smoothingPeriod: 3);
+        var pvd2 = Pvd.Batch(_data, pricePeriod: 5, volumePeriod: 20, smoothingPeriod: 3);
 
         // Results should differ
         int compareIdx = _data.Count - 1;
@@ -128,7 +128,7 @@ public class PvdValidationTests
         // Price increasing, volume decreasing
         bars.Add(new TBar(time.AddMinutes(5), 110.0, 110.0, 110.0, 110.0, 800.0));
 
-        var result = Pvd.Calculate(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
+        var result = Pvd.Batch(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
 
         // Last value should be positive (divergence detected)
         Assert.True(result[^1].Value > 0);
@@ -150,7 +150,7 @@ public class PvdValidationTests
         // Price increasing, volume also increasing
         bars.Add(new TBar(time.AddMinutes(5), 110.0, 110.0, 110.0, 110.0, 1200.0));
 
-        var result = Pvd.Calculate(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
+        var result = Pvd.Batch(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
 
         // Last value should be negative (price and volume moving same direction)
         Assert.True(result[^1].Value < 0);
@@ -169,7 +169,7 @@ public class PvdValidationTests
             bars.Add(new TBar(time.AddMinutes(i), 100.0, 100.0, 100.0, 100.0, 1000.0));
         }
 
-        var result = Pvd.Calculate(bars, pricePeriod: 3, volumePeriod: 3, smoothingPeriod: 2);
+        var result = Pvd.Batch(bars, pricePeriod: 3, volumePeriod: 3, smoothingPeriod: 2);
 
         // Should be zero (no momentum in either direction)
         Assert.Equal(0.0, result[^1].Value, precision: 10);
@@ -198,7 +198,7 @@ public class PvdValidationTests
         // Magnitude = |0.9615| + |-11.111| = 12.073...
         // Divergence = 1 * -(-1) * 12.073 = 12.073... (positive: price up, volume down)
 
-        var result = Pvd.Calculate(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
+        var result = Pvd.Batch(bars, pricePeriod: 2, volumePeriod: 2, smoothingPeriod: 1);
 
         // Last value should be positive
         Assert.True(result[^1].Value > 0);
@@ -211,8 +211,8 @@ public class PvdValidationTests
     [Fact]
     public void Pvd_SmoothingPeriod1_NoSmoothing()
     {
-        var result1 = Pvd.Calculate(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 1);
-        var result3 = Pvd.Calculate(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 3);
+        var result1 = Pvd.Batch(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 1);
+        var result3 = Pvd.Batch(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 3);
 
         // Smoothing should make values different (and generally smoother)
         bool foundDifference = false;
@@ -230,8 +230,8 @@ public class PvdValidationTests
     [Fact]
     public void Pvd_HigherSmoothing_ReducesVolatility()
     {
-        var result1 = Pvd.Calculate(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 1);
-        var result10 = Pvd.Calculate(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 10);
+        var result1 = Pvd.Batch(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 1);
+        var result10 = Pvd.Batch(_data, pricePeriod: 10, volumePeriod: 10, smoothingPeriod: 10);
 
         // Calculate variance of last 100 values
         double variance1 = CalculateVariance(result1.Skip(400).Select(x => x.Value).ToArray());
@@ -268,7 +268,7 @@ public class PvdValidationTests
             bars.Add(new TBar(time.AddMinutes(i), 100.0 + i, 101.0 + i, 99.0 + i, 100.5 + i, volume));
         }
 
-        var result = Pvd.Calculate(bars, pricePeriod: 3, volumePeriod: 3, smoothingPeriod: 2);
+        var result = Pvd.Batch(bars, pricePeriod: 3, volumePeriod: 3, smoothingPeriod: 2);
 
         // Should complete without errors
         Assert.Equal(20, result.Count);
@@ -281,7 +281,7 @@ public class PvdValidationTests
         var bars = new TBarSeries();
         bars.Add(new TBar(DateTime.UtcNow, 100.0, 100.0, 100.0, 100.0, 1000.0));
 
-        var result = Pvd.Calculate(bars, pricePeriod: 5, volumePeriod: 5, smoothingPeriod: 2);
+        var result = Pvd.Batch(bars, pricePeriod: 5, volumePeriod: 5, smoothingPeriod: 2);
 
         Assert.Single(result);
         Assert.Equal(0.0, result[0].Value);
@@ -298,7 +298,7 @@ public class PvdValidationTests
             largeData.Add(gbm.Next());
         }
 
-        var result = Pvd.Calculate(largeData, pricePeriod: 14, volumePeriod: 14, smoothingPeriod: 3);
+        var result = Pvd.Batch(largeData, pricePeriod: 14, volumePeriod: 14, smoothingPeriod: 3);
 
         Assert.Equal(10000, result.Count);
         Assert.True(double.IsFinite(result[^1].Value));

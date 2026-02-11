@@ -228,7 +228,7 @@ public class RocrValidationTests
         }
 
         // Batch
-        var batchResult = Rocr.Calculate(source, 5);
+        var batchResult = Rocr.Batch(source, 5);
 
         for (int i = 0; i < source.Count; i++)
         {

@@ -126,7 +126,7 @@ public sealed class VwapbandsValidationTests : IDisposable
             double[] spanLower2 = new double[bars.Count];
             double[] spanStdDev = new double[bars.Count];
 
-            Vwapbands.Calculate(price.AsSpan(), volume.AsSpan(),
+            Vwapbands.Batch(price.AsSpan(), volume.AsSpan(),
                 spanUpper1.AsSpan(), spanLower1.AsSpan(),
                 spanUpper2.AsSpan(), spanLower2.AsSpan(),
                 spanVwap.AsSpan(), spanStdDev.AsSpan(), multiplier);

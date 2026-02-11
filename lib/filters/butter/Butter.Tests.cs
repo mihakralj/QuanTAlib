@@ -21,7 +21,7 @@ public class ButterTests
     {
         var source = new double[10];
         var destination = new double[5];
-        Assert.Throws<ArgumentOutOfRangeException>(() => Butter.Calculate(source, destination, 5, double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Butter.Batch(source, destination, 5, double.NaN));
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class ButterTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Butter.Calculate(spanInput, spanOutput, period, double.NaN);
+        Butter.Batch(spanInput, spanOutput, period, double.NaN);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

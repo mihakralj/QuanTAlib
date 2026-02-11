@@ -168,7 +168,7 @@ public sealed class Variance : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period, bool isPopulation = false)
+    public static TSeries Batch(TSeries source, int period, bool isPopulation = false)
     {
         var variance = new Variance(period, isPopulation);
         return variance.Update(source);
@@ -227,6 +227,13 @@ public sealed class Variance : AbstractBase
 
         // Scalar path with NaN handling
         CalculateScalarCore(source, output, period, isPopulation);
+    }
+
+    public static (TSeries Results, Variance Indicator) Calculate(TSeries source, int period, bool isPopulation = false)
+    {
+        var indicator = new Variance(period, isPopulation);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

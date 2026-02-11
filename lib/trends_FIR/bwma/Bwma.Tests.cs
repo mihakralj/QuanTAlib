@@ -152,7 +152,7 @@ public class BwmaTests
         }
 
         var spanResults = new double[series.Count];
-        Bwma.Calculate(series.Values, spanResults, 10);
+        Bwma.Batch(series.Values, spanResults, 10);
 
         for (int i = 0; i < spanResults.Length; i++)
         {
@@ -175,7 +175,7 @@ public class BwmaTests
         }
 
         var spanResults = new double[series.Count];
-        Bwma.Calculate(series.Values, spanResults, 10, 2);
+        Bwma.Batch(series.Values, spanResults, 10, 2);
 
         for (int i = 0; i < spanResults.Length; i++)
         {

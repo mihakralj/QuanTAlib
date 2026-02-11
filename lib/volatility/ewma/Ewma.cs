@@ -238,7 +238,7 @@ public sealed class Ewma : AbstractBase
     /// <summary>
     /// Calculates EWMA Volatility for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    public static TSeries Batch(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
     {
         if (period <= 0)
         {
@@ -349,5 +349,12 @@ public sealed class Ewma : AbstractBase
 
             output[i] = double.IsFinite(result) ? result : 0.0;
         }
+    }
+
+    public static (TSeries Results, Ewma Indicator) Calculate(TSeries source, int period = 20, bool annualize = true, int annualPeriods = 252)
+    {
+        var indicator = new Ewma(period, annualize, annualPeriods);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

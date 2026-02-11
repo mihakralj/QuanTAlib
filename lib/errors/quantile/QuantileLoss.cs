@@ -60,7 +60,7 @@ public sealed class QuantileLoss : BiInputIndicatorBase
         return diff >= 0 ? Quantile * diff : (Quantile - 1.0) * diff;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double quantile = 0.5)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period, double quantile = 0.5)
     {
         if (actual.Count != predicted.Count)
         {
@@ -219,5 +219,12 @@ public sealed class QuantileLoss : BiInputIndicatorBase
                 lossSum = recalcSum;
             }
         }
+    }
+
+    public static (TSeries Results, QuantileLoss Indicator) Calculate(TSeries actual, TSeries predicted, int period, double quantile = 0.5)
+    {
+        var indicator = new QuantileLoss(period, quantile);
+        TSeries results = Batch(actual, predicted, period, quantile);
+        return (results, indicator);
     }
 }

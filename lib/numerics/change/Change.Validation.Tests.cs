@@ -18,7 +18,7 @@ public class ChangeValidationTests
         var series = bars.Close;
         int period = 10;
 
-        var result = Change.Calculate(series, period);
+        var result = Change.Batch(series, period);
 
         for (int i = period; i < series.Count; i++)
         {
@@ -63,7 +63,7 @@ public class ChangeValidationTests
         var output = new double[values.Length];
         int period = 10;
 
-        Change.Calculate(values, output, period);
+        Change.Batch(values, output, period);
 
         for (int i = period; i < values.Length; i++)
         {
@@ -83,7 +83,7 @@ public class ChangeValidationTests
         int period = 10;
 
         // Calculate QuanTAlib Change
-        var qResult = Change.Calculate(source, period);
+        var qResult = Change.Batch(source, period);
 
         // Calculate Tulip ROC (returns percentage)
         var rocIndicator = Tulip.Indicators.roc;
@@ -171,7 +171,7 @@ public class ChangeValidationTests
         var source = bars.Close;
 
         // Batch
-        var batchResult = Change.Calculate(source, period);
+        var batchResult = Change.Batch(source, period);
 
         // Streaming
         var streamingIndicator = new Change(period);
@@ -185,7 +185,7 @@ public class ChangeValidationTests
         // Span
         var values = source.Values.ToArray();
         var spanOutput = new double[count];
-        Change.Calculate(values, spanOutput, period);
+        Change.Batch(values, spanOutput, period);
 
         // Event-driven
         var eventIndicator = new Change(period);
@@ -215,7 +215,7 @@ public class ChangeValidationTests
 
         foreach (int period in new[] { 1, 5, 10, 20 })
         {
-            var result = Change.Calculate(source, period);
+            var result = Change.Batch(source, period);
 
             // Calculate Tulip ROC
             var rocIndicator = Tulip.Indicators.roc;

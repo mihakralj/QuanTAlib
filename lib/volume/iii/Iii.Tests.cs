@@ -244,7 +244,7 @@ public class IiiTests
         }
 
         // Batch
-        var batchResult = Iii.Calculate(bars);
+        var batchResult = Iii.Batch(bars);
 
         Assert.Equal(bars.Count, batchResult.Count);
         for (int i = 0; i < bars.Count; i++)
@@ -279,7 +279,7 @@ public class IiiTests
         var volume = bars.Volume.Values.ToArray();
         var spanValues = new double[bars.Count];
 
-        Iii.Calculate(high, low, close, volume, spanValues);
+        Iii.Batch(high, low, close, volume, spanValues);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -296,7 +296,7 @@ public class IiiTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Iii.Calculate(high, low, close, volume, output));
+        Assert.Throws<ArgumentException>(() => Iii.Batch(high, low, close, volume, output));
     }
 
     [Fact]
@@ -308,7 +308,7 @@ public class IiiTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Iii.Calculate(high, low, close, volume, output, period: 0));
+        Assert.Throws<ArgumentException>(() => Iii.Batch(high, low, close, volume, output, period: 0));
     }
 
     [Fact]
@@ -330,7 +330,7 @@ public class IiiTests
         }
 
         // Should not throw
-        Iii.Calculate(high, low, close, volume, output);
+        Iii.Batch(high, low, close, volume, output);
         Assert.True(double.IsFinite(output[size - 1]));
     }
 
@@ -360,7 +360,7 @@ public class IiiTests
         var volume = bars.Volume.Values.ToArray();
         var spanValues = new double[bars.Count];
 
-        Iii.Calculate(high, low, close, volume, spanValues, period: 14, cumulative: true);
+        Iii.Batch(high, low, close, volume, spanValues, period: 14, cumulative: true);
 
         for (int i = 0; i < bars.Count; i++)
         {

@@ -315,15 +315,8 @@ public sealed class Ssf : AbstractBase
         }
     }
 
-    public static (TSeries Results, Ssf Indicator) Calculate(TSeries source, int period)
-    {
-        var ssf = new Ssf(period);
-        TSeries results = ssf.Update(source);
-        return (results, ssf);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
         {
@@ -351,6 +344,13 @@ public sealed class Ssf : AbstractBase
         var state = State.New();
 
         CalculateCore(source, output, c1, c2, c3, period, ref state);
+    }
+
+    public static (TSeries Results, Ssf Indicator) Calculate(TSeries source, int period)
+    {
+        var ssf = new Ssf(period);
+        TSeries results = ssf.Update(source);
+        return (results, ssf);
     }
 
     public override void Reset()

@@ -120,7 +120,7 @@ public class KalmanTests
 
         // 2. Span Calculate
         var spanOutput = new double[series.Count];
-        Kalman.Calculate(series.Values.ToArray(), spanOutput, 0.01, 0.1);
+        Kalman.Batch(series.Values.ToArray(), spanOutput, 0.01, 0.1);
 
         // 3. Streaming Update
         filter.Reset();

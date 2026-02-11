@@ -26,7 +26,7 @@ public class CovarianceSimdTests
 
         // Act
         // This will use SIMD if available and length >= 256
-        var simdResult = Covariance.Calculate(sourceX, sourceY, period);
+        var simdResult = Covariance.Batch(sourceX, sourceY, period);
 
         // Calculate expected using scalar loop (simulating by using small chunks or manual calc,
         // but easier to just use the streaming update which is scalar)
@@ -67,7 +67,7 @@ public class CovarianceSimdTests
         // The implementation checks for ContainsNonFinite() before using SIMD.
         // If NaN is present, it should fall back to Scalar.
         // We want to verify that the result is correct regardless of the path taken.
-        var result = Covariance.Calculate(sourceX, sourceY, period);
+        var result = Covariance.Batch(sourceX, sourceY, period);
 
         // Assert
         // Verify around the NaN values
@@ -119,7 +119,7 @@ public class CovarianceSimdTests
         sourceY.Add(dataY);
 
         // Act
-        var result = Covariance.Calculate(sourceX, sourceY, period);
+        var result = Covariance.Batch(sourceX, sourceY, period);
 
         // Assert
         // For y=2x, Cov(X,Y) = 2*Var(X)

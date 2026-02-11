@@ -159,7 +159,7 @@ public class AcfValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Acf.Calculate(tSeries, period, lag);
+        var batch = Acf.Batch(tSeries, period, lag);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -182,7 +182,7 @@ public class AcfValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var tSeriesResult = Acf.Calculate(tSeries, period, lag);
+        var tSeriesResult = Acf.Batch(tSeries, period, lag);
 
         // Span approach
         double[] source = new double[dataLen];

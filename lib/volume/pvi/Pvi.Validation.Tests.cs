@@ -62,7 +62,7 @@ public class PviValidationTests
         }
 
         // Batch
-        var batchResult = Pvi.Calculate(_data.Bars, DefaultStartValue);
+        var batchResult = Pvi.Batch(_data.Bars, DefaultStartValue);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -84,7 +84,7 @@ public class PviValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[close.Length];
 
-        Pvi.Calculate(close, volume, spanOutput, DefaultStartValue);
+        Pvi.Batch(close, volume, spanOutput, DefaultStartValue);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }

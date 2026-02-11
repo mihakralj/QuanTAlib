@@ -251,7 +251,7 @@ public class CorrelationTests
             seriesY.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 + (i * 2)));
         }
 
-        var result = Correlation.Calculate(seriesX, seriesY, 5);
+        var result = Correlation.Batch(seriesX, seriesY, 5);
 
         Assert.Equal(20, result.Count);
     }
@@ -271,7 +271,7 @@ public class CorrelationTests
             seriesY.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 + i));
         }
 
-        Assert.Throws<ArgumentException>(() => Correlation.Calculate(seriesX, seriesY, 5));
+        Assert.Throws<ArgumentException>(() => Correlation.Batch(seriesX, seriesY, 5));
     }
 
     [Fact]
@@ -287,7 +287,7 @@ public class CorrelationTests
             seriesY[i] = 200.0 + (i * 2);
         }
 
-        Correlation.Calculate(seriesX, seriesY, output, 5);
+        Correlation.Batch(seriesX, seriesY, output, 5);
 
         // First value should be NaN (not enough data)
         Assert.True(double.IsNaN(output[0]));
@@ -303,7 +303,7 @@ public class CorrelationTests
         double[] seriesY = new double[15];
         double[] output = new double[10];
 
-        Assert.Throws<ArgumentException>(() => Correlation.Calculate(seriesX, seriesY, output, 5));
+        Assert.Throws<ArgumentException>(() => Correlation.Batch(seriesX, seriesY, output, 5));
     }
 
     [Fact]
@@ -313,7 +313,7 @@ public class CorrelationTests
         double[] seriesY = new double[20];
         double[] output = new double[10];
 
-        Assert.Throws<ArgumentException>(() => Correlation.Calculate(seriesX, seriesY, output, 5));
+        Assert.Throws<ArgumentException>(() => Correlation.Batch(seriesX, seriesY, output, 5));
     }
 
     [Fact]
@@ -323,7 +323,7 @@ public class CorrelationTests
         double[] seriesY = new double[20];
         double[] output = new double[20];
 
-        Assert.Throws<ArgumentException>(() => Correlation.Calculate(seriesX, seriesY, output, 1));
+        Assert.Throws<ArgumentException>(() => Correlation.Batch(seriesX, seriesY, output, 1));
     }
 
     [Fact]
@@ -374,7 +374,7 @@ public class CorrelationTests
 
         // Batch calculation
         double[] batchResults = new double[length];
-        Correlation.Calculate(seriesX, seriesY, batchResults, period);
+        Correlation.Batch(seriesX, seriesY, batchResults, period);
 
         // Compare last 50 values (after warmup)
         for (int i = length - 50; i < length; i++)

@@ -178,7 +178,7 @@ public class WienerValidationTests : IDisposable
         foreach (var (period, smooth) in scenarios)
         {
             double[] output = new double[source.Length];
-            Wiener.Calculate(source.AsSpan(), output.AsSpan(), period, smooth);
+            Wiener.Batch(source.AsSpan(), output.AsSpan(), period, smooth);
 
             var expected = CalculateExpectedWiener(source, period, smooth);
 

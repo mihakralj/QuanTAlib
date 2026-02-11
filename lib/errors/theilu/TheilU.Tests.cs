@@ -192,7 +192,7 @@ public class TheilUTests
             iterativeResults.Add(theilUIterative.Update(new TValue(bar.Time, bar.Close), new TValue(bar.Time, predicted)).Value);
         }
 
-        var batchResults = TheilU.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var batchResults = TheilU.Batch(actualSeries, predictedSeries, DefaultPeriod);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         for (int i = 0; i < iterativeResults.Count; i++)
@@ -236,7 +236,7 @@ public class TheilUTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = TheilU.Calculate(actualSeries, predictedSeries, DefaultPeriod);
+        var tseriesResult = TheilU.Batch(actualSeries, predictedSeries, DefaultPeriod);
         TheilU.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod);
 
         for (int i = 0; i < 100; i++)
@@ -285,7 +285,7 @@ public class TheilUTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => TheilU.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => TheilU.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

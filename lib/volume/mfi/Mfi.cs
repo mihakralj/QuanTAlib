@@ -212,7 +212,7 @@ public sealed class Mfi : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period = 14)
+    public static TSeries Batch(TBarSeries source, int period = 14)
     {
         if (source.Count == 0)
         {
@@ -222,13 +222,13 @@ public sealed class Mfi : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 14)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 14)
     {
         if (high.Length != low.Length)
         {
@@ -325,5 +325,12 @@ public sealed class Mfi : ITValuePublisher
                 output[i] = 50.0;
             }
         }
+    }
+
+    public static (TSeries Results, Mfi Indicator) Calculate(TBarSeries source, int period = 14)
+    {
+        var indicator = new Mfi(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

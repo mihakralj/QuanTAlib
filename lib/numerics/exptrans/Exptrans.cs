@@ -106,7 +106,7 @@ public sealed class Exptrans : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var indicator = new Exptrans();
         return indicator.Update(source);
@@ -115,7 +115,7 @@ public sealed class Exptrans : AbstractBase
     /// <summary>
     /// Calculates exponential over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
         {
@@ -150,6 +150,13 @@ public sealed class Exptrans : AbstractBase
                 output[i] = lastValid;
             }
         }
+    }
+
+    public static (TSeries Results, Exptrans Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Exptrans();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

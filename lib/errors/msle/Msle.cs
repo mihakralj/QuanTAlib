@@ -46,7 +46,7 @@ public sealed class Msle : BiInputIndicatorBase
     /// <summary>
     /// Calculates MSLE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -70,6 +70,13 @@ public sealed class Msle : BiInputIndicatorBase
 
         ComputeLogSquaredErrors(actual, predicted, errors);
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, Msle Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Msle(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

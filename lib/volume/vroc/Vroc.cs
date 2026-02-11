@@ -218,7 +218,7 @@ public sealed class Vroc : ITValuePublisher
     /// <param name="period">The lookback period (default: 12).</param>
     /// <param name="usePercent">True for percentage mode, false for point change (default: true).</param>
     /// <returns>The result series.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = 12, bool usePercent = true)
+    public static TSeries Batch(TBarSeries source, int period = 12, bool usePercent = true)
     {
         if (source.Count == 0)
         {
@@ -228,7 +228,7 @@ public sealed class Vroc : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Volume.Values, v, period, usePercent);
+        Batch(source.Volume.Values, v, period, usePercent);
 
         return new TSeries(t, v);
     }
@@ -242,7 +242,7 @@ public sealed class Vroc : ITValuePublisher
     /// <param name="usePercent">True for percentage mode, false for point change (default: true).</param>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> volume, Span<double> output, int period = 12, bool usePercent = true)
+    public static void Batch(ReadOnlySpan<double> volume, Span<double> output, int period = 12, bool usePercent = true)
     {
         if (period < 1)
         {
@@ -294,5 +294,12 @@ public sealed class Vroc : ITValuePublisher
                 }
             }
         }
+    }
+
+    public static (TSeries Results, Vroc Indicator) Calculate(TBarSeries source, int period = 12, bool usePercent = true)
+    {
+        var indicator = new Vroc(period, usePercent);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

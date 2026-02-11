@@ -115,7 +115,7 @@ public sealed class Rocp : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period = 9)
+    public static TSeries Batch(TSeries source, int period = 9)
     {
         var indicator = new Rocp(period);
         return indicator.Update(source);
@@ -124,7 +124,7 @@ public sealed class Rocp : AbstractBase
     /// <summary>
     /// Calculates rate of change percentage over a span of values.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 9)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 9)
     {
         if (source.Length == 0)
         {
@@ -153,6 +153,13 @@ public sealed class Rocp : AbstractBase
                 output[i] = past != 0 ? 100.0 * (source[i] - past) / past : 0.0;
             }
         }
+    }
+
+    public static (TSeries Results, Rocp Indicator) Calculate(TSeries source, int period = 9)
+    {
+        var indicator = new Rocp(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

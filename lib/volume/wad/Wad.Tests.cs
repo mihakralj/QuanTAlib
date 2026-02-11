@@ -145,7 +145,7 @@ public class WadTests
         bars.Add(new TBar(time.AddMinutes(1), 100, 115, 92, 110, 2000));
         bars.Add(new TBar(time.AddMinutes(2), 110, 108, 102, 105, 1500));
 
-        var result = Wad.Calculate(bars);
+        var result = Wad.Batch(bars);
 
         Assert.Equal(3, result.Count);
         Assert.Equal(0, result[0].Value);
@@ -162,7 +162,7 @@ public class WadTests
         double[] volume = { 1000, 2000, 1500 };
         double[] output = new double[3];
 
-        Wad.Calculate(high, low, close, volume, output);
+        Wad.Batch(high, low, close, volume, output);
 
         Assert.Equal(0, output[0]);
         Assert.Equal(36000, output[1]);
@@ -179,14 +179,14 @@ public class WadTests
         double[] output = new double[2];
 
         Assert.Throws<ArgumentException>(() =>
-            Wad.Calculate(high, low, close, volume, output));
+            Wad.Batch(high, low, close, volume, output));
     }
 
     [Fact]
     public void Wad_Calculate_EmptySeries_ReturnsEmpty()
     {
         var bars = new TBarSeries();
-        var result = Wad.Calculate(bars);
+        var result = Wad.Batch(bars);
         Assert.Empty(result);
     }
 
@@ -209,7 +209,7 @@ public class WadTests
             volume[i] = 100;
         }
 
-        Wad.Calculate(high, low, close, volume, output);
+        Wad.Batch(high, low, close, volume, output);
 
         // First bar should be 0
         Assert.Equal(0, output[0]);
@@ -234,7 +234,7 @@ public class WadTests
         }
 
         // Batch calculation
-        var batchResult = Wad.Calculate(bars);
+        var batchResult = Wad.Batch(bars);
 
         // Streaming calculation
         var wad = new Wad();

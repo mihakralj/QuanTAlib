@@ -48,7 +48,7 @@ public sealed class Mapd : BiInputIndicatorBase
     /// <summary>
     /// Calculates Mean Absolute Percentage Deviation for two time series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -102,6 +102,13 @@ public sealed class Mapd : BiInputIndicatorBase
 
         // Apply rolling mean
         ErrorHelpers.ApplyRollingMean(errors, output, period);
+    }
+
+    public static (TSeries Results, Mapd Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mapd(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     /// <summary>

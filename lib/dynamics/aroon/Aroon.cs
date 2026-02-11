@@ -165,7 +165,7 @@ public sealed class Aroon : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, _period, v);
+        Batch(source.High.Values, source.Low.Values, _period, v);
 
         var tList = new List<long>(len);
         var vList = new List<double>(v);
@@ -193,7 +193,7 @@ public sealed class Aroon : ITValuePublisher
     /// <param name="period">Lookback period</param>
     /// <param name="destination">Output oscillator values (Up - Down)</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
     {
         int len = high.Length;
         if (len == 0 || len != low.Length || len != destination.Length || period <= 0)
@@ -293,7 +293,7 @@ public sealed class Aroon : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, period, v);
+        Batch(source.High.Values, source.Low.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -303,5 +303,12 @@ public sealed class Aroon : ITValuePublisher
         }
 
         return new TSeries(tList, [.. v]);
+    }
+
+    public static (TSeries Results, Aroon Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Aroon(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -399,7 +399,7 @@ public class VovTests
     {
         var data = GenerateData(100);
 
-        var result = Vov.Calculate(data, volatilityPeriod: 10, vovPeriod: 5);
+        var result = Vov.Batch(data, volatilityPeriod: 10, vovPeriod: 5);
 
         Assert.Equal(data.Count, result.Count);
         for (int i = 0; i < result.Count; i++)
@@ -482,7 +482,7 @@ public class VovTests
         }
 
         // Mode 2: TSeries batch
-        var batchResult = Vov.Calculate(data, volPeriod, vovPeriod);
+        var batchResult = Vov.Batch(data, volPeriod, vovPeriod);
 
         // Mode 3: Span batch
         double[] spanOutput = new double[dataLen];

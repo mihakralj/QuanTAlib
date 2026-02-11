@@ -150,7 +150,7 @@ public sealed class AroonOsc : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, period: _period, destination: v);
+        Batch(source.High.Values, source.Low.Values, period: _period, destination: v);
 
         var tList = new List<long>(len);
         var vList = new List<double>(v);
@@ -177,10 +177,10 @@ public sealed class AroonOsc : ITValuePublisher
     /// <param name="period">Lookback period</param>
     /// <param name="destination">Output oscillator values (Up - Down)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
     {
         // Delegate to Aroon's O(n) monotonic deque implementation
-        Aroon.Calculate(high, low, period, destination);
+        Aroon.Batch(high, low, period, destination);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -194,7 +194,7 @@ public sealed class AroonOsc : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.High.Values, source.Low.Values, period, v);
+        Batch(source.High.Values, source.Low.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;
@@ -204,5 +204,12 @@ public sealed class AroonOsc : ITValuePublisher
         }
 
         return new TSeries(tList, [.. v]);
+    }
+
+    public static (TSeries Results, AroonOsc Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new AroonOsc(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

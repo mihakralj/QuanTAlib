@@ -135,7 +135,7 @@ public class StdDevTests
         double streamingResult = streamingInd.Last.Value;
 
         // 3. TSeries Batch Mode
-        var batchSeriesResult = StdDev.Calculate(series, period);
+        var batchSeriesResult = StdDev.Batch(series, period);
         double tseriesResult = batchSeriesResult.Last.Value;
 
         Assert.Equal(expected, streamingResult, precision: 6);

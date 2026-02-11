@@ -39,7 +39,7 @@ public class BpfTests
 
         // 1. Span Mode
         double[] spanOutput = new double[series.Count];
-        Bpf.Calculate(series.Values.ToArray(), spanOutput, lowerPeriod, upperPeriod);
+        Bpf.Batch(series.Values.ToArray(), spanOutput, lowerPeriod, upperPeriod);
 
         // 2. TSeries Batch Mode
         var bpfBatch = new Bpf(lowerPeriod, upperPeriod);
@@ -111,7 +111,7 @@ public class BpfTests
         double[] input = Enumerable.Repeat(100.0, 500).ToArray();
         double[] output = new double[500];
 
-        Bpf.Calculate(input, output, 10, 20);
+        Bpf.Batch(input, output, 10, 20);
 
         // Last value should be close to 0
         Assert.True(Math.Abs(output[^1]) < 1e-6);

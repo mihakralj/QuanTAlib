@@ -32,11 +32,11 @@ public class JmaTests
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), 0, 0, 1.0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), -1, 0, 1.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), 0, 0, 1.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), -1, 0, 1.0));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Jma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0, 1.0));
+        Assert.Throws<ArgumentException>(() => Jma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0, 1.0));
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class JmaTests
         var tseriesResult = Jma.Batch(series, 10);
 
         // Calculate with Span API
-        Jma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Jma.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)
@@ -189,7 +189,7 @@ public class JmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Jma.Calculate(spanInput, spanOutput, period);
+        Jma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -261,7 +261,7 @@ public class JmaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Jma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Jma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {

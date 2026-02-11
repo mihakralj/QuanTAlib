@@ -64,7 +64,7 @@ public sealed class ApoValidationTests : IDisposable
 
         // 3. Span Mode
         double[] spanOutput = new double[input.Length];
-        Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
+        Apo.Batch(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, outRange, lookback: slowPeriod - 1);
     }
 
@@ -102,7 +102,7 @@ public sealed class ApoValidationTests : IDisposable
 
         // 3. Span Mode
         double[] spanOutput = new double[input.Length];
-        Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
+        Apo.Batch(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, lookback: 1);
     }
 
@@ -143,7 +143,7 @@ public sealed class ApoValidationTests : IDisposable
         // 3. Span Mode
         double[] input = _testData.Data.Values.ToArray();
         double[] spanOutput = new double[input.Length];
-        Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
+        Apo.Batch(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

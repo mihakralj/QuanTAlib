@@ -197,7 +197,7 @@ public class LineartransTests
             series.Add(new TValue(time.AddSeconds(i), 10.0 * (i + 1)), true);
         }
 
-        var result = Lineartrans.Calculate(series, slope: 0.5, intercept: 5.0);
+        var result = Lineartrans.Batch(series, slope: 0.5, intercept: 5.0);
 
         Assert.Equal(3, result.Count);
         Assert.Equal(10.0, result[0].Value, 1e-10);  // 0.5*10+5
@@ -211,7 +211,7 @@ public class LineartransTests
         double[] source = [10.0, 20.0, 30.0, 40.0, 50.0];
         double[] output = new double[5];
 
-        Lineartrans.Calculate(source, output, slope: 2.0, intercept: -5.0);
+        Lineartrans.Batch(source, output, slope: 2.0, intercept: -5.0);
 
         Assert.Equal(15.0, output[0], 1e-10);  // 2*10-5
         Assert.Equal(35.0, output[1], 1e-10);  // 2*20-5
@@ -226,10 +226,10 @@ public class LineartransTests
         double[] source = [1.0, 2.0, 3.0];
         double[] output = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Lineartrans.Calculate([], output));
-        Assert.Throws<ArgumentException>(() => Lineartrans.Calculate(source, new double[2]));
-        Assert.Throws<ArgumentException>(() => Lineartrans.Calculate(source, output, slope: double.NaN));
-        Assert.Throws<ArgumentException>(() => Lineartrans.Calculate(source, output, intercept: double.PositiveInfinity));
+        Assert.Throws<ArgumentException>(() => Lineartrans.Batch([], output));
+        Assert.Throws<ArgumentException>(() => Lineartrans.Batch(source, new double[2]));
+        Assert.Throws<ArgumentException>(() => Lineartrans.Batch(source, output, slope: double.NaN));
+        Assert.Throws<ArgumentException>(() => Lineartrans.Batch(source, output, intercept: double.PositiveInfinity));
     }
 
     [Fact]
@@ -255,7 +255,7 @@ public class LineartransTests
         double intercept = -20.0;
 
         // Batch
-        var batchResult = Lineartrans.Calculate(series, slope, intercept);
+        var batchResult = Lineartrans.Batch(series, slope, intercept);
 
         // Stream
         var streamIndicator = new Lineartrans(slope, intercept);
@@ -267,7 +267,7 @@ public class LineartransTests
 
         // Span
         var spanOutput = new double[series.Count];
-        Lineartrans.Calculate(series.Values, spanOutput, slope, intercept);
+        Lineartrans.Batch(series.Values, spanOutput, slope, intercept);
 
         // Compare last 50 values
         for (int i = 50; i < series.Count; i++)

@@ -133,7 +133,7 @@ public class ObvValidationTests
         }
 
         // Batch
-        var batchResult = Obv.Calculate(_data.Bars);
+        var batchResult = Obv.Batch(_data.Bars);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -155,7 +155,7 @@ public class ObvValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[close.Length];
 
-        Obv.Calculate(close, volume, spanOutput);
+        Obv.Batch(close, volume, spanOutput);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }

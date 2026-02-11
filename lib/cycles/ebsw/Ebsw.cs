@@ -246,7 +246,7 @@ public sealed class Ebsw : AbstractBase
     /// <summary>
     /// Calculates EBSW for a time series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int hpLength = 40, int ssfLength = 10)
+    public static TSeries Batch(TSeries source, int hpLength = 40, int ssfLength = 10)
     {
         var ebsw = new Ebsw(hpLength, ssfLength);
         return ebsw.Update(source);
@@ -336,5 +336,12 @@ public sealed class Ebsw : AbstractBase
             filt2 = filt1;
             filt1 = filt0;
         }
+    }
+
+    public static (TSeries Results, Ebsw Indicator) Calculate(TSeries source, int hpLength = 40, int ssfLength = 10)
+    {
+        var indicator = new Ebsw(hpLength, ssfLength);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

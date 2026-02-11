@@ -308,7 +308,7 @@ public sealed class Htit : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
         {
@@ -511,5 +511,12 @@ public sealed class Htit : AbstractBase
                 p_period = 0; p_smoothPeriod = 0;
             }
         }
+    }
+
+    public static (TSeries Results, Htit Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Htit();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

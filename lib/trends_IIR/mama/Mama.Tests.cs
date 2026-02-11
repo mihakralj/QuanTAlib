@@ -81,7 +81,7 @@ public class MamaTests
         var famaOutput = new double[100];
 
         // This should complete without hanging
-        Mama.Calculate(data, output, famaOutput: famaOutput);
+        Mama.Batch(data, output, famaOutput: famaOutput);
 
         // Verify all outputs are finite (no NaN or Infinity propagation)
         for (int i = 0; i < 100; i++)
@@ -252,7 +252,7 @@ public class MamaTests
         }
 
         var output = new double[count];
-        Mama.Calculate(data, output);
+        Mama.Batch(data, output);
 
         var mama = new Mama();
         for (int i = 0; i < count; i++)
@@ -267,7 +267,7 @@ public class MamaTests
     {
         var data = new double[10];
         var output = new double[5];
-        Assert.Throws<ArgumentOutOfRangeException>(() => Mama.Calculate(data, output));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mama.Batch(data, output));
     }
 
     [Fact]
@@ -278,39 +278,39 @@ public class MamaTests
 
         // fastLimit <= 0
         var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, fastLimit: 0.0));
+            Mama.Batch(data, output, fastLimit: 0.0));
         Assert.Equal("fastLimit", ex1.ParamName);
 
         var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, fastLimit: -0.1));
+            Mama.Batch(data, output, fastLimit: -0.1));
         Assert.Equal("fastLimit", ex2.ParamName);
 
         // slowLimit <= 0
         var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, slowLimit: 0.0));
+            Mama.Batch(data, output, slowLimit: 0.0));
         Assert.Equal("slowLimit", ex3.ParamName);
 
         var ex4 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, slowLimit: -0.1));
+            Mama.Batch(data, output, slowLimit: -0.1));
         Assert.Equal("slowLimit", ex4.ParamName);
 
         // fastLimit > 1
         var ex5 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, fastLimit: 1.1));
+            Mama.Batch(data, output, fastLimit: 1.1));
         Assert.Equal("fastLimit", ex5.ParamName);
 
         // slowLimit > 1
         var ex6 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, slowLimit: 1.1));
+            Mama.Batch(data, output, slowLimit: 1.1));
         Assert.Equal("slowLimit", ex6.ParamName);
 
         // fastLimit <= slowLimit
         var ex7 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, fastLimit: 0.05, slowLimit: 0.5));
+            Mama.Batch(data, output, fastLimit: 0.05, slowLimit: 0.5));
         Assert.Equal("fastLimit", ex7.ParamName);
 
         var ex8 = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, output, fastLimit: 0.5, slowLimit: 0.5));
+            Mama.Batch(data, output, fastLimit: 0.5, slowLimit: 0.5));
         Assert.Equal("fastLimit", ex8.ParamName);
     }
 
@@ -356,7 +356,7 @@ public class MamaTests
 
         var mamaOutput = new double[count];
         var famaOutput = new double[count];
-        Mama.Calculate(data, mamaOutput, famaOutput: famaOutput);
+        Mama.Batch(data, mamaOutput, famaOutput: famaOutput);
 
         var mama = new Mama();
         for (int i = 0; i < count; i++)
@@ -382,10 +382,10 @@ public class MamaTests
         var output2 = new double[count];
 
         // Call without famaOutput parameter (backwards compatibility)
-        Mama.Calculate(data, output1);
+        Mama.Batch(data, output1);
 
         // Call with empty famaOutput span
-        Mama.Calculate(data, output2, famaOutput: Span<double>.Empty);
+        Mama.Batch(data, output2, famaOutput: Span<double>.Empty);
 
         // Both should produce identical MAMA results
         for (int i = 0; i < count; i++)
@@ -402,7 +402,7 @@ public class MamaTests
         var famaOutput = new double[5];
 
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Mama.Calculate(data, mamaOutput, famaOutput: famaOutput));
+            Mama.Batch(data, mamaOutput, famaOutput: famaOutput));
         Assert.Equal("famaOutput", ex.ParamName);
     }
 
@@ -421,7 +421,7 @@ public class MamaTests
         // Get values from span calculation
         var mamaOutput = new double[count];
         var famaOutput = new double[count];
-        Mama.Calculate(data, mamaOutput, famaOutput: famaOutput);
+        Mama.Batch(data, mamaOutput, famaOutput: famaOutput);
 
         // Get values from instance method
         var mama = new Mama();
@@ -459,7 +459,7 @@ public class MamaTests
         // 2. Span Mode (static method with FAMA)
         var spanMama = new double[count];
         var spanFama = new double[count];
-        Mama.Calculate(data, spanMama, famaOutput: spanFama);
+        Mama.Batch(data, spanMama, famaOutput: spanFama);
 
         // 3. Verify MAMA matches
         for (int i = 0; i < count; i++)

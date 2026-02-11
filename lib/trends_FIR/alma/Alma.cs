@@ -26,6 +26,7 @@ public sealed class Alma : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidValue, bool IsInitialized);
@@ -83,9 +84,13 @@ public sealed class Alma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -181,7 +186,7 @@ public sealed class Alma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _offset, _sigma);
+        Batch(source.Values, vSpan, _period, _offset, _sigma);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -305,7 +310,7 @@ public sealed class Alma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double offset = 0.85, double sigma = 6.0)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double offset = 0.85, double sigma = 6.0)
     {
         if (period <= 0)
         {
@@ -431,6 +436,13 @@ public sealed class Alma : AbstractBase
                 ArrayPool<double>.Shared.Return(bufferArray);
             }
         }
+    }
+
+    public static (TSeries Results, Alma Indicator) Calculate(TSeries source, int period, double offset = 0.85, double sigma = 6.0)
+    {
+        var indicator = new Alma(period, offset, sigma);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

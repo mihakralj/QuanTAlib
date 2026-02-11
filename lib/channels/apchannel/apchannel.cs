@@ -283,7 +283,7 @@ public sealed class Apchannel : AbstractBase
     /// Calculates the Adaptive Price Channel using span-based batch processing.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> sourceHigh,
         ReadOnlySpan<double> sourceLow,
         Span<double> upperBand,

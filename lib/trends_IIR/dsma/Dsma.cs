@@ -316,7 +316,7 @@ public sealed class Dsma : AbstractBase
     /// <param name="period">Lookback period (≥2)</param>
     /// <param name="scaleFactor">Scaling factor (0.01-0.9)</param>
     /// <exception cref="ArgumentException">If output span is shorter than source</exception>
-    public static void Calculate(ReadOnlySpan<double> source,
+    public static void Batch(ReadOnlySpan<double> source,
                                  Span<double> output,
                                  int period,
                                  double scaleFactor = 0.5)
@@ -331,5 +331,12 @@ public sealed class Dsma : AbstractBase
         {
             output[i] = dsma.Step(source[i], isNew: true);
         }
+    }
+
+    public static (TSeries Results, Dsma Indicator) Calculate(TSeries source, int period, double scaleFactor = 0.5)
+    {
+        var indicator = new Dsma(period, scaleFactor);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

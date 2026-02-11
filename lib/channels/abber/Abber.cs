@@ -30,13 +30,15 @@ namespace QuanTAlib;
 /// Pine Script implementation: https://github.com/mihakralj/pinescript/blob/main/indicators/channels/abber.pine
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Abber : ITValuePublisher
+public sealed class Abber : ITValuePublisher, IDisposable
 {
     private readonly int _period;
     private readonly double _multiplier;
     private readonly RingBuffer _sourceBuffer;
     private readonly RingBuffer _deviationBuffer;
     private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     private const int ResyncInterval = 1000;
 
@@ -116,8 +118,9 @@ public sealed class Abber : ITValuePublisher
     /// </summary>
     public Abber(TSeries source, int period, double multiplier = 2.0) : this(period, multiplier)
     {
+        _source = source ?? throw new ArgumentNullException(nameof(source));
         Prime(source);
-        source.Pub += _handler;
+        _source.Pub += _handler;
     }
 
     /// <summary>
@@ -125,7 +128,8 @@ public sealed class Abber : ITValuePublisher
     /// </summary>
     public Abber(ITValuePublisher source, int period, double multiplier = 2.0) : this(period, multiplier)
     {
-        source.Pub += _handler;
+        _source = source ?? throw new ArgumentNullException(nameof(source));
+        _source.Pub += _handler;
     }
 
     private void HandleValue(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
@@ -672,5 +676,22 @@ public sealed class Abber : ITValuePublisher
         var abber = new Abber(period, multiplier);
         var results = abber.Update(source);
         return (results, abber);
+    }
+
+    /// <summary>
+    /// Disposes the Abber instance, unsubscribing from the source publisher.
+    /// This method is idempotent.
+    /// </summary>
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            if (_source != null)
+            {
+                _source.Pub -= _handler;
+                _source = null;
+            }
+            _disposed = true;
+        }
     }
 }

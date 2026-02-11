@@ -407,7 +407,7 @@ public class VfTests
     {
         var series = GenerateTestBarSeries(100);
 
-        var result = Vf.Calculate(series, DefaultPeriod);
+        var result = Vf.Batch(series, DefaultPeriod);
 
         Assert.Equal(100, result.Count);
     }
@@ -417,7 +417,7 @@ public class VfTests
     {
         var series = new TBarSeries();
 
-        var result = Vf.Calculate(series, DefaultPeriod);
+        var result = Vf.Batch(series, DefaultPeriod);
 
         Assert.Empty(result);
     }
@@ -442,7 +442,7 @@ public class VfTests
         }
 
         // Span calculation
-        Vf.Calculate(close, volume, output, DefaultPeriod);
+        Vf.Batch(close, volume, output, DefaultPeriod);
 
         // Streaming calculation
         var vf = new Vf(DefaultPeriod);
@@ -462,7 +462,7 @@ public class VfTests
         var volume = new double[50]; // Different length
         var output = new double[100];
 
-        var ex = Assert.Throws<ArgumentException>(() => Vf.Calculate(close, volume, output, DefaultPeriod));
+        var ex = Assert.Throws<ArgumentException>(() => Vf.Batch(close, volume, output, DefaultPeriod));
         Assert.Equal("volume", ex.ParamName);
     }
 
@@ -473,7 +473,7 @@ public class VfTests
         var volume = new double[100];
         var output = new double[50]; // Different length
 
-        var ex = Assert.Throws<ArgumentException>(() => Vf.Calculate(close, volume, output, DefaultPeriod));
+        var ex = Assert.Throws<ArgumentException>(() => Vf.Batch(close, volume, output, DefaultPeriod));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -484,7 +484,7 @@ public class VfTests
         var volume = new double[100];
         var output = new double[100];
 
-        var ex = Assert.Throws<ArgumentException>(() => Vf.Calculate(close, volume, output, period: 0));
+        var ex = Assert.Throws<ArgumentException>(() => Vf.Batch(close, volume, output, period: 0));
         Assert.Equal("period", ex.ParamName);
     }
 
@@ -496,7 +496,7 @@ public class VfTests
         var output = Array.Empty<double>();
 
         // Should not throw
-        Vf.Calculate(close, volume, output, DefaultPeriod);
+        Vf.Batch(close, volume, output, DefaultPeriod);
         Assert.True(true); // Test passes if no exception
     }
 
@@ -507,7 +507,7 @@ public class VfTests
         var volume = new double[] { 1000, 2000, 1500, 1800, 2200 };
         var output = new double[5];
 
-        Vf.Calculate(close, volume, output, period: 3);
+        Vf.Batch(close, volume, output, period: 3);
 
         Assert.Equal(0, output[0]);
     }
@@ -554,11 +554,11 @@ public class VfTests
         var streamingResult = vf.Update(series);
 
         // Batch mode
-        var batchResult = Vf.Calculate(series, DefaultPeriod);
+        var batchResult = Vf.Batch(series, DefaultPeriod);
 
         // Span mode
         var spanOutput = new double[100];
-        Vf.Calculate(close, volume, spanOutput, DefaultPeriod);
+        Vf.Batch(close, volume, spanOutput, DefaultPeriod);
 
         // Compare all modes (last 50 values to avoid warmup differences)
         for (int i = 50; i < 100; i++)

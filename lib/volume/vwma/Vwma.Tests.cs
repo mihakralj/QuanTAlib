@@ -304,7 +304,7 @@ public class VwmaTests
     [Fact]
     public void Calculate_Static_ShouldReturnTSeries()
     {
-        var result = Vwma.Calculate(_bars, 10);
+        var result = Vwma.Batch(_bars, 10);
 
         Assert.NotNull(result);
         Assert.Equal(_bars.Count, result.Count);
@@ -313,8 +313,8 @@ public class VwmaTests
     [Fact]
     public void Calculate_Static_WithDifferentPeriods_ShouldWork()
     {
-        var result14 = Vwma.Calculate(_bars, 14);
-        var result50 = Vwma.Calculate(_bars, 50);
+        var result14 = Vwma.Batch(_bars, 14);
+        var result50 = Vwma.Batch(_bars, 50);
 
         Assert.NotNull(result14);
         Assert.NotNull(result50);
@@ -327,13 +327,13 @@ public class VwmaTests
     [Fact]
     public void Calculate_Span_ShouldMatchBatch()
     {
-        var batchResult = Vwma.Calculate(_bars, 20);
+        var batchResult = Vwma.Batch(_bars, 20);
 
         var price = _bars.Close.Values.ToArray();
         var volume = _bars.Volume.Values.ToArray();
         var spanOutput = new double[_bars.Count];
 
-        Vwma.Calculate(price, volume, spanOutput, 20);
+        Vwma.Batch(price, volume, spanOutput, 20);
 
         for (int i = 0; i < _bars.Count; i++)
         {
@@ -348,7 +348,7 @@ public class VwmaTests
         var volume = new double[99]; // Mismatched
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Vwma.Calculate(price, volume, output, 10));
+        Assert.Throws<ArgumentException>(() => Vwma.Batch(price, volume, output, 10));
     }
 
     [Fact]
@@ -358,7 +358,7 @@ public class VwmaTests
         var volume = new double[100];
         var output = new double[50]; // Mismatched
 
-        Assert.Throws<ArgumentException>(() => Vwma.Calculate(price, volume, output, 10));
+        Assert.Throws<ArgumentException>(() => Vwma.Batch(price, volume, output, 10));
     }
 
     [Fact]
@@ -368,7 +368,7 @@ public class VwmaTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Vwma.Calculate(price, volume, output, 0));
+        Assert.Throws<ArgumentException>(() => Vwma.Batch(price, volume, output, 0));
     }
 
     [Fact]
@@ -378,7 +378,7 @@ public class VwmaTests
         var volume = new double[100];
         var output = new double[100];
 
-        Assert.Throws<ArgumentException>(() => Vwma.Calculate(price, volume, output, -1));
+        Assert.Throws<ArgumentException>(() => Vwma.Batch(price, volume, output, -1));
     }
 
     // ============ Event Tests ============
@@ -411,7 +411,7 @@ public class VwmaTests
         }
 
         // Batch
-        var batchResult = Vwma.Calculate(_bars, 20);
+        var batchResult = Vwma.Batch(_bars, 20);
 
         // Compare last 100 values
         for (int i = _bars.Count - 100; i < _bars.Count; i++)
@@ -426,7 +426,7 @@ public class VwmaTests
     public void Calculate_TSeries_ShouldWork()
     {
         var sourceSeries = _bars.Close;
-        var result = Vwma.Calculate(sourceSeries, 20);
+        var result = Vwma.Batch(sourceSeries, 20);
 
         Assert.NotNull(result);
         Assert.Equal(sourceSeries.Count, result.Count);
@@ -436,7 +436,7 @@ public class VwmaTests
     public void Calculate_TSeries_ShouldMatchTValueStreaming()
     {
         var sourceSeries = _bars.Close;
-        var batchResult = Vwma.Calculate(sourceSeries, 20);
+        var batchResult = Vwma.Batch(sourceSeries, 20);
 
         // Streaming with TValue
         var vwma = new Vwma(20);

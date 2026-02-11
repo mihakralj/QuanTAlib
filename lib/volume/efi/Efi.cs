@@ -225,7 +225,7 @@ public sealed class Efi : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period = 13)
+    public static TSeries Batch(TBarSeries source, int period = 13)
     {
         if (source.Count == 0)
         {
@@ -235,13 +235,13 @@ public sealed class Efi : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, v, period);
+        Batch(source.Close.Values, source.Volume.Values, v, period);
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 13)
+    public static void Batch(ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 13)
     {
         if (close.Length != volume.Length)
         {
@@ -297,5 +297,12 @@ public sealed class Efi : ITValuePublisher
                 output[i] = ema;
             }
         }
+    }
+
+    public static (TSeries Results, Efi Indicator) Calculate(TBarSeries source, int period = 13)
+    {
+        var indicator = new Efi(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

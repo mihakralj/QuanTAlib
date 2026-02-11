@@ -473,7 +473,7 @@ public sealed class Stc : AbstractBase
     /// <summary>
     /// Static convenience method that creates a new Stc instance and processes the entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
+    public static TSeries Batch(TSeries source, int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {
         var indicator = new Stc(kPeriod, dPeriod, fastLength, slowLength, smoothing);
         return indicator.Update(source);
@@ -483,7 +483,7 @@ public sealed class Stc : AbstractBase
     // replicate the full STC state machine inline for zero-allocation performance.
     // The sequential MACD→Stoch1→Stoch2→Smoothing pipeline cannot be decomposed
     // without introducing heap allocations or sacrificing inlining opportunities.
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output,
         int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {
         if (source.Length != output.Length)
@@ -664,5 +664,12 @@ public sealed class Stc : AbstractBase
                 ArrayPool<double>.Shared.Return(rentedStoch1);
             }
         }
+    }
+
+    public static (TSeries Results, Stc Indicator) Calculate(TSeries source, int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
+    {
+        var indicator = new Stc(kPeriod, dPeriod, fastLength, slowLength, smoothing);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

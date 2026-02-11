@@ -267,7 +267,7 @@ public sealed class Aobv : ITValuePublisher
         var vFast = new double[source.Count];
         var vSlow = new double[source.Count];
 
-        Calculate(source.Close.Values, source.Volume.Values, vFast, vSlow);
+        Batch(source.Close.Values, source.Volume.Values, vFast, vSlow);
 
         return (new TSeries(t, vFast), new TSeries(t, vSlow));
     }
@@ -284,7 +284,7 @@ public sealed class Aobv : ITValuePublisher
     /// value seen. If no valid value has been seen yet, 0 is used as a neutral fallback.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> close, ReadOnlySpan<double> volume,
+    public static void Batch(ReadOnlySpan<double> close, ReadOnlySpan<double> volume,
         Span<double> outputFast, Span<double> outputSlow)
     {
         if (close.Length != volume.Length)

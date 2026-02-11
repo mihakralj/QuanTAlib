@@ -136,6 +136,9 @@ public sealed class Adosc : ITValuePublisher
         return new TSeries(t, v);
     }
 
+    // EMA compensator threshold (same as in Ema.cs)
+    private const double COMPENSATOR_THRESHOLD = 1e-10;
+
     /// <summary>
     /// Calculates ADOSC for the entire series using a new instance.
     /// </summary>
@@ -148,9 +151,6 @@ public sealed class Adosc : ITValuePublisher
         var adosc = new Adosc(fastPeriod, slowPeriod);
         return adosc.Update(source);
     }
-
-    // EMA compensator threshold (same as in Ema.cs)
-    private const double COMPENSATOR_THRESHOLD = 1e-10;
 
     /// <summary>
     /// Calculates ADOSC for the entire span using a single-pass algorithm.
@@ -165,7 +165,7 @@ public sealed class Adosc : ITValuePublisher
     /// <param name="fastPeriod">Fast EMA period (default 3)</param>
     /// <param name="slowPeriod">Slow EMA period (default 10)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int fastPeriod = 3, int slowPeriod = 10)
+    public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int fastPeriod = 3, int slowPeriod = 10)
     {
         if (high.Length != low.Length || high.Length != close.Length ||
             high.Length != volume.Length || high.Length != output.Length)
@@ -275,5 +275,12 @@ public sealed class Adosc : ITValuePublisher
 
             output[i] = fastValue - slowValue;
         }
+    }
+
+    public static (TSeries Results, Adosc Indicator) Calculate(TBarSeries source, int fastPeriod = 3, int slowPeriod = 10)
+    {
+        var indicator = new Adosc(fastPeriod, slowPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

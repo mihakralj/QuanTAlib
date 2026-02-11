@@ -151,7 +151,7 @@ public class BilateralTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Bilateral.Calculate(spanInput, spanOutput, period);
+        Bilateral.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

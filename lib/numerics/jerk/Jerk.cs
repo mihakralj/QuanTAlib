@@ -146,7 +146,7 @@ public sealed class Jerk : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(sourceValues, vSpan);
+        Batch(sourceValues, vSpan);
         sourceTimes.CopyTo(tSpan);
 
         // Prime state with last three values using cached span
@@ -200,7 +200,7 @@ public sealed class Jerk : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var jerk = new Jerk();
         return jerk.Update(source);
@@ -211,7 +211,7 @@ public sealed class Jerk : AbstractBase
     /// jerk[i] = source[i] - 3*source[i-1] + 3*source[i-2] - source[i-3]
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
         {
@@ -383,6 +383,13 @@ public sealed class Jerk : AbstractBase
             double term2 = Math.FusedMultiplyAdd(3.0, p2, -p3);
             output[i] = term1 + term2;
         }
+    }
+
+    public static (TSeries Results, Jerk Indicator) Calculate(TSeries source)
+    {
+        var indicator = new Jerk();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

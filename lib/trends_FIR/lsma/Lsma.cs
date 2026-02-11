@@ -221,7 +221,7 @@ public sealed class Lsma : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         double initialLastValid = _state.LastValidValue;
-        Calculate(source.Values, vSpan, _period, _offset, initialLastValid);
+        Batch(source.Values, vSpan, _period, _offset, initialLastValid);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -282,7 +282,7 @@ public sealed class Lsma : AbstractBase
     /// Zero-allocation method for maximum performance.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = double.NaN)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = double.NaN)
     {
         if (source.Length != output.Length)
         {
@@ -393,6 +393,13 @@ public sealed class Lsma : AbstractBase
                 output[i] = Math.FusedMultiplyAdd(-m, offset, b);
             }
         }
+    }
+
+    public static (TSeries Results, Lsma Indicator) Calculate(TSeries source, int period, int offset = 0)
+    {
+        var indicator = new Lsma(period, offset);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

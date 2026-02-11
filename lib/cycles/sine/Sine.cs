@@ -215,10 +215,17 @@ public sealed class Sine : AbstractBase
     /// <summary>
     /// Creates a new Sine indicator and calculates for the source series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int hpPeriod = 40, int ssfPeriod = 10)
+    public static TSeries Batch(TSeries source, int hpPeriod = 40, int ssfPeriod = 10)
     {
         var sine = new Sine(hpPeriod, ssfPeriod);
         return sine.Update(source);
+    }
+
+    public static (TSeries Results, Sine Indicator) Calculate(TSeries source, int hpPeriod = 40, int ssfPeriod = 10)
+    {
+        var indicator = new Sine(hpPeriod, ssfPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

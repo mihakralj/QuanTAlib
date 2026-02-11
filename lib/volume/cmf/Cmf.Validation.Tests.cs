@@ -91,7 +91,7 @@ public class CmfValidationTests
         }
 
         // Batch
-        var batchResult = Cmf.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Cmf.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-12);
@@ -115,7 +115,7 @@ public class CmfValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanValues = new double[high.Length];
 
-        Cmf.Calculate(high, low, close, volume, spanValues, DefaultPeriod);
+        Cmf.Batch(high, low, close, volume, spanValues, DefaultPeriod);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-12);
     }

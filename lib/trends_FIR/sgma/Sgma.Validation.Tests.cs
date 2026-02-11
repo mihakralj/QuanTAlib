@@ -65,7 +65,7 @@ public class SgmaValidationTests
         double[] sgmaOutput = new double[input.Length];
         double[] smaOutput = new double[input.Length];
 
-        Sgma.Calculate(input.AsSpan(), sgmaOutput.AsSpan(), 9, 0);
+        Sgma.Batch(input.AsSpan(), sgmaOutput.AsSpan(), 9, 0);
         Sma.Batch(input.AsSpan(), smaOutput.AsSpan(), 9);
 
         for (int i = 0; i < input.Length; i++)
@@ -209,7 +209,7 @@ public class SgmaValidationTests
             // Span
             double[] input = series.Values.ToArray();
             double[] output = new double[input.Length];
-            Sgma.Calculate(input.AsSpan(), output.AsSpan(), 9, degree);
+            Sgma.Batch(input.AsSpan(), output.AsSpan(), 9, degree);
             Assert.Equal(expected, output[^1], Tolerance);
 
             // Streaming
@@ -238,7 +238,7 @@ public class SgmaValidationTests
         double[] sourceWithNaN = [100, 110, 120, double.NaN, 140, 150, 160, 170, 180];
         double[] output = new double[sourceWithNaN.Length];
 
-        Sgma.Calculate(sourceWithNaN.AsSpan(), output.AsSpan(), 5, 2);
+        Sgma.Batch(sourceWithNaN.AsSpan(), output.AsSpan(), 5, 2);
 
         // All outputs should be finite
         foreach (var val in output)

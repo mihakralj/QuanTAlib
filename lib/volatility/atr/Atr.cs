@@ -240,4 +240,11 @@ public sealed class Atr : AbstractBase
         var atr = new Atr(period);
         return atr.Update(source);
     }
+
+    public static (TSeries Results, Atr Indicator) Calculate(TBarSeries source, int period)
+    {
+        var indicator = new Atr(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
 }

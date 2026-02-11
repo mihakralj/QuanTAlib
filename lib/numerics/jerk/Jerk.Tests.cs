@@ -102,7 +102,7 @@ public class JerkTests
 
         // Output must be same length as source
         Assert.Throws<ArgumentException>(() =>
-            Jerk.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan()));
+            Jerk.Batch(source.AsSpan(), wrongSizeOutput.AsSpan()));
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class JerkTests
         // 1. Batch Mode (static span)
         var tValues = series.Values.ToArray();
         var batchOutput = new double[tValues.Length];
-        Jerk.Calculate(tValues, batchOutput);
+        Jerk.Batch(tValues, batchOutput);
         double expected = batchOutput[^1];
 
         // 2. Streaming Mode
@@ -127,7 +127,7 @@ public class JerkTests
         double streamingResult = streamingInd.Last.Value;
 
         // 3. TSeries Batch Mode
-        var batchSeriesResult = Jerk.Calculate(series);
+        var batchSeriesResult = Jerk.Batch(series);
         double tseriesResult = batchSeriesResult.Last.Value;
 
         Assert.Equal(expected, streamingResult, precision: 9);
@@ -211,7 +211,7 @@ public class JerkTests
 
         // Batch
         var batchResults = new double[count];
-        Jerk.Calculate(data, batchResults);
+        Jerk.Batch(data, batchResults);
 
         // Compare
         for (int i = 0; i < count; i++)

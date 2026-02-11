@@ -197,7 +197,7 @@ public sealed class Twap : ITValuePublisher
         }
 
         var output = new double[source.Count];
-        Calculate(prices, output, _period);
+        Batch(prices, output, _period);
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -224,7 +224,7 @@ public sealed class Twap : ITValuePublisher
     /// <param name="source">The bar series.</param>
     /// <param name="period">The session period in bars (0 = never reset).</param>
     /// <returns>The result series.</returns>
-    public static TSeries Calculate(TBarSeries source, int period = DefaultPeriod)
+    public static TSeries Batch(TBarSeries source, int period = DefaultPeriod)
     {
         var twap = new Twap(period);
         var result = new TSeries(source.Count);
@@ -244,7 +244,7 @@ public sealed class Twap : ITValuePublisher
     /// <param name="output">The output TWAP span.</param>
     /// <param name="period">The session period in bars (0 = never reset). Default is 0.</param>
     /// <exception cref="ArgumentException">Thrown when output length doesn't match price length or period is invalid.</exception>
-    public static void Calculate(ReadOnlySpan<double> price, Span<double> output, int period = DefaultPeriod)
+    public static void Batch(ReadOnlySpan<double> price, Span<double> output, int period = DefaultPeriod)
     {
         if (output.Length != price.Length)
         {
@@ -287,5 +287,12 @@ public sealed class Twap : ITValuePublisher
             // Calculate TWAP
             output[i] = sumPrices / count;
         }
+    }
+
+    public static (TSeries Results, Twap Indicator) Calculate(TBarSeries source, int period = DefaultPeriod)
+    {
+        var indicator = new Twap(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

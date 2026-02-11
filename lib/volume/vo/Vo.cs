@@ -279,7 +279,7 @@ public sealed class Vo : ITValuePublisher
     /// <param name="longPeriod">The long-term period (default: 10).</param>
     /// <param name="signalPeriod">The signal line period (default: 10).</param>
     /// <returns>The result series.</returns>
-    public static TSeries Calculate(TBarSeries source, int shortPeriod = 5, int longPeriod = 10, int signalPeriod = 10)
+    public static TSeries Batch(TBarSeries source, int shortPeriod = 5, int longPeriod = 10, int signalPeriod = 10)
     {
         if (source.Count == 0)
         {
@@ -289,7 +289,7 @@ public sealed class Vo : ITValuePublisher
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
 
-        Calculate(source.Volume.Values, v, shortPeriod, longPeriod);
+        Batch(source.Volume.Values, v, shortPeriod, longPeriod);
 
         return new TSeries(t, v);
     }
@@ -305,7 +305,7 @@ public sealed class Vo : ITValuePublisher
     /// <param name="longPeriod">The long-term period (default: 10).</param>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> volume, Span<double> output, int shortPeriod = 5, int longPeriod = 10)
+    public static void Batch(ReadOnlySpan<double> volume, Span<double> output, int shortPeriod = 5, int longPeriod = 10)
     {
         if (shortPeriod < 1)
         {
@@ -420,5 +420,12 @@ public sealed class Vo : ITValuePublisher
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedLong);
             }
         }
+    }
+
+    public static (TSeries Results, Vo Indicator) Calculate(TBarSeries source, int shortPeriod = 5, int longPeriod = 10, int signalPeriod = 10)
+    {
+        var indicator = new Vo(shortPeriod, longPeriod, signalPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

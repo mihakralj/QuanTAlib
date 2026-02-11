@@ -220,7 +220,7 @@ public class UiValidationTests
         }
 
         // Batch via TSeries
-        var batchResult = Ui.Calculate(data, DefaultPeriod);
+        var batchResult = Ui.Batch(data, DefaultPeriod);
 
         Assert.Equal(streamingUi.Last.Value, batchResult.Last.Value, 10);
     }

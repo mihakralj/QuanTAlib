@@ -93,7 +93,7 @@ public class StcTests
         var batchStc = CreateDefaultStc();
         var tseriesResult = batchStc.Update(series);
 
-        Stc.Calculate(input.AsSpan(), output.AsSpan(), kPeriod: CycleLength, dPeriod: CycleLength, fastLength: FastLength, slowLength: SlowLength, smoothing: StcSmoothing.Sigmoid);
+        Stc.Batch(input.AsSpan(), output.AsSpan(), kPeriod: CycleLength, dPeriod: CycleLength, fastLength: FastLength, slowLength: SlowLength, smoothing: StcSmoothing.Sigmoid);
 
         // Compare last value
         Assert.Equal(tseriesResult.Last.Value, output[^1], 1e-9);

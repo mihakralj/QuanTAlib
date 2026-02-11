@@ -165,7 +165,7 @@ public sealed class Hp : AbstractBase
         }
 
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, Lambda);
+        Batch(source.Values, resultValues, Lambda);
 
         var result = new TSeries();
         var times = source.Times;
@@ -196,10 +196,16 @@ public sealed class Hp : AbstractBase
         return result;
     }
 
+    public static TSeries Batch(TSeries source, double lambda = 1600.0)
+    {
+        var indicator = new Hp(lambda);
+        return indicator.Update(source);
+    }
+
     /// <summary>
     /// Static calculation of HP Filter on a span.
     /// </summary>
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double lambda)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double lambda)
     {
         if (source.Length != output.Length)
         {
@@ -235,6 +241,12 @@ public sealed class Hp : AbstractBase
             prevPrevTrend = prevTrend;
             prevTrend = val;
         }
+    }
+    public static (TSeries Results, Hp Indicator) Calculate(TSeries source, double lambda = 1600.0)
+    {
+        var indicator = new Hp(lambda);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

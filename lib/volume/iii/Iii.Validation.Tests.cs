@@ -36,7 +36,7 @@ public class IiiValidationTests
         }
 
         // Batch mode
-        var batchResults = Iii.Calculate(bars, DefaultPeriod);
+        var batchResults = Iii.Batch(bars, DefaultPeriod);
 
         // Compare results
         Assert.Equal(bars.Count, batchResults.Count);
@@ -65,7 +65,7 @@ public class IiiValidationTests
         var close = bars.Close.Values.ToArray();
         var volume = bars.Volume.Values.ToArray();
         var spanResults = new double[bars.Count];
-        Iii.Calculate(high, low, close, volume, spanResults, DefaultPeriod);
+        Iii.Batch(high, low, close, volume, spanResults, DefaultPeriod);
 
         // Compare results
         for (int i = 0; i < bars.Count; i++)
@@ -88,7 +88,7 @@ public class IiiValidationTests
         }
 
         // Batch mode
-        var batchResults = Iii.Calculate(bars, DefaultPeriod, cumulative: true);
+        var batchResults = Iii.Batch(bars, DefaultPeriod, cumulative: true);
 
         // Compare results
         Assert.Equal(bars.Count, batchResults.Count);
@@ -117,7 +117,7 @@ public class IiiValidationTests
         var close = bars.Close.Values.ToArray();
         var volume = bars.Volume.Values.ToArray();
         var spanResults = new double[bars.Count];
-        Iii.Calculate(high, low, close, volume, spanResults, DefaultPeriod, cumulative: true);
+        Iii.Batch(high, low, close, volume, spanResults, DefaultPeriod, cumulative: true);
 
         // Compare results
         for (int i = 0; i < bars.Count; i++)
@@ -140,7 +140,7 @@ public class IiiValidationTests
         }
 
         // Batch mode
-        var batchResults = Iii.Calculate(bars, DefaultPeriod);
+        var batchResults = Iii.Batch(bars, DefaultPeriod);
 
         // Span mode
         var high = bars.High.Values.ToArray();
@@ -148,7 +148,7 @@ public class IiiValidationTests
         var close = bars.Close.Values.ToArray();
         var volume = bars.Volume.Values.ToArray();
         var spanResults = new double[bars.Count];
-        Iii.Calculate(high, low, close, volume, spanResults, DefaultPeriod);
+        Iii.Batch(high, low, close, volume, spanResults, DefaultPeriod);
 
         // All three should match
         for (int i = 0; i < bars.Count; i++)
@@ -177,7 +177,7 @@ public class IiiValidationTests
         }
 
         // Batch mode
-        var batchResults = Iii.Calculate(bars, DefaultPeriod);
+        var batchResults = Iii.Batch(bars, DefaultPeriod);
 
         // Span mode
         var high = bars.High.Values.ToArray();
@@ -185,7 +185,7 @@ public class IiiValidationTests
         var close = bars.Close.Values.ToArray();
         var volume = bars.Volume.Values.ToArray();
         var spanResults = new double[bars.Count];
-        Iii.Calculate(high, low, close, volume, spanResults, DefaultPeriod);
+        Iii.Batch(high, low, close, volume, spanResults, DefaultPeriod);
 
         // Focus on last 100 values (well past warmup)
         int startIdx = bars.Count - 100;
@@ -285,7 +285,7 @@ public class IiiValidationTests
             }
 
             // Batch
-            var batchResults = Iii.Calculate(bars, DefaultPeriod);
+            var batchResults = Iii.Batch(bars, DefaultPeriod);
 
             // Should match for any seed
             for (int i = bars.Count - 50; i < bars.Count; i++)

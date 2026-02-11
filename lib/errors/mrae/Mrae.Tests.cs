@@ -284,7 +284,7 @@ public class MraeTests
             predicted.Add(now.AddMinutes(i), i * 110); // 10% error
         }
 
-        var results = Mrae.Calculate(actual, predicted, 3);
+        var results = Mrae.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         Assert.Equal(0.1, results.Last.Value, 10);
@@ -306,7 +306,7 @@ public class MraeTests
             predicted.Add(DateTime.UtcNow, i * 10);
         }
 
-        Assert.Throws<ArgumentException>(() => Mrae.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Mrae.Batch(actual, predicted, 3));
     }
 
     [Fact]

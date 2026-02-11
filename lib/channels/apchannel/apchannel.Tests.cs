@@ -347,22 +347,22 @@ public class ApchannelTests
 
         // Alpha must be > 0 and <= 1
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Apchannel.Calculate(high, low, upperBand, lowerBand, 0.0));
+            Apchannel.Batch(high, low, upperBand, lowerBand, 0.0));
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Apchannel.Calculate(high, low, upperBand, lowerBand, 1.5));
+            Apchannel.Batch(high, low, upperBand, lowerBand, 1.5));
 
         // Arrays must be same length
         double[] wrongSizeLow = new double[3];
         Assert.Throws<ArgumentException>(() =>
-            Apchannel.Calculate(high, wrongSizeLow, upperBand, lowerBand, 0.2));
+            Apchannel.Batch(high, wrongSizeLow, upperBand, lowerBand, 0.2));
 
         double[] wrongSizeUpper = new double[3];
         Assert.Throws<ArgumentException>(() =>
-            Apchannel.Calculate(high, low, wrongSizeUpper, lowerBand, 0.2));
+            Apchannel.Batch(high, low, wrongSizeUpper, lowerBand, 0.2));
 
         double[] wrongSizeLower = new double[3];
         Assert.Throws<ArgumentException>(() =>
-            Apchannel.Calculate(high, low, upperBand, wrongSizeLower, 0.2));
+            Apchannel.Batch(high, low, upperBand, wrongSizeLower, 0.2));
     }
 
     [Fact]
@@ -377,7 +377,7 @@ public class ApchannelTests
         double[] lowerBandSpan = new double[100];
 
         // Calculate using span
-        Apchannel.Calculate(high, low, upperBandSpan, lowerBandSpan, 0.2);
+        Apchannel.Batch(high, low, upperBandSpan, lowerBandSpan, 0.2);
 
         // Calculate iteratively
         var apc = new Apchannel(0.2);
@@ -407,7 +407,7 @@ public class ApchannelTests
         double[] upperBand = new double[5];
         double[] lowerBand = new double[5];
 
-        Apchannel.Calculate(high, low, upperBand, lowerBand, 0.2);
+        Apchannel.Batch(high, low, upperBand, lowerBand, 0.2);
 
         foreach (var val in upperBand)
         {
@@ -437,7 +437,7 @@ public class ApchannelTests
         }
 
         // Warm up
-        Apchannel.Calculate(high, low, upperBand, lowerBand, 0.2);
+        Apchannel.Batch(high, low, upperBand, lowerBand, 0.2);
 
         // Verify method completes without OOM or stack overflow
         Assert.True(double.IsFinite(upperBand[^1]));

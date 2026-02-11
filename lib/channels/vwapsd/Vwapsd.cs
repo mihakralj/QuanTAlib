@@ -344,7 +344,7 @@ public sealed class Vwapsd : AbstractBase
     /// <param name="vwap">Output span for VWAP values</param>
     /// <param name="stdDev">Output span for standard deviation values</param>
     /// <param name="numDevs">Number of standard deviations for bands (default 2.0)</param>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> price,
         ReadOnlySpan<double> volume,
         Span<double> upper,

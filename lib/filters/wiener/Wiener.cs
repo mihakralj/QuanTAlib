@@ -77,6 +77,26 @@ public sealed class Wiener : AbstractBase
         return result;
     }
 
+    public static TSeries Batch(TSeries source, int period, int smoothPeriod = 10)
+    {
+        var indicator = new Wiener(period, smoothPeriod);
+        return indicator.Update(source);
+    }
+
+    public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period, int smoothPeriod = 10)
+    {
+        if (destination.Length < source.Length)
+        {
+            throw new ArgumentException("Destination span is shorter than source span.", nameof(destination));
+        }
+
+        var filter = new Wiener(period, smoothPeriod);
+        for (int i = 0; i < source.Length; i++)
+        {
+            destination[i] = filter.Update(new TValue(0, source[i])).Value;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double Calc()
     {
@@ -154,17 +174,10 @@ public sealed class Wiener : AbstractBase
         }
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, int smoothPeriod = 10)
+    public static (TSeries Results, Wiener Indicator) Calculate(TSeries source, int period, int smoothPeriod = 10)
     {
-        if (destination.Length < source.Length)
-        {
-            throw new ArgumentException("Destination span is shorter than source span.", nameof(destination));
-        }
-
-        var filter = new Wiener(period, smoothPeriod);
-        for (int i = 0; i < source.Length; i++)
-        {
-            destination[i] = filter.Update(new TValue(0, source[i])).Value;
-        }
+        var indicator = new Wiener(period, smoothPeriod);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

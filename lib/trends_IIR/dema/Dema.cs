@@ -230,19 +230,19 @@ public sealed class Dema : AbstractBase
         return result;
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var dema = new Dema(period);
         return dema.Update(source);
     }
 
-    public static TSeries Calculate(TSeries source, double alpha)
+    public static TSeries Batch(TSeries source, double alpha)
     {
         var dema = new Dema(alpha);
         return dema.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
         {
@@ -250,10 +250,10 @@ public sealed class Dema : AbstractBase
         }
 
         double alpha = 2.0 / (period + 1);
-        Calculate(source, output, alpha);
+        Batch(source, output, alpha);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
         {
@@ -346,6 +346,13 @@ public sealed class Dema : AbstractBase
             // DEMA = 2 * EMA1 - EMA2
             output[i] = Math.FusedMultiplyAdd(2.0, e1, -e2);
         }
+    }
+
+    public static (TSeries Results, Dema Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Dema(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

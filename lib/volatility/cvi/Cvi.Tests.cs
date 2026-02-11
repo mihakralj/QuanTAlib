@@ -311,7 +311,7 @@ public class CviTests
         var iterativeResult = cvi.Last.Value;
 
         // Batch via static method
-        var batchResult = Cvi.Calculate(bars, 10, 10);
+        var batchResult = Cvi.Batch(bars, 10, 10);
 
         Assert.Equal(iterativeResult, batchResult[batchResult.Count - 1].Value, 1e-8);
     }
@@ -321,7 +321,7 @@ public class CviTests
     {
         var bars = GenerateTestData(100);
 
-        var result = Cvi.Calculate(bars, 14, 10);
+        var result = Cvi.Batch(bars, 14, 10);
 
         Assert.Equal(100, result.Count);
         Assert.True(double.IsFinite(result[result.Count - 1].Value));
@@ -336,10 +336,10 @@ public class CviTests
             ts.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i));
         }
 
-        Assert.Throws<ArgumentException>(() => Cvi.Calculate(ts, 0, 10));
-        Assert.Throws<ArgumentException>(() => Cvi.Calculate(ts, -1, 10));
-        Assert.Throws<ArgumentException>(() => Cvi.Calculate(ts, 10, 0));
-        Assert.Throws<ArgumentException>(() => Cvi.Calculate(ts, 10, -1));
+        Assert.Throws<ArgumentException>(() => Cvi.Batch(ts, 0, 10));
+        Assert.Throws<ArgumentException>(() => Cvi.Batch(ts, -1, 10));
+        Assert.Throws<ArgumentException>(() => Cvi.Batch(ts, 10, 0));
+        Assert.Throws<ArgumentException>(() => Cvi.Batch(ts, 10, -1));
     }
 
     [Fact]

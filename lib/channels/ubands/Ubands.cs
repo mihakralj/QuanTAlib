@@ -268,7 +268,7 @@ public sealed class Ubands : AbstractBase
     /// <summary>
     /// Calculates Ultimate Bands for the entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    public static TSeries Batch(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
     {
         Ubands ubands = new(period, multiplier);
         return ubands.Update(source);
@@ -277,7 +277,7 @@ public sealed class Ubands : AbstractBase
     /// <summary>
     /// Calculates Ultimate Bands across data using spans.
     /// </summary>
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> upper,
         Span<double> middle,
@@ -397,4 +397,12 @@ public sealed class Ubands : AbstractBase
             lower[i] = usf - bandOffset;
         }
     }
+
+    public static (TSeries Results, Ubands Indicator) Calculate(TSeries source, int period = DefaultPeriod, double multiplier = DefaultMultiplier)
+    {
+        var indicator = new Ubands(period, multiplier);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

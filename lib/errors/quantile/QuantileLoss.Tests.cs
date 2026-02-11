@@ -237,7 +237,7 @@ public class QuantileLossTests
 
         var iterativeResults = actualSeries.Zip(predictedSeries, (actual, predicted) => quantileLossIterative.Update(actual.Value, predicted.Value).Value).ToList();
 
-        var batchResults = QuantileLoss.Calculate(actualSeries, predictedSeries, DefaultPeriod, 0.75);
+        var batchResults = QuantileLoss.Batch(actualSeries, predictedSeries, DefaultPeriod, 0.75);
 
         Assert.Equal(iterativeResults.Count, batchResults.Count);
         int count = iterativeResults.Count;
@@ -288,7 +288,7 @@ public class QuantileLossTests
             predictedArr[i] = pred;
         }
 
-        var tseriesResult = QuantileLoss.Calculate(actualSeries, predictedSeries, DefaultPeriod, 0.75);
+        var tseriesResult = QuantileLoss.Batch(actualSeries, predictedSeries, DefaultPeriod, 0.75);
         QuantileLoss.Batch(actualArr.AsSpan(), predictedArr.AsSpan(), output.AsSpan(), DefaultPeriod, 0.75);
 
         for (int i = 0; i < 100; i++)
@@ -337,7 +337,7 @@ public class QuantileLossTests
 
         predicted.Add(DateTime.UtcNow.Ticks, 98);
 
-        Assert.Throws<ArgumentException>(() => QuantileLoss.Calculate(actual, predicted, DefaultPeriod));
+        Assert.Throws<ArgumentException>(() => QuantileLoss.Batch(actual, predicted, DefaultPeriod));
     }
 
     [Fact]

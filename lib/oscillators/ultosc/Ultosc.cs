@@ -46,6 +46,7 @@ public sealed class Ultosc : AbstractBase
     private int _p_index;
     private readonly TBarSeries? _source;
     private readonly TBarPublishedHandler? _handler;
+    private bool _disposed;
 
     // Weights: 4:2:1
     private const double Weight1 = 4.0;
@@ -118,9 +119,13 @@ public sealed class Ultosc : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _handler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _handler;
+            if (disposing && _source != null && _handler != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -241,7 +246,7 @@ public sealed class Ultosc : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         // Calculate using span method
-        Calculate(source.High.Values, source.Low.Values, source.Close.Values,
+        Batch(source.High.Values, source.Low.Values, source.Close.Values,
                   vSpan, _period1, _period2, _period3);
         source.Times.CopyTo(tSpan);
 
@@ -290,7 +295,7 @@ public sealed class Ultosc : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(
+    public static void Batch(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
         ReadOnlySpan<double> close,
@@ -411,6 +416,14 @@ public sealed class Ultosc : AbstractBase
             System.Buffers.ArrayPool<double>.Shared.Return(trArray);
         }
     }
+
+    public static (TSeries Results, Ultosc Indicator) Calculate(TBarSeries source, int period1 = 7, int period2 = 14, int period3 = 28)
+    {
+        var indicator = new Ultosc(period1, period2, period3);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 
     public override void Reset()
     {

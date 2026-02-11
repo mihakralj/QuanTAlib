@@ -19,7 +19,7 @@ public class LineartransValidationTests
         double slope = 2.5;
         double intercept = -15.0;
 
-        var result = Lineartrans.Calculate(series, slope, intercept);
+        var result = Lineartrans.Batch(series, slope, intercept);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -55,7 +55,7 @@ public class LineartransValidationTests
         double slope = -1.5;
         double intercept = 50.0;
 
-        Lineartrans.Calculate(source, output, slope, intercept);
+        Lineartrans.Batch(source, output, slope, intercept);
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -71,7 +71,7 @@ public class LineartransValidationTests
         var bars = _gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
 
-        var result = Lineartrans.Calculate(series, slope: 1.0, intercept: 0.0);
+        var result = Lineartrans.Batch(series, slope: 1.0, intercept: 0.0);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -87,7 +87,7 @@ public class LineartransValidationTests
         var series = bars.Close;
         double intercept = 42.0;
 
-        var result = Lineartrans.Calculate(series, slope: 0.0, intercept: intercept);
+        var result = Lineartrans.Batch(series, slope: 0.0, intercept: intercept);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -106,13 +106,13 @@ public class LineartransValidationTests
         double c = 3.0, d = -10.0; // Second transform
 
         // Compose sequentially
-        var step1 = Lineartrans.Calculate(series, a, b);
-        var composed = Lineartrans.Calculate(step1, c, d);
+        var step1 = Lineartrans.Batch(series, a, b);
+        var composed = Lineartrans.Batch(step1, c, d);
 
         // Direct composed transform: y = c*(a*x + b) + d = (a*c)*x + (b*c + d)
         double composedSlope = a * c;
         double composedIntercept = b * c + d;
-        var direct = Lineartrans.Calculate(series, composedSlope, composedIntercept);
+        var direct = Lineartrans.Batch(series, composedSlope, composedIntercept);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -129,8 +129,8 @@ public class LineartransValidationTests
 
         double a = 2.5, b = -15.0;
 
-        var transformed = Lineartrans.Calculate(series, a, b);
-        var recovered = Lineartrans.Calculate(transformed, 1.0 / a, -b / a);
+        var transformed = Lineartrans.Batch(series, a, b);
+        var recovered = Lineartrans.Batch(transformed, 1.0 / a, -b / a);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -158,8 +158,8 @@ public class LineartransValidationTests
         }
 
         // a * (x + offset) should equal a*x + a*offset
-        var scaledSum = Lineartrans.Calculate(shifted, a, 0.0);
-        var sumOfScaled = Lineartrans.Calculate(series, a, a * offset);
+        var scaledSum = Lineartrans.Batch(shifted, a, 0.0);
+        var sumOfScaled = Lineartrans.Batch(series, a, a * offset);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -174,7 +174,7 @@ public class LineartransValidationTests
         var bars = _gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
 
-        var negated = Lineartrans.Calculate(series, slope: -1.0, intercept: 0.0);
+        var negated = Lineartrans.Batch(series, slope: -1.0, intercept: 0.0);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -188,8 +188,8 @@ public class LineartransValidationTests
         var bars = _gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
 
-        var negated = Lineartrans.Calculate(series, slope: -1.0, intercept: 0.0);
-        var recovered = Lineartrans.Calculate(negated, slope: -1.0, intercept: 0.0);
+        var negated = Lineartrans.Batch(series, slope: -1.0, intercept: 0.0);
+        var recovered = Lineartrans.Batch(negated, slope: -1.0, intercept: 0.0);
 
         for (int i = 0; i < series.Count; i++)
         {
@@ -208,7 +208,7 @@ public class LineartransValidationTests
         series.Add(new TValue(time.AddSeconds(3), 100.0), true);
 
         // y = 2x + 3
-        var result = Lineartrans.Calculate(series, slope: 2.0, intercept: 3.0);
+        var result = Lineartrans.Batch(series, slope: 2.0, intercept: 3.0);
 
         Assert.Equal(3.0, result[0].Value, Tolerance);    // 2*0+3
         Assert.Equal(5.0, result[1].Value, Tolerance);    // 2*1+3
@@ -229,7 +229,7 @@ public class LineartransValidationTests
         double slope = 2.5;
         double intercept = 100.0;
 
-        var result = Lineartrans.Calculate(series, slope, intercept);
+        var result = Lineartrans.Batch(series, slope, intercept);
 
         // Difference between consecutive values should be scaled by slope
         double diff_01_input = series[1].Value - series[0].Value;  // 20
@@ -257,7 +257,7 @@ public class LineartransValidationTests
         double slope = 1.0 + 1e-10;
         double intercept = -1e15;
 
-        var result = Lineartrans.Calculate(series, slope, intercept);
+        var result = Lineartrans.Batch(series, slope, intercept);
 
         // Verify each result matches direct computation
         for (int i = 0; i < series.Count; i++)

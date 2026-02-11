@@ -311,6 +311,14 @@ public sealed class Alligator : ITValuePublisher
         return alligator.Update(source);
     }
 
+    public static (TSeries Results, Alligator Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Alligator();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
+
     /// <summary>
     /// Gets the Jaw period value.
     /// </summary>

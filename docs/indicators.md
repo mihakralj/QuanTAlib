@@ -132,7 +132,11 @@ Rate of change and velocity measurements. First derivatives of price.
 | [**BOP**](../lib/momentum/bop/Bop.md) | Balance of Power | Close position in range |
 | [**CFB**](../lib/momentum/cfb/Cfb.md) | Composite Fractal Behavior | Jurik fractal momentum |
 | [**ROC**](../lib/momentum/roc/Roc.md) | Rate of Change | Absolute price change over N periods |
+| [**ROCP**](../lib/momentum/rocp/Rocp.md) | Rate of Change Percentage | Percentage price change over N periods |
+| [**ROCR**](../lib/momentum/rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods |
+| [**PRS**](../lib/momentum/prs/Prs.md) | Price Relative Strength | Dual-input ratio comparison |
 | [**RSX**](../lib/momentum/rsx/Rsx.md) | Jurik RSX | Smoothed RSI variant |
+| [**TSI**](../lib/momentum/tsi/Tsi.md) | True Strength Index | Double-smoothed momentum oscillator |
 | [**VEL**](../lib/momentum/vel/Vel.md) | Jurik Velocity | Adaptive velocity |
 
 ### Volatility

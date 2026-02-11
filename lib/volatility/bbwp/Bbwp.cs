@@ -266,7 +266,7 @@ public sealed class Bbwp : AbstractBase
     /// <summary>
     /// Calculates BBWP for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
+    public static TSeries Batch(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
     {
         if (period <= 0)
         {
@@ -395,5 +395,12 @@ public sealed class Bbwp : AbstractBase
             // Clamp to [0,1] range
             output[i] = Math.Max(0.0, Math.Min(1.0, bbwp));
         }
+    }
+
+    public static (TSeries Results, Bbwp Indicator) Calculate(TSeries source, int period, double multiplier = 2.0, int lookback = 252)
+    {
+        var indicator = new Bbwp(period, multiplier, lookback);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

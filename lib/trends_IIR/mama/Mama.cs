@@ -316,7 +316,7 @@ public sealed class Mama : AbstractBase
         return mama.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05, Span<double> famaOutput = default)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05, Span<double> famaOutput = default)
     {
         if (fastLimit <= 0)
         {
@@ -539,5 +539,12 @@ public sealed class Mama : AbstractBase
                 famaOutput[i] = fama;
             }
         }
+    }
+
+    public static (TSeries Results, Mama Indicator) Calculate(TSeries source, double fastLimit = 0.5, double slowLimit = 0.05)
+    {
+        var indicator = new Mama(fastLimit, slowLimit);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 }

@@ -40,7 +40,7 @@ public sealed class Me : BiInputIndicatorBase
     /// <summary>
     /// Calculates ME for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -77,5 +77,12 @@ public sealed class Me : BiInputIndicatorBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
+    }
+
+    public static (TSeries Results, Me Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Me(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 }

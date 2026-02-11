@@ -177,13 +177,13 @@ public sealed class Mma : AbstractBase
         }
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var mma = new Mma(period);
         return mma.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -250,6 +250,13 @@ public sealed class Mma : AbstractBase
             double denom = (count + 1.0) * count;
             output[i] = Math.FusedMultiplyAdd(weightedSum, 6.0 / denom, sma);
         }
+    }
+
+    public static (TSeries Results, Mma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Mma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     public override void Reset()

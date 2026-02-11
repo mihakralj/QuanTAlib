@@ -199,7 +199,7 @@ public sealed class Gauss : AbstractBase
 
         // Calculate using static method for performance
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, _sigma);
+        Batch(source.Values, resultValues, _sigma);
 
         // Convert to TSeries
         var result = new TSeries();
@@ -219,12 +219,10 @@ public sealed class Gauss : AbstractBase
         return result;
     }
 
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    public static TSeries Batch(TSeries source, double sigma = 1.0)
     {
-        foreach (double value in source)
-        {
-            Update(new TValue(DateTime.MinValue, value), isNew: true);
-        }
+        var indicator = new Gauss(sigma);
+        return indicator.Update(source);
     }
 
     /// <summary>
@@ -234,7 +232,7 @@ public sealed class Gauss : AbstractBase
     /// <param name="output">Output buffer (must be same length as source)</param>
     /// <param name="sigma">Standard deviation</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double sigma)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double sigma)
     {
         const int StackallocThreshold = 256;
 
@@ -335,6 +333,21 @@ public sealed class Gauss : AbstractBase
                 ArrayPool<double>.Shared.Return(rented, clearArray: false);
             }
         }
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (double value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
+        }
+    }
+
+    public static (TSeries Results, Gauss Indicator) Calculate(TSeries source, double sigma = 1.0)
+    {
+        var indicator = new Gauss(sigma);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     /// <summary>

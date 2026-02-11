@@ -25,6 +25,7 @@ public sealed class Sgma : AbstractBase
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
     private bool _isNew = true;
+    private bool _disposed;
     private double _lastValidValue = double.NaN;
     private double _p_lastValidValue = double.NaN;
 
@@ -163,9 +164,13 @@ public sealed class Sgma : AbstractBase
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && _source != null && _pubHandler != null)
+        if (!_disposed)
         {
-            _source.Pub -= _pubHandler;
+            if (disposing && _source != null && _pubHandler != null)
+            {
+                _source.Pub -= _pubHandler;
+            }
+            _disposed = true;
         }
         base.Dispose(disposing);
     }
@@ -277,7 +282,7 @@ public sealed class Sgma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _degree);
+        Batch(source.Values, vSpan, _period, _degree);
         source.Times.CopyTo(tSpan);
 
         // Restore state by replaying last period bars
@@ -317,7 +322,7 @@ public sealed class Sgma : AbstractBase
     /// <param name="degree">Polynomial degree (default: 2)</param>
     /// <exception cref="ArgumentException">Thrown when output length doesn't match source length.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 9, int degree = 2)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 9, int degree = 2)
     {
         if (period < 3)
         {
@@ -420,6 +425,13 @@ public sealed class Sgma : AbstractBase
                 ArrayPool<double>.Shared.Return(ringArray);
             }
         }
+    }
+
+    public static (TSeries Results, Sgma Indicator) Calculate(TSeries source, int period = 9, int degree = 2)
+    {
+        var indicator = new Sgma(period, degree);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

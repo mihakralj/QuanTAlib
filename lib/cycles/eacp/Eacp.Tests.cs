@@ -321,7 +321,7 @@ public class EacpTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Eacp.Calculate(tSeries, minPeriod, maxPeriod);
+        var batch = Eacp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);

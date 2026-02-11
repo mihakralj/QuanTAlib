@@ -96,7 +96,7 @@ public class MfiValidationTests
         }
 
         // Batch
-        var batchResult = Mfi.Calculate(_data.Bars, DefaultPeriod);
+        var batchResult = Mfi.Batch(_data.Bars, DefaultPeriod);
         var batchValues = batchResult.Values.ToArray();
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), batchValues, 0, 100, 1e-9);
@@ -120,7 +120,7 @@ public class MfiValidationTests
         var volume = _data.Bars.Volume.Values.ToArray();
         var spanOutput = new double[high.Length];
 
-        Mfi.Calculate(high, low, close, volume, spanOutput, DefaultPeriod);
+        Mfi.Batch(high, low, close, volume, spanOutput, DefaultPeriod);
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanOutput, 0, 100, 1e-9);
     }

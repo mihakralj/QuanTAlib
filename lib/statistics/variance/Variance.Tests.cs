@@ -104,7 +104,7 @@ public class VarianceTests
         var series = new TSeries(times, values);
 
         // 1. Batch Mode (static method)
-        var batchSeries = Variance.Calculate(series, period);
+        var batchSeries = Variance.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode (static method with spans)
@@ -165,7 +165,7 @@ public class VarianceTests
 
         var series = new TSeries(times, values);
 
-        var tseriesResult = Variance.Calculate(series, 10);
+        var tseriesResult = Variance.Batch(series, 10);
         Variance.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < count; i++)
@@ -359,7 +359,7 @@ public class VarianceTests
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
 
         // Batch calculation
-        var batchResult = Variance.Calculate(series, 10);
+        var batchResult = Variance.Batch(series, 10);
         Assert.True(double.IsFinite(batchResult.Last.Value));
         Assert.True(batchResult.Last.Value >= 0);
 
@@ -471,7 +471,7 @@ public class VarianceTests
         source.Add(DateTime.UtcNow.Ticks + 1, 20);
         source.Add(DateTime.UtcNow.Ticks + 2, 30);
 
-        var result = Variance.Calculate(source, 3); // Sample variance by default
+        var result = Variance.Batch(source, 3); // Sample variance by default
 
         Assert.Equal(3, result.Count);
         Assert.Equal(100.0, result.Last.Value, precision: 6); // Sample variance: 200/2 = 100
@@ -485,7 +485,7 @@ public class VarianceTests
         source.Add(DateTime.UtcNow.Ticks + 1, 20);
         source.Add(DateTime.UtcNow.Ticks + 2, 30);
 
-        var result = Variance.Calculate(source, 3, isPopulation: true);
+        var result = Variance.Batch(source, 3, isPopulation: true);
 
         Assert.Equal(3, result.Count);
         Assert.Equal(66.666666, result.Last.Value, precision: 5); // Population variance: 200/3 ≈ 66.67

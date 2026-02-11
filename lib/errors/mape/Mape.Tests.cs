@@ -308,7 +308,7 @@ public class MapeTests
             predicted.Add(now.AddMinutes(i), 110); // 10% error
         }
 
-        var results = Mape.Calculate(actual, predicted, 3);
+        var results = Mape.Batch(actual, predicted, 3);
 
         Assert.Equal(10, results.Count);
         Assert.Equal(10.0, results.Last.Value, 10);
@@ -330,7 +330,7 @@ public class MapeTests
             predicted.Add(DateTime.UtcNow, i + 1);
         }
 
-        Assert.Throws<ArgumentException>(() => Mape.Calculate(actual, predicted, 3));
+        Assert.Throws<ArgumentException>(() => Mape.Batch(actual, predicted, 3));
     }
 
     [Fact]

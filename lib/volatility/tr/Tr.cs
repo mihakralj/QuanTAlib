@@ -281,7 +281,7 @@ public sealed class Tr : AbstractBase
     /// </summary>
     /// <param name="source">The source bar series.</param>
     /// <returns>A TSeries containing the True Range values.</returns>
-    public static TSeries Calculate(TBarSeries source)
+    public static TSeries Batch(TBarSeries source)
     {
         var tr = new Tr();
         return tr.Update(source);
@@ -412,4 +412,12 @@ public sealed class Tr : AbstractBase
 
         Batch(highs, lows, closes, output);
     }
+
+    public static (TSeries Results, Tr Indicator) Calculate(TBarSeries source)
+    {
+        var indicator = new Tr();
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
+    }
+
 }

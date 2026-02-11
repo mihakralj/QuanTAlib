@@ -361,7 +361,7 @@ public class VoTests
         }
 
         // Batch
-        var batchResult = Vo.Calculate(_bars, shortPeriod: 5, longPeriod: 10, signalPeriod: 10);
+        var batchResult = Vo.Batch(_bars, shortPeriod: 5, longPeriod: 10, signalPeriod: 10);
 
         Assert.Equal(streamingResults.Count, batchResult.Count);
         for (int i = 0; i < streamingResults.Count; i++)
@@ -386,7 +386,7 @@ public class VoTests
         // Span - pass arrays directly (implicit span conversion)
         var volume = _bars.Volume.Values.ToArray();
         var output = new double[_bars.Count];
-        Vo.Calculate(volume, output, shortPeriod: 5, longPeriod: 10);
+        Vo.Batch(volume, output, shortPeriod: 5, longPeriod: 10);
 
         for (int i = 0; i < streamingResults.Count; i++)
         {
@@ -425,7 +425,7 @@ public class VoTests
         ArgumentException? caught = null;
         try
         {
-            Vo.Calculate(volume, output, shortPeriod: 5, longPeriod: 10);
+            Vo.Batch(volume, output, shortPeriod: 5, longPeriod: 10);
         }
         catch (ArgumentException ex)
         {
@@ -445,7 +445,7 @@ public class VoTests
         ArgumentException? caught = null;
         try
         {
-            Vo.Calculate(volume, output, shortPeriod: 0, longPeriod: 10);
+            Vo.Batch(volume, output, shortPeriod: 0, longPeriod: 10);
         }
         catch (ArgumentException ex)
         {
@@ -465,7 +465,7 @@ public class VoTests
         ArgumentException? caught = null;
         try
         {
-            Vo.Calculate(volume, output, shortPeriod: 5, longPeriod: 0);
+            Vo.Batch(volume, output, shortPeriod: 5, longPeriod: 0);
         }
         catch (ArgumentException ex)
         {
@@ -485,7 +485,7 @@ public class VoTests
         ArgumentException? caught = null;
         try
         {
-            Vo.Calculate(volume, output, shortPeriod: 10, longPeriod: 5);
+            Vo.Batch(volume, output, shortPeriod: 10, longPeriod: 5);
         }
         catch (ArgumentException ex)
         {
@@ -503,7 +503,7 @@ public class VoTests
         double[] outputArr = [];
 
         // Should not throw
-        Vo.Calculate(volumeArr, outputArr, shortPeriod: 5, longPeriod: 10);
+        Vo.Batch(volumeArr, outputArr, shortPeriod: 5, longPeriod: 10);
 
         Assert.Empty(outputArr);
     }
@@ -519,7 +519,7 @@ public class VoTests
             volume[i] = i == 10 ? double.NaN : 500 + i;
         }
 
-        Vo.Calculate(volume, output, shortPeriod: 5, longPeriod: 10);
+        Vo.Batch(volume, output, shortPeriod: 5, longPeriod: 10);
 
         foreach (var val in output)
         {
@@ -539,7 +539,7 @@ public class VoTests
         }
 
         // Should not throw stack overflow
-        Vo.Calculate(volume, output, shortPeriod: 50, longPeriod: 200);
+        Vo.Batch(volume, output, shortPeriod: 50, longPeriod: 200);
 
         Assert.True(double.IsFinite(output[^1]));
     }

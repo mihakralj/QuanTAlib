@@ -43,7 +43,7 @@ public sealed class Smape : BiInputIndicatorBase
     /// <summary>
     /// Calculates SMAPE for entire series.
     /// </summary>
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
         => CalculateImpl(actual, predicted, period, Batch);
 
     /// <summary>
@@ -68,6 +68,13 @@ public sealed class Smape : BiInputIndicatorBase
         // Compute symmetric percentage errors with 200.0 multiplier (not 100.0 from helper)
         ComputeSmapeErrors(actual, predicted, symErrors);
         ErrorHelpers.ApplyRollingMean(symErrors, output, period);
+    }
+
+    public static (TSeries Results, Smape Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Smape(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

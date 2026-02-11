@@ -1,0 +1,23 @@
+{
+	"mcpServers": {
+		"dotnet-semantic-mcp": {
+			"command": "dotnet-semantic-mcp",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"alwaysAllow": [
+				"ast_map",
+				"ast_references",
+				"ast_hierarchy",
+				"ast_chunk",
+				"ast_dependencies",
+				"ast_search",
+				"ast_details",
+				"ast_attributes",
+				"ast_diagnostics",
+				"diag",
+				"map"
+			],
+			"disabled": false
+		}
+	}
+}

@@ -115,7 +115,7 @@ public class AlmaTests
         double[] input = series.Values.ToArray();
         double[] output = new double[input.Length];
 
-        Alma.Calculate(input.AsSpan(), output.AsSpan(), 10);
+        Alma.Batch(input.AsSpan(), output.AsSpan(), 10);
 
         for (int i = 0; i < input.Length; i++)
         {
@@ -284,7 +284,7 @@ public class AlmaTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Alma.Calculate(spanInput, spanOutput, period);
+        Alma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -317,12 +317,12 @@ public class AlmaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, sigma: 0));
-        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, sigma: -1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, offset: -0.1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, offset: 1.1));
-        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Alma.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Alma.Batch(source.AsSpan(), output.AsSpan(), 3, sigma: 0));
+        Assert.Throws<ArgumentException>(() => Alma.Batch(source.AsSpan(), output.AsSpan(), 3, sigma: -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Batch(source.AsSpan(), output.AsSpan(), 3, offset: -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Batch(source.AsSpan(), output.AsSpan(), 3, offset: 1.1));
+        Assert.Throws<ArgumentException>(() => Alma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public class AlmaTests
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Alma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Alma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         foreach (var val in output)
         {

@@ -94,7 +94,7 @@ public sealed class Hma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
         // Restore state for streaming
@@ -144,14 +144,14 @@ public sealed class Hma : AbstractBase
         CollectionsMarshal.SetCount(t, len);
         CollectionsMarshal.SetCount(v, len);
 
-        Calculate(source.Values, CollectionsMarshal.AsSpan(v), period);
+        Batch(source.Values, CollectionsMarshal.AsSpan(v), period);
         source.Times.CopyTo(CollectionsMarshal.AsSpan(t));
 
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
         {
@@ -202,6 +202,13 @@ public sealed class Hma : AbstractBase
             System.Buffers.ArrayPool<double>.Shared.Return(rentedFull);
             System.Buffers.ArrayPool<double>.Shared.Return(rentedHalf);
         }
+    }
+
+    public static (TSeries Results, Hma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Hma(period);
+        TSeries results = indicator.Update(source);
+        return (results, indicator);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

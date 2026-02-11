@@ -258,7 +258,7 @@ public class StandardizeTests
         }
 
         // Static calculation
-        var staticResult = Standardize.Calculate(tseries, 14);
+        var staticResult = Standardize.Batch(tseries, 14);
 
         // Streaming calculation
         var streamStandardize = new Standardize(14);
@@ -283,7 +283,7 @@ public class StandardizeTests
         double[] output = new double[values.Length];
 
         // Span calculation
-        Standardize.Calculate(values, output, 14);
+        Standardize.Batch(values, output, 14);
 
         // Streaming calculation
         var standardize = new Standardize(14);
@@ -300,9 +300,9 @@ public class StandardizeTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
 
-        Assert.Throws<ArgumentException>(() => Standardize.Calculate([], output));
-        Assert.Throws<ArgumentException>(() => Standardize.Calculate(source, new double[3]));
-        Assert.Throws<ArgumentException>(() => Standardize.Calculate(source, output, 1));
+        Assert.Throws<ArgumentException>(() => Standardize.Batch([], output));
+        Assert.Throws<ArgumentException>(() => Standardize.Batch(source, new double[3]));
+        Assert.Throws<ArgumentException>(() => Standardize.Batch(source, output, 1));
     }
 
     [Fact]

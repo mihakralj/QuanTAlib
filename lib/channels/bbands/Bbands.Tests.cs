@@ -214,7 +214,7 @@ public class BbandsTests
         TSeries source = bars.Close;
 
         // Act
-        TSeries result = Bbands.Calculate(source, period: 5, multiplier: 2.0);
+        TSeries result = Bbands.Batch(source, period: 5, multiplier: 2.0);
 
         // Assert
         Assert.Equal(source.Count, result.Count);
@@ -236,9 +236,9 @@ public class BbandsTests
         double[] middleArray = new double[source.Count];
         double[] upperArray = new double[source.Count];
         double[] lowerArray = new double[source.Count];
-        Bbands.Calculate(sourceArray.AsSpan(), middleArray, upperArray, lowerArray, period, multiplier);
+        Bbands.Batch(sourceArray.AsSpan(), middleArray, upperArray, lowerArray, period, multiplier);
 
-        TSeries seriesResult = Bbands.Calculate(source, period, multiplier);
+        TSeries seriesResult = Bbands.Batch(source, period, multiplier);
 
         // Assert - Compare last 10 values
         for (int i = source.Count - 10; i < source.Count; i++)
@@ -258,7 +258,7 @@ public class BbandsTests
 
         // Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(
-            () => Bbands.Calculate(sourceArr.AsSpan(), middleArr.AsSpan(), upperArr.AsSpan(), lowerArr.AsSpan()));
+            () => Bbands.Batch(sourceArr.AsSpan(), middleArr.AsSpan(), upperArr.AsSpan(), lowerArr.AsSpan()));
         Assert.Equal("source", exception.ParamName);
     }
 
@@ -305,14 +305,14 @@ public class BbandsTests
         }
 
         // Batch
-        TSeries batchResult = Bbands.Calculate(source, period, multiplier);
+        TSeries batchResult = Bbands.Batch(source, period, multiplier);
 
         // Span - Copy arrays before using to avoid ref local lambda issue
         double[] sourceArray = source.Values.ToArray();
         double[] middleArray = new double[source.Count];
         double[] upperArray = new double[source.Count];
         double[] lowerArray = new double[source.Count];
-        Bbands.Calculate(sourceArray.AsSpan(), middleArray, upperArray, lowerArray, period, multiplier);
+        Bbands.Batch(sourceArray.AsSpan(), middleArray, upperArray, lowerArray, period, multiplier);
 
         // Assert - Compare last 50 values (streaming only has last value)
         Assert.Equal(batchResult[^1].Value, streamingBbands.Middle.Value, precision: 8);

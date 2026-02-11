@@ -103,7 +103,7 @@ public sealed class HighestValidationTests : IDisposable
         {
             // Calculate QuanTAlib Highest (Span API)
             double[] qOutput = new double[sourceData.Length];
-            Highest.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            Highest.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib MAX
             var retCode = TALib.Functions.Max<double>(sourceData, 0..^0, talibOutput, out var outRange, period);

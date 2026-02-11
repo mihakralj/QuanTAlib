@@ -100,7 +100,7 @@ public sealed class VelValidationTests : IDisposable
             double[] wmaOutput = new double[sourceData.Length];
 
             Vel.Batch(sourceData.AsSpan(), velOutput.AsSpan(), period);
-            Pwma.Calculate(sourceData.AsSpan(), pwmaOutput.AsSpan(), period);
+            Pwma.Batch(sourceData.AsSpan(), pwmaOutput.AsSpan(), period);
             Wma.Batch(sourceData.AsSpan(), wmaOutput.AsSpan(), period);
 
             // Verify relationship for all data points

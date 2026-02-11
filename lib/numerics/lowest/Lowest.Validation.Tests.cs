@@ -103,7 +103,7 @@ public sealed class LowestValidationTests : IDisposable
         {
             // Calculate QuanTAlib Lowest (Span API)
             double[] qOutput = new double[sourceData.Length];
-            Lowest.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            Lowest.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib MIN
             var retCode = TALib.Functions.Min<double>(sourceData, 0..^0, talibOutput, out var outRange, period);

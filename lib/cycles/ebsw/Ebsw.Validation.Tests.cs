@@ -296,7 +296,7 @@ public class EbswValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Ebsw.Calculate(tSeries, hpLength, ssfLength);
+        var batch = Ebsw.Batch(tSeries, hpLength, ssfLength);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -319,7 +319,7 @@ public class EbswValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var tSeriesResult = Ebsw.Calculate(tSeries, hpLength, ssfLength);
+        var tSeriesResult = Ebsw.Batch(tSeries, hpLength, ssfLength);
 
         // Span approach
         double[] source = new double[dataLen];

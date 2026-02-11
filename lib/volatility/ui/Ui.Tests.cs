@@ -405,7 +405,7 @@ public class UiTests
         }
 
         // Mode 2: Batch via TSeries
-        var batchResult = Ui.Calculate(data, DefaultPeriod);
+        var batchResult = Ui.Batch(data, DefaultPeriod);
 
         // Mode 3: Span-based
         double[] spanOutput = new double[dataLen];
@@ -575,7 +575,7 @@ public class UiTests
     {
         var data = GenerateData(50);
 
-        var result = Ui.Calculate(data, DefaultPeriod);
+        var result = Ui.Batch(data, DefaultPeriod);
 
         Assert.Equal(50, result.Count);
         Assert.All(result.Values.ToArray(), v => Assert.True(v >= 0));

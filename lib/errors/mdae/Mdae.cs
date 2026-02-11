@@ -114,7 +114,7 @@ public sealed class Mdae : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        throw new NotSupportedException("MdAE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+        throw new NotSupportedException("MdAE requires two inputs. Use Batch(actualSeries, predictedSeries, period).");
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -161,7 +161,7 @@ public sealed class Mdae : AbstractBase
         return (_sortBuffer[mid - 1] + _sortBuffer[mid]) * 0.5;
     }
 
-    public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
+    public static TSeries Batch(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
         {
@@ -297,6 +297,13 @@ public sealed class Mdae : AbstractBase
 
             output[i] = (lower + upper) * 0.5;
         }
+    }
+
+    public static (TSeries Results, Mdae Indicator) Calculate(TSeries actual, TSeries predicted, int period)
+    {
+        var indicator = new Mdae(period);
+        TSeries results = Batch(actual, predicted, period);
+        return (results, indicator);
     }
 
     /// <summary>
