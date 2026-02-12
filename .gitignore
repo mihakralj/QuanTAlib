@@ -58,3 +58,6 @@ docfx/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+
+# Roo Code local config
+.roo/

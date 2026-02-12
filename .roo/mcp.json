@@ -9,8 +9,6 @@
 				"scan_list",
 				"symbol",
 				"source",
-				"explore",
-				"understand",
 				"metrics",
 				"hierarchy",
 				"deps",
@@ -21,7 +19,10 @@
 				"nuget_vulnerabilities",
 				"__unlock_csharp_analysis__",
 				"refs",
-				"search"
+				"search",
+				"explore",
+				"diag",
+				"understand"
 			],
 			"disabled": false
 		}

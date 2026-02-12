@@ -35,7 +35,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Aberration Bands** | [Abber](../lib/channels/abber/abber.md) | - | - | - | - |
 | **Absolute Price Oscillator** | [Apo](../lib/momentum/apo/apo.md) | ✔️ | ✔️ | - | ✔️ |
 | **Acceleration Bands** | [AccBands](../lib/channels/accbands/accbands.md) | - | - | - | - |
-| **Acceleration Oscillator** | Ac | - | - | - | ❔ |
+| **Acceleration Oscillator** | [Ac](../lib/oscillators/ac/Ac.md) | - | - | - | ❔ |
 | **Accumulation/Distribution Line** | [Adl](../lib/volume/adl/adl.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Accumulation/Distribution Oscillator** | [Adosc](../lib/volume/adosc/adosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Adaptive Price Zone** | [Apz](../lib/channels/apz/apz.md) | - | - | - | ❔ |
@@ -62,8 +62,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Bias** | [Bias](../lib/statistics/bias/Bias.md) | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
 | **Blackman Window MA** | [Blma](../lib/trends/blma/Blma.md) | - | - | - | - |
-| **Bollinger %B** | Bbb | - | - | - | ❔ |
-| **Bollinger Band Squeeze** | Bbs | - | - | - | - |
+| **Bollinger %B** | [Bbb](../lib/oscillators/bbb/Bbb.md) | - | - | - | ❔ |
+| **Bollinger Band Squeeze** | [Bbs](../lib/oscillators/bbs/Bbs.md) | - | - | - | ❔ |
 | **Bollinger Band Width** | Bbw | - | - | - | ❔ |
 | **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
 | **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
@@ -72,7 +72,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
 | **Chaikin Money Flow** | Cmf | - | - | ✔️ | ❔ |
 | **Chaikin Volatility** | [Cvi](../lib/volatility/cvi/Cvi.md) | - | ✔️ | - | ❔ |
-| **Chande Forecast Oscillator** | Cfo | - | - | - | ❔ |
+| **Chande Forecast Oscillator** | [Cfo](../lib/oscillators/cfo/Cfo.md) | - | ✔️ | - | ❔ |
 | **Chande Momentum Oscillator** | Cmo | ✔️ | ✔️ | ✔️ | ❔ |
 | **Chebyshev Type I Filter** | Cheby1 | - | - | - | - |
 | **Chebyshev Type II Filter** | Cheby2 | - | - | - | - |
@@ -87,7 +87,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
 | **Decay Min-Max Channel** | [Decaychannel](../lib/channels/decaychannel/decaychannel.md) | - | - | - | - |
 | **DeMark Pivot Points** | Pivotdem | - | - | - | ❔ |
-| **Detrended Price Oscillator** | Dpo | - | ✔️ | ✔️ | ❔ |
+| **Detrended Price Oscillator** | [Dpo](../lib/oscillators/dpo/Dpo.md) | - | ⚠️ | - | ❔ |
 | **Detrended Synthetic Price** | Dsp | - | - | - | ❔ |
 | **Deviation-Scaled MA** | Dsma | - | - | - | ❔ |
 | **Directional Movement Index** | Dx | ✔️ | ✔️ | - | - |
@@ -114,7 +114,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Exponential Weighted MA Volatility** | [Ewma](../lib/volatility/ewma/Ewma.md) | - | - | - | - |
 | **Extended Traditional Pivots** | Pivotext | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
-| **Fisher Transform** | Fisher | - | ✔️ | ✔️ | ❔ |
+| **Fisher Transform** | [Fisher](../lib/oscillators/fisher/Fisher.md) | - | ✔️ | ✔️ | ❔ |
 | **Force Index** | [Efi](../lib/volume/efi/Efi.md) | - | - | - | - |
 | **Fractal Chaos Bands** | [Fcb](../lib/channels/fcb/fcb.md) | - | - | ✔️ | ❔ |
 | **Garman-Klass Volatility** | [Gkv](../lib/volatility/gkv/Gkv.md) | - | - | - | - |
@@ -143,7 +143,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hull Moving Average** | [Hma](../lib/trends/hma/hma.md) | - | ✔️ | ✔️ | [⚠️](../lib/trends/hma/hma.md#external-library-discrepancies) |
 | **Hurst Exponent** | Hurst | - | - | ✔️ | ❔ |
 | **Ichimoku Cloud** | Ichimoku | - | - | ✔️ | ❔ |
-| **Inertia** | Inertia | - | - | - | ❔ |
+| **Inertia** | [Inertia](../lib/oscillators/inertia/Inertia.md) | - | - | - | ❔ |
 | **Interquartile Range** | Iqr | - | - | - | - |
 | **Intraday Intensity Index** | [Iii](../lib/volume/iii/Iii.md) | - | - | - | - |
 | **Intraday Momentum Index** | Imi | - | - | - | ❔ |
@@ -154,7 +154,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Jurik Volatility Normalized [0,100]** | [Jvoltyn](../lib/volatility/jvoltyn/Jvoltyn.md) | - | - | - | - |
 | **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **KDJ Indicator** | Kdj | - | - | - | - |
+| **KDJ Indicator** | [Kdj](../lib/oscillators/kdj/Kdj.md) | - | - | - | - |
 | **Keltner Channel** | [Kchannel](../lib/channels/kchannel/kchannel.md) | - | - | ✔️ | ❔ |
 | **Kendall Rank Correlation** | Kendall | - | - | - | ❔ |
 | **Klinger Volume Oscillator** | [Kvo](../lib/volume/kvo/Kvo.md) | - | ✔️ | ✔️ | ❔ |
@@ -205,7 +205,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Percentile** | Percentile | - | - | - | - |
 | **Pivot Points** | Pivot | - | - | ✔️ | ❔ |
 | **Positive Volume Index** | [Pvi](../lib/volume/pvi/Pvi.md) | - | ✔️ | - | - |
-| **Pretty Good Oscillator** | Pgo | - | - | - | ❔ |
+| **Pretty Good Oscillator** | [Pgo](../lib/oscillators/pgo/Pgo.md) | - | - | - | ❔ |
 | **Price Channel** | [Pchannel](../lib/channels/pchannel/pchannel.md) | - | - | - | ✔️ |
 | **Price Momentum Oscillator** | Pmo | - | - | ✔️ | ❔ |
 | **Price Relative Strength** | Prs | - | - | ✔️ | - |
@@ -248,8 +248,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |
 | **Stochastic Fast** | Stochf | ✔️ | - | - | ❔ |
-| **Stochastic Momentum Index** | Smi | - | - | ✔️ | ❔ |
-| **Stochastic Oscillator** | Stoch | ✔️ | ✔️ | ✔️ | ❔ |
+| **Stochastic Momentum Index** | [Smi](../lib/oscillators/smi/Smi.md) | - | - | ✔️ | ❔ |
+| **Stochastic Oscillator** | [Stoch](../lib/oscillators/stoch/Stoch.md) | - | - | ✔️ | - |
 | **Stochastic RSI** | Stochrsi | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stoller Average Range Channel** | [Starchannel](../lib/channels/starchannel/starchannel.md) | - | - | - | ❔ |
 | **Super Trend Bands** | [Stbands](../lib/channels/stbands/Stbands.md) | - | - | - | - |

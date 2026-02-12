@@ -103,8 +103,19 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**AC**](../lib/oscillators/ac/Ac.md) | Acceleration Oscillator | AO acceleration (2nd derivative) |
 | [**AO**](../lib/oscillators/ao/Ao.md) | Awesome Oscillator | Midpoint momentum |
 | [**APO**](../lib/oscillators/apo/Apo.md) | Absolute Price Oscillator | EMA difference |
+| [**BBB**](../lib/oscillators/bbb/Bbb.md) | Bollinger %B | Position within Bollinger Bands |
+| [**BBS**](../lib/oscillators/bbs/Bbs.md) | Bollinger Band Squeeze | BB inside KC squeeze detection |
+| [**CFO**](../lib/oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Forecast error percentage |
+| [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
+| [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Fisher Transform | Gaussian-normalized price reversal |
+| [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
+| [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
+| [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
+| [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
+| [**STOCH**](../lib/oscillators/stoch/Stoch.md) | Stochastic Oscillator | Close within N-period H/L range (%K/%D) |
 | [**MACD**](../lib/momentum/macd/Macd.md) | MACD | EMA crossover system |
 | [**RSI**](../lib/momentum/rsi/Rsi.md) | Relative Strength Index | Bounded 0-100 momentum |
 | [**ULTOSC**](../lib/oscillators/ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe weighted |
