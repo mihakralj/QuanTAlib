@@ -170,6 +170,24 @@ public sealed class AroonOsc : ITValuePublisher
     }
 
     /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
+    /// <summary>
     /// Calculates Aroon oscillator values using the shared O(n) algorithm from Aroon.
     /// </summary>
     /// <param name="high">High prices</param>

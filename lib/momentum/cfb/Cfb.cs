@@ -299,6 +299,25 @@ public sealed class Cfb : ITValuePublisher, IDisposable
         return new TSeries(t, v);
     }
 
+
+    /// <summary>
+    /// Initializes the indicator state using the provided value series history.
+    /// </summary>
+    /// <param name="source">Historical input data.</param>
+    public void Prime(TSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
     public static TSeries Batch(TSeries source, int[]? lengths = null)
     {
         var cfb = new Cfb(lengths);

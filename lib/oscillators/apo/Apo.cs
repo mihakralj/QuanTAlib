@@ -161,6 +161,25 @@ public sealed class Apo : ITValuePublisher, IDisposable
         Update(args.Value, args.IsNew);
     }
 
+
+    /// <summary>
+    /// Initializes the indicator state using the provided series history.
+    /// </summary>
+    /// <param name="source">Historical data.</param>
+    public void Prime(TSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(new TValue(new DateTime(source.Times[i], DateTimeKind.Utc), source.Values[i]), isNew: true);
+        }
+    }
+
     /// <summary>
     /// Calculates APO for the entire series using a new instance.
     /// </summary>

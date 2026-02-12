@@ -179,6 +179,25 @@ public sealed class Va : ITValuePublisher
         return new TSeries(t, v);
     }
 
+
+    /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
     /// <summary>
     /// Calculates VA for a series of bars (static batch mode).
     /// </summary>

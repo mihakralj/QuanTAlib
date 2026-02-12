@@ -69,16 +69,6 @@ public sealed class Cci : ITValuePublisher
     public int WarmupPeriod => _period;
 
     /// <summary>
-    /// Returns the default warmup period (<see cref="DefaultPeriod"/>).
-    /// </summary>
-    /// <remarks>
-    /// This static accessor is provided for backward compatibility. Prefer the instance
-    /// <see cref="WarmupPeriod"/> property which returns the actual configured period.
-    /// </remarks>
-    [Obsolete("Use the instance WarmupPeriod property instead. This static accessor returns the default period (20) and will be removed in a future major version.")]
-    public static int DefaultWarmupPeriod => DefaultPeriod;
-
-    /// <summary>
     /// Creates a CCI indicator with specified period.
     /// </summary>
     /// <param name="period">Lookback period (must be >= 2, default 20)</param>

@@ -36,6 +36,11 @@ public sealed class Dmx : ITValuePublisher
     public TValue Last { get; private set; }
     public int WarmupPeriod { get; }
 
+    /// <summary>
+    /// True when the indicator has enough data for valid calculations.
+    /// </summary>
+    public bool IsHot => _jmaDMp.IsHot && _jmaDMm.IsHot && _jmaTR.IsHot;
+
     public Dmx(int period)
     {
         Name = $"Dmx({period})";
@@ -181,7 +186,24 @@ public sealed class Dmx : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
     public static void Batch(ReadOnlySpan<double> high,
                                  ReadOnlySpan<double> low,
                                  ReadOnlySpan<double> close,

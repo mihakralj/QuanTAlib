@@ -425,6 +425,16 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         }
     }
 
+    /// <summary>
+    /// Calculates Jbands and returns both the results and the indicator instance.
+    /// </summary>
+    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Jbands Indicator) Calculate(TSeries source, int period, int phase = 0, double power = 0.45)
+    {
+        var indicator = new Jbands(period, phase, power);
+        var results = indicator.Update(source);
+        return (results, indicator);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateTrimmedMean(double fallback)
     {

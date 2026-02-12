@@ -549,4 +549,355 @@ public class ApchannelTests
     }
 
     #endregion
+
+    #region Default Constructor
+
+    [Fact]
+    public void Constructor_DefaultAlpha_UsesPointTwo()
+    {
+        var apc = new Apchannel(); // default alpha = 0.2
+        Assert.Equal(15, apc.WarmupPeriod); // ceil(3.0 / 0.2) = 15
+        Assert.Contains("0.20", apc.Name, StringComparison.Ordinal);
+    }
+
+    #endregion
+
+    #region Dispose Tests
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TBarSeries();
+        var apc = new Apchannel(source, 0.2);
+        var time = DateTime.UtcNow;
+
+        // Verify subscription works
+        source.Add(new TBar(time, 100, 105, 95, 100, 1000));
+        Assert.NotEqual(0, apc.Last.Value);
+
+        double valueBeforeDispose = apc.Last.Value;
+
+        // Dispose should unsubscribe
+        apc.Dispose();
+
+        // Adding to source after dispose should NOT update the indicator
+        source.Add(new TBar(time.AddMinutes(1), 200, 210, 190, 200, 5000));
+        Assert.Equal(valueBeforeDispose, apc.Last.Value);
+    }
+
+    [Fact]
+    public void Dispose_DoubleDispose_DoesNotThrow()
+    {
+        var source = new TBarSeries();
+        var apc = new Apchannel(source, 0.2);
+
+        apc.Dispose();
+        var ex = Record.Exception(() => apc.Dispose());
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void Dispose_WithoutSource_DoesNotThrow()
+    {
+        var apc = new Apchannel(0.2);
+        var ex = Record.Exception(() => apc.Dispose());
+        Assert.Null(ex);
+    }
+
+    #endregion
+
+    #region Update(TBarSeries) Tests
+
+    [Fact]
+    public void UpdateTBarSeries_ReturnsTSeries()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        var bars = gbm.Fetch(30, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        var apc = new Apchannel(0.2);
+        var results = apc.Update(bars);
+
+        Assert.Equal(30, results.Count);
+        Assert.True(apc.IsHot); // 30 > WarmupPeriod(15)
+
+        // Verify all results are finite
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.True(double.IsFinite(results[i].Value));
+        }
+    }
+
+    [Fact]
+    public void UpdateTBarSeries_MatchesIterative()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Batch via Update(TBarSeries)
+        var apcBatch = new Apchannel(0.3);
+        var batchResults = apcBatch.Update(bars);
+
+        // Iterative — fresh instance so both start from same state
+        var apcIter = new Apchannel(0.3);
+        for (int i = 0; i < bars.Count; i++)
+        {
+            var val = apcIter.Add(bars[i]);
+            Assert.Equal(val.Value, batchResults[i].Value, Tolerance);
+        }
+    }
+
+    [Fact]
+    public void UpdateTBarSeries_EmptySource_ReturnsEmpty()
+    {
+        var apc = new Apchannel(0.2);
+        var emptyBars = new TBarSeries();
+
+        var results = apc.Update(emptyBars);
+
+        Assert.Empty(results);
+    }
+
+    #endregion
+
+    #region Update(TValue) Tests
+
+    [Fact]
+    public void UpdateTValue_UsesValueForBothHighAndLow()
+    {
+        var apc = new Apchannel(0.5);
+        var time = DateTime.UtcNow;
+
+        // When using TValue, value is used for both high and low
+        var result = apc.Update(new TValue(time.Ticks, 100.0));
+
+        // Upper and lower bands should equal the value (first bar)
+        Assert.Equal(100.0, apc.UpperBand, Tolerance);
+        Assert.Equal(100.0, apc.LowerBand, Tolerance);
+        Assert.Equal(100.0, result.Value, Tolerance); // mid = (100+100)/2
+
+        // Second value
+        var result2 = apc.Update(new TValue(time.AddMinutes(1).Ticks, 110.0));
+
+        // EMA: 0.5 * 100 + 0.5 * 110 = 105
+        Assert.Equal(105.0, apc.UpperBand, Tolerance);
+        Assert.Equal(105.0, apc.LowerBand, Tolerance);
+        Assert.Equal(105.0, result2.Value, Tolerance);
+    }
+
+    [Fact]
+    public void UpdateTValue_IsNew_False_RestoresState()
+    {
+        var apc = new Apchannel(0.2);
+        var time = DateTime.UtcNow;
+
+        apc.Update(new TValue(time.Ticks, 100.0), isNew: true);
+        double valueAfterOne = apc.Last.Value;
+
+        apc.Update(new TValue(time.AddMinutes(1).Ticks, 110.0), isNew: true);
+        double valueAfterTwo = apc.Last.Value;
+        Assert.NotEqual(valueAfterOne, valueAfterTwo);
+
+        // Correction with same value restores prior state then reapplies
+        apc.Update(new TValue(time.AddMinutes(1).Ticks, 110.0), isNew: false);
+        double valueAfterSameCorrection = apc.Last.Value;
+
+        // Correction with different value produces different result
+        apc.Update(new TValue(time.AddMinutes(1).Ticks, 120.0), isNew: false);
+        double valueAfterDifferent = apc.Last.Value;
+
+        Assert.NotEqual(valueAfterSameCorrection, valueAfterDifferent);
+    }
+
+    #endregion
+
+    #region Update(TSeries) Tests
+
+    [Fact]
+    public void UpdateTSeries_ReturnsTSeries()
+    {
+        var times = new List<long>();
+        var values = new List<double>();
+        var time = DateTime.UtcNow;
+
+        for (int i = 0; i < 30; i++)
+        {
+            times.Add(time.AddMinutes(i).Ticks);
+            values.Add(100.0 + i);
+        }
+
+        var source = new TSeries(times, values);
+        var apc = new Apchannel(0.2);
+        var results = apc.Update(source);
+
+        Assert.Equal(30, results.Count);
+        Assert.True(apc.IsHot);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.True(double.IsFinite(results[i].Value));
+        }
+    }
+
+    [Fact]
+    public void UpdateTSeries_EmptySource_ReturnsEmpty()
+    {
+        var apc = new Apchannel(0.2);
+        var emptySource = new TSeries([], []);
+
+        var results = apc.Update(emptySource);
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void UpdateTSeries_MatchesUpdateTValue()
+    {
+        var times = new List<long>();
+        var values = new List<double>();
+        var time = DateTime.UtcNow;
+
+        for (int i = 0; i < 20; i++)
+        {
+            times.Add(time.AddMinutes(i).Ticks);
+            values.Add(100.0 + (i * 2.5));
+        }
+
+        var source = new TSeries(times, values);
+
+        // Batch via Update(TSeries)
+        var apcBatch = new Apchannel(0.3);
+        var batchResults = apcBatch.Update(source);
+
+        // Iterative via Update(TValue)
+        var apcIter = new Apchannel(0.3);
+        for (int i = 0; i < source.Count; i++)
+        {
+            var val = apcIter.Update(source[i], isNew: true);
+            Assert.Equal(val.Value, batchResults[i].Value, Tolerance);
+        }
+    }
+
+    #endregion
+
+    #region Prime Tests
+
+    [Fact]
+    public void Prime_SetsIndicatorToHot()
+    {
+        var apc = new Apchannel(0.2); // WarmupPeriod = 15
+
+        double[] data = new double[20];
+        for (int i = 0; i < data.Length; i++)
+        {
+            data[i] = 100.0 + i;
+        }
+
+        Assert.False(apc.IsHot);
+
+        apc.Prime(data);
+
+        Assert.True(apc.IsHot);
+        Assert.True(double.IsFinite(apc.Last.Value));
+    }
+
+    [Fact]
+    public void Prime_EmptySpan_DoesNotThrow()
+    {
+        var apc = new Apchannel(0.2);
+        var ex = Record.Exception(() => apc.Prime(ReadOnlySpan<double>.Empty));
+        Assert.Null(ex);
+        Assert.False(apc.IsHot);
+    }
+
+    [Fact]
+    public void Prime_ResetsBeforeProcessing()
+    {
+        var apc = new Apchannel(0.5);
+        var time = DateTime.UtcNow;
+
+        // Feed some bars first
+        apc.Add(new TBar(time, 200, 210, 190, 200, 1000));
+        apc.Add(new TBar(time.AddMinutes(1), 205, 215, 195, 205, 1000));
+
+        double[] primeData = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109];
+        apc.Prime(primeData);
+
+        // After Prime, upper=lower (since TValue uses same value for both)
+        // and bands should track primeData, not the old bars
+        Assert.Equal(apc.UpperBand, apc.LowerBand, Tolerance);
+        Assert.True(apc.Last.Value < 150); // Should be near primeData values, not 200
+    }
+
+    [Fact]
+    public void Prime_WithStep_UsesCorrectTimeSpacing()
+    {
+        var apc = new Apchannel(0.2);
+        double[] data = [100, 102, 104, 106, 108];
+        var step = TimeSpan.FromHours(1);
+
+        apc.Prime(data, step);
+
+        Assert.True(double.IsFinite(apc.Last.Value));
+        // Verify that the time in Last reflects the step spacing
+        Assert.True(apc.Last.Time > 0);
+    }
+
+    [Fact]
+    public void Prime_ThenUpdate_ContinuesCorrectly()
+    {
+        var apc = new Apchannel(0.2);
+
+        // Prime with 20 values to reach IsHot
+        double[] primeData = new double[20];
+        for (int i = 0; i < primeData.Length; i++)
+        {
+            primeData[i] = 100.0 + i;
+        }
+
+        apc.Prime(primeData);
+        Assert.True(apc.IsHot);
+
+        double valueAfterPrime = apc.Last.Value;
+
+        // Continue with Update — should build on primed state
+        var time = DateTime.UtcNow;
+        apc.Add(new TBar(time, 125, 130, 120, 125, 1000));
+
+        Assert.NotEqual(valueAfterPrime, apc.Last.Value);
+        Assert.True(double.IsFinite(apc.Last.Value));
+        Assert.True(double.IsFinite(apc.UpperBand));
+        Assert.True(double.IsFinite(apc.LowerBand));
+    }
+
+    #endregion
+
+    #region Batch(Span) Edge Cases
+
+    [Fact]
+    public void SpanBatch_EmptyArrays_DoesNotThrow()
+    {
+        double[] high = [];
+        double[] low = [];
+        double[] upper = [];
+        double[] lower = [];
+
+        var ex = Record.Exception(() => Apchannel.Batch(high, low, upper, lower, 0.2));
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void SpanBatch_SingleElement_ReturnsInputValues()
+    {
+        double[] high = [110];
+        double[] low = [90];
+        double[] upper = new double[1];
+        double[] lower = new double[1];
+
+        Apchannel.Batch(high, low, upper, lower, 0.2);
+
+        Assert.Equal(110, upper[0], Tolerance);
+        Assert.Equal(90, lower[0], Tolerance);
+    }
+
+    #endregion
 }

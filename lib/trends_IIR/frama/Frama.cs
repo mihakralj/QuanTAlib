@@ -242,6 +242,25 @@ public sealed class Frama : ITValuePublisher, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
+
+    /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
     public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != output.Length)

@@ -228,6 +228,25 @@ public sealed class Vortex : ITValuePublisher
     }
 
     /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
+    /// <summary>
     /// Calculates Vortex indicator values using O(n) sliding window algorithm.
     /// </summary>
     /// <param name="high">High prices</param>
@@ -238,7 +257,7 @@ public sealed class Vortex : ITValuePublisher
     /// <param name="viMinus">Output VI- values</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void Batch(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close,
-                                 int period, Span<double> viPlus, Span<double> viMinus)
+        int period, Span<double> viPlus, Span<double> viMinus)
     {
         int len = high.Length;
         if (len == 0 || len != low.Length || len != close.Length || len != viPlus.Length || len != viMinus.Length || period <= 1)

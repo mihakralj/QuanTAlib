@@ -583,4 +583,212 @@ public class TSeriesTests
         Assert.Equal(1.0, values[0]);
         Assert.Equal(2.0, values[1]);
     }
+
+    // ────────────────────────────────────────────────────────────────────
+    // NEW TESTS: ShareStorageTag struct
+    // ────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ShareStorageTag_Instance_IsDefault()
+    {
+        var tag = ShareStorageTag.Instance;
+
+        // It's a readonly struct with no fields — default should work
+        Assert.Equal(default(ShareStorageTag), tag);
+    }
+
+    [Fact]
+    public void ShareStorageTag_TwoInstances_AreEqual()
+    {
+        var a = ShareStorageTag.Instance;
+        var b = ShareStorageTag.Instance;
+
+        Assert.Equal(a, b);
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // NEW TESTS: TSeriesEnumerator struct
+    // ────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void TSeriesEnumerator_Reset_AllowsReIteration()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+
+        var enumerator = series.GetEnumerator();
+
+        // First pass
+        int count1 = 0;
+        while (enumerator.MoveNext()) { count1++; }
+        Assert.Equal(2, count1);
+
+        // Reset and re-iterate
+        enumerator.Reset();
+        int count2 = 0;
+        while (enumerator.MoveNext()) { count2++; }
+        Assert.Equal(2, count2);
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Dispose_DoesNotThrow()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        var enumerator = series.GetEnumerator();
+        enumerator.MoveNext();
+        enumerator.Dispose(); // Should be no-op
+
+        Assert.Equal(1.0, enumerator.Current.Value);
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Equals_SameState_ReturnsTrue()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        var a = series.GetEnumerator();
+        var b = series.GetEnumerator();
+
+        // Both at initial state (_index = -1)
+        Assert.True(a.Equals(b));
+        Assert.True(a == b);
+        Assert.False(a != b);
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Equals_DifferentState_ReturnsFalse()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+
+        var a = series.GetEnumerator();
+        var b = series.GetEnumerator();
+
+        a.MoveNext(); // a is at index 0, b is at -1
+
+        Assert.False(a.Equals(b));
+        Assert.False(a == b);
+        Assert.True(a != b);
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Equals_Object_SameState_ReturnsTrue()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        var a = series.GetEnumerator();
+        object b = series.GetEnumerator();
+
+        Assert.True(a.Equals(b));
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Equals_Object_DifferentType_ReturnsFalse()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        var a = series.GetEnumerator();
+
+        Assert.False(a.Equals("not an enumerator"));
+        Assert.False(a.Equals(null));
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_GetHashCode_SameState_SameHash()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        var a = series.GetEnumerator();
+        var b = series.GetEnumerator();
+
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_GetHashCode_DifferentState_LikelyDifferentHash()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+
+        var a = series.GetEnumerator();
+        var b = series.GetEnumerator();
+        a.MoveNext();
+
+        Assert.NotEqual(a.GetHashCode(), b.GetHashCode());
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_Current_ViaIEnumerator_ReturnsBoxedTValue()
+    {
+        var series = new TSeries();
+        series.Add(100, 42.0);
+
+        IEnumerator enumerator = series.GetEnumerator();
+        enumerator.MoveNext();
+
+        object current = enumerator.Current;
+        Assert.IsType<TValue>(current);
+        Assert.Equal(42.0, ((TValue)current).Value);
+    }
+
+    [Fact]
+    public void TSeriesEnumerator_DifferentSeries_NotEqual()
+    {
+        var series1 = new TSeries();
+        series1.Add(100, 1.0);
+
+        var series2 = new TSeries();
+        series2.Add(100, 1.0);
+
+        var a = series1.GetEnumerator();
+        var b = series2.GetEnumerator();
+
+        // Different underlying list references -> not equal
+        Assert.False(a.Equals(b));
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // NEW TESTS: Constructor defensive copy verification
+    // ────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Constructor_WithReadOnlyLists_MakesDefensiveCopy()
+    {
+        var times = new List<long> { 100, 200 };
+        var values = new List<double> { 1.0, 2.0 };
+
+        // Use IReadOnlyList<T> constructor which makes defensive copies
+        var series = new TSeries((IReadOnlyList<long>)times, (IReadOnlyList<double>)values);
+
+        // Mutate original lists
+        times.Add(300);
+        values.Add(3.0);
+
+        // Series should NOT reflect the mutation (defensive copy was made)
+        Assert.Equal(2, series.Count);
+    }
+
+    [Fact]
+    public void Constructor_WithReadOnlyLists_OriginalMutationDoesNotAffectSeries()
+    {
+        long[] originalTimes = [100, 200, 300];
+        double[] originalValues = [1.0, 2.0, 3.0];
+
+        var series = new TSeries(originalTimes, originalValues);
+
+        // Mutate original arrays
+        originalValues[0] = 999.0;
+
+        // Series should NOT reflect the mutation (defensive copy was made)
+        Assert.Equal(1.0, series[0].Value);
+    }
 }

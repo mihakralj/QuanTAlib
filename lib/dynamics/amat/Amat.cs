@@ -304,6 +304,18 @@ public sealed class Amat : ITValuePublisher, IDisposable
     }
 
     /// <summary>
+    /// Updates the indicator with a bar value.
+    /// </summary>
+    /// <param name="bar">Input bar</param>
+    /// <param name="isNew">True if this is a new bar, False if it's an update to the last bar</param>
+    /// <returns>Updated trend value (+1, -1, or 0)</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TBar bar, bool isNew = true)
+    {
+        return Update(new TValue(bar.Time, bar.Close), isNew);
+    }
+
+    /// <summary>
     /// Updates the indicator with a series of values.
     /// </summary>
     /// <param name="source">Input series</param>
@@ -380,6 +392,24 @@ public sealed class Amat : ITValuePublisher, IDisposable
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
     }
 
     /// <summary>

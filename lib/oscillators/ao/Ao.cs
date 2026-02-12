@@ -203,6 +203,24 @@ public sealed class Ao : ITValuePublisher
     }
 
     /// <summary>
+    /// Initializes the indicator state using the provided bar series history.
+    /// </summary>
+    /// <param name="source">Historical bar data.</param>
+    public void Prime(TBarSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(source[i], isNew: true);
+        }
+    }
+
+    /// <summary>
     /// Calculates AO over OHLC spans into a preallocated output span.
     /// Median price is computed as (High + Low) / 2.
     /// </summary>

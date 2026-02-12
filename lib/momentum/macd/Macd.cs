@@ -129,6 +129,25 @@ public sealed class Macd : ITValuePublisher, IDisposable
         return new TSeries(t, v);
     }
 
+
+    /// <summary>
+    /// Initializes the indicator state using the provided series history.
+    /// </summary>
+    /// <param name="source">Historical data.</param>
+    public void Prime(TSeries source)
+    {
+        Reset();
+        if (source.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            Update(new TValue(new DateTime(source.Times[i], DateTimeKind.Utc), source.Values[i]), isNew: true);
+        }
+    }
+
     public static TSeries Batch(TSeries source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
     {
         var indicator = new Macd(fastPeriod, slowPeriod, signalPeriod);

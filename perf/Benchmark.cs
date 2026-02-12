@@ -159,7 +159,7 @@ public class IndicatorBenchmarks
     // ==================== ADOSC ====================
     [BenchmarkCategory("ADOSC")]
     [Benchmark(Description = "QuanTAlib ADOSC (Span)")]
-    public void QuanTAlib_Adosc_Span() => Adosc.Calculate(_highValues.AsSpan(), _lowValues.AsSpan(), _closeValues.AsSpan(), _volumeValues.AsSpan(), _quantalibOutput.AsSpan(), 3, 10);
+    public void QuanTAlib_Adosc_Span() => Adosc.Batch(_highValues.AsSpan(), _lowValues.AsSpan(), _closeValues.AsSpan(), _volumeValues.AsSpan(), _quantalibOutput.AsSpan(), 3, 10);
 
     [BenchmarkCategory("ADOSC")]
     [Benchmark(Description = "QuanTAlib ADOSC (Batch)")]
@@ -342,7 +342,7 @@ public class IndicatorBenchmarks
     // ==================== HMA ====================
     [BenchmarkCategory("HMA")]
     [Benchmark(Description = "QuanTAlib HMA (Span)")]
-    public void QuanTAlib_Hma_Span() => Hma.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    public void QuanTAlib_Hma_Span() => Hma.Batch(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
     [BenchmarkCategory("HMA")]
     [Benchmark(Description = "QuanTAlib HMA (Batch)")]
@@ -391,7 +391,7 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("SKEW")]
     [Benchmark(Description = "QuanTAlib Skew (Batch)")]
-    public TSeries QuanTAlib_Skew_TSeries() => Skew.Calculate(_closeTseries, Period);
+    public TSeries QuanTAlib_Skew_TSeries() => Skew.Batch(_closeTseries, Period);
 
     [BenchmarkCategory("SKEW")]
     [Benchmark(Description = "QuanTAlib Skew (Streaming)")]
