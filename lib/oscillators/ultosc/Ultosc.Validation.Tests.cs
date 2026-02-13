@@ -2,46 +2,179 @@ using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using TALib;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
+/// <summary>
+/// Ultimate Oscillator validation tests.
+/// Cross-validates against Skender.Stock.Indicators.GetUltimate,
+/// TALib.NETCore, Tulip.NETCore, OoplesFinance, and self-consistency checks.
+/// </summary>
 public sealed class UltoscValidationTests : IDisposable
 {
-    private readonly ValidationTestData _testData;
+    private readonly ValidationTestData _data = new();
     private readonly ITestOutputHelper _output;
     private bool _disposed;
 
     public UltoscValidationTests(ITestOutputHelper output)
     {
         _output = output;
-        _testData = new ValidationTestData();
     }
 
     public void Dispose()
     {
-        Dispose(true);
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     private void Dispose(bool disposing)
     {
-        if (_disposed)
+        if (!_disposed && disposing)
         {
-            return;
-        }
-
-        _disposed = true;
-
-        if (disposing)
-        {
-            _testData?.Dispose();
+            _data.Dispose();
+            _disposed = true;
         }
     }
 
-    [Fact]
-    public void Validate_Skender_Batch()
+    private static TBarSeries GenerateSeries(int count, int seed = 42)
     {
-        int[][] periodSets = { [7, 14, 28] };
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: seed);
+        return gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+    }
+
+    // --- A) Streaming vs Batch agreement ---
+
+    [Fact]
+    public void Streaming_Matches_Batch()
+    {
+        var series = GenerateSeries(300);
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        var ultosc = new Ultosc(p1, p2, p3);
+        for (int i = 0; i < series.Count; i++)
+        {
+            ultosc.Update(series[i]);
+        }
+
+        var batch = Ultosc.Batch(series, p1, p2, p3);
+
+        Assert.Equal(ultosc.Last.Value, batch[^1].Value, 1e-6);
+    }
+
+    // --- B) Span matches TBarSeries ---
+
+    [Fact]
+    public void Span_Matches_TBarSeries()
+    {
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        double[] hData = _data.HighPrices.ToArray();
+        double[] lData = _data.LowPrices.ToArray();
+        double[] cData = _data.ClosePrices.ToArray();
+        double[] spanOutput = new double[hData.Length];
+
+        Ultosc.Batch(hData, lData, cData, spanOutput, p1, p2, p3);
+
+        var ultosc = new Ultosc(p1, p2, p3);
+        var tbarResult = ultosc.Update(_data.Bars);
+
+        for (int i = 0; i < tbarResult.Count; i++)
+        {
+            Assert.Equal(tbarResult[i].Value, spanOutput[i], 1e-10);
+        }
+
+        _output.WriteLine("Span calculation matches TBarSeries batch calculation.");
+    }
+
+    // --- C) Constant bars → Ultosc = 50 ---
+
+    [Fact]
+    public void ConstantBars_ValueIs_50()
+    {
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+        int count = 60;
+
+        var bars = new TBarSeries();
+        for (int i = 0; i < count; i++)
+        {
+            bars.Add(new TBar(DateTime.UtcNow.AddMinutes(i), 50, 50, 50, 50, 100));
+        }
+
+        var result = Ultosc.Batch(bars, p1, p2, p3);
+
+        // When all OHLC are identical, BP=0, TR=0 → avg=0.5 each → Ultosc=50
+        for (int i = p3; i < count; i++)
+        {
+            Assert.Equal(50.0, result.Values[i], 1e-10);
+        }
+    }
+
+    // --- D) Directional correctness ---
+
+    [Fact]
+    public void Rising_Produces_HighValues()
+    {
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        var bars = new TBarSeries();
+        for (int i = 0; i < 60; i++)
+        {
+            double price = 100.0 + (i * 2.0);
+            bars.Add(new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price + 0.5, 100));
+        }
+
+        var ultosc = new Ultosc(p1, p2, p3);
+        for (int i = 0; i < bars.Count; i++)
+        {
+            ultosc.Update(bars[i]);
+        }
+
+        // Close consistently near high → strong buying pressure → Ultosc > 50
+        Assert.True(ultosc.Last.Value > 50.0,
+            $"Expected > 50 for rising prices, got {ultosc.Last.Value}");
+    }
+
+    [Fact]
+    public void Falling_Produces_LowValues()
+    {
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        var bars = new TBarSeries();
+        for (int i = 0; i < 60; i++)
+        {
+            double price = 200.0 - (i * 2.0);
+            bars.Add(new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price - 0.5, 100));
+        }
+
+        var ultosc = new Ultosc(p1, p2, p3);
+        for (int i = 0; i < bars.Count; i++)
+        {
+            ultosc.Update(bars[i]);
+        }
+
+        // Close consistently near low → weak buying pressure → Ultosc < 50
+        Assert.True(ultosc.Last.Value < 50.0,
+            $"Expected < 50 for falling prices, got {ultosc.Last.Value}");
+    }
+
+    // --- E) Cross-validation with Skender (batch) ---
+
+    [Fact]
+    public void Skender_Batch_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
 
         foreach (var periods in periodSets)
         {
@@ -49,23 +182,23 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (batch TBarSeries)
             var ultosc = new Ultosc(p1, p2, p3);
-            var qResult = ultosc.Update(_testData.Bars);
+            var qResult = ultosc.Update(_data.Bars);
 
-            // Calculate Skender Ultimate Oscillator
-            var sResult = _testData.SkenderQuotes.GetUltimate(p1, p2, p3).ToList();
+            var sResult = _data.SkenderQuotes.GetUltimate(p1, p2, p3).ToList();
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s.Ultimate, tolerance: ValidationHelper.SkenderTolerance);
         }
-        _output.WriteLine("Ultosc Batch(TBarSeries) validated successfully against Skender");
+
+        _output.WriteLine("Skender batch validation passed.");
     }
 
+    // --- F) Cross-validation with Skender (streaming) ---
+
     [Fact]
-    public void Validate_Skender_Streaming()
+    public void Skender_Streaming_Matches()
     {
-        int[][] periodSets = { [7, 14, 28] };
+        int[][] periodSets = [[7, 14, 28]];
 
         foreach (var periods in periodSets)
         {
@@ -73,32 +206,31 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (streaming)
             var ultosc = new Ultosc(p1, p2, p3);
             var qResults = new List<double>();
-            foreach (var item in _testData.Bars)
+            foreach (var item in _data.Bars)
             {
                 qResults.Add(ultosc.Update(item).Value);
             }
 
-            // Calculate Skender Ultimate Oscillator
-            var sResult = _testData.SkenderQuotes.GetUltimate(p1, p2, p3).ToList();
+            var sResult = _data.SkenderQuotes.GetUltimate(p1, p2, p3).ToList();
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResults, sResult, (s) => s.Ultimate, tolerance: ValidationHelper.SkenderTolerance);
         }
-        _output.WriteLine("Ultosc Streaming validated successfully against Skender");
+
+        _output.WriteLine("Skender streaming validation passed.");
     }
 
-    [Fact]
-    public void Validate_Talib_Batch()
-    {
-        int[][] periodSets = { [7, 14, 28] };
+    // --- G) Cross-validation with TA-Lib (batch) ---
 
-        // Prepare data for TA-Lib (double[])
-        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+    [Fact]
+    public void TALib_Batch_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
+
+        double[] hData = _data.HighPrices.ToArray();
+        double[] lData = _data.LowPrices.ToArray();
+        double[] cData = _data.ClosePrices.ToArray();
         double[] output = new double[hData.Length];
 
         foreach (var periods in periodSets)
@@ -107,31 +239,30 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (batch TBarSeries)
             var ultosc = new Ultosc(p1, p2, p3);
-            var qResult = ultosc.Update(_testData.Bars);
+            var qResult = ultosc.Update(_data.Bars);
 
-            // Calculate TA-Lib UltOsc
             var retCode = TALib.Functions.UltOsc(hData, lData, cData, 0..^0, output, out var outRange, p1, p2, p3);
             Assert.Equal(Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.UltOscLookback(p1, p2, p3);
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
-        _output.WriteLine("Ultosc Batch(TBarSeries) validated successfully against TA-Lib");
+
+        _output.WriteLine("TA-Lib batch validation passed.");
     }
 
-    [Fact]
-    public void Validate_Talib_Streaming()
-    {
-        int[][] periodSets = { [7, 14, 28] };
+    // --- H) Cross-validation with TA-Lib (streaming) ---
 
-        // Prepare data for TA-Lib (double[])
-        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+    [Fact]
+    public void TALib_Streaming_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
+
+        double[] hData = _data.HighPrices.ToArray();
+        double[] lData = _data.LowPrices.ToArray();
+        double[] cData = _data.ClosePrices.ToArray();
         double[] output = new double[hData.Length];
 
         foreach (var periods in periodSets)
@@ -140,35 +271,34 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (streaming)
             var ultosc = new Ultosc(p1, p2, p3);
             var qResults = new List<double>();
-            foreach (var item in _testData.Bars)
+            foreach (var item in _data.Bars)
             {
                 qResults.Add(ultosc.Update(item).Value);
             }
 
-            // Calculate TA-Lib UltOsc
             var retCode = TALib.Functions.UltOsc(hData, lData, cData, 0..^0, output, out var outRange, p1, p2, p3);
             Assert.Equal(Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.UltOscLookback(p1, p2, p3);
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResults, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
-        _output.WriteLine("Ultosc Streaming validated successfully against TA-Lib");
+
+        _output.WriteLine("TA-Lib streaming validation passed.");
     }
 
-    [Fact]
-    public void Validate_Tulip_Batch()
-    {
-        int[][] periodSets = { [7, 14, 28] };
+    // --- I) Cross-validation with Tulip (batch) ---
 
-        // Prepare data for Tulip (double[])
-        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+    [Fact]
+    public void Tulip_Batch_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
+
+        double[] hData = _data.HighPrices.ToArray();
+        double[] lData = _data.LowPrices.ToArray();
+        double[] cData = _data.ClosePrices.ToArray();
 
         foreach (var periods in periodSets)
         {
@@ -176,37 +306,35 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (batch TBarSeries)
             var ultosc = new Ultosc(p1, p2, p3);
-            var qResult = ultosc.Update(_testData.Bars);
+            var qResult = ultosc.Update(_data.Bars);
 
-            // Calculate Tulip UltOsc
             var ultoscIndicator = Tulip.Indicators.ultosc;
-            double[][] inputs = { hData, lData, cData };
-            double[] options = { p1, p2, p3 };
+            double[][] inputs = [hData, lData, cData];
+            double[] options = [p1, p2, p3];
 
-            // Tulip UltOsc lookback
             int lookback = ultoscIndicator.Start(options);
-            double[][] outputs = { new double[hData.Length - lookback] };
+            double[][] outputs = [new double[hData.Length - lookback]];
 
             ultoscIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
-        _output.WriteLine("Ultosc Batch(TBarSeries) validated successfully against Tulip");
+
+        _output.WriteLine("Tulip batch validation passed.");
     }
 
-    [Fact]
-    public void Validate_Tulip_Streaming()
-    {
-        int[][] periodSets = { [7, 14, 28] };
+    // --- J) Cross-validation with Tulip (streaming) ---
 
-        // Prepare data for Tulip (double[])
-        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+    [Fact]
+    public void Tulip_Streaming_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
+
+        double[] hData = _data.HighPrices.ToArray();
+        double[] lData = _data.LowPrices.ToArray();
+        double[] cData = _data.ClosePrices.ToArray();
 
         foreach (var periods in periodSets)
         {
@@ -214,39 +342,37 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (streaming)
             var ultosc = new Ultosc(p1, p2, p3);
             var qResults = new List<double>();
-            foreach (var item in _testData.Bars)
+            foreach (var item in _data.Bars)
             {
                 qResults.Add(ultosc.Update(item).Value);
             }
 
-            // Calculate Tulip UltOsc
             var ultoscIndicator = Tulip.Indicators.ultosc;
-            double[][] inputs = { hData, lData, cData };
-            double[] options = { p1, p2, p3 };
+            double[][] inputs = [hData, lData, cData];
+            double[] options = [p1, p2, p3];
 
-            // Tulip UltOsc lookback
             int lookback = ultoscIndicator.Start(options);
-            double[][] outputs = { new double[hData.Length - lookback] };
+            double[][] outputs = [new double[hData.Length - lookback]];
 
             ultoscIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
-        _output.WriteLine("Ultosc Streaming validated successfully against Tulip");
+
+        _output.WriteLine("Tulip streaming validation passed.");
     }
 
-    [Fact]
-    public void Validate_Ooples_Batch()
-    {
-        int[][] periodSets = { [7, 14, 28] };
+    // --- K) Cross-validation with Ooples ---
 
-        // Prepare data for Ooples (List<TickerData>)
-        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+    [Fact]
+    public void Ooples_Batch_Matches()
+    {
+        int[][] periodSets = [[7, 14, 28]];
+
+        var ooplesData = _data.SkenderQuotes.Select(q => new TickerData
         {
             Date = q.Date,
             Close = (double)q.Close,
@@ -262,45 +388,119 @@ public sealed class UltoscValidationTests : IDisposable
             int p2 = periods[1];
             int p3 = periods[2];
 
-            // Calculate QuanTAlib Ultosc (batch TBarSeries)
             var ultosc = new Ultosc(p1, p2, p3);
-            var qResult = ultosc.Update(_testData.Bars);
+            var qResult = ultosc.Update(_data.Bars);
 
-            // Calculate Ooples Ultimate Oscillator
             var stockData = new StockData(ooplesData);
             var sResult = stockData.CalculateUltimateOscillator(p1, p2, p3).OutputValues.Values.First();
 
-            // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);
         }
-        _output.WriteLine("Ultosc Batch(TBarSeries) validated successfully against Ooples");
+
+        _output.WriteLine("Ooples batch validation passed.");
     }
 
+    // --- L) Range bounded [0, 100] ---
+
     [Fact]
-    public void Validate_Span_MatchesTBarSeries()
+    public void Output_Bounded_0_To_100()
     {
         const int p1 = 7;
-        int p2 = 14;
-        int p3 = 28;
+        const int p2 = 14;
+        const int p3 = 28;
 
-        // Prepare data
-        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
-        double[] spanOutput = new double[hData.Length];
+        var result = Ultosc.Batch(_data.Bars, p1, p2, p3);
 
-        // Calculate using span method
-        Ultosc.Batch(hData, lData, cData, spanOutput, p1, p2, p3);
-
-        // Calculate using TBarSeries batch
-        var ultosc = new Ultosc(p1, p2, p3);
-        var tbarResult = ultosc.Update(_testData.Bars);
-
-        // Compare results
-        for (int i = 0; i < tbarResult.Count; i++)
+        for (int i = p3; i < _data.Bars.Count; i++)
         {
-            Assert.Equal(tbarResult[i].Value, spanOutput[i], 1e-10);
+            double val = result.Values[i];
+            Assert.True(val >= 0.0 && val <= 100.0,
+                $"Ultosc value {val} out of [0, 100] range at bar {i}");
         }
-        _output.WriteLine("Ultosc Span calculation matches TBarSeries batch calculation");
+
+        _output.WriteLine("All Ultosc values within [0, 100] range.");
+    }
+
+    // --- M) Determinism ---
+
+    [Fact]
+    public void Deterministic_Across_Runs()
+    {
+        var series = GenerateSeries(200, seed: 99);
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        var r1 = Ultosc.Batch(series, p1, p2, p3);
+        var r2 = Ultosc.Batch(series, p1, p2, p3);
+
+        for (int i = 0; i < series.Count; i++)
+        {
+            Assert.Equal(r1.Values[i], r2.Values[i], 15);
+        }
+    }
+
+    // --- N) Multi-period consistency ---
+
+    [Fact]
+    public void Different_Periods_Produce_Different_Results()
+    {
+        var series = GenerateSeries(200);
+
+        var r1 = Ultosc.Batch(series, 5, 10, 20);
+        var r2 = Ultosc.Batch(series, 7, 14, 28);
+
+        bool anyDifferent = false;
+        for (int i = 28; i < 200; i++)
+        {
+            if (Math.Abs(r1.Values[i] - r2.Values[i]) > 0.01)
+            {
+                anyDifferent = true;
+                break;
+            }
+        }
+
+        Assert.True(anyDifferent);
+    }
+
+    // --- O) Calculate returns consistent results ---
+
+    [Fact]
+    public void Calculate_Produces_Consistent_Results()
+    {
+        var series = GenerateSeries(100);
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+
+        var (results, indicator) = Ultosc.Calculate(series, p1, p2, p3);
+
+        Assert.Equal(100, results.Count);
+        Assert.True(indicator.IsHot);
+        Assert.True(double.IsFinite(indicator.Last.Value));
+    }
+
+    // --- P) All outputs finite after warmup ---
+
+    [Fact]
+    public void AllOutputsFinite_AfterWarmup()
+    {
+        const int p1 = 7;
+        const int p2 = 14;
+        const int p3 = 28;
+        var ultosc = new Ultosc(p1, p2, p3);
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            var result = ultosc.Update(_data.Bars[i]);
+
+            if (i >= p3)
+            {
+                Assert.True(double.IsFinite(result.Value),
+                    $"Non-finite output at bar {i}: {result.Value}");
+            }
+        }
+
+        _output.WriteLine("All outputs finite after warmup verified.");
     }
 }

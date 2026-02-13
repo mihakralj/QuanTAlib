@@ -247,10 +247,10 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Standard Deviation Channel** | [Sdchannel](../lib/channels/sdchannel/sdchannel.md) | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |
-| **Stochastic Fast** | Stochf | ✔️ | - | - | ❔ |
+| **Stochastic Fast** | [Stochf](../lib/oscillators/stochf/Stochf.md) | ✔️ | - | - | ❔ |
 | **Stochastic Momentum Index** | [Smi](../lib/oscillators/smi/Smi.md) | - | - | ✔️ | ❔ |
 | **Stochastic Oscillator** | [Stoch](../lib/oscillators/stoch/Stoch.md) | - | - | ✔️ | - |
-| **Stochastic RSI** | Stochrsi | ✔️ | ✔️ | ✔️ | ❔ |
+| **Stochastic RSI** | [Stochrsi](../lib/oscillators/stochrsi/Stochrsi.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stoller Average Range Channel** | [Starchannel](../lib/channels/starchannel/starchannel.md) | - | - | - | ❔ |
 | **Super Trend Bands** | [Stbands](../lib/channels/stbands/Stbands.md) | - | - | - | - |
 | **SuperTrend** | [Super](../lib/trends/super/super.md) | - | - | ✔️ | ❔ |
@@ -262,11 +262,12 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Time Weighted Average Price** | Twap | - | - | - | - |
 | **Trade Volume Index** | Tvi | - | - | - | ❔ |
 | **Triangular Moving Average** | [Trima](../lib/trends/trima/trima.md) | ✔️ | ✔️ | ✔️ | ❔ |
-| **Triple Exponential Average** | Trix | ✔️ | ✔️ | ✔️ | ❔ |
+| **Triple Exponential Average** | [Trix](../lib/oscillators/trix/Trix.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Triple Exponential Moving Average** | [Tema](../lib/trends/tema/tema.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **True Range** | Tr | ✔️ | ✔️ | ✔️ | - |
 | **True Strength Index** | Tsi | - | - | ✔️ | ❔ |
 | **TTM Trend** | Ttm | - | - | - | - |
+| **TTM Wave** | [TtmWave](../lib/oscillators/ttm_wave/TtmWave.md) | - | - | - | - |
 | **Two-Argument Arctangent** | Atan2 | - | - | - | - |
 | **Ulcer Index** | Ui | - | - | ✔️ | ❔ |
 | **Ultimate Bands (Ehlers)** | [Ubands](../lib/channels/ubands/Ubands.md) | - | - | - | - |
@@ -289,7 +290,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **VWAP with Standard Deviation Bands** | [Vwapsd](../lib/channels/vwapsd/Vwapsd.md) | - | - | - | - |
 | **Weighted Moving Average** | [Wma](../lib/trends/wma/wma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Wiener Filter** | Wiener | - | - | - | - |
-| **Williams %R** | Willr | ✔️ | ✔️ | ✔️ | ❔ |
+| **Williams %R** | [Willr](../lib/oscillators/willr/Willr.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Williams Accumulation/Distribution** | [Wad](../lib/volume/wad/Wad.md) | - | - | - | [⚠️](../lib/volume/wad/Wad.md#validation) |
 | **Williams Alligator** | Alligator | - | - | ✔️ | ❔ |
 | **Williams Fractal** | Fractals | - | - | ✔️ | ❔ |

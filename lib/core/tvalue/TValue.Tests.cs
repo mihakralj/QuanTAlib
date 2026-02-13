@@ -871,4 +871,143 @@ public class TValueTests
         Assert.False(result);
         Assert.Equal(0, charsWritten);
     }
+
+    // ────────────────────────────────────────────────────────────────────
+    // COVERAGE TESTS: TryFormat boundary branches (lines 85–144)
+    //
+    // Buffer layout: [yyyy-MM-dd HH:mm:ss, VALUE]
+    //   pos 0:     '['          (1 char)
+    //   pos 1–19:  datetime     (19 chars)
+    //   pos 20:    ','          (1 char)
+    //   pos 21:    ' '          (1 char)
+    //   pos 22+:   value        (variable)
+    //   final:     ']'          (1 char)
+    //
+    // The initial guard rejects buffers < 24. These tests use buffers
+    // that pass the guard but are too small for specific value formats.
+    // ────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void TryFormat_Buffer24_NaN_ReturnsFalse_NaNNeedsThreeChars()
+    {
+        // Buffer 24 passes initial guard (>= 24).
+        // After '[' + datetime + ', ' → pos = 22.
+        // NaN needs 3 chars: pos + 3 = 25 > 24 → return false (line 123–124).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, double.NaN);
+
+        Span<char> buffer = stackalloc char[24];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, null);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer24_NormalValue_ReturnsFalse_ValueTryFormatFails()
+    {
+        // Buffer 24, normal value "42.00" needs 5 chars at pos 22 → 27 > 24.
+        // Value.TryFormat gets a 2-char slice → fails (line 134–135).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, 42.0);
+
+        Span<char> buffer = stackalloc char[24];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, CultureInfo.InvariantCulture);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer24_NegativeInfinity_ReturnsFalse_NoRoomForClosingBracket()
+    {
+        // Buffer 24, "-∞" needs 2 chars at pos 22 → pos becomes 24.
+        // Closing ']' needs pos + 1 = 25 > 24 → return false (line 143–144).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, double.NegativeInfinity);
+
+        Span<char> buffer = stackalloc char[24];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, null);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer25_NaN_ReturnsFalse_NoRoomForClosingBracket()
+    {
+        // Buffer 25, NaN needs 3 chars at pos 22 → pos becomes 25.
+        // Closing ']' needs pos + 1 = 26 > 25 → return false (line 143–144).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, double.NaN);
+
+        Span<char> buffer = stackalloc char[25];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, null);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer25_NormalValue_ReturnsFalse_ValueTryFormatStillFails()
+    {
+        // Buffer 25, "0.00" needs 4 chars at pos 22 → only 3 chars available.
+        // Value.TryFormat gets 3-char slice → fails (line 134–135).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, 0.0);
+
+        Span<char> buffer = stackalloc char[25];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, CultureInfo.InvariantCulture);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer27_NormalValue_ReturnsFalse_FitsValueButNoClosingBracket()
+    {
+        // Buffer 27, "0.00" (4 chars) at pos 22 → pos becomes 26.
+        // Closing ']' needs pos + 1 = 27 ≤ 27 → succeeds.
+        // Actually "0.00" = 4 chars, pos=22+4=26, 26+1=27 ≤ 27 → fits.
+        // Use a value that needs more chars: 10000.00 = 8 chars → 22+8=30 > 27.
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, 10000.0);
+
+        Span<char> buffer = stackalloc char[27];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, CultureInfo.InvariantCulture);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer27_ZeroValue_Succeeds_ExactFit()
+    {
+        // Buffer 27: '[' + datetime(19) + ', '(2) + '0.00'(4) + ']'(1) = 27.
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, 0.0);
+
+        Span<char> buffer = stackalloc char[27];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, CultureInfo.InvariantCulture);
+
+        Assert.True(result);
+        Assert.Equal(27, charsWritten);
+        string formatted = new string(buffer.Slice(0, charsWritten));
+        Assert.Equal("[2023-01-01 00:00:00, 0.00]", formatted);
+    }
+
+    [Fact]
+    public void TryFormat_Buffer26_ZeroValue_ReturnsFalse_ClosingBracketFails()
+    {
+        // Buffer 26: "0.00" (4 chars) at pos 22 → pos=26. Need 27 for ']'.
+        // 26 + 1 = 27 > 26 → return false for closing bracket (line 143–144).
+        var dt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tValue = new TValue(dt.Ticks, 0.0);
+
+        Span<char> buffer = stackalloc char[26];
+        bool result = tValue.TryFormat(buffer, out int charsWritten, ReadOnlySpan<char>.Empty, CultureInfo.InvariantCulture);
+
+        Assert.False(result);
+        Assert.Equal(0, charsWritten);
+    }
 }

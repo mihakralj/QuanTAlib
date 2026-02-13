@@ -20,6 +20,8 @@
     <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
     <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
     <Compile Include="..\lib\oscillators\**\*.cs" Exclude="..\lib\oscillators\**\*.Tests.cs;..\lib\oscillators\**\obj\**;..\lib\oscillators\**\bin\**" />
+    <Compile Include="..\lib\momentum\macd\Macd.cs" />
+    <Compile Include="..\lib\momentum\rsi\Rsi.cs" />
     <Compile Include="..\lib\numerics\highest\*.cs" Exclude="..\lib\numerics\highest\*.Tests.cs" />
     <Compile Include="..\lib\numerics\lowest\*.cs" Exclude="..\lib\numerics\lowest\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">

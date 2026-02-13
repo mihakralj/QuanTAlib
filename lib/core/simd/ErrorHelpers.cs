@@ -927,60 +927,6 @@ public static class ErrorHelpers
 
     #region Private Helpers
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsDataClean(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted)
-    {
-        int len = actual.Length;
-
-        // SIMD path for AVX-supported systems
-        if (Avx.IsSupported && len >= Vector256<double>.Count)
-        {
-            int vectorSize = Vector256<double>.Count;
-            int vectorEnd = len - (len % vectorSize);
-
-            for (int i = 0; i < vectorEnd; i += vectorSize)
-            {
-                Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
-                Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
-
-                // NaN check: x == x is false for NaN
-                // Compare each vector with itself - OrderedQ returns all-ones for finite, zero for NaN
-                Vector256<double> actCmp = Avx.Compare(actVec, actVec, FloatComparisonMode.OrderedNonSignaling);
-                Vector256<double> predCmp = Avx.Compare(predVec, predVec, FloatComparisonMode.OrderedNonSignaling);
-
-                // Combine: both must be all-ones (finite)
-                Vector256<double> combined = Avx.And(actCmp, predCmp);
-
-                // MoveMask returns a bitmask; all-ones means all finite (mask == 0b1111 for 4 doubles)
-                int mask = Avx.MoveMask(combined);
-                if (mask != 0b1111)
-                {
-                    return false;
-                }
-            }
-
-            // Scalar tail
-            for (int i = vectorEnd; i < len; i++)
-            {
-                if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // Scalar fallback
-        for (int i = 0; i < len; i++)
-        {
-            if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /// <summary>
     /// SIMD path with integrated NaN detection. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
@@ -1051,35 +997,6 @@ public static class ErrorHelpers
         }
 
         return len;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeSignedErrorsSimd(
-        ReadOnlySpan<double> actual,
-        ReadOnlySpan<double> predicted,
-        Span<double> output)
-    {
-        int len = actual.Length;
-        int vectorSize = Vector256<double>.Count;
-        int vectorEnd = len - (len % vectorSize);
-
-        int i = 0;
-        for (; i < vectorEnd; i += vectorSize)
-        {
-            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
-            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
-
-            // error = actual - predicted (preserves sign)
-            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
-
-            errorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
-        }
-
-        // Handle remainder with scalar
-        for (; i < len; i++)
-        {
-            output[i] = actual[i] - predicted[i];
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1272,41 +1189,6 @@ public static class ErrorHelpers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeAbsoluteErrorsSimd(
-        ReadOnlySpan<double> actual,
-        ReadOnlySpan<double> predicted,
-        Span<double> output)
-    {
-        int len = actual.Length;
-        int vectorSize = Vector256<double>.Count;
-        int vectorEnd = len - (len % vectorSize);
-
-        // Create mask for absolute value (clear sign bit)
-        Vector256<double> absMask = Vector256.Create(~(1L << 63)).AsDouble();
-
-        int i = 0;
-        for (; i < vectorEnd; i += vectorSize)
-        {
-            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
-            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
-
-            // error = actual - predicted
-            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
-
-            // absError = |error| (clear sign bit)
-            Vector256<double> absErrorVec = Avx.And(errorVec, absMask);
-
-            absErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
-        }
-
-        // Handle remainder with scalar
-        for (; i < len; i++)
-        {
-            output[i] = Math.Abs(actual[i] - predicted[i]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeAbsoluteErrorsScalar(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
@@ -1342,39 +1224,6 @@ public static class ErrorHelpers
             }
 
             output[i] = Math.Abs(act - pred);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeSquaredErrorsSimd(
-        ReadOnlySpan<double> actual,
-        ReadOnlySpan<double> predicted,
-        Span<double> output)
-    {
-        int len = actual.Length;
-        int vectorSize = Vector256<double>.Count;
-        int vectorEnd = len - (len % vectorSize);
-
-        int i = 0;
-        for (; i < vectorEnd; i += vectorSize)
-        {
-            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
-            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
-
-            // error = actual - predicted
-            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
-
-            // sqError = error * error
-            Vector256<double> sqErrorVec = Avx.Multiply(errorVec, errorVec);
-
-            sqErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
-        }
-
-        // Handle remainder with scalar
-        for (; i < len; i++)
-        {
-            double diff = actual[i] - predicted[i];
-            output[i] = diff * diff;
         }
     }
 

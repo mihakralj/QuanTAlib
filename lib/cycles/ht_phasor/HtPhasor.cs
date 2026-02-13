@@ -205,31 +205,15 @@ public sealed class HtPhasor : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double UpdateWma(ref State s, double price, double[] priceHistory, bool isNew)
+    private static double UpdateWma(ref State s, double price, double[] priceHistory)
     {
-        int historyIdx;
-        if (isNew)
-        {
-            historyIdx = s.Today % PRICE_HISTORY_SIZE;
-        }
-        else if (s.Today == 0)
-        {
-            historyIdx = 0;
-        }
-        else
-        {
-            historyIdx = (s.Today - 1 + PRICE_HISTORY_SIZE) % PRICE_HISTORY_SIZE;
-        }
-
+        int historyIdx = s.Today % PRICE_HISTORY_SIZE;
         priceHistory[historyIdx] = price;
 
-        int processed = s.Today + (isNew ? 1 : 0);
+        int processed = s.Today + 1;
         if (processed <= 3)
         {
-            if (isNew)
-            {
-                s.Today++;
-            }
+            s.Today++;
             return 0.0;
         }
 
@@ -250,10 +234,7 @@ public sealed class HtPhasor : AbstractBase
         s.PeriodWMASum = smoothedValue * 10.0;
         s.TrailingWMAValue = p3;
 
-        if (isNew)
-        {
-            s.Today++;
-        }
+        s.Today++;
 
         return smoothedValue;
     }
@@ -299,7 +280,7 @@ public sealed class HtPhasor : AbstractBase
         }
 
         // WMA init and smoothing (updates day counter only when isNew)
-        double smoothedValue = UpdateWma(ref s, price, _priceHistory, isNew);
+        double smoothedValue = UpdateWma(ref s, price, _priceHistory);
 
         // Still initializing WMA until day 3; smoothedValue only valid from day >=3
         if (s.Today <= 3)

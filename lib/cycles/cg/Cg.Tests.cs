@@ -561,4 +561,198 @@ public class CgTests
     }
 
     #endregion
+
+    // ────────────────────────────────────────────────────────────────────
+    // COVERAGE TESTS: Target uncovered branches identified by OpenCover
+    // ────────────────────────────────────────────────────────────────────
+
+    #region Coverage: ResyncInterval branch (Update line 121-123)
+
+    [Fact]
+    public void Update_ResyncInterval_TriggersAtThousandUpdates()
+    {
+        // The ResyncInterval is 1000 — feed exactly 1000 isNew=true updates
+        // to hit the _updateCount % ResyncInterval == 0 branch (line 121-123).
+        var cg = new Cg(10);
+        for (int i = 0; i < 1000; i++)
+        {
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + (i % 50)), isNew: true);
+        }
+
+        // After 1000 updates the resync path was taken; result should still be finite
+        Assert.True(double.IsFinite(cg.Last.Value));
+        Assert.True(cg.IsHot);
+    }
+
+    #endregion
+
+    #region Coverage: Update(TSeries) empty source (line 137-138)
+
+    [Fact]
+    public void UpdateTSeries_EmptySource_ReturnsEmptyTSeries()
+    {
+        var cg = new Cg(10);
+        var emptySource = new TSeries();
+
+        TSeries result = cg.Update(emptySource);
+
+        Assert.Empty(result);
+    }
+
+    #endregion
+
+    #region Coverage: CalculateCg sum==0 branch (line 184-185)
+
+    [Fact]
+    public void Update_AllZeroValues_ReturnsZero()
+    {
+        // When all prices are zero, _sum == 0 → CalculateCg returns 0 (line 184-185).
+        var cg = new Cg(5);
+        for (int i = 0; i < 10; i++)
+        {
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 0.0));
+        }
+
+        Assert.Equal(0.0, cg.Last.Value);
+    }
+
+    [Fact]
+    public void Update_ZeroSumMixedValues_ReturnsZero()
+    {
+        // Values that sum to zero: e.g. +50, -50 alternating in a period=2 window.
+        var cg = new Cg(2);
+        for (int i = 0; i < 10; i++)
+        {
+            double val = (i % 2 == 0) ? 100.0 : -100.0;
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
+        }
+
+        // Sum of last 2 values: 100 + (-100) = 0 → CG = 0
+        Assert.Equal(0.0, cg.Last.Value);
+    }
+
+    #endregion
+
+    #region Coverage: Calculate() tuple method (line 248-252)
+
+    [Fact]
+    public void Calculate_ReturnsTupleWithResultsAndIndicator()
+    {
+        // Covers the entire Calculate() method (lines 248-252) which was never called.
+        var gbm = new GBM(seed: 42);
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var tSeries = new TSeries();
+        foreach (var bar in bars)
+        {
+            tSeries.Add(new TValue(bar.Time, bar.Close));
+        }
+
+        var (results, indicator) = Cg.Calculate(tSeries, 10);
+
+        Assert.Equal(50, results.Count);
+        Assert.True(indicator.IsHot);
+        Assert.True(double.IsFinite(results.Last.Value));
+    }
+
+    #endregion
+
+    #region Coverage: CalculateScalarCore NaN paths (lines 271-273, 310-312)
+
+    [Fact]
+    public void Batch_NaNAsFirstValue_SubstitutesZero()
+    {
+        // When the first value is NaN and buffer is empty, val = 0 (line 271-273).
+        double[] source = [double.NaN, 100.0, 200.0, 300.0, 400.0];
+        double[] output = new double[5];
+
+        Cg.Batch(source, output, 3);
+
+        // First value substituted with 0 → all outputs should be finite
+        foreach (double val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite, got {val}");
+        }
+    }
+
+    [Fact]
+    public void Batch_NaNMidStream_SubstitutesLastValid()
+    {
+        // When NaN appears after valid values, it substitutes the last valid value.
+        double[] source = [100.0, 200.0, double.NaN, 300.0, 400.0];
+        double[] output = new double[5];
+
+        Cg.Batch(source, output, 3);
+
+        foreach (double val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite, got {val}");
+        }
+    }
+
+    [Fact]
+    public void Batch_AllZeros_ReturnsZeroCg()
+    {
+        // When all values are 0, sum==0 → output = 0 (lines 310-312).
+        double[] source = [0.0, 0.0, 0.0, 0.0, 0.0];
+        double[] output = new double[5];
+
+        Cg.Batch(source, output, 3);
+
+        foreach (double val in output)
+        {
+            Assert.Equal(0.0, val);
+        }
+    }
+
+    [Fact]
+    public void Batch_LargePeriod_UsesHeapAllocation()
+    {
+        // Period > 256 forces heap allocation instead of stackalloc (line 261-262).
+        int period = 300;
+        int len = 400;
+        double[] source = new double[len];
+        double[] output = new double[len];
+        for (int i = 0; i < len; i++)
+        {
+            source[i] = 100.0 + i;
+        }
+
+        Cg.Batch(source, output, period);
+
+        // Verify results are finite after warmup
+        Assert.True(double.IsFinite(output[^1]));
+    }
+
+    [Fact]
+    public void Batch_NegativeInfinity_SubstitutesLastValid()
+    {
+        double[] source = [100.0, 200.0, double.NegativeInfinity, 300.0];
+        double[] output = new double[4];
+
+        Cg.Batch(source, output, 3);
+
+        foreach (double val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite, got {val}");
+        }
+    }
+
+    #endregion
+
+    #region Coverage: Dispose (inherited from AbstractBase)
+
+    [Fact]
+    public void Dispose_DoesNotThrow()
+    {
+        var cg = new Cg(10);
+        for (int i = 0; i < 15; i++)
+        {
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + i));
+        }
+
+        var ex = Record.Exception(() => cg.Dispose());
+        Assert.Null(ex);
+    }
+
+    #endregion
 }

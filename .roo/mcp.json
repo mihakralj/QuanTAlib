@@ -17,12 +17,12 @@
 				"prepare_change",
 				"code_security",
 				"nuget_vulnerabilities",
-				"__unlock_csharp_analysis__",
 				"refs",
 				"search",
 				"explore",
 				"diag",
-				"understand"
+				"understand",
+				"__unlock_csharp_analysis__"
 			],
 			"disabled": false
 		}

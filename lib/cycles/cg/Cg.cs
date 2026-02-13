@@ -284,13 +284,6 @@ public sealed class Cg : AbstractBase
                 bufferIndex = (bufferIndex + 1) % period;
             }
 
-            // Calculate CG for current window
-            if (bufferCount == 0)
-            {
-                output[i] = 0;
-                continue;
-            }
-
             double weightedSum = 0;
             double sum = 0;
 
