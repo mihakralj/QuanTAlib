@@ -1,173 +1,212 @@
 # SMI: Stochastic Momentum Index
 
-> "The stochastic tells you where price is in the range. The SMI tells you how enthusiastically it got there." — William Blau (paraphrased)
+> "The stochastic tells you where price is in the range. The SMI tells you how enthusiastically it got there." — William Blau
 
-## Introduction
+| Property | Value |
+|----------|-------|
+| **Category** | Oscillator |
+| **Inputs** | Bar series (High, Low, Close) |
+| **Parameters** | `kPeriod` (default 10), `kSmooth` (default 3), `dSmooth` (default 3), `blau` (default true) |
+| **Outputs** | Dual series (K line, D signal line) |
+| **Output range** | $-100$ to $+100$ |
+| **Warmup** | `kPeriod + kSmooth + dSmooth` bars |
 
-The Stochastic Momentum Index (SMI) measures where the close sits relative to the midpoint of the recent high-low range, then double-smooths the result with cascaded EMAs. Unlike the classic Stochastic Oscillator which measures distance from the low, SMI measures distance from the midpoint. This centering around zero produces cleaner crossover signals and reduces false readings during trending markets. Range: -100 to +100, with values beyond ±40 indicating extreme momentum.
+### Key takeaways
+
+- Measures where the close sits relative to the midpoint of the recent range, not the boundary. Zero means neutral; positive means above midpoint; negative means below.
+- Two methods: Blau (default) smooths the ratio; Chande/Kroll smooths numerator and denominator separately before computing the ratio.
+- Double EMA smoothing with warmup compensation produces clean crossover signals with controlled lag.
+- Unlike classic Stochastic ($[0, 100]$), SMI ranges $[-100, +100]$, centered on zero. Traditional Stochastic thresholds do not apply.
+- Uses `MonotonicDeque` for O(1) amortized highest/lowest tracking and `Math.FusedMultiplyAdd` for EMA stages.
 
 ## Historical Context
 
-William Blau introduced the SMI in his 1995 book "Momentum, Direction, and Divergence" as an improvement over George Lane's classic Stochastic Oscillator. Blau's key insight: measuring distance from the range midpoint rather than from the low eliminates the asymmetric bias that plagues traditional stochastics. When price closes at the exact middle of its range, classic Stochastic reads 50 — an arbitrary number that says nothing. SMI reads 0 — neutral, centered, semantically honest.
+William Blau introduced the Stochastic Momentum Index in *Momentum, Direction, and Divergence* (1995) as an improvement over George Lane's classic Stochastic Oscillator. Blau's key insight: measuring distance from the range midpoint rather than from the low eliminates the asymmetric bias inherent in traditional stochastics. When price closes at the exact middle of its range, classic Stochastic reads 50—an arbitrary number that says nothing. SMI reads 0—neutral, centered, semantically honest.
 
-Tushar Chande and Stanley Kroll proposed a variant in "The New Technical Trader" (1994) that smooths numerator and denominator separately before computing the ratio. This subtle difference in order of operations produces different behavior during volatile periods: Blau's method smooths the ratio directly, which can compress extreme values; Chande/Kroll's method preserves the ratio's sensitivity by smoothing its components independently.
+Tushar Chande and Stanley Kroll proposed a variant in *The New Technical Trader* (1994) that smooths numerator and denominator separately before computing the ratio. This subtle difference in order of operations produces different behavior during volatile periods: Blau's method smooths the ratio directly, which compresses extreme values; Chande/Kroll preserves the ratio's sensitivity by smoothing its components independently.
 
-QuanTAlib implements both methods via the `blau` parameter (default: `true` for Blau's method).
+QuanTAlib implements both methods via the `blau` parameter. The Blau method (default) suits trend-following; the Chande/Kroll method suits mean-reversion. Neither is universally better.
 
-## Architecture and Physics
+## What It Measures and Why It Matters
 
-### 1. Rolling Highest High and Lowest Low
+SMI measures the closing price's distance from the midpoint of the highest-high to lowest-low range, normalized by half that range, then double-smoothed with cascaded EMAs. The result is a zero-centered oscillator bounded by $[-100, +100]$.
 
-Using O(1) amortized MonotonicDeque for the kPeriod window:
+The centering around zero gives SMI cleaner semantics than classic Stochastic. Positive values mean the close is above the range midpoint; negative values mean it is below. The magnitude indicates the strength of the displacement. Values beyond $\pm 40$ indicate extreme momentum; values near zero indicate no meaningful displacement.
 
-$$HH_t = \max_{i=0}^{N-1} \text{High}_{t-i}$$
-
-$$LL_t = \min_{i=0}^{N-1} \text{Low}_{t-i}$$
-
-### 2. Midpoint and Half-Range
-
-$$\text{midpoint}_t = \frac{HH_t + LL_t}{2}$$
-
-$$\text{rangeHalf}_t = \frac{HH_t - LL_t}{2}$$
-
-### 3. Blau Method (Default)
-
-Compute the raw ratio first, then double-smooth:
-
-$$\text{raw}_t = \begin{cases} 100 \times \frac{\text{Close}_t - \text{midpoint}_t}{\text{rangeHalf}_t} & \text{if } \text{rangeHalf}_t > 0 \\ 0 & \text{otherwise} \end{cases}$$
-
-$$K_t = \text{EMA}_2(\text{EMA}_1(\text{raw}_t, \text{kSmooth}), \text{kSmooth})$$
-
-$$D_t = \text{EMA}(K_t, \text{dSmooth})$$
-
-### 4. Chande/Kroll Method
-
-Smooth numerator and denominator separately, then compute the ratio:
-
-$$\text{num}_t = \text{Close}_t - \text{midpoint}_t$$
-
-$$\text{den}_t = \text{rangeHalf}_t$$
-
-$$K_t = 100 \times \frac{\text{EMA}_2(\text{EMA}_1(\text{num}))}{\text{EMA}_2(\text{EMA}_1(\text{den}))}$$
-
-$$D_t = \text{EMA}(K_t, \text{dSmooth})$$
-
-### 5. EMA with Warmup Compensation
-
-Each EMA stage uses exponential warmup compensation:
-
-$$\alpha = \frac{2}{N + 1}, \quad d = 1 - \alpha$$
-
-$$\text{EMA}_t = d \cdot \text{EMA}_{t-1} + \alpha \cdot x_t$$
-
-$$e_t = d \cdot e_{t-1}, \quad c_t = \frac{1}{1 - e_t}$$
-
-$$\text{compensated}_t = \text{EMA}_t \cdot c_t$$
-
-The compensator corrects the initialization bias during warmup, converging to 1.0 as $e_t \to 0$.
+The double EMA smoothing ($-12$ dB/octave rolloff) attenuates noise more aggressively than a single EMA of equivalent period, at the cost of additional group delay. This makes SMI better at filtering whipsaws than raw Stochastic while remaining responsive enough for momentum detection.
 
 ## Mathematical Foundation
 
-### Blau's Z-Domain Transfer Function
+### Core Formula
 
-The double-EMA smoothing of the raw ratio has transfer function:
+**Rolling extremes:**
 
-$$H(z) = \left(\frac{\alpha}{1 - dz^{-1}}\right)^2$$
+$$
+HH_t = \max_{i=0}^{N-1} H_{t-i}, \quad LL_t = \min_{i=0}^{N-1} L_{t-i}
+$$
 
-This is a cascade of two identical first-order IIR sections, providing $-12$ dB/octave rolloff in the stopband. The cascade attenuates noise more aggressively than a single EMA of equivalent period, at the cost of additional group delay.
+**Midpoint and half-range:**
 
-### Chande/Kroll Ratio Properties
+$$
+\text{mid}_t = \frac{HH_t + LL_t}{2}, \quad \text{rh}_t = \frac{HH_t - LL_t}{2}
+$$
 
-The separate smoothing approach preserves a fundamental property: when numerator and denominator oscillate at the same frequency, their ratio remains unattenuated. Blau's method, by smoothing the ratio directly, can compress oscillations that the Chande/Kroll approach preserves.
+**Blau method** (smooth the ratio):
+
+$$
+\text{raw}_t = \begin{cases} 100 \times \frac{C_t - \text{mid}_t}{\text{rh}_t} & \text{if } \text{rh}_t > 0 \\ 0 & \text{otherwise} \end{cases}
+$$
+
+$$
+K_t = \text{EMA}_2(\text{EMA}_1(\text{raw}_t))
+$$
+
+**Chande/Kroll method** (smooth the components):
+
+$$
+K_t = 100 \times \frac{\text{EMA}_2(\text{EMA}_1(C_t - \text{mid}_t))}{\text{EMA}_2(\text{EMA}_1(\text{rh}_t))}
+$$
+
+**Signal line (both methods):**
+
+$$
+D_t = \text{EMA}(K_t, d)
+$$
+
+All EMA stages use $\alpha = 2/(N+1)$ with exponential warmup compensation.
 
 ### Parameter Mapping
 
-| Parameter | Default | Range | Effect |
-| :--- | :--- | :--- | :--- |
-| kPeriod ($N$) | 10 | 1-500 | Lookback window for highest/lowest. Larger values produce a wider reference range, reducing sensitivity. |
-| kSmooth | 3 | 1-100 | EMA period for the double-smoothing of K. Larger values smooth more aggressively, increasing lag. |
-| dSmooth | 3 | 1-100 | EMA period for the signal line D. Controls signal line responsiveness. |
-| blau | true | bool | `true` for Blau method (smooth ratio); `false` for Chande/Kroll (smooth components). |
+| Parameter | Code | Default | Constraints |
+|-----------|------|---------|-------------|
+| K Period | `kPeriod` | 10 | `> 0` |
+| K Smoothing | `kSmooth` | 3 | `> 0` |
+| D Smoothing | `dSmooth` | 3 | `> 0` |
+| Method | `blau` | `true` | Blau or Chande/Kroll |
 
 ### Warmup Period
 
-$$\text{WarmupPeriod} = \text{kPeriod} + \text{kSmooth} + \text{dSmooth}$$
+$$
+W = N + k_s + d_s
+$$
 
-The indicator becomes `IsHot` after `kPeriod` bars (sufficient for the deque window). Full convergence of all three EMA stages requires the full warmup period.
+`IsHot` fires after `kPeriod` bars (sufficient for the deque window). Full EMA convergence requires the complete warmup period.
 
-## Performance Profile
+## Architecture & Physics
 
-| Operation | Complexity | Notes |
-| :--- | :--- | :--- |
-| MonotonicDeque push | O(1) amortized | Deque maintenance for highest/lowest |
-| Midpoint/rangeHalf | O(1) | Two arithmetic operations |
-| EMA stage 1 | O(1) | FMA-optimized |
-| EMA stage 2 | O(1) | FMA-optimized |
-| Signal EMA | O(1) | FMA-optimized |
-| **Total per bar** | **O(1)** | Zero allocations in hot path |
+### 1. MonotonicDeque Streaming
 
-### SIMD Analysis
+Two `MonotonicDeque` instances track the sliding highest-high and lowest-low over `kPeriod` bars. Circular buffers (`_hBuf`, `_lBuf`) store raw H/L values for deque rebuild on bar correction.
 
-SIMD is not applied in streaming `Update` due to the recursive EMA dependencies. The `Batch` span API delegates highest/lowest computation to their respective SIMD-enabled `Batch` methods, then processes the EMA cascade sequentially.
+### 2. Dual-Path EMA Cascade
 
-### Quality Metrics
+**Blau path**: Computes `raw = 100 * (close - mid) / rh`, then applies two cascaded EMAs with the same alpha (kSmooth), followed by an EMA with dSmooth alpha for the signal line.
 
-| Metric | Score (1-10) | Notes |
-| :--- | :--- | :--- |
-| Noise rejection | 7 | Double EMA smoothing provides good noise attenuation |
-| Lag | 5 | Three cascaded EMA stages accumulate group delay |
-| Sensitivity | 8 | Midpoint centering produces sharper zero crossings than classic Stochastic |
-| Range bound | 9 | Naturally bounded -100 to +100 by construction |
-| Cross-instrument | 8 | Percentage-based output is comparable across instruments |
+**Chande/Kroll path**: Maintains four EMA accumulators (two per layer) for numerator and denominator independently, then computes the ratio.
 
-## Interpretation
+### 3. Warmup Compensation
 
-### Overbought/Oversold Levels
+Each EMA stage uses exponential warmup compensators ($e_t = d \cdot e_{t-1}$, $c_t = 1/(1 - e_t)$) that correct initialization bias. The compensator converges to 1.0 as $e_t \to 0$, after which the hot path skips compensation for performance.
 
-- **Above +40**: Overbought zone. Close is significantly above the range midpoint. Reversal probability increases.
-- **Below -40**: Oversold zone. Close is significantly below the range midpoint. Bounce probability increases.
-- **Between -20 and +20**: Neutral zone. No strong momentum bias.
+### 4. Edge Cases
 
-### K and D Crossovers
+| Condition | Behavior |
+|-----------|----------|
+| Any parameter `<= 0` | `ArgumentException` with `nameof()` |
+| `NaN` / `Infinity` input | Substitutes last valid value per channel (H/L/C) |
+| All NaN (no valid data yet) | Returns `NaN` for K and D |
+| Zero range ($HH = LL$) | Returns $0$ (Blau) or $0$ (Chande/Kroll when denominator is $0$) |
+| `isNew = false` | Restores `_ps`, rebuilds both deques from circular buffer |
 
-- **K crosses above D**: Bullish momentum shift. Momentum is accelerating upward.
-- **K crosses below D**: Bearish momentum shift. Momentum is decelerating or reversing.
+## Interpretation and Signals
 
-### Divergence Analysis
+### Signal Zones
 
-- **Bullish divergence**: Price makes lower lows while SMI K makes higher lows. Range-normalized momentum is contracting despite new price lows.
-- **Bearish divergence**: Price makes higher highs while SMI K makes lower highs. Despite new highs, momentum relative to range is weakening.
+| Zone | Condition | Interpretation |
+|------|-----------|----------------|
+| Overbought | `K > +40` | Close significantly above range midpoint |
+| Neutral | `-20 ≤ K ≤ +20` | No strong momentum bias |
+| Oversold | `K < -40` | Close significantly below range midpoint |
 
-### Blau vs Chande/Kroll Selection
+### Signal Patterns
 
-- **Blau (default)**: Better for trend-following. Smoother output, fewer whipsaws. The ratio compression during high volatility acts as a natural dampener.
+- **K/D crossover**: K crossing above D signals bullish momentum shift; K crossing below D signals bearish shift.
+- **Zero-line crossover**: K crossing above zero confirms upward momentum; crossing below confirms downward.
+- **Divergence**: Price makes new highs while K makes lower highs (bearish) or price makes new lows while K makes higher lows (bullish).
+
+### Practical Notes
+
+- **Blau** (default): Better for trend-following. Smoother output, fewer whipsaws. The ratio compression during high volatility acts as a natural dampener.
 - **Chande/Kroll**: Better for mean-reversion. Preserves component oscillation sensitivity. More responsive during volatile reversals but noisier in trends.
+- Do not use classic Stochastic thresholds (20/80) for SMI. The $[-100, +100]$ range centered on zero requires $\pm 40$ thresholds.
+
+## Related Indicators
+
+- [**Stoch**](../stoch/Stoch.md): Measures distance from range boundary ($[0, 100]$); SMI measures distance from midpoint ($[-100, +100]$).
+- [**KDJ**](../kdj/Kdj.md): Extended stochastic with J-line divergence amplification.
+- [**StochRSI**](../stochrsi/Stochrsi.md): Applies stochastic formula to RSI instead of price.
+- [**Willr**](../willr/Willr.md): Measures distance from high, inverted scale $[-100, 0]$.
 
 ## Validation
 
-| Library | Validated | Notes |
-| :--- | :--- | :--- |
-| Skender | ✔️ | SMI available via `GetSmi()` |
-| TA-Lib | - | No SMI implementation |
-| Tulip | - | No SMI implementation |
-| Ooples | - | Not verified |
-| Self-consistency | ✔️ | Batch/streaming/span agree within $10^{-6}$ tolerance |
+| Library | Status | Notes |
+|---------|--------|-------|
+| Skender | ✅ | `GetSmi()` matches within `1e-6` |
+| Self-consistency | ✅ | Streaming/batch/span agree within `1e-6`; both Blau and Chande/Kroll verified |
+| TA-Lib | -- | No SMI implementation |
+| Tulip | -- | No SMI implementation |
 
-Cross-validation: Streaming, batch (TBarSeries), and span paths produce identical results. Both Blau and Chande/Kroll methods are verified independently.
+## Performance Profile
+
+### Key Optimizations
+
+- **O(1) amortized streaming**: `MonotonicDeque` for highest/lowest tracking.
+- **FMA-optimized EMAs**: `Math.FusedMultiplyAdd` for all EMA accumulations reduces rounding error and improves throughput on FMA-capable hardware.
+- **Warmup phase elimination**: Once all compensators converge ($e < 10^{-10}$), the hot path skips compensation arithmetic.
+- **Zero allocation**: `Update` uses pre-allocated buffers and `record struct State`.
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar |
+|-----------|---------------|
+| Deque push (amortized) | 2-3 comparisons |
+| Midpoint/rangeHalf | 2 ops |
+| EMA stage 1 (FMA) | 1 FMA |
+| EMA stage 2 (FMA) | 1 FMA |
+| Signal EMA (FMA) | 1 FMA |
+| Warmup compensators | 3-6 (only during warmup) |
+| **Total** | **~10 ops (hot), ~16 ops (warmup)** |
+
+### SIMD Analysis (Batch Mode)
+
+| Property | Value |
+|----------|-------|
+| Vectorizable | Partially (via `Highest.Batch` / `Lowest.Batch`) |
+| EMA cascade | Scalar (recursive dependency) |
+| Fallback | Scalar loop with FMA for EMA stages |
 
 ## Common Pitfalls
 
-1. **Confusing SMI with classic Stochastic**: SMI measures distance from midpoint (range: -100 to +100). Classic Stochastic measures distance from the low (range: 0 to 100). Using Stochastic thresholds (20/80) for SMI produces incorrect signals.
+1. **Confusing SMI with classic Stochastic**: SMI ranges $[-100, +100]$ centered on zero. Classic Stochastic ranges $[0, 100]$. Using Stochastic thresholds (20/80) for SMI produces incorrect signals.
 2. **Ignoring the method parameter**: Blau and Chande/Kroll produce meaningfully different results. Switching methods mid-analysis invalidates comparisons.
-3. **Zero range handling**: When highest equals lowest (constant price over kPeriod), rangeHalf is zero. Division by zero is guarded (returns 0.0), but a sustained zero reading may mask meaningful price action outside the deque window.
-4. **Cascaded EMA warmup**: Three EMA stages each need convergence time. The first few values after `IsHot` are less reliable than values after the full `WarmupPeriod`. Trading signals should wait for full convergence.
-5. **Period selection interaction**: kPeriod controls the reference range width; kSmooth controls noise filtering of K; dSmooth controls signal line lag. These three parameters interact. Increasing kPeriod without adjusting smoothing produces a wider range reference with insufficient filtering, yielding noisy K values.
-6. **Not a standalone signal**: SMI measures momentum position within a range. Combine with trend filters for directional context. SMI works best in ranging markets; in strong trends, it can remain in overbought/oversold territory for extended periods.
-7. **Bar correction with MonotonicDeque**: The `isNew=false` path rebuilds the deque from the circular buffer. Frequent corrections (high-frequency bar updates) are supported but carry O(N) rebuild cost per correction, where N is kPeriod.
+3. **Zero range handling**: When $HH = LL$, `rangeHalf` is zero. The division guard returns $0$, but sustained zero readings may mask meaningful price action outside the deque window.
+4. **Cascaded EMA warmup**: Three EMA stages each need convergence time. The first values after `IsHot` are less reliable than values after the full warmup period.
+5. **Parameter interaction**: `kPeriod` controls reference range width; `kSmooth` controls noise filtering; `dSmooth` controls signal line lag. Increasing `kPeriod` without adjusting smoothing produces a wider reference range with insufficient filtering.
+6. **Bar correction cost**: `isNew=false` triggers O(kPeriod) deque rebuild. Infrequent in normal streaming but visible with rapid corrections.
+
+## FAQ
+
+**Q: Should I use Blau or Chande/Kroll?**
+A: Blau (default) for trend-following. Chande/Kroll for mean-reversion in volatile markets. Blau compresses extreme ratio values through smoothing; Chande/Kroll preserves component oscillation by smoothing numerator and denominator independently.
+
+**Q: Why does SMI use ±40 thresholds instead of 20/80?**
+A: Because SMI is centered on zero with range $[-100, +100]$. The ±40 thresholds correspond to approximately the same distance from neutral as 20/80 in classic Stochastic's $[0, 100]$ range.
+
+**Q: How does SMI compare to Stochastic for crossover signals?**
+A: SMI's zero-centered output produces cleaner crossovers because the neutral point is semantically meaningful (close equals range midpoint). Classic Stochastic's 50 level has no equivalent semantic clarity.
 
 ## References
 
-- Blau, William. "Momentum, Direction, and Divergence." Wiley, 1995.
-- Chande, Tushar S. and Kroll, Stanley. "The New Technical Trader." Wiley, 1994.
-- Lane, George. "Stochastics." Technical Analysis of Stocks & Commodities, 1984. (Original Stochastic Oscillator)
-- PineScript reference implementation: `smi.pine`
+- Blau, W. *Momentum, Direction, and Divergence*. Wiley, 1995.
+- Chande, T. S.; Kroll, S. *The New Technical Trader*. Wiley, 1994.
+- Lane, G. C. "Lane's Stochastics." *Technical Analysis of Stocks & Commodities*, 1984.

@@ -88,8 +88,9 @@
   * [DMX - Jurik Directional Movement Index](/lib/dynamics/dmx/Dmx.md)
   * [DX - Directional Movement Index](/lib/dynamics/dx/Dx.md)
   * [HT_TRENDMODE - Hilbert Transform Trend Mode](/lib/dynamics/ht_trendmode/HtTrendmode.md)
-  * [ICHIMOKU - Ichimoku Cloud](/lib/dynamics/ichimoku/Ichimoku.cs)
-  * [IMI - Intraday Momentum Index](/lib/dynamics/imi/Imi.cs)
+  * [ICHIMOKU - Ichimoku Cloud](/lib/dynamics/ichimoku/Ichimoku.md)
+  * [IMI - Intraday Momentum Index](/lib/dynamics/imi/Imi.md)
+  * [IMPULSE - Elder Impulse System](/lib/dynamics/impulse/Impulse.md)
   * [QSTICK - Qstick Indicator](/lib/dynamics/qstick/Qstick.md)
   * [SUPER - SuperTrend](/lib/dynamics/super/Super.md)
   * [TTM_SQUEEZE - TTM Squeeze](/lib/dynamics/ttm_squeeze/TtmSqueeze.md)
@@ -271,7 +272,7 @@
   * [SIGMOID - Logistic Function](/lib/numerics/sigmoid/Sigmoid.md)
   * [SLOPE - Rate of Change](/lib/numerics/slope/Slope.md)
   * [SQRTTRANS - Square Root Transform](/lib/numerics/sqrttrans/Sqrttrans.md)
-  * [STANDARDIZE - Z-Score Normalization](/lib/numerics/standardize/Standardize.cs)
+  * [STANDARDIZE - Z-Score Normalization](/lib/numerics/standardize/Standardize.md)
 
 * **Errors**
   * [Overview](/lib/errors/_index.md)
@@ -325,6 +326,8 @@
 
 * **Reversals**
   * [Overview](/lib/reversals/_index.md)
+  * [CHANDELIER - Chandelier Exit](/lib/reversals/chandelier/Chandelier.md)
+  * [CKSTOP - Chande Kroll Stop](/lib/reversals/ckstop/Ckstop.md)
   * [FRACTALS - Williams Fractals](/lib/reversals/fractals/Fractals.md)
   * [PIVOT - Pivot Points](/lib/reversals/pivot/Pivot.md)
   * [PIVOTCAM - Camarilla Pivot Points](/lib/reversals/pivotcam/Pivotcam.md)

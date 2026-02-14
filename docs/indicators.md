@@ -20,6 +20,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 | [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, Residuals, R² | Model validation and forecast assessment. Quantifying wrongness before production quantifies losses. |
 | [**Forecasts**](../lib/forecasts/_index.md) | Future price prediction and projection | Linear regression extrapolation, adaptive prediction | Projecting price based on historical patterns. Predictions that invite humility. |
 | [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, Dominant Cycle | Identifying cyclical market behavior. Markets exhibit cycles; detecting them reliably remains hard. |
+| [**Reversals**](../lib/reversals/_index.md) | Turning points and stop levels | Pivot Points, PSAR, Chande Kroll Stop | Identifying potential trend reversals, computing adaptive stops, and defining support/resistance. |
 
 ## Selection by Experience Level
 
@@ -137,6 +138,7 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**AROON**](../lib/dynamics/aroon/Aroon.md) | Aroon | High/low recency |
 | [**AROONOSC**](../lib/dynamics/aroonosc/AroonOsc.md) | Aroon Oscillator | Aroon Up minus Down |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
+| [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |
 
 ### Momentum
@@ -210,6 +212,9 @@ Mathematical and statistical computations on price series.
 | [**CORRELATION**](../lib/statistics/correlation/Correlation.md) | Pearson Correlation | Linear relationship between two series [-1, +1] |
 | [**CMA**](../lib/statistics/cma/Cma.md) | Cumulative Moving Average | Expanding window average |
 | [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) | Covariance | Joint variability |
+| [**ENTROPY**](../lib/statistics/entropy/Entropy.md) | Shannon Entropy | Normalized information entropy via histogram binning |
+| [**GEOMEAN**](../lib/statistics/geomean/Geomean.md) | Geometric Mean | Rolling geometric mean via log-sum approach |
+| [**GRANGER**](../lib/statistics/granger/Granger.md) | Granger Causality | F-statistic testing if X helps predict Y |
 | [**LINREG**](../lib/statistics/linreg/LinReg.md) | Linear Regression | Best-fit line |
 | [**MEDIAN**](../lib/statistics/median/Median.md) | Rolling Median | 50th percentile |
 | [**SKEW**](../lib/statistics/skew/Skew.md) | Skewness | Distribution asymmetry |
@@ -262,3 +267,12 @@ Error metrics and loss functions for model evaluation, forecast assessment, and 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**WRMSE**](../lib/errors/wrmse/Wrmse.md) | Weighted Root Mean Squared Error | Custom observation weighting for error emphasis |
+
+### Reversals
+
+Reversal indicators identify potential turning points, compute adaptive stop levels, and define support/resistance zones. Where trend indicators tell you what is happening, reversal indicators warn you when it might stop.
+
+| Indicator | Full Name | Notes |
+| :-------- | :-------- | :---- |
+| [**CHANDELIER**](../lib/reversals/chandelier/Chandelier.md) | Chandelier Exit | ATR-based trailing stops from HH/LL; dual ExitLong/ExitShort |
+| [**CKSTOP**](../lib/reversals/ckstop/Ckstop.md) | Chande Kroll Stop | ATR-based adaptive trailing stops; dual StopLong/StopShort levels |

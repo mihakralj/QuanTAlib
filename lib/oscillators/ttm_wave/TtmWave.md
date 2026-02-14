@@ -1,10 +1,23 @@
-# TTM_WAVE: TTM Wave
+# TTM_WAVE: TTM Wave Indicator
 
 > "The market speaks in waves. Most traders only hear the ripples." -- John Carter
 
-## Introduction
+| Property | Value |
+|----------|-------|
+| **Category** | Oscillator |
+| **Inputs** | Single value (Close) |
+| **Parameters** | None (canonical Fibonacci periods) |
+| **Outputs** | WaveA1, WaveA2, WaveB1, WaveB2, WaveC1, WaveC2 (`Last` = Wave1 = WaveA2) |
+| **Output range** | Unbounded (MACD histograms in price units) |
+| **Warmup period** | 752 bars |
 
-TTM Wave is a multi-period MACD composite oscillator built from six histogram channels at Fibonacci EMA periods. Each channel computes a standard MACD histogram (fast EMA minus slow EMA, then subtract the signal EMA of that difference). The six channels group into three wave bands -- A (short-term), B (medium-term), C (long-term) -- giving traders a single-pane view of momentum alignment across cycle lengths. When all three bands share the same sign, momentum is unanimous. When they diverge, the market is arguing with itself.
+### Key takeaways
+
+- Composite oscillator built from **six parallel MACD histograms** at Fibonacci EMA periods (34, 55, 89, 144, 233, 377), all sharing fast period 8.
+- Groups into three wave bands: **A** (short-term), **B** (medium-term), **C** (long-term), giving a single-pane momentum spectrum across cycle lengths.
+- When all three bands share the same sign, momentum is **unanimous**. When they diverge, the market is arguing with itself.
+- Matches the **thinkorswim TTM_Wave_A/B/C** thinkScript studies with TOS-compatible property mapping.
+- No configurable parameters: the Fibonacci period structure is the design, not a tunable choice.
 
 ## Historical Context
 
@@ -12,159 +25,178 @@ John Carter introduced TTM Wave in *Mastering the Trade* (2005, revised 2012) as
 
 The design philosophy is straightforward: a single MACD channel captures momentum at one timescale. Stack six of them and you get a momentum spectrum. When short-term waves (A) fire first and medium/long-term waves (B, C) follow suit, the trend has legs. When A waves reverse while C waves persist, you are looking at a pullback, not a reversal.
 
-Carter's original implementation appeared as thinkScript studies on the thinkorswim platform. The `TTM_Wave_A`, `TTM_Wave_B`, and `TTM_Wave_C` studies each contribute two histogram plots. Our implementation unifies all six channels into a single class with named outputs matching the TOS convention.
+Carter's original implementation appeared as thinkScript studies on the thinkorswim platform. No external TA libraries (Skender, TA-Lib, Tulip, OoplesFinance) implement TTM Wave, making this a first-principles implementation validated through self-consistency tests.
 
-No external TA libraries (Skender, TA-Lib, Tulip, OoplesFinance) implement TTM Wave, making this a first-principles implementation validated through self-consistency tests.
+## What It Measures and Why It Matters
 
-## Architecture and Physics
+TTM Wave measures momentum acceleration at six different timescales simultaneously. Each channel computes a MACD histogram (the difference between the MACD line and its signal line), which is a second-order momentum measure: it tracks the rate of change of the fast-minus-slow EMA spread relative to its own smoothed average. Positive histogram means momentum is accelerating bullishly; negative means bearishly.
 
-### 1. MACD Channel Structure
-
-Each channel *k* computes:
-
-$$\text{MACD}_k = \text{EMA}(\text{close}, 8) - \text{EMA}(\text{close}, S_k)$$
-
-$$\text{Signal}_k = \text{EMA}(\text{MACD}_k, S_k)$$
-
-$$\text{Histogram}_k = \text{MACD}_k - \text{Signal}_k$$
-
-where the slow/signal period $S_k$ takes Fibonacci values:
-
-| Channel | $S_k$ | Wave Group |
-| :------ | :----- | :--------- |
-| 1 | 34 | A (inner) |
-| 2 | 55 | A (outer) |
-| 3 | 89 | B (inner) |
-| 4 | 144 | B (outer) |
-| 5 | 233 | C (inner) |
-| 6 | 377 | C (outer) |
-
-All channels share fast period $F = 8$ (Fibonacci $F_6$).
-
-### 2. Wave Grouping
-
-The six histograms map to three wave bands, each containing an inner (smaller period) and outer (larger period) envelope:
-
-- **Wave A** (short-term momentum): channels 1 and 2
-- **Wave B** (medium-term momentum): channels 3 and 4
-- **Wave C** (long-term momentum): channels 5 and 6
-
-Within each group, the inner channel reacts faster, the outer channel slower. When the inner crosses zero before the outer, momentum is accelerating at that timescale.
-
-### 3. TOS Compatibility Mapping
-
-The thinkorswim platform labels outputs differently:
-
-| TOS Name | QuanTAlib Property | Definition |
-| :------- | :----------------- | :--------- |
-| Wave1 | `Wave1` / `WaveA2` | Channel 1 histogram (8,34,34) |
-| Wave2High | `Wave2High` | max(WaveC1, WaveC2) |
-| Wave2Low | `Wave2Low` | min(WaveC1, WaveC2) |
-
-### 4. Composition Architecture
-
-`TtmWave` is implemented as a composition of six internal `Macd` instances rather than manual EMA management. This delegates bar correction (`isNew` rollback), NaN handling, and state management to the battle-tested `Macd` class. The tradeoff: six redundant fast EMA computations (all share period 8). The benefit: zero additional state synchronization bugs and trivial maintenance.
-
-### 5. Warmup Period
-
-The slowest channel uses periods (8, 377, 377). The MACD warmup for that channel is:
-
-$$W = \max(8, 377) + 377 - 2 = 752$$
-
-All channels are hot once the slowest is hot. `IsHot` is the conjunction of all six MACD `IsHot` flags.
+The multi-timeframe structure is the indicator's core value proposition. A single MACD can only tell you about momentum at one scale. TTM Wave tells you whether short-term, medium-term, and long-term momentum agree. Agreement (all six histograms positive or all negative) identifies high-conviction trend environments. Disagreement (A waves positive while C waves negative, or vice versa) identifies pullbacks and potential reversals.
 
 ## Mathematical Foundation
 
-### EMA Recursion
+### Core Formula
 
-Each EMA with period $P$ uses smoothing factor $\alpha = 2/(P+1)$:
+For each channel $k$ with slow/signal period $S_k$:
 
-$$\text{EMA}_t = \alpha \cdot x_t + (1 - \alpha) \cdot \text{EMA}_{t-1}$$
+$$MACD_k = EMA(close, 8) - EMA(close, S_k)$$
 
-### MACD Line
+$$Signal_k = EMA(MACD_k, S_k)$$
 
-$$M_t = \text{EMA}(x, 8)_t - \text{EMA}(x, S_k)_t$$
+$$Histogram_k = MACD_k - Signal_k$$
 
-### Signal Line
+where $EMA$ uses smoothing factor $\alpha = 2/(P+1)$:
 
-$$\text{Sig}_t = \text{EMA}(M, S_k)_t$$
+$$EMA_t = \alpha \cdot x_t + (1 - \alpha) \cdot EMA_{t-1}$$
 
-### Histogram
+### Parameter Mapping
 
-$$H_t = M_t - \text{Sig}_t$$
+| Channel | Slow/Signal period ($S_k$) | Wave group | Property |
+|---------|---------------------------|------------|----------|
+| 1 | 34 | A (inner) | `WaveA2` |
+| 2 | 55 | A (outer) | `WaveA1` |
+| 3 | 89 | B (inner) | `WaveB2` |
+| 4 | 144 | B (outer) | `WaveB1` |
+| 5 | 233 | C (inner) | `WaveC2` |
+| 6 | 377 | C (outer) | `WaveC1` |
 
-The histogram is a second-order momentum measure: it tracks the rate of change of the MACD line relative to its own smoothed average. Positive histogram means MACD is above its signal (bullish acceleration); negative means below (bearish acceleration).
+All channels share fast period $F = 8$ (Fibonacci $F_6$).
 
-### Z-Domain Transfer Function
+### Warmup Period
 
-For a single channel with fast period $F$ and slow period $S$:
+$$W = \max(8, 377) + 377 - 2 = 752$$
 
-$$H(z) = \left[\frac{\alpha_F}{1-(1-\alpha_F)z^{-1}} - \frac{\alpha_S}{1-(1-\alpha_S)z^{-1}}\right] \cdot \left[1 - \frac{\alpha_S}{1-(1-\alpha_S)z^{-1}}\right]$$
+The slowest channel (8, 377, 377) dictates the warmup. [`IsHot`](lib/oscillators/ttm_wave/TtmWave.cs:71) is the conjunction of all six MACD `IsHot` flags.
 
-where $\alpha_F = 2/(F+1)$ and $\alpha_S = 2/(S+1)$.
+## Architecture & Physics
 
-## Performance Profile
+### 1. Composition of Six MACD Instances
 
-| Metric | Value |
-| :----- | :---- |
-| Operations per update | 6 x MACD update (18 EMA updates total) |
-| Memory | 6 Macd instances with internal state |
-| Streaming complexity | O(1) per bar |
-| SIMD applicability | Not applicable (recursive IIR filter) |
-| Warmup bars | 752 |
-| Allocations in Update | Zero (struct TValue returns) |
+[`TtmWave`](lib/oscillators/ttm_wave/TtmWave.cs:29) is implemented as a composition of six internal [`Macd`](lib/oscillators/ttm_wave/TtmWave.cs:43) instances rather than manual EMA management. This delegates bar correction, NaN handling, and state management to the battle-tested `Macd` class. The trade-off: six redundant fast EMA computations (all share period 8). The benefit: zero additional state synchronization bugs.
 
-### Quality Metrics
+### 2. Wave Grouping
 
-| Quality | Score (1-10) | Notes |
-| :------ | :----------- | :---- |
-| Trend detection | 8 | Multi-timeframe alignment is powerful |
-| Noise rejection | 7 | Longer-period channels naturally filter |
-| Responsiveness | 6 | C waves lag substantially (377 period) |
-| Divergence signals | 8 | A vs C divergence is the primary signal |
-| False signal rate | 5 | A waves generate frequent zero crosses |
-| Computational cost | 4 | Six MACD instances is nontrivial |
+The six histograms map to three wave bands, each containing an inner (smaller period) and outer (larger period) envelope. Within each group, the inner channel reacts faster, the outer channel slower. When the inner crosses zero before the outer, momentum is accelerating at that timescale.
+
+### 3. TOS Compatibility Mapping
+
+| TOS Name | QuanTAlib Property | Definition |
+|----------|-------------------|------------|
+| Wave1 | [`Wave1`](lib/oscillators/ttm_wave/TtmWave.cs:95) / `WaveA2` | Channel 1 histogram (8,34,34) |
+| Wave2High | [`Wave2High`](lib/oscillators/ttm_wave/TtmWave.cs:98) | max(WaveC1, WaveC2) |
+| Wave2Low | [`Wave2Low`](lib/oscillators/ttm_wave/TtmWave.cs:101) | min(WaveC1, WaveC2) |
+
+### 4. IDisposable Pattern
+
+Because `TtmWave` subscribes to a source publisher's events, it implements [`IDisposable`](lib/oscillators/ttm_wave/TtmWave.cs:29) to properly unsubscribe and dispose all six internal MACD instances.
+
+### 5. Edge Cases
+
+- **Zero parameters**: No user-configurable parameters exist; the Fibonacci structure is fixed by design.
+- **Insufficient warmup**: All six channels must be hot before `IsHot` returns true. Early values are computed but unreliable.
+- **NaN/Infinity inputs**: Handled by each internal MACD instance independently.
+- **Bar correction**: `isNew=false` propagates to all six channels, each of which rolls back independently.
+
+## Interpretation and Signals
+
+### Signal Zones
+
+| Condition | Meaning |
+|-----------|---------|
+| All 6 histograms positive | Strong bullish alignment across all timeframes |
+| All 6 histograms negative | Strong bearish alignment across all timeframes |
+| A positive, B/C negative | Short-term bounce within a bearish trend |
+| A negative, B/C positive | Short-term pullback within a bullish trend |
+| A/B positive, C negative | Medium-term rally against long-term bearish bias |
+| Mixed within groups | Transitional; no clear directional conviction |
+
+### Signal Patterns
+
+- **Full alignment**: All waves share the same sign. Highest probability trend continuation environment.
+- **A-wave reversal**: A waves cross zero while B and C persist. Signals a pullback, not a trend change (unless B follows).
+- **Sequential ignition**: A fires first, then B, then C. The strongest trends develop when waves "ignite" in sequence from short to long.
+- **C-wave divergence**: C waves weakening while A waves strengthen in the opposite direction. Early warning of a potential macro trend change.
+- **Inner/outer spread**: Within a wave band, the inner channel crossing zero before the outer confirms momentum acceleration.
+
+### Practical Notes
+
+- Do not trade A-wave zero-crosses in isolation. They fire frequently in choppy markets and carry no conviction without B/C confirmation.
+- C waves respond glacially to price changes (period 377). A sudden 5% move barely registers. Use Wave A for timing, Wave C for directional bias.
+- Histogram magnitudes are not comparable across wave bands. Longer-period channels naturally produce larger absolute values because the fast-slow EMA spread grows with period.
+
+## Related Indicators
+
+- [**AO**](../ao/Ao.md): Awesome Oscillator, a single-channel momentum histogram (SMA-based rather than EMA).
+- [**APO**](../apo/Apo.md): Absolute Price Oscillator, single dual-EMA difference without signal line.
+- [**TRIX**](../trix/Trix.md): Triple EMA rate-of-change, another approach to multi-smoothed momentum.
 
 ## Validation
 
-No external libraries implement TTM Wave. Validation relies on self-consistency:
+No external libraries implement TTM Wave. Validation relies on self-consistency and deterministic reproducibility.
 
-| Test Category | Method | Result |
-| :------------ | :----- | :----- |
-| Streaming vs Batch | All values match to 1e-10 | Pass |
-| Primed vs Cold | Last value matches to 1e-8 | Pass |
-| Deterministic replay | Same seed produces identical output | Pass |
-| Reset + replay | Matches fresh computation to 1e-15 | Pass |
-| TOS property mapping | Wave1=WaveA2, Wave2High/Low correct | Pass |
-| Large dataset (5000 bars) | All outputs finite, no overflow | Pass |
-| Warmup period | IsHot engages at or before bar 752 | Pass |
+| Check | Status | Notes |
+|-------|--------|-------|
+| Streaming vs Batch | ✅ | All values match within 1e-10 |
+| Streaming vs Batch (all bars) | ✅ | Zero mismatches post-warmup at 1e-8 |
+| Primed vs Cold start | ✅ | Last value matches within 1e-8 |
+| Deterministic replay | ✅ | Same seed produces identical output at 1e-15 |
+| Different seeds differ | ✅ | Different GBM seeds produce distinct outputs |
+| All six waves finite | ✅ | All outputs finite after 1000 bars |
+| TOS property mapping | ✅ | Wave1=WaveA2, Wave2High/Low correct at 1e-15 |
+| Reset + replay | ✅ | Matches fresh computation at 1e-15 |
+| Large dataset (5000 bars) | ✅ | All outputs finite, no overflow |
+| WarmupPeriod = 752 | ✅ | Verified |
+| IsHot timing | ✅ | Engages at or before bar 752 |
+
+## Performance Profile
+
+### Key Optimizations
+
+- **Composition architecture**: Six `Macd` instances handle all state management, bar correction, and NaN handling independently.
+- **Zero allocations in Update**: All six histogram extractions produce `TValue` structs on the stack.
+- **O(1) per bar**: Each MACD update is constant-time (EMA recursion), so total cost is 6x EMA updates = 18 EMA computations per bar.
+- **CollectionsMarshal spans**: Batch output uses pre-sized lists with span access.
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar |
+|-----------|--------------|
+| EMA updates | 18 (6 channels x 3 EMAs each: fast, slow, signal) |
+| Subtractions | 12 (6 MACD lines + 6 histograms) |
+| TValue constructions | 6 (wave outputs) |
+| Max/Min | 2 (Wave2High, Wave2Low) |
+
+### SIMD Analysis (Batch Mode)
+
+| Aspect | Status |
+|--------|--------|
+| EMA recursion | Scalar (IIR filter, sequential dependency) |
+| Histogram subtraction | Scalar (trivial, not worth vectorizing alone) |
+| Six channels | Independent but sequential (could parallelize, not worth the overhead) |
+| Vectorization potential | None — 18 IIR recursions per bar prevent SIMD |
 
 ## Common Pitfalls
 
-1. **Confusing wave numbering with channel numbering.** WaveA1 is the *outer* A wave (channel 2, period 55), not channel 1. WaveA2 is the *inner* (channel 1, period 34). This matches the TOS naming where larger envelope gets the "1" suffix. Swapping them reverses your interpretation of momentum acceleration.
+1. **Confusing wave numbering with channel numbering.** WaveA1 is the *outer* A wave (channel 2, period 55), not channel 1. WaveA2 is the *inner* (channel 1, period 34). This matches the TOS naming where the larger envelope gets the "1" suffix.
+2. **Expecting C waves to react to short-term moves.** Channel 6 (period 377) needs roughly 752 bars to warm up and responds glacially to price changes. Use Wave A for timing, Wave C for bias.
+3. **Trading A-wave zero-crosses in isolation.** Wave A zero-crosses fire frequently in choppy markets. Without confirming B/C wave direction, you are trading noise.
+4. **Ignoring the warmup period.** With 752 bars needed, daily charts require three years of history. On 1-minute charts, that is 12.5 hours. Insufficient warmup produces misleading histogram values.
+5. **Comparing histogram magnitudes across wave bands.** Longer-period channels naturally produce larger absolute histograms. Normalize by channel period if you need cross-wave magnitude comparison.
+6. **Over-optimizing by sharing the fast EMA.** All six channels use fast period 8, so sharing one EMA(8) seems logical. However, the MACD class manages state atomically (previous state rollback). Sharing breaks independent bar correction.
 
-2. **Expecting C waves to react to short-term moves.** Channel 6 (period 377) needs roughly 752 bars to warm up and responds glacially to price changes. A sudden $5\%$ move barely registers on Wave C. Use Wave A for timing, Wave C for bias.
+## FAQ
 
-3. **Trading A wave zero-crosses in isolation.** Wave A zero-crosses fire frequently in choppy markets. Without confirming B/C wave direction, you are trading noise. The indicator's value lies in multi-wave alignment, not single-wave signals.
+**Q: Why are there no configurable parameters?**
+A: The Fibonacci period structure (8, 34, 55, 89, 144, 233, 377) is the design itself, not a tunable choice. Changing the periods would produce a different indicator, not a different configuration of TTM Wave. Carter designed these specific ratios to capture momentum at Fibonacci-harmonic timescales.
 
-4. **Ignoring the warmup period.** With 752 bars needed for full warmup, daily charts require three years of history. On 1-minute charts that is 12.5 hours. Insufficient warmup produces misleading histogram values that can invert actual momentum direction.
+**Q: Why does Last return WaveA2 instead of an aggregate?**
+A: TOS convention. The primary `Wave1` plot on thinkorswim is the channel 1 (8, 34, 34) histogram, which corresponds to `WaveA2`. All six wave outputs are available as separate properties for multi-wave analysis.
 
-5. **Assuming histogram magnitude implies trend strength.** Longer-period channels naturally produce larger absolute histogram values because the fast-slow EMA spread grows with period. Comparing Wave A magnitude to Wave C magnitude directly is comparing apples to watermelons. Normalize by channel period if you need cross-wave magnitude comparison.
-
-6. **Not accounting for bar correction.** When the current bar updates (same timestamp), all six channels must roll back to their previous state. The composition architecture handles this via `isNew=false` propagation to each internal Macd, but custom implementations that skip bar correction will accumulate state errors.
-
-7. **Over-optimizing by sharing the fast EMA.** All six channels use fast period 8, so sharing one EMA(8) instance seems logical. However, the MACD class manages internal state atomically (previous state rollback). Sharing the fast EMA across channels breaks independent bar correction. The redundant computation costs microseconds; the correctness cost of sharing would be debugging hours.
+**Q: How do I interpret all six waves at once?**
+A: Look for alignment. When all six histograms share the same sign, momentum is unanimous across timescales. When A waves flip while C waves persist, it is a pullback, not a reversal. Sequential ignition (A fires, then B, then C) confirms a developing trend.
 
 ## References
 
-- Carter, J. (2012). *Mastering the Trade: Proven Techniques for Profiting from Intraday and Swing Trading Setups* (2nd ed.). McGraw-Hill.
-- Appel, G. (1979). *The Moving Average Convergence-Divergence Trading Method*. Signalert Corporation.
+- Carter, John. *Mastering the Trade: Proven Techniques for Profiting from Intraday and Swing Trading Setups* (2nd ed.). McGraw-Hill, 2012.
+- Appel, Gerald. *The Moving Average Convergence-Divergence Trading Method*. Signalert Corporation, 1979.
 - thinkorswim TTM_Wave_A, TTM_Wave_B, TTM_Wave_C thinkScript studies.
-- useThinkScript community analysis of TTM Wave internals.
-
-## See Also
-
-- [MACD: Moving Average Convergence Divergence](../../momentum/macd/Macd.md)
-- [TTM_SQUEEZE: TTM Squeeze](../../dynamics/ttm_squeeze/TtmSqueeze.md)
-- [TTM_TREND: TTM Trend](../../dynamics/ttm_trend/TtmTrend.md)
-- [AO: Awesome Oscillator](../ao/Ao.md)

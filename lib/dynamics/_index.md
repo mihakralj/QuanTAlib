@@ -18,8 +18,9 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | [DMX](dmx/Dmx.md) | Jurik DMX | Smoothed bipolar DMI using Jurik smoothing. Low noise. |
 | [DX](dx/Dx.md) | Directional Movement Index | Raw directional strength. Unsmoothed ADX component. |
 | [HT_TRENDMODE](ht_trendmode/Ht_trendmode.md) | HT Trend vs Cycle | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
-| [ICHIMOKU](ichimoku/Ichimoku.cs) | Ichimoku Cloud | Five-line system. Cloud defines support/resistance zones. |
-| [IMI](imi/Imi.cs) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold. |
+| [ICHIMOKU](ichimoku/Ichimoku.md) | Ichimoku Cloud | Five-line system. Cloud defines support/resistance zones. |
+| [IMI](imi/Imi.md) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold. |
+| [IMPULSE](impulse/Impulse.md) | Elder Impulse System | EMA + MACD histogram alignment. Color-coded trend/momentum filter. |
 | [QSTICK](qstick/Qstick.md) | Qstick | MA of (Close - Open). Positive = buying pressure. |
 | [SUPER](super/Super.md) | SuperTrend | ATR-based trailing stop. Flips on breakout. Color-coded direction. |
 | [TTM_TREND](ttm_trend/TtmTrend.md) | TTM Trend | Fast 6-period EMA. Color-coded trend from John Carter. |

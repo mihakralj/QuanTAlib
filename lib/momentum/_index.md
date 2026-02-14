@@ -13,9 +13,9 @@ Momentum indicators measure the velocity and acceleration of price changes. Unli
 | [CFB](cfb/Cfb.md) | Composite Fractal Behavior | Measures trend duration and quality via fractal efficiency across 96 time scales. |
 | [CMO](cmo/Cmo.md) | Chande Momentum Oscillator | Momentum using both up and down changes, bounded but not clamped like RSI. |
 | [MACD](macd/Macd.md) | Moving Average Convergence Divergence | Relationship between two EMAs, identifies momentum and trend direction. |
-| MOM | Momentum | Raw price change over specified period. |
-| PMO | Price Momentum Oscillator | Double-smoothed ROC oscillator. |
-| PPO | Percentage Price Oscillator | MACD expressed as percentage for cross-instrument comparison. |
+| [MOM](mom/Mom.md) | Momentum | Raw price change over specified period. |
+| [PMO](pmo/Pmo.md) | Price Momentum Oscillator | Double-smoothed ROC oscillator. |
+| [PPO](ppo/Ppo.md) | Percentage Price Oscillator | MACD expressed as percentage for cross-instrument comparison. |
 | [PRS](prs/Prs.md) | Price Relative Strength | Performance ratio between two assets. |
 | [ROC](roc/Roc.md) | Rate of Change | Absolute price change over N periods. |
 | [ROCP](rocp/Rocp.md) | Rate of Change Percentage | Percentage price change over N periods. |

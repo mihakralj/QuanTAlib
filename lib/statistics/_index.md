@@ -13,9 +13,9 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [COINTEGRATION](cointegration/Cointegration.md) | Cointegration | Tests if series share long-term equilibrium. Pairs trading foundation. |
 | [CORRELATION](correlation/Correlation.md) | Correlation | Linear relationship between two variables. Range: -1 to +1. |
 | [COVARIANCE](covariance/Covariance.md) | Covariance | Joint variability of two random variables. Building block for β. |
-| ENTROPY | Shannon Entropy | Measures uncertainty/randomness. Higher entropy = less predictable. |
-| GEOMEAN | Geometric Mean | nth root of product. Use for growth rates and ratios. |
-| GRANGER | Granger Causality | Tests if one series helps predict another. Not true causality. |
+| [ENTROPY](entropy/Entropy.md) | Shannon Entropy | Measures uncertainty/randomness. Higher entropy = less predictable. |
+| [GEOMEAN](geomean/Geomean.md) | Geometric Mean | nth root of product. Use for growth rates and ratios. |
+| [GRANGER](granger/Granger.md) | Granger Causality | Tests if one series helps predict another. Not true causality. |
 | HARMEAN | Harmonic Mean | Reciprocal of arithmetic mean of reciprocals. For rates/ratios. |
 | HURST | Hurst Exponent | Long-term memory. H>0.5: trending. H<0.5: mean-reverting. |
 | IQR | Interquartile Range | P75 - P25. Robust dispersion measure. |

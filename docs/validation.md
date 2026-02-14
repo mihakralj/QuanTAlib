@@ -70,6 +70,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Bollinger Bands** | Bbands | ✔️ | ✔️ | ✔️ | ❔ |
 | **Butterworth Filter** | [Butter](../lib/trends/butter/Butter.md) | - | - | - | ✔️ |
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
+| **Chandelier Exit** | [Chandelier](../lib/reversals/chandelier/Chandelier.md) | - | ✔️ | - | - |
+| **Chande Kroll Stop** | [Ckstop](../lib/reversals/ckstop/Ckstop.md) | - | - | - | - |
 | **Chaikin Money Flow** | Cmf | - | - | ✔️ | ❔ |
 | **Chaikin Volatility** | [Cvi](../lib/volatility/cvi/Cvi.md) | - | ✔️ | - | ❔ |
 | **Chande Forecast Oscillator** | [Cfo](../lib/oscillators/cfo/Cfo.md) | - | ✔️ | - | ❔ |
@@ -143,6 +145,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hull Moving Average** | [Hma](../lib/trends/hma/hma.md) | - | ✔️ | ✔️ | [⚠️](../lib/trends/hma/hma.md#external-library-discrepancies) |
 | **Hurst Exponent** | Hurst | - | - | ✔️ | ❔ |
 | **Ichimoku Cloud** | Ichimoku | - | - | ✔️ | ❔ |
+| **Impulse (Elder)** | [Impulse](../lib/dynamics/impulse/Impulse.md) | - | - | - | - |
 | **Inertia** | [Inertia](../lib/oscillators/inertia/Inertia.md) | - | - | - | ❔ |
 | **Interquartile Range** | Iqr | - | - | - | - |
 | **Intraday Intensity Index** | [Iii](../lib/volume/iii/Iii.md) | - | - | - | - |
@@ -310,6 +313,9 @@ No external reference exists. Implementation verified through unit tests, edge c
 | :-------- | :-------- | :-----: | :----: | :---: | :-----: |
 | **Autocorrelation Function** | [Acf](../lib/statistics/acf/Acf.md) | - | - | - | - |
 | **Covariance** | [Covariance](../lib/statistics/covariance/Covariance.md) | - | - | - | - |
+| **Entropy (Shannon)** | [Entropy](../lib/statistics/entropy/Entropy.md) | - | - | - | - |
+| **Geometric Mean** | [Geomean](../lib/statistics/geomean/Geomean.md) | ✔️ | - | - | - |
+| **Granger Causality** | [Granger](../lib/statistics/granger/Granger.md) | - | - | - | - |
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
 | **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |

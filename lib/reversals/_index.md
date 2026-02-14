@@ -6,6 +6,8 @@ Reversal indicators identify potential turning points where price may change dir
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [CHANDELIER](chandelier/Chandelier.md) | Chandelier Exit | ATR-based trailing stops hanging from HH/LL; dual ExitLong/ExitShort levels. |
+| [CKSTOP](ckstop/Ckstop.md) | Chande Kroll Stop | ATR-based adaptive trailing stops; dual StopLong/StopShort levels for trend detection. |
 | FRACTALS | Williams Fractals | Five-bar pattern identifying local peaks/troughs; marks support/resistance levels. |
 | PIVOT | Pivot Points (Classic) | Standard floor trader pivots with 7 levels (PP, R1-R3, S1-S3). |
 | PIVOTCAM | Camarilla Pivot Points | Mean-reversion pivots with 9 levels; R3/S3 are key reversal zones. |

@@ -1,0 +1,497 @@
+using System.Runtime.CompilerServices;
+using static System.Math;
+
+namespace QuanTAlib;
+
+/// <summary>
+/// Granger Causality: Tests whether one time series (X) helps predict another (Y)
+/// by comparing restricted and unrestricted OLS regression models with lag-1.
+/// </summary>
+/// <remarks>
+/// Algorithm (lag-1 Granger Causality F-test):
+/// 1. Restricted model:  y_t = c0 + c1*y_{t-1} + e1  (Y predicted only by its own lag)
+/// 2. Unrestricted model: y_t = d0 + d1*y_{t-1} + d2*x_{t-1} + e2  (Y predicted by both lags)
+/// 3. F = ((SSR1 - SSR2) / 1) / (SSR2 / (N - 3))
+///
+/// Higher F-statistic values indicate stronger evidence that X Granger-causes Y.
+/// The indicator uses running sums for O(1) streaming updates.
+/// Period must be greater than 3 (need N-3 > 0 degrees of freedom).
+/// </remarks>
+[SkipLocalsInit]
+public sealed class Granger : AbstractBase
+{
+    private readonly RingBuffer _bufferY;
+    private readonly RingBuffer _bufferX;
+
+    // Running sums for means, variances, covariances over the window
+    // y_t, y_{t-1}, x_{t-1}
+    private double _sumY, _sumYLag, _sumXLag;
+    private double _sumYY, _sumYLagYLag, _sumXLagXLag;
+    private double _sumYYLag, _sumYXLag, _sumYLagXLag;
+
+    // Previous values for lag computation
+    private double _prevY, _prevX;
+    private double _p_prevY, _p_prevX;
+    private bool _hasPrev;
+    private bool _p_hasPrev;
+
+    // Ring buffers for the lagged triplet window (y_t, y_lag, x_lag)
+    private readonly RingBuffer _windowY;
+    private readonly RingBuffer _windowYLag;
+    private readonly RingBuffer _windowXLag;
+
+    // Last valid values for NaN handling
+    private double _lastValidY, _lastValidX;
+    private double _p_lastValidY, _p_lastValidX;
+
+    private int _updateCount;
+    private const int ResyncInterval = 1000;
+    private const double Epsilon = 1e-10;
+
+    public override bool IsHot => _windowY.IsFull;
+
+    /// <summary>
+    /// Creates a new Granger Causality indicator.
+    /// </summary>
+    /// <param name="period">Lookback period for OLS regression (must be > 3)</param>
+    public Granger(int period = 20)
+    {
+        if (period <= 3)
+        {
+            throw new ArgumentException("Period must be greater than 3", nameof(period));
+        }
+
+        _bufferY = new RingBuffer(2); // only need current + previous
+        _bufferX = new RingBuffer(2);
+        _windowY = new RingBuffer(period);
+        _windowYLag = new RingBuffer(period);
+        _windowXLag = new RingBuffer(period);
+
+        Name = $"Granger({period})";
+        WarmupPeriod = period + 1; // Need extra bar for first lag
+    }
+
+    /// <summary>
+    /// Updates the Granger Causality indicator with new values from both series.
+    /// </summary>
+    /// <param name="seriesY">Dependent variable (series being predicted)</param>
+    /// <param name="seriesX">Independent variable (hypothesized cause)</param>
+    /// <param name="isNew">Whether this is a new bar</param>
+    /// <returns>The F-statistic (higher = stronger evidence X Granger-causes Y)</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TValue seriesY, TValue seriesX, bool isNew = true)
+    {
+        double y = SanitizeY(seriesY.Value);
+        double x = SanitizeX(seriesX.Value);
+
+        if (isNew)
+        {
+            ProcessNewBar(y, x);
+        }
+        else
+        {
+            ProcessBarCorrection(y, x);
+        }
+
+        double fStat = CalculateFStatistic();
+
+        Last = new TValue(seriesY.Time, fStat);
+        PubEvent(Last);
+        return Last;
+    }
+
+    /// <summary>
+    /// Updates with raw double values.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(double seriesY, double seriesX, bool isNew = true)
+    {
+        return Update(new TValue(DateTime.UtcNow, seriesY), new TValue(DateTime.UtcNow, seriesX), isNew);
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Not supported for dual-input indicator. Use Update(seriesY, seriesX) instead.</remarks>
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        throw new NotSupportedException("Granger requires two inputs (seriesY and seriesX). Use Update(seriesY, seriesX).");
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Not supported for dual-input indicator. Use Batch(seriesY, seriesX, period) instead.</remarks>
+    public override TSeries Update(TSeries source)
+    {
+        throw new NotSupportedException("Granger requires two inputs. Use Batch(seriesY, seriesX, period).");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double SanitizeY(double value)
+    {
+        if (double.IsFinite(value))
+        {
+            _lastValidY = value;
+            return value;
+        }
+        return double.IsFinite(_lastValidY) ? _lastValidY : 0.0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double SanitizeX(double value)
+    {
+        if (double.IsFinite(value))
+        {
+            _lastValidX = value;
+            return value;
+        }
+        return double.IsFinite(_lastValidX) ? _lastValidX : 0.0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessNewBar(double y, double x)
+    {
+        // Save state for bar correction
+        _p_lastValidY = _lastValidY;
+        _p_lastValidX = _lastValidX;
+        _p_prevY = _prevY;
+        _p_prevX = _prevX;
+        _p_hasPrev = _hasPrev;
+
+        if (_hasPrev)
+        {
+            double yLag = _prevY;
+            double xLag = _prevX;
+
+            // Remove oldest triplet if window is full
+            if (_windowY.IsFull)
+            {
+                double oldY = _windowY.Oldest;
+                double oldYLag = _windowYLag.Oldest;
+                double oldXLag = _windowXLag.Oldest;
+
+                _sumY -= oldY;
+                _sumYLag -= oldYLag;
+                _sumXLag -= oldXLag;
+                _sumYY = FusedMultiplyAdd(-oldY, oldY, _sumYY);
+                _sumYLagYLag = FusedMultiplyAdd(-oldYLag, oldYLag, _sumYLagYLag);
+                _sumXLagXLag = FusedMultiplyAdd(-oldXLag, oldXLag, _sumXLagXLag);
+                _sumYYLag = FusedMultiplyAdd(-oldY, oldYLag, _sumYYLag);
+                _sumYXLag = FusedMultiplyAdd(-oldY, oldXLag, _sumYXLag);
+                _sumYLagXLag = FusedMultiplyAdd(-oldYLag, oldXLag, _sumYLagXLag);
+            }
+
+            // Add new triplet
+            _windowY.Add(y);
+            _windowYLag.Add(yLag);
+            _windowXLag.Add(xLag);
+
+            _sumY += y;
+            _sumYLag += yLag;
+            _sumXLag += xLag;
+            _sumYY = FusedMultiplyAdd(y, y, _sumYY);
+            _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, _sumYLagYLag);
+            _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, _sumXLagXLag);
+            _sumYYLag = FusedMultiplyAdd(y, yLag, _sumYYLag);
+            _sumYXLag = FusedMultiplyAdd(y, xLag, _sumYXLag);
+            _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
+        }
+
+        _prevY = y;
+        _prevX = x;
+        _hasPrev = true;
+
+        _updateCount++;
+        if (_updateCount % ResyncInterval == 0)
+        {
+            Resync();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBarCorrection(double y, double x)
+    {
+        // Restore state
+        _lastValidY = _p_lastValidY;
+        _lastValidX = _p_lastValidX;
+        _prevY = _p_prevY;
+        _prevX = _p_prevX;
+        _hasPrev = _p_hasPrev;
+
+        if (_hasPrev)
+        {
+            double yLag = _prevY;
+            double xLag = _prevX;
+
+            if (_windowY.Count > 0)
+            {
+                double oldY = _windowY.Newest;
+                double oldYLag = _windowYLag.Newest;
+                double oldXLag = _windowXLag.Newest;
+
+                // Replace newest values
+                _sumY += y - oldY;
+                _sumYLag += yLag - oldYLag;
+                _sumXLag += xLag - oldXLag;
+                _sumYY = FusedMultiplyAdd(y, y, FusedMultiplyAdd(-oldY, oldY, _sumYY));
+                _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, FusedMultiplyAdd(-oldYLag, oldYLag, _sumYLagYLag));
+                _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, FusedMultiplyAdd(-oldXLag, oldXLag, _sumXLagXLag));
+                _sumYYLag = FusedMultiplyAdd(y, yLag, FusedMultiplyAdd(-oldY, oldYLag, _sumYYLag));
+                _sumYXLag = FusedMultiplyAdd(y, xLag, FusedMultiplyAdd(-oldY, oldXLag, _sumYXLag));
+                _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, FusedMultiplyAdd(-oldYLag, oldXLag, _sumYLagXLag));
+
+                _windowY.UpdateNewest(y);
+                _windowYLag.UpdateNewest(yLag);
+                _windowXLag.UpdateNewest(xLag);
+            }
+            else
+            {
+                _windowY.Add(y);
+                _windowYLag.Add(yLag);
+                _windowXLag.Add(xLag);
+                _sumY = y;
+                _sumYLag = yLag;
+                _sumXLag = xLag;
+                _sumYY = y * y;
+                _sumYLagYLag = yLag * yLag;
+                _sumXLagXLag = xLag * xLag;
+                _sumYYLag = y * yLag;
+                _sumYXLag = y * xLag;
+                _sumYLagXLag = yLag * xLag;
+            }
+        }
+
+        _prevY = y;
+        _prevX = x;
+        _hasPrev = true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateFStatistic()
+    {
+        int n = _windowY.Count;
+        if (n < 4) // Need at least 4 observations (period > 3 constraint)
+        {
+            return double.NaN;
+        }
+
+        // Means
+        double meanY = _sumY / n;
+        double meanYLag = _sumYLag / n;
+        double meanXLag = _sumXLag / n;
+
+        // Population variances
+        double varYLag = Max(0.0, (_sumYLagYLag / n) - (meanYLag * meanYLag));
+        double varXLag = Max(0.0, (_sumXLagXLag / n) - (meanXLag * meanXLag));
+
+        // Covariances
+        double covYYLag = (_sumYYLag / n) - (meanY * meanYLag);
+        double covYXLag = (_sumYXLag / n) - (meanY * meanXLag);
+        double covYLagXLag = (_sumYLagXLag / n) - (meanYLag * meanXLag);
+
+        // ---- Restricted model: y_t = c0 + c1*y_{t-1} ----
+        if (varYLag < Epsilon)
+        {
+            return double.NaN; // Cannot compute OLS if y_lag has no variance
+        }
+
+        double slopeRestricted = covYYLag / varYLag;
+
+        // SSR1 = sum((y_i - c0 - c1*yLag_i)^2) computed from running sums
+        // = sumYY - 2*c0*sumY - 2*c1*sumYYLag + n*c0^2 + 2*c0*c1*sumYLag + c1^2*sumYLagYLag
+        double varY = Max(0.0, (_sumYY / n) - (meanY * meanY));
+        // skipcq: CS-R1073 - SSR from residual variance: Var(y) - slope^2*Var(ylag)
+        double ssr1 = (varY - (slopeRestricted * slopeRestricted * varYLag)) * n;
+        ssr1 = Max(0.0, ssr1);
+
+        // ---- Unrestricted model: y_t = d0 + d1*y_{t-1} + d2*x_{t-1} ----
+        double denom = FusedMultiplyAdd(varYLag, varXLag, -(covYLagXLag * covYLagXLag));
+        if (Abs(denom) < Epsilon)
+        {
+            return double.NaN; // Multicollinearity - cannot compute 2-variable OLS
+        }
+
+        double d1 = FusedMultiplyAdd(covYYLag, varXLag, -(covYXLag * covYLagXLag)) / denom;
+        double d2 = FusedMultiplyAdd(covYXLag, varYLag, -(covYYLag * covYLagXLag)) / denom;
+        double d0 = meanY - (d1 * meanYLag) - (d2 * meanXLag);
+
+        // SSR2 computed by iterating the window (more numerically stable for small n)
+        double ssr2 = 0.0;
+        for (int i = 0; i < n; i++)
+        {
+            double yi = _windowY[i];
+            double yLagi = _windowYLag[i];
+            double xLagi = _windowXLag[i];
+            double resid = yi - (d0 + (d1 * yLagi) + (d2 * xLagi));
+            ssr2 = FusedMultiplyAdd(resid, resid, ssr2);
+        }
+
+        if (ssr2 < Epsilon)
+        {
+            return double.NaN; // Perfect fit in unrestricted model
+        }
+
+        // F = ((SSR1 - SSR2) / q) / (SSR2 / (N - k))
+        // q = 1 (one restriction: d2 = 0)
+        // k = 3 (parameters in unrestricted: d0, d1, d2)
+        int degreesOfFreedom = n - 3;
+        if (degreesOfFreedom <= 0)
+        {
+            return double.NaN;
+        }
+
+        double fStat = ((ssr1 - ssr2) / 1.0) / (ssr2 / degreesOfFreedom);
+        return Max(0.0, fStat);
+    }
+
+    private void Resync()
+    {
+        _sumY = 0;
+        _sumYLag = 0;
+        _sumXLag = 0;
+        _sumYY = 0;
+        _sumYLagYLag = 0;
+        _sumXLagXLag = 0;
+        _sumYYLag = 0;
+        _sumYXLag = 0;
+        _sumYLagXLag = 0;
+
+        for (int i = 0; i < _windowY.Count; i++)
+        {
+            double y = _windowY[i];
+            double yLag = _windowYLag[i];
+            double xLag = _windowXLag[i];
+
+            _sumY += y;
+            _sumYLag += yLag;
+            _sumXLag += xLag;
+            _sumYY = FusedMultiplyAdd(y, y, _sumYY);
+            _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, _sumYLagYLag);
+            _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, _sumXLagXLag);
+            _sumYYLag = FusedMultiplyAdd(y, yLag, _sumYYLag);
+            _sumYXLag = FusedMultiplyAdd(y, xLag, _sumYXLag);
+            _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
+        }
+    }
+
+    /// <inheritdoc/>
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        throw new NotSupportedException("Granger requires two inputs.");
+    }
+
+    public override void Reset()
+    {
+        _bufferY.Clear();
+        _bufferX.Clear();
+        _windowY.Clear();
+        _windowYLag.Clear();
+        _windowXLag.Clear();
+
+        _sumY = 0;
+        _sumYLag = 0;
+        _sumXLag = 0;
+        _sumYY = 0;
+        _sumYLagYLag = 0;
+        _sumXLagXLag = 0;
+        _sumYYLag = 0;
+        _sumYXLag = 0;
+        _sumYLagXLag = 0;
+
+        _prevY = 0;
+        _prevX = 0;
+        _p_prevY = 0;
+        _p_prevX = 0;
+        _hasPrev = false;
+        _p_hasPrev = false;
+
+        _lastValidY = 0;
+        _lastValidX = 0;
+        _p_lastValidY = 0;
+        _p_lastValidX = 0;
+
+        _updateCount = 0;
+        Last = default;
+    }
+
+    /// <summary>
+    /// Calculates Granger Causality F-statistic for two time series.
+    /// </summary>
+    public static TSeries Batch(TSeries seriesY, TSeries seriesX, int period = 20)
+    {
+        if (seriesY.Count != seriesX.Count)
+        {
+            throw new ArgumentException("Series must have the same length", nameof(seriesX));
+        }
+
+        var indicator = new Granger(period);
+        var result = new TSeries(seriesY.Count);
+
+        var timesY = seriesY.Times;
+        var valuesY = seriesY.Values;
+        var valuesX = seriesX.Values;
+
+        for (int i = 0; i < seriesY.Count; i++)
+        {
+            var tvalY = new TValue(timesY[i], valuesY[i]);
+            var tvalX = new TValue(timesY[i], valuesX[i]);
+            result.Add(indicator.Update(tvalY, tvalX, isNew: true));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Static batch calculation for span-based processing.
+    /// </summary>
+    public static void Batch(
+        ReadOnlySpan<double> seriesY,
+        ReadOnlySpan<double> seriesX,
+        Span<double> output,
+        int period = 20)
+    {
+        if (seriesY.Length != seriesX.Length)
+        {
+            throw new ArgumentException("Series must have the same length", nameof(seriesX));
+        }
+
+        if (seriesY.Length != output.Length)
+        {
+            throw new ArgumentException("Output must have the same length as input", nameof(output));
+        }
+
+        if (period <= 3)
+        {
+            throw new ArgumentException("Period must be greater than 3", nameof(period));
+        }
+
+        var indicator = new Granger(period);
+
+        for (int i = 0; i < seriesY.Length; i++)
+        {
+            var result = indicator.Update(seriesY[i], seriesX[i], isNew: true);
+            output[i] = result.Value;
+        }
+    }
+
+    public static (TSeries Results, Granger Indicator) Calculate(TSeries seriesY, TSeries seriesX, int period = 20)
+    {
+        if (seriesY.Count != seriesX.Count)
+        {
+            throw new ArgumentException("Series must have the same length", nameof(seriesX));
+        }
+
+        var indicator = new Granger(period);
+        var result = new TSeries(seriesY.Count);
+
+        var timesY = seriesY.Times;
+        var valuesY = seriesY.Values;
+        var valuesX = seriesX.Values;
+
+        for (int i = 0; i < seriesY.Count; i++)
+        {
+            var tvalY = new TValue(timesY[i], valuesY[i]);
+            var tvalX = new TValue(timesY[i], valuesX[i]);
+            result.Add(indicator.Update(tvalY, tvalX, isNew: true));
+        }
+
+        return (result, indicator);
+    }
+}
