@@ -7,19 +7,19 @@
 | [Trends (FIR)](trends_FIR/_index.md) | 17 | Finite Impulse Response moving averages |
 | [Trends (IIR)](trends_IIR/_index.md) | 23 | Infinite Impulse Response moving averages |
 | [Filters](filters/_index.md) | 18 | Signal processing filters |
-| [Oscillators](oscillators/_index.md) | 18 | Indicators that fluctuate around a center line |
-| [Dynamics](dynamics/_index.md) | 16 | Trend strength and direction indicators |
-| [Momentum](momentum/_index.md) | 17 | Momentum-based indicators |
+| [Oscillators](oscillators/_index.md) | 19 | Indicators that fluctuate around a center line |
+| [Dynamics](dynamics/_index.md) | 18 | Trend strength and direction indicators |
+| [Momentum](momentum/_index.md) | 16 | Momentum-based indicators |
 | [Volatility](volatility/_index.md) | 26 | Volatility estimators and indicators |
 | [Volume](volume/_index.md) | 26 | Volume-based indicators |
-| [Statistics](statistics/_index.md) | 31 | Statistical measures and tests |
-| [Channels](channels/_index.md) | 22 | Price channels and bands |
-| [Cycles](cycles/_index.md) | 15 | Cycle analysis and signal processing |
-| [Reversals](reversals/_index.md) | 9 | Pattern recognition and reversal detection |
+| [Statistics](statistics/_index.md) | 30 | Statistical measures and tests |
+| [Channels](channels/_index.md) | 23 | Price channels and bands |
+| [Cycles](cycles/_index.md) | 14 | Cycle analysis and signal processing |
+| [Reversals](reversals/_index.md) | 12 | Pattern recognition and reversal detection |
 | [Forecasts](forecasts/_index.md) | 1 | Predictive indicators |
 | [Errors](errors/_index.md) | 26 | Error metrics and loss functions |
 | [Numerics](numerics/_index.md) | 15 | Mathematical transformations |
-| **Total** | **278** | |
+| **Total** | **284** | |
 
 ## All Indicators
 
@@ -42,7 +42,7 @@
 | [AO](oscillators/ao/Ao.md) | Awesome Oscillator | Oscillators |
 | [AOBV](volume/aobv/Aobv.md) | Archer On-Balance Volume | Volume |
 | [APCHANNEL](channels/apchannel/Apchannel.md) | Andrews' Pitchfork | Channels |
-| [APO](momentum/apo/Apo.md) | Absolute Price Oscillator | Momentum |
+| [APO](oscillators/apo/Apo.md) | Absolute Price Oscillator | Oscillators |
 | [APZ](channels/apz/Apz.md) | Adaptive Price Zone | Channels |
 | [AROON](dynamics/aroon/Aroon.md) | Aroon | Dynamics |
 | [AROONOSC](dynamics/aroonosc/Aroonosc.md) | Aroon Oscillator | Dynamics |
@@ -74,12 +74,12 @@
 | [CFB](momentum/cfb/Cfb.md) | Composite Fractal Behavior | Momentum |
 | [CFO](oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Oscillators |
 | [CG](cycles/cg/Cg.md) | Center of Gravity | Cycles |
-| CHANDELIER | Chandelier Exit | Reversals |
+| [CHANDELIER](reversals/chandelier/Chandelier.md) | Chandelier Exit | Reversals |
 | [CHANGE](numerics/change/Change.md) | Percentage Change | Numerics |
 | [CHEBY1](filters/cheby1/Cheby1.md) | Chebyshev Type I | Filters |
 | [CHEBY2](filters/cheby2/Cheby2.md) | Chebyshev Type II | Filters |
 | [CHOP](dynamics/chop/Chop.md) | Choppiness Index | Dynamics |
-| CKSTOP | Chande Kroll Stop | Reversals |
+| [CKSTOP](reversals/ckstop/Ckstop.md) | Chande Kroll Stop | Reversals |
 | [CMA](statistics/cma/Cma.md) | Cumulative Moving Average | Statistics |
 | [CMF](volume/cmf/Cmf.md) | Chaikin Money Flow | Volume |
 | [CMO](momentum/cmo/Cmo.md) | Chande Momentum Oscillator | Momentum |
@@ -154,7 +154,7 @@
 | IFFT | Inverse Fast Fourier Transform | Numerics |
 | [III](volume/iii/Iii.md) | Intraday Intensity Index | Volume |
 | [IMI](dynamics/imi/Imi.md) | Intraday Momentum Index | Dynamics |
-| IMPULSE | Elder Impulse System | Dynamics |
+| [IMPULSE](dynamics/impulse/Impulse.md) | Elder Impulse System | Dynamics |
 | [INERTIA](oscillators/inertia/Inertia.md) | Inertia | Oscillators |
 | [IQR](statistics/iqr/Iqr.md) | Interquartile Range | Statistics |
 | [JB](statistics/jb/Jb.md) | Jarque-Bera Test | Statistics |
@@ -217,7 +217,7 @@
 | [PCHANNEL](channels/pchannel/Pchannel.md) | Price Channel | Channels |
 | [PERCENTILE](statistics/percentile/Percentile.md) | Percentile | Statistics |
 | [PGO](oscillators/pgo/Pgo.md) | Pretty Good Oscillator | Oscillators |
-| [PHASOR](cycles/phasor/Phasor.md) | Phasor Analysis | Cycles |
+| PHASOR | Phasor Analysis | Cycles |
 | [PIVOT](reversals/pivot/Pivot.md) | Pivot Points (Classic) | Reversals |
 | [PIVOTCAM](reversals/pivotcam/Pivotcam.md) | Camarilla Pivot Points | Reversals |
 | [PIVOTDEM](reversals/pivotdem/Pivotdem.md) | DeMark Pivot Points | Reversals |
@@ -299,7 +299,7 @@
 | [TR](volatility/tr/Tr.md) | True Range | Volatility |
 | [TRIMA](trends_FIR/trima/Trima.md) | Triangular MA | Trends (FIR) |
 | [TRIX](oscillators/trix/Trix.md) | Triple Exponential Average | Oscillators |
-| TSF | Time Series Forecast | Statistics |
+| TSF | Time Series Forecast | Trends (FIR) |
 | [TSI](momentum/tsi/Tsi.md) | True Strength Index | Momentum |
 | [TTM_LRC](channels/ttm_lrc/TtmLrc.md) | TTM Linear Regression Channel | Channels |
 | [TTM_SCALPER](reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | Reversals |

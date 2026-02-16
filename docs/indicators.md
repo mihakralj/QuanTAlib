@@ -214,6 +214,9 @@ Mathematical and statistical computations on price series.
 | [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) | Covariance | Joint variability |
 | [**ENTROPY**](../lib/statistics/entropy/Entropy.md) | Shannon Entropy | Normalized information entropy via histogram binning |
 | [**GEOMEAN**](../lib/statistics/geomean/Geomean.md) | Geometric Mean | Rolling geometric mean via log-sum approach |
+| [**HARMEAN**](../lib/statistics/harmean/Harmean.md) | Harmonic Mean | Rolling harmonic mean via reciprocal-sum approach |
+| [**HURST**](../lib/statistics/hurst/Hurst.md) | Hurst Exponent | Long-range dependence via Rescaled Range (R/S) analysis |
+| [**IQR**](../lib/statistics/iqr/Iqr.md) | Interquartile Range | Robust dispersion measure (Q3 - Q1) |
 | [**GRANGER**](../lib/statistics/granger/Granger.md) | Granger Causality | F-statistic testing if X helps predict Y |
 | [**LINREG**](../lib/statistics/linreg/LinReg.md) | Linear Regression | Best-fit line |
 | [**MEDIAN**](../lib/statistics/median/Median.md) | Rolling Median | 50th percentile |

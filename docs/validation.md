@@ -122,12 +122,12 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Garman-Klass Volatility** | [Gkv](../lib/volatility/gkv/Gkv.md) | - | - | - | - |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
-| **Geometric Mean** | Geomean | - | - | - | - |
-| **Granger Causality Test** | Granger | - | - | - | - |
+| **Geometric Mean** | [Geomean](../lib/statistics/geomean/Geomean.md) | - | - | - | - |
+| **Harmonic Mean** | [Harmean](../lib/statistics/harmean/Harmean.md) | - | - | - | - |
+| **Granger Causality Test** | [Granger](../lib/statistics/granger/Granger.md) | - | - | - | - |
 | **Hamming Window MA** | Hamma | - | - | - | ❔ |
 | **Hann FIR Filter** | [Hann](../lib/filters/hann/Hann.md) | - | - | - | - |
 | **Hanning Window MA** | Hanma | - | - | - | ❔ |
-| **Harmonic Mean** | Harmean | - | - | - | - |
 | **High-Low Volatility (Parkinson)** | [Hlv](../lib/volatility/hlv/Hlv.md) | - | - | - | - |
 | **Highest value** | [Highest](../lib/numerics/highest/Highest.md) | ✔️ | ✔️ | - | - |
 | **Hilbert Transform Dominant Cycle Period** | [HtDcPeriod](../lib/cycles/ht_dcperiod/ht_dcperiod.md) | ✔️ | - | - | - |
@@ -315,6 +315,9 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Covariance** | [Covariance](../lib/statistics/covariance/Covariance.md) | - | - | - | - |
 | **Entropy (Shannon)** | [Entropy](../lib/statistics/entropy/Entropy.md) | - | - | - | - |
 | **Geometric Mean** | [Geomean](../lib/statistics/geomean/Geomean.md) | ✔️ | - | - | - |
+| **Harmonic Mean** | [Harmean](../lib/statistics/harmean/Harmean.md) | ✔️ | - | - | - |
+| **Hurst Exponent** | [Hurst](../lib/statistics/hurst/Hurst.md) | - | - | - | - |
+| **Interquartile Range** | [Iqr](../lib/statistics/iqr/Iqr.md) | - | - | - | - |
 | **Granger Causality** | [Granger](../lib/statistics/granger/Granger.md) | - | - | - | - |
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |

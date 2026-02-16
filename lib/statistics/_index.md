@@ -16,9 +16,9 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [ENTROPY](entropy/Entropy.md) | Shannon Entropy | Measures uncertainty/randomness. Higher entropy = less predictable. |
 | [GEOMEAN](geomean/Geomean.md) | Geometric Mean | nth root of product. Use for growth rates and ratios. |
 | [GRANGER](granger/Granger.md) | Granger Causality | Tests if one series helps predict another. Not true causality. |
-| HARMEAN | Harmonic Mean | Reciprocal of arithmetic mean of reciprocals. For rates/ratios. |
-| HURST | Hurst Exponent | Long-term memory. H>0.5: trending. H<0.5: mean-reverting. |
-| IQR | Interquartile Range | P75 - P25. Robust dispersion measure. |
+| [HARMEAN](harmean/Harmean.md) | Harmonic Mean | Reciprocal of arithmetic mean of reciprocals. For rates/ratios. |
+| [HURST](hurst/Hurst.md) | Hurst Exponent | Long-term memory. H>0.5: trending. H<0.5: mean-reverting. |
+| [IQR](iqr/Iqr.md) | Interquartile Range | P75 - P25. Robust dispersion measure. |
 | JB | Jarque-Bera Test | Normality test using skewness and kurtosis. |
 | KENDALL | Kendall Rank Correlation | Ordinal association. Robust to outliers. |
 | KURTOSIS | Kurtosis | Tail heaviness. High kurtosis = fat tails = more extreme events. |
