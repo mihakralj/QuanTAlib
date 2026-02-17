@@ -11,5 +11,7 @@
     <Rule Id="S2245" Action="None" />
     <!-- S3604: Remove member initializer - null! is intentional -->
     <Rule Id="S3604" Action="None" />
+    <!-- S1244: Floating point equality - exact-zero div guards and tie detection are intentional in quantitative indicators -->
+    <Rule Id="S1244" Action="None" />
   </Rules>
 </RuleSet>
