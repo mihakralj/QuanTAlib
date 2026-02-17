@@ -195,12 +195,12 @@ public sealed class Ultosc : AbstractBase
         }
 
         // Calculate sums
-        double bpSum1 = _bp1.Sum();
-        double bpSum2 = _bp2.Sum();
-        double bpSum3 = _bp3.Sum();
-        double trSum1 = _tr1.Sum();
-        double trSum2 = _tr2.Sum();
-        double trSum3 = _tr3.Sum();
+        double bpSum1 = _bp1.Sum;
+        double bpSum2 = _bp2.Sum;
+        double bpSum3 = _bp3.Sum;
+        double trSum1 = _tr1.Sum;
+        double trSum2 = _tr2.Sum;
+        double trSum3 = _tr3.Sum;
 
         // Calculate averages (handle division by zero)
         const double epsilon = 1e-10;

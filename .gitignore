@@ -61,3 +61,6 @@ docfx/
 
 # Roo Code local config
 .roo/
+
+# Internal planning docs (not shipped)
+plans/

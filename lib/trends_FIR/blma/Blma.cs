@@ -122,7 +122,7 @@ public sealed class Blma : AbstractBase
                 result = ComputeWeightedAverage(
                     currentWeightSum,
                     CalculateWeightedSum(_buffer, currentWeights),
-                    _buffer.Average());
+                    _buffer.Average);
             }
         }
         else
@@ -131,7 +131,7 @@ public sealed class Blma : AbstractBase
             result = ComputeWeightedAverage(
                 _weightSum,
                 CalculateWeightedSum(_buffer, _weights),
-                _buffer.Average());
+                _buffer.Average);
         }
 
         var tValue = new TValue(input.Time, result);

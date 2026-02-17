@@ -1,0 +1,40 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("TTM Scalper Alert", "TTM_SCALPER", overlay=true)
+
+//@function Detects 3-bar pivot patterns for scalping entry signals
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/ttmscalper.md
+//@returns Tuple [pivot_high_price, pivot_low_price] with pivot values (na if no pivot)
+ttmscalper(bool use_closes = false) =>
+    bool is_pivot_high = false
+    bool is_pivot_low = false
+
+    if bar_index >= 2
+        if use_closes
+            is_pivot_high := close[1] > close[2] and close[1] > close[0]
+            is_pivot_low := close[1] < close[2] and close[1] < close[0]
+        else
+            is_pivot_high := high[1] > high[2] and high[1] > high[0]
+            is_pivot_low := low[1] < low[2] and low[1] < low[0]
+
+    float pivot_high_price = is_pivot_high ? (use_closes ? close[1] : high[1]) : na
+    float pivot_low_price = is_pivot_low ? (use_closes ? close[1] : low[1]) : na
+
+    [pivot_high_price, pivot_low_price]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_use_closes = input.bool(false, "Use Closes", tooltip="Use close prices instead of high/low for pivot detection")
+i_show_high = input.bool(true, "Show Pivot Highs", tooltip="Display bearish pivot markers")
+i_show_low = input.bool(true, "Show Pivot Lows", tooltip="Display bullish pivot markers")
+i_color_high = input.color(color.red, "Pivot High Color")
+i_color_low = input.color(color.green, "Pivot Low Color")
+
+// Calculation
+[pivot_high, pivot_low] = ttmscalper(i_use_closes)
+
+// Plot pivot markers
+plotshape(i_show_high and not na(pivot_high) ? pivot_high : na, "Pivot High", style=shape.triangledown, location=location.absolute, color=i_color_high, size=size.small, offset=-1)
+plotshape(i_show_low and not na(pivot_low) ? pivot_low : na, "Pivot Low", style=shape.triangleup, location=location.absolute, color=i_color_low, size=size.small, offset=-1)
