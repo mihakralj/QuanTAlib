@@ -133,6 +133,7 @@ public sealed class Pmo : AbstractBase
         }
         else
         {
+            // skipcq: CS-R1077 - Exact-zero guard: PrevClose is a price; zero means no prior data, division by zero produces Infinity
             roc = _state.PrevClose != 0.0
                 ? ((value / _state.PrevClose) - 1.0) * 100.0
                 : 0.0;

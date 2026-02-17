@@ -147,6 +147,7 @@ public sealed class Cfo : AbstractBase
         double tsf = Math.FusedMultiplyAdd(slope, _period - 1, intercept);
 
         // CFO = 100 * (source - tsf) / source
+        // skipcq: CS-R1077 - Exact-zero guard: value is a price; zero means no data, division by zero produces Infinity
         double cfo = value == 0.0 ? double.NaN : 100.0 * (value - tsf) / value;
 
         Last = new TValue(input.Time, cfo);
@@ -304,6 +305,7 @@ public sealed class Cfo : AbstractBase
             double intercept = (sumY - slope * sumX) / period;
             double tsf = Math.FusedMultiplyAdd(slope, period - 1, intercept);
 
+            // skipcq: CS-R1077 - Exact-zero guard: val is a price; zero means no data, division by zero produces Infinity
             output[i] = val == 0.0 ? double.NaN : 100.0 * (val - tsf) / val;
         }
     }

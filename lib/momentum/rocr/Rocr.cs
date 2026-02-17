@@ -81,7 +81,8 @@ public sealed class Rocr : AbstractBase
         else
         {
             double past = _buffer[0];
-            result = past != 0 ? value / past : 1.0; // Avoid division by zero
+            // skipcq: CS-R1077 - Exact-zero guard: IEEE 754 div-by-zero produces Infinity; any nonzero denominator is valid
+            result = past != 0 ? value / past : 1.0;
         }
 
         Last = new TValue(input.Time, result);
@@ -150,6 +151,7 @@ public sealed class Rocr : AbstractBase
             else
             {
                 double past = source[i - period];
+                // skipcq: CS-R1077 - Exact-zero guard: IEEE 754 div-by-zero produces Infinity; any nonzero denominator is valid
                 output[i] = past != 0 ? source[i] / past : 1.0;
             }
         }

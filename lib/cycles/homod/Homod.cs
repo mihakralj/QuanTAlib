@@ -321,6 +321,7 @@ public sealed class Homod : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Atan2(double y, double x)
     {
+        // skipcq: CS-R1077 - Exact-zero guard: both quadrature components zero means no signal; atan2(0,0) is undefined
         if (y == 0.0 && x == 0.0)
         {
             return 0.0; // Return 0 instead of error for robustness

@@ -226,6 +226,7 @@ public sealed class Spearman : AbstractBase
                 {
                     countSmaller++;
                 }
+                // skipcq: CS-R1077 - Exact-equality required: Spearman tie-detection needs bit-identical values; epsilon would create false ties
                 if (vj == vi)
                 {
                     countEqual++; // includes self

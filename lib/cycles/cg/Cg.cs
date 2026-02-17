@@ -180,6 +180,7 @@ public sealed class Cg : AbstractBase
     private double CalculateCg()
     {
         int n = _buffer.Count;
+        // skipcq: CS-R1077 - Exact-zero guard: _sum is cumulative price sum; zero means empty buffer, division by zero below
         if (n == 0 || _sum == 0)
         {
             return 0;
@@ -299,6 +300,7 @@ public sealed class Cg : AbstractBase
                 sum += price;
             }
 
+            // skipcq: CS-R1077 - Exact-zero guard: sum is cumulative price sum; zero means empty buffer, division by zero below
             if (sum == 0)
             {
                 output[i] = 0;

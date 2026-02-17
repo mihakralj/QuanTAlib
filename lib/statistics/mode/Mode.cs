@@ -307,6 +307,7 @@ public sealed class Mode : AbstractBase
 
         for (int i = 1; i < count; i++)
         {
+            // skipcq: CS-R1077 - Exact-equality required: mode detection counts identical values in a sorted array; epsilon would merge distinct prices
             if (sorted[i] == sorted[i - 1])
             {
                 currentFreq++;
