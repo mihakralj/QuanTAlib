@@ -13,8 +13,8 @@ namespace QuanTAlib;
 /// making it useful for timing entries and exits.
 ///
 /// Formula:
-/// num = Σ(count * price[count-1]) for count = 1 to length
-/// den = Σ(price[count-1]) for count = 1 to length
+/// num = Î£(count * price[count-1]) for count = 1 to length
+/// den = Î£(price[count-1]) for count = 1 to length
 /// CG = (num / den) - (length + 1) / 2
 ///
 /// Properties:
@@ -180,8 +180,7 @@ public sealed class Cg : AbstractBase
     private double CalculateCg()
     {
         int n = _buffer.Count;
-        // skipcq: CS-R1077 - Exact-zero guard: _sum is cumulative price sum; zero means empty buffer, division by zero below
-        if (n == 0 || _sum == 0)
+        if (n == 0 || _sum == 0) // skipcq: CS-R1077 - Exact-zero guard: _sum is cumulative price sum; zero means empty buffer, division by zero below
         {
             return 0;
         }
@@ -300,8 +299,7 @@ public sealed class Cg : AbstractBase
                 sum += price;
             }
 
-            // skipcq: CS-R1077 - Exact-zero guard: sum is cumulative price sum; zero means empty buffer, division by zero below
-            if (sum == 0)
+            if (sum == 0) // skipcq: CS-R1077 - Exact-zero guard: sum is cumulative price sum; zero means empty buffer, division by zero below
             {
                 output[i] = 0;
                 continue;

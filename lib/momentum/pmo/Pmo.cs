@@ -9,8 +9,8 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// DecisionPoint PMO Algorithm:
-/// <c>ROC = (Close / Close[1] - 1) × 100</c>  (always 1-bar),
-/// <c>RocEma = CustomEMA(ROC, timePeriods) × 10</c>,
+/// <c>ROC = (Close / Close[1] - 1) Ã— 100</c>  (always 1-bar),
+/// <c>RocEma = CustomEMA(ROC, timePeriods) Ã— 10</c>,
 /// <c>PMO = CustomEMA(RocEma, smoothPeriods)</c>.
 ///
 /// Custom EMA uses alpha = 2/N (not the standard 2/(N+1)), and is seeded with the SMA
@@ -19,7 +19,7 @@ namespace QuanTAlib;
 ///
 /// PMO oscillates around zero; positive values indicate upward momentum, negative values
 /// indicate downward momentum. Crossings of zero or a signal line suggest trend changes.
-/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
+/// Non-finite inputs (NaN/Â±Inf) are sanitized by substituting the last finite value observed.
 ///
 /// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
 /// companion files in the same directory.
@@ -133,8 +133,7 @@ public sealed class Pmo : AbstractBase
         }
         else
         {
-            // skipcq: CS-R1077 - Exact-zero guard: PrevClose is a price; zero means no prior data, division by zero produces Infinity
-            roc = _state.PrevClose != 0.0
+            roc = _state.PrevClose != 0.0 // skipcq: CS-R1077 - Exact-zero guard: PrevClose is a price; zero means no prior data, division by zero produces Infinity
                 ? ((value / _state.PrevClose) - 1.0) * 100.0
                 : 0.0;
             _state.PrevClose = value;
@@ -179,7 +178,7 @@ public sealed class Pmo : AbstractBase
             rocEmaScaled = _state.RocEmaRaw * 10.0;
         }
 
-        // Step 3: Second Custom EMA smoothing → PMO (SMA-seeded, alpha = 2/smoothPeriods)
+        // Step 3: Second Custom EMA smoothing â†’ PMO (SMA-seeded, alpha = 2/smoothPeriods)
         double pmoValue;
         if (!_state.RocEmaSeeded)
         {
@@ -300,8 +299,8 @@ public sealed class Pmo : AbstractBase
         double alpha2 = 2.0 / smoothPeriods;
 
         // Step 1: Compute 1-bar ROC for all bars
-        // Step 2: First CustomEMA(ROC, timePeriods) with SMA seed, then ×10
-        // Step 3: Second CustomEMA(scaled, smoothPeriods) with SMA seed → PMO
+        // Step 2: First CustomEMA(ROC, timePeriods) with SMA seed, then Ã—10
+        // Step 3: Second CustomEMA(scaled, smoothPeriods) with SMA seed â†’ PMO
 
         double rocEmaRaw = 0.0;
         bool rocEmaSeeded = false;
@@ -352,7 +351,7 @@ public sealed class Pmo : AbstractBase
                 rocEmaScaled = rocEmaRaw * 10.0;
             }
 
-            // Second Custom EMA of scaled RocEma with SMA seed → PMO
+            // Second Custom EMA of scaled RocEma with SMA seed â†’ PMO
             if (!rocEmaSeeded)
             {
                 output[i] = 0.0;

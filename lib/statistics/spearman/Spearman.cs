@@ -4,24 +4,24 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Computes the Spearman Rank Correlation Coefficient (Spearman's ρ), which measures
+/// Computes the Spearman Rank Correlation Coefficient (Spearman's Ï), which measures
 /// the monotonic relationship between two series by applying Pearson correlation to
 /// their ranks.
 /// </summary>
 /// <remarks>
 /// Spearman's Rho Algorithm:
-/// <c>ρ = Pearson(rank(X), rank(Y))</c>
+/// <c>Ï = Pearson(rank(X), rank(Y))</c>
 ///
 /// Ranks are 1-based with average-rank tie-breaking: if k values share the same value,
 /// each receives the mean of the positions they would occupy.
 ///
 /// When no ties exist, the simplified formula applies:
-/// <c>ρ = 1 - 6·Σd² / (n·(n²-1))</c>, where d_i = rank(x_i) - rank(y_i).
+/// <c>Ï = 1 - 6Â·Î£dÂ² / (nÂ·(nÂ²-1))</c>, where d_i = rank(x_i) - rank(y_i).
 ///
 /// This implementation uses the general Pearson-on-ranks method because ties can occur
-/// in financial data (identical closes, rounded prices). Ranking is O(n²) per series.
+/// in financial data (identical closes, rounded prices). Ranking is O(nÂ²) per series.
 ///
-/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
+/// Non-finite inputs (NaN/Â±Inf) are sanitized by substituting the last finite value observed.
 ///
 /// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
 /// companion files in the same directory.
@@ -65,7 +65,7 @@ public sealed class Spearman : AbstractBase
     /// <param name="seriesX">First series value</param>
     /// <param name="seriesY">Second series value</param>
     /// <param name="isNew">Whether this is a new bar</param>
-    /// <returns>Spearman's ρ coefficient (-1 to +1)</returns>
+    /// <returns>Spearman's Ï coefficient (-1 to +1)</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue seriesX, TValue seriesY, bool isNew = true)
     {
@@ -144,7 +144,7 @@ public sealed class Spearman : AbstractBase
             return double.NaN;
         }
 
-        // Allocate rank arrays — stackalloc for small, ArrayPool for large
+        // Allocate rank arrays â€” stackalloc for small, ArrayPool for large
         double[]? rentedRx = null;
         double[]? rentedRy = null;
         scoped Span<double> rankX;
@@ -189,7 +189,7 @@ public sealed class Spearman : AbstractBase
 
             if (sumXX < Epsilon || sumYY < Epsilon)
             {
-                return 0.0; // Constant series → zero correlation
+                return 0.0; // Constant series â†’ zero correlation
             }
 
             return sumXY / Math.Sqrt(sumXX * sumYY);
@@ -208,7 +208,7 @@ public sealed class Spearman : AbstractBase
     }
 
     /// <summary>
-    /// Computes 1-based average ranks for buffer values. O(n²).
+    /// Computes 1-based average ranks for buffer values. O(nÂ²).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeRanks(RingBuffer buffer, int n, Span<double> ranks)
@@ -226,8 +226,7 @@ public sealed class Spearman : AbstractBase
                 {
                     countSmaller++;
                 }
-                // skipcq: CS-R1077 - Exact-equality required: Spearman tie-detection needs bit-identical values; epsilon would create false ties
-                if (vj == vi)
+                if (vj == vi) // skipcq: CS-R1077 - Exact-equality required: Spearman tie-detection needs bit-identical values; epsilon would create false ties
                 {
                     countEqual++; // includes self
                 }
@@ -256,7 +255,7 @@ public sealed class Spearman : AbstractBase
     }
 
     /// <summary>
-    /// Calculates Spearman's ρ for two time series.
+    /// Calculates Spearman's Ï for two time series.
     /// </summary>
     public static TSeries Batch(TSeries seriesX, TSeries seriesY, int period = 20, Spearman? indicator = null)
     {

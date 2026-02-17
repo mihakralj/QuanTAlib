@@ -9,7 +9,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// Measures the percentage difference between the current price and the
 /// Time Series Forecast (linear regression endpoint):
-/// <c>CFO = 100 × (source − TSF) / source</c>
+/// <c>CFO = 100 Ã— (source âˆ’ TSF) / source</c>
 ///
 /// Uses O(1) incremental sumY / sumXY maintenance from the PineScript reference.
 /// When source equals zero, returns NaN to avoid division by zero.
@@ -26,7 +26,7 @@ public sealed class Cfo : AbstractBase
 
     // Precomputed linear regression constants (full window)
     private readonly double _sumX;     // 0 + 1 + ... + (period-1)
-    private readonly double _denomX;   // period * sumX2 - sumX²
+    private readonly double _denomX;   // period * sumX2 - sumXÂ²
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -147,8 +147,7 @@ public sealed class Cfo : AbstractBase
         double tsf = Math.FusedMultiplyAdd(slope, _period - 1, intercept);
 
         // CFO = 100 * (source - tsf) / source
-        // skipcq: CS-R1077 - Exact-zero guard: value is a price; zero means no data, division by zero produces Infinity
-        double cfo = value == 0.0 ? double.NaN : 100.0 * (value - tsf) / value;
+        double cfo = value == 0.0 ? double.NaN : 100.0 * (value - tsf) / value; // skipcq: CS-R1077 - Exact-zero guard: value is a price; zero means no data, division by zero produces Infinity
 
         Last = new TValue(input.Time, cfo);
         PubEvent(Last, isNew);
@@ -305,8 +304,7 @@ public sealed class Cfo : AbstractBase
             double intercept = (sumY - slope * sumX) / period;
             double tsf = Math.FusedMultiplyAdd(slope, period - 1, intercept);
 
-            // skipcq: CS-R1077 - Exact-zero guard: val is a price; zero means no data, division by zero produces Infinity
-            output[i] = val == 0.0 ? double.NaN : 100.0 * (val - tsf) / val;
+            output[i] = val == 0.0 ? double.NaN : 100.0 * (val - tsf) / val; // skipcq: CS-R1077 - Exact-zero guard: val is a price; zero means no data, division by zero produces Infinity
         }
     }
 

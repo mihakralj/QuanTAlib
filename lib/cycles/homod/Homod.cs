@@ -18,7 +18,7 @@ namespace QuanTAlib;
 /// 3. Homodyne mixing: multiply I/Q with their 1-bar delayed values
 /// 4. Re = I*I[1] + Q*Q[1], Im = I*Q[1] - Q*I[1]
 /// 5. Angle = atan2(Im, Re) gives instantaneous phase change
-/// 6. Period = 2π / angle with clamping and smoothing
+/// 6. Period = 2Ï€ / angle with clamping and smoothing
 ///
 /// Properties:
 /// - Returns smoothed dominant cycle period
@@ -321,8 +321,7 @@ public sealed class Homod : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Atan2(double y, double x)
     {
-        // skipcq: CS-R1077 - Exact-zero guard: both quadrature components zero means no signal; atan2(0,0) is undefined
-        if (y == 0.0 && x == 0.0)
+        if (y == 0.0 && x == 0.0) // skipcq: CS-R1077 - Exact-zero guard: both quadrature components zero means no signal; atan2(0,0) is undefined
         {
             return 0.0; // Return 0 instead of error for robustness
         }

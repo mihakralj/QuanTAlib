@@ -206,12 +206,10 @@ public sealed class HtSine : AbstractBase
         prevI2 = i2;
 
         double tempReal1 = period;
-        // skipcq: CS-R1077 - Exact-zero guard: atan(im/re) requires nonzero denominator; zero im/re means no signal energy
-        if (im != 0.0 && re != 0.0)
+        if (im != 0.0 && re != 0.0) // skipcq: CS-R1077 - Exact-zero guard: atan(im/re) needs nonzero; zero means no signal
         {
             double angle = Math.Atan(im / re);
-            // skipcq: CS-R1077 - Exact-zero guard: angle == 0 means period is undefined (division by angle below)
-            if (angle != 0.0)
+            if (angle != 0.0) // skipcq: CS-R1077 - Exact-zero guard: angle == 0 means period undefined (div by angle)
             {
                 period = (2.0 * Math.PI) / angle;
             }

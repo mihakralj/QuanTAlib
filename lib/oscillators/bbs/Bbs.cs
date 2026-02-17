@@ -329,8 +329,7 @@ public sealed class Bbs : ITValuePublisher
         _prevSqueezeOn = squeezeOn;
 
         // === Bandwidth ===
-        // skipcq: CS-R1077 - Exact-zero guard: bbMean is a price average; zero means no data, not rounding artifact
-        double bandwidth = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0;
+        double bandwidth = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0; // skipcq: CS-R1077 - Exact-zero div guard: price avg
 
         // === Resync for floating-point drift ===
         if (isNew)
@@ -612,8 +611,7 @@ public sealed class Bbs : ITValuePublisher
             squeezeOn[i] = bbUpper < kcUpper && bbLower > kcLower;
 
             // Bandwidth
-            // skipcq: CS-R1077 - Exact-zero guard: bbMean is a price average; zero means no data, not rounding artifact
-            bandwidth[i] = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0;
+            bandwidth[i] = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0; // skipcq: CS-R1077 - Exact-zero div guard: price avg
         }
     }
 
