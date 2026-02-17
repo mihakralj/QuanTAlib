@@ -1,14 +1,14 @@
 # Missing Indicators Report
 
-> Generated: 2026-02-13 | Refreshed: 2026-02-16 | Source: Cross-reference of `_index.md` files vs actual filesystem + planned additions
+> Generated: 2026-02-13 | Refreshed: 2026-02-17 | Source: Cross-reference of `_index.md` files vs actual filesystem + planned additions
 
 ## Summary
 
 | Status | Count | Description |
 |--------|------:|-------------|
-| **Fully Implemented** | 266 | `.cs` + tests + docs |
-| **Pine-Only** (has spec, no C#) | 20 | Directory exists with `.pine` file only |
-| **No Directory** (listed in master index or planned, no files) | 100 | Planned but nothing on disk |
+| **Fully Implemented** | 276 | `.cs` + tests + docs |
+| **Pine-Only** (has spec, no C#) | 9 | Directory exists with `.pine` file only |
+| **No Directory** (listed in master index or planned, no files) | 98 | Planned but nothing on disk |
 | **Doc-Only** | 1 | Only `.md` file exists |
 | **Index Discrepancies** | 0 | All 7 mismatches in `lib/_index.md` fixed on 2026-02-16 |
 
@@ -32,46 +32,15 @@
 | Errors | 26 | **26** | All complete (no Quantower wrappers) |
 | Numerics | 15 | **15** | All complete; 14 distributions planned |
 | Forecasts | 1 | **1** | AFIRMA only (MLP planned) |
-| Statistics | 30 | **19** | 11 pine-only — see below |
+| Statistics | 30 | **30** | ✅ All complete (was 10 pine-only, implemented 2026-02-14 through 2026-02-17) |
 | Reversals | 12 | **2** | 9 pine-only + 1 doc-only + 1 planned |
 | Feeds | 3 | **3** | CSV, GBM, IFeed |
-
----
-
-## Recently Implemented (since last refresh)
-
-| Indicator | Category | Date | Notes |
-|-----------|----------|------|-------|
-| **ENTROPY** | Statistics | 2026-02-13 | Shannon entropy with Kahan-Babuška summation |
-| **GEOMEAN** | Statistics | 2026-02-13 | Geometric mean via log-sum with compensated summation |
-| **GRANGER** | Statistics | 2026-02-13 | Granger causality test (F-statistic) |
-| **HARMEAN** | Statistics | 2026-02-14 | Harmonic mean via reciprocal sum with Kahan-Babuška |
-| **HURST** | Statistics | 2026-02-16 | Hurst Exponent via R/S analysis with OLS log-log regression |
-| **IQR** | Statistics | 2026-02-16 | Interquartile Range via sorted-window with BinarySearch insert |
-| **CHANDELIER** | Reversals | 2026-02-13 | Chandelier Exit (ATR-based trailing stop) |
-| **CKSTOP** | Reversals | 2026-02-13 | Chande Kroll Stop |
-| **IMPULSE** | Dynamics | 2026-02-13 | Elder Impulse System (EMA + MACD histogram) |
 
 ---
 
 ## 1. PINE-ONLY Indicators (spec exists, no C# implementation)
 
 These have directories with `.pine` reference files but **zero `.cs` files**. They need full implementation.
-
-### Statistics (10 indicators — pine-only)
-
-| Indicator | Directory |
-|-----------|-----------|
-| JB | `lib/statistics/jb/` |
-| KENDALL | `lib/statistics/kendall/` |
-| KURTOSIS | `lib/statistics/kurtosis/` |
-| MODE | `lib/statistics/mode/` |
-| PERCENTILE | `lib/statistics/percentile/` |
-| QUANTILE | `lib/statistics/quantile/` |
-| SPEARMAN | `lib/statistics/spearman/` |
-| THEIL | `lib/statistics/theil/` |
-| ZSCORE | `lib/statistics/zscore/` |
-| ZTEST | `lib/statistics/ztest/` |
 
 ### Reversals (9 indicators — pine-only)
 
@@ -292,9 +261,7 @@ All category mismatches and count errors in `lib/_index.md` have been corrected.
 
 ### Tier 1 — High Value (pine-only, well-specified)
 
-1. **Statistics** (10 pine-only) — Core statistical functionality gap
-   - KURTOSIS, PERCENTILE, QUANTILE, ZSCORE
-   - KENDALL, SPEARMAN, JB, ZTEST, THEIL, MODE
+1. ~~**Statistics** (10 pine-only)~~ — ✅ **ALL COMPLETE** (implemented 2026-02-14 through 2026-02-17)
 
 2. **Reversals** (9 pine-only) — Large category gap
    - PSAR, FRACTALS, PIVOT, PIVOTCAM, PIVOTDEM, PIVOTEXT, PIVOTFIB, PIVOTWOOD, SWINGS
@@ -353,18 +320,18 @@ All category mismatches and count errors in `lib/_index.md` have been corrected.
 | Errors | 26 | 0 | 0 | 26 |
 | Numerics | 15 | 0 | 14 | 29 |
 | Forecasts | 1 | 0 | 1 | 2 |
-| Statistics | 19 | 11 | 2 | 32 |
+| Statistics | 30 | 0 | 2 | 32 |
 | Reversals | 2 | 9 | 1 | 12 |
 | Feeds | 3 | 0 | 0 | 3 |
-| **Total** | **266** | **20** | **98** | **384** |
+| **Total** | **276** | **9** | **98** | **383** |
 
 ## 7. Grand Totals
 
 | Type | Count |
 |------|------:|
-| Pine-only (spec ready, no C#) | **20** |
-| No directory (planned only) | **100** |
+| Pine-only (spec ready, no C#) | **9** |
+| No directory (planned only) | **98** |
 | Doc-only | **1** |
-| **Total missing indicators** | **121** |
-| **Total implemented (C#)** | **266** |
-| **Grand total (implemented + missing)** | **387** |
+| **Total missing indicators** | **108** |
+| **Total implemented (C#)** | **276** |
+| **Grand total (implemented + missing)** | **384** |

@@ -1,6 +1,6 @@
 <svg xmlns='http://www.w3.org/2000/svg'
     xmlns:xlink='http://www.w3.org/1999/xlink' width='188.0957' height='20' role='img' aria-label='languages: 5'>
-    <title>Percentage of Comments: 33.02</title>
+    <title>Percentage of Comments: 32.53</title>
     <linearGradient id='s' x2='0' y2='100%'>
         <stop offset='0' stop-color='#bbb' stop-opacity='.1'/>
         <stop offset='1' stop-opacity='.1'/>
@@ -16,7 +16,7 @@
     <g fill='#FFF' text-anchor='center' font-family='Verdana,Geneva,DejaVu Sans,sans-serif' text-rendering='geometricPrecision' font-size='110'>
         <text aria-hidden='true' x='40' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='1360.6641'>Percentage of Comments</text>
         <text x='40' y='140' transform='scale(.1)' fill='#FFF' textLength='1360.6641'>Percentage of Comments</text>
-        <text aria-hidden='true' x='1500.6641' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='300.29297'>33.02</text>
-        <text x='1500.6641' y='140' transform='scale(.1)' fill='#FFF' textLength='300.29297'>33.02</text>
+        <text aria-hidden='true' x='1500.6641' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='300.29297'>32.53</text>
+        <text x='1500.6641' y='140' transform='scale(.1)' fill='#FFF' textLength='300.29297'>32.53</text>
     </g>
 </svg>

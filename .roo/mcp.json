@@ -8,7 +8,6 @@
 				"map",
 				"scan_list",
 				"symbol",
-				"source",
 				"metrics",
 				"hierarchy",
 				"deps",
@@ -22,7 +21,8 @@
 				"explore",
 				"__unlock_csharp_analysis__",
 				"understand",
-				"diag"
+				"diag",
+				"source"
 			],
 			"disabled": false
 		}

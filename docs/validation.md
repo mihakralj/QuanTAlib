@@ -150,7 +150,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Interquartile Range** | Iqr | - | - | - | - |
 | **Intraday Intensity Index** | [Iii](../lib/volume/iii/Iii.md) | - | - | - | - |
 | **Intraday Momentum Index** | Imi | - | - | - | ❔ |
-| **Jarque-Bera Test** | Jb | - | - | - | - |
+| **Jarque-Bera Test** | [Jb](../lib/statistics/jb/Jb.md) | - | - | - | - |
 | **Jurik Moving Average** | [Jma](../lib/trends/jma/jma.md) | - | - | - | ❔ |
 | **Jurik Volatility** | [Jvolty](../lib/volatility/jvolty/Jvolty.md) | - | - | - | - |
 | **Jurik Adaptive Envelope Bands** | [Jbands](../lib/channels/jbands/Jbands.md) | - | - | - | - |
@@ -159,9 +159,9 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **KDJ Indicator** | [Kdj](../lib/oscillators/kdj/Kdj.md) | - | - | - | - |
 | **Keltner Channel** | [Kchannel](../lib/channels/kchannel/kchannel.md) | - | - | ✔️ | ❔ |
-| **Kendall Rank Correlation** | Kendall | - | - | - | ❔ |
+| **Kendall Rank Correlation** | [Kendall](../lib/statistics/kendall/Kendall.md) | - | - | - | - |
 | **Klinger Volume Oscillator** | [Kvo](../lib/volume/kvo/Kvo.md) | - | ✔️ | ✔️ | ❔ |
-| **Kurtosis** | Kurtosis | - | - | - | ❔ |
+| **Kurtosis** | [Kurtosis](../lib/statistics/kurtosis/Kurtosis.md) | - | - | - | [✔️](../lib/statistics/kurtosis/Kurtosis.md#validation) |
 | **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | ✔️ | - | ✔️ | ❔ |
 | **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
 | **Linear Transformation** | Lineartrans | - | - | - | - |
@@ -304,7 +304,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Zero-Lag Exponential Moving Average** | [Zlema](../lib/trends_IIR/zlema/Zlema.md) | - | ✔️ | - | ❔ |
 | **Zero-Lag Triple Exponential MA** | Zltema | - | - | - | ❔ |
 | **ZigZag** | - | - | - | ✔️ | - |
-| **Z-score standardization** | Zscore | - | - | - | ❔ |
+| **Z-score standardization** | Zscore | - | - | - | ✔️ Manual + Standardize cross-validation |
 | **Z-Test** | Ztest | - | - | - | - |
 
 ## Statistical Indicators
@@ -319,12 +319,21 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hurst Exponent** | [Hurst](../lib/statistics/hurst/Hurst.md) | - | - | - | - |
 | **Interquartile Range** | [Iqr](../lib/statistics/iqr/Iqr.md) | - | - | - | - |
 | **Granger Causality** | [Granger](../lib/statistics/granger/Granger.md) | - | - | - | - |
+| **Jarque-Bera Test** | [Jb](../lib/statistics/jb/Jb.md) | - | - | - | - |
+| **Kendall Rank Correlation** | [Kendall](../lib/statistics/kendall/Kendall.md) | - | - | - | - |
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
+| **Mode** | [Mode](../lib/statistics/mode/Mode.md) | - | - | - | - |
+| **Percentile** | [Percentile](../lib/statistics/percentile/Percentile.md) | - | - | - | - |
+| **Quantile** | [Quantile](../lib/statistics/quantile/Quantile.md) | - | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
+| **Spearman Rank Correlation** | [Spearman](../lib/statistics/spearman/Spearman.md) | - | - | - | - |
 | **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sum (Rolling)** | [Sum](../lib/statistics/sum/Sum.md) | - | ✔️ | ✔️ | - |
+| **Theil T Index** | [Theil](../lib/statistics/theil/Theil.md) | - | - | - | - |
 | **Partial Autocorrelation Function** | [Pacf](../lib/statistics/pacf/Pacf.md) | - | - | - | - |
 | **Variance** | [Variance](../lib/statistics/variance/Variance.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Z-Score** | [Zscore](../lib/statistics/zscore/Zscore.md) | - | - | - | - |
+| **Z-Test** | [Ztest](../lib/statistics/ztest/Ztest.md) | - | - | - | - |
 
 ## Error Metrics
 

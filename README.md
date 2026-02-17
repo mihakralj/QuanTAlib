@@ -6,15 +6,16 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuanTAlib)
 [![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
-[![Indicators](https://img.shields.io/badge/Indicators-265_|_387-blue?style=flat-square)](lib/_index.md)
 
-Static code analysis provided by [ndepend](https://www.ndepend.com/):  
-[![Files](ndepend/badges/files.svg)](ndepend/ndependout/ndependreport.html)
+[![Indicators](https://img.shields.io/badge/%23%20Indicators-284-blue?style=flat-square)](lib/_index.md)
 [![Classes](ndepend/badges/classes.svg)](ndepend/ndependout/ndependreport.html)
+[![Files](ndepend/badges/files.svg)](ndepend/ndependout/ndependreport.html)
 [![Methods](ndepend/badges/methods.svg)](ndepend/ndependout/ndependreport.html)
-[![LoC](ndepend/badges/loc.svg)](ndepend/ndependout/ndependreport.html)  
-[![Public API](ndepend/badges/public-api.svg)](ndepend/ndependout/ndependreport.html)
+[![Lines of Code](ndepend/badges/loc.svg)](ndepend/ndependout/ndependreport.html)  
+[![Public APIs](ndepend/badges/public-api.svg)](ndepend/ndependout/ndependreport.html)
 [![Comments](ndepend/badges/comments.svg)](ndepend/ndependout/ndependreport.html)
+
+Static code analysis provided by [ndepend](https://www.ndepend.com/)  
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 

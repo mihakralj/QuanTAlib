@@ -217,13 +217,23 @@ Mathematical and statistical computations on price series.
 | [**HARMEAN**](../lib/statistics/harmean/Harmean.md) | Harmonic Mean | Rolling harmonic mean via reciprocal-sum approach |
 | [**HURST**](../lib/statistics/hurst/Hurst.md) | Hurst Exponent | Long-range dependence via Rescaled Range (R/S) analysis |
 | [**IQR**](../lib/statistics/iqr/Iqr.md) | Interquartile Range | Robust dispersion measure (Q3 - Q1) |
+| [**JB**](../lib/statistics/jb/Jb.md) | Jarque-Bera Test | Normality test combining skewness and kurtosis |
+| [**KENDALL**](../lib/statistics/kendall/Kendall.md) | Kendall Tau-a | Rank-based ordinal association [-1, +1] |
 | [**GRANGER**](../lib/statistics/granger/Granger.md) | Granger Causality | F-statistic testing if X helps predict Y |
 | [**LINREG**](../lib/statistics/linreg/LinReg.md) | Linear Regression | Best-fit line |
 | [**MEDIAN**](../lib/statistics/median/Median.md) | Rolling Median | 50th percentile |
+| [**MODE**](../lib/statistics/mode/Mode.md) | Mode | Most frequent value in rolling window |
+| [**KURTOSIS**](../lib/statistics/kurtosis/Kurtosis.md) | Kurtosis | Fourth-moment excess kurtosis (sample/population) |
+| [**PERCENTILE**](../lib/statistics/percentile/Percentile.md) | Percentile | Value at given percentile via linear interpolation (PERCENTILE.INC) |
+| [**QUANTILE**](../lib/statistics/quantile/Quantile.md) | Quantile | Value at given quantile (0–1) via linear interpolation |
 | [**SKEW**](../lib/statistics/skew/Skew.md) | Skewness | Distribution asymmetry |
+| [**SPEARMAN**](../lib/statistics/spearman/Spearman.md) | Spearman Rank Correlation | Pearson on ranks; monotonic association [-1, +1] |
 | [**STDDEV**](../lib/statistics/stddev/StdDev.md) | Standard Deviation | Dispersion measure |
 | [**SUM**](../lib/statistics/sum/Sum.md) | Rolling Sum | Windowed sum |
+| [**THEIL**](../lib/statistics/theil/Theil.md) | Theil T Index | Information-theoretic inequality/concentration measure |
 | [**VARIANCE**](../lib/statistics/variance/Variance.md) | Variance | Squared deviation |
+| [**ZSCORE**](../lib/statistics/zscore/Zscore.md) | Z-Score | Population standard deviations from rolling mean |
+| [**ZTEST**](../lib/statistics/ztest/Ztest.md) | Z-Test | One-sample t-statistic against hypothesized mean |
 
 ### Forecasts
 
