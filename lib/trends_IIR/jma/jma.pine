@@ -4,7 +4,6 @@
 indicator("Jurik Moving Average", "JMA", overlay=true)
 
 //@function Spectrally correct JMA (decompiled-style, Kositsin/AmiBroker port)
-//@doc     Follows 10-bar local deviation + 128-sample volatility distribution
 //@param   source Series to calculate JMA from
 //@param   period Number of bars used in the calculation (>= 1)
 //@param   phase  Phase shift (-100 to 100). Negative = smoother, positive = more leading

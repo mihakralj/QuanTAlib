@@ -4,7 +4,6 @@
 indicator("Moving Average Convergence Divergence (MACD)", "MACD", overlay=false)
 
 //@function Calculates MACD with fast and slow EMAs and signal line
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/macd.md
 //@param src Source series to calculate MACD from
 //@param fast_length Period for fast EMA
 //@param slow_length Period for slow EMA

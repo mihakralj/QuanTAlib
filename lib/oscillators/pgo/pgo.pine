@@ -4,7 +4,6 @@
 indicator("Pretty Good Oscillator", "PGO", overlay=false)
 
 //@function Calculate Pretty Good Oscillator (PGO)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/pgo.md
 //@param source Price data to analyze
 //@param period Number of bars for SMA and ATR calculation
 //@returns PGO value normalized by ATR

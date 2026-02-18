@@ -4,7 +4,6 @@
 indicator("Volume Accumulation (VA)", "VA", overlay=false)
 
 //@function Calculates Volume Accumulation
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/va.md
 //@param h High price series
 //@param l Low price series
 //@param c Close price series

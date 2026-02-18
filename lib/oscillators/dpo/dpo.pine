@@ -4,7 +4,6 @@
 indicator("Detrended Price Oscillator (DPO)", "DPO", overlay=false)
 
 //@function Calculates Detrended Price Oscillator (DPO) by removing trend component from price
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/dpo.md
 //@param source Series to calculate DPO from
 //@param period Period for SMA calculation and displacement
 //@returns DPO value (current price - displaced SMA)

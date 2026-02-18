@@ -86,7 +86,6 @@ correlation(series float src1, series float src2, simple int len) =>
         na
 
 //@function Calculates the cointegration of two series using the Engle-Granger method.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/cointegration.md
 //@param series_a series float The first series.
 //@param series_b series float The second series.
 //@param period int The lookback period for the regression and ADF test.

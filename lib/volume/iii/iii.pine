@@ -4,7 +4,6 @@
 indicator("Intraday Intensity Index (III)", "III", overlay=false)
 
 //@function Calculates Intraday Intensity Index
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/iii.md
 //@param period Smoothing period for the intensity index
 //@param cumulative Whether to accumulate intensity values
 //@param h High price series

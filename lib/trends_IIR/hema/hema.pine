@@ -1,5 +1,13 @@
+// The MIT License (MIT)
+// © mihakralj
 //@version=6
 indicator("HEMA (Exponential Hull Analog)", "HEMAx", overlay=true)
+
+//@function Calculates Hull Exponential Moving Average (EMA-domain HMA analog)
+//@param src Series to calculate HEMA from
+//@param N Period in half-life bars (>= 2)
+//@returns HEMA value with reduced lag
+//@optimized Uses cascaded EMA de-lag structure with O(1) complexity per bar
 
 // Half-life -> alpha (exponential definition)
 alphaFromHalfLife(float hl) =>

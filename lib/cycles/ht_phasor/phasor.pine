@@ -1,10 +1,9 @@
 // The MIT License (MIT)
-// © mihakralj (Implementation based on John Ehlers' "Phasor Analysis" and user-provided v6 function structure)
+// © mihakralj
 //@version=6
 indicator("Ehlers Phasor Analysis (PHASOR)", shorttitle="PHASOR", overlay=false)
 
 //@function Calculates the Ehlers Phasor Angle, Derived Period, and Trend State.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/phasor.md
 //@param src The source series to analyze.
 //@param period The fixed cycle period to correlate against. Default is 28.
 //@returns A tuple: `[float finalPhasorAngle, float derivedPeriod, int trendState]`.

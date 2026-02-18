@@ -1,8 +1,9 @@
+// The MIT License (MIT)
+// © mihakralj
 //@version=6
 indicator("Stochastic Oscillator (STOCH)", "Stoch", overlay=false)
 
 //@function Calculates the Stochastic Oscillator (%K and %D). %K = 100 * (close - lowest_low(kLength)) / (highest_high(kLength) - lowest_low(kLength)). %D = SMA(%K, dPeriod). Uses efficient deque implementation for min/max and buffer-based SMA.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stoch.md
 //@param kLength `simple int` The lookback period for calculating highest high and lowest low.
 //@param dPeriod `simple int` The smoothing period for the %D line (SMA of %K).
 //@returns `[float, float]` A tuple containing the %K value and the %D value.

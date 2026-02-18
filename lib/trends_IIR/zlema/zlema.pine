@@ -4,7 +4,6 @@
 indicator("Zero-Lag EMA (ZLEMA)", "ZLEMA", overlay=true)
 
 //@function Calculates ZLEMA using zero-lag price and exponential smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/zlema.md
 //@param source Series to calculate ZLEMA from
 //@param period Smoothing period
 //@param alpha Optional smoothing factor (overrides period if provided)

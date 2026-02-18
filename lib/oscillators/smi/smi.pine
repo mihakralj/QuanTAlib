@@ -4,7 +4,6 @@
 indicator("Stochastic Momentum Index (SMI)", "SMI", overlay=false)
 
 //@function Calculates Stochastic Momentum Index oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/smi.md
 //@param source Source series to calculate SMI for
 //@param k_period Lookback period for high/low range calculation
 //@param k_smooth First smoothing period for raw SMI values

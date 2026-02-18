@@ -4,7 +4,6 @@
 indicator("Fisher Transform", "FISHER", overlay=false)
 
 //@function Calculates the Fisher Transform oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/fisher.md
 //@param source Source price (typically hl2)
 //@param period Lookback period for min/max normalization
 //@returns [fisher, signal] Fisher Transform value and signal line

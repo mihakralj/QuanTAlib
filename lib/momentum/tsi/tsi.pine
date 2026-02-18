@@ -4,7 +4,6 @@
 indicator("True Strength Index (TSI)", "TSI", overlay=false)
 
 //@function Calculates the True Strength Index and its signal line.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/tsi.md
 //@param src series float The source series.
 //@param longLen simple int The lookback period for the first EMA smoothing (typically 25).
 //@param shortLen simple int The lookback period for the second EMA smoothing (typically 13).

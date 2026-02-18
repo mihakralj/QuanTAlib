@@ -4,7 +4,6 @@
 indicator("Williams Alligator", "ALLIGATOR", overlay=true)
 
 //@function Calculates Williams Alligator indicator using SMMA (RMA)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/alligator.md
 //@param source Series to calculate Alligator from
 //@param jawPeriod Period for Jaw line (typically 13)
 //@param jawOffset Forward offset for Jaw line (typically 8)

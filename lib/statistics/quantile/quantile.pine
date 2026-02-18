@@ -1,11 +1,9 @@
 // The MIT License (MIT)
 // © mihakralj
-
 //@version=6
 indicator("Quantile (QUANTILE)", shorttitle="QUANTILE", overlay=true, precision=8)
 
 //@function Calculates the quantile of a series over a lookback period using linear interpolation.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/quantile.md
 //@param src {series float} The source series to calculate the quantile from.
 //@param len {simple int} The lookback period. Must be greater than 0.
 //@param q_level {simple float} The quantile level to calculate (between 0.0 and 1.0).

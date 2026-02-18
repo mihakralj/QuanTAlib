@@ -4,7 +4,6 @@
 indicator("Inertia", "INERTIA", overlay=false)
 
 //@function Calculates Inertia oscillator measuring trend strength based on distance from linear regression
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/inertia.md
 //@param source Source series to calculate Inertia for
 //@param length Period for linear regression calculation
 //@returns Inertia value measuring trend strength

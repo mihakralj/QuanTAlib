@@ -4,7 +4,6 @@
 indicator("Chebyshev Type I Filter (CHEBY1)", "CHEBY1", overlay=true)
 
 //@function Calculates 2nd Order Chebyshev Type I Lowpass Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/cheby1.md
 //@param src Series to calculate Chebyshev filter from
 //@param length Cutoff period (related to cutoff frequency)
 //@param ripple Passband ripple in decibels (dB) > 0

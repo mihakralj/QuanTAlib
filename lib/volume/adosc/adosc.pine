@@ -4,7 +4,6 @@
 indicator("Chaikin A/D Oscillator (ADOSC)", "ADOSC", overlay=false)
 
 //@function Calculates the Chaikin Accumulation/Distribution Oscillator (ADOSC), a momentum indicator derived from the ADL
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/adosc.md
 //@param shortPeriod (simple int) Length of the short-term EMA applied to the ADL
 //@param longPeriod (simple int) Length of the long-term EMA applied to the ADL
 //@returns (float) The ADOSC value for the current bar (difference between short and long EMAs of ADL)

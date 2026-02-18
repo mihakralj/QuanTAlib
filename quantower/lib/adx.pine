@@ -4,7 +4,6 @@
 indicator("Average Directional Movement Index (ADX)", "ADX", overlay=false)
 
 //@function Calculates ADX using Wilder's smoothing with compensated RMA
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/adx.md
 //@param period Number of bars used in the calculation
 //@returns tuple of ADX value, +DI, -DI
 adx(simple int period = 14) =>

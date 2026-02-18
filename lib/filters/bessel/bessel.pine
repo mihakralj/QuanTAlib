@@ -4,7 +4,6 @@
 indicator("Bessel 2nd Order Filter (BESSEL)", "BESSEL", overlay=true)
 
 //@function Calculates 2nd Order Bessel Lowpass Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bessel.md
 //@param src Series to calculate Bessel filter from
 //@param length Cutoff period (related to -3dB frequency)
 //@returns Bessel filter value

@@ -4,7 +4,6 @@
 indicator("Entropy (ENTROPY)", "ENTROPY", overlay=false)
 
  //@function Calculate normalized Shannon entropy of a series over a lookback period.
- //@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/entropy.md
  //@param source series<float> Input data series. NA values are ignored.
  //@param length int Lookback period (>= 1).
  //@returns series<float> Normalized entropy value [0, 1], or na if insufficient data.

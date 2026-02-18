@@ -4,7 +4,7 @@
 indicator("True Range", "TR", overlay=false)
 
 //@function Calculates the True Range
-//@returns The True Range value for the current bar.
+//@returns True Range value for the current bar
 tr() =>
     float prevClose = nz(close[1], close)
     float tr1 = high - low

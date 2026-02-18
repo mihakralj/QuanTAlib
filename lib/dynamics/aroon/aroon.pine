@@ -4,7 +4,6 @@
 indicator("Aroon (AROON)", "AROON", overlay=false)
 
 //@function Calculates Aroon Up and Down values
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/aroon.md
 //@param period Number of bars used in the calculation
 //@returns tuple of Aroon Up and Aroon Down values
 aroon(simple int period = 25) =>

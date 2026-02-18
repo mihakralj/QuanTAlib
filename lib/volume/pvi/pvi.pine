@@ -4,7 +4,6 @@
 indicator("Positive Volume Index (PVI)", "PVI", overlay=false)
 
 //@function Calculates Positive Volume Index, tracks price changes on days with higher volume
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvi.md
 //@param src Price series to use for calculation
 //@param vol Volume series
 //@param start_value Starting value for PVI (typically 100 or 1000)

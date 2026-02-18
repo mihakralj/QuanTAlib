@@ -4,7 +4,6 @@
 indicator("Volume Weighted Accumulation/Distribution (VWAD)", "VWAD", overlay=false)
 
 //@function Calculates VWAD using volume weighting for enhanced sensitivity
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vwad.md
 //@param src_high High price series
 //@param src_low Low price series
 //@param src_close Close price series

@@ -4,7 +4,6 @@
 indicator("SuperTrend", "SUPER", overlay=true)
 
 //@function Calculates SuperTrend using ATR-based dynamic support/resistance
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/super.md
 //@param source Price series for calculation (typically hlc3 or close)
 //@param atr_period Lookback period for ATR calculation
 //@param multiplier Multiplier applied to ATR for band calculation

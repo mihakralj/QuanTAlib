@@ -4,7 +4,6 @@
 indicator("Price Volume Trend (PVT)", "PVT", overlay=false)
 
 //@function Calculates Price Volume Trend, cumulative volume adjusted by relative price changes
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvt.md
 //@param src Source price for calculation (typically close)
 //@param src_vol Volume data
 //@returns float The cumulative PVT value

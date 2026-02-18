@@ -4,8 +4,6 @@
 indicator("Theil's U Statistic", "TheilU", overlay=false)
 
 //@function Calculates Theil's U Statistic (U1)
-//@doc     Relative forecast accuracy measure, normalized RMSE.
-//@doc     U=0: perfect; U=1: naive forecast; U>1: worse than naive.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for calculation

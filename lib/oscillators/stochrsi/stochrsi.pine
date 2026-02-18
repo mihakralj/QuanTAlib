@@ -4,7 +4,6 @@
 indicator("Stochastic RSI (STOCHRSI)", "StochRSI", overlay=false)
 
 //@function Calculates Stochastic RSI oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stochrsi.md
 //@param source Source series to calculate STOCHRSI for
 //@param rsi_length Period for RSI calculation
 //@param stoch_length Lookback period for Stochastic calculation on RSI

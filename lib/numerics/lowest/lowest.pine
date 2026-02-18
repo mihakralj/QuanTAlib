@@ -4,7 +4,6 @@
 indicator("Lowest Value (LOWEST)", "LOWEST", overlay=true)
 
 //@function Lowest value over a specified period using a monotonic deque.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/lowest.md
 //@param src {series float} Source series.
 //@param len {int} Lookback length. `len` > 0.
 //@returns {series float} Lowest value of `src` for `len` bars back. Returns the lowest value seen so far during initial bars.

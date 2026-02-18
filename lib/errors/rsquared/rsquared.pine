@@ -4,7 +4,6 @@
 indicator("R² Coefficient of Determination (RSQUARED)", "RSQUARED")
 
 //@function Calculates the R-squared (Coefficient of Determination) between two sources
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/rsquared.md
 //@param source1 First series to compare (actual)
 //@param source2 Second series to compare (predicted)
 //@param period Lookback period for averaging

@@ -4,7 +4,6 @@
 indicator("Percentage Change (CHANGE)", "CHANGE", overlay=false, format=format.percent)
 
 //@function Calculates the percentage change of a source series over a specified length using the history referencing operator for efficiency.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/change.md
 //@param source The source series (e.g. close price).
 //@param length The lookback period (number of bars). Must be > 0.
 //@returns float The percentage change over the specified length. Returns `na` if the historical value is `na` or zero.

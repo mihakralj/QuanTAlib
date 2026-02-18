@@ -1,0 +1,84 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004 John F. Ehlers
+indicator("Adaptive Laguerre Filter (ALAGUERRE)", "ALAGUERRE", overlay=true)
+
+//@function Calculates Adaptive Laguerre Filter with variable alpha from tracking error
+//@param source Series to calculate Adaptive Laguerre filter from
+//@param length Lookback period for HH/LL normalization of tracking error
+//@param medianLength Lookback for median smoothing of adaptive alpha
+//@returns Adaptive Laguerre filter value with auto-adjusting alpha
+//@optimized Uses 4-element all-pass cascade with adaptive alpha from tracking error
+alaguerre(series float src, simple int length, simple int medianLength) =>
+    var float L0 = 0.0
+    var float L1 = 0.0
+    var float L2 = 0.0
+    var float L3 = 0.0
+    var float pL0 = 0.0
+    var float pL1 = 0.0
+    var float pL2 = 0.0
+    var float lastResult = 0.0
+    var float alpha = 0.5
+    var bool initialized = false
+    var float[] diff_buf = array.new_float(0)
+    var float[] coeff_buf = array.new_float(0)
+    float ssrc = nz(src, src[1])
+    if not initialized
+        L0 := ssrc
+        L1 := ssrc
+        L2 := ssrc
+        L3 := ssrc
+        pL0 := ssrc
+        pL1 := ssrc
+        pL2 := ssrc
+        lastResult := ssrc
+        initialized := true
+        array.push(diff_buf, 0.0)
+        array.push(coeff_buf, 0.5)
+    else
+        // Compute tracking error
+        float diff = math.abs(ssrc - lastResult)
+        // Store in diff buffer
+        array.push(diff_buf, diff)
+        if array.size(diff_buf) > length
+            array.shift(diff_buf)
+        // Compute HH and LL of diff
+        float hh = array.max(diff_buf)
+        float ll = array.min(diff_buf)
+        // Normalize to [0,1]
+        float coeff = (hh - ll) > 1e-15 ? (diff - ll) / (hh - ll) : 0.5
+        // Store in coeff buffer and compute median
+        array.push(coeff_buf, coeff)
+        if array.size(coeff_buf) > medianLength
+            array.shift(coeff_buf)
+        float[] sorted = array.copy(coeff_buf)
+        array.sort(sorted, order.ascending)
+        int sz = array.size(sorted)
+        alpha := sz % 2 == 1 ? array.get(sorted, sz / 2) : (array.get(sorted, sz / 2 - 1) + array.get(sorted, sz / 2)) / 2.0
+        // Laguerre computation with adaptive alpha
+        // alpha = (1-gamma), so gamma = (1-alpha)
+        pL0 := L0
+        pL1 := L1
+        pL2 := L2
+        float gamma = 1.0 - alpha
+        L0 := alpha * ssrc + gamma * pL0
+        L1 := -gamma * L0 + pL0 + gamma * pL1
+        L2 := -gamma * L1 + pL1 + gamma * pL2
+        L3 := -gamma * L2 + pL2 + gamma * L3
+    float filt = (L0 + 2.0 * L1 + 2.0 * L2 + L3) / 6.0
+    lastResult := filt
+    filt
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1, maxval=200)
+i_median = input.int(5, "Median Length", minval=1, maxval=50)
+i_source = input.source(close, "Source")
+
+// Calculation
+alaguerre_val = alaguerre(i_source, i_length, i_median)
+
+// Plot
+plot(alaguerre_val, "ALaguerre", color=color.new(color.orange, 0), linewidth=2)

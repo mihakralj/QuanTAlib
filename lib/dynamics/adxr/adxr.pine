@@ -4,7 +4,6 @@
 indicator("Average Directional Movement Index Rating (ADXR)", "ADXR", overlay=false)
 
 //@function Calculates ADX Rating (ADXR) using current and historical ADX values
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/adxr.md
 //@param period Number of bars used in ADX calculation
 //@param rating_period Number of bars between current and historical ADX
 //@returns tuple of ADXR value, ADX value, +DI, -DI

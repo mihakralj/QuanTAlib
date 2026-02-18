@@ -4,8 +4,6 @@
 indicator("Median Absolute Percentage Error", "MdAPE", overlay=false, format=format.percent)
 
 //@function Calculates Median Absolute Percentage Error
-//@doc     Median of absolute percentage errors, robust to outliers.
-//@doc     Scale-independent (expressed as percentage), handles zero actual with epsilon.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for median calculation

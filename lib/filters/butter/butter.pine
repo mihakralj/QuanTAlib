@@ -4,7 +4,6 @@
 indicator("Butterworth 2nd Order Filter (BUTTER)", "BUTTER", overlay=true)
 
 //@function Calculates 2nd Order Butterworth Lowpass Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/butter.md
 //@param src Series to calculate Butterworth filter from
 //@param length Cutoff period (related to -3dB frequency)
 //@returns Butterworth filter value

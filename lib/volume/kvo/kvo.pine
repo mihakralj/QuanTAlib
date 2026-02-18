@@ -4,7 +4,6 @@
 indicator("Klinger Volume Oscillator (KVO)", "KVO", overlay=false)
 
 //@function Calculates Klinger Volume Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/kvo.md
 //@param fast_len Fast EMA period
 //@param slow_len Slow EMA period
 //@param signal_len Signal line period

@@ -4,7 +4,6 @@
 indicator("Percentage Price Oscillator (PPO)", "PPO", overlay=false)
 
 //@function Calculates Percentage Price Oscillator using compensated EMAs
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/ppo.md
 //@param src Source series to calculate PPO for
 //@param fast_len Fast EMA period
 //@param slow_len Slow EMA period

@@ -3,6 +3,12 @@
 //@version=6
 indicator("QEMA (OptA, progressive α, period-only)", "QEMA OptA", overlay=true)
 
+//@function Calculates Quad EMA with progressive alphas and Option A zero-lag weights
+//@param srcIn Series to calculate QEMA from
+//@param period Lookback period for alpha calculation (>= 1)
+//@returns QEMA value with minimized DC lag
+//@optimized Uses 4-stage cascaded EMA with optimal weights, O(1) complexity per bar
+
 // ---------- Inputs ----------
 i_period = input.int(15, "Period", minval=1)
 i_source = input.source(close, "Source")

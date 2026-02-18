@@ -4,7 +4,6 @@
 indicator("Archer Moving Averages Trends (AMAT)", "AMAT", overlay=false)
 
 //@function Calculates AMAT using multiple EMAs to identify trend direction
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/amat.md
 //@param source Series to calculate AMAT from
 //@param fast Fast EMA period
 //@param slow Slow EMA period

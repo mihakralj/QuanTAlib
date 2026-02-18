@@ -4,7 +4,6 @@
 indicator("Bandpass Filter (BPF)", "BPF", overlay=true)
 
 //@function Optimized Bandpass Filter combining highpass and lowpass filters
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bpf.md
 //@param source Series to calculate bandpass from
 //@param lp Lower cutoff period for highpass filter
 //@param up Upper cutoff period for lowpass filter

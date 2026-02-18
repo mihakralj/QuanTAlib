@@ -4,7 +4,6 @@
 indicator("Exponential Transformation (EXP)", "Exptrans", overlay=false)
 
 //@function Applies an exponential transformation (y = e^x) to the input series.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/exp.md
 //@param source series float The input series to transform.
 //@returns series float The exponentially transformed series.
 //@optimized for performance and dirty data

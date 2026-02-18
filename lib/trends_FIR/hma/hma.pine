@@ -35,7 +35,6 @@ wma_helper(series float source, simple int period) =>
     weighted_sum / norm
 
 //@function Calculates HMA using optimized WMA helper function
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hma.md
 //@param source Series to calculate HMA from
 //@param period Lookback period - FIR window size
 //@returns HMA value, calculates from first bar using available data

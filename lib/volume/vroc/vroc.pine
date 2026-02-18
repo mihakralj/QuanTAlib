@@ -4,7 +4,6 @@
 indicator("Volume Rate of Change (VROC)", "VROC", overlay=false)
 
 //@function Calculates Volume Rate of Change
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vroc.md
 //@param vol Volume series for rate of change calculation
 //@param period Number of periods for comparison
 //@param calc_type Calculation type: true for percentage, false for point change

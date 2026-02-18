@@ -4,9 +4,6 @@
 indicator("Weighted Root Mean Squared Error", "WRMSE", overlay=false)
 
 //@function Calculates Weighted Root Mean Squared Error
-//@doc     WRMSE extends RMSE by weighting each error differently.
-//@doc     WRMSE = √(Σ(w * (actual - predicted)²) / Σ(w))
-//@doc     Reduces to RMSE when all weights are equal.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   weight Series of weights for each observation

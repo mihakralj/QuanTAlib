@@ -4,7 +4,6 @@
 indicator("Autoregressive FIR Moving Average (AFIRMA)", "AFIRMA", overlay=true)
 
 //@function Calculates AFIRMA using various windowing functions with optional least squares cubic spline fitting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/forecasts/afirma.md
 //@param source Series to calculate AFIRMA from
 //@param period Lookback period - window size
 //@param windowType Window function type (1:Hanning, 2:Hamming, 3:Blackman, 4:Blackman-Harris)

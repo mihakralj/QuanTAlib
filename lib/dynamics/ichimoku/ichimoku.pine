@@ -4,7 +4,6 @@
 indicator("Ichimoku Cloud", "ICHIMOKU", overlay=true)
 
 //@function Calculate Ichimoku Cloud components
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ichimoku.md
 //@param tenkan_period Tenkan-sen (Conversion Line) period
 //@param kijun_period Kijun-sen (Base Line) period
 //@param senkou_b_period Senkou Span B (Leading Span B) period

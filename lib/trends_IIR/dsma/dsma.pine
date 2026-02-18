@@ -4,7 +4,6 @@
 indicator("Deviation-Scaled Moving Average (DSMA)", "DSMA", overlay=true)
 
 //@function Calculates DSMA using standard deviation to scale the averaging factor
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/dsma.md
 //@param source Series to calculate DSMA from
 //@param period Length of the lookback period for both average and deviation calculation
 //@param scaleFactor Combined scaling/smoothing factor (0.01-0.9)

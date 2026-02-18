@@ -4,7 +4,6 @@
 indicator("Triangular Moving Average (TRIMA)", "TRIMA", overlay=true)
 
 //@function Calculates TRIMA using triangular weighted smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/trima.md
 //@param source Series to calculate TRIMA from
 //@param period Lookback period - FIR window size
 //@returns TRIMA value, calculates from first bar using available data

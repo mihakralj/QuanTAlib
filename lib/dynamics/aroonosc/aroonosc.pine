@@ -4,7 +4,6 @@
 indicator("Aroon Oscillator", "AROONOSC", overlay=false)
 
 //@function Calculates Aroon Oscillator (Aroon Up - Aroon Down)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/aroonosc.md
 //@param period Number of bars used in the calculation
 //@returns Aroon Oscillator value ranging from -100 to +100
 aroonosc(simple int period) =>

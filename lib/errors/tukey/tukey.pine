@@ -4,9 +4,6 @@
 indicator("Tukey's Biweight Loss", "TukeyBiweight", overlay=false)
 
 //@function Calculates Tukey's Biweight (Bisquare) Loss
-//@doc     Robust loss that completely rejects outliers beyond threshold c.
-//@doc     ρ(x) = (c²/6) * (1 - (1 - (x/c)²)³) for |x| ≤ c; ρ(x) = c²/6 for |x| > c
-//@doc     Common c values: 4.685 (95% efficiency), 6.0 (more permissive)
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for averaging

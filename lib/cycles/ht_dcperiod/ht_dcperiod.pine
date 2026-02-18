@@ -24,7 +24,6 @@ atan2(series float y, series float x) =>
     angle
 
 //@function Calculates Hilbert Transform Dominant Cycle Period using Ehlers algorithm
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ht_dcperiod.md
 //@param source Series to analyze for dominant cycle
 //@returns Dominant cycle period in bars (typically 6-50)
 ht_dcperiod(series float source) =>

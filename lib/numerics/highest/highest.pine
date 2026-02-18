@@ -4,7 +4,6 @@
 indicator("Highest Value (HIGHEST)", "HIGHEST", overlay=true)
 
 //@function Highest value over a specified period using a monotonic deque.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/highest.md
 //@param src {series float} Source series.
 //@param len {int} Lookback length. `len` > 0.
 //@returns {series float} Highest value of `src` for `len` bars back. Returns the highest value seen so far during initial bars.

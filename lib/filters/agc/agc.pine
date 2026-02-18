@@ -1,0 +1,96 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2015 John F. Ehlers
+indicator("Automatic Gain Control (AGC)", "AGC", overlay=false)
+
+//@function Ehlers Automatic Gain Control — amplitude normalization via exponential peak tracking
+//@param source Series to normalize (must oscillate around zero — use a filter output, not raw price)
+//@param decay Peak decay factor per bar (controls adaptation speed; 0.991 ≈ 110-bar half-life)
+//@returns Amplitude-normalized signal in [-1, +1] range
+//@optimized O(1) per bar — single division + comparison, zero lookback
+agc(series float src, simple float decay) =>
+    var float peak = 0.0000001
+
+    float ssrc = nz(src, 0.0)
+
+    // Exponential peak decay — shrinks peak toward zero between excitations
+    peak := decay * peak
+
+    // Track running peak — ratchets up when signal exceeds decayed peak
+    if math.abs(ssrc) > peak
+        peak := math.abs(ssrc)
+
+    // Guard against zero division (peak initialized to tiny positive value)
+    float result = peak > 0.0 ? ssrc / peak : 0.0
+    result
+
+//@function Roofing filter — 2-pole HPF → Super Smoother bandpass for detrending raw price
+//@param source Raw price series
+//@param hpLength Highpass cutoff period (removes trend below this period)
+//@param ssLength Super Smoother cutoff period (removes noise above this period)
+//@returns Detrended, smoothed oscillation around zero
+roofing(series float src, simple int hpLength, simple int ssLength) =>
+    var float SQRT2_PI = math.sqrt(2.0) * math.pi
+
+    // --- Stage 1: 2-pole Butterworth Highpass ---
+    int safe_hp = math.max(hpLength, 1)
+    var float hp_c1 = 0.0
+    var float hp_c2 = 0.0
+    var float hp_c3 = 0.0
+    var int prev_hp = 0
+    if prev_hp != safe_hp
+        float hp_arg = SQRT2_PI / float(safe_hp)
+        float hp_exp = math.exp(-hp_arg)
+        hp_c2 := 2.0 * hp_exp * math.cos(hp_arg)
+        hp_c3 := -hp_exp * hp_exp
+        hp_c1 := (1.0 + hp_c2 - hp_c3) / 4.0
+        prev_hp := safe_hp
+
+    var float hp = 0.0
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    hp := hp_c1 * (ssrc - 2.0 * src1 + src2) + hp_c2 * nz(hp[1], 0.0) + hp_c3 * nz(hp[2], 0.0)
+
+    // --- Stage 2: Super Smoother ---
+    int safe_ss = math.max(ssLength, 1)
+    var float ss_c1 = 0.0
+    var float ss_c2 = 0.0
+    var float ss_c3 = 0.0
+    var int prev_ss = 0
+    if prev_ss != safe_ss
+        float ss_arg = SQRT2_PI / float(safe_ss)
+        float ss_exp = math.exp(-ss_arg)
+        ss_c2 := 2.0 * ss_exp * math.cos(ss_arg)
+        ss_c3 := -ss_exp * ss_exp
+        ss_c1 := 1.0 - ss_c2 - ss_c3
+        prev_ss := safe_ss
+
+    var float roof = 0.0
+    roof := ss_c1 * hp + ss_c2 * nz(roof[1], hp) + ss_c3 * nz(roof[2], nz(hp[1], hp))
+    roof
+
+// ---------- Main loop ----------
+
+// Inputs
+i_decay    = input.float(0.991, "Decay", minval=0.9, maxval=0.9999, step=0.001,
+             tooltip="Peak decay factor per bar (0.991 ≈ 110-bar half-life)")
+i_hpLength = input.int(48, "HP Length", minval=1,
+             tooltip="Highpass cutoff period — removes trend cycles longer than this")
+i_ssLength = input.int(10, "SS Length", minval=1,
+             tooltip="Super Smoother cutoff — removes noise cycles shorter than this")
+i_source   = input.source(close, "Source")
+
+// Preprocessing: Roofing filter detrends raw price into zero-mean oscillation
+filt = roofing(i_source, i_hpLength, i_ssLength)
+
+// AGC normalization of the detrended signal
+agc_val = agc(filt, i_decay)
+
+// Plot
+plot(agc_val, "AGC", color=color.new(color.blue, 0), linewidth=2)
+plot(filt, "Filter", color=color.new(color.gray, 60), linewidth=1)
+hline(1.0, "+1", color=color.gray, linestyle=hline.style_dotted)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+hline(-1.0, "-1", color=color.gray, linestyle=hline.style_dotted)

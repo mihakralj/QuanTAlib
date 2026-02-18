@@ -4,7 +4,6 @@
 indicator("Relative Volatility Index (RVI)", shorttitle="RVI", overlay=false)
 
 //@function Calculates the Relative Volatility Index (RVI).
-//@doc The logic of custom stddev and rma is now inlined within this function.
 //@param src The source series to calculate RVI from. Default is `close`.
 //@param stdevLength The lookback period for calculating the standard deviation of source prices. Default is 10.
 //@param rmaLength The lookback period for Wilder's smoothing (RMA) of the upward and downward standard deviations. Default is 14.

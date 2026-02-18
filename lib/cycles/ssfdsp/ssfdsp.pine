@@ -4,7 +4,6 @@
 indicator("SSF-Based Detrended Synthetic Price", "SSF-DSP", overlay=false)
 
 //@function Calculates SSF-based Detrended Synthetic Price using dual Super Smooth Filters
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ssfdsp.md
 //@param source Series to detrend
 //@param period Dominant cycle period for quarter/half-cycle SSF calculation
 //@returns Detrended synthetic price (difference between quarter-cycle and half-cycle SSFs)

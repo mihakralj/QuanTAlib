@@ -1,10 +1,9 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Kendall Rank Correlation (KENDALL)", "KENDALL", overlay=false, precision=4)
 
 //@function Calculates Kendall's Tau-a rank correlation coefficient.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/kendall.md
 //@param source1 series float The first input series.
 //@param source2 series float The second input series.
 //@param length int The lookback period. Min 2, Max 60.
@@ -59,4 +58,4 @@ i_source2 = request.security(i_source2_ticker, timeframe.period, close, lookahea
 kendall_value = kendall(i_source1, i_source2, i_period)
 
 // Plot
-plot(kendall_value, "Kendall's Tau", color=color.new(color.yellow,0, color=color.yellow, linewidth=2), linewidth=2)
+plot(kendall_value, "Kendall's Tau", color=color.yellow, linewidth=2)

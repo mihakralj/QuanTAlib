@@ -4,7 +4,6 @@
 indicator("Kaufman's Adaptive Moving Average (KAMA)", "KAMA", overlay=true)
 
 //@function Calculates KAMA using adaptive smoothing based on market volatility
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/kama.md
 //@param source Series to calculate KAMA from
 //@param period Length of the efficiency ratio lookback period
 //@param fast_alpha Fastest EMA constant (2/(2+1))

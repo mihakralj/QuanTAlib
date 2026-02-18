@@ -1,0 +1,70 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004-2024 John F. Ehlers
+indicator("Roofing Filter (ROOFING)", "ROOFING", overlay=false)
+
+//@function Calculates Ehlers Roofing Filter (2-pole HPF → Super Smoother composite)
+//@param source Series to calculate Roofing Filter from
+//@param hpLength Cutoff period for the highpass stage (removes trend below this period)
+//@param ssLength Cutoff period for the super smoother stage (removes noise above this period)
+//@returns Bandpass-filtered value oscillating around zero
+//@optimized Uses two cascaded 2-pole IIR filters with O(1) complexity per bar
+roofing(series float src, simple int hpLength, simple int ssLength) =>
+    var float SQRT2_PI = math.sqrt(2.0) * math.pi
+
+    // --- Stage 1: 2-pole Butterworth Highpass Filter (removes trend) ---
+    int safe_hp = math.max(hpLength, 1)
+    var float hp_c1 = 0.0
+    var float hp_c2 = 0.0
+    var float hp_c3 = 0.0
+    var int prev_hp = 0
+    if prev_hp != safe_hp
+        float hp_arg = SQRT2_PI / float(safe_hp)
+        float hp_exp_arg = math.exp(-hp_arg)
+        hp_c2 := 2.0 * hp_exp_arg * math.cos(hp_arg)
+        hp_c3 := -hp_exp_arg * hp_exp_arg
+        hp_c1 := (1.0 + hp_c2 - hp_c3) / 4.0
+        prev_hp := safe_hp
+
+    var float hp = 0.0
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float hp1 = nz(hp[1], 0.0)
+    float hp2 = nz(hp[2], 0.0)
+    hp := hp_c1 * (ssrc - 2.0 * src1 + src2) + hp_c2 * hp1 + hp_c3 * hp2
+
+    // --- Stage 2: Super Smoother Filter (removes noise from HP output) ---
+    int safe_ss = math.max(ssLength, 1)
+    var float ss_c1 = 0.0
+    var float ss_c2 = 0.0
+    var float ss_c3 = 0.0
+    var int prev_ss = 0
+    if prev_ss != safe_ss
+        float ss_arg = SQRT2_PI / float(safe_ss)
+        float ss_exp_arg = math.exp(-ss_arg)
+        ss_c2 := 2.0 * ss_exp_arg * math.cos(ss_arg)
+        ss_c3 := -ss_exp_arg * ss_exp_arg
+        ss_c1 := 1.0 - ss_c2 - ss_c3
+        prev_ss := safe_ss
+
+    var float roof = 0.0
+    float hp_cur = hp
+    float hp_prev1 = nz(hp[1], hp_cur)
+    roof := ss_c1 * hp_cur + ss_c2 * nz(roof[1], hp_prev1) + ss_c3 * nz(roof[2], nz(hp[2], hp_prev1))
+    roof
+
+// ---------- Main loop ----------
+
+// Inputs
+i_hpLength = input.int(48, "HP Length", minval=1, tooltip="Highpass cutoff period — removes cycles longer than this")
+i_ssLength = input.int(10, "SS Length", minval=1, tooltip="Super Smoother cutoff period — removes cycles shorter than this")
+i_source   = input.source(close, "Source")
+
+// Calculation
+roof_val = roofing(i_source, i_hpLength, i_ssLength)
+
+// Plot
+plot(roof_val, "Roofing", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

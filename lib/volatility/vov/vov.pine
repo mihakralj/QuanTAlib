@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Volatility of Volatility (VOV)", shorttitle="VOV", format=format.price, precision=4, overlay=false)
 
 //@function Calculates the Volatility of Volatility (VOV) with embedded rolling standard deviation algorithms.

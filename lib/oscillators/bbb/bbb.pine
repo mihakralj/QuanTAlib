@@ -3,6 +3,12 @@
 //@version=6
 indicator("Bollinger %B", "BBB", overlay=false)
 
+//@function Calculates Bollinger Bands %B oscillator
+//@param source Series to calculate %B from
+//@param period Lookback period for Bollinger Bands calculation
+//@param multiplier Standard deviation multiplier for band width
+//@returns Bollinger %B value (0 = lower band, 1 = upper band)
+//@optimized Uses circular buffer SMA/StdDev with O(1) complexity per bar
 bbb(series float source, simple int period, simple float multiplier) =>
     if period <= 0 or multiplier <= 0.0
         runtime.error("Period and multiplier must be greater than 0")

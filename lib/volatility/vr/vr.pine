@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Volatility Ratio (VR)", shorttitle="VR", format=format.price, precision=2, overlay=false)
 
 //@function Calculates the Volatility Ratio (VR).
@@ -44,4 +44,4 @@ i_atrPeriod = input.int(14, title="ATR Period", minval=1, tooltip="The lookbook 
 vrValue = vr(i_atrPeriod)
 
 // Plot
-plot(vrValue, title="VR", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(vrValue, title="VR", color=color.yellow, linewidth=2)

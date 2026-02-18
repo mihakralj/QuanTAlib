@@ -4,7 +4,6 @@
 indicator("Chande Forecast Oscillator", "CFO", overlay=false)
 
 //@function Chande Forecast Oscillator - measures percentage difference between price and forecasted price
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/cfo.md
 //@param source Price data to analyze
 //@param period Number of bars for linear regression calculation
 //@returns Oscillator value showing forecast error percentage

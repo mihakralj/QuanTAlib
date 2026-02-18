@@ -4,7 +4,6 @@
 indicator("Accelerator Oscillator (AC)", "AC", overlay=false)
 
 //@function Calculates Bill Williams' Accelerator Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/ac.md
 //@param fastLength Period for fast MA calculation
 //@param slowLength Period for slow MA calculation
 //@returns AC value measuring acceleration/deceleration of market momentum

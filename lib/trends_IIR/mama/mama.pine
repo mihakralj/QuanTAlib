@@ -4,7 +4,6 @@
 indicator("MESA Adaptive Moving Average (MAMA)", "MAMA", overlay=true)
 
 //@function Calculates MAMA and FAMA using Ehlers' MESA adaptive algorithm
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mama.md
 //@param source Series to calculate MAMA from
 //@param fastLimit Maximum rate of adaptation (0.5 typical)
 //@param slowLimit Minimum rate of adaptation (0.05 typical)

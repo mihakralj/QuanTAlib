@@ -4,7 +4,6 @@
 indicator("Pivot Points (Woodie)", "PIVOTWOOD", overlay=true)
 
 //@function Calculates Woodie's pivot points with weighted closing price
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotwood.md
 //@param tf Timeframe for pivot calculation ("D", "W", "M")
 //@returns Tuple [pp, r1, r2, r3, s1, s2, s3] with pivot levels
 //@references Ken Woodie, weighted close formula

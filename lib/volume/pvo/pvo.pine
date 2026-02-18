@@ -4,7 +4,6 @@
 indicator("Percentage Volume Oscillator (PVO)", "PVO", overlay=false)
 
 //@function Calculates Percentage Volume Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvo.md
 //@param vol Volume series
 //@param fast_period Fast period for volume MA
 //@param slow_period Slow period for volume MA

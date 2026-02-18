@@ -1,0 +1,96 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Recursive Least Squares Adaptive Filter (RLS)", "RLS", overlay=true)
+
+//@function Applies RLS adaptive FIR filter to input series
+//@param src Input series to filter
+//@param order Number of FIR filter taps (adaptive weights)
+//@param lambda Forgetting factor (0 < lambda <= 1). Controls memory horizon.
+//@returns Adaptively filtered series
+//@optimized Uses inverse correlation matrix for O(order²) convergence per bar,
+//           faster convergence than LMS at higher computational cost
+rls(series float src, simple int order, simple float lambda) =>
+    if order < 2
+        runtime.error("Filter order must be >= 2")
+    if lambda <= 0.0 or lambda > 1.0
+        runtime.error("Forgetting factor lambda must be in (0, 1]")
+
+    // weight vector w[order]
+    var array<float> w = array.new_float(order, 0.0)
+
+    // inverse correlation matrix P[order x order], stored row-major
+    // initialized to delta * I (large diagonal = high initial uncertainty)
+    var float delta = 100.0
+    var array<float> P = array.new_float(order * order, 0.0)
+    var bool initialized = false
+    if not initialized
+        for i = 0 to order - 1
+            array.set(P, i * order + i, delta)
+        initialized := true
+
+    // build input vector x = [src[1], src[2], ..., src[order]]
+    array<float> x = array.new_float(order, 0.0)
+    for i = 0 to order - 1
+        array.set(x, i, nz(src[i + 1], 0.0))
+
+    // --- Step 1: prediction ---
+    // y = w^T * x
+    float y = 0.0
+    for i = 0 to order - 1
+        y += array.get(w, i) * array.get(x, i)
+
+    // --- Step 2: a priori error ---
+    float e = nz(src, 0.0) - y
+
+    // --- Step 3: gain vector k = P*x / (lambda + x^T*P*x) ---
+    // compute Px = P * x
+    array<float> Px = array.new_float(order, 0.0)
+    for i = 0 to order - 1
+        float row_sum = 0.0
+        for j = 0 to order - 1
+            row_sum += array.get(P, i * order + j) * array.get(x, j)
+        array.set(Px, i, row_sum)
+
+    // compute denom = lambda + x^T * Px
+    float denom = lambda
+    for i = 0 to order - 1
+        denom += array.get(x, i) * array.get(Px, i)
+
+    // k = Px / denom
+    array<float> k = array.new_float(order, 0.0)
+    float inv_denom = denom > 1e-30 ? 1.0 / denom : 0.0
+    for i = 0 to order - 1
+        array.set(k, i, array.get(Px, i) * inv_denom)
+
+    // --- Step 4: weight update ---
+    // w = w + k * e
+    for i = 0 to order - 1
+        array.set(w, i, array.get(w, i) + array.get(k, i) * e)
+
+    // --- Step 5: P update ---
+    // P = (1/lambda) * (P - k * x^T * P)
+    // equivalently: P = (1/lambda) * (P - k * Px^T)
+    // since Px = P*x, then k*x^T*P = k*(Px)^T  (row-by-row outer product)
+    float inv_lambda = 1.0 / lambda
+    for i = 0 to order - 1
+        float ki = array.get(k, i)
+        for j = 0 to order - 1
+            float old_pij = array.get(P, i * order + j)
+            float new_pij = inv_lambda * (old_pij - ki * array.get(Px, j))
+            array.set(P, i * order + j, new_pij)
+
+    y
+
+// ---------- Main loop ----------
+
+// Inputs
+i_order  = input.int(16, "Filter Order (taps)", minval=2, maxval=64)
+i_lambda = input.float(0.99, "Forgetting Factor (λ)", minval=0.9, maxval=1.0, step=0.005)
+i_source = input.source(close, "Source")
+
+// Calculation
+rls_val = rls(i_source, i_order, i_lambda)
+
+// Plot
+plot(rls_val, "RLS", color=color.orange, linewidth=2)

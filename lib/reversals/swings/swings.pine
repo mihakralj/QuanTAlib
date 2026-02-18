@@ -4,7 +4,6 @@
 indicator("Swing High/Low Detection", "SWINGS", overlay=true)
 
 //@function Detects swing highs and swing lows using lookback period
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/swings.md
 //@param lookback Number of bars on each side to confirm swing point
 //@param source_high Price series for swing high detection (typically high)
 //@param source_low Price series for swing low detection (typically low)

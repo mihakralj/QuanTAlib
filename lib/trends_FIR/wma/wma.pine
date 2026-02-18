@@ -4,7 +4,6 @@
 indicator("Weighted Moving Average (WMA)", "WMA", overlay=true)
 
 //@function Calculates WMA using circular buffer with O(1) complexity
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/wma.md
 //@param source Series to calculate WMA from
 //@param period Lookback period - FIR window size
 //@returns WMA value, calculates from first bar using available data

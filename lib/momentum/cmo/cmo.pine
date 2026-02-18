@@ -4,7 +4,6 @@
 indicator("Chande Momentum Oscillator (CMO)", "CMO", overlay=false)
 
 //@function Calculates Chande Momentum Oscillator using circular buffer for efficiency
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/cmo.md
 //@param src Source series to calculate CMO for
 //@param len Lookback period for calculations
 //@returns CMO value measuring momentum strength and direction

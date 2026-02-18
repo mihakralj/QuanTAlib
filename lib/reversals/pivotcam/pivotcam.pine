@@ -4,7 +4,6 @@
 indicator("Pivot Points (Camarilla)", "PIVOTCAM", overlay=true)
 
 //@function Calculates Camarilla pivot points with 8 levels for short-term trading
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotcam.md
 //@param tf Timeframe for pivot calculation ("D", "W", "M")
 //@returns Tuple [pp, r1, r2, r3, r4, s1, s2, s3, s4] with pivot levels
 //@references Nick Scott, Camarilla equation

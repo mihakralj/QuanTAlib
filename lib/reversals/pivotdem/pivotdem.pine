@@ -4,7 +4,6 @@
 indicator("Pivot Points (DeMark)", "PIVOTDEM", overlay=true)
 
 //@function Calculates DeMark pivot points with conditional open/close logic
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotdem.md
 //@param tf Timeframe for pivot calculation ("D", "W", "M")
 //@returns Tuple [pp, r1, s1] with pivot levels (only 3 levels)
 //@references Tom DeMark, conditional pivot formula

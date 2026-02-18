@@ -4,7 +4,6 @@
 indicator("On Balance Volume (OBV)", "OBV", overlay=false)
 
 //@function Calculates On Balance Volume
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/obv.md
 //@param c Close price series
 //@param vol Volume series
 //@returns Cumulative On Balance Volume value

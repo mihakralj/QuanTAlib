@@ -4,7 +4,6 @@
 indicator("Triple Exponential Moving Average (TEMA)", "TEMA", overlay=true)
 
 //@function Calculates TEMA using triple exponential smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/tema.md
 //@param source Series to calculate TEMA from
 //@param period Lookback period for TEMA calculation
 //@param alpha Optional smoothing factor (overrides period if provided)

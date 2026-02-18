@@ -4,7 +4,6 @@
 indicator("Wiener Filter (WIENER)", "WIENER", overlay=true)
 
 //@function Calculates Wiener Filter that minimizes mean square error
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/wiener.md
 //@param src Series to filter
 //@param length Window size for noise estimation
 //@param smooth_len Length for signal power estimation

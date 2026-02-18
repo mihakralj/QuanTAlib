@@ -4,7 +4,6 @@
 indicator("Midpoint (MIDPOINT)", "MIDPOINT", overlay=true)
 
 //@function Calculates the midpoint of the highest high and lowest low over a specified period
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/midpoint.md
 //@param src Source series to calculate midpoint for
 //@param len Lookback period for finding highest and lowest values
 //@returns float The midpoint value (highest + lowest) * 0.5 over the period

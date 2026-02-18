@@ -4,7 +4,6 @@
 indicator("Mode", "MODE", overlay=false)
 
 //@function Calculates the mode (most frequent value) of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/mode.md
 //@param src series float Input data series.
 //@param len simple int Lookback period (must be > 0).
 //@returns series float The mode of the series over the period.

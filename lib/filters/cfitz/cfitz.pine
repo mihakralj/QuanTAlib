@@ -1,0 +1,106 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Christiano-Fitzgerald Band-Pass Filter (CFITZ)", "CFITZ", overlay=false, max_bars_back=5000)
+
+//@function Christiano-Fitzgerald asymmetric band-pass filter
+//     filter that is optimal under a random-walk assumption. Unlike the
+//     symmetric Baxter-King filter, CF uses ALL available data and produces
+//     output for every bar — no data loss at endpoints.
+//
+//     The filter minimizes the mean squared error between the filtered series
+//     and the series filtered by an ideal band-pass filter. Weights vary by
+//     position in the sample: interior bars use more surrounding data, while
+//     endpoint bars receive corrected weights that force the weight sum to zero.
+//
+//     Ideal band-pass weights (same as Baxter-King):
+//       B_0 = (wh - wl) / pi
+//       B_j = (sin(j*wh) - sin(j*wl)) / (pi*j)  for j >= 1
+//     where wl = 2*pi/pHigh, wh = 2*pi/pLow
+//
+//     For the current (last) bar t = T in the sample:
+//       c_T = 0.5*B_0*y_T + sum(j=1..T-2, B_j*y_{T-j}) + btilde*y_1
+//     where btilde = -0.5*B_0 - sum(j=1..T-2, B_j)
+//     This guarantees weight sum = 0 (DC rejection / trend removal).
+//
+//     When maxLookback caps the filter length, the endpoint correction is
+//     recomputed over the truncated window so the zero-sum property is preserved.
+//
+//     Reference: Christiano & Fitzgerald (2003), "The Band Pass Filter,"
+//     International Economic Review, 44(2), 435-465.
+//
+//@param src Input series
+//@param pLow Minimum period of the passband (bars). Must be >= 2.
+//@param pHigh Maximum period of the passband (bars). Must be > pLow.
+//@param maxLookback Maximum number of past bars to use. Caps the filter length
+//                    for performance. The endpoint correction adapts to maintain
+//                    zero-sum weights regardless of cap.
+//@returns Cyclical component (oscillates around zero).
+cfitz(series float src, simple int pLow, simple int pHigh, simple int maxLookback) =>
+    if pLow < 2
+        runtime.error("pLow must be >= 2")
+    if pHigh <= pLow
+        runtime.error("pHigh must be > pLow")
+
+    // Angular frequencies for the passband edges
+    float wl = 2.0 * math.pi / pHigh  // low cutoff (long period = low freq)
+    float wh = 2.0 * math.pi / pLow   // high cutoff (short period = high freq)
+
+    // Central ideal weight
+    float b0 = (wh - wl) / math.pi
+
+    float result = 0.0
+
+    if bar_index < 1
+        // Only one bar: no filtering possible, output zero
+        result := 0.0
+    else if bar_index < 2
+        // Two bars: weights are 0.5*B_0 on y_T and btilde on y_1
+        // btilde = -0.5*B_0 (no interior terms), so c = 0.5*B_0*(y_T - y_1)
+        result := 0.5 * b0 * (nz(src) - nz(src[1]))
+    else
+        // General case: current bar is t = T (last observation)
+        // Effective sample depth = min(bar_index, maxLookback)
+        // Number of interior terms: depth - 1 (j = 1..depth-1)
+        // Endpoint index: depth (the oldest bar in our window)
+
+        // c_T = 0.5*B_0*y_T + sum(j=1..depth-1, B_j*y_{T-j}) + btilde*y_{T-depth}
+        // btilde = -0.5*B_0 - sum(j=1..depth-1, B_j)  [ALWAYS recomputed]
+
+        float weightedSum = 0.5 * b0 * nz(src)
+        float sumBj = 0.0
+
+        // Loop with simple int bound; break when exceeding available bars
+        int loopBound = maxLookback - 1
+        for j = 1 to loopBound
+            if j > bar_index - 1
+                break
+            float bj = (math.sin(j * wh) - math.sin(j * wl)) / (math.pi * j)
+            weightedSum += bj * nz(src[j])
+            sumBj += bj
+
+        // Endpoint correction: force total weights to zero
+        // btilde = -(0.5*B_0 + sumBj) so that 0.5*B_0 + sumBj + btilde = 0
+        float btilde = -0.5 * b0 - sumBj
+
+        // Endpoint = oldest bar in our effective window
+        int depth = math.min(bar_index, maxLookback)
+        weightedSum += btilde * nz(src[depth])
+
+        result := weightedSum
+
+    result
+
+
+// ─── Inputs ───
+pLow  = input.int(6,  "Min Period (pLow)",  minval=2,  tooltip="Shortest cycle to pass through (bars)")
+pHigh = input.int(32, "Max Period (pHigh)", minval=3,  tooltip="Longest cycle to pass through (bars)")
+maxLB = input.int(500, "Max Lookback", minval=10, maxval=5000,
+     tooltip="Maximum bars of history to use. Larger = better frequency resolution but slower. Zero-sum property is always maintained.")
+
+// ─── Calculation ───
+float cycle = cfitz(close, pLow, pHigh, maxLB)
+
+// ─── Visualization ───
+hline(0, "Zero", color.gray, hline.style_dotted)
+plot(cycle, "CF Cycle", color.new(color.teal, 0), 2)

@@ -1,13 +1,12 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Yang-Zhang Volatility (YZV)", shorttitle="YZV", overlay=false)
 
-//@function Calculates Yang-Zhang Volatility (YZV).
-// YZV is a historical volatility measure that incorporates open, high, low, and close prices,
-// as well as overnight gaps. It uses a bias-corrected RMA for smoothing.
-// @param length The lookback period for smoothing the daily variance estimates. Must be > 0.
-// @returns float The Yang-Zhang Volatility value for the current bar.
+//@function Calculates Yang-Zhang Volatility (YZV)
+//@param length Lookback period for smoothing daily variance estimates (> 0)
+//@returns Yang-Zhang Volatility value for the current bar
+//@optimized Uses bias-corrected RMA with OHLC prices for O(1) complexity per bar
 yzv(int length) =>
     if length <= 0
         runtime.error("Length must be greater than 0 for YZV calculation.")
@@ -41,4 +40,4 @@ i_length = input.int(20, title="Length", minval=1, tooltip="The lookback period 
 yzvValue = yzv(i_length)
 
 // Plot
-plot(yzvValue, title="YZV", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(yzvValue, title="YZV", color=color.yellow, linewidth=2)

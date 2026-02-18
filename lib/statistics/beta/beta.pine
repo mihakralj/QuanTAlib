@@ -4,7 +4,6 @@
 indicator("Beta Function (BETA)", "BETA", overlay=false)
 
 //@function Calculates the financial Beta indicator comparing src1 volatility to src2
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/beta.md
 //@param src1 series float Series to analyze
 //@param src2 series float src2 series to compare against
 //@param period simple int Lookback period for calculation

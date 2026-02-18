@@ -4,7 +4,6 @@
 indicator("Wilder's Moving Average (RMA)", "RMA", overlay=true)
 
 //@function Calculates Welles Wilder's Relative Moving Average (RMA/SMMA)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rma.md
 //@param source Series to calculate RMA from
 //@param period Smoothing period
 //@returns RMA value from first bar with proper compensation for early values

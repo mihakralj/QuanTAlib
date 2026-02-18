@@ -1,8 +1,13 @@
-// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
-// © QuanTAlib - Normalized Jurik Volatility (JVOLTYN)
-
+// The MIT License (MIT)
+// © mihakralj
 //@version=6
 indicator("JVOLTYN - Normalized Jurik Volatility", shorttitle="JVOLTYN", overlay=false)
+
+//@function Calculates Normalized Jurik Volatility (0-100 scale)
+//@param period Number of bars used in the calculation (>= 2)
+//@param src Source series for volatility measurement
+//@returns Normalized volatility value (0 = low, 100 = high)
+//@optimized Uses adaptive bands with distribution-based normalization
 
 // Inputs
 period = input.int(14, "Period", minval=2)

@@ -4,7 +4,6 @@
 indicator("Pascal Weighted Moving Average (PWMA)", "PWMA", overlay=true)
 
 //@function Calculates PWMA using Pascal's triangle coefficients as weights with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/pwma.md
 //@param source Series to calculate PWMA from
 //@param period Lookback period - FIR window size
 //@returns PWMA value, calculates from first bar using available data

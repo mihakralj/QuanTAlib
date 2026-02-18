@@ -4,7 +4,6 @@
 indicator("Variance, Dispersion or Spread (VARIANCE)", "VARIANCE", overlay=false)
 
 //@function variance
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/variance.md
 //@param src {series float} Source series.
 //@param len {int} Lookback length. `len` > 0.
 //@returns {series float} Variance of `src` for `len` bars back. Returns 0 if not enough data.

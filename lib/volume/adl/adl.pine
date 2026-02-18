@@ -4,7 +4,6 @@
 indicator("Accumulation/Distribution Line (ADL)", "ADL", overlay=false)
 
 //@function Calculates the Accumulation/Distribution Line (ADL), a volume-based indicator that measures money flow into and out of a security
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/adl.md
 //@param src_high The high price (default: built-in high)
 //@param src_low The low price (default: built-in low)
 //@param src_close The close price (default: built-in close)

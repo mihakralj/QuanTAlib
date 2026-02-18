@@ -4,7 +4,6 @@
 indicator("Balance of Power (BOP)", "BOP", overlay=false)
 
 //@function Calculates Balance of Power with optional smoothing
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/bop.md
 //@param length Smoothing period (0 for no smoothing)
 //@returns BOP value measuring buying/selling pressure
 bop(simple int length) =>

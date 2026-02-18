@@ -4,7 +4,6 @@
 indicator("Least Squares Moving Average (LSMA)", "LSMA", overlay=true)
 
 //@function Calculates LSMA by fitting a linear regression line to price data
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/lsma.md
 //@param source Series to calculate LSMA from
 //@param period Lookback period for the linear regression
 //@returns LSMA value, calculates from first bar using available data

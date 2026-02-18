@@ -4,7 +4,6 @@
 indicator("Ultimate Oscillator (ULTOSC)", "ULTOSC", overlay=false)
 
 //@function Calculates the Ultimate Oscillator using three weighted time periods
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/ultosc.md
 //@param fastPeriod Short-term period for momentum calculation
 //@param mediumPeriod Medium-term period for momentum calculation
 //@param slowPeriod Long-term period for momentum calculation

@@ -4,7 +4,6 @@
 indicator("Volume Oscillator (VO)", "VO", overlay=false)
 
 //@function Calculates Volume Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vo.md
 //@param short_period Period for short-term volume moving average
 //@param long_period Period for long-term volume moving average
 //@param signal_period Period for signal line moving average

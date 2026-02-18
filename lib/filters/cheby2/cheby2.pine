@@ -4,7 +4,6 @@
 indicator("Chebyshev Type II Filter (CHEBY2)", "CHEBY2", overlay=true)
 
 //@function Calculates 2nd Order Chebyshev Type II Lowpass Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/cheby2.md
 //@param src Series to calculate Chebyshev filter from
 //@param length Cutoff period (related to cutoff frequency)
 //@param attenuation Stopband attenuation in decibels (dB) > 0

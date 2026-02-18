@@ -4,7 +4,6 @@
 indicator("Price Volume Rank (PVR)", "PVR", overlay=false)
 
 //@function Calculates Price Volume Rank
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvr.md
 //@param price Price series for comparison
 //@param vol Volume series for comparison
 //@returns Price Volume Rank (0-4)

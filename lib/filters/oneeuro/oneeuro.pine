@@ -1,0 +1,78 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("One Euro Filter (ONEEURO)", "ONEEURO", overlay=true)
+
+//@function One Euro adaptive low-pass filter
+//     against responsiveness. At low signal speed, uses a low cutoff frequency
+//     for heavy smoothing (reduces jitter). At high speed, raises the cutoff
+//     to reduce lag. Only two meaningful parameters to tune.
+//
+//     Smoothing factor from cutoff frequency:
+//       r = 2π · f_c · T_e
+//       α = r / (r + 1)
+//
+//     Per-bar algorithm (T_e = 1.0 for uniform bar spacing):
+//       1. dx = x - x̂_prev                        (raw derivative)
+//       2. d̂x = α_d · dx + (1 - α_d) · d̂x_prev   (smoothed derivative)
+//       3. f_c = minCutoff + β · |d̂x|              (adaptive cutoff)
+//       4. α = smoothingFactor(f_c)
+//       5. x̂ = α · x + (1 - α) · x̂_prev           (filtered output)
+//
+//     Reference: Casiez, Roussel & Vogel (2012), "1€ Filter: A Simple
+//     Speed-Based Low-Pass Filter for Noisy Input in Interactive Systems,"
+//     CHI '12, pp. 2527-2530. DOI: 10.1145/2207676.2208639
+//
+//@param src Input series
+//@param minCutoff Minimum cutoff frequency. Lower = smoother at low speed.
+//@param beta Speed coefficient. Higher = faster response to rapid moves.
+//@param dCutoff Cutoff frequency for the derivative estimator.
+//@returns Filtered series (overlay, tracks price)
+//@optimized O(1) per bar, O(1) memory — 3 state variables (x̂, d̂x, prev).
+oneeuro(series float src, simple float minCutoff, simple float beta, simple float dCutoff) =>
+    if minCutoff <= 0.0
+        runtime.error("minCutoff must be > 0")
+    if beta < 0.0
+        runtime.error("beta must be >= 0")
+    if dCutoff <= 0.0
+        runtime.error("dCutoff must be > 0")
+
+    var float xHat  = na
+    var float dxHat = 0.0
+
+    if bar_index == 0 or na(xHat)
+        xHat  := nz(src, 0.0)
+        dxHat := 0.0
+    else
+        // Smoothing factor: α(f_c) = r / (r + 1), r = 2π · f_c · T_e
+        // T_e = 1.0 for uniform bars
+
+        // Step 1-3: smoothed derivative
+        float rD    = 2.0 * math.pi * dCutoff
+        float alphaD = rD / (rD + 1.0)
+        float dx     = src - xHat
+        dxHat := alphaD * dx + (1.0 - alphaD) * dxHat
+
+        // Step 4-5: adaptive cutoff and filter
+        float fc    = minCutoff + beta * math.abs(dxHat)
+        float rC    = 2.0 * math.pi * fc
+        float alpha = rC / (rC + 1.0)
+        xHat := alpha * src + (1.0 - alpha) * xHat
+
+    xHat
+
+
+// ─── Inputs ───
+i_source    = input.source(close, "Source")
+i_minCutoff = input.float(1.0,   "Min Cutoff Frequency", minval=0.001, step=0.1,
+                 tooltip="Controls jitter at low speed. Lower = smoother when price is stable.")
+i_beta      = input.float(0.007, "Speed Coefficient (β)", minval=0.0, step=0.001,
+                 tooltip="Controls lag at high speed. Higher = faster response to rapid moves.")
+i_dCutoff   = input.float(1.0,   "Derivative Cutoff", minval=0.001, step=0.1,
+                 tooltip="Cutoff frequency for the derivative (speed) estimator.")
+
+// ─── Calculation ───
+float filtered = oneeuro(i_source, i_minCutoff, i_beta, i_dCutoff)
+
+// ─── Plot ───
+plot(filtered, "OneEuro", color.new(color.teal, 0), 2)

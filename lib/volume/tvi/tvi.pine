@@ -4,7 +4,6 @@
 indicator("Trade Volume Index (TVI)", "TVI", overlay=false)
 
 //@function Calculates Trade Volume Index
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/tvi.md
 //@param price Price series for tick direction analysis
 //@param vol Volume series for weighting
 //@param min_tick Minimum price movement to register direction change

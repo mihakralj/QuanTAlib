@@ -4,7 +4,6 @@
 indicator("Solar Cycle (SOLAR)", "SOLAR", overlay=false)
 
 //@function Calculates precise solar cycle value using Sun's ecliptic longitude.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/solar.md
 //@param barTime int The timestamp of the bar (open time) in milliseconds.
 //@returns float Solar cycle value from -1.0 (winter solstice) through 0.0 (equinoxes) to +1.0 (summer solstice).
 //@optimized for performance and dirty data

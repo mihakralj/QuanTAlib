@@ -4,7 +4,6 @@
 indicator("Bilateral Filter (BILATERAL)", "BILATERAL", overlay=true)
 
 //@function Calculates Bilateral Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bilateral.md
 //@param src Series to calculate Bilateral Filter from
 //@param length Number of bars used in the calculation (spatial domain)
 //@param sigma_s_ratio Ratio to determine spatial standard deviation

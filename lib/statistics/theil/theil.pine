@@ -1,10 +1,9 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Theil Index (THEIL)", "THEIL", overlay=false, precision=6)
 
 //@function Calculates Theil's T Index for a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/theil.md
 //@param src series float Input data series (must be positive values).
 //@param len simple int Lookback period (must be > 0).
 //@returns series float The Theil's T Index, or na if data is not suitable.
@@ -45,4 +44,4 @@ i_length = input.int(14, title="Lookback Period", minval=1)
 theil_value = theil_t_index(i_source, i_length)
 
 // Plot
-plot(theil_value, "Theil T Index", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(theil_value, "Theil T Index", color=color.yellow, linewidth=2)

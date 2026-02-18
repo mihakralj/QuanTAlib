@@ -4,7 +4,6 @@
 indicator("Ultrasmooth Filter (USF)", "USF", overlay=true)
 
 //@function Calculates Ultrasmooth Filter
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/usf.md
 //@param src Series to calculate USF from
 //@param length Number of bars used in the calculation
 //@returns USF value with optimized smoothing

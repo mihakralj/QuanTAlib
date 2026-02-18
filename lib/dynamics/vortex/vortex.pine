@@ -4,7 +4,6 @@
 indicator("Vortex Indicator", "VORTEX", overlay=false)
 
 //@function Calculates Vortex Indicator (VI+ and VI-)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/vortex.md
 //@param period Lookback period for summing vortex movements and true range
 //@returns Tuple [vi_plus, vi_minus] normalized vortex indicator values
 //@optimized Uses running sums for O(1) complexity with circular buffer

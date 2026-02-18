@@ -4,7 +4,6 @@
 indicator("Ease of Movement (EOM)", "EOM", overlay=false)
 
 //@function Calculate Ease of Movement Volume
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/eom.md
 //@param i_length integer Length for box ratio calculation
 //@param i_smoothing integer Smoothing length for EOM
 //@returns float Ease of Movement value

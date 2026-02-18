@@ -4,7 +4,6 @@
 indicator("Relative Squared Error (RSE)", "RSE")
 
 //@function Calculates Relative Squared Error between two sources using SMA for averaging
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/rse.md
 //@param source1 First series to compare (actual)
 //@param source2 Second series to compare (predicted)
 //@param period Lookback period for error averaging

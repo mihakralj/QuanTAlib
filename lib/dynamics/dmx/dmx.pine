@@ -4,7 +4,6 @@
 indicator("Jurik Directional Movement Index (DMX)", "DMX", overlay=false)
 
 //@function Calculates DMX using Jurik's smoothing of ADX
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/dmx.md
 //@param period Number of bars used in the calculation
 //@returns dmx value
 dmx(simple int period = 14) =>

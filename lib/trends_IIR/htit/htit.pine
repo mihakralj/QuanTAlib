@@ -4,7 +4,6 @@
 indicator("Hilbert Trendline (HTIT)", "HTIT", overlay=true)
 
 //@function Calculates the Hilbert Transform Instantaneous Trendline (HTIT)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/htit.md
 //@param source Series to calculate HTIT from
 //@returns HTIT value using Hilbert Transform with adaptive period estimation
 //@optimized Uses Hilbert Transform quadrature components for O(1) complexity per bar

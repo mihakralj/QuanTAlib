@@ -6,7 +6,6 @@ indicator("Logistic Function (SIGMOID)", "SIGMOID", overlay=false, precision=6)
 //@function Applies the logistic (sigmoid) function to a source series.
 // Formula: S(x) = 1 / (1 + exp(-k * (x - x0)))
 // Maps any real-valued input to the range (0, 1).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/sigmoid.md
 //@param src The source series.
 //@param k The steepness factor of the sigmoid curve. Higher k means a steeper curve.
 //@param x0 The x-value of the sigmoid's midpoint (where the output is 0.5).

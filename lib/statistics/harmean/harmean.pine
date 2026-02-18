@@ -4,7 +4,6 @@
 indicator("Harmonic Mean (HARMEAN)", "HARMEAN", overlay=false, precision=6)
 
 //@function Calculates the Harmonic Mean of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/harmean.md
 //@param src series float Input data series (must contain positive values).
 //@param len simple int Lookback period (must be > 0).
 //@returns series float The Harmonic Mean, or na if data is not suitable (e.g., non-positive values, insufficient data).

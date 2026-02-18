@@ -4,7 +4,6 @@
 indicator("Simple Moving Average (SMA)", "SMA", overlay=true)
 
 //@function Calculates SMA using simple smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/sma.md
 //@param source Series to calculate SMA from
 //@param period Lookback period - FIR window size
 //@returns SMA value, calculates from first bar using available data

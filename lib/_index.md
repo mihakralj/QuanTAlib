@@ -6,7 +6,7 @@
 | :--- | :---: | :--- |
 | [Trends (FIR)](trends_FIR/_index.md) | 17 | Finite Impulse Response moving averages |
 | [Trends (IIR)](trends_IIR/_index.md) | 23 | Infinite Impulse Response moving averages |
-| [Filters](filters/_index.md) | 18 | Signal processing filters |
+| [Filters](filters/_index.md) | 26 | Signal processing filters |
 | [Oscillators](oscillators/_index.md) | 19 | Indicators that fluctuate around a center line |
 | [Dynamics](dynamics/_index.md) | 18 | Trend strength and direction indicators |
 | [Momentum](momentum/_index.md) | 16 | Momentum-based indicators |
@@ -19,7 +19,7 @@
 | [Forecasts](forecasts/_index.md) | 1 | Predictive indicators |
 | [Errors](errors/_index.md) | 26 | Error metrics and loss functions |
 | [Numerics](numerics/_index.md) | 15 | Mathematical transformations |
-| **Total** | **284** | |
+| **Total** | **292** | |
 
 ## All Indicators
 
@@ -36,6 +36,8 @@
 | [ADX](dynamics/adx/Adx.md) | Average Directional Index | Dynamics |
 | [ADXR](dynamics/adxr/Adxr.md) | Average Directional Movement Rating | Dynamics |
 | [AFIRMA](forecasts/afirma/Afirma.md) | Adaptive FIR Moving Average | Forecasts |
+| [AGC](filters/agc/Agc.md) | Automatic Gain Control | Filters |
+| [ALAGUERRE](filters/alaguerre/ALaguerre.md) | Adaptive Laguerre Filter | Filters |
 | [ALLIGATOR](dynamics/alligator/Alligator.md) | Williams Alligator | Dynamics |
 | [ALMA](trends_FIR/alma/Alma.md) | Arnaud Legoux MA | Trends (FIR) |
 | [AMAT](dynamics/amat/Amat.md) | Archer Moving Averages Trends | Dynamics |
@@ -48,6 +50,8 @@
 | [AROONOSC](dynamics/aroonosc/Aroonosc.md) | Aroon Oscillator | Dynamics |
 | [ATR](volatility/atr/Atr.md) | Average True Range | Volatility |
 | [ATRBANDS](channels/atrbands/Atrbands.md) | ATR Bands | Channels |
+| [BAXTERKING](filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Filters |
+| [CFITZ](filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Filters |
 | [BBANDS](channels/bbands/Bbands.md) | Bollinger Bands | Channels |
 | [ATRN](volatility/atrn/Atrn.md) | ATR Normalized | Volatility |
 | [ATRP](volatility/atrp/Atrp.md) | ATR Percent | Volatility |
@@ -106,6 +110,7 @@
 | [DX](dynamics/dx/Dx.md) | Directional Movement Index | Dynamics |
 | [EACP](cycles/eacp/Eacp.md) | Autocorrelation Periodogram | Cycles |
 | [EBSW](cycles/ebsw/Ebsw.md) | Even Better Sinewave | Cycles |
+| [EDCF](filters/edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Filters |
 | [EFI](volume/efi/Efi.md) | Elder's Force Index | Volume |
 | [ELLIPTIC](filters/elliptic/Elliptic.md) | Elliptic Filter | Filters |
 | [EMA](trends_IIR/ema/Ema.md) | Exponential MA | Trends (IIR) |
@@ -164,6 +169,9 @@
 | [JVOLTY](volatility/jvolty/Jvolty.md) | Jurik Volatility | Volatility |
 | [JVOLTYN](volatility/jvoltyn/Jvoltyn.md) | Jurik Volatility Normalized | Volatility |
 | [KALMAN](filters/kalman/Kalman.md) | Kalman Filter | Filters |
+| [LAGUERRE](filters/laguerre/Laguerre.md) | Laguerre Filter | Filters |
+| [LMS](filters/lms/Lms.md) | Least Mean Squares Adaptive Filter | Filters |
+| [RLS](filters/rls/Rls.md) | Recursive Least Squares Adaptive Filter | Filters |
 | [KAMA](trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Trends (IIR) |
 | [KCHANNEL](channels/kchannel/kchannel.md) | Keltner Channel | Channels |
 | [KDJ](oscillators/kdj/Kdj.md) | KDJ Indicator | Oscillators |
@@ -211,6 +219,7 @@
 | NORMDIST | Normal Distribution | Numerics |
 | [NORMALIZE](numerics/normalize/Normalize.md) | Min-Max Normalization | Numerics |
 | [NOTCH](filters/notch/Notch.md) | Notch Filter | Filters |
+| [ONEEURO](filters/oneeuro/OneEuro.md) | One Euro Filter | Filters |
 | [NVI](volume/nvi/Nvi.md) | Negative Volume Index | Volume |
 | [OBV](volume/obv/Obv.md) | On Balance Volume | Volume |
 | [PACF](statistics/pacf/Pacf.md) | Partial Autocorrelation Function | Statistics |
@@ -254,6 +263,7 @@
 | [ROC](momentum/roc/Roc.md) | Rate of Change | Momentum |
 | [ROCP](momentum/rocp/Rocp.md) | Rate of Change Percentage | Momentum |
 | [ROCR](momentum/rocr/Rocr.md) | Rate of Change Ratio | Momentum |
+| [ROOFING](filters/roofing/Roofing.md) | Roofing Filter | Filters |
 | [RSE](errors/rse/Rse.md) | Relative Squared Error | Errors |
 | [RSI](momentum/rsi/Rsi.md) | Relative Strength Index | Momentum |
 | [RSQUARED](errors/rsquared/Rsquared.md) | R² (Coefficient of Determination) | Errors |
@@ -274,6 +284,7 @@
 | [SMAPE](errors/smape/Smape.md) | Symmetric MAPE | Errors |
 | [SMI](oscillators/smi/Smi.md) | Stochastic Momentum Index | Oscillators |
 | [SOLAR](cycles/solar/Solar.md) | Solar Activity Cycle | Cycles |
+| [SPBF](filters/spbf/Spbf.md) | Super Passband Filter | Filters |
 | [SPEARMAN](statistics/spearman/Spearman.md) | Spearman Rank Correlation | Statistics |
 | SQUEEZE | Squeeze | Oscillators |
 | [SQRTTRANS](numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | Numerics |
@@ -322,6 +333,7 @@
 | [VIDYA](trends_IIR/vidya/Vidya.md) | Variable Index Dynamic Average | Trends (IIR) |
 | [VO](volume/vo/Vo.md) | Volume Oscillator | Volume |
 | [VORTEX](dynamics/vortex/Vortex.md) | Vortex Indicator | Dynamics |
+| [VOSS](filters/voss/Voss.md) | Voss Predictive Filter | Filters |
 | [VOV](volatility/vov/Vov.md) | Volatility of Volatility | Volatility |
 | [VR](volatility/vr/Vr.md) | Volatility Ratio | Volatility |
 | [VROC](volume/vroc/Vroc.md) | Volume Rate of Change | Volume |
@@ -331,6 +343,7 @@
 | [VWAPSD](channels/vwapsd/Vwapsd.md) | VWAP Standard Deviation Bands | Channels |
 | [VWMA](volume/vwma/Vwma.md) | Volume Weighted MA | Volume |
 | [WAD](volume/wad/Wad.md) | Williams A/D | Volume |
+| [WAVELET](filters/wavelet/Wavelet.md) | Wavelet Denoising Filter | Filters |
 | WAVG | Weighted Average | Statistics |
 | WEIBULLDIST | Weibull Distribution | Numerics |
 | [WIENER](filters/wiener/Wiener.md) | Wiener Filter | Filters |

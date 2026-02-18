@@ -4,7 +4,6 @@
 indicator("Commodity Channel Index (CCI)", "CCI", overlay=false)
 
 //@function Calculates Commodity Channel Index using circular buffer for efficiency
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/cci.md
 //@param length Lookback period for calculations
 //@returns CCI value measuring price deviation from its moving average
 cci(simple int length) =>

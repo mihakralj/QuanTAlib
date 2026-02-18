@@ -4,7 +4,6 @@
 indicator("Money Flow Index (MFI)", "MFI", overlay=false)
 
 //@function Calculates Money Flow Index, a volume-weighted RSI that measures buying/selling pressure
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/mfi.md
 //@param len Period for MFI calculation
 //@param src_high High price series
 //@param src_low Low price series

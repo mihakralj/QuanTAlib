@@ -20,9 +20,9 @@
 				"search",
 				"explore",
 				"__unlock_csharp_analysis__",
-				"understand",
 				"diag",
-				"source"
+				"source",
+				"understand"
 			],
 			"disabled": false
 		}

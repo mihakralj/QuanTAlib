@@ -4,8 +4,8 @@
 indicator("TTM Scalper Alert", "TTM_SCALPER", overlay=true)
 
 //@function Detects 3-bar pivot patterns for scalping entry signals
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/ttmscalper.md
-//@returns Tuple [pivot_high_price, pivot_low_price] with pivot values (na if no pivot)
+//@param use_closes Use close prices instead of high/low for pivot detection
+//@returns [pivot_high_price, pivot_low_price] Pivot values (na if no pivot)
 ttmscalper(bool use_closes = false) =>
     bool is_pivot_high = false
     bool is_pivot_low = false

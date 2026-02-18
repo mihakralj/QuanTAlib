@@ -4,8 +4,6 @@
 indicator("Rolling Sum", "SUM", overlay=false)
 
 //@function Calculates Rolling Sum over a period using Kahan-Babuška algorithm
-//@doc     Calculates the sum of the last n values with high numerical precision.
-//@doc     Uses Kahan-Babuška summation for machine-epsilon accuracy.
 //@param   source Series to calculate sum from
 //@param   length Number of bars to sum
 //@returns Rolling sum of the last 'length' values

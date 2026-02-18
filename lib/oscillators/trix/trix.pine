@@ -4,7 +4,6 @@
 indicator("TRIX", "TRIX", overlay=false)
 
 //@function Calculates TRIX oscillator with compensation
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/trix.md
 //@param source Series to calculate TRIX from
 //@param period Period for triple exponential smoothing
 //@returns TRIX value (percentage rate of change of triple EMA)

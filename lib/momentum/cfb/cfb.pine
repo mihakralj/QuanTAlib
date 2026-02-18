@@ -4,8 +4,6 @@
 indicator("Jurik Composite Fractal Behavior", "CFB", overlay=false)
 
 //@function Calculates Jurik Composite Fractal Behavior (Trend Duration Index)
-//@doc     Measures trend duration via fractal efficiency across multiple timescales.
-//@doc     Adaptive, zero-lag indicator for modulating other indicator periods.
 //@param   source Series to calculate CFB from
 //@param   maxLength Maximum lookback length (default 192, lengths 2,4,6,...,maxLength used)
 //@returns CFB value - weighted average of efficient trend lengths, minimum 1

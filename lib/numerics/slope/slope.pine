@@ -4,7 +4,6 @@
 indicator("Slope, Linear Regression (SLOPE)", "SLOPE", overlay=false, precision=8)
 
 //@function Calculates slope (linear regression)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/slope.md
 //@param src Source series to calculate slope from
 //@param len Lookback period for calculation
 //@returns Slope value properly calculated

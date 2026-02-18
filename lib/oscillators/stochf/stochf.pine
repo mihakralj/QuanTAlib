@@ -4,7 +4,6 @@
 indicator("Stochastic Fast (STOCHF)", "STOCHF", overlay=false)
 
 //@function Calculates the Stochastic Fast oscillator (%K and %D)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stochf.md
 //@param kLength Period for calculating the raw %K line
 //@param dLength Smoothing period for the %D signal line
 //@returns [%K value, %D value] - fast stochastic oscillator values

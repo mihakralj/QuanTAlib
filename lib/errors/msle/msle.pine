@@ -4,7 +4,6 @@
 indicator("Mean Squared Logarithmic Error (MSLE)", "MSLE")
 
 //@function Calculates Mean Squared Logarithmic Error between two sources using SMA for averaging
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/msle.md
 //@param source1 First series to compare (actual)
 //@param source2 Second series to compare (predicted)
 //@param period Lookback period for error averaging

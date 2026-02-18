@@ -4,7 +4,6 @@
 indicator("KDJ", "KDJ", overlay=false)
 
 //@function Calculates KDJ (K, D, J) lines - enhanced Stochastic Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/kdj.md
 //@param high Series of high prices
 //@param low Series of low prices
 //@param close Series of close prices

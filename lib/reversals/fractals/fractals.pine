@@ -4,8 +4,7 @@
 indicator("Williams Fractals", "FRACTALS", overlay=true)
 
 //@function Detects Williams Fractal patterns (5-bar pattern)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/fractals.md
-//@returns Tuple [up_fractal, down_fractal] with fractal values (na if no fractal)
+//@returns [up_fractal, down_fractal] Fractal values (na if no fractal)
 fractals() =>
     bool is_up_fractal = false
     bool is_down_fractal = false

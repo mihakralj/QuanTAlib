@@ -4,7 +4,6 @@
 indicator("McGinley Dynamic Indicator (MGDI)", "MGDI", overlay=true)
 
 //@function Calculates MGDI using dynamic factor based on price movement
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mgdi.md
 //@param source Series to calculate MGDI from
 //@param period Lookback period for initial SMA value
 //@param factor McGinley factor (default 0.6)

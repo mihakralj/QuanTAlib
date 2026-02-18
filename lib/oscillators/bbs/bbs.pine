@@ -96,7 +96,6 @@ keltner_calc(series float source, simple int period, simple float atr_mult, seri
     [middle, middle + offset, middle - offset]
 
 //@function Detects Bollinger Band Squeeze condition
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/bbs.md
 //@param source Series to analyze
 //@param bb_period Bollinger Band period
 //@param bb_mult Bollinger Band standard deviation multiplier

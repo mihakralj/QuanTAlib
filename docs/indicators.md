@@ -92,23 +92,36 @@ Signal processing filters adapted for financial time series. Designed to separat
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**AGC**](../lib/filters/agc/Agc.md) | Automatic Gain Control | Ehlers amplitude normalization via peak tracking |
+| [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
+| [**BAXTERKING**](../lib/filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass for cycle extraction |
+| [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
 | [**BESSEL**](../lib/filters/bessel/Bessel.md) | Bessel Filter | Maximally flat group delay |
 | [**BILATERAL**](../lib/filters/bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing |
 | [**BPF**](../lib/filters/bpf/Bpf.md) | BandPass Filter | Frequency band isolation |
 | [**BUTTER**](../lib/filters/butter/Butter.md) | Butterworth Filter | Maximally flat passband |
 | [**CHEBY1**](../lib/filters/cheby1/Cheby1.md) | Chebyshev Type I | Steeper rolloff with passband ripple |
 | [**CHEBY2**](../lib/filters/cheby2/Cheby2.md) | Chebyshev Type II | Steeper rolloff with stopband ripple |
+| [**EDCF**](../lib/filters/edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR, distance-weighted smoothing |
 | [**ELLIPTIC**](../lib/filters/elliptic/Elliptic.md) | Elliptic (Cauer) Filter | Sharpest transition, both band ripple |
 | [**GAUSS**](../lib/filters/gauss/Gauss.md) | Gaussian Filter | No overshoot, smooth response |
 | [**HANN**](../lib/filters/hann/Hann.md) | Hann Filter | Raised cosine window filter |
 | [**HP**](../lib/filters/hp/Hp.md) | Hodrick-Prescott Filter | Trend-cycle decomposition |
 | [**HPF**](../lib/filters/hpf/Hpf.md) | High Pass Filter | Ehlers high-pass design |
 | [**KALMAN**](../lib/filters/kalman/Kalman.md) | Kalman Filter | Optimal recursive estimation |
+| [**LAGUERRE**](../lib/filters/laguerre/Laguerre.md) | Laguerre Filter | Ehlers 4-element all-pass cascade |
+| [**LMS**](../lib/filters/lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR filter |
+| [**RLS**](../lib/filters/rls/Rls.md) | Recursive Least Squares | Faster convergence than LMS |
 | [**LOESS**](../lib/filters/loess/Loess.md) | LOESS Smoothing | Local polynomial regression |
 | [**NOTCH**](../lib/filters/notch/Notch.md) | Notch Filter | Single frequency rejection |
+| [**ONEEURO**](../lib/filters/oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass, adaptive cutoff |
+| [**ROOFING**](../lib/filters/roofing/Roofing.md) | Roofing Filter | Ehlers HP + SS bandpass cascade |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
+| [**SPBF**](../lib/filters/spbf/Spbf.md) | Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
 | [**SSF**](../lib/filters/ssf/Ssf.md) | Super Smooth Filter | Ehlers two-pole design |
 | [**USF**](../lib/filters/usf/Usf.md) | Ultimate Smoother | Ehlers high-fidelity filter |
+| [**VOSS**](../lib/filters/voss/Voss.md) | Voss Predictive Filter | Ehlers BPF + negative group delay predictor |
+| [**WAVELET**](../lib/filters/wavelet/Wavelet.md) | Wavelet Denoising Filter | A trous Haar + MAD soft thresholding |
 | [**WIENER**](../lib/filters/wiener/Wiener.md) | Wiener Filter | Minimum mean-square error denoising |
 
 ### Oscillators

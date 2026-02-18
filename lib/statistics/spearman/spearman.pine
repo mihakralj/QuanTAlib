@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Spearman Rank Correlation (SPEARMAN)", "SPEARMAN", overlay=false, precision=4)
 
 // @function Calculates ranks for values in an array.
@@ -63,7 +63,6 @@ pearson_on_arrays(float[] x_arr, float[] y_arr) =>
                 sum_xy_diff / denominator_sqrt
 
 //@function Calculates Spearman Rank Correlation Coefficient.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/spearman.md
 //@param source1 series float The first input series.
 //@param source2 series float The second input series.
 //@param length simple int The lookback period. Min 2, Max 60.
@@ -121,7 +120,7 @@ source2 = request.security(i_source2_ticker, timeframe.period, i_source2_data_ty
 spearman_value = spearman_corr(i_source1, source2, i_length)
 
 // Plot
-plot(spearman_value, "Spearman's Rho", color=color.new(color.orange, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(spearman_value, "Spearman's Rho", color=color.orange, linewidth=2)
 hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)
 hline(0.5, "Moderate Positive Correlation", color.green, linestyle=hline.style_dotted)
 hline(-0.5, "Moderate Negative Correlation", color.red, linestyle=hline.style_dotted)

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // © mihakralj
-//@version=5
+//@version=6
 indicator("Jarque-Bera Test (JB)", "JB", overlay=false, precision=4)
 
 // Helper function to get a window of series data into an array
@@ -23,7 +23,6 @@ _central_moment(float[] arr, int moment_order, float mean_val) =>
         sum_pow_diff / n
 
 //@function Calculates the Jarque-Bera statistic.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/jb.md
 //@param source series float The input series.
 //@param length simple int The lookback period (sample size). Min 10.
 //@returns series float The Jarque-Bera statistic. Higher values suggest deviation from normality.
@@ -70,7 +69,7 @@ i_length = input.int(20, title="Lookback Period (Sample Size)", minval=10, maxva
 jb_value = jb_stat(i_source, i_length) // Call renamed function
 
 // Plot
-plot(jb_value, "Jarque-Bera Statistic", color=color.new(color.teal, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(jb_value, "Jarque-Bera Statistic", color=color.teal, linewidth=2)
 
 // Critical values for Chi-squared distribution with 2 degrees of freedom (approximate):
 // Significance Level | Critical Value

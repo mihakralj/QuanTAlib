@@ -1,0 +1,115 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Wavelet Denoising Filter (WAVELET)", "WAVELET", overlay=true)
+
+//@function Soft thresholding — shrinks coefficient toward zero by threshold amount
+//@param d Detail coefficient
+//@param thresh Threshold value
+//@returns Thresholded coefficient: sign(d) * max(0, |d| - thresh)
+soft(float d, float thresh) =>
+    float absD = math.abs(d)
+    absD > thresh ? math.sign(d) * (absD - thresh) : 0.0
+
+//@function À trous (stationary/undecimated) wavelet denoising with Haar basis
+//     approximation is computed by averaging samples separated by 2^(j-1) bars
+//     (inserting "holes" between taps). Detail coefficients are soft-thresholded
+//     with a universal threshold scaled by robust noise estimate (MAD of level-1
+//     details). Reconstruction sums the coarsest approximation and all denoised
+//     details. O(levels) per bar, fully causal, no downsampling.
+//@param src Input series to denoise
+//@param levels Number of decomposition levels (each doubles the effective window)
+//@param threshMult Threshold multiplier — scales the universal threshold
+//@returns Denoised series
+//@optimized O(levels) per bar; lookback = 2^levels bars; no arrays needed —
+//           Pine's native series indexing handles all delays naturally
+wavelet(series float src, simple int levels, simple float threshMult) =>
+    if levels < 1 or levels > 8
+        runtime.error("Levels must be between 1 and 8")
+    if threshMult < 0.0
+        runtime.error("Threshold multiplier must be >= 0")
+
+    // --- Level 1 decomposition (step = 1) ---
+    float c0 = nz(src, 0.0)
+    float c1 = (c0 + nz(src[1], c0)) * 0.5
+    float d1 = c0 - c1
+
+    // --- Level 2 decomposition (step = 2) ---
+    float c2 = levels >= 2 ? (c1 + nz(c1[2], c1)) * 0.5 : c1
+    float d2 = levels >= 2 ? c1 - c2 : 0.0
+
+    // --- Level 3 decomposition (step = 4) ---
+    float c3 = levels >= 3 ? (c2 + nz(c2[4], c2)) * 0.5 : c2
+    float d3 = levels >= 3 ? c2 - c3 : 0.0
+
+    // --- Level 4 decomposition (step = 8) ---
+    float c4 = levels >= 4 ? (c3 + nz(c3[8], c3)) * 0.5 : c3
+    float d4 = levels >= 4 ? c3 - c4 : 0.0
+
+    // --- Level 5 decomposition (step = 16) ---
+    float c5 = levels >= 5 ? (c4 + nz(c4[16], c4)) * 0.5 : c4
+    float d5 = levels >= 5 ? c4 - c5 : 0.0
+
+    // --- Level 6 decomposition (step = 32) ---
+    float c6 = levels >= 6 ? (c5 + nz(c5[32], c5)) * 0.5 : c5
+    float d6 = levels >= 6 ? c5 - c6 : 0.0
+
+    // --- Level 7 decomposition (step = 64) ---
+    float c7 = levels >= 7 ? (c6 + nz(c6[64], c6)) * 0.5 : c6
+    float d7 = levels >= 7 ? c6 - c7 : 0.0
+
+    // --- Level 8 decomposition (step = 128) ---
+    float c8 = levels >= 8 ? (c7 + nz(c7[128], c7)) * 0.5 : c7
+    float d8 = levels >= 8 ? c7 - c8 : 0.0
+
+    // --- Robust noise estimate from level-1 details ---
+    // MAD (median absolute deviation) approximated by running mean of |d1|
+    // over 2^levels bars. True MAD needs sorting; mean|d1| is a reasonable
+    // streaming proxy. sigma = MAD / 0.6745 (Gaussian assumption).
+    int madLen = int(math.pow(2, levels))
+    float sumAbsD1 = 0.0
+    for i = 0 to madLen - 1
+        sumAbsD1 += math.abs(nz(d1[i], 0.0))
+    float mad = sumAbsD1 / float(madLen)
+    float sigma = mad / 0.6745
+
+    // --- Universal threshold: T = sigma * sqrt(2 * ln(madLen)) * threshMult ---
+    float T = sigma * math.sqrt(2.0 * math.log(madLen)) * threshMult
+
+    // --- Apply soft thresholding to detail coefficients ---
+    float td1 = soft(d1, T)
+    float td2 = soft(d2, T)
+    float td3 = soft(d3, T)
+    float td4 = soft(d4, T)
+    float td5 = soft(d5, T)
+    float td6 = soft(d6, T)
+    float td7 = soft(d7, T)
+    float td8 = soft(d8, T)
+
+    // --- Reconstruction: coarsest approximation + thresholded details ---
+    float coarse = levels == 1 ? c1 :
+                   levels == 2 ? c2 :
+                   levels == 3 ? c3 :
+                   levels == 4 ? c4 :
+                   levels == 5 ? c5 :
+                   levels == 6 ? c6 :
+                   levels == 7 ? c7 : c8
+
+    float result = coarse + td1 + td2 + td3 + td4 + td5 + td6 + td7 + td8
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_levels    = input.int(4, "Decomposition Levels", minval=1, maxval=8,
+              tooltip="Number of wavelet decomposition levels. Each level doubles the effective smoothing window. Lookback = 2^levels bars.")
+i_threshold = input.float(1.0, "Threshold Multiplier", minval=0.0, maxval=5.0, step=0.1,
+              tooltip="Scales the universal noise threshold. 0 = no denoising (passthrough). Higher = more aggressive smoothing.")
+i_source    = input.source(close, "Source")
+
+// Calculation
+wav_val = wavelet(i_source, i_levels, i_threshold)
+
+// Plot
+plot(wav_val, "Wavelet", color=color.new(color.purple, 0), linewidth=2)
+plot(i_source, "Source", color=color.new(color.gray, 60), linewidth=1)

@@ -4,7 +4,6 @@
 indicator("Williams %R (WILLR)", "WILLR", overlay=false)
 
 //@function Calculates Williams %R oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/willr.md
 //@param period Lookback period for highest high and lowest low calculation
 //@returns Williams %R value (-100 to 0 scale)
 willr(simple int period) =>

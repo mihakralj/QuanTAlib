@@ -4,7 +4,6 @@
 indicator("Momentum (MOM)", "MOM", overlay=false)
 
 //@function Calculates price momentum over specified period
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/mom.md
 //@param src Source series to calculate momentum for
 //@param len Lookback period for momentum calculation
 //@returns Momentum value measuring rate of price change

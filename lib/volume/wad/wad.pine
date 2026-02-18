@@ -4,7 +4,6 @@
 indicator("Williams Accumulation/Distribution (WAD)", "WAD", overlay=false)
 
 //@function Calculates Williams A/D using price relationships and volume
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/wad.md
 //@param src_high High price series
 //@param src_low Low price series
 //@param src_close Close price series

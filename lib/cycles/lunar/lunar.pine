@@ -4,7 +4,6 @@
 indicator("Lunar Phase (LUNAR)", "LUNAR", overlay=false)
 
 //@function Calculates precise lunar phase using orbital mechanics
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/lunar.md
 //@param none Uses timestamp of open (start of the bar) for calculations
 //@returns float Lunar phase from 0.0 (new moon) through 1.0 (full moon)
 //@Includes orbital perturbation terms and epoch corrections

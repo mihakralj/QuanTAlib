@@ -4,9 +4,6 @@
 indicator("Pseudo-Huber Loss", "PseudoHuber", overlay=false)
 
 //@function Calculates Pseudo-Huber Loss (Charbonnier Loss)
-//@doc     Smooth approximation to Huber loss, differentiable everywhere.
-//@doc     Approximates L2 for small errors, L1 for large errors.
-//@doc     δ (delta) controls the transition point between quadratic and linear behavior.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for averaging

@@ -24,7 +24,6 @@ atan2(series float y, series float x) =>
     angle
 
 //@function Calculates Hilbert Transform Dominant Cycle Phase using Ehlers algorithm
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ht_dcphase.md
 //@param source Series to analyze for dominant cycle phase
 //@returns Phase angle in radians (-π to π)
 ht_dcphase(series float source) =>

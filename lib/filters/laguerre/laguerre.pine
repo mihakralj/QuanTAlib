@@ -1,0 +1,53 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004 John F. Ehlers
+indicator("Laguerre Filter (LAGUERRE)", "LAGUERRE", overlay=true)
+
+//@function Calculates Laguerre Filter using 4 cascaded all-pass IIR elements
+//@param source Series to calculate Laguerre filter from
+//@param gamma Damping factor controlling smoothing (0 = FIR, higher = more smoothing)
+//@returns Laguerre filter value with frequency-dependent smoothing
+//@optimized Uses 4-element all-pass cascade with O(1) complexity per bar
+laguerre(series float src, simple float gamma) =>
+    var float L0 = 0.0
+    var float L1 = 0.0
+    var float L2 = 0.0
+    var float L3 = 0.0
+    var float pL0 = 0.0
+    var float pL1 = 0.0
+    var float pL2 = 0.0
+    var bool initialized = false
+    float ssrc = nz(src, src[1])
+    if not initialized
+        L0 := ssrc
+        L1 := ssrc
+        L2 := ssrc
+        L3 := ssrc
+        pL0 := ssrc
+        pL1 := ssrc
+        pL2 := ssrc
+        initialized := true
+    else
+        pL0 := L0
+        pL1 := L1
+        pL2 := L2
+        float omg = 1.0 - gamma
+        L0 := omg * ssrc + gamma * pL0
+        L1 := -gamma * L0 + pL0 + gamma * pL1
+        L2 := -gamma * L1 + pL1 + gamma * pL2
+        L3 := -gamma * L2 + pL2 + gamma * L3
+    float filt = (L0 + 2.0 * L1 + 2.0 * L2 + L3) / 6.0
+    filt
+
+// ---------- Main loop ----------
+
+// Inputs
+i_gamma = input.float(0.8, "Gamma", minval=0.0, maxval=0.99, step=0.01)
+i_source = input.source(close, "Source")
+
+// Calculation
+laguerre_val = laguerre(i_source, i_gamma)
+
+// Plot
+plot(laguerre_val, "Laguerre", color=color.yellow, linewidth=2)

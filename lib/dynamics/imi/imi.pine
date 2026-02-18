@@ -4,7 +4,6 @@
 indicator("Intraday Momentum Index (IMI)", "IMI", overlay=false)
 
 //@function Calculates IMI using intraday price ranges (open vs close)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/imi.md
 //@param period Number of bars used in the calculation
 //@returns IMI value (0-100)
 //@optimized Uses circular buffer for O(1) per-bar complexity

@@ -4,7 +4,6 @@
 indicator("Median", "MEDIAN", overlay=false, precision=8)
 
 //@function Calculates the median of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/median.md
 //@param src series float Input data series.
 //@param len simple int Lookback period (must be > 0).
 //@returns series float The median of the series over the period, or na if insufficient valid data.

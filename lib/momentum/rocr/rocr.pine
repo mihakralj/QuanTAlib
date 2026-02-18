@@ -4,7 +4,6 @@
 indicator("Rate of Change Ratio (ROCR)", "ROCR", overlay=false)
 
 //@function Calculates ratio between current price and N periods ago
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/rocr.md
 //@param source Source price series
 //@param length Lookback period
 //@returns Price ratio value

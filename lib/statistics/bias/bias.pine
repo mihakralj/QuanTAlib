@@ -4,7 +4,6 @@
 indicator("Bias (BIAS)", "BIAS", overlay=false)
 
 //@function Calculates the deviation of a signal from its moving average (BIAS).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/bias.md
 //@param src The source series.
 //@param len The lookback period for the SMA. Must be > 0.
 //@returns The BIAS value.

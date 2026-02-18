@@ -4,7 +4,6 @@
 indicator("Tillson T3 Moving Average (T3)", "T3", overlay=true)
 
 //@function Calculates T3 using six EMAs with volume factor optimization
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/t3.md
 //@param source Series to calculate T3 from
 //@param period Smoothing period
 //@param v Volume factor controlling smoothing (default 0.7)

@@ -4,7 +4,6 @@
 indicator("Logarithmic Transformation (LOG)", "Logtrans", overlay=false)
 
 //@function Applies a natural logarithmic transformation (y = ln(x)) to the input series.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/log.md
 //@param source series float The input series to transform. Must contain positive values.
 //@returns series float The logarithmically transformed series. Returns na if source <= 0.
 //@optimized for performance and dirty data

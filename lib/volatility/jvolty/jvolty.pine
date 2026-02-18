@@ -4,7 +4,6 @@
 indicator("Jurik Volatility", "Jvolty", overlay=false)
 
 //@function Jurik Volatility - extracted volatility component from JMA
-//@doc     Uses 10-bar local deviation + 128-sample trimmed mean distribution
 //@param   source Series to calculate Jvolty from
 //@param   period Number of bars used in the calculation (>= 1)
 //@returns Normalized volatility measure (1 = low volatility, logParam = high volatility)

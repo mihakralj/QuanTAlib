@@ -24,7 +24,6 @@ atan2(series float y, series float x) =>
     angle
 
 //@function Calculates Hilbert Transform Phasor Components (InPhase and Quadrature)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ht_phasor.md
 //@param source Series to analyze for phasor components
 //@returns Tuple [inphase, quadrature] components
 ht_phasor(series float source) =>

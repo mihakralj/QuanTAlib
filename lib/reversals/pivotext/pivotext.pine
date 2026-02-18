@@ -4,7 +4,6 @@
 indicator("Pivot Points (Extended)", "PIVOTEXT", overlay=true)
 
 //@function Calculates extended traditional pivot points with R4-R5 and S4-S5 levels
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotext.md
 //@param tf Timeframe for pivot calculation ("D", "W", "M")
 //@returns Tuple [pp, r1, r2, r3, r4, r5, s1, s2, s3, s4, s5] with pivot levels
 //@references Extended floor trader pivot formula

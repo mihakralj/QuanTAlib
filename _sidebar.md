@@ -57,6 +57,11 @@
 
 * **Filters**
   * [Overview](/lib/filters/_index.md)
+  * [AGC - Automatic Gain Control](/lib/filters/agc/Agc.md)
+  * [ALAGUERRE - Adaptive Laguerre Filter](/lib/filters/alaguerre/ALaguerre.md)
+  * [BAXTERKING - Baxter-King Band-Pass Filter](/lib/filters/baxterking/BaxterKing.md)
+  * [CFITZ - Christiano-Fitzgerald Filter](/lib/filters/cfitz/Cfitz.md)
+  * [EDCF - Ehlers Distance Coefficient Filter](/lib/filters/edcf/Edcf.md)
   * [BESSEL - Bessel Filter](/lib/filters/bessel/Bessel.md)
   * [BILATERAL - Bilateral Filter](/lib/filters/bilateral/Bilateral.md)
   * [BPF - Bandpass Filter](/lib/filters/bpf/Bpf.md)
@@ -69,11 +74,19 @@
   * [HP - Hodrick-Prescott Filter](/lib/filters/hp/Hp.md)
   * [HPF - High Pass Filter](/lib/filters/hpf/Hpf.md)
   * [KALMAN - Kalman Filter](/lib/filters/kalman/Kalman.md)
+  * [LAGUERRE - Laguerre Filter](/lib/filters/laguerre/Laguerre.md)
+  * [LMS - Least Mean Squares](/lib/filters/lms/Lms.md)
+  * [RLS - Recursive Least Squares](/lib/filters/rls/Rls.md)
   * [LOESS - LOESS Smoothing](/lib/filters/loess/Loess.md)
   * [NOTCH - Notch Filter](/lib/filters/notch/Notch.md)
+  * [ONEEURO - One Euro Filter](/lib/filters/oneeuro/OneEuro.md)
+  * [ROOFING - Roofing Filter](/lib/filters/roofing/Roofing.md)
   * [SGF - Savitzky-Golay Filter](/lib/filters/sgf/Sgf.md)
+  * [SPBF - Ehlers Super Passband Filter](/lib/filters/spbf/Spbf.md)
   * [SSF - Ehlers Super Smooth Filter](/lib/filters/ssf/Ssf.md)
   * [USF - Ehlers Ultimate Smoother Filter](/lib/filters/usf/Usf.md)
+  * [VOSS - Ehlers Voss Predictive Filter](/lib/filters/voss/Voss.md)
+  * [WAVELET - Wavelet Denoising Filter](/lib/filters/wavelet/Wavelet.md)
   * [WIENER - Wiener Filter](/lib/filters/wiener/Wiener.md)
 
 * **Dynamics**

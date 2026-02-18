@@ -4,8 +4,6 @@
 indicator("Quantile Loss (Pinball Loss)", "QuantileLoss", overlay=false)
 
 //@function Calculates Quantile Loss (Pinball Loss)
-//@doc     Used for quantile regression, asymmetrically penalizes over/under-predictions.
-//@doc     q=0.5 gives MAE; q>0.5 penalizes under-prediction more; q<0.5 penalizes over-prediction more.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for averaging

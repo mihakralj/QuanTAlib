@@ -4,7 +4,6 @@
 indicator("Rate of Change Percentage (ROCP)", "ROCP", overlay=false)
 
 //@function Calculates percentage Rate of Change between current price and N periods ago
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/rocp.md
 //@param source Source price series
 //@param length Lookback period
 //@returns Percentage price change value

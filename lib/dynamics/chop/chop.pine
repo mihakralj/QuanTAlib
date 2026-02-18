@@ -4,7 +4,6 @@
 indicator("Choppiness Index", "CHOP", overlay=false)
 
 //@function Calculates Choppiness Index to measure market trendiness
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/chop.md
 //@param length Lookback period for calculation
 //@returns CHOP value between 0 and 100 (lower=trending, higher=choppy)
 //@references E.W. Dreiss, Australian commodity trader

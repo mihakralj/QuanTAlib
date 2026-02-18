@@ -4,7 +4,6 @@
 indicator("Percentile", "PERCENTILE", overlay=true, precision=8)
 
 //@function Calculates the value at a given percentile for a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/percentile.md
 //@param src series float Input data series.
 //@param len simple int Lookback period (must be > 0).
 //@param p simple float Percentile to calculate (0-100). For example, 50 for median.

@@ -4,7 +4,6 @@
 indicator("Volume Weighted Average Price (VWAP)", "VWAP", overlay=true)
 
 //@function Calculates session-based VWAP (Volume Weighted Average Price)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vwap.md
 //@param src Source price series (typically hlc3)
 //@param vol Volume series
 //@param reset_condition Condition to reset VWAP calculation

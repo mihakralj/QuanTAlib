@@ -1,4 +1,4 @@
-// The MIT License (MIT)1
+// The MIT License (MIT)
 // © mihakralj
 //@version=6
 indicator("EACP: Ehlers Autocorrelation Periodogram","EACP",overlay=false)

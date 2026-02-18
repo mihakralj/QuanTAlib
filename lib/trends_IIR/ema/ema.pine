@@ -4,7 +4,6 @@
 indicator("Exponential Moving Average (EMA)", "EMA", overlay=true)
 
 //@function Calculates EMA using exponential smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/ema.md
 //@param source Series to calculate EMA from
 //@param period Lookback period for EMA calculation
 //@param alpha Optional smoothing factor (overrides period if provided)

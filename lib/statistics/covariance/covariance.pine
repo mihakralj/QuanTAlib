@@ -4,7 +4,6 @@
 indicator("Covariance (COVARIANCE)", "COVARIANCE", overlay=false)
 
 //@function Calculates covariance using single pass with circular buffer
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/covariance.md
 //@param src1 series float First series to analyze
 //@param src2 series float Second series to analyze
 //@param len simple int Lookback period for calculation

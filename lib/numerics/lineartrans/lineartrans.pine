@@ -4,7 +4,6 @@
 indicator("Linear Transformation (LINEAR)", "Lineartrans", overlay=false)
 
 //@function Applies a linear transformation (y = a*(x - sma) + sma + b) relative to the source's SMA, calculated internally.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/linear.md
 //@param source series float The input series to transform.
 //@param period simple int The lookback period for the internal SMA calculation.
 //@param a float The scaling factor (slope).

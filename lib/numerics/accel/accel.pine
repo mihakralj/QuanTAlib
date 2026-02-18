@@ -4,7 +4,6 @@
 indicator("Acceleration (Slope of Slope) (ACCEL)", "ACCEL", overlay=false, precision=8)
 
 //@function Calculates acceleration (slope of slope)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/accel.md
 //@param src Source series to calculate slope from
 //@param len Lookback period for calculation
 //@returns acceleration

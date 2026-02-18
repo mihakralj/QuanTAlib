@@ -4,7 +4,6 @@
 indicator("Min-Max Normalization (NORMALIZE)", "NORMALIZE", overlay=false, precision=6)
 
 //@function Normalizes a source series to the fixed range [0, 1] using Min-Max scaling over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/normalize.md
 //@param src The source series to normalize.
 //@param len The lookback period to determine min and max values. Must be >= 1.
 //@returns The normalized series (scaled to [0, 1]).

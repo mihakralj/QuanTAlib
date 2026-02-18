@@ -4,7 +4,6 @@
 indicator("Negative Volume Index (NVI)", "NVI", overlay=false)
 
 //@function Calculates Negative Volume Index, tracks price changes on days with lower volume
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/nvi.md
 //@param src Price series to use for calculation
 //@param vol Volume series
 //@param start_value Starting value for NVI (typically 100 or 1000)

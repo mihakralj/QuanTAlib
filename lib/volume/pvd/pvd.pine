@@ -4,7 +4,6 @@
 indicator("Price Volume Divergence (PVD)", "PVD", overlay=false)
 
 //@function Calculates Price Volume Divergence
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvd.md
 //@param price_period Lookback period for price momentum
 //@param volume_period Lookback period for volume momentum
 //@param smoothing_period Period for smoothing divergence signals

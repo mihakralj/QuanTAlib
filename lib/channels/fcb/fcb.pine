@@ -4,7 +4,6 @@
 indicator("Fractal Chaos Bands (FCB)", "FCB", overlay=true)
 
 //@function Calculates Fractal Chaos Bands based on fractal highs and lows
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/channels/fcb.md
 //@param period Lookback period for highest/lowest calculation
 //@returns [upper_band, lower_band] Fractal Chaos Band values
 //@optimized Uses monotonic deque for O(1) amortized complexity

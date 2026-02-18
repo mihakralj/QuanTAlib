@@ -1,0 +1,103 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Baxter-King Band-Pass Filter (BAXTERKING)", "BAXTERKING", overlay=false)
+
+//@function Baxter-King symmetric band-pass filter
+//     response at lag K and normalizing weights to sum to zero (removes trend).
+//     The filter extracts cyclical components with periodicities between pLow
+//     and pHigh bars. Being symmetric, the output is delayed by K bars.
+//
+//     Ideal band-pass weights:
+//       B_0 = (b - a) / pi
+//       B_j = (sin(j*b) - sin(j*a)) / (pi*j)  for j >= 1
+//     where a = 2*pi/pHigh, b = 2*pi/pLow
+//
+//     BK normalization: subtract mean of all 2K+1 weights so they sum to zero.
+//     This ensures the filter removes any linear trend (DC component = 0).
+//
+//     Reference: Baxter & King (1999), "Measuring Business Cycles: Approximate
+//     Band-Pass Filters for Economic Time Series," Review of Economics and
+//     Statistics, 81(4), 575-593.
+//
+//@param src Input series
+//@param pLow Minimum period of the passband (bars). Must be >= 2.
+//@param pHigh Maximum period of the passband (bars). Must be > pLow.
+//@param K Half-length of the symmetric filter (number of leads/lags).
+//          Larger K = better frequency resolution but more data loss at ends.
+//          Baxter-King recommend K=12 for quarterly data, K=36 for monthly.
+//@returns Cyclical component (oscillates around zero), delayed by K bars.
+//@optimized O(K) per bar — single weighted sum over 2K+1 lagged values.
+//           Weights are precomputed once. No arrays needed for the convolution
+//           since Pine's series indexing handles the lookback naturally.
+baxterking(series float src, simple int pLow, simple int pHigh, simple int K) =>
+    if pLow < 2
+        runtime.error("pLow must be >= 2")
+    if pHigh <= pLow
+        runtime.error("pHigh must be > pLow")
+    if K < 1
+        runtime.error("K must be >= 1")
+
+    // Angular frequencies for the passband edges
+    float a = 2.0 * math.pi / pHigh  // low cutoff (long period = low freq)
+    float b = 2.0 * math.pi / pLow   // high cutoff (short period = high freq)
+
+    // Compute ideal band-pass weights B_0..B_K
+    // B_0 = (b - a) / pi
+    // B_j = (sin(j*b) - sin(j*a)) / (pi*j) for j >= 1
+    float b0_ideal = (b - a) / math.pi
+    float wsum = b0_ideal
+
+    // We need to accumulate the sum of all 2K+1 ideal weights for normalization.
+    // By symmetry, sum = B_0 + 2 * sum(B_j, j=1..K)
+    // We also need each B_j individually for the convolution.
+
+    // Since Pine v6 forbids dynamic arrays in functions, and K is simple int,
+    // we unroll the computation: compute each weight, accumulate the weighted
+    // sum of src, and track the weight sum for normalization — all in one pass.
+
+    // First pass: compute weight sum for normalization constant
+    float idealSum = b0_ideal
+    // Unrolled: accumulate sum of B_j for j=1..K
+    // We do this with a loop since K is simple int
+    float sumBj = 0.0
+    for j = 1 to K
+        float bj = (math.sin(j * b) - math.sin(j * a)) / (math.pi * j)
+        sumBj += bj
+    idealSum += 2.0 * sumBj  // symmetric: each B_j appears twice
+
+    // Normalization constant: subtract from each weight so total sums to zero
+    float theta = idealSum / (2 * K + 1)
+
+    // Second pass: apply the filter as a weighted sum of src[0..2K]
+    // The symmetric filter centered at time t uses src[t-K] through src[t+K].
+    // Since Pine is causal (no look-ahead), we center at src[K] (delayed by K).
+    // So output at bar t reflects the cycle at bar t-K.
+
+    // Center weight (j=0, applied to src[K])
+    float w0 = b0_ideal - theta
+    float result = w0 * nz(src[K])
+
+    // Symmetric weights (j=1..K)
+    for j = 1 to K
+        float bj = (math.sin(j * b) - math.sin(j * a)) / (math.pi * j)
+        float wj = bj - theta
+        // src[K-j] is the "future" side (but we're looking back from current bar)
+        // src[K+j] is the "past" side
+        result += wj * (nz(src[K - j]) + nz(src[K + j]))
+
+    result
+
+
+// ─── Inputs ───
+pLow  = input.int(6,  "Min Period (pLow)",  minval=2,  tooltip="Shortest cycle to pass through (bars)")
+pHigh = input.int(32, "Max Period (pHigh)", minval=3,  tooltip="Longest cycle to pass through (bars)")
+K     = input.int(12, "Filter Half-Length (K)", minval=1, maxval=100,
+     tooltip="Number of leads/lags. Larger = better approximation but loses 2K bars. BK recommend 12 for quarterly, 36 for monthly.")
+
+// ─── Calculation ───
+float cycle = baxterking(close, pLow, pHigh, K)
+
+// ─── Visualization ───
+hline(0, "Zero", color.gray, hline.style_dotted)
+plot(cycle, "BK Cycle", color.new(color.blue, 0), 2)

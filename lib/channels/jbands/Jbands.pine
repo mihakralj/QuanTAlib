@@ -4,8 +4,6 @@
 indicator("Jurik Adaptive Envelope Bands", "JBANDS", overlay=true)
 
 //@function Jurik Adaptive Envelope Bands - Upper/Lower bands from JMA's adaptive envelope tracking
-//@doc     Bands snap to new extremes instantly but decay smoothly toward price,
-//@doc     creating volatility-responsive channels with JMA's signature smoothness.
 //@param   source Series to calculate JBANDS from
 //@param   period Number of bars used in the calculation (>= 1)
 //@param   phase  Phase shift (-100 to 100). Negative = smoother, positive = more leading

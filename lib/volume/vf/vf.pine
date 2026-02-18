@@ -4,7 +4,6 @@
 indicator("Volume Force (VF)", "VF", overlay=false)
 
 //@function Calculates Volume Force, measuring the force of volume behind price movements
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vf.md
 //@param len Smoothing period (default: 14)
 //@param src Source price for calculation (default: close)
 //@param src_vol Volume data (default: volume)

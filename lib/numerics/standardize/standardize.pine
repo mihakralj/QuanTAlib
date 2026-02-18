@@ -4,7 +4,6 @@
 indicator("Standardization (Z-score)", "STANDARDIZE", overlay=false, precision=4)
 
 //@function Calculates the Z-score of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/standardize.md
 //@param src series float Input data series.
 //@param len simple int Lookback period for calculating mean and standard deviation (must be > 1 for sample stdev).
 //@returns series float The Z-score of the current data point, or na if issues like insufficient data or zero stdev for a non-mean current value.

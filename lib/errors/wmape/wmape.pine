@@ -4,9 +4,6 @@
 indicator("Weighted Mean Absolute Percentage Error", "WMAPE", overlay=false, format=format.percent)
 
 //@function Calculates Weighted Mean Absolute Percentage Error
-//@doc     Weights errors by actual value magnitude, industry standard for demand forecasting.
-//@doc     WMAPE = (Σ|actual - predicted| / Σ|actual|) * 100
-//@doc     More stable than MAPE for intermittent data with zero/low values.
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for calculation

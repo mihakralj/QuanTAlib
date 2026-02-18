@@ -1,0 +1,65 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("EDCF: Ehlers Distance Coefficient Filter", "EDCF", overlay = true)
+
+//@function Calculates Ehlers Distance Coefficient Filter using distance-weighted FIR
+//@param source Series to calculate EDCF from
+//@param length Filter window length (>= 2)
+//@returns Distance-weighted filter value
+//@optimized Uses distance-squared coefficients with O(n²) complexity per bar
+
+// ——— Inputs ———
+int    p_length = input.int(15, "Length", minval = 2, maxval = 50,
+                            tooltip = "Filter window length. Larger = smoother but more lag.")
+string p_source = input.string("HL2", "Source",
+                               options = ["Close", "HL2", "HLC3", "OHLC4", "Open", "High", "Low"])
+
+// ——— Source selector ———
+float src = switch p_source
+    "Close" => close
+    "HL2"   => hl2
+    "HLC3"  => hlc3
+    "OHLC4" => ohlc4
+    "Open"  => open
+    "High"  => high
+    "Low"   => low
+
+// ——— Distance Coefficient Filter ———
+// Reference: John F. Ehlers, "Ehlers Filters" (MESA Software)
+//            John F. Ehlers, "Nonlinear Ehlers Filters" (S&C V.19:4, pp.25-34)
+//
+// Algorithm:
+//   For each sample position i in [0, Length-1]:
+//     Distance2[i] = Σ (Price[i] - Price[i + k])^2  for k = 1 to Length-1
+//   Coef[i] = Distance2[i]
+//   Filter = Σ(Coef[i] * Price[i]) / Σ(Coef[i])
+//
+// When prices are flat, all coefficients are equal → degenerates to SMA.
+// When prices shift rapidly, distant points get higher weights → faster response.
+// Uses sum of squares (not sqrt of sum of squares) to heighten filter response.
+
+edcf(float source, int length) =>
+    float sumCoef = 0.0
+    float num     = 0.0
+
+    for count = 0 to length - 1
+        // Compute distance-squared coefficient for this sample position
+        float dist2 = 0.0
+        for lookBack = 1 to length - 1
+            float diff = source[count] - source[count + lookBack]
+            dist2 += diff * diff
+        // The distance-squared value IS the coefficient
+        float coef = dist2
+        sumCoef += coef
+        num     += coef * source[count]
+
+    // Normalized weighted average; fallback to current price if all coefficients zero
+    float result = sumCoef != 0.0 ? num / sumCoef : source
+    result
+
+// ——— Compute ———
+float filt = edcf(src, p_length)
+
+// ——— Plot ———
+plot(filt, "EDCF", color = color.yellow, linewidth = 2)

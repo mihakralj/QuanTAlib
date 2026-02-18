@@ -4,7 +4,6 @@
 indicator("Linear Regression (LINREG)", "LINREG", overlay=false, precision=8)
 
 //@function Calculates linear regression and slope over the specified period
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/linreg.md
 //@param src Source series to calculate linear regression from
 //@param len Lookback period for the calculation
 //@returns Tuple containing [intercept, slope]

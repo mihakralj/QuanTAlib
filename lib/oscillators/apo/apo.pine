@@ -4,7 +4,6 @@
 indicator("Absolute Price Oscillator (APO)", "APO", overlay=false)
 
 //@function Calculates Absolute Price Oscillator (APO) as difference between fast and slow EMAs
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/apo.md
 //@param source Series to calculate APO from
 //@param fastLength Period for fast EMA
 //@param slowLength Period for slow EMA

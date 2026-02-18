@@ -4,7 +4,6 @@
 indicator("Price Relative Strength (PRS)", "PRS", overlay=false)
 
 //@function Calculates Price Relative Strength comparing two assets
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/prs.md
 //@param base Base asset price series
 //@param comp Compare asset price series
 //@param smooth_len Smoothing period for ratio

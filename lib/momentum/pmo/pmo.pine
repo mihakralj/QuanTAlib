@@ -4,7 +4,6 @@
 indicator("Price Momentum Oscillator (PMO)", "PMO", overlay=false)
 
 //@function Calculates Price Momentum Oscillator (DecisionPoint algorithm)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/pmo.md
 //@param src Source series to calculate PMO for
 //@param time_periods First EMA smoothing period for 1-bar ROC (default 35)
 //@param smooth_periods Second EMA smoothing period for PMO (default 20)

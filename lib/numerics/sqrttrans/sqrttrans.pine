@@ -4,7 +4,6 @@
 indicator("Square Root Transformation (SQRT)", "Sqrttrans", overlay=false)
 
 //@function Applies a square root transformation (y = √x) to the input series.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/sqrt.md
 //@param source series float The input series to transform. Must contain non-negative values.
 //@returns series float The square root transformed series. Returns na if source < 0.
 //@optimized for performance and dirty data

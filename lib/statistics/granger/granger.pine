@@ -90,7 +90,6 @@ _covariance(series float src1, series float src2, simple int len, series float m
 
 
 //@function Calculates Granger Causality F-Statistic for Y ~ X with lag 1.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/granger.md
 //@param y_series series float The series to be predicted (dependent variable).
 //@param x_series series float The series hypothesized to cause y_series (independent variable).
 //@param period simple int Lookback period for calculations. Must be greater than 3.

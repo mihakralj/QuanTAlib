@@ -4,7 +4,6 @@
 indicator("Z-Score (ZSCORE)", "ZSCORE", overlay=false)
 
 //@function Calculates the Z-Score of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/zscore.md
 //@param src Source series.
 //@param len Lookback period. Must be greater than 1.
 //@returns The Z-Score value.

@@ -4,7 +4,6 @@
 indicator("Pearson's Correlation (CORRELATION)", "CORRELATION", overlay=false)
 
 //@function Calculates Pearson correlation coefficient using single pass with circular buffer
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/correlation.md
 //@param src1 series float First series to analyze
 //@param src2 series float Second series to analyze
 //@param len simple int Lookback period for calculation

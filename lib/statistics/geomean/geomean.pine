@@ -4,7 +4,6 @@
 indicator("Geometric Mean (GEOMEAN)", "GEOMEAN", overlay=true)
 
 //@function Calculates the Geometric Mean of a series over a lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/geomean.md
 //@param src series float Input data series (must contain positive values).
 //@param len simple int Lookback period (must be > 0).
 //@returns series float The Geometric Mean, or na if data is not suitable (e.g., non-positive values, insufficient data).

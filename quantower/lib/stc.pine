@@ -28,7 +28,6 @@ ema(series float source,simple int period=0,simple float alpha=0)=>
     ema
 
 //@function Calculates the Schaff Trend Cycle (STC) indicator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/stc.md
 //@param source Input price series
 //@param cycleLength Main cycle length parameter for lookback periods
 //@param fastLength Period for fast EMA calculation

@@ -4,7 +4,6 @@
 indicator("One-Sample t-Test (ZTEST)", "t-TEST", overlay=false)
 
 //@function Calculates the t-statistic for a one-sample hypothesis test
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/ztest.md
 //@param source Source series to test (use returns for meaningful results)
 //@param period Lookback period for calculating sample mean and standard deviation
 //@param mu0 Hypothesized population mean to test against

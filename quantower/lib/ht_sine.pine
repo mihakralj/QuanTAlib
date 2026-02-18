@@ -24,7 +24,6 @@ atan2(series float y, series float x) =>
     angle
 
 //@function Calculates Hilbert Transform SineWave and LeadSine
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ht_sine.md
 //@param source Series to analyze for dominant cycle
 //@returns Tuple [sine, leadsine] - sine wave and lead sine wave
 ht_sine(series float source) =>

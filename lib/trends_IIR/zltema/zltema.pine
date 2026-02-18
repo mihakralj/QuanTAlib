@@ -4,7 +4,6 @@
 indicator("Zero-Lag Triple EMA (ZLTEMA)", "ZLTEMA", overlay=true)
 
 //@function Calculates ZLTEMA using zero-lag price and triple exponential smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/zltema.md
 //@param source Series to calculate ZLTEMA from
 //@param period Smoothing period
 //@param alpha Optional smoothing factor (overrides period if provided)

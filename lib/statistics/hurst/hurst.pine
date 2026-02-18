@@ -4,7 +4,6 @@
 indicator("Hurst Exponent (HURST)", "HURST", overlay=false, precision=4)
 
 //@function Calculates the Hurst Exponent for a given series and lookback period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/hurst.md
 //@param source series float The input series.
 //@param length int The lookback period for Hurst Exponent calculation.
 //@returns series float The Hurst Exponent value.

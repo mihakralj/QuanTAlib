@@ -4,8 +4,6 @@
 indicator("Cumulative Moving Average", "CMA", overlay=true)
 
 //@function Calculates Cumulative Moving Average (Running Average / Cumulative Mean)
-//@doc     Calculates the arithmetic mean of ALL data points seen so far.
-//@doc     Uses Welford's algorithm for numerical stability, O(1) per update.
 //@param   source Series to calculate CMA from
 //@returns CMA value - running mean of all historical values
 cma(series float source) =>

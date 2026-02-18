@@ -4,7 +4,6 @@
 indicator("TTM Trend", "TTM_TREND", overlay=true)
 
 //@function Calculates TTM Trend using 6-period moving average with color-coded trend
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ttm_trend.md
 //@param source Series to calculate TTM Trend from
 //@param period Lookback period for moving average
 //@returns Tuple [ttm_line, trend, strength] where trend is -1/0/1 and strength is percentage change

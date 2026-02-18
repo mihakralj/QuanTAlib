@@ -4,7 +4,6 @@
 indicator("Rate of Change (ROC)", "ROC", overlay=false)
 
 //@function Calculates absolute Rate of Change between current price and N periods ago
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/roc.md
 //@param source Source price series
 //@param length Lookback period
 //@returns Absolute price change value

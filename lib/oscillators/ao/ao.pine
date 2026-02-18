@@ -4,7 +4,6 @@
 indicator("Awesome Oscillator (AO)", "AO", overlay=false)
 
 //@function Calculates Bill Williams' Awesome Oscillator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/ao.md
 //@param fastLength Period for fast MA calculation
 //@param slowLength Period for slow MA calculation
 //@returns AO value measuring market momentum

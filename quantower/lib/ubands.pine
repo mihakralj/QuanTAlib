@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
-// Ultimate Bands logic based on work by John F. Ehlers (c) 2024
 //@version=6
+// Ultimate Bands logic based on work by John F. Ehlers (c) 2024
 indicator("Ehlers Ultimate Bands (UBANDS)", "UBANDS", overlay=true)
 
 //@function Calculates Ultimate Bands

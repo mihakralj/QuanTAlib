@@ -1,0 +1,58 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2016 John F. Ehlers
+indicator("Super Passband Filter (SPBF)", "SPBF", overlay=false)
+
+//@function Ehlers Super Passband Filter — wide-band bandpass via differenced z-transformed EMAs
+//@param source Series to filter
+//@param shortPeriod Short EMA period (alpha1 = 5/shortPeriod)
+//@param longPeriod Long EMA period (alpha2 = 5/longPeriod)
+//@param rmsPeriod RMS averaging period for trigger envelope
+//@returns [pb, rms] — passband oscillator and RMS trigger level
+//@optimized O(rmsPeriod) per bar for RMS, O(1) for passband
+spbf(series float src, simple int shortPeriod, simple int longPeriod, simple int rmsPeriod) =>
+    // --- Ehlers smoothing: alpha = 5/N (more reactive than standard 2/(N+1)) ---
+    float a1 = 5.0 / float(math.max(shortPeriod, 1))
+    float a2 = 5.0 / float(math.max(longPeriod, 1))
+
+    // --- Passband filter (z-transformed differenced EMAs) ---
+    // PB = (a1-a2)*src + (a2*(1-a1) - a1*(1-a2))*src[1]
+    //      + ((1-a1) + (1-a2))*PB[1] - (1-a1)*(1-a2)*PB[2]
+    var float pb = 0.0
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float pb1 = nz(pb[1], 0.0)
+    float pb2 = nz(pb[2], 0.0)
+
+    pb := (a1 - a2) * ssrc + (a2 * (1.0 - a1) - a1 * (1.0 - a2)) * src1 + ((1.0 - a1) + (1.0 - a2)) * pb1 - (1.0 - a1) * (1.0 - a2) * pb2
+
+    // --- RMS trigger envelope ---
+    // RMS = sqrt(sum(PB^2, rmsPeriod) / rmsPeriod)
+    float sumSq = 0.0
+    for i = 0 to rmsPeriod - 1
+        float pbi = nz(pb[i], 0.0)
+        sumSq += pbi * pbi
+    float rms = math.sqrt(sumSq / float(rmsPeriod))
+
+    [pb, rms]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_shortPeriod = input.int(40, "Short Period", minval=1,
+                tooltip="Short EMA period (alpha = 5/period)")
+i_longPeriod  = input.int(60, "Long Period", minval=1,
+                tooltip="Long EMA period (alpha = 5/period)")
+i_rmsPeriod   = input.int(50, "RMS Period", minval=1,
+                tooltip="RMS averaging period for trigger envelope")
+i_source      = input.source(close, "Source")
+
+// Calculation
+[pb_val, rms_val] = spbf(i_source, i_shortPeriod, i_longPeriod, i_rmsPeriod)
+
+// Plot
+plot(pb_val, "SuperPB", color=color.new(color.blue, 0), linewidth=2)
+plot(rms_val, "+RMS", color=color.red, linewidth=1, style=plot.style_line)
+plot(-rms_val, "-RMS", color=color.green, linewidth=1, style=plot.style_line)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

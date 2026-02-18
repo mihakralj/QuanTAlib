@@ -4,8 +4,6 @@
 indicator("Mean Relative Absolute Error", "MRAE", overlay=false)
 
 //@function Calculates Mean Relative Absolute Error
-//@doc     Average relative absolute error, normalized by actual value.
-//@doc     Similar to MAPE but expressed as ratio (0-1) instead of percentage (0-100%).
 //@param   actual Series of actual values
 //@param   predicted Series of predicted/forecast values
 //@param   length Rolling window for averaging

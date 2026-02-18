@@ -4,7 +4,6 @@
 indicator("Standard Deviation (STDDEV)", "STDDEV", overlay=false)
 
 //@function Calculates the standard deviation using a single pass with a circular buffer.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/stddev.md
 //@param src {series float} Source series.
 //@param len {int} Lookback length. `len` > 0.
 //@returns {series float} Standard deviation of `src` for `len` bars back. Returns `na` if not enough data.

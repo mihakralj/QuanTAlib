@@ -3,13 +3,10 @@
 //@version=6
 indicator("Ehlers Fractal Adaptive Moving Average (FRAMA)", "FRAMA", overlay=true)
 
-// Ehlers FRAMA:
-// - N1/N2/N3 computed from High/Low ranges (NOT from src).
-// - Price being smoothed is HL2 ( (H+L)/2 ).
-// - alpha = exp(-4.6*(D-1)), clamped to [0.01, 1].
-// - Period forced to even, >= 2.
-// References match the classic Traders' Tips FRAMA definition.
-
+//@function Calculates Ehlers Fractal Adaptive Moving Average
+//@param period Lookback period (forced to even, >= 2)
+//@returns FRAMA value with fractal-adaptive smoothing
+//@optimized Uses fractal dimension for adaptive alpha with O(n) complexity per bar
 frama_strict(simple int period) =>
     int p  = math.max(2, period)
     int pe = (p % 2 == 0) ? p : (p + 1)

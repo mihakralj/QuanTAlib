@@ -4,7 +4,6 @@
 indicator("Zero-Lag Double EMA (ZLDEMA)", "ZLDEMA", overlay=true)
 
 //@function Calculates ZLDEMA using zero-lag price and double exponential smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/zldema.md
 //@param source Series to calculate ZLDEMA from
 //@param period Smoothing period
 //@param alpha Optional smoothing factor (overrides period if provided)

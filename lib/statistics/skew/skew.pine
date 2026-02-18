@@ -6,7 +6,6 @@ indicator("Skewness (SKEW)", "SKEW", overlay=false, precision=6)
 //@function Calculates the skewness of a source series over a specified period.
 // Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean.
 // This implementation calculates the population skewness (Fisher-Pearson coefficient g1).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/skew.md
 //@param src The source series.
 //@param len The lookback period. Must be > 2.
 //@returns The skewness value.

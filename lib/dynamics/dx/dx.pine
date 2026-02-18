@@ -4,7 +4,6 @@
 indicator("Directional Movement Index (DX)", "DX", overlay=false)
 
 //@function Calculates DX using Wilder's smoothing with compensated RMA
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/dx.md
 //@param period Number of bars used in the calculation
 //@returns tuple of DX value, +DI, -DI
 //@optimized Uses Wilder's smoothing (RMA) with warmup compensation for accurate values from bar 1

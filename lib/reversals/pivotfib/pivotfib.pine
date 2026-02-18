@@ -4,7 +4,6 @@
 indicator("Pivot Points (Fibonacci)", "PIVOTFIB", overlay=true)
 
 //@function Calculates Fibonacci pivot points using Fibonacci ratios
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotfib.md
 //@param tf Timeframe for pivot calculation ("D", "W", "M")
 //@returns Tuple [pp, r1, r2, r3, s1, s2, s3] with pivot levels
 //@references Fibonacci retracement levels applied to pivot points

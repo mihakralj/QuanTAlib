@@ -4,7 +4,6 @@
 indicator("Qstick Indicator", "QSTICK", overlay=false)
 
 //@function Calculates Qstick (moving average of close-open difference)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/qstick.md
 //@param source_close Closing price series
 //@param source_open Opening price series
 //@param length Lookback period for moving average

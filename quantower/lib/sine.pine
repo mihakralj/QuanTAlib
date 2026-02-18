@@ -5,7 +5,6 @@ indicator("Ehlers Sine Wave (SINE)", "SINE", overlay=false)
 
 //@function Calculates Ehlers’ original Sine Wave using a two‑pole High‑Pass, a Super‑Smoother,
 //         and a Hilbert‑transform FIR pair (In‑phase I / Quadrature Q).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/sine.md
 //@param src Series to calculate the Sine Wave from
 //@param hpLength High‑Pass filter length (detrending period)
 //@param ssfLength Super‑Smoother filter length (cycle smoothing period)

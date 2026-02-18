@@ -4,7 +4,6 @@
 indicator("Volume Weighted Moving Average (VWMA)", "VWMA", overlay=true)
 
 //@function Calculates VWMA using circular buffer for efficient computation
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vwma.md
 //@param src Source price series
 //@param vol Volume series
 //@param period Lookback period for VWMA calculation

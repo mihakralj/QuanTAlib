@@ -4,7 +4,6 @@
 indicator("HT_TRENDMODE: Hilbert Transform Trend Mode (TA-Lib)", "HT_TRENDMODE", overlay=false)
 
 //@function Determines if market is in trend mode (1) or cycle mode (0) using TA-Lib's Ehlers algorithm
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ht_trendmode.md
 //@param source Series to analyze for trend/cycle state
 //@returns 1 for trend mode, 0 for cycle mode
 ht_trendmode(series float source) =>

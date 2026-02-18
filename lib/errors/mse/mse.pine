@@ -5,7 +5,6 @@ indicator("Mean Squared Error (MSE)", "MSE")
 
 
 //@function Calculates Mean Squared Error between two sources using SMA for averaging
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/mse.md
 //@param source1 First series to compare
 //@param source2 Second series to compare
 //@param period Lookback period for error averaging
