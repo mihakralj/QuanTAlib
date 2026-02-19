@@ -12,7 +12,7 @@ public class AgcIndicatorTests
         Assert.Equal(0.991, indicator.Decay);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("AGC - Automatic Gain Control", indicator.Name);
+        Assert.Equal("AGC - Ehlers Automatic Gain Control", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

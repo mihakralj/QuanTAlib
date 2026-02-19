@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HT_DCPERIOD: Hilbert Transform Dominant Cycle Period", "HT_DCPERIOD", overlay=false)
+indicator("Ehlers Hilbert Transform Dominant Cycle Period (HT_DCPERIOD)", "HT_DCPERIOD", overlay=false)
 
 //@function Numerically stable atan2 implementation for quadrant-aware angle calculation
 //@param y Y-coordinate (imaginary/quadrature component)

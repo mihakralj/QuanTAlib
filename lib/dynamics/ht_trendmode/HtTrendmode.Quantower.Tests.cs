@@ -12,7 +12,7 @@ public class HtTrendmodeIndicatorTests
 
         Assert.Equal(SourceType.Close, indicator.SourceInput);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HT_TRENDMODE - Hilbert Transform Trend Mode", indicator.Name);
+        Assert.Equal("HT_TRENDMODE - Ehlers Hilbert Transform Trend vs Cycle Mode", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Center of Gravity (CG)", "CG", overlay=false)
+indicator("Ehlers Center of Gravity (CG)", "CG", overlay=false)
 
 //@function Calculates Ehlers' Center of Gravity indicator
 //@param src Series to calculate Center of Gravity from

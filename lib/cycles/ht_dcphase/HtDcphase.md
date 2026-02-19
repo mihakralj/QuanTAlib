@@ -1,4 +1,4 @@
-# HT_DCPHASE: Hilbert Transform - Dominant Cycle Phase
+# HT_DCPHASE: Ehlers Hilbert Transform Dominant Cycle Phase
 
 > "The phase advances through a full 360-degree cycle as the dominant cycle completes; rapid phase changes indicate turning points."
 

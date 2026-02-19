@@ -1,4 +1,4 @@
-# BUTTER: Butterworth Filter
+# BUTTER: Ehlers Butterworth Filter
 
 > "Maximally flat frequency response in the passband."
 

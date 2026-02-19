@@ -1,4 +1,4 @@
-# HPF - Highpass Filter (2-Pole)
+# HPF: Ehlers Highpass Filter
 
 > "Noise is just signal you haven't figured out how to filter yet. Or maybe, it's the only signal that matters."
 

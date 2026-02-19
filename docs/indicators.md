@@ -62,15 +62,16 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**DECYCLER**](../lib/trends_IIR/decycler/Decycler.md) | Ehlers Decycler | Complementary HP filter subtracting high-frequency noise |
 | [**DEMA**](../lib/trends_IIR/dema/Dema.md) | Double Exponential MA | EMA of EMA with lag compensation |
 | [**DSMA**](../lib/trends_IIR/dsma/Dsma.md) | Deviation-Scaled MA | Volatility-adaptive smoothing |
 | [**EMA**](../lib/trends_IIR/ema/Ema.md) | Exponential MA | The fundamental IIR filter |
-| [**FRAMA**](../lib/trends_IIR/frama/Frama.md) | Fractal Adaptive MA | Dimension-based adaptation |
+| [**FRAMA**](../lib/trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Dimension-based adaptation |
 | [**HEMA**](../lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Hull concept with EMA |
-| [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Hilbert Instantaneous Trend | Dominant cycle extraction |
+| [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend | Dominant cycle extraction |
 | [**JMA**](../lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive, low-lag, proprietary algorithm |
 | [**KAMA**](../lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Efficiency ratio adaptation |
-| [**MAMA**](../lib/trends_IIR/mama/Mama.md) | MESA Adaptive MA | Homodyne discriminator based |
+| [**MAMA**](../lib/trends_IIR/mama/Mama.md) | Ehlers MESA Adaptive MA | Homodyne discriminator based |
 | [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic | Market-speed tracking |
 | [**MMA**](../lib/trends_IIR/mma/Mma.md) | Modified MA | Smoothed EMA variant |
 | [**QEMA**](../lib/trends_IIR/qema/Qema.md) | Quad Exponential MA | Four-stage exponential |
@@ -92,14 +93,14 @@ Signal processing filters adapted for financial time series. Designed to separat
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
-| [**AGC**](../lib/filters/agc/Agc.md) | Automatic Gain Control | Ehlers amplitude normalization via peak tracking |
-| [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
+| [**AGC**](../lib/filters/agc/Agc.md) | Ehlers Automatic Gain Control | Ehlers amplitude normalization via peak tracking |
+| [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
 | [**BAXTERKING**](../lib/filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass for cycle extraction |
 | [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
 | [**BESSEL**](../lib/filters/bessel/Bessel.md) | Bessel Filter | Maximally flat group delay |
 | [**BILATERAL**](../lib/filters/bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing |
 | [**BPF**](../lib/filters/bpf/Bpf.md) | BandPass Filter | Frequency band isolation |
-| [**BUTTER**](../lib/filters/butter/Butter.md) | Butterworth Filter | Maximally flat passband |
+| [**BUTTER**](../lib/filters/butter/Butter.md) | Ehlers Butterworth Filter | Maximally flat passband |
 | [**CHEBY1**](../lib/filters/cheby1/Cheby1.md) | Chebyshev Type I | Steeper rolloff with passband ripple |
 | [**CHEBY2**](../lib/filters/cheby2/Cheby2.md) | Chebyshev Type II | Steeper rolloff with stopband ripple |
 | [**EDCF**](../lib/filters/edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR, distance-weighted smoothing |
@@ -107,20 +108,20 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**GAUSS**](../lib/filters/gauss/Gauss.md) | Gaussian Filter | No overshoot, smooth response |
 | [**HANN**](../lib/filters/hann/Hann.md) | Hann Filter | Raised cosine window filter |
 | [**HP**](../lib/filters/hp/Hp.md) | Hodrick-Prescott Filter | Trend-cycle decomposition |
-| [**HPF**](../lib/filters/hpf/Hpf.md) | High Pass Filter | Ehlers high-pass design |
+| [**HPF**](../lib/filters/hpf/Hpf.md) | Ehlers Highpass Filter | Ehlers high-pass design |
 | [**KALMAN**](../lib/filters/kalman/Kalman.md) | Kalman Filter | Optimal recursive estimation |
-| [**LAGUERRE**](../lib/filters/laguerre/Laguerre.md) | Laguerre Filter | Ehlers 4-element all-pass cascade |
+| [**LAGUERRE**](../lib/filters/laguerre/Laguerre.md) | Ehlers Laguerre Filter | Ehlers 4-element all-pass cascade |
 | [**LMS**](../lib/filters/lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR filter |
 | [**RLS**](../lib/filters/rls/Rls.md) | Recursive Least Squares | Faster convergence than LMS |
 | [**LOESS**](../lib/filters/loess/Loess.md) | LOESS Smoothing | Local polynomial regression |
 | [**NOTCH**](../lib/filters/notch/Notch.md) | Notch Filter | Single frequency rejection |
 | [**ONEEURO**](../lib/filters/oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass, adaptive cutoff |
-| [**ROOFING**](../lib/filters/roofing/Roofing.md) | Roofing Filter | Ehlers HP + SS bandpass cascade |
+| [**ROOFING**](../lib/filters/roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers HP + SS bandpass cascade |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
-| [**SPBF**](../lib/filters/spbf/Spbf.md) | Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
-| [**SSF**](../lib/filters/ssf/Ssf.md) | Super Smooth Filter | Ehlers two-pole design |
-| [**USF**](../lib/filters/usf/Usf.md) | Ultimate Smoother | Ehlers high-fidelity filter |
-| [**VOSS**](../lib/filters/voss/Voss.md) | Voss Predictive Filter | Ehlers BPF + negative group delay predictor |
+| [**SPBF**](../lib/filters/spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
+| [**SSF**](../lib/filters/ssf/Ssf.md) | Ehlers Super Smoother Filter | Ehlers two-pole design |
+| [**USF**](../lib/filters/usf/Usf.md) | Ehlers Ultimate Smoother | Ehlers high-fidelity filter |
+| [**VOSS**](../lib/filters/voss/Voss.md) | Ehlers Voss Predictive Filter | Ehlers BPF + negative group delay predictor |
 | [**WAVELET**](../lib/filters/wavelet/Wavelet.md) | Wavelet Denoising Filter | A trous Haar + MAD soft thresholding |
 | [**WIENER**](../lib/filters/wiener/Wiener.md) | Wiener Filter | Minimum mean-square error denoising |
 
@@ -136,8 +137,9 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**BBB**](../lib/oscillators/bbb/Bbb.md) | Bollinger %B | Position within Bollinger Bands |
 | [**BBS**](../lib/oscillators/bbs/Bbs.md) | Bollinger Band Squeeze | BB inside KC squeeze detection |
 | [**CFO**](../lib/oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Forecast error percentage |
+| [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
-| [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Fisher Transform | Gaussian-normalized price reversal |
+| [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
@@ -165,7 +167,7 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**CHOP**](../lib/dynamics/chop/Chop.md) | Choppiness Index | ATR sum vs range; trending vs choppy |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
-| [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Hilbert Transform Trend Mode | Cycle vs trend regime detection |
+| [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Cycle vs trend regime detection |
 | [**ICHIMOKU**](../lib/dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Multi-component trend system |
 | [**IMI**](../lib/dynamics/imi/Imi.md) | Intraday Momentum Index | Candlestick-based momentum |
 | [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
@@ -289,8 +291,8 @@ Price envelope and boundary indicators for breakout and mean-reversion strategie
 | [**STARCHANNEL**](../lib/channels/starchannel/starchannel.md) | Stoller Average Range Channel | SMA with ATR bands |
 | [**STBANDS**](../lib/channels/stbands/Stbands.md) | Super Trend Bands | ATR-based SuperTrend envelope |
 | [**TTM_LRC**](../lib/channels/ttm_lrc/TtmLrc.md) | TTM Linear Regression Channel | John Carter's regression channel |
-| [**UBANDS**](../lib/channels/ubands/Ubands.md) | Ultimate Bands | Ehlers bandpass-based bands |
-| [**UCHANNEL**](../lib/channels/uchannel/Uchannel.md) | Ultimate Channel | Ehlers smoothed channel |
+| [**UBANDS**](../lib/channels/ubands/Ubands.md) | Ehlers Ultimate Bands | Ehlers bandpass-based bands |
+| [**UCHANNEL**](../lib/channels/uchannel/Uchannel.md) | Ehlers Ultimate Channel | Ehlers smoothed channel |
 | [**VWAPBANDS**](../lib/channels/vwapbands/Vwapbands.md) | VWAP Bands | VWAP with StdDev bands |
 | [**VWAPSD**](../lib/channels/vwapsd/Vwapsd.md) | VWAP StdDev Bands | VWAP with standard deviation envelopes |
 
@@ -345,19 +347,19 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
-| [**CG**](../lib/cycles/cg/Cg.md) | Center of Gravity | Ehlers cycle measurement |
-| [**DSP**](../lib/cycles/dsp/Dsp.md) | Detrended Synthetic Price | Cycle-isolated price component |
-| [**EACP**](../lib/cycles/eacp/Eacp.md) | Autocorrelation Periodogram | Ehlers dominant cycle detection |
-| [**EBSW**](../lib/cycles/ebsw/Ebsw.md) | Even Better Sinewave | Ehlers improved cycle indicator |
-| [**HOMOD**](../lib/cycles/homod/Homod.md) | Homodyne Discriminator | Dominant cycle period tracking |
-| [**HT_DCPERIOD**](../lib/cycles/ht_dcperiod/HtDcperiod.md) | HT Dominant Cycle Period | Hilbert Transform period estimation |
-| [**HT_DCPHASE**](../lib/cycles/ht_dcphase/HtDcphase.md) | HT Dominant Cycle Phase | Hilbert Transform phase angle |
-| [**HT_PHASOR**](../lib/cycles/ht_phasor/HtPhasor.md) | HT Phasor Components | In-phase and quadrature components |
-| [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | HT SineWave | Dominant cycle phase with lead signal |
+| [**CG**](../lib/cycles/cg/Cg.md) | Ehlers Center of Gravity | Ehlers cycle measurement |
+| [**DSP**](../lib/cycles/dsp/Dsp.md) | Ehlers Detrended Synthetic Price | Cycle-isolated price component |
+| [**EACP**](../lib/cycles/eacp/Eacp.md) | Ehlers Autocorrelation Periodogram | Ehlers dominant cycle detection |
+| [**EBSW**](../lib/cycles/ebsw/Ebsw.md) | Ehlers Even Better Sinewave | Ehlers improved cycle indicator |
+| [**HOMOD**](../lib/cycles/homod/Homod.md) | Ehlers Homodyne Discriminator | Dominant cycle period tracking |
+| [**HT_DCPERIOD**](../lib/cycles/ht_dcperiod/HtDcperiod.md) | Ehlers HT Dominant Cycle Period | Hilbert Transform period estimation |
+| [**HT_DCPHASE**](../lib/cycles/ht_dcphase/HtDcphase.md) | Ehlers HT Dominant Cycle Phase | Hilbert Transform phase angle |
+| [**HT_PHASOR**](../lib/cycles/ht_phasor/HtPhasor.md) | Ehlers HT Phasor Components | In-phase and quadrature components |
+| [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Ehlers HT SineWave | Dominant cycle phase with lead signal |
 | [**LUNAR**](../lib/cycles/lunar/Lunar.md) | Lunar Phase | Moon phase cycle |
-| [**SINE**](../lib/cycles/sine/Sine.md) | Sine Wave | Periodic sine oscillation |
+| [**SINE**](../lib/cycles/sine/Sine.md) | Ehlers Sine Wave | Periodic sine oscillation |
 | [**SOLAR**](../lib/cycles/solar/Solar.md) | Solar Activity Cycle | Solar activity periodicity |
-| [**SSFDSP**](../lib/cycles/ssfdsp/Ssfdsp.md) | SSF Detrended Synthetic Price | Dual Super Smoother oscillator |
+| [**SSFDSP**](../lib/cycles/ssfdsp/Ssfdsp.md) | Ehlers SSF Detrended Synthetic Price | Dual Super Smoother oscillator |
 | [**STC**](../lib/cycles/stc/Stc.md) | Schaff Trend Cycle | MACD-based cycle oscillator |
 
 ### Numerics

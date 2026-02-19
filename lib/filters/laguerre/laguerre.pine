@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2004 John F. Ehlers
-indicator("Laguerre Filter (LAGUERRE)", "LAGUERRE", overlay=true)
+indicator("Ehlers Laguerre Filter (LAGUERRE)", "LAGUERRE", overlay=true)
 
 //@function Calculates Laguerre Filter using 4 cascaded all-pass IIR elements
 //@param source Series to calculate Laguerre filter from

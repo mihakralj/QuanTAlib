@@ -12,7 +12,7 @@ public class DspIndicatorTests
         Assert.Equal(40, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("DSP - Detrended Synthetic Price", indicator.Name);
+        Assert.Equal("DSP - Ehlers Detrended Synthetic Price", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Detrended Synthetic Price (DSP)", "DSP", overlay=false)
+indicator("Ehlers Detrended Synthetic Price (DSP)", "DSP", overlay=false)
 
 //@function Calculates Detrended Synthetic Price using Ehlers dual-EMA algorithm
 //@param source Series to detrend

@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2015 John F. Ehlers
-indicator("Automatic Gain Control (AGC)", "AGC", overlay=false)
+indicator("Ehlers Automatic Gain Control (AGC)", "AGC", overlay=false)
 
 //@function Ehlers Automatic Gain Control — amplitude normalization via exponential peak tracking
 //@param source Series to normalize (must oscillate around zero — use a filter output, not raw price)

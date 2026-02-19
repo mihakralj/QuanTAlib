@@ -1,4 +1,4 @@
-# HT_SINE: Hilbert Transform SineWave
+# HT_SINE: Ehlers Hilbert Transform SineWave
 
 > "The Hilbert Transform gives us the phase of the dominant cycle—knowing when to buy and sell becomes a matter of trigonometry."
 

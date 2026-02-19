@@ -12,7 +12,7 @@ public class LaguerreIndicatorTests
         Assert.Equal(0.8, indicator.Gamma);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("LAGUERRE - Laguerre Filter (Ehlers)", indicator.Name);
+        Assert.Equal("LAGUERRE - Ehlers Laguerre Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

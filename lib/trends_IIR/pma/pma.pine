@@ -1,0 +1,91 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004-2024 John F. Ehlers
+indicator("Ehlers Predictive Moving Average (PMA)", "PMA", overlay=true)
+
+//@function Calculates Ehlers Predictive Moving Average using WMA-based linear extrapolation
+//@param source Series to calculate PMA from
+//@param period Lookback period for WMA smoothing (>= 1, default 7 per Ehlers)
+//@returns [pma, trigger] where PMA = 2×WMA − WMA(WMA) and Trigger = (4×WMA − WMA(WMA)) / 3
+//@optimized Uses dual running sums with cached denominator for O(1) WMA complexity per bar
+pma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // --- First WMA: WMA(source, period) --- matches canonical wma.pine pattern
+    var array<float> buffer1 = array.new_float(period, na)
+    var int head1 = 0
+    var float sum1 = 0.0
+    var float weighted_sum1 = 0.0
+    var int count1 = 0
+    var float norm1 = 0.0
+
+    float oldest1 = array.get(buffer1, head1)
+    float current1 = nz(source)
+
+    if not na(oldest1)
+        float old_sum1 = sum1
+        sum1 -= oldest1
+        sum1 += current1
+        weighted_sum1 := weighted_sum1 - old_sum1 + (period * current1)
+    else
+        count1 += 1
+        sum1 += current1
+        weighted_sum1 := weighted_sum1 + (count1 * current1)
+        norm1 := count1 * (count1 + 1) * 0.5
+
+    array.set(buffer1, head1, current1)
+    head1 := (head1 + 1) % period
+
+    float wma1 = weighted_sum1 / norm1
+
+    // --- Second WMA: WMA(WMA1, period) --- same O(1) circular buffer on first WMA output
+    var array<float> buffer2 = array.new_float(period, na)
+    var int head2 = 0
+    var float sum2 = 0.0
+    var float weighted_sum2 = 0.0
+    var int count2 = 0
+    var float norm2 = 0.0
+
+    float oldest2 = array.get(buffer2, head2)
+    float current2 = nz(wma1)
+
+    if not na(oldest2)
+        float old_sum2 = sum2
+        sum2 -= oldest2
+        sum2 += current2
+        weighted_sum2 := weighted_sum2 - old_sum2 + (period * current2)
+    else
+        count2 += 1
+        sum2 += current2
+        weighted_sum2 := weighted_sum2 + (count2 * current2)
+        norm2 := count2 * (count2 + 1) * 0.5
+
+    array.set(buffer2, head2, current2)
+    head2 := (head2 + 1) % period
+
+    float wma2 = weighted_sum2 / norm2
+
+    // Predictive line: cancels one WMA lag via linear extrapolation
+    // PMA = 2 × WMA(src) − WMA(WMA(src))
+    float pma_val = 2.0 * wma1 - wma2
+
+    // Trigger/signal line: weighted blend for crossover signals
+    // Trigger = (4 × WMA(src) − WMA(WMA(src))) / 3
+    float trigger_val = (4.0 * wma1 - wma2) / 3.0
+
+    [na(source) ? na : pma_val, na(source) ? na : trigger_val]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(7, "Period", minval=1, tooltip="Lookback period for WMA smoothing (Ehlers default: 7)")
+i_source = input.source(close, "Source")
+
+// Calculation
+[pma_value, trigger_value] = pma(i_source, i_period)
+
+// Plot
+plot(pma_value, "PMA", color=color.yellow, linewidth=2)
+plot(trigger_value, "Trigger", color=color.orange, linewidth=1)

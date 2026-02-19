@@ -12,7 +12,7 @@ public class SsfIndicatorTests
         Assert.Equal(10, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("SSF - Super Smooth Filter", indicator.Name);
+        Assert.Equal("SSF - Ehlers Super Smoother Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

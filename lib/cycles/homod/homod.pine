@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HOMOD: Homodyne Discriminator Dominant Cycle","HOMOD",overlay=false)
+indicator("Ehlers Homodyne Discriminator (HOMOD)","HOMOD",overlay=false)
 
 //@function Quadrant-aware angle calculation using stable atan2
 //@param y Imaginary component

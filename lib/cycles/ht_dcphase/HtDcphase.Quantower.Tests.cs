@@ -11,7 +11,7 @@ public class HtDcphaseIndicatorTests
 
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HT_DCPHASE - Hilbert Transform Dominant Cycle Phase", indicator.Name);
+        Assert.Equal("HT_DCPHASE - Ehlers Hilbert Transform Dominant Cycle Phase", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

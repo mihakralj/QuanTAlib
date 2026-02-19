@@ -33,7 +33,7 @@ public sealed class HomodIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HOMOD - Homodyne Discriminator";
+        Name = "HOMOD - Ehlers Homodyne Discriminator";
         Description = "Ehlers' Homodyne Discriminator estimates the dominant cycle period using homodyne multiplication and phase angle measurement";
 
         _cycleSeries = new LineSeries(name: "Cycle", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

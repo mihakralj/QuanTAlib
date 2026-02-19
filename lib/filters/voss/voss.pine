@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Voss Predictive Filter (VOSS)", "VOSS", overlay=false)
+indicator("Ehlers Voss Predictive Filter (VOSS)", "VOSS", overlay=false)
 
 //@function Ehlers Voss Predictive Filter — negative group delay bandpass predictor
 //@param source Series to filter

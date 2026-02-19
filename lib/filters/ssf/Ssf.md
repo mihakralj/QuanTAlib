@@ -1,4 +1,4 @@
-# SSF: Ehlers Super Smooth Filter
+# SSF: Ehlers Super Smoother Filter
 
 > "Noise is the enemy of the trend follower. The Super Smooth Filter is the silencer."
 

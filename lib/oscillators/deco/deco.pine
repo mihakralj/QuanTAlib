@@ -1,0 +1,69 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ehlers Decycler Oscillator (DECO)", "DECO", overlay=false)
+
+//@function Calculates Decycler Oscillator using dual 2-pole Butterworth high-pass filters
+//@param source Source series to calculate DECO from
+//@param short_period Short cycle cutoff period for high-pass filter
+//@param long_period Long cycle cutoff period for high-pass filter
+//@returns DECO value (HP(longPeriod) - HP(shortPeriod))
+deco(series float source, simple int short_period, simple int long_period) =>
+    if short_period <= 0 or long_period <= 0
+        runtime.error("All periods must be positive")
+    if short_period >= long_period
+        runtime.error("Short period must be less than long period")
+
+    float src = na(source) ? 0.0 : source
+
+    // Butterworth 2-pole HP coefficient: alpha = (cos(x) + sin(x) - 1) / cos(x)
+    // where x = 0.707 * 2pi / period
+    float rad = 0.707 * 2.0 * math.pi
+
+    float arg_short = rad / short_period
+    float alpha_s = (math.cos(arg_short) + math.sin(arg_short) - 1.0) / math.cos(arg_short)
+    float omah_s = 1.0 - alpha_s * 0.5
+    float oma_s = 1.0 - alpha_s
+    float a1_s = omah_s * omah_s
+    float b1_s = 2.0 * oma_s
+    float c1_s = -(oma_s * oma_s)
+
+    float arg_long = rad / long_period
+    float alpha_l = (math.cos(arg_long) + math.sin(arg_long) - 1.0) / math.cos(arg_long)
+    float omah_l = 1.0 - alpha_l * 0.5
+    float oma_l = 1.0 - alpha_l
+    float a1_l = omah_l * omah_l
+    float b1_l = 2.0 * oma_l
+    float c1_l = -(oma_l * oma_l)
+
+    // 2-pole HP: HP[n] = a1*(x - 2*x[1] + x[2]) + b1*HP[1] + c1*HP[2]
+    float diff_src = nz(src) - 2.0 * nz(src[1]) + nz(src[2])
+
+    var float hp_s = 0.0
+    var float hp_s1 = 0.0
+    var float hp_l = 0.0
+    var float hp_l1 = 0.0
+
+    float new_hp_s = bar_index < 2 ? 0.0 : a1_s * diff_src + b1_s * hp_s + c1_s * hp_s1
+    float new_hp_l = bar_index < 2 ? 0.0 : a1_l * diff_src + b1_l * hp_l + c1_l * hp_l1
+
+    hp_s1 := hp_s
+    hp_s := new_hp_s
+    hp_l1 := hp_l
+    hp_l := new_hp_l
+
+    na(source) ? na : new_hp_l - new_hp_s
+
+// ---------- Main loop ----------
+
+// Inputs
+i_short_period = input.int(30, "Short Period", minval=1, maxval=500, tooltip="Short cycle cutoff period for high-pass filter")
+i_long_period = input.int(60, "Long Period", minval=2, maxval=1000, tooltip="Long cycle cutoff period for high-pass filter")
+i_source = input.source(close, "Source", tooltip="Price series to analyze")
+
+// Calculation
+result = deco(i_source, i_short_period, i_long_period)
+
+// Plot
+plot(result, "DECO", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_dotted)

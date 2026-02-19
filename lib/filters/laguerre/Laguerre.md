@@ -1,4 +1,4 @@
-# LAGUERRE: Laguerre Filter
+# LAGUERRE: Ehlers Laguerre Filter
 
 > "The problem with conventional filters is that they use unit delays. All-pass filters replace unit delays with frequency-dependent delays, and that changes everything." — John F. Ehlers
 

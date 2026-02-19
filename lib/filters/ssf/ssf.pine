@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2004-2024 John F. Ehlers
-indicator("Supersmooth Filter (SSF)", "SSF", overlay=true)
+indicator("Ehlers Super Smoother Filter (SSF)", "SSF", overlay=true)
 
 //@function Calculates Supersmooth Lowpass Filter
 //@param source Series to calculate SSF from

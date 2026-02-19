@@ -1,4 +1,4 @@
-# CG: Center of Gravity
+# CG: Ehlers Center of Gravity
 
 > "The market's center of mass reveals where momentum shifts before price does."
 

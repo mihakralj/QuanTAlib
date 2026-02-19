@@ -26,8 +26,8 @@ public sealed class HtTrendmodeIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HT_TRENDMODE - Hilbert Transform Trend Mode";
-        Description = "Determines if market is trending (1) or cycling (0)";
+        Name = "HT_TRENDMODE - Ehlers Hilbert Transform Trend vs Cycle Mode";
+        Description = "Ehlers Hilbert Transform — determines if market is trending (1) or cycling (0)";
 
         _trendModeSeries = new LineSeries(name: "TrendMode", color: Color.Blue, width: 3, style: LineStyle.Solid);
         AddLineSeries(_trendModeSeries);

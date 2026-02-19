@@ -31,7 +31,7 @@ public sealed class DspIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "DSP - Detrended Synthetic Price";
+        Name = "DSP - Ehlers Detrended Synthetic Price";
         Description = "Ehlers' Detrended Synthetic Price oscillator removes trend using dual EMA smoothing";
 
         _series = new LineSeries(name: "DSP", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

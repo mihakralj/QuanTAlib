@@ -64,3 +64,17 @@ docfx/
 
 # Internal planning docs (not shipped)
 plans/
+
+# Codacy
+.codacy/
+.codacy.yml
+
+# CodeRabbit AI reviewer
+.coderabbit/
+.coderabbit*.yaml
+
+# DeepSource AI analysis
+.deepsource.toml
+
+# SonarLint IDE plugin
+.sonarlint/

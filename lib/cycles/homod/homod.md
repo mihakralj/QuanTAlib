@@ -1,4 +1,4 @@
-# HOMOD: Homodyne Discriminator
+# HOMOD: Ehlers Homodyne Discriminator
 
 > "The homodyne discriminator reveals instantaneous frequency by multiplying a signal with its delayed self — the phase rotation between samples directly encodes the cycle period."
 

@@ -1,4 +1,4 @@
-# MAMA: MESA Adaptive Moving Average
+# MAMA: Ehlers MESA Adaptive Moving Average
 
 > "John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility—it adapts to the phase of the market cycle. It's like having a GPS for your trend."
 

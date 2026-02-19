@@ -13,7 +13,7 @@ public class EbswIndicatorTests
         Assert.Equal(10, indicator.SsfLength);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("EBSW - Even Better Sinewave", indicator.Name);
+        Assert.Equal("EBSW - Ehlers Even Better Sinewave", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

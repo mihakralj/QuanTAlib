@@ -7,7 +7,7 @@
 [![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
 
-[![Indicators](https://img.shields.io/badge/%23%20Indicators-284-blue?style=flat-square)](lib/_index.md)
+[![Indicators](https://img.shields.io/badge/%23%20Indicators-298-blue?style=flat-square)](lib/_index.md)
 [![Classes](ndepend/badges/classes.svg)](ndepend/ndependout/ndependreport.html)
 [![Files](ndepend/badges/files.svg)](ndepend/ndependout/ndependreport.html)
 [![Methods](ndepend/badges/methods.svg)](ndepend/ndependout/ndependreport.html)
@@ -37,8 +37,8 @@ TA libraries face a fundamental choice: accept approximations for simplicity OR 
 | -------- | :---: | ---------------- | ------------------------- |
 | [**Trends (FIR)**](lib/trends_FIR/_index.md) | 17 | Finite Impulse Response moving averages | SMA, WMA, HMA, ALMA, TRIMA, LSMA, EPMA |
 | [**Trends (IIR)**](lib/trends_IIR/_index.md) | 23 | Infinite Impulse Response moving averages | EMA, DEMA, TEMA, T3, JMA, KAMA, VIDYA |
-| [**Filters**](lib/filters/_index.md) | 18 | Signal processing and noise reduction filters | Bessel, Butterworth, Gaussian, Savitzky-Golay, Ehlers Super Smoother |
-| [**Oscillators**](lib/oscillators/_index.md) | 19 | Indicators that fluctuate around a center line | RSI, MACD, Stochastic, AO, APO, CCI, Ultimate Oscillator |
+| [**Filters**](lib/filters/_index.md) | 31 | Signal processing and noise reduction filters | Bessel, Butterworth, Gaussian, Savitzky-Golay, Ehlers Super Smoother |
+| [**Oscillators**](lib/oscillators/_index.md) | 20 | Indicators that fluctuate around a center line | RSI, MACD, Stochastic, AO, APO, CCI, Ultimate Oscillator |
 | [**Dynamics**](lib/dynamics/_index.md) | 18 | Trend strength and direction indicators | ADX, Aroon, SuperTrend, Vortex, Chop, Ichimoku |
 | [**Momentum**](lib/momentum/_index.md) | 16 | Speed and magnitude of price changes | Momentum, ROC, Velocity, RSX, Qstick, KDJ |
 | [**Volatility**](lib/volatility/_index.md) | 26 | Size and variability of price movements | ATR, Bollinger Band Width, Historical Volatility, True Range |
@@ -51,7 +51,7 @@ TA libraries face a fundamental choice: accept approximations for simplicity OR 
 | [**Errors**](lib/errors/_index.md) | 26 | Error metrics and loss functions | RMSE, MAE, MAPE, SMAPE, MASE, R-Squared |
 | [**Numerics**](lib/numerics/_index.md) | 15 | Mathematical transformations | Log, Exp, Sqrt, Tanh, ReLU, Sigmoid |
 
-**[Browse all 284 indicators →](lib/_index.md)**
+**[Browse all 298 indicators →](lib/_index.md)**
 
 ## Quick Start
 

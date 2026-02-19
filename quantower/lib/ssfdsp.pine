@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("SSF-Based Detrended Synthetic Price", "SSF-DSP", overlay=false)
+indicator("Ehlers SSF Detrended Synthetic Price (SSFDSP)", "SSF-DSP", overlay=false)
 
 //@function Calculates SSF-based Detrended Synthetic Price using dual Super Smooth Filters
 //@param source Series to detrend

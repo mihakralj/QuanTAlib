@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HT_TRENDMODE: Hilbert Transform Trend Mode (TA-Lib)", "HT_TRENDMODE", overlay=false)
+indicator("Ehlers Hilbert Transform Trend vs Cycle Mode (HT_TRENDMODE)", "HT_TRENDMODE", overlay=false)
 
 //@function Determines if market is in trend mode (1) or cycle mode (0) using TA-Lib's Ehlers algorithm
 //@param source Series to analyze for trend/cycle state

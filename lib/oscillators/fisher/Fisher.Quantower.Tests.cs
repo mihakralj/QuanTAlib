@@ -13,7 +13,7 @@ public sealed class FisherIndicatorTests
         Assert.Equal(10, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("FISHER - Fisher Transform", indicator.Name);
+        Assert.Equal("FISHER - Ehlers Fisher Transform", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

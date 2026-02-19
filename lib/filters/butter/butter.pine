@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Butterworth 2nd Order Filter (BUTTER)", "BUTTER", overlay=true)
+indicator("Ehlers Butterworth Filter (BUTTER)", "BUTTER", overlay=true)
 
 //@function Calculates 2nd Order Butterworth Lowpass Filter
 //@param src Series to calculate Butterworth filter from

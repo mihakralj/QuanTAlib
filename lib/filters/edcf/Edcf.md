@@ -1,4 +1,4 @@
-# EDCF — Ehlers Distance Coefficient Filter
+# EDCF: Ehlers Distance Coefficient Filter
 
 ## Overview
 

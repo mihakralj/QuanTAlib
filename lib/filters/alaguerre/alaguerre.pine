@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2004 John F. Ehlers
-indicator("Adaptive Laguerre Filter (ALAGUERRE)", "ALAGUERRE", overlay=true)
+indicator("Ehlers Adaptive Laguerre Filter (ALAGUERRE)", "ALAGUERRE", overlay=true)
 
 //@function Calculates Adaptive Laguerre Filter with variable alpha from tracking error
 //@param source Series to calculate Adaptive Laguerre filter from

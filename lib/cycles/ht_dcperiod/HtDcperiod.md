@@ -1,4 +1,4 @@
-# HT_DCPERIOD: Hilbert Transform - Dominant Cycle Period
+# HT_DCPERIOD: Ehlers Hilbert Transform Dominant Cycle Period
 
 > "Knowing the cycle period is the master key—it calibrates other indicators to the market's current rhythm."
 

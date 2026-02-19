@@ -30,7 +30,7 @@ public sealed class FisherIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "FISHER - Fisher Transform";
+        Name = "FISHER - Ehlers Fisher Transform";
         Description = "Converts price into Gaussian distribution via arctanh for reversal detection";
 
         _fisherLine = new LineSeries("Fisher", Color.Yellow, 2, LineStyle.Solid);

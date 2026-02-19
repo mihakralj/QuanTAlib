@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Highpass Filter (2-Pole) (HPF)", "HPF", overlay=true)
+indicator("Ehlers Highpass Filter (HPF)", "HPF", overlay=true)
 
 //@function Calculates 2-Pole Highpass Filter
 //@param src Series to calculate HPF from

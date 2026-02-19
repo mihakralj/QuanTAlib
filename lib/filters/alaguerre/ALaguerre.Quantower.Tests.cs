@@ -13,7 +13,7 @@ public class ALaguerreIndicatorTests
         Assert.Equal(5, indicator.MedianLength);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("ALAGUERRE - Adaptive Laguerre Filter (Ehlers)", indicator.Name);
+        Assert.Equal("ALAGUERRE - Ehlers Adaptive Laguerre Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

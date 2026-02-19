@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("MESA Adaptive Moving Average (MAMA)", "MAMA", overlay=true)
+indicator("Ehlers MESA Adaptive Moving Average (MAMA)", "MAMA", overlay=true)
 
 //@function Calculates MAMA and FAMA using Ehlers' MESA adaptive algorithm
 //@param source Series to calculate MAMA from

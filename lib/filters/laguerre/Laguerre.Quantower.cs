@@ -31,8 +31,8 @@ public class LaguerreIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "LAGUERRE - Laguerre Filter (Ehlers)";
-        Description = "Four-element IIR filter with cascaded all-pass sections and gamma damping factor";
+        Name = "LAGUERRE - Ehlers Laguerre Filter";
+        Description = "Ehlers Laguerre Filter: four-element IIR filter with cascaded all-pass sections and gamma damping factor";
         Series = new LineSeries(name: $"Laguerre {Gamma:F2}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }

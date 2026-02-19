@@ -12,7 +12,7 @@ public class SsfdspIndicatorTests
         Assert.Equal(20, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("SSFDSP - SSF Detrended Synthetic Price", indicator.Name);
+        Assert.Equal("SSFDSP - Ehlers SSF Detrended Synthetic Price", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

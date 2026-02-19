@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2016 John F. Ehlers
-indicator("Super Passband Filter (SPBF)", "SPBF", overlay=false)
+indicator("Ehlers Super Passband Filter (SPBF)", "SPBF", overlay=false)
 
 //@function Ehlers Super Passband Filter — wide-band bandpass via differenced z-transformed EMAs
 //@param source Series to filter

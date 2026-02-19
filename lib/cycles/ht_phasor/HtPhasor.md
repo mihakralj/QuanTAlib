@@ -1,4 +1,4 @@
-# HT_PHASOR: Hilbert Transform - Phasor Components
+# HT_PHASOR: Ehlers Hilbert Transform Phasor Components
 
 > "Phasors let us measure a cycle's position and strength; trading becomes geometry over time."
 

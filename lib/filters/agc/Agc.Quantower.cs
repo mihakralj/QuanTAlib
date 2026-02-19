@@ -31,8 +31,8 @@ public sealed class AgcIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "AGC - Automatic Gain Control";
-        Description = "Ehlers AGC: amplitude normalization via exponential peak tracking, applied after Roofing filter";
+        Name = "AGC - Ehlers Automatic Gain Control";
+        Description = "Ehlers Automatic Gain Control: amplitude normalization via exponential peak tracking, applied after Roofing filter";
         _series = new LineSeries(name: $"AGC {Decay:F3}", color: Color.Blue, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }

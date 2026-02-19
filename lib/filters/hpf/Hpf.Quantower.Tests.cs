@@ -12,7 +12,7 @@ public class HpfIndicatorTests
         Assert.Equal(40, indicator.Length);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HPF - Highpass Filter (2-Pole)", indicator.Name);
+        Assert.Equal("HPF - Ehlers Highpass Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

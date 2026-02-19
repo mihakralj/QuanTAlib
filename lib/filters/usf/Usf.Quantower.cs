@@ -30,8 +30,8 @@ public sealed class UsfIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = false;
-        Name = "USF - Ultimate Smoother Filter";
-        Description = "Ehlers Ultimate Smoother Filter";
+        Name = "USF - Ehlers Ultimate Smoother Filter";
+        Description = "Ehlers Ultimate Smoother Filter: zero-lag smoothing via high-pass subtraction from Super Smoother";
         _series = new LineSeries(name: $"USF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }

@@ -1,4 +1,4 @@
-# SSFDSP: SSF-Based Detrended Synthetic Price
+# SSFDSP: Ehlers SSF Detrended Synthetic Price
 
 > "The Super-Smoother filter provides Butterworth-quality noise rejection—combine two of them and you isolate cycles with surgical precision."
 

@@ -13,7 +13,7 @@ public class MamaIndicatorTests
         Assert.Equal(0.05, indicator.SlowLimit);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("MAMA - MESA Adaptive Moving Average", indicator.Name);
+        Assert.Equal("MAMA - Ehlers MESA Adaptive Moving Average", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

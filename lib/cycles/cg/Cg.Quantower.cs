@@ -31,7 +31,7 @@ public sealed class CgIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "CG - Center of Gravity";
+        Name = "CG - Ehlers Center of Gravity";
         Description = "Ehlers' Center of Gravity oscillator identifies potential turning points using weighted center of mass";
 
         _series = new LineSeries(name: "CG", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

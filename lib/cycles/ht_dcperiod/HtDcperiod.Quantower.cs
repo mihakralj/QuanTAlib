@@ -27,7 +27,7 @@ public sealed class HtDcperiodIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HT_DCPERIOD - Hilbert Transform Dominant Cycle Period";
+        Name = "HT_DCPERIOD - Ehlers Hilbert Transform Dominant Cycle Period";
         Description = "Hilbert Transform Dominant Cycle Period indicator measuring the dominant cycle period in price data";
 
         _periodSeries = new LineSeries(name: "DCPeriod", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

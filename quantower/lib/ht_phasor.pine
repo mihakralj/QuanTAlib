@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HT_PHASOR: Hilbert Transform Phasor Components", "HT_PHASOR", overlay=false)
+indicator("Ehlers Hilbert Transform Phasor Components (HT_PHASOR)", "HT_PHASOR", overlay=false)
 
 //@function Numerically stable atan2 implementation for quadrant-aware angle calculation
 //@param y Y-coordinate (imaginary/quadrature component)

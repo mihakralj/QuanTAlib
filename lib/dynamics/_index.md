@@ -17,7 +17,7 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | [CHOP](chop/Chop.md) | Choppiness Index | Trendiness measure. High values = choppy. Low = trending. |
 | [DMX](dmx/Dmx.md) | Jurik DMX | Smoothed bipolar DMI using Jurik smoothing. Low noise. |
 | [DX](dx/Dx.md) | Directional Movement Index | Raw directional strength. Unsmoothed ADX component. |
-| [HT_TRENDMODE](ht_trendmode/Ht_trendmode.md) | HT Trend vs Cycle | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
+| [HT_TRENDMODE](ht_trendmode/Ht_trendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
 | [ICHIMOKU](ichimoku/Ichimoku.md) | Ichimoku Cloud | Five-line system. Cloud defines support/resistance zones. |
 | [IMI](imi/Imi.md) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold. |
 | [IMPULSE](impulse/Impulse.md) | Elder Impulse System | EMA + MACD histogram alignment. Color-coded trend/momentum filter. |

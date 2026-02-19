@@ -11,7 +11,7 @@ public class HtSineIndicatorTests
 
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HT_SINE - Hilbert Transform SineWave", indicator.Name);
+        Assert.Equal("HT_SINE - Ehlers Hilbert Transform SineWave", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

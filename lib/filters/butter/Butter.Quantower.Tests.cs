@@ -12,7 +12,7 @@ public class ButterIndicatorTests
 
         Assert.Equal(14, indicator.Period);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("BUTTER - Butterworth Filter", indicator.Name);
+        Assert.Equal("BUTTER - Ehlers Butterworth Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.Equal(SourceType.Close, indicator.Source);
     }

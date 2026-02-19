@@ -29,7 +29,7 @@ public sealed class HtSineIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HT_SINE - Hilbert Transform SineWave";
+        Name = "HT_SINE - Ehlers Hilbert Transform SineWave";
         Description = "Hilbert Transform SineWave indicator showing Sine and LeadSine for cycle timing";
 
         _sineSeries = new LineSeries(name: "Sine", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

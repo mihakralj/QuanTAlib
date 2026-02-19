@@ -12,8 +12,9 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [BBB](bbb/Bbb.md) | Bollinger %B | Position within Bollinger Bands. 0=lower band, 1=upper band. |
 | [BBS](bbs/Bbs.md) | Bollinger Band Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
 | [CFO](cfo/Cfo.md) | Chande Forecast Oscillator | Percentage difference between price and linear regression forecast. |
+| [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
-| [FISHER](fisher/Fisher.md) | Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
+| [FISHER](fisher/Fisher.md) | Ehlers Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
 | [INERTIA](inertia/Inertia.md) | Inertia | Linear regression residual. Raw deviation from trend forecast. |
 | [KDJ](kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic. J = 3K - 2D provides leading signal. |
 | [PGO](pgo/Pgo.md) | Pretty Good Oscillator | Distance from SMA normalized by ATR. Units: ATR multiples. |

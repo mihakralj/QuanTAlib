@@ -1,4 +1,4 @@
-# AGC: Automatic Gain Control
+# AGC: Ehlers Automatic Gain Control
 
 > "The purpose of the AGC is to normalize the amplitude of any indicator to unity." — John F. Ehlers, TASC January 2015
 

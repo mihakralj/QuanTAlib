@@ -1,4 +1,4 @@
-# DSP: Detrended Synthetic Price
+# DSP: Ehlers Detrended Synthetic Price
 
 > "Remove the trend, reveal the cycles."
 

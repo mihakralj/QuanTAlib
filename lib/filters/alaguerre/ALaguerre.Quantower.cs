@@ -34,8 +34,8 @@ public class ALaguerreIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "ALAGUERRE - Adaptive Laguerre Filter (Ehlers)";
-        Description = "Adaptive variant of Laguerre Filter with variable alpha from tracking-error normalization and median smoothing";
+        Name = "ALAGUERRE - Ehlers Adaptive Laguerre Filter";
+        Description = "Ehlers Adaptive Laguerre Filter: variable alpha from tracking-error normalization and median smoothing";
         Series = new LineSeries(name: $"ALaguerre {Length},{MedianLength}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }

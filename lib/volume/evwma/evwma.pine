@@ -1,0 +1,52 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Elastic Volume Weighted Moving Average (EVWMA)", "EVWMA", overlay=true)
+
+//@function Calculates EVWMA using volume-elastic smoothing with circular buffer
+//@param src Source price series
+//@param vol Volume series
+//@param period Lookback period for rolling volume sum
+//@returns EVWMA value where high-volume bars get more weight (faster response)
+//@optimized O(1) per bar via circular buffer for running volume sum
+evwma(series float src, series float vol, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, period), var int head = 0, var int count = 0
+    var array<float> vol_buffer = array.new_float(p, 0.0)
+    var float sum_vol = 0.0
+    var float result = na
+
+    float cur_vol = math.max(nz(vol, 0.0), 0.0)
+    float cur_price = nz(src)
+
+    // Remove oldest volume from running sum
+    float old_vol = array.get(vol_buffer, head)
+    if count >= p
+        sum_vol -= old_vol
+    else
+        count += 1
+
+    // Add current volume to running sum
+    sum_vol += cur_vol
+    array.set(vol_buffer, head, cur_vol)
+    head := (head + 1) % p
+
+    // EVWMA calculation
+    if na(result)
+        result := cur_price
+    else if sum_vol > 0.0
+        result := ((sum_vol - cur_vol) * nz(result) + cur_vol * cur_price) / sum_vol
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+evwma_value = evwma(i_source, volume, i_period)
+
+// Plot
+plot(evwma_value, "EVWMA", color=color.yellow, linewidth=2)

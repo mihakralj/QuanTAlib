@@ -11,7 +11,7 @@ public class HtPhasorIndicatorTests
 
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HT_PHASOR - Hilbert Transform Phasor", indicator.Name);
+        Assert.Equal("HT_PHASOR - Ehlers Hilbert Transform Phasor Components", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

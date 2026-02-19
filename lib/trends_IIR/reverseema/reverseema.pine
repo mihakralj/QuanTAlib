@@ -1,0 +1,93 @@
+// The MIT License (MIT)
+// © mihakralj
+// Indicator algorithm (C) 2017 John F. Ehlers
+//@version=6
+indicator("Ehlers Reverse EMA (REVERSEEMA)", "REVERSEEMA", overlay=false)
+
+//@function Calculates Ehlers Reverse EMA using Z-transform inversion of EMA smoothing
+//@param source Series to calculate Reverse EMA from
+//@param period Lookback period for the base EMA (>= 1)
+//@returns Reverse EMA value with lag removed via 8-stage cascaded inversion
+//@optimized Uses warmup-compensated EMA with O(1) cascaded reverse stages per bar
+reverseema(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be positive")
+
+    float src = na(source) ? 0.0 : source
+
+    // EMA smoothing factor from period: alpha = 2/(period+1)
+    float a = 2.0 / (period + 1)
+    float cc = 1.0 - a
+    float beta = cc
+
+    // Precompute powers of cc for the 8 reverse stages
+    // Stage k uses cc^(2^(k-1)): 1, 2, 4, 8, 16, 32, 64, 128
+    float cc2   = cc * cc
+    float cc4   = cc2 * cc2
+    float cc8   = cc4 * cc4
+    float cc16  = cc8 * cc8
+    float cc32  = cc16 * cc16
+    float cc64  = cc32 * cc32
+    float cc128 = cc64 * cc64
+
+    // --- Forward EMA with warmup compensator ---
+    var bool warmup = true
+    var float e = 1.0
+    var float ema_raw = 0.0
+    var float ema_val = 0.0
+
+    ema_raw := a * (src - ema_raw) + ema_raw
+    if warmup
+        e *= beta
+        float comp = 1.0 / (1.0 - e)
+        ema_val := comp * ema_raw
+        warmup := e > 1e-10
+    else
+        ema_val := ema_raw
+
+    // --- 8-stage cascaded reverse EMA ---
+    // Each stage: RE_k[n] = cc^(2^(k-1)) * RE_{k-1}[n] + RE_{k-1}[n-1]
+    // RE1 uses EMA as input: RE1[n] = cc * EMA[n] + EMA[n-1]
+    var float re1 = 0.0
+    var float re2 = 0.0
+    var float re3 = 0.0
+    var float re4 = 0.0
+    var float re5 = 0.0
+    var float re6 = 0.0
+    var float re7 = 0.0
+    var float re8 = 0.0
+
+    float prev_ema = nz(ema_val[1])
+    float prev_re1 = nz(re1[1])
+    float prev_re2 = nz(re2[1])
+    float prev_re3 = nz(re3[1])
+    float prev_re4 = nz(re4[1])
+    float prev_re5 = nz(re5[1])
+    float prev_re6 = nz(re6[1])
+    float prev_re7 = nz(re7[1])
+
+    re1 := cc    * ema_val + prev_ema
+    re2 := cc2   * re1     + prev_re1
+    re3 := cc4   * re2     + prev_re2
+    re4 := cc8   * re3     + prev_re3
+    re5 := cc16  * re4     + prev_re4
+    re6 := cc32  * re5     + prev_re5
+    re7 := cc64  * re6     + prev_re6
+    re8 := cc128 * re7     + prev_re7
+
+    // Signal = EMA - alpha * RE8
+    float signal = ema_val - a * re8
+    na(source) ? na : signal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1, tooltip="Lookback period for the base EMA")
+i_source = input.source(close, "Source")
+
+// Calculation
+reverseema_value = reverseema(i_source, i_period)
+
+// Plot
+plot(reverseema_value, "REVERSEEMA", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray)

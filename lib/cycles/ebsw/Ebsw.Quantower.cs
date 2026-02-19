@@ -36,7 +36,7 @@ public sealed class EbswIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "EBSW - Even Better Sinewave";
+        Name = "EBSW - Ehlers Even Better Sinewave";
         Description = "Ehlers' Even Better Sinewave oscillator with high-pass filter, super-smoother, and automatic gain control";
 
         _series = new LineSeries(name: "EBSW", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

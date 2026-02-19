@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Ehlers Phasor Analysis (PHASOR)", shorttitle="PHASOR", overlay=false)
+indicator("Ehlers Hilbert Transform Phasor Components (HT_PHASOR)", shorttitle="HT_PHASOR", overlay=false)
 
 //@function Calculates the Ehlers Phasor Angle, Derived Period, and Trend State.
 //@param src The source series to analyze.

@@ -12,7 +12,7 @@ public class CgIndicatorTests
         Assert.Equal(10, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("CG - Center of Gravity", indicator.Name);
+        Assert.Equal("CG - Ehlers Center of Gravity", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

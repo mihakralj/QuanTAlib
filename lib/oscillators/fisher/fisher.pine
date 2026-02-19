@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Fisher Transform", "FISHER", overlay=false)
+indicator("Ehlers Fisher Transform (FISHER)", "FISHER", overlay=false)
 
 //@function Calculates the Fisher Transform oscillator
 //@param source Source price (typically hl2)

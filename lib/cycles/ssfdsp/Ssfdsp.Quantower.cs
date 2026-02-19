@@ -31,7 +31,7 @@ public sealed class SsfdspIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "SSFDSP - SSF Detrended Synthetic Price";
+        Name = "SSFDSP - Ehlers SSF Detrended Synthetic Price";
         Description = "Ehlers' Super Smooth Filter based Detrended Synthetic Price oscillator for cycle extraction";
 
         _series = new LineSeries(name: "SSFDSP", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

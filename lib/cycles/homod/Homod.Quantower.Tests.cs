@@ -13,7 +13,7 @@ public class HomodIndicatorTests
         Assert.Equal(50.0, indicator.MaxPeriod);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("HOMOD - Homodyne Discriminator", indicator.Name);
+        Assert.Equal("HOMOD - Ehlers Homodyne Discriminator", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

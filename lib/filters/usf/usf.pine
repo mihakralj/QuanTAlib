@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Ultrasmooth Filter (USF)", "USF", overlay=true)
+indicator("Ehlers Ultimate Smoother Filter (USF)", "USF", overlay=true)
 
 //@function Calculates Ultrasmooth Filter
 //@param src Series to calculate USF from

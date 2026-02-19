@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HT_DCPHASE: Hilbert Transform Dominant Cycle Phase", "HT_DCPHASE", overlay=false)
+indicator("Ehlers Hilbert Transform Dominant Cycle Phase (HT_DCPHASE)", "HT_DCPHASE", overlay=false)
 
 //@function Numerically stable atan2 implementation for quadrant-aware angle calculation
 //@param y Y-coordinate (imaginary/quadrature component)

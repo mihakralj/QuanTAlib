@@ -1,4 +1,4 @@
-# HT_TRENDMODE: Hilbert Transform Trend Mode
+# HT_TRENDMODE: Ehlers Hilbert Transform Trend vs Cycle Mode
 
 ## Historical Context
 

@@ -12,7 +12,7 @@ public class UsfIndicatorTests
         Assert.Equal(20, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("USF - Ultimate Smoother Filter", indicator.Name);
+        Assert.Equal("USF - Ehlers Ultimate Smoother Filter", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

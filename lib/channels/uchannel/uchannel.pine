@@ -2,7 +2,7 @@
 // © mihakralj
 //@version=6
 // Ultimate Channel logic based on work by John F. Ehlers (c) 2024
-indicator("Ultimate Channel (UCHANNEL)", "UCHANNEL", overlay=true)
+indicator("Ehlers Ultimate Channel (UCHANNEL)", "UCHANNEL", overlay=true)
 
 //@function Calculates Ultimate Channel
 //@param src Source series for the centerline (typically close)

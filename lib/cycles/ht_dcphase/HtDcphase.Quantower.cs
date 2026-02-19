@@ -28,7 +28,7 @@ public sealed class HtDcphaseIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HT_DCPHASE - Hilbert Transform Dominant Cycle Phase";
+        Name = "HT_DCPHASE - Ehlers Hilbert Transform Dominant Cycle Phase";
         Description = "Hilbert Transform Dominant Cycle Phase indicator measuring the phase angle of the dominant cycle in price data (degrees, -45 to 315)";
 
         _phaseSeries = new LineSeries(name: "DCPhase", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

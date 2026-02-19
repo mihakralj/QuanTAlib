@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Hilbert Trendline (HTIT)", "HTIT", overlay=true)
+indicator("Ehlers Hilbert Transform Instantaneous Trend (HTIT)", "HTIT", overlay=true)
 
 //@function Calculates the Hilbert Transform Instantaneous Trendline (HTIT)
 //@param source Series to calculate HTIT from

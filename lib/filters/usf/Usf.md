@@ -1,4 +1,4 @@
-# Usf: Ehlers Ultimate Smoother Filter
+# USF: Ehlers Ultimate Smoother Filter
 
 > "The Ultimate Smoother achieves superior smoothing by subtracting high-frequency components using a high-pass filter, resulting in zero lag in the passband."
 

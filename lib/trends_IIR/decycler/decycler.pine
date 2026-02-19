@@ -1,0 +1,52 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004-2024 John F. Ehlers
+indicator("Ehlers Decycler (DECYCLER)", "DECYCLER", overlay=true)
+
+//@function Calculates Ehlers Decycler by subtracting a 2-pole Butterworth high-pass filter from price
+//@param source Series to calculate Decycler from
+//@param period Cutoff period for the high-pass filter (>= 1)
+//@returns Decycler value (source minus high-pass filtered component)
+//@optimized Uses 2-pole Butterworth HP with O(1) complexity per bar
+decycler(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be positive")
+
+    float src = na(source) ? 0.0 : source
+
+    // Butterworth 2-pole HP coefficient: alpha = (cos(x) + sin(x) - 1) / cos(x)
+    // where x = 0.707 * 2pi / period
+    float arg = 0.707 * 2.0 * math.pi / period
+    float alpha = (math.cos(arg) + math.sin(arg) - 1.0) / math.cos(arg)
+    float omah = 1.0 - alpha * 0.5
+    float oma = 1.0 - alpha
+    float a1 = omah * omah
+    float b1 = 2.0 * oma
+    float c1 = -(oma * oma)
+
+    // 2-pole HP: HP[n] = a1*(x - 2*x[1] + x[2]) + b1*HP[1] + c1*HP[2]
+    float diff_src = nz(src) - 2.0 * nz(src[1]) + nz(src[2])
+
+    var float hp = 0.0
+    var float hp1 = 0.0
+
+    float new_hp = bar_index < 2 ? 0.0 : a1 * diff_src + b1 * hp + c1 * hp1
+
+    hp1 := hp
+    hp := new_hp
+
+    // Decycler = price - high-pass
+    na(source) ? na : src - new_hp
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(60, "Period", minval=1, tooltip="Cutoff period for the high-pass filter")
+i_source = input.source(close, "Source")
+
+// Calculation
+decycler_value = decycler(i_source, i_period)
+
+// Plot
+plot(decycler_value, "DECYCLER", color=color.yellow, linewidth=2)

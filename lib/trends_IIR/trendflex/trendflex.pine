@@ -1,0 +1,69 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2013 John F. Ehlers
+indicator(" Ehlers Trendflex Indicator (TRENDFLEX)", "TRENDFLEX", overlay=false)
+
+//@function Calculates Ehlers Trendflex using SuperSmoother pre-filtering and cumulative slope with RMS normalization
+//@param source Series to calculate Trendflex from
+//@param period Lookback period for trend measurement (>= 1)
+//@returns Normalized Trendflex value centered around zero
+//@optimized Uses O(1) running sum for cumulative slope instead of O(N) loop, with RMS normalization
+trendflex(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be positive")
+
+    float src = nz(source)
+
+    // SuperSmoother (2-pole Butterworth lowpass) coefficients
+    float halfPeriod = period * 0.5
+    float a1 = math.exp(-1.414 * math.pi / halfPeriod)
+    float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / halfPeriod)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    // SuperSmoother filter state
+    var float filt = 0.0
+    var float filt1 = 0.0
+    float new_filt = bar_index < 2 ? src : c1 * (src + nz(src[1])) * 0.5 + c2 * filt + c3 * filt1
+    filt1 := filt
+    filt := new_filt
+
+    // O(1) cumulative slope via circular buffer and running sum
+    // Sum = Σ(Filt - Filt[i]) for i=1..N = N × Filt - Σ(Filt[i])
+    var array<float> buf = array.new_float(period, 0.0)
+    var int head = 0
+    var float running_sum = 0.0
+    var int count = 0
+
+    int n = math.min(count, period)
+    float slope_sum = n > 0 ? (n * new_filt - running_sum) / period : 0.0
+
+    float oldest = array.get(buf, head)
+    running_sum -= oldest
+    running_sum += new_filt
+    array.set(buf, head, new_filt)
+    head := (head + 1) % period
+    if count < period
+        count += 1
+
+    // RMS normalization via exponential mean-square
+    var float ms = 0.0
+    ms := 0.04 * slope_sum * slope_sum + 0.96 * ms
+
+    float result = ms > 0 ? slope_sum / math.sqrt(ms) : 0.0
+    na(source) ? na : result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1, tooltip="Lookback period for trend measurement")
+i_source = input.source(close, "Source")
+
+// Calculation
+trendflex_value = trendflex(i_source, i_period)
+
+// Plot
+plot(trendflex_value, "TRENDFLEX", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

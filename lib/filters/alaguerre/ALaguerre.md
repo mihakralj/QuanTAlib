@@ -1,4 +1,4 @@
-# ALAGUERRE: Adaptive Laguerre Filter
+# ALAGUERRE: Ehlers Adaptive Laguerre Filter
 
 > "The best filter is one that knows when to listen closely and when to smooth aggressively." -- John F. Ehlers (paraphrased)
 

@@ -29,7 +29,7 @@ public sealed class HtPhasorIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "HT_PHASOR - Hilbert Transform Phasor";
+        Name = "HT_PHASOR - Ehlers Hilbert Transform Phasor Components";
         Description = "Hilbert Transform Phasor components (InPhase, Quadrature) for cycle analysis";
 
         _inPhaseSeries = new LineSeries(name: "InPhase", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);

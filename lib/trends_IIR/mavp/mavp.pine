@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Moving Average Variable Period (MAVP)", "MAVP", overlay=true)
+
+//@function Calculates EMA with per-bar variable period (TA-Lib MAVP concept)
+//@param source Series to smooth
+//@param period Per-bar effective period (clamped to min_period..max_period)
+//@param min_period Minimum allowed period
+//@param max_period Maximum allowed period
+//@returns EMA value with variable alpha = 2/(period+1), compensated warmup
+//@optimized Uses adaptive warmup compensator that tracks cumulative (1-alpha) product for O(1) per bar
+mavp(series float source, series float period, simple int min_period, simple int max_period) =>
+    if min_period < 1
+        runtime.error("min_period must be >= 1")
+    if max_period < min_period
+        runtime.error("max_period must be >= min_period")
+    var float ema = 0.0
+    var float e = 1.0
+    var bool warmup = true
+    var float result = source
+    float p = math.max(min_period, math.min(max_period, nz(period, min_period)))
+    float a = 2.0 / (p + 1.0)
+    float beta = 1.0 - a
+    ema := a * (nz(source) - ema) + ema
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        result := c * ema
+        warmup := e > 1e-10
+    else
+        result := ema
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1, tooltip="Base period for the variable-period EMA")
+i_min = input.int(2, "Min Period", minval=1, tooltip="Minimum allowed period")
+i_max = input.int(30, "Max Period", minval=2, tooltip="Maximum allowed period")
+i_source = input.source(close, "Source")
+
+// Per-bar period series: fixed here, replace with any series for adaptive behavior
+// In the C# implementation, this is an external per-bar series input
+float per_bar_period = float(i_period)
+
+// Calculation
+mavp_value = mavp(i_source, per_bar_period, i_min, i_max)
+
+// Plot
+plot(mavp_value, "MAVP", color=color.yellow, linewidth=2)

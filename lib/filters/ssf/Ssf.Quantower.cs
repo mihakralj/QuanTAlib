@@ -30,8 +30,8 @@ public sealed class SsfIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = false;
-        Name = "SSF - Super Smooth Filter";
-        Description = "Ehlers Super Smooth Filter";
+        Name = "SSF - Ehlers Super Smoother Filter";
+        Description = "Ehlers Super Smoother Filter: 2-pole Butterworth lowpass with maximally flat passband response";
         _series = new LineSeries(name: $"SSF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
