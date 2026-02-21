@@ -1,155 +1,125 @@
 # HOMOD: Ehlers Homodyne Discriminator
 
-> "The homodyne discriminator reveals instantaneous frequency by multiplying a signal with its delayed self — the phase rotation between samples directly encodes the cycle period."
-
-The Homodyne Discriminator (HOMOD) estimates the dominant cycle period of a market using homodyne mixing—multiplying the signal by a delayed version of itself. This technique exposes the angular phase change between bars, allowing calculation of the instantaneous period at every time step.
+HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a delayed copy of itself to expose the angular phase change between samples. The output is a continuously varying period measurement (in bars) that tracks the market's instantaneous cycle length, enabling adaptive indicator tuning. Developed by John Ehlers, it offers better noise rejection and stability than the raw Hilbert Transform period estimator.
 
 ## Historical Context
 
-In *Rocket Science for Traders* and *Cybernetic Analysis for Stocks and Futures*, John Ehlers introduced signal processing concepts novel to technical analysis. The Homodyne Discriminator was presented as a superior alternative to the Hilbert Transform Discriminator for cycle measurement.
-
-It offers better noise rejection and stability while maintaining reasonable responsiveness, making it practical for real-time trading applications.
+John Ehlers introduced the Homodyne Discriminator in *Rocket Science for Traders* (2001) and refined it in *Cybernetic Analysis for Stocks and Futures* (2004). In RF engineering, homodyne detection multiplies a signal with a local oscillator at the same frequency to extract phase information. Ehlers adapted this by multiplying the complex analytic signal $z_t = I_t + jQ_t$ by its own conjugate delayed by one bar, yielding the phase rotation per sample. The angular velocity directly encodes the instantaneous frequency (and hence period). Compared to the raw Hilbert Transform discriminator which estimates phase absolutely, homodyne detection measures phase *differences*, making it less sensitive to amplitude variations and more stable during noisy market conditions.
 
 ## Architecture & Physics
 
-The algorithm is a complex pipeline of filters and transformations designed to isolate the analytic signal.
-
 ### 1. Pre-Processing (4-Bar WMA)
 
-$$
-Smooth = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
-$$
+$$Smooth_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}$$
 
 ### 2. Analytic Signal Generation
 
-In-Phase (I) and Quadrature (Q) components via Hilbert Transform:
+The Hilbert Transform FIR generates quadrature components using Ehlers' 4-tap approximation with coefficients $A = 0.0962$ and $B = 0.5769$:
 
-$$
-I_2 = I_1 - JQ
-$$
+$$Detrender_t = A \cdot Smooth_t + B \cdot Smooth_{t-2} - B \cdot Smooth_{t-4} - A \cdot Smooth_{t-6}$$
 
-$$
-Q_2 = Q_1 + JI
-$$
+In-Phase ($I_1$) is the detrender delayed by 3 bars. Quadrature ($Q_1$) is the Hilbert transform of the detrender. Both are further refined:
 
-Smoothed with EMA (α = 0.2).
+$$I_2 = I_1 - jQ, \qquad Q_2 = Q_1 + jI$$
+
+Smoothed with EMA ($\alpha = 0.2$).
 
 ### 3. Homodyne Mixing
 
-Multiplying complex signal $z_t$ by its conjugate delayed by one bar:
+Multiplying the complex signal by its one-bar-delayed conjugate:
 
-$$
-Real = (I_2 \cdot I_{2,prev}) + (Q_2 \cdot Q_{2,prev})
-$$
+$$Re_t = I_{2,t} \cdot I_{2,t-1} + Q_{2,t} \cdot Q_{2,t-1}$$
 
-$$
-Imag = (I_2 \cdot Q_{2,prev}) - (Q_2 \cdot I_{2,prev})
-$$
+$$Im_t = I_{2,t} \cdot Q_{2,t-1} - Q_{2,t} \cdot I_{2,t-1}$$
+
+Both smoothed with EMA ($\alpha = 0.2$).
 
 ### 4. Period Extraction
 
-$$
-\theta = \operatorname{atan2}(Imag, Real)
-$$
+$$\theta = \operatorname{atan2}(Im_t, Re_t)$$
 
-$$
-Period = \frac{2\pi}{\theta}
-$$
+$$Period_{raw} = \frac{2\pi}{\theta}$$
 
-Clamped to [MinPeriod, MaxPeriod] and smoothed.
+Clamped to $[MinPeriod, MaxPeriod]$ and smoothed with EMA ($\alpha = 0.33$).
 
-## Performance Profile
+### 5. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+$O(1)$ per bar with $O(1)$ memory. The pipeline consists entirely of fixed-depth IIR filters and short delay lines.
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| MUL (Hilbert taps) | 14 | 3 | 42 |
-| MUL (homodyne mix) | 4 | 3 | 12 |
-| ADD/SUB | 20 | 1 | 20 |
-| ATAN2 | 1 | 25 | 25 |
-| DIV | 2 | 15 | 30 |
-| **Total** | **41** | — | **~129 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(1) per bar—fixed filter depth
-- **Memory:** O(1)—state struct with history variables
-- **Warmup:** ~2 × MaxPeriod bars for convergence
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `minPeriod` | Minimum detectable period | 6.0 | $> 0$ |
+| `maxPeriod` | Maximum detectable period | 50.0 | $> minPeriod$ |
 
-## Validation
+### Pseudo-code
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | N/A | Not implemented |
-| Skender | N/A | Not implemented |
-| PineScript | ✅ | Matches Ehlers' reference code |
+```
+function HOMOD(source, minPeriod, maxPeriod):
+    A ← 0.0962; B ← 0.5769
+    smoothBuf ← CircularBuffer(7)
+    detBuf ← CircularBuffer(7)
 
-## Usage & Pitfalls
+    I2_prev ← 0; Q2_prev ← 0
+    Re_prev ← 0; Im_prev ← 0
+    period_prev ← (minPeriod + maxPeriod) / 2
 
-- **Output is period in bars**—not an oscillator like RSI, but a measurement like ATR
-- **Long settling time** (~2 × MaxPeriod)—early values unreliable
-- **Trending markets** make "cycle" ill-defined—period drifts to MaxPeriod
-- **Check for cycling** (ADX or trend filter) before trusting period values
-- **High noise causes jitter**—pre-smooth extremely noisy data
-- **Use for adaptive tuning**: `Stochastic(length: homod.DominantCycle)`
+    for each price in source:
+        // 4-bar WMA
+        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
+        smoothBuf.Add(smooth)
 
-## API
+        // Detrender (Hilbert FIR)
+        det ← A·smooth[0] + B·smooth[2] - B·smooth[4] - A·smooth[6]
+        detBuf.Add(det)
 
-```mermaid
-classDiagram
-    class Homod {
-        +double MinPeriod
-        +double MaxPeriod
-        +double DominantCycle
-        +bool IsHot
-        +Homod(double minPeriod, double maxPeriod)
-        +Homod(ITValuePublisher source, double minPeriod, double maxPeriod)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+        // I1 = det[3], Q1 = Hilbert(det)
+        I1 ← det[3]
+        Q1 ← A·det[0] + B·det[2] - B·det[4] - A·det[6]
+
+        // Hilbert of I1 and Q1
+        jI ← HilbertFIR(I1_history)
+        jQ ← HilbertFIR(Q1_history)
+
+        // Phasor components (smoothed)
+        I2 ← 0.2·(I1 - jQ) + 0.8·I2_prev
+        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2_prev
+
+        // Homodyne mixing
+        re ← 0.2·(I2·I2_prev + Q2·Q2_prev) + 0.8·Re_prev
+        im ← 0.2·(I2·Q2_prev - Q2·I2_prev) + 0.8·Im_prev
+
+        // Period extraction
+        if im ≠ 0 and re ≠ 0:
+            period ← 2π / atan2(im, re)
+        else:
+            period ← period_prev
+
+        period ← clamp(period, minPeriod, maxPeriod)
+        period ← 0.33·period + 0.67·period_prev
+
+        // Update state
+        I2_prev ← I2; Q2_prev ← Q2
+        Re_prev ← re; Im_prev ← im
+        period_prev ← period
+
+        emit period
 ```
 
-### Class: `Homod`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `minPeriod` | `double` | `6.0` | `>0` | Minimum period to detect |
-| `maxPeriod` | `double` | `50.0` | `>minPeriod` | Maximum period to detect |
+| Output | Meaning |
+|--------|---------|
+| `period` | Dominant cycle length in bars |
+| Stable period | Market exhibiting regular cyclical behavior |
+| Period drifting to maxPeriod | Trending market; cycle measurement unreliable |
+| Rapidly fluctuating period | Noisy or transitioning market regime |
 
-### Properties
+## Resources
 
-- `DominantCycle` (`double`): Current dominant cycle period in bars
-- `IsHot` (`bool`): Returns `true` when warmup is complete
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Configure for cycles between 6 and 50 bars
-var homod = new Homod(minPeriod: 6, maxPeriod: 50);
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = homod.Update(new TValue(bar.Date, bar.Close));
-    
-    if (homod.IsHot)
-    {
-        double period = homod.DominantCycle;
-        Console.WriteLine($"{bar.Date}: Dominant Cycle = {period:F1} bars");
-        
-        // Use cycle to tune Stochastic
-        int adaptiveLength = (int)Math.Round(period);
-        var adaptiveStoch = new Stochastic(adaptiveLength);
-    }
-}
-
-// Batch calculation
-var output = Homod.Calculate(sourceSeries, minPeriod: 6, maxPeriod: 50);
-```
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
+- **Haykin, S.** *Communication Systems*. 4th ed., Wiley, 2001. (Homodyne detection theory)

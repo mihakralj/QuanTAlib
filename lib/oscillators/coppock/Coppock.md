@@ -1,0 +1,59 @@
+# COPPOCK: Coppock Curve
+
+The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at different lookback periods. Originally designed for monthly charts to identify major market bottoms, it produces a single oscillating line where zero-line crossovers from below signal long-term buying opportunities. The dual-ROC architecture captures both intermediate and longer-term momentum dynamics in a single smoothed output.
+
+## Historical Context
+
+Edwin Sedgwick Coppock introduced this indicator in 1962 in *Barron's* magazine, originally calling it the "Trendex Model." Coppock, an economist by training, reportedly derived the 11-month and 14-month ROC periods from Episcopal clergy who told him the average mourning period for a bereavement was 11 to 14 months. He reasoned that market bottoms represented a similar psychological recovery period. The indicator was designed exclusively as a buy signal generator on monthly S&P 500 data, with zero-line crossovers from negative territory signaling major market lows. Later practitioners adapted it to weekly and daily timeframes with scaled parameters, though Coppock himself considered only the monthly application valid. The 10-period WMA smoothing was chosen to filter out intermediate noise while preserving the timing of major turning points.
+
+## Architecture & Physics
+
+### Three-Stage Pipeline
+
+The Coppock Curve processes data through a sequential pipeline:
+
+1. **ROC Stage:** Two independent Rate of Change calculations at different lookback periods extract momentum at two time horizons. Each ROC measures the percentage price change over its respective window: $\text{ROC}(n) = \frac{C_t - C_{t-n}}{C_{t-n}} \times 100$.
+
+2. **Summation Stage:** The two ROC values are added directly, creating a composite momentum measure that captures both intermediate and long-term price velocity.
+
+3. **WMA Stage:** A Weighted Moving Average smooths the combined ROC, using linearly increasing weights that emphasize recent composite momentum while suppressing noise. The WMA implementation uses the dual running sum technique for O(1) per-bar updates.
+
+### Circular Buffer Design
+
+The ROC stage stores historical prices in a circular buffer sized to the maximum of the two ROC periods. The WMA stage maintains its own circular buffer with running weighted and unweighted sums, enabling constant-time updates without recomputation.
+
+## Mathematical Foundation
+
+Given source series $x_t$, long ROC period $L$, short ROC period $S$, and WMA period $W$:
+
+**Rate of Change:**
+
+$$ROC_L(t) = \frac{x_t - x_{t-L}}{x_{t-L}} \times 100, \quad ROC_S(t) = \frac{x_t - x_{t-S}}{x_{t-S}} \times 100$$
+
+**Combined ROC:**
+
+$$R_t = ROC_L(t) + ROC_S(t)$$
+
+**Weighted Moving Average of combined ROC:**
+
+$$\text{Coppock}(t) = \frac{\sum_{i=0}^{W-1} (W - i) \cdot R_{t-i}}{\sum_{i=0}^{W-1} (W - i)}$$
+
+The denominator equals $\frac{W(W+1)}{2}$.
+
+**O(1) WMA streaming update** using dual running sums:
+
+```text
+On new value R entering buffer (oldest R_old exits):
+  plainSum = plainSum - R_old + R
+  weightedSum = weightedSum - plainSum_old + W × R
+  norm = W × (W + 1) / 2
+  Coppock = weightedSum / norm
+```
+
+**Default parameters:** longRoc = 14, shortRoc = 11, wmaPeriod = 10 (original monthly values).
+
+## Resources
+
+- Coppock, E.S.C. (1962). "A Guide to the Use of Coppock Curve." *Barron's*
+- Kirkpatrick, C. & Dahlquist, J. (2010). *Technical Analysis*, Chapter 15: Momentum
+- PineScript reference: [`coppock.pine`](coppock.pine)

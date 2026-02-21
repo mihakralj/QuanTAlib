@@ -1,167 +1,110 @@
 # BBANDS: Bollinger Bands
 
-> "Two standard deviations contain 95% of price action—until they don't."
-
-Bollinger Bands® are volatility-based envelopes that surround a central moving average. The bands adapt to changing market conditions by expanding during periods of high volatility and contracting during periods of low volatility, solving the problem of fixed-width envelopes by using standard deviation as a dynamic measure of width.
+Bollinger Bands construct a volatility-adaptive envelope around a Simple Moving Average using population standard deviation as the width measure. The bands expand during high-volatility periods and contract during consolidation, dynamically adapting to changing market conditions. Under Gaussian assumptions, $\pm 2\sigma$ contains approximately 95.4% of price action, but financial returns exhibit fat tails and volatility clustering, so the bands function more as a volatility-normalized reference frame than a strict probability envelope. The derived metrics %B (price position as a fraction of band width) and BandWidth (normalized band spread) extend the raw bands into a complete analytical toolkit.
 
 ## Historical Context
 
-**John Bollinger** developed Bollinger Bands in the early 1980s while working as a market technician. He registered "Bollinger Bands" as a trademark in 1996. The indicator emerged from Bollinger's observation that volatility is not static—a simple percentage envelope fails to account for the market's changing breath.
+John Bollinger developed Bollinger Bands in the early 1980s while working as a market technician. He registered the name as a trademark in 1996 and published *Bollinger on Bollinger Bands* (McGraw-Hill, 2001). The indicator emerged from Bollinger's observation that fixed-percentage envelopes fail to account for changing volatility: a 5% envelope that works during quiet markets becomes useless during volatile phases, and vice versa.
 
-Bollinger drew inspiration from statistical probability theory. Under a normal distribution, approximately 68% of data falls within ±1σ, 95% within ±2σ, and 99.7% within ±3σ. By setting the default multiplier to 2.0, Bollinger created bands that theoretically contain ~95% of price action. However, financial returns are famously non-Gaussian (fat tails, skewness), so the bands serve more as a volatility-normalized reference than a probability envelope.
+Bollinger drew on statistical probability theory. Under the normal distribution, approximately 68% of observations fall within $\pm 1\sigma$, 95% within $\pm 2\sigma$, and 99.7% within $\pm 3\sigma$. By defaulting the multiplier to 2.0, he created bands targeting the 95% containment level. Chebyshev's inequality guarantees at least 75% containment at $\pm 2\sigma$ regardless of distribution shape. In practice, with fat-tailed market returns (typical kurtosis 4-6), expect 92-95% containment rather than 95.4%.
 
-The indicator became one of the most widely adopted technical analysis tools, featured in virtually every charting platform. Bollinger authored *Bollinger on Bollinger Bands* (2001), detailing trading methodologies including "the squeeze" (low volatility preceding breakouts) and "%B" (price position within the bands as an oscillator).
+The "Squeeze" pattern (BandWidth at multi-period lows) became one of the most recognized technical analysis signals, predating and influencing the TTM Squeeze indicator. Walking the bands (price hugging the upper or lower band during trends) is a momentum signal, not a reversal signal. Bollinger Bands became one of the most widely adopted technical analysis tools, available in virtually every charting platform.
 
 ## Architecture & Physics
 
-The system relies on the statistical properties of the **Normal Distribution** (Gaussian bell curve):
+### 1. Middle Band (SMA)
 
-1. **Central Tendency:** The middle band defines the "center of gravity" for price, typically a Simple Moving Average (SMA).
-2. **Dispersion:** The width of the bands is determined by the Population Standard Deviation ($\sigma$), representing the volatility or "energy" in the system.
-3. **Probability Event Horizons:**
-    - $\pm 2\sigma$ theoretically contains ~95.4% of price action (Chebyshev's inequality guarantees at least 75%, normal distribution implies 95%).
-    - Excursions outside the bands represent statistically significant "anomalies" or extreme momentum.
+$$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} x_{t-i}$$
 
-### Calculation Steps
+### 2. Population Standard Deviation
 
-#### 1. Middle Band (SMA)
+Using the computational formula (running sums of $x$ and $x^2$):
 
-$$
-\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Close}_{t-i}
-$$
+$$\sigma_t = \sqrt{\frac{\sum x_i^2}{n} - \left(\frac{\sum x_i}{n}\right)^2}$$
 
-#### 2. Population Standard Deviation
+Note: this is population standard deviation (divide by $n$), not sample standard deviation (divide by $n-1$). Bollinger specified population $\sigma$, and most reference implementations (TA-Lib, TradingView) use this convention.
 
-$$
-\sigma_t = \sqrt{\frac{1}{n} \sum_{i=0}^{n-1} (\text{Close}_{t-i} - \text{Middle}_t)^2}
-$$
+### 3. Band Construction
 
-#### 3. Band Construction
+$$\text{Upper}_t = \text{Middle}_t + k \cdot \sigma_t$$
 
-$$
-\text{Upper}_t = \text{Middle}_t + (k \times \sigma_t)
-$$
+$$\text{Lower}_t = \text{Middle}_t - k \cdot \sigma_t$$
 
-$$
-\text{Lower}_t = \text{Middle}_t - (k \times \sigma_t)
-$$
+### 4. Derived Metrics
 
-Where $n$ = period (default: 20), $k$ = multiplier (default: 2.0).
+**BandWidth** (normalized volatility measure):
 
-#### 4. Derived Metrics
+$$\text{BandWidth}_t = \frac{\text{Upper}_t - \text{Lower}_t}{\text{Middle}_t}$$
 
-$$
-\text{BandWidth}_t = \frac{\text{Upper}_t - \text{Lower}_t}{\text{Middle}_t}
-$$
+**%B** (price position oscillator, 0-1 range when inside bands):
 
-$$
-\text{PercentB}_t = \frac{\text{Close}_t - \text{Lower}_t}{\text{Upper}_t - \text{Lower}_t}
-$$
+$$\%B_t = \frac{x_t - \text{Lower}_t}{\text{Upper}_t - \text{Lower}_t}$$
 
-## Performance Profile
+### 5. Complexity
 
-The implementation utilizes **O(1)** circular buffer algorithms for both the SMA and Standard Deviation components, ensuring performance remains constant regardless of the lookback period.
+The circular buffer maintains running sums of $x$ and $x^2$, enabling $O(1)$ computation of both mean and variance per bar. The square root for $\sigma$ is the most expensive operation.
 
-### Operation Count - Single value
+## Mathematical Foundation
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/SUB | 5 | 1 | 5 |
-| MUL | 3 | 3 | 9 |
-| DIV | 2 | 15 | 30 |
-| SQRT | 1 | 15 | 15 |
-| **Total** | **11** | — | **~59 cycles** |
+### Parameters
 
-### Operation Count - Batch processing
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback for SMA and standard deviation ($n$) | 20 | $> 0$ |
+| `multiplier` | Number of standard deviations ($k$) | 2.0 | $> 0$ |
+| `source` | Input price series | close | |
 
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| SMA computation | N | N | 1× |
-| Variance/StdDev | 2N | 2N/4 | ~4× |
-| Band construction | 3N | 3N/8 | ~8× |
+### Containment Guarantees
 
-## Validation
+| Multiplier ($k$) | Normal Distribution | Chebyshev (any dist.) |
+|:-:|:-:|:-:|
+| 1.0 | 68.3% | 0% (trivial bound) |
+| 2.0 | 95.4% | 75.0% |
+| 3.0 | 99.7% | 88.9% |
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Matches `TA_BBANDS` exactly |
-| **Skender** | ✅ | Matches `GetBollingerBands` |
-| **Pandas-TA** | ✅ | Matches `ta.bbands` |
-| **Spreadsheet** | ✅ | Manual Excel validation |
+### Pseudo-code
 
-*Note: Differences in Standard Deviation types (Sample vs. Population) are the most common cause of discrepancies across libraries. QuanTAlib uses **Population** Standard Deviation, consistent with John Bollinger's specification.*
+```
+function BBANDS(source, period, multiplier):
+    validate: period > 0, multiplier > 0
 
-## Usage & Pitfalls
+    // Circular buffer maintains running sums
+    sum += source;  sumSq += source²
+    oldest = buffer[head]
+    if oldest exists: sum -= oldest; sumSq -= oldest²
 
-- **The Squeeze**: Narrow bands (low BandWidth) often precede explosive moves. Watch for BandWidth at multi-month lows.
-- **Walking the Bands**: In strong trends, price can "walk" along the upper or lower band for extended periods. Touching the band is not inherently a reversal signal.
-- **%B Oscillator**: Use PercentB as a normalized oscillator: >1.0 = above upper band, <0.0 = below lower band, 0.5 = at middle.
-- **Standard Deviation Type**: Ensure your implementation matches your expected behavior—Population σ (divide by n) vs Sample σ (divide by n-1) produces different band widths.
-- **Warmup Period**: The indicator requires `period` bars before producing valid results. During warmup, bands may appear artificially narrow.
-- **Non-Normal Returns**: Markets exhibit fat tails; expect more than 5% of price action outside ±2σ bands in practice.
+    // SMA (middle band)
+    middle = sum / count
 
-## API
+    // Population standard deviation
+    variance = max(0, sumSq/count - middle²)
+    sigma = √variance
+    dev = multiplier * sigma
 
-```mermaid
-classDiagram
-    class Bbands {
-        +Name : string
-        +WarmupPeriod : int
-        +Middle : TValue
-        +Upper : TValue
-        +Lower : TValue
-        +Width : TValue
-        +PercentB : TValue
-        +IsHot : bool
-        +Update(TValue input) TValue
-        +Update(TSeries source) TSeries
-    }
+    // Bands
+    upper = middle + dev
+    lower = middle - dev
+
+    // Derived metrics
+    bandwidth = (upper - lower) / middle
+    percentB = (source - lower) / (upper - lower)
+
+    return [middle, upper, lower, bandwidth, percentB]
 ```
 
-### Class: `Bbands`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `20` | `>0` | Lookback period for SMA and StdDev. |
-| `multiplier` | `double` | `2.0` | `>0` | Number of standard deviations for band width. |
-| `source` | `TSeries` | — | `any` | Initial input source (optional). |
+| Output | Range | Meaning |
+|--------|-------|---------|
+| `middle` | price-scale | SMA center line |
+| `upper` | price-scale | Middle + $k\sigma$ |
+| `lower` | price-scale | Middle - $k\sigma$ |
+| `bandwidth` | $[0, \infty)$ | Normalized volatility; low values signal "squeeze" |
+| `percentB` | typically $[0, 1]$ | $> 1$: above upper band; $< 0$: below lower band |
 
-### Properties
+## Resources
 
-- `Middle` (`TValue`): The Simple Moving Average (Mean).
-- `Upper` (`TValue`): The Upper Bollinger Band.
-- `Lower` (`TValue`): The Lower Bollinger Band.
-- `Width` (`TValue`): Normalized BandWidth: $(Upper - Lower) / Middle$.
-- `PercentB` (`TValue`): %B Indicator: $(Price - Lower) / (Upper - Lower)$.
-- `IsHot` (`bool`): Returns `true` after `period` bars.
-
-### Methods
-
-- `Update(TValue input)`: Updates the indicator with a new price point and returns the Middle band.
-- `Update(TSeries source)`: Batch processes a series.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize with standard settings (20, 2.0)
-var bbands = new Bbands(period: 20, multiplier: 2.0);
-
-// Update Loop
-foreach (var bar in bars)
-{
-    var result = bbands.Update(bar.Close);
-
-    if (bbands.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Upper={bbands.Upper.Value:F2} Mid={result.Value:F2} Lower={bbands.Lower.Value:F2}");
-        Console.WriteLine($"  %B={bbands.PercentB.Value:F2} Width={bbands.Width.Value:F4}");
-    }
-}
-```
-
-## References
-
-- Bollinger, J. (2001). *Bollinger on Bollinger Bands*. McGraw-Hill.
-- Bollinger, J. (1992). "Using Bollinger Bands." *Technical Analysis of Stocks & Commodities*.
+- **Bollinger, J.** *Bollinger on Bollinger Bands*. McGraw-Hill, 2001. (Definitive reference)
+- **Bollinger, J.** "Using Bollinger Bands." *Technical Analysis of Stocks & Commodities*, 1992.
+- **Chebyshev, P.L.** "Des valeurs moyennes." *Journal de Mathématiques Pures et Appliquées*, 1867. (Distribution-free containment bound)
+- **TA-Lib** `TA_BBANDS` function. (Population standard deviation reference implementation)

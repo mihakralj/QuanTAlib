@@ -14,10 +14,14 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [CFO](cfo/Cfo.md) | Chande Forecast Oscillator | Percentage difference between price and linear regression forecast. |
 | [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
+| [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
+| [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
 | [FISHER](fisher/Fisher.md) | Ehlers Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
 | [INERTIA](inertia/Inertia.md) | Inertia | Linear regression residual. Raw deviation from trend forecast. |
 | [KDJ](kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic. J = 3K - 2D provides leading signal. |
+| [KRI](kri/Kri.md) | Kairi Relative Index | Percentage deviation of price from SMA. Overbought/oversold. |
 | [PGO](pgo/Pgo.md) | Pretty Good Oscillator | Distance from SMA normalized by ATR. Units: ATR multiples. |
+| [PSL](psl/Psl.md) | Psychological Line | Ratio of up periods to total periods. Crowd sentiment gauge. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [STOCH](stoch/Stoch.md) | Stochastic Oscillator | Close position within N-period high-low range. Classic overbought/oversold. |
 | [STOCHF](stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic. Faster but noisier. |

@@ -1,125 +1,98 @@
 # ATRBANDS: Average True Range Bands
 
-> "True Range reveals the market's actual footprint, ignoring the gaps that deceive the eye."
-
-ATR Bands create a volatility-adaptive envelope around a central moving average. Unlike fixed-percentage bands (like Envelopes) or standard deviation bands (like Bollinger), ATR Bands use Wilder's Average True Range to measure volatility. This makes them particularly robust for assets with gaps, pre-market moves, or 24/7 discontinuities, as the True Range accounts for the "hidden" volatility between bars.
+ATR Bands create a volatility-adaptive envelope by projecting Wilder's Average True Range above and below a central Simple Moving Average. Unlike fixed-percentage envelopes or standard-deviation bands, ATR Bands use True Range to measure volatility, making them robust for assets with gaps, pre-market moves, and 24/7 trading where the "hidden" volatility between bars is significant. The True Range captures the maximum of intra-bar range, gap-up distance, and gap-down distance, ensuring that overnight gaps contribute fully to band width even when the current bar's open-to-close range is narrow.
 
 ## Historical Context
 
-Developed by futures traders in the 1980s following J. Welles Wilder's introduction of ATR in *New Concepts in Technical Trading Systems* (1978). While Wilder used ATR primarily for trailing stops (Volty Stop) and directional indicators, traders quickly realized that projecting ATR above and below a Trend MA created an excellent breakout/containment channel. It effectively answers the question: "How far can price move away from the average before it is statistically abnormal?"
+J. Welles Wilder introduced Average True Range in *New Concepts in Technical Trading Systems* (1978), primarily as a trailing stop mechanism (the "Volatility Stop") and as a component of the Average Directional Index (ADX). Wilder used his own smoothing method, now known as RMA or Wilder's Smoothing, which is equivalent to an EMA with $\alpha = 1/n$. Futures traders in the 1980s quickly realized that projecting ATR above and below a trend-following moving average created a practical channel answering the question: "How far can price move from the average before it is statistically abnormal?"
+
+ATR Bands differ from Keltner Channels only in the center line: ATR Bands use SMA, Keltner uses EMA. Some implementations use SMA-based ATR averaging instead of Wilder's smoothing. The QuanTAlib implementation uses Wilder's smoothing (RMA) for ATR with a warmup compensator for accurate early values, and SMA for the center line.
 
 ## Architecture & Physics
 
-The system consists of a central tendency (SMA) and a dispersion measure (ATR). The physics are those of an elastic boundary: the envelope expands linearly with volatility, creating "breathing room" for price during high-stress periods.
+### 1. True Range
 
-### Calculation Steps
+True Range captures the maximum extent of price movement, including gaps:
 
-1. **True Range**:
-    $$TR_t = \max(\text{High}_t - \text{Low}_t, |\text{High}_t - \text{Close}_{t-1}|, |\text{Low}_t - \text{Close}_{t-1}|)$$
+$$TR_t = \max(H_t - L_t,\; |H_t - C_{t-1}|,\; |L_t - C_{t-1}|)$$
 
-2. **Average True Range (Wilder's Smoothing)**:
-    $$ATR_t = \frac{ATR_{t-1} \times (n-1) + TR_t}{n}$$
+### 2. Average True Range (Wilder's Smoothing / RMA)
 
-3. **Bands**:
-    $$Middle_t = SMA(\text{Source}, n)$$
-    $$Upper_t = Middle_t + (ATR_t \times Multiplier)$$
-    $$Lower_t = Middle_t - (ATR_t \times Multiplier)$$
+$$ATR_t = \frac{ATR_{t-1} \times (n - 1) + TR_t}{n}$$
 
-    Where $n$ = period (default 20), $Multiplier$ = scale factor (default 2.0).
+This is equivalent to EMA with $\alpha = 1/n$. The warmup compensator corrects for initialization bias:
 
-## Performance Profile
+$$e_t = (1 - \alpha) \cdot e_{t-1}, \quad ATR_t^* = \frac{ATR_t}{1 - e_t} \text{ while } e > \epsilon$$
 
-The implementation uses O(1) iterative updates. The SMA uses a circular buffer for running sums, while the ATR uses a recursive IIR filter (Wilder's smoothing).
+### 3. Center Line (SMA)
 
-### Operation Count - Single value
+$$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} x_{t-i}$$
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/SUB | 6 | 1 | 6 |
-| MUL | 4 | 3 | 12 |
-| DIV | 1 | 15 | 15 |
-| CMP/ABS | 3 | 1 | 3 |
-| FMA | 1 | 4 | 4 |
-| **Total** | **15** | — | **~40 cycles** |
+### 4. Band Construction
 
-### Operation Count - Batch processing
+$$\text{Upper}_t = \text{Middle}_t + k \cdot ATR_t$$
 
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| SMA Update | N | N | 1× |
-| ATR Update | N | N | 1× |
-| Band Calc | 3N | 3N/VectorSize | ~4-8× |
+$$\text{Lower}_t = \text{Middle}_t - k \cdot ATR_t$$
 
-*Note: The recursive nature of ATR and SMA limits full vectorization, but the final band projection is fully accelerated.*
+### 5. Complexity
 
-## Validation
+The SMA uses a circular buffer for $O(1)$ running sums. The ATR uses recursive IIR smoothing, also $O(1)$. True Range computation requires retaining the previous close. Total: $O(1)$ per bar with one buffer of size $n$ for the SMA.
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | N/A | Not implemented |
-| **Skender** | ✅ | Matches `GetAtr` + SMA logic |
-| **Internal** | ✅ | Streaming/Batch/Span match exactly |
+## Mathematical Foundation
 
-## Usage & Pitfalls
+### Parameters
 
-- **Stop Placement**: ATR Bands are widely used for placing stop-losses. A common technique is placing a stop just outside the 2.0-3.0 ATR band.
-- **Keltner Channels Comparison**: Keltner Channels typically use EMA for the center line. ATR Bands use SMA. The bandwidth logic is identical.
-- **Lag**: Because it uses SMA, the center line lags significantly compared to an EMA-based channel.
-- **Warmup**: ATR requires significant warmup (typically >50 bars) to stabilize fully due to the infinite memory of the Wilder smoothing function.
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback for SMA and ATR smoothing ($n$) | 20 | $> 0$ |
+| `multiplier` | Band width scale factor ($k$) | 2.0 | $> 0$ |
+| `source` | Input series for center line | close | |
 
-## API
+### True Range Components
 
-```mermaid
-classDiagram
-    class AtrBands {
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +Update(TBar bar) TValue
-        +Update(TBarSeries source) tuple
-        +Batch(...) void
-    }
+| Component | Formula | Captures |
+|-----------|---------|----------|
+| Intra-bar | $H_t - L_t$ | Current bar's range |
+| Gap-up | $\|H_t - C_{t-1}\|$ | Upward gap distance |
+| Gap-down | $\|L_t - C_{t-1}\|$ | Downward gap distance |
+
+### Pseudo-code
+
+```
+function ATRBANDS(source, high, low, close, period, multiplier):
+    validate: period > 0, multiplier > 0
+
+    // True Range
+    tr = max(high - low, |high - prev_close|, |low - prev_close|)
+    prev_close = close
+
+    // ATR via Wilder's smoothing (RMA)
+    alpha = 1 / period
+    raw_rma = (raw_rma * (period - 1) + tr) / period
+    e *= (1 - alpha)
+    atr = e > ε ? raw_rma / (1 - e) : raw_rma
+
+    // Center line (SMA via circular buffer)
+    middle = SMA(source, period)
+
+    // Bands
+    width = atr * multiplier
+    upper = middle + width
+    lower = middle - width
+
+    return [middle, upper, lower]
 ```
 
-### Class: `AtrBands`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | Lookback for SMA and ATR. |
-| `multiplier` | `double` | `2.0` | `>0` | Band width factor. |
-| `source` | `TBarSeries` | — | `any` | Initial input source (optional). |
+| Output | Description |
+|--------|-------------|
+| `middle` | SMA of source (center line) |
+| `upper` | Middle + scaled ATR (volatility-adjusted resistance) |
+| `lower` | Middle - scaled ATR (volatility-adjusted support) |
 
-### Properties
+## Resources
 
-- `Last` (`TValue`): The current middle band value (SMA).
-- `Upper` (`TValue`): The current upper band.
-- `Lower` (`TValue`): The current lower band.
-- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
-
-### Methods
-
-- `Update(TBar input)`: Updates the indicator with a new bar.
-- `Update(TBarSeries source)`: Processes a full series.
-- `Batch(...)`: Static method for high-performance batch processing.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize
-var indicator = new AtrBands(period: 20, multiplier: 2.0);
-
-// Update Loop
-foreach (var bar in bars)
-{
-    var mid = indicator.Update(bar);
-    
-    // Use valid results
-    if (indicator.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Mid={mid.Value:F2} Upper={indicator.Upper.Value:F2}");
-    }
-}
-```
+- **Wilder, J.W.** *New Concepts in Technical Trading Systems*. Trend Research, 1978. (Original ATR and Wilder's Smoothing)
+- **Keltner, C.** "How to Use the 10-Day Moving Average Rule." *Commodities*, 1960. (EMA-centered ATR channel variant)
+- **Bollinger, J.** *Bollinger on Bollinger Bands*. McGraw-Hill, 2001. (Standard deviation band alternative for comparison)

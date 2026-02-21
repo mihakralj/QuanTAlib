@@ -1,137 +1,113 @@
-# Alligator
+# ALLIGATOR: Williams Alligator
 
-> The market is a beast. When it sleeps, stay out. When it wakes, ride the momentum.
-
-The Williams Alligator is a trend-following indicator developed by Bill Williams. It uses three smoothed moving averages (SMMA) with different periods and forward offsets to visualize market phases: sleeping (consolidation), awakening (trend start), and eating (strong trend).
+The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display offsets to visualize market phases. The Jaw (13-period, offset 8), Teeth (8-period, offset 5), and Lips (5-period, offset 3) create a layered structure where intertwined lines indicate consolidation ("sleeping") and separated, aligned lines indicate trending conditions ("eating"). The metaphor maps directly to position management: stay out when the alligator sleeps, ride when it eats. Each line uses Wilder's smoothing ($\alpha = 1/N$), which is heavier than standard EMA, providing superior noise rejection at the cost of additional lag.
 
 ## Historical Context
 
-Bill Williams introduced the Alligator in his 1995 book *Trading Chaos*. The metaphor is vivid: the three lines represent the Jaw (blue), Teeth (red), and Lips (green) of an alligator. When the lines are intertwined, the alligator is "sleeping" and the market is in consolidation. When the lines separate and align, the alligator is "awake" and "eating," indicating a strong trend.
+Bill Williams introduced the Alligator in *Trading Chaos* (1995) as part of his broader chaos theory framework for trading. The metaphor is biological: markets alternate between feeding (trending) and sleeping (ranging) states, and the three moving averages at different timescales reveal which phase is active. The Jaw represents the long-term balance line (the "blue line" on most charting platforms), the Teeth the intermediate balance (red), and the Lips the short-term momentum (green). Williams paired the Alligator with Fractals for entry timing and the Awesome Oscillator for momentum confirmation, creating a complete systematic framework. The forward offsets are display-only transformations — the underlying SMMA calculation uses the current bar's price — but they create visual separation that makes trend direction immediately apparent on charts.
 
 ## Architecture & Physics
 
-The Alligator uses three SMMA (Smoothed Moving Average) lines, each with a different period and forward offset:
+### 1. Three-Line SMMA Structure
 
-| Line | Period | Offset | Color | Role |
-|------|--------|--------|-------|------|
-| **Jaw** | 13 | 8 | Blue | Slowest; shows long-term trend |
-| **Teeth** | 8 | 5 | Red | Medium; shows intermediate trend |
-| **Lips** | 5 | 3 | Green | Fastest; shows short-term momentum |
+Each line is an independent SMMA (Wilder's RMA) with $\alpha = 1/N$:
 
-### SMMA (Wilder's Smoothing)
+| Line | Period ($N$) | Display Offset | Role |
+|------|-------------|----------------|------|
+| Jaw | 13 | 8 bars forward | Long-term trend (slowest) |
+| Teeth | 8 | 5 bars forward | Intermediate trend |
+| Lips | 5 | 3 bars forward | Short-term momentum (fastest) |
 
-Each line uses Wilder's smoothing (also called RMA or SMMA), which is an EMA variant with $\alpha = 1/\text{period}$ instead of the standard $2/(\text{period}+1)$.
+### 2. SMMA Recursion
 
-$$ \text{SMMA}_t = \alpha \cdot \text{Price} + (1 - \alpha) \cdot \text{SMMA}_{t-1} $$
+$$\text{SMMA}_t = \frac{1}{N} \cdot P_t + \frac{N-1}{N} \cdot \text{SMMA}_{t-1}$$
 
-where $\alpha = 1/\text{period}$
+Equivalently using FMA notation:
 
-### Forward Offset
+$$\text{SMMA}_t = \text{FMA}(\text{SMMA}_{t-1},\; \tfrac{N-1}{N},\; \tfrac{1}{N} \cdot P_t)$$
 
-The offsets shift each line forward in time, creating visual separation that makes trend direction more apparent. This is a display-only transformation—the underlying SMMA calculation uses the current bar's price.
+### 3. Default Input
+
+Typical price (HLC/3):
+
+$$\text{Source} = \frac{H + L + C}{3}$$
+
+### 4. Forward Offset
+
+The offsets shift plotted values forward in time for display purposes only. The calculation itself is not shifted — the current SMMA value represents the current bar's computation.
+
+### 5. Complexity
+
+- **Time:** $O(1)$ per bar — three parallel SMMA updates
+- **Space:** $O(1)$ — three scalar states (no buffers needed)
+- **Warmup:** 13 bars (Jaw period, the slowest line)
 
 ## Mathematical Foundation
 
-For each line (Jaw, Teeth, Lips):
+### Parameters
 
-$$ \text{SMMA}(P, N) = \frac{\text{Price} + \text{SMMA}_{t-1} \cdot (N - 1)}{N} $$
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N_j$ | jawPeriod | 13 | $N_j \geq 1$ |
+| $O_j$ | jawOffset | 8 | $O_j \geq 0$ |
+| $N_t$ | teethPeriod | 8 | $N_t \geq 1$ |
+| $O_t$ | teethOffset | 5 | $O_t \geq 0$ |
+| $N_l$ | lipsPeriod | 5 | $N_l \geq 1$ |
+| $O_l$ | lipsOffset | 3 | $O_l \geq 0$ |
 
-Or equivalently using the recursive form:
+### Pseudo-code
 
-$$ \text{SMMA}_t = \frac{1}{N} \cdot \text{Price} + \frac{N-1}{N} \cdot \text{SMMA}_{t-1} $$
+```
+Initialize:
+  α_jaw = 1 / jawPeriod
+  α_teeth = 1 / teethPeriod
+  α_lips = 1 / lipsPeriod
+  jaw = teeth = lips = first source value
+  e_jaw = e_teeth = e_lips = 1.0   // bias compensation
 
-Default input is HLC/3 (typical price):
+On each bar (high, low, close, isNew):
+  if !isNew: restore previous state
 
-$$ \text{Source} = \frac{\text{High} + \text{Low} + \text{Close}}{3} $$
+  source = (high + low + close) / 3.0
 
-## Performance Profile
+  // SMMA updates with bias compensation
+  jaw = FMA(jaw, 1 - α_jaw, α_jaw × source)
+  e_jaw = e_jaw × (1 - α_jaw)
+  jaw_compensated = jaw / (1 - e_jaw)
 
-The implementation uses inline SMMA calculations with bias compensation for accurate warmup behavior.
+  teeth = FMA(teeth, 1 - α_teeth, α_teeth × source)
+  e_teeth = e_teeth × (1 - α_teeth)
+  teeth_compensated = teeth / (1 - e_teeth)
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 5ns | Per bar, all three lines. |
-| **Allocations** | 0 | Hot path is allocation-free. |
-| **Complexity** | O(1) | Three parallel SMMA updates. |
-| **Accuracy** | 10/10 | Matches TradingView exactly. |
-| **Timeliness** | 7/10 | SMMA is slower than standard EMA. |
-| **Overshoot** | 3/10 | Minimal overshoot; smooth response. |
-| **Smoothness** | 9/10 | SMMA provides excellent smoothing. |
+  lips = FMA(lips, 1 - α_lips, α_lips × source)
+  e_lips = e_lips × (1 - α_lips)
+  lips_compensated = lips / (1 - e_lips)
 
-## Trading Interpretation
-
-### Market Phases
-
-1. **Sleeping Alligator**: Lines are intertwined, crossing each other. The market is in consolidation. Avoid trading.
-
-2. **Awakening**: Lines begin to separate and align (Lips crosses Teeth crosses Jaw). A trend is starting.
-
-3. **Eating**: Lines are parallel and widely separated. Strong trend in progress. Follow the direction.
-
-4. **Sated**: Lines begin to converge again. The trend is weakening. Consider taking profits.
-
-### Entry Signals
-
-- **Buy**: Lips > Teeth > Jaw (all ascending, widely separated)
-- **Sell**: Lips < Teeth < Jaw (all descending, widely separated)
-
-### Filters
-
-- Avoid trading when lines are intertwined (sleeping)
-- Wait for clear separation before entering
-- Exit when lines begin to converge
-
-## Validation
-
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **QuanTAlib** | ✅ | Validated. |
-| **TradingView** | ✅ | Matches built-in Alligator. |
-| **MT4/MT5** | ✅ | Matches standard implementation. |
-| **Skender** | N/A | Not implemented. |
-| **TA-Lib** | N/A | Not implemented. |
-
-## Usage
-
-```csharp
-// Default parameters: Jaw(13,8), Teeth(8,5), Lips(5,3)
-var alligator = new Alligator();
-
-// Custom parameters
-var alligator = new Alligator(
-    jawPeriod: 13, jawOffset: 8,
-    teethPeriod: 8, teethOffset: 5,
-    lipsPeriod: 5, lipsOffset: 3
-);
-
-// Update with price bar
-alligator.Update(bar);
-
-// Access the three lines
-double jaw = alligator.Jaw.Value;
-double teeth = alligator.Teeth.Value;
-double lips = alligator.Lips.Value;
-
-// Offsets for plotting
-int jawOffset = alligator.JawOffset;   // 8
-int teethOffset = alligator.TeethOffset; // 5
-int lipsOffset = alligator.LipsOffset;   // 3
+  output:
+    Jaw   = jaw_compensated   (plot at bar + jawOffset)
+    Teeth = teeth_compensated (plot at bar + teethOffset)
+    Lips  = lips_compensated  (plot at bar + lipsOffset)
 ```
 
-## Related Indicators
+### Market Phase Detection
 
-- **Gator Oscillator**: Histogram showing separation between Alligator lines
-- **Fractals**: Williams' fractal patterns for entry timing
-- **AO (Awesome Oscillator)**: Momentum confirmation
-- **AC (Acceleration/Deceleration)**: Momentum acceleration
+| Phase | Line Configuration | Action |
+|-------|-------------------|--------|
+| Sleeping | Lines intertwined, crossing | No position; market is consolidating |
+| Awakening | Lines begin separating | Prepare for entry |
+| Eating (bullish) | Lips > Teeth > Jaw, all rising | Long; trend is strong |
+| Eating (bearish) | Lips < Teeth < Jaw, all falling | Short; trend is strong |
+| Sated | Lines converging | Take profits; trend weakening |
 
-## Common Pitfalls
+### Output Interpretation
 
-- **Ignoring the offset**: The offset is for plotting only. The current SMMA value represents the current bar's calculation, shifted forward for display.
-- **Trading during sleep**: Most losses occur when trading during consolidation phases.
-- **Premature entry**: Wait for clear separation, not just the first cross.
+- **Three values per bar:** Jaw, Teeth, Lips (each a smoothed price level)
+- **Separation width:** Proportional to trend strength
+- **Line ordering:** Determines trend direction
+- **Intertwining:** Signals consolidation — the highest-probability losing zone for trend followers
 
-## References
+## Resources
 
-- Williams, Bill. *Trading Chaos: Applying Expert Techniques to Maximize Your Profits*. John Wiley & Sons, 1995.
-- Williams, Bill. *New Trading Dimensions*. John Wiley & Sons, 1998.
+- Williams, B. — *Trading Chaos* (John Wiley & Sons, 1995)
+- Williams, B. — *New Trading Dimensions* (John Wiley & Sons, 1998)
+- PineScript reference: `alligator.pine` in indicator directory

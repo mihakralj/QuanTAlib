@@ -1,141 +1,114 @@
 # DECAYCHANNEL: Decay Min-Max Channel
 
-> "Price extremes have a half-life—the market forgets yesterday's drama at an exponential rate."
-
-Decay Channel is a price envelope that combines the absolute boundaries of Donchian Channels with an exponential decay mechanism. While Donchian Channels hold their width until an extreme exits the lookback window, Decay Channels allow the bands to effectively "forget" old extremes over time, converging towards the center. This creates a dynamic envelope that expands instantly on new volatility but contracts smoothly during consolidation, modeling the "half-life" of price memory.
+Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that expands instantly on new volatility but contracts smoothly during consolidation. While Donchian Channels hold their width until an extreme exits the lookback window, Decay Channel allows the bands to "forget" old extremes over time using a half-life model. The period parameter serves as the half-life: after that many bars without a new extreme, the band has decayed 50% of the distance back toward center. The decayed values are always clamped within Donchian bounds, ensuring they never extrapolate beyond actual price history.
 
 ## Historical Context
 
-The Decay Channel is a QuanTAlib innovation that applies principles from physics—specifically **radioactive decay** and **Newton's Law of Cooling**—to price channel construction. The concept emerged from the observation that standard Donchian Channels exhibit a discontinuous "cliff edge" behavior: bands remain static until an old extreme exits the lookback window, then jump abruptly.
+The Decay Channel is a QuanTAlib design that applies principles from physics — specifically radioactive decay and Newton's Law of Cooling — to price channel construction. Standard Donchian Channels exhibit a discontinuous "cliff edge" behavior: bands remain static until an old extreme exits the lookback window, then jump abruptly. This doesn't reflect how markets work: traders naturally give less weight to older price extremes as time passes.
 
-This behavior doesn't reflect how markets actually work. Traders naturally give less weight to older price extremes as time passes. The Decay Channel formalizes this intuition using the exponential decay function, where the `period` parameter serves as the "half-life"—the number of bars after which an extreme's influence is reduced by 50%.
-
-The mathematical foundation draws from the decay constant λ = ln(2)/T, the same formula used in carbon dating and thermal cooling calculations. This creates bands that behave more like a physical system with memory—instantly responsive to new extremes, but gradually relaxing during consolidation.
+The mathematical foundation uses the decay constant $\lambda = \ln(2)/T$, the same formula used in carbon dating and thermal cooling. A signal extreme from $T$ bars ago retains exactly half its influence on band width. This produces asymmetric behavior that matches market reality: breakouts are sudden (bands snap to new extremes), consolidations are gradual (bands decay smoothly).
 
 ## Architecture & Physics
 
-The system models price extremes as energetic events that decay over time, similar to **Newton's Law of Cooling** or radioactive decay.
+### 1. Decay Constant
 
-1. **Price Extremes:** The outer boundaries are constrained by the actual Highest High and Lowest Low (Donchian Channel) over the `Period`.
-2. **Exponential Decay:** When a new extreme is not established, the band decays towards the midpoint.
-3. **Radioactive Half-Life:** The decay rate ($\lambda$) is calibrated such that the influence of an extreme reduces by 50% over the specified `Period`.
+$$\lambda = \frac{\ln 2}{\text{period}}$$
 
-### Formula
+### 2. Extreme Tracking
 
-The decay constant $\lambda$ is derived from the half-life formula:
-$$\lambda = \frac{\ln(2)}{Period}$$
+For each bar, the algorithm tracks how many bars have elapsed since the last new high (or low):
 
-For each bar, if a new raw extreme is not found, the band decays:
-$$Age = \text{Bars since last extreme}$$
-$$Factor = e^{-\lambda \times Age}$$
-$$DecayedMax = Midpoint + Factor \times (max_{initial} - Midpoint)$$
+- If $H_t \geq \text{currentMax}$: snap $\text{currentMax} = H_t$, reset $\text{age}_{\max} = 0$
+- Otherwise: increment $\text{age}_{\max}$
 
-The final upper/lower bands are clamped:
-$$Upper = \min(DecayedMax, DonchianUpper)$$
-$$Lower = \max(DecayedMin, DonchianLower)$$
-$$Middle = \frac{Upper + Lower}{2}$$
+Symmetric logic for the minimum.
 
-## Calculation Steps
+### 3. Exponential Decay Toward Midpoint
 
-1. **Update Extremes:** Compute the raw Highest High and Lowest Low for the `Period` using efficient Monotonic Deques.
-2. **Track Age:** If the current High $\ge$ Raw Max, reset Max Age to 0. Otherwise, increment Age.
-3. **Apply Decay:** Calculate the exponential decay factor based on Age.
-4. **Constrain:** Ensure the Decayed value does not exceed the Raw Donchian bounds (e.g., Upper band cannot be higher than the highest high).
-5. **Compute Midpoint:** Average the constrained Upper and Lower bands.
+When no new extreme occurs, the band decays toward the channel midpoint:
 
-## Performance Profile
+$$\text{decayRate} = 1 - e^{-\lambda \cdot \text{age}}$$
 
-The implementation balances the computational cost of transcendental functions (`Math.Exp`) with efficient memory management for the sliding window extremes.
+$$\text{midpoint} = \frac{\text{currentMax} + \text{currentMin}}{2}$$
 
-### Operation Count (Streaming Mode, per Bar)
+$$\text{currentMax} \leftarrow \text{currentMax} - \text{decayRate} \cdot (\text{currentMax} - \text{midpoint})$$
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| CMP (Deque extremes) | 3 | 1 | 3 |
-| EXP (Decay factor) | 2 | 15 | 30 |
-| MUL | 2 | 3 | 6 |
-| ADD/SUB | 2 | 1 | 2 |
-| MIN/MAX | 2 | 1 | 2 |
-| **Total** | **11** | — | **~43 cycles** |
+$$\text{currentMin} \leftarrow \text{currentMin} - \text{decayRate} \cdot (\text{currentMin} - \text{midpoint})$$
 
-### Complexity Analysis
+### 4. Donchian Clamping
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Amortized via monotonic deque |
-| Batch | O(n) | FMA optimization for decay |
+The decayed values are constrained to never exceed the raw Donchian extremes:
 
-## Validation
+$$\text{Upper} = \min(\text{currentMax},\; \text{DonchianUpper})$$
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **Donchian** | ✅ | Decay bands never exceed Donchian bounds |
-| **Mathematical** | ✅ | Value decays exactly 50% towards mean after `Period` bars |
-| **QuanTAlib** | ✅ | Original implementation |
+$$\text{Lower} = \max(\text{currentMin},\; \text{DonchianLower})$$
 
-## Usage & Pitfalls
+### 5. Complexity
 
-- **Half-Life Interpretation:** The `period` parameter is the half-life, not a lookback window. After `period` bars without a new extreme, the band has decayed 50% towards center.
-- **Asymmetric Behavior:** Bands snap instantly to new extremes but decay gradually. This asymmetry is intentional—it models how markets accept new price levels quickly but forget old extremes slowly.
-- **Requires High/Low:** The indicator uses bar High/Low for extremes, not close prices. Ensure your data includes these fields.
-- **Bar Correction:** Use `isNew=false` when updating the current bar's value, `isNew=true` for new bars.
-- **Donchian Constraint:** Decayed bands are always within Donchian bounds—useful for confirmation that bands aren't artificially extended.
-- **Consolidation Detection:** Narrow bands (Upper ≈ Lower) indicate extended consolidation where old extremes have fully decayed.
+The Donchian scan is $O(n)$ per bar in the reference implementation (loop over the buffer). The decay computation adds 2 exponentials per bar. Total: $O(n)$ per bar.
 
-## API
+## Mathematical Foundation
 
-```mermaid
-classDiagram
-    class Decaychannel {
-        +Decaychannel(int period)
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +TValue Update(TBar bar)
-        +void Reset()
-    }
+### Parameters
+
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Half-life in bars and Donchian lookback window | 100 | $> 0$ |
+
+### Half-Life Property
+
+After $T$ bars without a new extreme, the band has decayed exactly 50% of the distance from its initial position to the midpoint:
+
+$$\text{decayRate}(T) = 1 - e^{-\lambda T} = 1 - e^{-\ln 2} = 0.5$$
+
+After $2T$ bars: 75% decay. After $3T$ bars: 87.5% decay.
+
+### Pseudo-code
+
+```
+function DECAYCHANNEL(high, low, period):
+    validate: period > 0
+    lambda = ln(2) / period
+
+    // Scan buffer for Donchian bounds
+    periodMax = max(high_buffer over period)
+    periodMin = min(low_buffer over period)
+    periodAvg = avg(midpoints over period)
+
+    // Snap or age
+    if high ≥ currentMax:
+        currentMax = high; ageMax = 0
+    else:
+        ageMax += 1
+
+    if low ≤ currentMin:
+        currentMin = low; ageMin = 0
+    else:
+        ageMin += 1
+
+    // Decay toward midpoint
+    midpoint = (currentMax + currentMin) / 2
+    maxDecay = 1 - exp(-lambda * ageMax)
+    minDecay = 1 - exp(-lambda * ageMin)
+    currentMax -= maxDecay * (currentMax - midpoint)
+    currentMin -= minDecay * (currentMin - midpoint)
+
+    // Clamp to Donchian bounds
+    currentMax = min(currentMax, periodMax)
+    currentMin = max(currentMin, periodMin)
+
+    return [currentMax, currentMin]
 ```
 
-### Class: `Decaychannel`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | Lookback window for extremes and half-life calculation. |
+| Output | Description |
+|--------|-------------|
+| `upper` | Decayed high (resistance that fades with time) |
+| `lower` | Decayed low (support that fades with time) |
 
-### Properties
+## Resources
 
-| Name | Type | Description |
-|---|---|---|
-| `Last` | `TValue` | The Middle Band value. |
-| `Upper` | `TValue` | The Decayed Upper Band. |
-| `Lower` | `TValue` | The Decayed Lower Band. |
-| `IsHot` | `bool` | Returns `true` when the indicator has processed enough bars to cover the `period`. |
-
-### Methods
-
-- `Update(TBar bar)`: Updates the indicator with a new bar (High/Low required).
-- `Reset()`: Clears all historical data, deques, and decay timers.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// 1. Initialize with a 20-bar half-life
-var decay = new Decaychannel(period: 20);
-
-// 2. Stream data
-var bars = GetHistory();
-foreach (var bar in bars)
-{
-    decay.Update(bar);
-    
-    // The Upper band will be lower than a standard 20-period Donchian 
-    // if no new highs have occurred recently.
-    if (bar.Close > decay.Upper.Value)
-    {
-        Console.WriteLine("Breakout over decayed resistance");
-    }
-}
-```
+- **Rutherford, E.** "Radioactive Substances and their Radiations." Cambridge University Press, 1913. (Exponential decay / half-life mathematics)
+- **Newton, I.** "Scala Graduum Caloris." *Philosophical Transactions*, 1701. (Newton's Law of Cooling)
+- **Donchian, R.** "High Finance in Copper." *Financial Analysts Journal*, 1960. (Donchian Channel predecessor)

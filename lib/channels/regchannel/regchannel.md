@@ -1,229 +1,142 @@
 # REGCHANNEL: Linear Regression Channel
 
-> "Linear regression isn't about predicting the future—it's about understanding where price *should* be given recent history, and measuring how far it's strayed."
-
-The Linear Regression Channel (REGCHANNEL) plots a best-fit line through price data over a specified period, with parallel bands at a configurable standard deviation distance. This implementation uses ordinary least squares (OLS) regression with population standard deviation of residuals, providing a statistically grounded view of trend direction and price deviation.
+Linear Regression Channel plots a best-fit line through price data over a specified period with parallel bands at a configurable standard deviation of residuals. Unlike moving average envelopes that offset from a smoothed price, regression channels adapt their slope to the underlying trend and their width to actual dispersion around that trend. The algorithm uses ordinary least squares with precomputed index sums, requiring two passes per bar: one for the regression coefficients and one for the residual standard deviation.
 
 ## Historical Context
 
-Linear regression channels emerged from basic statistical analysis applied to financial markets. The concept combines two fundamental statistical tools: linear regression (fitting a line to minimize squared errors) and standard deviation (measuring dispersion around that line).
+Linear regression channels emerged from basic statistical methods applied to financial markets in the 1980s and 1990s. Gilbert Raff popularized "Raff Regression Channels" which use the same concept: fit a line, measure how far price wanders from it, and draw parallel bands at that distance.
 
-Unlike moving average envelopes that simply offset from a smoothed price, regression channels adapt their slope to the underlying trend and their width to actual price volatility around that trend. This makes them particularly useful for identifying when prices have deviated significantly from their recent trajectory.
+The key insight separating regression channels from moving average envelopes: a moving average treats all recent prices equally, while linear regression fits a line that best explains the directional trend. The residuals (actual minus predicted) measure how much price deviates from this trajectory. When prices consistently touch the upper band, the trend is accelerating; when they compress toward the regression line, momentum is fading.
 
-The indicator is functionally identical to SDCHANNEL but uses "Regchannel" naming convention, which may be preferred in some trading platforms and literature.
+REGCHANNEL and SDCHANNEL implement identical algorithms. The distinction is purely naming convention: some platforms and literature label the indicator "Regression Channel" while others use "Standard Deviation Channel." Both compute OLS regression with population standard deviation of residuals.
 
 ## Architecture & Physics
 
 ### 1. Sliding Window Buffer
 
-The indicator maintains a rolling window of the most recent `period` price values:
+The indicator maintains a rolling window of the most recent $n$ price values:
 
 $$
-W_t = \{P_{t-n+1}, P_{t-n+2}, \ldots, P_t\}
+W_t = \{P_{t-n+1},\; P_{t-n+2},\; \ldots,\; P_t\}
 $$
 
-where $n = \min(t+1, \text{period})$. During warmup ($t < \text{period}$), all available values are used.
+### 2. Linear Regression via Normal Equations
 
-### 2. Linear Regression via Least Squares
-
-For each update, the indicator computes the best-fit line $y = mx + b$ using the normal equations:
+For each update, the best-fit line $y = mx + b$ is computed using time indices $x_i = i$ and prices $y_i = P_i$:
 
 $$
-m = \frac{n \sum_{i=0}^{n-1} x_i y_i - \sum_{i=0}^{n-1} x_i \sum_{i=0}^{n-1} y_i}{n \sum_{i=0}^{n-1} x_i^2 - \left(\sum_{i=0}^{n-1} x_i\right)^2}
+m = \frac{n \sum x_i y_i - \sum x_i \sum y_i}{n \sum x_i^2 - \left(\sum x_i\right)^2}
 $$
 
 $$
-b = \frac{\sum_{i=0}^{n-1} y_i - m \sum_{i=0}^{n-1} x_i}{n}
+b = \frac{\sum y_i - m \sum x_i}{n}
 $$
 
-where $x_i = i$ (time index) and $y_i = P_i$ (price at that index).
-
-### 3. Regression Value Calculation
-
-The middle line value at the current bar (rightmost point of the regression line):
+The middle band value is the regression line evaluated at the rightmost point:
 
 $$
-\text{Middle}_t = m \cdot (n-1) + b
+\text{Middle}_t = m \cdot (n - 1) + b
 $$
 
-This represents the expected price based on the linear trend through the window.
+### 3. Standard Deviation of Residuals
 
-### 4. Standard Deviation of Residuals
-
-The indicator computes population standard deviation of the residuals (differences between actual and predicted values):
+The population standard deviation of the differences between actual and predicted values:
 
 $$
-\sigma_t = \sqrt{\frac{\sum_{i=0}^{n-1} (y_i - \hat{y}_i)^2}{n}}
+\sigma_t = \sqrt{\frac{1}{n} \sum_{i=0}^{n-1} \left(y_i - (m \cdot i + b)\right)^2}
 $$
 
-where $\hat{y}_i = m \cdot i + b$ is the predicted value at position $i$.
+### 4. Band Construction
 
-### 5. Channel Bands
-
-Upper and lower bands are placed at a configurable multiple of the standard deviation:
+Upper and lower bands at a configurable multiple $k$ of the residual standard deviation:
 
 $$
-\text{Upper}_t = \text{Middle}_t + k \cdot \sigma_t
+U_t = \text{Middle}_t + k \cdot \sigma_t
 $$
 
 $$
-\text{Lower}_t = \text{Middle}_t - k \cdot \sigma_t
+L_t = \text{Middle}_t - k \cdot \sigma_t
 $$
 
-where $k$ is the multiplier parameter (default 2.0).
+### 5. Complexity
+
+Per bar: $O(n)$ due to two loops over the window (one for sums, one for residuals). Memory: a ring buffer of $n$ doubles. The index sums $\sum x$ and $\sum x^2$ are constants for fixed $n$ and can be precomputed at construction.
 
 ## Mathematical Foundation
 
-### Efficient Computation Using Running Sums
+### Parameters
 
-Rather than recalculating sums from scratch each bar, the implementation maintains running sums and adjusts them incrementally. For a sliding window of size $n$:
+| Symbol | Name | Default | Constraint | Description |
+|--------|------|---------|------------|-------------|
+| $n$ | period | 20 | $> 1$ | Lookback window for regression |
+| $k$ | multiplier | 2.0 | $> 0$ | Stddev multiplier for band width |
 
-- $\sum x = 0 + 1 + \ldots + (n-1) = \frac{n(n-1)}{2}$
-- $\sum x^2 = 0^2 + 1^2 + \ldots + (n-1)^2 = \frac{n(n-1)(2n-1)}{6}$
+### Precomputed Constants
 
-These are constants for a fixed period, computed once at construction.
-
-### Denominator and Numerical Stability
-
-The denominator in the slope calculation:
+For a fixed period $n$, the index sums are constants:
 
 $$
-D = n \sum x^2 - \left(\sum x\right)^2
+\sum_{i=0}^{n-1} i = \frac{n(n-1)}{2}, \qquad \sum_{i=0}^{n-1} i^2 = \frac{n(n-1)(2n-1)}{6}
 $$
 
-For $n \geq 2$, this is always positive, ensuring numerical stability. The implementation guards against $D = 0$ (which can only occur for $n = 1$).
-
-### Residual Calculation
-
-For each point in the window:
-
 $$
-r_i = y_i - (m \cdot i + b)
+D = n \sum i^2 - \left(\sum i\right)^2
 $$
 
-The sum of squared residuals:
+For $n \geq 2$, $D > 0$ always, ensuring numerical stability.
 
-$$
-\text{SSR} = \sum_{i=0}^{n-1} r_i^2
-$$
+### Pseudo-code
 
-## Performance Profile
+```
+function regchannel(source[], period, multiplier):
+    buf = ring_buffer(period)
+    sum_x  = period * (period - 1) / 2
+    sum_x2 = period * (period - 1) * (2 * period - 1) / 6
+    denom  = period * sum_x2 - sum_x * sum_x
 
-### Operation Count (Streaming Mode, Scalar)
+    for each bar t:
+        buf.add(source[t])
+        n = buf.count
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/SUB | ~3n+15 | 1 | ~3n+15 |
-| MUL | ~2n+10 | 3 | ~6n+30 |
-| DIV | 4 | 15 | 60 |
-| SQRT | 1 | 15 | 15 |
-| Ring buffer ops | 2 | 5 | 10 |
-| **Total** | — | — | **~9n+130** |
+        // pass 1: accumulate sums for regression
+        sum_y  = 0
+        sum_xy = 0
+        for i = 0 to n-1:
+            y = buf[i]
+            sum_y  += y
+            sum_xy += i * y
 
-For period=20: approximately 310 cycles per bar.
+        slope     = (n * sum_xy - sum_x * sum_y) / denom
+        intercept = (sum_y - slope * sum_x) / n
+        middle    = slope * (n - 1) + intercept
 
-### Quality Metrics
+        // pass 2: residual standard deviation
+        ssr = 0
+        for i = 0 to n-1:
+            predicted = slope * i + intercept
+            residual  = buf[i] - predicted
+            ssr += residual * residual
 
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Exact OLS regression; population σ |
-| **Timeliness** | 7/10 | Inherent lag from lookback window |
-| **Smoothness** | 8/10 | Regression naturally smooths |
-| **Responsiveness** | 6/10 | Slower to react than EMA-based channels |
+        stddev = sqrt(ssr / n)
+        upper  = middle + multiplier * stddev
+        lower  = middle - multiplier * stddev
 
-## Validation
-
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **TA-Lib** | N/A | No direct equivalent |
-| **Skender** | N/A | No direct equivalent |
-| **Tulip** | N/A | No direct equivalent |
-| **Manual** | ✅ | Verified against hand calculations |
-
-Linear regression channels are not commonly found in standard TA libraries with this exact specification. Validation relies on mathematical verification against known formulas.
-
-## Usage & Pitfalls
-
-- **Warmup Period**: The indicator requires `period` bars to reach full accuracy. During warmup, it uses all available data but may produce different results than post-warmup.
-- **Slope Interpretation**: A positive slope indicates uptrend within the window; negative indicates downtrend. The magnitude indicates trend strength.
-- **Band Width = 0**: When prices fall perfectly on a line (zero residuals), bands collapse to the middle line. This is mathematically correct but visually unexpected.
-- **Standard Deviation Choice**: This implementation uses population σ (dividing by n), not sample σ (dividing by n-1). Some implementations differ.
-- **Memory Footprint**: Each instance requires a RingBuffer of `period` doubles (~8 bytes each) plus state structs (~80 bytes). For period=20: ~240 bytes per instance.
-- **isNew Parameter**: When `isNew=false`, the indicator rolls back to the previous state before incorporating the update. This enables bar correction without state accumulation errors.
-
-## API
-
-```mermaid
-classDiagram
-    class Regchannel {
-        +string Name
-        +int WarmupPeriod
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +double Slope
-        +double StdDev
-        +bool IsHot
-        +Regchannel(int period, double multiplier)
-        +Regchannel(TSeries source, int period, double multiplier)
-        +TValue Update(TValue input, bool isNew)
-        +Tuple~TSeries,TSeries,TSeries~ Update(TSeries source)
-        +void Prime(TSeries source)
-        +void Reset()
-        +static void Batch(ReadOnlySpan~double~ source, Span~double~ middle, Span~double~ upper, Span~double~ lower, int period, double multiplier)
-        +static Tuple~TSeries,TSeries,TSeries~ Batch(TSeries source, int period, double multiplier)
-        +static Tuple~Tuple~TSeries,TSeries,TSeries~,Regchannel~ Calculate(TSeries source, int period, double multiplier)
-    }
+        emit (upper, middle, lower)
 ```
 
-### Class: `Regchannel`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `20` | `>1` | Lookback period for linear regression calculation. |
-| `multiplier` | `double` | `2.0` | `>0` | Standard deviation multiplier for band width. |
+| Output | Interpretation |
+|--------|---------------|
+| Positive slope | Uptrend within the window |
+| Negative slope | Downtrend within the window |
+| $\sigma \to 0$ | Price perfectly linear; bands collapse to the regression line |
+| Price at upper band | Overextended above trend (mean-reversion signal) |
+| Price at lower band | Overextended below trend |
+| Band width expanding | Increasing residual dispersion; trend becoming noisy |
 
-### Properties
+## Resources
 
-- `Last` (`TValue`): The current linear regression value (middle line).
-- `Upper` (`TValue`): The upper band (regression + multiplier × σ).
-- `Lower` (`TValue`): The lower band (regression - multiplier × σ).
-- `Slope` (`double`): The slope of the linear regression line.
-- `StdDev` (`double`): The standard deviation of residuals.
-- `IsHot` (`bool`): Returns `true` when warmup period is complete.
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new value and returns the result.
-- `Update(TSeries source)`: Processes an entire series and returns (Middle, Upper, Lower) tuple of TSeries.
-- `Prime(TSeries source)`: Initializes internal state from historical data.
-- `Reset()`: Resets the indicator to its initial state.
-- `Batch(...)`: Static method for span-based batch processing.
-- `Calculate(TSeries source, int period, double multiplier)`: Static factory that returns results and indicator instance.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize
-var regchannel = new Regchannel(period: 20, multiplier: 2.0);
-
-// Update Loop
-foreach (var bar in quotes)
-{
-    var result = regchannel.Update(bar.Close);
-
-    // Use valid results
-    if (regchannel.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2}, Upper={regchannel.Upper.Value:F2}, Lower={regchannel.Lower.Value:F2}, Slope={regchannel.Slope:F4}");
-    }
-}
-```
-
-## References
-
-- Draper, N.R. & Smith, H. (1998). "Applied Regression Analysis." Wiley.
-- Murphy, J.J. (1999). "Technical Analysis of the Financial Markets." New York Institute of Finance.
-- PineScript Reference: Linear Regression implementation patterns.
+- Raff, G. (1991). "Trading the Regression Channel." *Technical Analysis of Stocks & Commodities*.
+- Draper, N. & Smith, H. (1998). *Applied Regression Analysis*. Wiley.
+- Kaufman, P. (2013). *Trading Systems and Methods*, 5th ed. Wiley.

@@ -1,129 +1,79 @@
 # CG: Ehlers Center of Gravity
 
-> "The market's center of mass reveals where momentum shifts before price does."
-
-The Center of Gravity (CG) oscillator identifies potential turning points in price action using the physics concept of weighted center of mass. Developed by John Ehlers, it measures where the "weight" of prices is concentrated within a lookback window, providing leading signals for trend reversals with minimal lag.
+CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window. Developed by John Ehlers, the oscillator measures where the "weight" of prices is concentrated within a lookback period, producing a leading indicator that oscillates around zero with minimal lag compared to traditional moving average crossover systems.
 
 ## Historical Context
 
-John Ehlers introduced the Center of Gravity oscillator in his 2002 book *Cybernetic Analysis for Stocks and Futures*. Ehlers, an electrical engineer turned trader, applied signal processing concepts to financial markets, focusing on creating indicators with minimal lag.
-
-The CG oscillator draws directly from physics: just as the center of gravity of an object determines its balance point, the CG of price determines where momentum is balanced within a window. Ehlers designed it to be a leading indicator, contrasting it with the inherent lag of traditional moving averages.
+John Ehlers introduced the Center of Gravity oscillator in *Cybernetic Analysis for Stocks and Futures* (2002). Drawing from classical mechanics, the indicator applies the concept that the center of mass of a distribution reveals its balance point. In the price context, the CG identifies where momentum is concentrated within a sliding window. Unlike momentum oscillators that differentiate price (and amplify noise), CG integrates position-weighted price, providing smoother turning point detection. The indicator's leading characteristic arises from the weighting scheme: as new prices shift the balance point, the CG responds before the window's simple average would.
 
 ## Architecture & Physics
 
-The indicator calculates a weighted center of mass that oscillates around zero using a sliding window.
-
 ### 1. Weighted Sum (Numerator)
 
-$$
-Num = \sum_{i=1}^{n} i \cdot P_{t-n+i}
-$$
+Position-weighted accumulation over the lookback window:
 
-where $i$ ranges from 1 (oldest) to $n$ (newest), giving more weight to recent data.
+$$Num = \sum_{i=1}^{n} i \cdot P_{t-n+i}$$
+
+where $i$ ranges from 1 (oldest) to $n$ (newest), giving linearly increasing weight to more recent data.
 
 ### 2. Simple Sum (Denominator)
 
-$$
-Den = \sum_{i=1}^{n} P_{t-n+i}
-$$
+$$Den = \sum_{i=1}^{n} P_{t-n+i}$$
 
 ### 3. Center of Gravity
 
-$$
-CG_t = \frac{Num}{Den} - \frac{n + 1}{2}
-$$
+$$CG_t = \frac{Num}{Den} - \frac{n + 1}{2}$$
 
-The term $\frac{n + 1}{2}$ represents the geometric center of the window, centering the indicator around zero.
+The term $\frac{n + 1}{2}$ is the geometric center of the window, centering the output around zero. When recent prices dominate, $CG > 0$ (bullish); when older prices dominate, $CG < 0$ (bearish).
 
-## Performance Profile
+### 4. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+Streaming uses running sums for both numerator and denominator: $O(1)$ per bar with $O(n)$ memory for the ring buffer.
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD (running sum update) | 2 | 1 | 2 |
-| SUB (oldest value removal) | 2 | 1 | 2 |
-| MUL (weight × price) | 1 | 3 | 3 |
-| DIV (Num / Den) | 1 | 15 | 15 |
-| **Total** | **6** | — | **~22 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(1) per bar using running sums
-- **Memory:** O(n) for RingBuffer storage
-- **Warmup:** n bars required
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback window length | 10 | $> 0$ |
 
-## Validation
+### Pseudo-code
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | N/A | Not standard in TA-Lib |
-| Skender | N/A | Not standard in Skender.Stock.Indicators |
-| PineScript | ✅ | Validated against `ta.cg()` |
+```
+function CG(source, period):
+    buffer ← RingBuffer(period)
+    runNum ← 0       // weighted sum
+    runDen ← 0       // simple sum
 
-## Usage & Pitfalls
+    for each price in source:
+        buffer.Add(price)
+        if buffer.Count < period: continue
 
-- **Zero crossing** signals shift in momentum balance—bullish when crossing up, bearish when crossing down
-- **Positive values** indicate weight concentrated in recent prices (uptrend)
-- **Negative values** indicate weight concentrated in older prices (downtrend)
-- **Period of 10** is standard—smaller periods increase noise, larger periods add lag
-- **Strong trends** cause CG to hang at extremes; wait for zero crossing for reversal confirmation
-- **Pair with trigger line** (1-bar delay or small SMA) to reduce whipsaws
+        // Compute from buffer (or maintain running sums)
+        num = 0
+        den = 0
+        for i = 0 to period-1:
+            w = i + 1
+            num += w * buffer[i]
+            den += buffer[i]
 
-## API
+        cg = (den ≠ 0) ? (num / den) - (period + 1) / 2.0 : 0
 
-```mermaid
-classDiagram
-    class Cg {
-        +int Period
-        +double Value
-        +bool IsHot
-        +Cg(int period)
-        +Cg(ITValuePublisher source, int period)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+        emit cg
 ```
 
-### Class: `Cg`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `10` | `>0` | Lookback window for CG calculation |
+| Condition | Meaning |
+|-----------|---------|
+| $CG > 0$ | Weight concentrated in recent prices (bullish momentum) |
+| $CG < 0$ | Weight concentrated in older prices (bearish momentum) |
+| Zero crossing up | Momentum shifting bullish |
+| Zero crossing down | Momentum shifting bearish |
+| Hanging at extremes | Strong trend in progress |
 
-### Properties
+## Resources
 
-- `Value` (`double`): The current CG value (oscillates around 0)
-- `IsHot` (`bool`): Returns `true` when warmup period is complete
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create a 10-period CG indicator
-var cg = new Cg(period: 10);
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = cg.Update(new TValue(bar.Date, bar.Close));
-    
-    if (cg.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: CG = {result.Value:F4}");
-        
-        // Signal detection
-        if (result.Value > 0 && cg.Previous.Value <= 0)
-            Console.WriteLine("  → Bullish crossover");
-    }
-}
-
-// Batch calculation
-var output = Cg.Calculate(sourceSeries, period: 10);
-```
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2002.
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

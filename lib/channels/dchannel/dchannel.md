@@ -1,177 +1,86 @@
 # DCHANNEL: Donchian Channels
 
-> "The Turtles made millions with a simple rule: buy the 20-day high, sell the 20-day low."
-
-Donchian Channels are a price envelope indicator that tracks the highest high and lowest low over a specific lookback period. Unlike volatility-based bands (like Bollinger Bands) which rely on statistical dispersion, Donchian Channels represent actual historical price extremes—they define the "price box" in which the asset has traded. This implementation uses monotonic deques for O(1) amortized updates, making it scalable to long lookback periods and high-frequency data feeds.
+Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset has traded. Unlike volatility-based bands that compute statistical dispersion, Donchian Channels represent actual historical extremes — the literal "price box." The implementation uses monotonic deques for $O(1)$ amortized sliding-window max/min, ensuring that computing a 500-period channel costs no more than a 20-period one. The midpoint of the upper and lower bands serves as a simple trend bias indicator.
 
 ## Historical Context
 
-**Richard Donchian** developed this indicator in the 1960s while managing one of the first publicly held commodity funds. Known as the "father of trend following," Donchian pioneered systematic trading approaches in an era dominated by discretionary methods.
+Richard Donchian developed this channel in the 1960s while managing one of the first publicly held commodity funds. Known as the "father of trend following," Donchian pioneered systematic trading in an era dominated by discretionary methods. His "4-week rule" (buy on a 20-day high, sell on a 20-day low) became one of the earliest documented mechanical trading systems.
 
-The indicator gained legendary status through the **Turtle Trading** experiment in 1983. Richard Dennis and William Eckhardt recruited novice traders and taught them a mechanical system built on channel breakouts. The Turtles reportedly made over $100 million. Curtis Faith's 2007 book *Way of the Turtle* revealed the core system: enter on 20-day breakouts, exit on 10-day counter-breakouts.
-
-Donchian's "4-week rule" (buy on 20-day high, sell on 20-day low) became the foundation for systematic trend-following. The simplicity is the feature: no predictions, no indicators—just price breaking through defined boundaries.
+The indicator achieved legendary status through the Turtle Trading experiment in 1983. Richard Dennis and William Eckhardt recruited novice traders and taught them a mechanical system built on channel breakouts. The Turtles reportedly earned over $100 million. Curtis Faith's *Way of the Turtle* (2007) revealed the core system: enter on 20-day breakouts, exit on 10-day counter-breakouts. The simplicity is the feature: no predictions, no fitting, no optimization — just price breaking through defined boundaries.
 
 ## Architecture & Physics
 
-The physics of Donchian Channels is based on **Price Extremes** within a sliding time window. It answers the question: "What are the absolute boundaries of recent price action?"
+### 1. Upper Band (Sliding Window Maximum)
 
-### Monotonic Deque Algorithm
+$$\text{Upper}_t = \max_{i=0}^{n-1}(H_{t-i})$$
 
-Most implementations scan the entire lookback window for every bar, resulting in $O(N \times P)$ complexity (where $P$ is period). QuanTAlib uses **Monotonic Deques** to maintain the maximum and minimum candidates in sorted order.
+### 2. Lower Band (Sliding Window Minimum)
 
-1. **Efficiency:** This reduces the complexity to **Amortized O(1)**.
-2. **Scalability:** Calculating a 500-period channel takes the same CPU time as a 20-period channel.
+$$\text{Lower}_t = \min_{i=0}^{n-1}(L_{t-i})$$
 
-### Calculation Steps
+### 3. Middle Band
 
-#### 1. Upper Band (Highest High)
+$$\text{Middle}_t = \frac{\text{Upper}_t + \text{Lower}_t}{2}$$
 
-$$
-\text{Upper}_t = \max_{i=0}^{n-1}(H_{t-i})
-$$
+### 4. Monotonic Deque Algorithm
 
-#### 2. Lower Band (Lowest Low)
+The naive approach scans the entire window for each bar: $O(n)$ per update. The monotonic deque (also called a sliding window max/min queue) maintains candidates in sorted order:
 
-$$
-\text{Lower}_t = \min_{i=0}^{n-1}(L_{t-i})
-$$
+**For the max deque (upper band):**
 
-#### 3. Middle Band
+1. Remove indices outside the window from the front
+2. Remove values $\leq$ current High from the back (they can never be the maximum again)
+3. Push current index to the back
+4. The front element is always the maximum
 
-$$
-\text{Middle}_t = \frac{\text{Upper}_t + \text{Lower}_t}{2}
-$$
+Each element enters exactly once and exits at most once, yielding $O(1)$ amortized per bar over any sequence of $N$ updates.
 
-Where $n$ = period (default: 20).
+### 5. Stale Extremes
 
-### Deque Maintenance
+The bands stay flat until either a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars is waiting for new information. This piecewise-constant behavior is the defining characteristic: unlike smoothed envelopes, Donchian Channels are discontinuous, stepping only at regime transitions.
 
-For each new bar:
+## Mathematical Foundation
 
-1. **Upper Band (Max Deque):**
-   - Remove indices outside the window from the front
-   - Remove values smaller than the current High from the back
-   - Add current High to the back
-   - Front element is the highest high
+### Parameters
 
-2. **Lower Band (Min Deque):**
-   - Remove indices outside the window from the front
-   - Remove values larger than the current Low from the back
-   - Add current Low to the back
-   - Front element is the lowest low
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback window for high/low extremes ($n$) | 20 | $> 0$ |
 
-**Amortized Analysis:** Each element enters the deque once and leaves at most once. Total work for $N$ bars is $O(N)$, yielding $O(1)$ amortized per bar.
+### Pseudo-code
 
-## Performance Profile
+```
+function DCHANNEL(high, low, period):
+    validate: period > 0
 
-The implementation is highly optimized using the Monotonic Deque pattern, solving the performance bottleneck common in "sliding window max/min" problems.
+    // Monotonic deque for max (upper band)
+    while max_deque.front is outside window: pop front
+    while max_deque.back value ≤ high: pop back
+    push high to max_deque back
+    upper = max_deque.front value
 
-### Operation Count - Single value
+    // Monotonic deque for min (lower band)
+    while min_deque.front is outside window: pop front
+    while min_deque.back value ≥ low: pop back
+    push low to min_deque back
+    lower = min_deque.front value
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| CMP (deque maint.) | ~4 | 1 | ~4 |
-| ADD (index/middle) | 2 | 1 | 2 |
-| MUL (middle) | 1 | 3 | 3 |
-| Deque ops | ~2 | 1 | ~2 |
-| **Total** | **~9** | — | **~11 cycles** |
+    middle = (upper + lower) / 2
 
-**Complexity:** O(1) amortized per bar.
-
-### Operation Count - Batch processing
-
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| Deque maintenance | ~6N | N/A | 1× |
-| Middle calculation | N | N/8 | 8× |
-
-*Note: Sliding window max/min is inherently sequential, limiting SIMD benefit. The deque algorithm is already highly efficient.*
-
-## Validation
-
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Matches `MAX` and `MIN` functions |
-| **Skender** | ✅ | Matches `DonchianChannels` exactly |
-| **Tulip** | ✅ | Matches `max` and `min` functions |
-| **Ooples** | ✅ | Cross-validated |
-| **Manual** | ✅ | Verified against extreme values |
-
-## Usage & Pitfalls
-
-- **Breakout Trading**: The classic Donchian strategy: buy when price closes above Upper band, sell when it closes below Lower band. Simple but effective in trending markets.
-- **Turtle Rules**: Consider asymmetric periods—20-day for entry, 10-day for exit—to lock in profits faster.
-- **Stale Extremes**: The bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars is waiting for new information.
-- **Breakout vs. Touch**: Price touching the band is not the same as breaking out. True breakouts require closes above/below the band. Intrabar spikes often reverse.
-- **Choppy Markets**: In range-bound markets, Donchian generates many false breakouts. Consider filtering with ADX or volume.
-- **Gap Handling**: Overnight gaps immediately extend the relevant band. These may not represent sustainable price levels.
-
-## API
-
-```mermaid
-classDiagram
-    class Dchannel {
-        +Name : string
-        +WarmupPeriod : int
-        +Upper : TValue
-        +Lower : TValue
-        +Last : TValue
-        +IsHot : bool
-        +Update(TBar bar) TValue
-        +Update(TBarSeries source) TSeries
-        +Reset() void
-    }
+    return [middle, upper, lower]
 ```
 
-### Class: `Dchannel`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `20` | `>0` | Lookback window for finding highest high and lowest low. |
-| `source` | `TBarSeries` | — | `any` | Initial input (optional). |
+| Output | Description |
+|--------|-------------|
+| `upper` | Highest high over the lookback (resistance) |
+| `lower` | Lowest low over the lookback (support) |
+| `middle` | Midpoint of channel (trend bias) |
 
-### Properties
+## Resources
 
-- `Last` (`TValue`): The Middle Band value ((Upper + Lower) / 2).
-- `Upper` (`TValue`): The Highest High over the lookback period.
-- `Lower` (`TValue`): The Lowest Low over the lookback period.
-- `IsHot` (`bool`): Returns `true` after `period` bars.
-
-### Methods
-
-- `Update(TBar bar)`: Updates the indicator with new OHLC data and returns the Middle band.
-- `Update(TBarSeries source)`: Batch processes a bar series.
-- `Reset()`: Clears all historical data and deques.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize for a 20-day breakout system
-var dchannel = new Dchannel(period: 20);
-
-// Update Loop
-foreach (var bar in bars)
-{
-    var result = dchannel.Update(bar);
-
-    if (dchannel.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2} Upper={dchannel.Upper.Value:F2} Lower={dchannel.Lower.Value:F2}");
-
-        // Turtle-style breakout detection
-        if (bar.Close > dchannel.Upper.Value)
-            Console.WriteLine("  BREAKOUT! Price exceeds 20-day high");
-        else if (bar.Close < dchannel.Lower.Value)
-            Console.WriteLine("  BREAKDOWN! Price below 20-day low");
-    }
-}
-```
-
-## References
-
-- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6), 133-142.
-- Faith, C. (2007). *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*. McGraw-Hill.
-- Covel, M. (2007). *The Complete TurtleTrader*. HarperBusiness.
+- **Donchian, R.** "High Finance in Copper." *Financial Analysts Journal*, 16(6), 1960. (Original channel concept)
+- **Faith, C.** *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*. McGraw-Hill, 2007. (Turtle Trading system)
+- **Covel, M.** *The Complete TurtleTrader*. HarperBusiness, 2007.
+- **Cormen, T.H. et al.** *Introduction to Algorithms*. MIT Press, 2009. (Monotonic deque / sliding window algorithms)

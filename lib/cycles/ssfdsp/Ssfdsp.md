@@ -1,149 +1,125 @@
 # SSFDSP: Ehlers SSF Detrended Synthetic Price
 
-> "The Super-Smoother filter provides Butterworth-quality noise rejection—combine two of them and you isolate cycles with surgical precision."
-
-The SSF-Based Detrended Synthetic Price (SSFDSP) is an advanced oscillator by John Ehlers. It creates a synthetic, detrended price series by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, providing superior noise rejection and reduced lag compared to EMA-based DSP.
+SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscillator with superior noise rejection compared to the EMA-based DSP. The 2-pole Butterworth characteristic of the Super-Smoother filter provides zero phase lag at the cutoff frequency and sharper rolloff than exponential smoothing, making SSFDSP the preferred variant for cycle-aware trading when the approximate dominant period is known.
 
 ## Historical Context
 
-Ehlers introduced the concept of "Synthetic Price" to remove the DC (trend) component from market data, isolating cyclic energy. While earlier versions used EMAs, the SSF variant exploits the 2-pole Butterworth characteristics of the Super-Smoother Filter to achieve cleaner separation between trend and cycle.
-
-The SSF provides zero phase lag at the cutoff frequency, making it ideal for cycle isolation in noisy market data.
+John Ehlers introduced the concept of Detrended Synthetic Price in *Cybernetic Analysis for Stocks and Futures* (2004) as a principled method for removing the DC (trend) component while preserving cyclical energy. The original DSP used EMAs, which have a gradual frequency rolloff and non-zero phase lag. The SSF variant substitutes Super-Smoother filters, which are 2-pole Butterworth low-pass designs with matched coefficients that eliminate the Gibbs phenomenon (ringing) common in sharper filters. The result is a cleaner cycle extraction: the SSF's steeper rolloff better separates the quarter-cycle and half-cycle frequency bands, producing tighter zero crossings and more reliable turning point identification than EMA-DSP.
 
 ## Architecture & Physics
 
-The indicator computes the difference between two Super-Smoother filters tuned to fractions of the dominant cycle period.
-
 ### 1. Filter Periods
 
-$$
-P_{fast} = \max(2, \text{round}(P / 4))
-$$
+From the user-specified dominant cycle period $P$:
 
-$$
-P_{slow} = \max(3, \text{round}(P / 2))
-$$
+$$P_{fast} = \max(2, \lfloor P / 4 + 0.5 \rfloor)$$
+
+$$P_{slow} = \max(3, \lfloor P / 2 + 0.5 \rfloor)$$
 
 ### 2. Super-Smoother Coefficients
 
-$$
-\alpha = \frac{\pi\sqrt{2}}{period}
-$$
+For each filter period $p$:
 
-$$
-c_2 = 2e^{-\alpha}\cos(\alpha)
-$$
+$$\alpha = \frac{\pi\sqrt{2}}{p}$$
 
-$$
-c_3 = -e^{-2\alpha}
-$$
+$$c_2 = 2 e^{-\alpha} \cos(\alpha)$$
 
-$$
-c_1 = 1 - c_2 - c_3
-$$
+$$c_3 = -e^{-2\alpha}$$
+
+$$c_1 = 1 - c_2 - c_3$$
 
 ### 3. SSF Recursion
 
-$$
-SSF_t = c_1 \cdot \frac{P_t + P_{t-1}}{2} + c_2 \cdot SSF_{t-1} + c_3 \cdot SSF_{t-2}
-$$
+$$SSF_t = c_1 \cdot \frac{P_t + P_{t-1}}{2} + c_2 \cdot SSF_{t-1} + c_3 \cdot SSF_{t-2}$$
+
+The 2-bar input averaging provides an additional anti-aliasing stage.
 
 ### 4. SSFDSP Output
 
-$$
-SSFDSP = SSF_{fast} - SSF_{slow}
-$$
+$$SSFDSP_t = SSF_{fast,t} - SSF_{slow,t}$$
 
-## Performance Profile
+### 5. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+$O(1)$ per bar. Two independent 2-pole IIR filters with $O(1)$ memory. Warmup: approximately $2 \times P_{slow}$ for convergence. Recursive dependencies prevent SIMD vectorization.
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| FMA (SSF updates) | 4 | 4 | 16 |
-| MUL (coefficients) | 2 | 3 | 6 |
-| ADD/SUB (input avg, output) | 3 | 1 | 3 |
-| **Total** | **9** | — | **~25 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(1) per bar—fixed 2-pole IIR filters
-- **Memory:** O(1)—only filter state variables
-- **Warmup:** ~2 × slow period for convergence
-- **Note:** Recursive dependencies prevent SIMD vectorization
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Expected dominant cycle period | 40 | $\geq 4$ |
 
-## Validation
+### Super-Smoother Frequency Response
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | N/A | Not standard |
-| Skender | N/A | Not standard |
-| PineScript | ✅ | Matches Ehlers' reference logic |
+The SSF has $-3$ dB attenuation at the cutoff period, $-12$ dB/octave rolloff (2-pole), and zero phase lag at the cutoff. This is equivalent to a critically-damped Butterworth filter.
 
-## Usage & Pitfalls
+### Pseudo-code
 
-- **Oscillates around zero**—positive values indicate bullish cycle phase
-- **Zero crossings** signal cycle phase changes—entry points in direction of cross
-- **Period mismatch** degrades amplitude and phase accuracy
-- **Smoother than EMA-DSP** with sharper turning points
-- **Divergence** (price highs vs DSP highs) indicates trend exhaustion
-- **Pre-smooth input** for extremely noisy data
+```
+function SSFDSP(source, period):
+    pFast ← max(2, round(period / 4))
+    pSlow ← max(3, round(period / 2))
 
-## API
+    // Fast SSF coefficients
+    αf ← √2·π / pFast
+    c2f ← 2·exp(-αf)·cos(αf)
+    c3f ← -exp(-2·αf)
+    c1f ← 1 - c2f - c3f
 
-```mermaid
-classDiagram
-    class Ssfdsp {
-        +int Period
-        +double Value
-        +bool IsHot
-        +Ssfdsp(int period)
-        +Ssfdsp(ITValuePublisher source, int period)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+    // Slow SSF coefficients
+    αs ← √2·π / pSlow
+    c2s ← 2·exp(-αs)·cos(αs)
+    c3s ← -exp(-2·αs)
+    c1s ← 1 - c2s - c3s
+
+    ssfFast_1 ← 0; ssfFast_2 ← 0
+    ssfSlow_1 ← 0; ssfSlow_2 ← 0
+    p_prev ← 0
+
+    for each price in source:
+        // Input averaging
+        avg ← (price + p_prev) / 2
+
+        // Fast SSF update
+        ssfFast ← c1f·avg + c2f·ssfFast_1 + c3f·ssfFast_2
+
+        // Slow SSF update
+        ssfSlow ← c1s·avg + c2s·ssfSlow_1 + c3s·ssfSlow_2
+
+        // SSFDSP
+        ssfdsp ← ssfFast - ssfSlow
+
+        // Shift state
+        ssfFast_2 ← ssfFast_1; ssfFast_1 ← ssfFast
+        ssfSlow_2 ← ssfSlow_1; ssfSlow_1 ← ssfSlow
+        p_prev ← price
+
+        emit ssfdsp
 ```
 
-### Class: `Ssfdsp`
+### DSP vs SSFDSP
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `40` | `≥4` | Expected dominant cycle period |
+| Aspect | DSP (EMA-based) | SSFDSP (Super-Smoother) |
+|--------|-----------------|------------------------|
+| Filter type | 1-pole IIR (exponential) | 2-pole Butterworth |
+| Rolloff | $-6$ dB/octave | $-12$ dB/octave |
+| Phase lag at cutoff | Non-zero | Zero |
+| Noise rejection | Moderate | Superior |
+| Turning points | Rounded | Sharper |
 
-### Properties
+### Output Interpretation
 
-- `Value` (`double`): The current SSFDSP value (oscillates around 0)
-- `IsHot` (`bool`): Returns `true` when warmup is complete
+| Condition | Meaning |
+|-----------|---------|
+| $SSFDSP > 0$ | Bullish cycle phase |
+| $SSFDSP < 0$ | Bearish cycle phase |
+| Zero crossing | Cycle phase transition |
+| Divergence with price | Cycle energy waning; trend exhaustion |
+| Amplitude shrinking | Cycle losing dominance; transition to trend |
 
-### Methods
+## Resources
 
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize with a 40-bar dominant cycle assumption
-var ssfdsp = new Ssfdsp(period: 40);
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = ssfdsp.Update(new TValue(bar.Date, bar.Close));
-    
-    if (ssfdsp.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: SSF-DSP = {result.Value:F4}");
-        
-        // Zero crossing detection
-        if (result.Value > 0 && ssfdsp.Previous.Value <= 0)
-            Console.WriteLine("  → Bullish cycle phase");
-        else if (result.Value < 0 && ssfdsp.Previous.Value >= 0)
-            Console.WriteLine("  → Bearish cycle phase");
-    }
-}
-
-// Batch calculation
-var output = Ssfdsp.Calculate(sourceSeries, period: 40);
-```
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
+- **Ehlers, J.F.** *Cycle Analytics for Traders*. Wiley, 2013.
+- **Butterworth, S.** "On the Theory of Filter Amplifiers." *Experimental Wireless*, 7, 1930.

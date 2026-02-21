@@ -1,208 +1,94 @@
 # MMCHANNEL: Min-Max Channel
 
-> "The market's true range isn't about averages. It's about extremes—and who's winning."
-
-Min-Max Channel (MMCHANNEL) tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation. Unlike Donchian Channels which include a middle band, MMCHANNEL delivers only the raw extremes—exactly what breakout traders and range analysis need. This implementation uses monotonic deques for O(1) amortized updates, making it suitable for high-frequency applications and long lookback periods.
+Min-Max Channel tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation. Unlike Donchian Channels which include a middle band, MMCHANNEL delivers only the raw extremes. The implementation uses monotonic deques for O(1) amortized updates: each element enters the deque once and leaves at most once, so total work over $N$ bars is $O(N)$ regardless of period length.
 
 ## Historical Context
 
-Min-Max channels represent the simplest form of price envelope analysis, predating most technical indicators. The concept is intuitive: track where price has been at its highest and lowest points over a defined period.
+Min-max channels are the simplest form of price envelope analysis, predating most technical indicators. The concept is elemental: track where price has been at its highest and lowest points over a defined window.
 
-The approach gained prominence through Richard Donchian's work in the 1960s and later through the Turtle Trading system. While Donchian Channels include a midpoint average, MMCHANNEL strips this away, focusing purely on support and resistance levels defined by actual price extremes.
+The approach gained prominence through Richard Donchian's commodity trading work in the 1960s and later through the Turtle Trading system in 1983. Curtis Faith's public disclosure of the Turtle rules revealed that a 20-day breakout channel formed the core entry signal. While Donchian Channels add a midpoint average, MMCHANNEL strips this away, focusing purely on the support and resistance levels defined by actual price extremes.
 
-Most implementations suffer from O(n) complexity per update—scanning the entire window to find max/min values. For period=200 on tick data, this means 200 comparisons per tick. QuanTAlib uses monotonic deques that maintain sorted order implicitly, achieving O(1) amortized updates regardless of period length.
+Most naive implementations suffer from $O(n)$ complexity per update, rescanning the entire window to locate max/min values. For period 200 on tick data, that means 200 comparisons per tick. The monotonic deque approach maintains sorted order implicitly, reducing amortized cost to $O(1)$ per bar.
 
 ## Architecture & Physics
 
-MMCHANNEL consists of two components: the upper band (highest high) and lower band (lowest low).
+### 1. Upper Band (Sliding Window Maximum)
 
-### 1. Upper Band (Highest High)
-
-Tracks the maximum high price over the lookback window using a decreasing monotonic deque:
+The upper band tracks the maximum high price over the lookback window using a decreasing monotonic deque:
 
 $$
-U_t = \max_{i=0}^{n-1}(H_{t-i})
+U_t = \max_{i=0}^{n-1} H_{t-i}
 $$
 
 where $H$ is the high price and $n$ is the period. New highs immediately update the upper band; the band only decreases when the previous maximum exits the lookback window.
 
-**Monotonic deque invariant:** Elements are stored in decreasing order by value. The front element is always the maximum.
+### 2. Lower Band (Sliding Window Minimum)
 
-### 2. Lower Band (Lowest Low)
-
-Tracks the minimum low price over the lookback window using an increasing monotonic deque:
+The lower band tracks the minimum low price using an increasing monotonic deque:
 
 $$
-L_t = \min_{i=0}^{n-1}(L_{t-i})
+L_t = \min_{i=0}^{n-1} L_{t-i}
 $$
 
 where $L$ is the low price. New lows immediately update the lower band; the band only increases when the previous minimum exits the window.
 
-**Monotonic deque invariant:** Elements are stored in increasing order by value. The front element is always the minimum.
+### 3. Monotonic Deque Invariants
+
+The maximum deque stores (value, index) pairs in decreasing order by value; the front element is always the current maximum. The minimum deque stores pairs in increasing order; the front element is always the current minimum. No explicit sorting is needed because superseded elements are removed on insertion.
+
+### 4. No Middle Band
+
+Unlike DCHANNEL and PCHANNEL, MMCHANNEL emits only upper and lower bands. If a midpoint is needed, compute $(U_t + L_t) / 2$ externally.
+
+### 5. Complexity
+
+Streaming: $O(1)$ amortized per bar (each element enters/exits the deque at most once). Worst case $O(n)$ occurs only on monotonically increasing/decreasing sequences that flush the entire deque. Memory: two deques of at most $n$ (value, index) pairs plus two circular buffers of $n$ floats.
 
 ## Mathematical Foundation
 
+### Parameters
+
+| Symbol | Name | Constraint | Description |
+|--------|------|------------|-------------|
+| $n$ | period | $> 0$ | Lookback window size |
+
 ### Monotonic Deque Algorithm
 
-The key insight is maintaining sorted order without explicit sorting:
+For the **maximum** (upper band), on each new bar with high value $h$:
 
-**For maximum (upper band):**
+```
+push h into circular buffer at (bar_index mod period)
 
-1. **Back removal:** Remove elements from the back that are ≤ the new value
-2. **Insert:** Add the new (value, index) pair to the back
-3. **Front expiry:** Remove elements from the front whose indices are outside the window
-4. **Query:** The front element is always the maximum
+// expire stale front
+while deque not empty AND front index <= bar_index - period:
+    remove front
 
-**For minimum (lower band):**
+// remove dominated back elements
+while deque not empty AND buffer[back index mod period] <= h:
+    remove back
 
-1. **Back removal:** Remove elements from the back that are ≥ the new value
-2. **Insert:** Add the new (value, index) pair to the back
-3. **Front expiry:** Remove elements from the front whose indices are outside the window
-4. **Query:** The front element is always the minimum
-
-**Amortized Analysis:**
-
-Each element enters the deque exactly once and leaves at most once (either from the back during insertion or from the front during expiry). Over $n$ operations, total work is $O(n)$, yielding $O(1)$ amortized per update.
-
-### Channel Width
-
-The distance between bands measures the price range:
-
-$$
-W_t = U_t - L_t
-$$
-
-Channel width indicates volatility: wider channels suggest larger price swings; narrower channels indicate consolidation.
-
-## Performance Profile
-
-### Operation Count (Streaming Mode, Scalar)
-
-Per-bar cost using monotonic deque optimization:
-
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| CMP (deque maintenance) | ~4 | 1 | ~4 |
-| Memory access (deque) | ~4 | 3 | ~12 |
-| **Total** | **~8** | — | **~16 cycles** |
-
-**Complexity:** O(1) amortized per bar. Worst case O(n) occurs only when a monotonically increasing (for max) or decreasing (for min) sequence forces clearing the entire deque—rare in practice.
-
-### Batch Mode (512 values, SIMD/FMA)
-
-Sliding window max/min has limited SIMD benefit due to sequential dependency in deque operations:
-
-| Operation | Scalar Ops | SIMD Benefit | Notes |
-| :--- | :---: | :---: | :--- |
-| Deque update | ~8 | 1× | Sequential by nature |
-| Index comparison | 2 | 2× | SIMD possible for batch |
-
-**Batch efficiency (512 bars):**
-
-| Mode | Cycles/bar | Total (512 bars) | Improvement |
-| :--- | :---: | :---: | :---: |
-| Scalar streaming | 16 | 8,192 | — |
-| Partial SIMD | ~14 | ~7,168 | **~12%** |
-
-The monotonic deque algorithm is already highly efficient; SIMD provides marginal gains.
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact max/min calculation |
-| **Timeliness** | 6/10 | Tracks past extremes, inherently lagging |
-| **Overshoot** | 10/10 | No overshoot—bands are actual price levels |
-| **Smoothness** | 4/10 | Bands move in discrete steps as extremes exit window |
-
-## Validation
-
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **Dchannel** | ✅ | Exact match for upper/lower bands |
-| **Skender** | ✅ | Exact match via Donchian upper/lower |
-| **TA-Lib** | ✅ | Exact match via MAX/MIN functions |
-| **Tulip** | ✅ | Exact match via max/min functions |
-
-## Usage & Pitfalls
-
-- **Stale Extremes:** The bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars isn't broken—it's waiting for price to exceed the current extreme or for that extreme to age out.
-- **O(n) Implementation Trap:** Naive implementations rescan the window every bar. For period=200 on 60,000 bars/day, that's 12 million comparisons per symbol. The monotonic deque approach reduces this to ~120,000 operations.
-- **Breakout vs. Touch:** Price touching the upper band differs from breaking out. True breakouts require closes above/below the band. Intrabar spikes that don't close outside the channel often reverse.
-- **No Middle Band:** Unlike Donchian Channels, MMCHANNEL has no middle line. If you need a centerline, use Donchian or compute `(Upper + Lower) / 2` separately.
-- **Asymmetric Movement:** Upper and lower bands move independently.
-- **Gap Handling:** Overnight gaps immediately adjust the relevant band.
-- **Memory Footprint:** The monotonic deque stores (value, index) pairs. Worst case is `2 * period` pairs per deque.
-- **Bar Correction:** When `isNew=false`, the indicator must restore prior state before computing.
-
-## API
-
-```mermaid
-classDiagram
-    class Mmchannel {
-        +string Name
-        +int WarmupPeriod
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +Mmchannel(int period)
-        +Mmchannel(TBarSeries source, int period)
-        +TValue Update(TBar input, bool isNew)
-        +Tuple~TSeries,TSeries~ Update(TBarSeries source)
-        +void Prime(TBarSeries source)
-        +void Reset()
-        +static void Batch(ReadOnlySpan~double~ high, ReadOnlySpan~double~ low, Span~double~ upper, Span~double~ lower, int period)
-        +static Tuple~TSeries,TSeries~ Batch(TBarSeries source, int period)
-        +static Tuple~Tuple~TSeries,TSeries~,Mmchannel~ Calculate(TBarSeries source, int period)
-    }
+push (bar_index) to back
+upper = buffer[front index mod period]
 ```
 
-### Class: `Mmchannel`
+For the **minimum** (lower band), the same structure with $\geq$ replacing $\leq$ in the back-removal step.
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | Lookback period for highest high and lowest low. |
+### Amortized Analysis
 
-### Properties
+Each element is pushed to the deque exactly once and popped at most once (either from the back during insertion or from the front during expiry). Over $N$ operations, total work is $O(N)$, yielding $O(1)$ amortized cost per update.
 
-- `Last` (`TValue`): Returns the upper band value (for single-value compatibility).
-- `Upper` (`TValue`): The highest high over the lookback period.
-- `Lower` (`TValue`): The lowest low over the lookback period.
-- `IsHot` (`bool`): Returns `true` when warmup period is complete.
+### Output Interpretation
 
-### Methods
+| Output | Interpretation |
+|--------|---------------|
+| $U_t$ rising | New highs being set within the window |
+| $U_t$ flat | No new high; previous extreme still in window |
+| $L_t$ falling | New lows being set within the window |
+| $U_t - L_t$ contracting | Consolidation; range tightening |
+| $U_t - L_t$ expanding | Volatility expansion; breakout potential |
 
-- `Update(TBar input, bool isNew)`: Updates the indicator with a new bar and returns the result.
-- `Update(TBarSeries source)`: Processes an entire bar series and returns (Upper, Lower) tuple of TSeries.
-- `Prime(TBarSeries source)`: Initializes internal state from historical data.
-- `Reset()`: Resets the indicator to its initial state.
-- `Batch(...)`: Static method for zero-allocation span-based batch processing.
-- `Calculate(TBarSeries source, int period)`: Static factory that returns results and indicator instance.
+## Resources
 
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize
-var mmchannel = new Mmchannel(period: 20);
-
-// Update Loop
-foreach (var bar in quotes)
-{
-    mmchannel.Update(bar, isNew: true);
-
-    // Use valid results
-    if (mmchannel.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Upper={mmchannel.Upper.Value:F2}, Lower={mmchannel.Lower.Value:F2}");
-    }
-}
-```
-
-## References
-
-- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6), 133-142.
-- Faith, C. (2007). *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*. McGraw-Hill.
-- Cormen, T. H., et al. (2009). *Introduction to Algorithms*, 3rd ed. MIT Press. (Monotonic deque analysis)
+- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6).
+- Faith, C. (2007). *Way of the Turtle*. McGraw-Hill.
+- Cormen, T. et al. (2009). *Introduction to Algorithms*, 3rd ed. MIT Press. (Monotonic deque analysis)

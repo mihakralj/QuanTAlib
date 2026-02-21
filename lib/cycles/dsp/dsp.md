@@ -1,145 +1,93 @@
 # DSP: Ehlers Detrended Synthetic Price
 
-> "Remove the trend, reveal the cycles."
-
-The Detrended Synthetic Price (DSP) indicator creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA. Developed by John Ehlers, this "synthetic" price highlights underlying cyclical movement, identifying momentum shifts when the faster EMA crosses the slower one.
+DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price while cancelling longer-term trends. Developed by John Ehlers, the indicator is grounded in cycle theory rather than arbitrary period selection, making it a principled alternative to MACD for cycle-aware trading. Bias-corrected EMAs ensure accurate amplitude during warmup.
 
 ## Historical Context
 
-John Ehlers introduced the DSP as part of his research into cycle analytics for traders. While many indicators (like MACD) use arbitrary periods (12/26), DSP is grounded in cycle theory. Ehlers posits that to effectively isolate a cycle, one should filter data based on the dominant cycle period.
-
-The use of period/4 and period/2 roughly corresponds to extracting the cycle's momentum while cancelling out longer-term trends. This makes DSP particularly effective for cycle-based trading strategies.
+John Ehlers introduced the Detrended Synthetic Price as part of his cycle analytics framework. While MACD uses fixed periods (12/26), DSP calibrates its two EMAs to specific fractions of the dominant cycle period: quarter-cycle for the fast component and half-cycle for the slow. Subtracting aligned filters at these frequencies effectively bandpass-isolates the cycle of interest while suppressing both high-frequency noise and low-frequency trend. The "synthetic" label reflects that the output is a constructed signal that exposes cyclical energy invisible in raw price.
 
 ## Architecture & Physics
 
-DSP utilizes a dual EMA architecture, calibrated to specific fractions of the cycle period.
-
 ### 1. Component Periods
 
-$$
-P_{fast} = \max(2, \text{round}(P / 4))
-$$
+From the user-specified dominant cycle period $P$:
 
-$$
-P_{slow} = \max(3, \text{round}(P / 2))
-$$
+$$P_{fast} = \max(2, \lfloor P / 4 + 0.5 \rfloor)$$
+
+$$P_{slow} = \max(3, \lfloor P / 2 + 0.5 \rfloor)$$
 
 ### 2. Alpha Coefficients
 
-$$
-\alpha_{fast} = \frac{2}{P_{fast} + 1}
-$$
+Standard EMA smoothing factors:
 
-$$
-\alpha_{slow} = \frac{2}{P_{slow} + 1}
-$$
+$$\alpha_{fast} = \frac{2}{P_{fast} + 1}, \qquad \alpha_{slow} = \frac{2}{P_{slow} + 1}$$
 
-### 3. EMA Updates (with Bias Correction)
+### 3. EMA Updates with Bias Correction
 
-$$
-EMA_{raw} = \alpha \cdot Price + (1 - \alpha) \cdot EMA_{raw\_prev}
-$$
+Raw EMA recursion:
 
-$$
-EMA_{corrected} = \frac{EMA_{raw}}{1 - (1-\alpha)^n}
-$$
+$$EMA_{raw,t} = \alpha \cdot P_t + (1 - \alpha) \cdot EMA_{raw,t-1}$$
 
-### 4. DSP Calculation
+Warmup bias correction (prevents initial distortion):
 
-$$
-DSP = EMA_{fast} - EMA_{slow}
-$$
+$$EMA_t = \frac{EMA_{raw,t}}{1 - (1 - \alpha)^n}$$
 
-## Performance Profile
+where $n$ is the number of bars processed.
 
-### Operation Count (Streaming Mode, per Bar)
+### 4. DSP Output
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| FMA (EMA updates) | 2 | 4 | 8 |
-| MUL (decay factors) | 2 | 3 | 6 |
-| DIV (bias correction) | 2 | 15 | 30 |
-| SUB (DSP = fast - slow) | 1 | 1 | 1 |
-| **Total** | **7** | — | **~45 cycles** |
+$$DSP_t = EMA_{fast,t} - EMA_{slow,t}$$
 
-### Complexity Analysis
+### 5. Complexity
 
-- **Streaming:** O(1) per bar—fixed calculation depth
-- **Memory:** O(1)—only EMA state variables
-- **Warmup:** ~2 × slow period for convergence
+$O(1)$ per bar with $O(1)$ memory. Two EMA state variables plus two bias correction accumulators.
 
-## Validation
+## Mathematical Foundation
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | N/A | Not standard |
-| Skender | N/A | Not standard |
-| PineScript | ✅ | Matches Ehlers' reference logic |
+### Parameters
 
-## Usage & Pitfalls
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Dominant cycle period | 40 | $\geq 4$ |
 
-- **Zero crossing** indicates cycle phase change—above zero is bullish, below zero is bearish
-- **Period should match market cycle**—if market cycle is 20 bars, use period 20 not 40
-- **Not normalized**—amplitude reflects absolute price difference, varies by asset
-- **Whipsaws** occur in ranging markets with cycles shorter than the setting
-- **Divergence** (higher price highs with lower DSP highs) suggests cycle energy loss
-- **Use FusedMultiplyAdd** for optimal precision in EMA recursion
+### Pseudo-code
 
-## API
+```
+function DSP(source, period):
+    pFast ← max(2, round(period / 4))
+    pSlow ← max(3, round(period / 2))
+    αFast ← 2 / (pFast + 1)
+    αSlow ← 2 / (pSlow + 1)
 
-```mermaid
-classDiagram
-    class Dsp {
-        +int Period
-        +double Value
-        +bool IsHot
-        +Dsp(int period)
-        +Dsp(ITValuePublisher source, int period)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+    emaFastRaw ← 0
+    emaSlowRaw ← 0
+    decayFast ← 1.0    // (1 - αFast)^n
+    decaySlow ← 1.0    // (1 - αSlow)^n
+
+    for each price in source:
+        emaFastRaw ← FMA(αFast, price, (1 - αFast) * emaFastRaw)
+        emaSlowRaw ← FMA(αSlow, price, (1 - αSlow) * emaSlowRaw)
+
+        decayFast *= (1 - αFast)
+        decaySlow *= (1 - αSlow)
+
+        emaFast ← emaFastRaw / (1 - decayFast)
+        emaSlow ← emaSlowRaw / (1 - decaySlow)
+
+        dsp ← emaFast - emaSlow
+        emit dsp
 ```
 
-### Class: `Dsp`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `40` | `≥4` | Dominant cycle period |
+| Condition | Meaning |
+|-----------|---------|
+| $DSP > 0$ | Fast EMA above slow: bullish cycle phase |
+| $DSP < 0$ | Fast EMA below slow: bearish cycle phase |
+| Zero crossing | Cycle phase transition point |
+| Divergence from price | Cycle energy waning; potential trend exhaustion |
 
-### Properties
+## Resources
 
-- `Value` (`double`): The current DSP value (oscillates around 0)
-- `IsHot` (`bool`): Returns `true` when warmup is complete
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create DSP for a 40-bar cycle
-var dsp = new Dsp(period: 40);
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = dsp.Update(new TValue(bar.Date, bar.Close));
-    
-    if (dsp.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: DSP = {result.Value:F4}");
-        
-        // Cycle phase detection
-        if (result.Value > 0)
-            Console.WriteLine("  → Bullish cycle phase");
-        else
-            Console.WriteLine("  → Bearish cycle phase");
-    }
-}
-
-// Batch calculation
-var output = Dsp.Calculate(sourceSeries, period: 40);
-```
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

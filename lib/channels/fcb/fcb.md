@@ -1,136 +1,93 @@
 # FCB: Fractal Chaos Bands
 
-> "Fractals are nature's fingerprints—the market reveals its structure through self-similar patterns at every scale."
-
-Fractal Chaos Bands filter price action to identify significant turning points using Bill Williams' fractal logic. Unlike raw price channels (Donchian), FCB connects the highest high and lowest low of confirmed 3-bar fractals over a lookback period. This results in a "cleaner" channel that ignores transient spikes and focuses on structural support and resistance levels. The indicator effectively flattens out during trends and steps up/down only when new structural pivots are confirmed, making it ideal for support/resistance identification.
+Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest confirmed fractal low over a lookback period. Unlike Donchian Channels which use every bar's high and low, FCB uses only structurally significant turning points — bars where the middle element of a 3-bar pattern is a local extremum. The result is a "cleaner" channel that ignores transient spikes and focuses on confirmed support and resistance levels. The bands tend to remain flat during trends and step discretely when new structural pivots form, making them useful for identifying genuine breakouts versus noise.
 
 ## Historical Context
 
-Fractal Chaos Bands derive from **Bill Williams'** work on trading psychology and chaos theory, presented in his influential books "Trading Chaos" (1995) and "New Trading Dimensions" (1998). Williams was among the first to apply chaos theory and fractal mathematics to financial markets, drawing inspiration from Benoit Mandelbrot's groundbreaking work on fractal geometry.
+Bill Williams introduced fractal analysis to financial markets in *Trading Chaos* (1995) and *New Trading Dimensions* (1998), drawing inspiration from Benoit Mandelbrot's work on fractal geometry and chaos theory. Williams defined a fractal as a 5-bar pattern (later simplified to 3-bar in many implementations) where the central bar represents a local extremum — a point where supply and demand reached temporary equilibrium.
 
-Williams defined a fractal as a simple 5-bar pattern (later simplified to 3-bar in many implementations) where the middle bar represents a local extremum—a point where the market "pauses" before continuing or reversing. These fractals serve as natural support and resistance levels because they represent moments where supply and demand reached temporary equilibrium.
-
-The Fractal Chaos Bands indicator extends this concept by tracking the highest up-fractal and lowest down-fractal over a lookback period, creating an envelope of "structural" extremes rather than raw price extremes. This filtering eliminates noise from transient spikes while preserving meaningful market structure.
+The Fractal Chaos Bands indicator extends Williams' fractal concept by tracking the monotonic extremes of these structural turning points over a lookback window, rather than raw price extremes. This filtering eliminates noise from transient wicks and gap spikes while preserving meaningful market structure. The 3-bar fractal requires one future bar for confirmation, providing inherent stability at the cost of a 1-bar lag.
 
 ## Architecture & Physics
 
-The system relies on **Chaos Theory** market geometry:
+### 1. Fractal Detection (3-Bar Pattern)
 
-1. **Fractals:** Specific 3-bar price formations where the middle bar represents a local extremum (High > neighbors for Up Fractal; Low < neighbors for Down Fractal).
-2. **State Memory:** The bands track the Monotonic Extremes of these fractal values, not raw prices.
-3. **Hysteresis:** Since fractals require a future bar for confirmation, the bands have inherent stability and resistance to noise.
+**Up Fractal** (local high at $t-1$):
 
-### Formula
+$$\text{UpFractal}_t = (H_{t-1} > H_{t-2}) \;\wedge\; (H_{t-1} > H_t)$$
 
-**3-Bar Fractal Detection:**
-$$UpFractal_t = (High_{t-1} > High_{t-2}) \land (High_{t-1} > High_t)$$
-$$DownFractal_t = (Low_{t-1} < Low_{t-2}) \land (Low_{t-1} < Low_t)$$
+**Down Fractal** (local low at $t-1$):
 
-**Bands:**
-$$Upper_t = \max(UpFractals \in Period)$$
-$$Lower_t = \min(DownFractal \in Period)$$
-$$Middle_t = \frac{Upper_t + Lower_t}{2}$$
+$$\text{DownFractal}_t = (L_{t-1} < L_{t-2}) \;\wedge\; (L_{t-1} < L_t)$$
 
-## Calculation Steps
+### 2. Fractal Value Tracking
 
-1. **Detect Fractals:** Analyze the most recent 3 bars. If a fractal pattern is confirmed at index $t-1$, record the value.
-2. **Update Deques:** Maintain Monotonic Deques of the detected fractal values for the lookback `Period`.
-    - New Fractal High $\rightarrow$ Push to Max Deque.
-    - New Fractal Low $\rightarrow$ Push to Min Deque.
-3. **Expire Old:** Remove fractal values from the deques that have exited the lookback window.
-4. **Derive Bands:** The front of the Max/Min deques represents the highest/lowest fractal value within the period.
+A persistent state variable holds the most recent fractal value:
 
-## Performance Profile
+- On up fractal confirmation: $\text{hiFractal} = H_{t-1}$
+- On down fractal confirmation: $\text{loFractal} = L_{t-1}$
+- Between fractals: values persist (hold last fractal)
 
-The implementation utilizes **Monotonic Deques** for O(1) amortized complexity, ensuring efficiency even with large lookback periods.
+### 3. Band Construction (Sliding Window Max/Min of Fractals)
 
-### Operation Count (Streaming Mode, per Bar)
+$$\text{Upper}_t = \max(\text{hiFractal values over period})$$
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| CMP (Fractal check) | 4 | 1 | 4 |
-| CMP (Deque ops) | 3 | 1 | 3 |
-| ADD | 1 | 1 | 1 |
-| MUL | 1 | 3 | 3 |
-| **Total** | **9** | — | **~11 cycles** |
+$$\text{Lower}_t = \min(\text{loFractal values over period})$$
 
-### Complexity Analysis
+The monotonic deque operates on fractal values rather than raw prices, using the same $O(1)$ amortized algorithm as Donchian Channels.
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Amortized via monotonic deque |
-| Batch | O(n) | Sequential fractal detection |
+### 4. Structural Filtering Property
 
-## Validation
+FCB bands are always within or equal to Donchian bounds:
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **Donchian** | ✅ | FCB bands always within Donchian bounds |
-| **Property** | ✅ | FCB_Upper ≤ Donchian_Upper, FCB_Lower ≥ Donchian_Lower |
-| **Williams** | ✅ | Matches Bill Williams' fractal definition |
+$$\text{FCB}_{\text{Upper}} \leq \text{Donchian}_{\text{Upper}}$$
 
-## Usage & Pitfalls
+$$\text{FCB}_{\text{Lower}} \geq \text{Donchian}_{\text{Lower}}$$
 
-- **Confirmation Lag:** Fractals require one future bar for confirmation. The bands lag at least 1 bar behind price—this is intentional and provides stability.
-- **Flat Bands:** During strong trends, bands may remain flat for extended periods as no new fractals form in the opposite direction.
-- **Structural Breakouts:** A close above FCB Upper is more significant than a close above Donchian Upper because it represents a break of a confirmed structural level.
-- **Bar Correction:** Use `isNew=false` when updating the current bar's value, `isNew=true` for new bars.
-- **Period Selection:** Larger periods capture more significant fractals but may miss shorter-term pivots. Common settings: 20 (swing trading), 50 (position trading).
-- **Noise Filtering:** FCB naturally filters out single-bar spikes that would affect Donchian Channels, but may miss valid breakouts on gap bars.
+This is because fractals are a subset of raw highs/lows. A breakout above FCB upper is more significant than above Donchian upper because it breaks a confirmed structural level.
 
-## API
+### 5. Complexity
 
-```mermaid
-classDiagram
-    class Fcb {
-        +Fcb(int period = 20)
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +TValue Update(TBar bar)
-        +void Reset()
-    }
+Fractal detection is $O(1)$ (3 comparisons). Deque maintenance is $O(1)$ amortized. Total: $O(1)$ amortized per bar.
+
+## Mathematical Foundation
+
+### Parameters
+
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback window for highest/lowest fractal values | 20 | $> 0$ |
+
+### Pseudo-code
+
+```
+function FCB(high, low, period):
+    validate: period > 0
+
+    // 3-bar fractal detection (confirmed at current bar)
+    is_fractal_high = high[1] > high[2] AND high[1] > high[0]
+    is_fractal_low  = low[1]  < low[2]  AND low[1]  < low[0]
+
+    // Update persistent fractal values
+    if is_fractal_high: hi_fractal = high[1]
+    if is_fractal_low:  lo_fractal = low[1]
+
+    // Sliding window max/min via monotonic deques
+    upper = max(hi_fractal over period)  // deque-based
+    lower = min(lo_fractal over period)  // deque-based
+
+    return [upper, lower]
 ```
 
-### Class: `Fcb`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | `20` | `>0` | Lookback window for finding highest/lowest fractals. |
+| Output | Description |
+|--------|-------------|
+| `upper` | Highest confirmed fractal high over lookback (structural resistance) |
+| `lower` | Lowest confirmed fractal low over lookback (structural support) |
 
-### Properties
+## Resources
 
-| Name | Type | Description |
-|---|---|---|
-| `Last` | `TValue` | The Middle Band value. |
-| `Upper` | `TValue` | The Highest Fractal High over the lookback period. |
-| `Lower` | `TValue` | The Lowest Fractal Low over the lookback period. |
-| `IsHot` | `bool` | Returns `true` after `period + 2` bars (requires warmup + fractal confirmation). |
-
-### Methods
-
-- `Update(TBar bar)`: Updates the indicator with a new bar.
-- `Reset()`: Clears all historical data and buffers.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// 1. Initialize 
-var fcb = new Fcb(period: 20);
-
-// 2. Stream data
-var bars = GetHistory();
-foreach (var bar in bars)
-{
-    fcb.Update(bar);
-    
-    // Check for breakouts through structural resistance
-    if (bar.Close > fcb.Upper.Value)
-    {
-        Console.WriteLine($"Fractal Resistance Broken at {fcb.Upper.Value}");
-    }
-}
-```
+- **Williams, B.** *Trading Chaos*. Wiley, 1995. (Original fractal definition for markets)
+- **Williams, B.** *New Trading Dimensions*. Wiley, 1998. (Extended fractal analysis)
+- **Mandelbrot, B.** *The Fractal Geometry of Nature*. W.H. Freeman, 1982. (Mathematical fractal theory)

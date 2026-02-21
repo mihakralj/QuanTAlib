@@ -1,134 +1,89 @@
 # ABBER: Aberration Bands
 
-> "Standard deviation punishes outliers twice: once when they happen, once when they distort everything else."
-
-ABBER (Aberration Bands) measures price deviation from a central moving average using absolute deviation rather than standard deviation. The result: dynamic bands that adapt to volatility while remaining robust against extreme outliers. Where Bollinger Bands amplify outliers through squaring, ABBER uses raw absolute differences efficiently. Bands respond to typical price behavior, not the occasional spike that yanks everything sideways.
+ABBER measures price deviation from a central moving average using mean absolute deviation rather than standard deviation, producing dynamic bands that adapt to volatility while remaining robust against extreme outliers. Where Bollinger Bands amplify outliers through squaring (the $L^2$ norm), ABBER uses raw absolute differences (the $L^1$ norm), so bands respond to typical price behavior rather than the occasional spike that yanks everything sideways. For a 20-period window with a 2.0 multiplier, ABBER contains approximately 89% of normally-distributed price action, but its real advantage emerges with fat-tailed distributions where standard deviation overreacts to single-bar anomalies.
 
 ## Historical Context
 
-Aberration Bands emerged as a response to the statistical assumptions baked into Bollinger Bands. Standard deviation assumes normally distributed returns. Markets often defy that assumption daily with fat tails, volatility clustering, and flash crashes. The squared-deviation approach treats these events as if they carry information about typical behavior, whereas they often represent noise.
+The absolute deviation approach predates Bollinger's work by decades. Mean absolute deviation appears in early 20th-century statistics as a robust alternative to standard deviation, championed by statisticians who recognized that squaring deviations gives disproportionate weight to outliers. In financial markets, applying absolute deviation to band construction arrived after practitioners grew tired of watching Bollinger Bands blow out on single-bar anomalies such as flash crashes, earnings gaps, and fat-finger trades.
 
-The absolute deviation approach predates Bollinger's work (mean absolute deviation appears in early 20th-century statistics), but applying it to band construction arrived later, once practitioners grew tired of watching their bands blow out on single-bar anomalies. No single inventor claims credit; the technique spread through trading floors where robustness mattered more than textbook elegance.
+No single inventor claims credit for ABBER. The technique spread through trading floors where robustness mattered more than textbook elegance. The mathematical distinction is fundamental: standard deviation is a quadratic spring that amplifies outliers, while mean absolute deviation is a linear damper that treats all deviations proportionally. Under Gaussian assumptions, $\text{MAD} \approx 0.7979 \sigma$, so ABBER with multiplier 2.0 is roughly equivalent to Bollinger Bands with multiplier 1.6. But on real market data with kurtosis > 3, the gap widens in ABBER's favor.
 
 ## Architecture & Physics
 
-ABBER computes three outputs through running sums maintained in O(1) streaming time. The fundamental difference from standard deviation is linearity: ABBER is a linear damper, while standard deviation is a quadratic spring.
+### 1. Central Tendency (SMA)
 
-### Calculation Steps
+The middle band is a Simple Moving Average over the lookback window:
 
-The algorithm maintains a central tendency (SMA) and a dispersion measure (Average Absolute Deviation).
+$$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} x_{t-i}$$
 
-1. **Middle Band (SMA)**
-    $$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Source}_{t-i}$$
+### 2. Absolute Deviation
 
-2. **Absolute Deviation**
-    $$\text{Deviation}_t = |\text{Source}_t - \text{Middle}_{t-1}|$$
+Each bar's deviation is measured against the previous middle band value:
 
-3. **Average Absolute Deviation**
-    $$\text{AvgDev}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Deviation}_{t-i}$$
+$$d_t = |x_t - \text{Middle}_{t-1}|$$
 
-4. **Band Calculation**
-    $$\text{Upper}_t = \text{Middle}_t + (k \times \text{AvgDev}_t)$$
-    $$\text{Lower}_t = \text{Middle}_t - (k \times \text{AvgDev}_t)$$
+### 3. Average Absolute Deviation
 
-    Where $n$ = lookback period (default: 20), $k$ = multiplier (default: 2.0).
+The deviation series is itself averaged over the same window:
 
-## Performance Profile
+$$\text{AvgDev}_t = \frac{1}{n} \sum_{i=0}^{n-1} d_{t-i}$$
 
-The implementation uses circular buffers to maintain running sums for both the SMA and the Average Deviation, ensuring O(1) complexity per update regardless of period length.
+### 4. Band Construction
 
-### Operation Count - Single value
+$$\text{Upper}_t = \text{Middle}_t + k \cdot \text{AvgDev}_t$$
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/SUB | 6 | 1 | 6 |
-| MUL | 2 | 3 | 6 |
-| DIV | 2 | 15 | 30 |
-| ABS | 1 | 1 | 1 |
-| **Total** | **11** | — | **~43 cycles** |
+$$\text{Lower}_t = \text{Middle}_t - k \cdot \text{AvgDev}_t$$
 
-### Operation Count - Batch processing
+### 5. Complexity
 
-While the recursive nature of SMA prevents full vectorization of the running state dependent steps, the final band construction supports SIMD.
+Both the SMA and the average deviation use circular buffers with running sums, yielding $O(1)$ per bar in streaming mode. The SIMD-accelerable portion is the final band construction step ($\text{Middle} \pm k \cdot \text{AvgDev}$), while the running-sum maintenance is inherently serial.
 
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| Band Construction | 2N | 2N/VectorSize | ~4-8× |
-| Deviation | N | N | 1× |
+## Mathematical Foundation
 
-## Validation
+### Parameters
 
-ABBER lacks wide support in standard libraries like TA-Lib, so validation relies on internal consistency checks between streaming, batch, and span-based modes.
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback window for SMA and deviation averaging | 20 | $> 0$ |
+| `multiplier` | Band width scale factor ($k$) | 2.0 | $> 0$ |
+| `source` | Input price series | close | |
+| `ma_line` | Pre-computed moving average (center line) | SMA | configurable |
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | N/A | Not implemented |
-| **Skender** | N/A | Not implemented |
-| **Internal** | ✅ | Streaming/Batch/Span match exactly |
-| **Manual** | ✅ | Validated against spreadsheet calculation |
+### Relationship to Standard Deviation
 
-## Usage & Pitfalls
+For a normal distribution:
 
-- **Parameter Sensitivity**: Multiplier of 2.0 captures ~89% of data under Gaussian assumptions, but market distributions vary. Adjust based on asset volatility characteristics.
-- **Lag Inheritance**: ABBER inherits SMA lag. For a 20-period setting, expect approximately 10 bars of delay in band response.
-- **Band Squeeze**: Narrowing bands signal consolidation, but ABBER narrows more slowly than Bollinger Bands after volatility spikes.
-- **Interpretation**: Price touching the upper band indicates strength (potentially overbought), while touching the lower band indicates weakness.
+$$\text{MAD} = \sigma \sqrt{\frac{2}{\pi}} \approx 0.7979\,\sigma$$
 
-## API
+Therefore ABBER with $k = 2.0$ captures approximately the same range as Bollinger Bands with $k \approx 1.596$.
 
-```mermaid
-classDiagram
-    class Abber {
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +event Pub
-        +Update(TValue input) TValue
-        +Update(TSeries source) tuple
-        +Batch(TSeries source, int p, double k) tuple
-    }
+### Pseudo-code
+
+```
+function ABBER(source, ma_line, period, multiplier):
+    // Deviation from center line
+    deviation = |source - ma_line|
+
+    // Average absolute deviation (SMA of deviations)
+    avg_dev = SMA(deviation, period)
+
+    // Band construction
+    upper = ma_line + multiplier * avg_dev
+    lower = ma_line - multiplier * avg_dev
+
+    return [upper, lower, avg_dev]
 ```
 
-### Class: `Abber`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | Lookback period for SMA and deviation. |
-| `multiplier` | `double` | `2.0` | `>0` | Multiplier for band width (k). |
-| `source` | `TSeries` | — | `any` | Initial input source (optional). |
+| Output | Description |
+|--------|-------------|
+| `upper` | Upper aberration band |
+| `lower` | Lower aberration band |
+| `avg_dev` | Current average absolute deviation (band half-width before scaling) |
 
-### Properties
+## Resources
 
-- `Last` (`TValue`): The current middle band value (SMA).
-- `Upper` (`TValue`): The current upper band value.
-- `Lower` (`TValue`): The current lower band value.
-- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
-
-### Methods
-
-- `Update(TValue input)`: Updates the indicator with a new data point.
-- `Update(TSeries source)`: Processes a full series.
-- `Batch(...)`: Static method for high-performance batch processing.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize
-var indicator = new Abber(period: 20, multiplier: 2.0);
-
-// Update Loop
-foreach (var bar in quotes)
-{
-    // Update with Close price
-    var result = indicator.Update(bar.Close);
-    
-    // Use valid results
-    if (indicator.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: Middle={result.Value:F2} Upper={indicator.Upper.Value:F2} Lower={indicator.Lower.Value:F2}");
-    }
-}
-```
+- **Pham-Gia, T. & Hung, T.L.** "The Mean and Median Absolute Deviations." *Mathematical and Computer Modelling*, 34(7-8), 2001. (MAD vs. standard deviation theory)
+- **Bollinger, J.** *Bollinger on Bollinger Bands*. McGraw-Hill, 2001. (Standard deviation band predecessor)
+- **Hampel, F.R.** "The Influence Curve and its Role in Robust Estimation." *Journal of the American Statistical Association*, 69(346), 1974. (Robustness theory for $L^1$ vs $L^2$ norms)

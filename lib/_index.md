@@ -126,8 +126,8 @@
 | [ENTROPY](statistics/entropy/Entropy.md) | Shannon Entropy | Statistics |
 | [EOM](volume/eom/Eom.md) | Ease of Movement | Volume |
 | [EVWMA](volume/evwma/Evwma.md) | Elastic Volume Weighted MA | Volume |
-| ER | Efficiency Ratio | Oscillators |
-| ERI | Elder Ray Index | Oscillators |
+| [ER](oscillators/er/Er.md) | Efficiency Ratio | Oscillators |
+| [ERI](oscillators/eri/Eri.md) | Elder Ray Index | Oscillators |
 | [EWMA](volatility/ewma/Ewma.md) | EWMA Volatility | Volatility |
 | EXPDIST | Exponential Distribution | Numerics |
 | [EXPTRANS](numerics/exptrans/Exptrans.md) | Exponential Transform | Numerics |
@@ -192,7 +192,7 @@
 | [KCHANNEL](channels/kchannel/kchannel.md) | Keltner Channel | Channels |
 | [KDJ](oscillators/kdj/Kdj.md) | KDJ Indicator | Oscillators |
 | [KENDALL](statistics/kendall/Kendall.md) | Kendall Rank Correlation | Statistics |
-| KRI | Kairi Relative Index | Oscillators |
+| [KRI](oscillators/kri/Kri.md) | Kairi Relative Index | Oscillators |
 | LANCZOS | Lanczos (sinc) Window MA | Trends (FIR) |
 | KST | KST Oscillator | Oscillators |
 | [KURTOSIS](statistics/kurtosis/Kurtosis.md) | Kurtosis | Statistics |
@@ -267,7 +267,7 @@
 | [PPO](momentum/ppo/Ppo.md) | Percentage Price Oscillator | Momentum |
 | [PRS](momentum/prs/Prs.md) | Price Relative Strength | Momentum |
 | [PSAR](reversals/psar/Psar.md) | Parabolic Stop And Reverse | Reversals |
-| PSL | Psychological Line | Oscillators |
+| [PSL](oscillators/psl/Psl.md) | Psychological Line | Oscillators |
 | [PSEUDOHUBER](errors/pseudohuber/Pseudohuber.md) | Pseudo-Huber Loss | Errors |
 | [PVD](volume/pvd/Pvd.md) | Price Volume Divergence | Volume |
 | [PVI](volume/pvi/Pvi.md) | Positive Volume Index | Volume |

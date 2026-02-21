@@ -1,124 +1,89 @@
 # ACCBANDS: Acceleration Bands
 
-> "Price creates its own envelope, expanding with potential and contracting with consensus."
-
-Acceleration Bands (ACCBANDS) serve as an adaptive volatility envelope based on the high-low range rather than standard deviation. Unlike Bollinger Bands which use close-to-close variance, Acceleration Bands utilize the intra-bar high-low spread to gauge volatility, creating channels that accommodate the full price excursion of the underlying asset.
+Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating channels that accommodate the full price excursion of the underlying asset. Each bar's contribution to band width is normalized by price level ($w = (H-L)/(H+L)$), making the bands scale-invariant across instruments. Three independent Simple Moving Averages of the adjusted high, adjusted low, and close prices form the upper, lower, and middle bands respectively. Headley's original breakout rule declares a trend when price closes outside the bands for two consecutive bars.
 
 ## Historical Context
 
-Developed by Price Headley and detailed in *Big Trends in Trading* (2002), Acceleration Bands addressed the need for a breakout-specific envelope. Headley observed that standard deviation often lagged in fast-moving breakout scenarios. By incorporating the High and Low prices directly into the band width calculation — using a per-bar normalized range width — he created a system that reacts immediately to range expansion, often serving as a trigger for trend-following entries when price closes outside the bands.
+Price Headley developed Acceleration Bands and detailed them in *Big Trends in Trading* (Wiley, 2002). Headley observed that standard deviation bands often lag in fast-moving breakout scenarios because they require several bars of expanded volatility before the bands visibly widen. By incorporating High and Low prices directly into the band width calculation through a per-bar normalized range, he created a system that reacts immediately to range expansion.
+
+The normalization $w = (H-L)/(H+L)$ is the key design choice. Dividing range by the sum of high and low produces a dimensionless ratio that is comparable across any price level. A $5 stock with a $0.50 range and a $500 stock with a $50 range both produce $w = 0.05$. The default factor of 4.0 was Headley's empirically determined value for equity markets on daily timeframes, matching the TA-Lib reference implementation.
 
 ## Architecture & Physics
 
-The indicator applies a per-bar width adjustment based on the normalized range `w = (H-L)/(H+L)` before averaging. This means wider-range bars contribute proportionally more to band expansion. Three Simple Moving Averages (adjusted high, adjusted low, close) construct the bands.
+### 1. Per-Bar Normalized Width
 
-### Calculation Steps (Headley's Formula)
+For each bar, compute the range as a fraction of total price:
 
-1. **Per-bar normalized width**:
-    $$w_t = \frac{High_t - Low_t}{High_t + Low_t}$$
+$$w_t = \frac{H_t - L_t}{H_t + L_t}$$
 
-2. **Adjusted prices per bar**:
-    $$AdjHigh_t = High_t \times (1 + Factor \times w_t)$$
-    $$AdjLow_t = Low_t \times (1 - Factor \times w_t)$$
+When $H_t + L_t = 0$ (price is zero), $w_t = 0$ to prevent division by zero.
 
-3. **Band Construction**:
-    $$Upper_t = SMA(AdjHigh, n)$$
-    $$Lower_t = SMA(AdjLow, n)$$
-    $$Middle_t = SMA(Close, n)$$
+### 2. Adjusted Prices
 
-    Where $n$ = period (default 20), $Factor$ = multiplier (default 4.0).
+The high and low are expanded by the normalized width scaled by the factor:
 
-## Performance Profile
+$$\text{AdjHigh}_t = H_t \times (1 + F \cdot w_t)$$
 
-The implementation uses three independent circular buffers (adjusted high, adjusted low, close) to maintain O(1) complexity for the moving averages.
+$$\text{AdjLow}_t = L_t \times (1 - F \cdot w_t)$$
 
-### Operation Count - Single value
+### 3. Band Construction (Three SMAs)
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/SUB | 10 | 1 | 10 |
-| MUL | 4 | 3 | 12 |
-| DIV | 4 | 15 | 60 |
-| **Total** | **18** | — | **~82 cycles** |
+$$\text{Upper}_t = \text{SMA}(\text{AdjHigh}, n)$$
 
-### Operation Count - Batch processing
+$$\text{Lower}_t = \text{SMA}(\text{AdjLow}, n)$$
 
-SIMD optimization is applied to the sum resynchronization, though the recursive nature of the SMAs limits full vectorization of the state maintenance.
+$$\text{Middle}_t = \text{SMA}(\text{Close}, n)$$
 
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| Band Construction | 3N | 3N/VectorSize | ~4-8× |
-| SMAs | 3N | 3N | 1× |
+### 4. Complexity
 
-## Validation
+Three independent circular buffers maintain running sums for $O(1)$ streaming updates. Each bar requires computing $w_t$, the two adjusted prices, and three buffer updates.
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | ✅ | All three bands match exactly (same Headley formula) |
-| **Internal** | ✅ | Streaming/Batch/Span match exactly |
+## Mathematical Foundation
 
-## Usage & Pitfalls
+### Parameters
 
-- **Trend Definition**: Headley defines a breakout as two consecutive closes outside the bands.
-- **Parameter Sensitivity**: The default factor of 4.0 matches TA-Lib and Headley's original. Lower factors (e.g., 2.0) produce tighter bands; higher factors (e.g., 6.0) may be needed for crypto/FX.
-- **Lag**: Inherits the lag of the underlying SMA. Not suitable for ultra-high-frequency reacting.
-- **Range vs Variance**: Because it uses High-Low range, it is more sensitive to "wicks" or momentary spikes than close-based envelopes.
-- **Division by Zero**: When High + Low = 0 (price is zero), the normalized width defaults to 0.
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Lookback period for the three SMAs ($n$) | 20 | $> 0$ |
+| `factor` | Multiplier for normalized width ($F$) | 4.0 | $> 0$ |
 
-## API
+### Pseudo-code
 
-```mermaid
-classDiagram
-    class AccBands {
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +event Pub
-        +Update(TBar bar) TValue
-        +Update(TBarSeries source) tuple
-        +Batch(TBarSeries source, int p, double f) tuple
-    }
+```
+function ACCBANDS(high, low, close, period, factor):
+    // Per-bar normalized width
+    denom = high + low
+    w = denom ≠ 0 ? (high - low) / denom : 0
+
+    // Adjusted prices
+    adj_high = high * (1 + factor * w)
+    adj_low  = low  * (1 - factor * w)
+
+    // Three independent SMAs
+    upper  = SMA(adj_high, period)
+    lower  = SMA(adj_low, period)
+    middle = SMA(close, period)
+
+    return [middle, upper, lower]
 ```
 
-### Class: `AccBands`
+### Breakout Rule (Headley)
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | Lookback period for SMAs. |
-| `factor` | `double` | `4.0` | `>0` | Multiplier for normalized width. |
-| `source` | `TBarSeries` | — | `any` | Initial input TBar data (optional). |
+A trend is confirmed when:
 
-### Properties
+$$\text{Close}_t > \text{Upper}_t \quad \text{AND} \quad \text{Close}_{t-1} > \text{Upper}_{t-1}$$
 
-- `Last` (`TValue`): The current middle band value (SMA of Close).
-- `Upper` (`TValue`): The current upper band value (SMA of adjusted High).
-- `Lower` (`TValue`): The current lower band value (SMA of adjusted Low).
-- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
+(Two consecutive closes above the upper band.) Reverse logic for downside breakouts.
 
-### Methods
+### Output Interpretation
 
-- `Update(TBar input)`: Updates the indicator with a new bar.
-- `Update(TBarSeries source)`: Processes a full series.
-- `Batch(...)`: Static method for high-performance batch processing.
+| Output | Description |
+|--------|-------------|
+| `upper` | SMA of adjusted highs (resistance envelope) |
+| `lower` | SMA of adjusted lows (support envelope) |
+| `middle` | SMA of close (center line) |
 
-## C# Example
+## Resources
 
-```csharp
-using QuanTAlib;
-
-// Initialize
-var indicator = new AccBands(period: 20, factor: 4.0);
-
-// Update Loop
-foreach (var bar in bars)
-{
-    var result = indicator.Update(bar);
-    
-    // Use valid results
-    if (indicator.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2} Up={indicator.Upper.Value:F2} Low={indicator.Lower.Value:F2}");
-    }
-}
-```
+- **Headley, P.** *Big Trends in Trading*. Wiley, 2002. (Original Acceleration Bands specification)
+- **TA-Lib** `TA_ACCBANDS` function. (Reference implementation with factor = 4.0)

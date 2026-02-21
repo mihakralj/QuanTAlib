@@ -1,142 +1,129 @@
 # JBANDS: Jurik Adaptive Envelope Bands
 
-> "Markets have memory, but it fades—Jurik bands capture this with elegant exponential decay."
-
-Jurik Bands (JBANDS) expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA). Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetrical width around a central average, JBANDS feature asymmetric "snap-and-decay" behavior. They expand instantly to encompass new price extremes ("snap") and exponentially decay towards the price during consolidation. The decay rate is dynamically modulated by a sophisticated volatility estimation engine, making the bands tight during sideways markets and expansive during trends.
+JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation. Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetric width around a center line, JBANDS feature "snap-and-decay" hysteresis: expansion is instantaneous (plasticity), contraction is gradual (elasticity). The decay rate is dynamically modulated by a two-stage volatility estimator — a 10-bar SMA feeding a 128-bar trimmed mean — making the bands tight during quiet markets and expansive during trends. The center line is the full JMA: a 2-pole IIR filter with phase control and adaptive alpha.
 
 ## Historical Context
 
-The Jurik Moving Average and its associated bands were developed by **Mark Jurik** of Jurik Research in the 1990s. Unlike academic indicators, JMA was designed as a proprietary commercial tool optimized for real-world trading, with particular emphasis on reducing lag while maintaining smoothness.
+Mark Jurik of Jurik Research developed the Jurik Moving Average and its associated bands in the 1990s as a proprietary commercial tool optimized for real-world trading. Unlike academic indicators, JMA was designed with emphasis on reducing lag while maintaining smoothness, using adaptive volatility modulation to adjust bandwidth dynamically.
 
-Jurik's innovation was the introduction of **adaptive volatility modulation**—the bands don't use a fixed decay rate but instead adjust their behavior based on a sophisticated two-stage volatility estimator. During low volatility, the bands contract quickly to capture the next move; during high volatility, they remain wide to avoid premature signals.
-
-The "snap-and-decay" behavior draws inspiration from **hysteresis** in physics—systems that respond differently to increasing versus decreasing inputs. When price moves to a new extreme, the band snaps immediately (plasticity). When price retreats, the band decays gradually (elasticity). This asymmetry matches how markets actually behave: breakouts are sudden, consolidations are gradual.
+The "snap-and-decay" behavior draws from hysteresis in physics — systems that respond differently to increasing versus decreasing inputs. When price moves to a new extreme, the band deforms immediately (plastic response). When price retreats, the band recovers gradually (elastic response). This asymmetry matches empirical market behavior: breakouts are sudden, consolidations are gradual. The two-stage volatility engine (local deviation → SMA → trimmed mean) provides robust reference volatility that resists contamination by outliers.
 
 ## Architecture & Physics
 
-The system models price distinctively from standard Gaussian noise:
+### 1. Local Deviation
 
-1. **Snap (Plasticity):** When price penetrates the band, the band instantly deforms (snaps) to the new price level. This represents the immediate acceptance of a new price reality.
-2. **Decay (Elasticity):** When price retreats, the band recovers (decays) towards the center. The rate of decay is governed by the system's "temperature" (volatility).
-    - **High Volatility:** Slow decay (bands stay wide to accommodate noise).
-    - **Low Volatility:** Fast decay (bands tighten to capture the next move).
-3. **Volatility Engine:** A two-stage estimator (SMA + Trimmed Mean) calculates the "reference volatility" to normalize market noise.
+The maximum absolute distance from price to either band:
 
-### Formula
+$$d_{\text{local}} = \max(|x_t - \text{Upper}_{t-1}|,\; |x_t - \text{Lower}_{t-1}|) + \epsilon$$
 
-The core adaptive logic revolves around the dynamic exponent $d$:
-$$Ratio = \frac{|Price - Band|}{Volatility_{ref}}$$
-$$d = \min(Mean(Ratio)^{power}, Limit)$$
+### 2. Two-Stage Volatility Estimation
 
-The decay factor $\alpha$ is modulated by $d$:
-$$\alpha = e^{\text{constant} \cdot \sqrt{d}}$$
+**Stage 1**: 10-bar SMA of local deviation:
 
-Band update (Upper Band example):
-$$Upper_t = \begin{cases} Price & \text{if } Price > Upper_{t-1} \\ Upper_{t-1} - \alpha \cdot (Upper_{t-1} - Price) & \text{otherwise} \end{cases}$$
+$$\text{highD}_t = \text{SMA}(d_{\text{local}},\; 10)$$
 
-## Calculation Steps
+**Stage 2**: 128-bar trimmed mean (discard top/bottom 25% when full, or 25% of available count during warmup):
 
-1. **Local Deviation:** Measure how far the price is from the current envelope walls.
-2. **Volatility Estimation:**
-    - Calculate 10-period SMA of the local deviation.
-    - Store in a circular buffer.
-    - Calculate a 128-period **Trimmed Mean** (discarding outliers) to find the Reference Volatility.
-3. **Dynamic Exponent:** Compute the modulation exponent $d$ based on the ratio of current deviation to reference volatility.
-4. **Update Bands:** Apply the "Snap or Decay" logic using the dynamic exponent.
-5. **Update JMA:** Calculate the Central Moving Average (Middle Band) using the JMA smoothing algorithm.
+$$d_{\text{ref}} = \text{TrimmedMean}(\text{highD values},\; 128)$$
 
-## Performance Profile
+### 3. Dynamic Exponent
 
-JBANDS is computationally intensive due to its sophisticated volatility engine and use of transcendental functions.
+$$\text{ratio} = \frac{|x_t - \text{band}|}{d_{\text{ref}}}$$
 
-### Operation Count (Streaming Mode, per Bar)
+$$d = \min\left(\max\left(\text{ratio}^{P_{\text{exp}}},\; 1\right),\; \log_2\sqrt{\frac{P-1}{2}} + 2\right)$$
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| ADD/MUL | 30 | 2 | 60 |
-| EXP | 2 | 15 | 30 |
-| POW | 1 | 20 | 20 |
-| SQRT | 2 | 15 | 30 |
-| Partial Sort | 1 | ~150 | 150 |
-| **Total** | **36** | — | **~290 cycles** |
+Where $P_{\text{exp}} = \max(\log_2\sqrt{(P-1)/2},\; 0.5)$.
 
-### Complexity Analysis
+### 4. Adaptive Decay
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Amortized, IIR recursive |
-| Batch | O(n) | Sequential, limited SIMD |
+The adaptation factor uses the precomputed $\text{sqrtDiv}$:
 
-## Validation
+$$\alpha_{\text{band}} = \text{sqrtDiv}^{\sqrt{d}}$$
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **Jurik Research** | ✅ | Matches described behavior from Jurik literature |
-| **JMA** | ✅ | Middle band validated against standard JMA |
-| **Behavioral** | ✅ | Verified snap-on-breakout, decay-on-retrace pattern |
+### 5. Snap-and-Decay Band Update
 
-## Usage & Pitfalls
+$$\text{Upper}_t = \begin{cases} x_t & \text{if } x_t > \text{Upper}_{t-1} \\ x_t - (x_t - \text{Upper}_{t-1}) \cdot \alpha_{\text{band}} & \text{otherwise} \end{cases}$$
 
-- **Extended Warmup:** JBANDS requires a long warmup period (approx 20 + 80 × Period^0.36 bars). Wait for `IsHot=true` before using signals.
-- **Snap vs Decay:** Bands snap instantly to new extremes but decay gradually. Expect asymmetric behavior—this is by design.
-- **Volatility Sensitivity:** The `power` parameter (default 0.45) modulates volatility sensitivity. Higher values make bands more reactive to volatility changes.
-- **Computational Cost:** ~300+ cycles per bar due to transcendental functions and trimmed mean calculation. Consider this for high-frequency applications.
-- **Phase Parameter:** Controls JMA overshoot (-100 to 100). Default 0 is balanced; negative values reduce lag at the cost of more overshoot.
-- **Not Symmetrical:** Unlike Bollinger Bands, JBANDS are asymmetric. Upper and lower bands behave independently.
+$$\text{Lower}_t = \begin{cases} x_t & \text{if } x_t < \text{Lower}_{t-1} \\ x_t - (x_t - \text{Lower}_{t-1}) \cdot \alpha_{\text{band}} & \text{otherwise} \end{cases}$$
 
-## API
+### 6. JMA Center Line (2-Pole IIR)
 
-```mermaid
-classDiagram
-    class Jbands {
-        +Jbands(int period, int phase = 0, double power = 0.45)
-        +TValue Last
-        +TValue Upper
-        +TValue Lower
-        +bool IsHot
-        +TValue Update(TValue value)
-        +void Reset()
-    }
+$$\alpha_{\text{jma}} = \text{lenDiv}^d$$
+
+$$c_0 = (1 - \alpha_{\text{jma}}) \cdot x_t + \alpha_{\text{jma}} \cdot c_{0,t-1}$$
+
+$$c_8 = (x_t - c_0)(1 - \text{lenDiv}) + \text{lenDiv} \cdot c_{8,t-1}$$
+
+$$a_8 = (\text{phase} \cdot c_8 + c_0 - \text{JMA}_{t-1}) \cdot (1 + \alpha_{\text{jma}}^2 - 2\alpha_{\text{jma}}) + \alpha_{\text{jma}}^2 \cdot a_{8,t-1}$$
+
+$$\text{JMA}_t = \text{JMA}_{t-1} + a_8$$
+
+### 7. Complexity
+
+Dominated by the trimmed mean's partial sort: $O(n \log n)$ for the 128-element buffer. All other operations are $O(1)$. In practice, the 128-element sort is fast due to cache-friendly size.
+
+## Mathematical Foundation
+
+### Parameters
+
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `period` | Nominal lookback length | 10 | $> 0$ |
+| `phase` | Controls JMA overshoot/smoothness | 0 | $[-100, 100]$ |
+| `source` | Input price series | close | |
+
+### Precomputed Constants (from period and phase)
+
+| Constant | Formula |
+|----------|---------|
+| $\text{\_PHASE}$ | $\text{phase}/100 + 1.5$, clamped to $[0.5, 2.5]$ |
+| $\text{\_LEN0}$ | $(P - 1) / 2$ |
+| $\text{\_LOG\_PARAM}$ | $\max(\log_2\sqrt{\text{\_LEN0}} + 2,\; 0)$ |
+| $\text{\_SQRT\_PARAM}$ | $\sqrt{\text{\_LEN0}} \cdot \text{\_LOG\_PARAM}$ |
+| $\text{lenDiv}$ | $\text{\_LEN0} \cdot 0.9 / (\text{\_LEN0} \cdot 0.9 + 2)$ |
+| $\text{sqrtDiv}$ | $\text{\_SQRT\_PARAM} / (\text{\_SQRT\_PARAM} + 1)$ |
+| $P_{\text{exp}}$ | $\max(\text{\_LOG\_PARAM} - 2,\; 0.5)$ |
+
+### Pseudo-code
+
+```
+function JBANDS(source, period, phase):
+    precompute constants from period and phase
+
+    // 1. Local deviation
+    dLocal = max(|source - upper|, |source - lower|) + ε
+
+    // 2. Volatility: 10-bar SMA → 128-bar trimmed mean
+    highD = SMA(dLocal, 10)
+    dRef = TrimmedMean(highD_history, 128)
+
+    // 3. Dynamic exponent
+    ratio = |source - band| / dRef
+    d = clamp(ratio^P_exp, 1, LOG_PARAM)
+
+    // 4. Snap-and-decay bands
+    adapt = sqrtDiv^√d
+    if source > upper: upper = source
+    else: upper = source - (source - upper) * adapt
+    (symmetric for lower)
+
+    // 5. JMA center line (2-pole IIR)
+    alpha = lenDiv^d
+    ... (c0, c8, a8 recursion) ...
+    jma = prev_jma + a8
+
+    return [jma, upper, lower]
 ```
 
-### Class: `Jbands`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `period` | `int` | — | `>0` | The nominal lookback length. |
-| `phase` | `int` | `0` | `-100–100` | Controls middle band overshoot. |
-| `power` | `double` | `0.45` | `>0` | Modulates volatility sensitivity. |
+| Output | Description |
+|--------|-------------|
+| `middle` | JMA center line (adaptive low-lag smoothed price) |
+| `upper` | Adaptive upper envelope (snaps up, decays down) |
+| `lower` | Adaptive lower envelope (snaps down, decays up) |
 
-### Properties
+## Resources
 
-| Name | Type | Description |
-|---|---|---|
-| `Last` | `TValue` | The Middle Band (JMA) value. |
-| `Upper` | `TValue` | The Adaptive Upper Envelope. |
-| `Lower` | `TValue` | The Adaptive Lower Envelope. |
-| `IsHot` | `bool` | Returns `true` after long warmup (≈ 20 + 80 × Period^0.36 bars). |
-
-### Methods
-
-- `Update(TValue value)`: Updates the indicator with a new value.
-- `Reset()`: Clears all historical data and volatility buffers.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// 1. Initialize 
-var jbands = new Jbands(period: 14, phase: 0);
-
-// 2. Stream data
-var price = 100.0;
-// ... loop over data ...
-jbands.Update(new TValue(DateTime.Now, price));
-
-// 3. JMA interpretation
-if (price > jbands.Upper.Value)
-{
-    Console.WriteLine("Volatility Breakout - Band Snapped Up");
-}
-```
+- **Jurik, M.** Jurik Research. (Proprietary JMA specification and band logic)
+- **Mandelbrot, B.** "The Variation of Certain Speculative Prices." *Journal of Business*, 36(4), 1963. (Fat-tailed distributions motivating adaptive approaches)

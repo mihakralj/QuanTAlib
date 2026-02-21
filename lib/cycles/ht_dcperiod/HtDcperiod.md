@@ -1,143 +1,109 @@
 # HT_DCPERIOD: Ehlers Hilbert Transform Dominant Cycle Period
 
-> "Knowing the cycle period is the master key—it calibrates other indicators to the market's current rhythm."
-
-HT_DCPERIOD estimates the period of the dominant market cycle using Ehlers' Hilbert Transform cascade. The indicator measures the instantaneous period based on the rate of change of the phase angle, providing a variable period length (typically 6-50 bars) that dynamically tunes other indicators.
+HT_DCPERIOD estimates the period of the dominant market cycle using Ehlers' Hilbert Transform cascade. The algorithm extracts In-Phase and Quadrature components from price, computes instantaneous phase via homodyne discrimination, and derives the period from the phase rate of change. Output is a continuously varying period (typically 6-50 bars) compatible with TA-Lib's `HT_DCPERIOD` function. The indicator enables dynamic tuning of other indicators to the market's actual rhythm rather than fixed-parameter assumptions.
 
 ## Historical Context
 
-John Ehlers introduced the Hilbert Transform Dominant Cycle Period in *Rocket Science for Traders* (2001). The goal was to overcome the limitations of fixed-period indicators by measuring the actual cycle length present in the data.
-
-TA-Lib implements HT_DCPERIOD using Ehlers' specific coefficients (A = 0.0962, B = 0.5769) and smoothing algorithms. QuanTAlib matches the TA-Lib implementation within floating-point tolerance.
+John Ehlers introduced the Hilbert Transform Dominant Cycle Period in *Rocket Science for Traders* (2001) to overcome the fundamental limitation of fixed-period technical indicators. Markets cycle at variable rates, yet traditional indicators like RSI-14 or SMA-20 assume constant periodicity. HT_DCPERIOD measures the actual cycle length present in price data, enabling adaptive parameter selection. The TA-Lib implementation codified specific Hilbert Transform coefficients ($A = 0.0962$, $B = 0.5769$) and smoothing algorithms that became the de facto standard. QuanTAlib matches the TA-Lib implementation within floating-point tolerance, including the 32-bar lookback convention.
 
 ## Architecture & Physics
 
-The algorithm follows a complex pipeline to extract cycle period from phase information.
-
 ### 1. WMA Price Smoothing
 
-$$
-SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
-$$
+A 4-bar weighted moving average removes Nyquist-frequency noise:
 
-### 2. Hilbert Transform Components
+$$SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}$$
 
-The Hilbert Transform generates In-Phase (I) and Quadrature (Q) components:
+### 2. Hilbert Transform FIR
 
-- **Detrender**: Removes DC component and trend
-- **Q1**: Quadrature component of detrender
-- **I1**: In-Phase component (delayed detrender)
-- **jI, jQ**: Hilbert transforms of I1 and Q1
+The discrete Hilbert approximation generates the detrender and quadrature components using coefficients $A = 0.0962$ and $B = 0.5769$. The detrender, $Q_1$, and Hilbert transforms of $I_1$ and $Q_1$ ($jI$, $jQ$) are all computed with the same 4-tap FIR structure.
 
 ### 3. Phasor Components
 
-$$
-I2_t = I1_t - jQ_t
-$$
+$$I_{2,t} = I_{1,t} - jQ_t, \qquad Q_{2,t} = Q_{1,t} + jI_t$$
 
-$$
-Q2_t = Q1_t + jI_t
-$$
+Both smoothed with EMA ($\alpha = 0.2$).
 
-Smoothed with EMA (α = 0.2).
+### 4. Homodyne Period Extraction
 
-### 4. Period Extraction
+$$Re_t = 0.2(I_{2,t} \cdot I_{2,t-1} + Q_{2,t} \cdot Q_{2,t-1}) + 0.8 \cdot Re_{t-1}$$
 
-$$
-Period_t = \frac{2\pi}{\arctan(Im_t / Re_t)}
-$$
+$$Im_t = 0.2(I_{2,t} \cdot Q_{2,t-1} - Q_{2,t} \cdot I_{2,t-1}) + 0.8 \cdot Im_{t-1}$$
 
-Clamped to [6, 50] and smoothed with EMA (α = 0.33).
+$$Period_{raw} = \frac{2\pi}{\arctan(Im_t / Re_t)}$$
 
-## Performance Profile
+### 5. Period Smoothing
 
-### Operation Count (Streaming Mode, per Bar)
+Clamped to $[6, 50]$ bars, then smoothed:
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| MUL (Hilbert taps) | 28 | 3 | 84 |
-| MUL (homodyne mix) | 4 | 3 | 12 |
-| ADD/SUB | 40 | 1 | 40 |
-| ATAN2 | 1 | 25 | 25 |
-| DIV | 3 | 15 | 45 |
-| **Total** | **76** | — | **~206 cycles** |
+$$Period_t = 0.33 \cdot Period_{raw} + 0.67 \cdot Period_{t-1}$$
 
-### Complexity Analysis
+### 6. Complexity
 
-- **Streaming:** O(1) per bar—fixed Hilbert cascade
-- **Memory:** ~1.2 KB per instance (circular buffers + state)
-- **Warmup:** 32 bars (TA-Lib lookback)
+$O(1)$ per bar. Fixed Hilbert cascade with circular buffers totaling approximately 1.2 KB per instance. Warmup: 32 bars (TA-Lib lookback).
 
-## Validation
+## Mathematical Foundation
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | ✅ | Matches `TALib.Functions.HtDcPeriod()` |
-| Skender | N/A | Not implemented |
-| PineScript | ✅ | Matches `ht_dcperiod.pine` reference |
+### Parameters
 
-## Usage & Pitfalls
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| (none) | No user-configurable parameters | | |
 
-- **Output is period in bars** (6-50 range)—not an oscillator
-- **32-bar warmup required**—ignore early values
-- **Trending markets** cause period to drift to upper limit (50)
-- **High noise** causes jitter—internal smoothing helps
-- **Use for adaptive tuning**: `RSI(period: htDcperiod.Value / 2)`
-- **Stable periods** indicate rhythmic market suitable for oscillators
+The period range [6, 50] and all smoothing constants are fixed by the TA-Lib specification.
 
-## API
+### Pseudo-code
 
-```mermaid
-classDiagram
-    class HtDcperiod {
-        +double Value
-        +bool IsHot
-        +HtDcperiod()
-        +HtDcperiod(ITValuePublisher source)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+```
+function HT_DCPERIOD(source):
+    A ← 0.0962; B ← 0.5769
+    smoothBuf ← CircularBuffer(7)
+    detBuf, q1Buf, i1Buf ← CircularBuffers
+
+    I2 ← 0; Q2 ← 0
+    Re ← 0; Im ← 0
+    period ← 15   // initial estimate
+
+    for each price in source:
+        // Step 1: WMA smooth
+        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
+
+        // Step 2: Hilbert FIR (adaptive to period)
+        adj ← A + B   // coefficient adjustment
+        det ← adj·(smooth[0] - smooth[6]) + B·(smooth[2] - smooth[4])
+        Q1 ← adj·(det[0] - det[6]) + B·(det[2] - det[4])
+        I1 ← det[3]
+        jI ← adj·(I1[0] - I1[6]) + B·(I1[2] - I1[4])
+        jQ ← adj·(Q1[0] - Q1[6]) + B·(Q1[2] - Q1[4])
+
+        // Step 3: Phasor (EMA smoothed)
+        I2 ← 0.2·(I1 - jQ) + 0.8·I2
+        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2
+
+        // Step 4: Homodyne discriminator
+        Re ← 0.2·(I2·I2_prev + Q2·Q2_prev) + 0.8·Re
+        Im ← 0.2·(I2·Q2_prev - Q2·I2_prev) + 0.8·Im
+
+        // Step 5: Period
+        if Im ≠ 0 and Re ≠ 0:
+            p ← 2π / atan(Im / Re)
+        p ← clamp(p, 6, 50)
+        period ← 0.33·p + 0.67·period
+
+        emit period
 ```
 
-### Class: `HtDcperiod`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| (none) | — | — | — | No constructor parameters |
+| Output | Meaning |
+|--------|---------|
+| `period` $\approx 6$-$15$ | Short-cycle market; fast oscillator settings appropriate |
+| `period` $\approx 15$-$30$ | Medium-cycle; standard indicator periods work |
+| `period` $\approx 30$-$50$ | Long-cycle or trending; period drifting toward upper bound suggests trend |
+| Stable value | Regular cyclical market, ideal for oscillator-based strategies |
 
-### Properties
+## Resources
 
-- `Value` (`double`): Dominant cycle period in bars (6-50)
-- `IsHot` (`bool`): Returns `true` when warmup (32 bars) is complete
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create HT_DCPERIOD
-var htPeriod = new HtDcperiod();
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = htPeriod.Update(new TValue(bar.Date, bar.Close));
-    
-    if (htPeriod.IsHot)
-    {
-        double period = result.Value;
-        Console.WriteLine($"{bar.Date}: Dominant Cycle = {period:F2} bars");
-        
-        // Use cycle to tune RSI adaptively
-        int adaptivePeriod = (int)(period / 2);
-        var adaptiveRsi = new Rsi(adaptivePeriod);
-    }
-}
-
-// Batch calculation
-var output = HtDcperiod.Calculate(sourceSeries);
-```
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.
+- **TA-Lib** `TA_HT_DCPERIOD()` reference implementation.
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.

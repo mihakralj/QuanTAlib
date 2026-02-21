@@ -1,152 +1,107 @@
 # HT_DCPHASE: Ehlers Hilbert Transform Dominant Cycle Phase
 
-> "The phase advances through a full 360-degree cycle as the dominant cycle completes; rapid phase changes indicate turning points."
-
-HT_DCPHASE measures the instantaneous phase angle of the dominant market cycle using Ehlers' Hilbert Transform cascade. The output ranges from -45° to 315°, with phase discontinuities marking cycle completions. This indicator times entries/exits based on cycle position.
+HT_DCPHASE measures the instantaneous phase angle of the dominant market cycle using Ehlers' Hilbert Transform cascade. The output ranges from $-45°$ to $315°$, with phase discontinuities at cycle completions marking the transition from one cycle to the next. Compatible with TA-Lib's `HT_DCPHASE` function, the indicator enables cycle-position timing for entries and exits based on where price currently sits within the dominant cycle.
 
 ## Historical Context
 
-John Ehlers developed the Hilbert Transform cycle indicators in *Rocket Science for Traders* (2001). TA-Lib implements HT_DCPHASE directly from Ehlers' coefficients (A = 0.0962, B = 0.5769) with a 4-bar WMA prefilter and DC phase extraction from smoothed price history.
-
-QuanTAlib matches TA-Lib HT_DCPHASE output within floating-point tolerance.
+John Ehlers developed the Hilbert Transform cycle indicators in *Rocket Science for Traders* (2001) as extensions of David Hilbert's 1905 mathematical transform to financial data. While HT_DCPERIOD measures *how long* a cycle takes, HT_DCPHASE measures *where within the cycle* the market currently sits. This distinction matters for timing: a 20-bar cycle at phase 0° (bottom) has different implications than the same cycle at phase 180° (top). The TA-Lib implementation uses a DFT-like accumulation over the smoothed period to compute the DC phase from smoothed price history, requiring 63 bars of lookback for stable output. QuanTAlib matches TA-Lib within floating-point tolerance.
 
 ## Architecture & Physics
 
-The algorithm extracts phase from the complex analytic signal.
+### 1. Hilbert Transform Cascade
 
-### 1. WMA Price Smoothing
+Identical pipeline to HT_DCPERIOD: 4-bar WMA smoothing, Hilbert FIR detrender with coefficients $A = 0.0962$, $B = 0.5769$, phasor component extraction ($I_2$, $Q_2$), and homodyne period estimation.
 
-$$
-SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
-$$
+### 2. Smoothed Period
 
-### 2. Hilbert Transform Cascade
+The dominant cycle period from the homodyne discriminator, clamped to $[6, 50]$ and EMA-smoothed ($\alpha = 0.33$).
 
-- **Detrender (D)**: Removes DC component
-- **Quadrature (Q1)**: 90° phase-shifted version of D
-- **In-Phase (I1)**: D delayed by 3 bars
-- **jI, jQ**: Hilbert transforms of I1, Q1
+### 3. DC Phase via DFT Accumulation
 
-### 3. Phasor Components
+Over the smoothed period $P$, accumulate weighted contributions from the price history:
 
-$$
-I2_t = I1_t - jQ_t
-$$
+$$RealPart = \sum_{i=0}^{P-1} \sin\!\left(\frac{2\pi i}{P}\right) \cdot SmoothPrice_{t-i}$$
 
-$$
-Q2_t = Q1_t + jI_t
-$$
+$$ImagPart = \sum_{i=0}^{P-1} \cos\!\left(\frac{2\pi i}{P}\right) \cdot SmoothPrice_{t-i}$$
 
-Smoothed with EMA (α = 0.2).
+$$DCPhase_{raw} = \arctan\!\left(\frac{RealPart}{ImagPart}\right) \cdot \frac{180°}{\pi}$$
 
-### 4. DC Phase Calculation
+### 4. Phase Adjustment
 
-Via DFT-like accumulation over smoothed period:
+If $ImagPart > 0$: $DCPhase \mathrel{-}= 180°$
 
-$$
-DCPhase = \arctan\left(\frac{RealPart}{ImagPart}\right) \cdot \frac{180°}{\pi}
-$$
+Final unwrapping: $DCPhase \mathrel{+}= 90°$, then if $DCPhase < -45°$: $DCPhase \mathrel{+}= 360°$.
 
-Wrapped to range [-45°, 315°].
+Result is wrapped to $[-45°, 315°]$.
 
-## Performance Profile
+### 5. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+$O(P)$ per bar where $P$ is the smoothed period (typically 6-50), due to the DFT accumulation loop over the price history. Memory is approximately 1.2 KB per instance for circular buffers and state. Warmup: 63 bars (TA-Lib lookback).
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| MUL (Hilbert + DFT) | 45 | 3 | 135 |
-| SIN/COS (DFT loop) | 100 | 15 | 1500 |
-| ADD/SUB | 60 | 1 | 60 |
-| ATAN2 | 2 | 25 | 50 |
-| **Total** | **~207** | — | **~1745 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(P) per bar where P is smoothed period (~6-50)
-- **Memory:** ~1.2 KB per instance
-- **Warmup:** 63 bars (TA-Lib lookback)
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| (none) | No user-configurable parameters | | |
 
-## Validation
+All internal constants are fixed by the TA-Lib specification.
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | ✅ | Matches `TALib.Functions.HtDcPhase()` |
-| Skender | N/A | Not implemented |
-| PineScript | ✅ | Matches `ht_dcphase.pine` |
+### Pseudo-code
 
-## Usage & Pitfalls
+```
+function HT_DCPHASE(source):
+    // Same Hilbert cascade as HT_DCPERIOD
+    // ... (WMA smooth, Hilbert FIR, phasor, homodyne)
+    // Produces: smoothPeriod, smoothPriceBuf
 
-- **Phase range is -45° to 315°**—discontinuity at wrap is expected
-- **63-bar warmup required**—ignore early values
-- **Phase interpretation**:
-  - -45° to 45°: Bottom / Start of uptrend
-  - 45° to 135°: Rising / Mid-uptrend
-  - 135° to 225°: Top / Start of downtrend
-  - 225° to 315°: Falling / Mid-downtrend
-- **Do not smooth across discontinuity**—315° to -45° jump is cycle completion
-- **Strong trends** cause phase to advance slowly or get stuck
-- **Rapid phase change** often precedes price reversals
+    for each bar (after warmup):
+        P ← round(smoothPeriod)
 
-## API
+        // DFT accumulation over dominant period
+        realPart ← 0; imagPart ← 0
+        for i = 0 to P-1:
+            realPart += sin(2π·i / P) · smoothPriceBuf[t - i]
+            imagPart += cos(2π·i / P) · smoothPriceBuf[t - i]
 
-```mermaid
-classDiagram
-    class HtDcphase {
-        +double Value
-        +bool IsHot
-        +HtDcphase()
-        +HtDcphase(ITValuePublisher source)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+        // Phase extraction
+        if |imagPart| > 0:
+            dcPhase ← atan(realPart / imagPart) · (180/π)
+        else:
+            dcPhase ← 90 · sign(realPart)
+
+        if imagPart > 0: dcPhase -= 180
+        dcPhase += 90
+
+        // Wrap to [-45, 315]
+        if dcPhase < -45: dcPhase += 360
+
+        emit dcPhase
 ```
 
-### Class: `HtDcphase`
+### Phase Quadrant Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| (none) | — | — | — | No constructor parameters |
+| Phase Range | Cycle Position |
+|-------------|----------------|
+| $-45°$ to $45°$ | Bottom zone (start of uptrend) |
+| $45°$ to $135°$ | Rising phase (mid-uptrend) |
+| $135°$ to $225°$ | Top zone (start of downtrend) |
+| $225°$ to $315°$ | Falling phase (mid-downtrend) |
+| $315°$ to $-45°$ jump | Cycle completion (discontinuity) |
 
-### Properties
+### Output Interpretation
 
-- `Value` (`double`): DC phase in degrees (-45° to 315°)
-- `IsHot` (`bool`): Returns `true` when warmup (63 bars) is complete
+| Condition | Meaning |
+|-----------|---------|
+| Phase advancing steadily | Regular cyclical market |
+| Phase stuck or slow | Trending market (cycle suppressed) |
+| Rapid phase change | Potential reversal imminent |
+| Discontinuity ($315° \to -45°$) | One cycle complete, new cycle begins |
 
-### Methods
+## Resources
 
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create HT_DCPHASE
-var htPhase = new HtDcphase();
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = htPhase.Update(new TValue(bar.Date, bar.Close));
-    
-    if (htPhase.IsHot)
-    {
-        double phase = result.Value;
-        Console.WriteLine($"{bar.Date}: Phase = {phase:F1}°");
-        
-        // Cycle position detection
-        if (phase >= -45 && phase < 45)
-            Console.WriteLine("  → Cycle bottom zone");
-        else if (phase >= 45 && phase < 135)
-            Console.WriteLine("  → Rising phase");
-        else if (phase >= 135 && phase < 225)
-            Console.WriteLine("  → Cycle top zone");
-        else
-            Console.WriteLine("  → Falling phase");
-    }
-}
-
-// Batch calculation
-var output = HtDcphase.Calculate(sourceSeries);
-```
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.
+- **TA-Lib** `TA_HT_DCPHASE()` reference implementation.
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
+- **Hilbert, D.** *Grundzüge einer allgemeinen Theorie der linearen Integralgleichungen*. Teubner, 1912.

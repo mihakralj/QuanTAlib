@@ -1,0 +1,82 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Derivative Oscillator (DOSC)", "DOSC", overlay=false, precision=4)
+
+//@function Calculates the Derivative Oscillator: double-smoothed RSI minus its SMA signal line
+//@param source Series to calculate from
+//@param rsiPeriod RSI lookback period
+//@param ema1Period First EMA smoothing period applied to RSI
+//@param ema2Period Second EMA smoothing period (double smoothing)
+//@param sigPeriod SMA signal line period applied to double-smoothed RSI
+//@returns DOSC value (histogram: double-smoothed RSI minus signal)
+//@optimized O(1) per bar after warmup for all EMA/SMA stages
+dosc(series float source, simple int rsiPeriod, simple int ema1Period, simple int ema2Period, simple int sigPeriod) =>
+    if rsiPeriod <= 0 or ema1Period <= 0 or ema2Period <= 0 or sigPeriod <= 0
+        runtime.error("All periods must be greater than 0")
+
+    // --- Stage 1: RSI via Wilder's smoothing ---
+    float change_up = math.max(source - nz(source[1]), 0.0)
+    float change_down = math.max(nz(source[1]) - source, 0.0)
+
+    var float avgGain = 0.0
+    var float avgLoss = 0.0
+
+    float rsiAlpha = 1.0 / rsiPeriod
+    if bar_index < rsiPeriod
+        avgGain := change_up
+        avgLoss := change_down
+    else
+        avgGain := nz(avgGain[1]) * (1.0 - rsiAlpha) + change_up * rsiAlpha
+        avgLoss := nz(avgLoss[1]) * (1.0 - rsiAlpha) + change_down * rsiAlpha
+
+    float rsiVal = avgLoss == 0.0 ? 100.0 : 100.0 - (100.0 / (1.0 + avgGain / avgLoss))
+
+    // --- Stage 2: EMA1 of RSI ---
+    var float ema1 = na
+    float alpha1 = 2.0 / (ema1Period + 1.0)
+    ema1 := na(ema1[1]) ? rsiVal : nz(ema1[1]) * (1.0 - alpha1) + rsiVal * alpha1
+
+    // --- Stage 3: EMA2 of EMA1 (double smoothing) ---
+    var float ema2 = na
+    float alpha2 = 2.0 / (ema2Period + 1.0)
+    ema2 := na(ema2[1]) ? ema1 : nz(ema2[1]) * (1.0 - alpha2) + ema1 * alpha2
+
+    // --- Stage 4: SMA signal line of EMA2 ---
+    var array<float> sigBuf = array.new_float(sigPeriod, na)
+    var int sigHead = 0
+    var int sigCount = 0
+    var float sigSum = 0.0
+
+    float oldest = array.get(sigBuf, sigHead)
+    if not na(oldest)
+        sigSum -= oldest
+        sigSum += ema2
+    else
+        sigCount += 1
+        sigSum += ema2
+
+    array.set(sigBuf, sigHead, ema2)
+    sigHead := (sigHead + 1) % sigPeriod
+
+    float signal = sigCount > 0 ? sigSum / sigCount : 0.0
+
+    // DOSC = double-smoothed RSI minus signal
+    float result = ema2 - signal
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source    = input.source(close, "Source")
+i_rsiPeriod = input.int(14, "RSI Period", minval=1, maxval=500)
+i_ema1      = input.int(5, "EMA1 Period", minval=1, maxval=500, tooltip="First EMA smoothing of RSI")
+i_ema2      = input.int(3, "EMA2 Period", minval=1, maxval=500, tooltip="Second EMA smoothing (double smooth)")
+i_sigPeriod = input.int(9, "Signal Period", minval=1, maxval=500, tooltip="SMA signal line period")
+
+// Calculation
+dosc_value = dosc(i_source, i_rsiPeriod, i_ema1, i_ema2, i_sigPeriod)
+
+// Plot
+plot(dosc_value, "DOSC", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

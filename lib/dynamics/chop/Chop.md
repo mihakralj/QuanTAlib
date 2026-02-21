@@ -1,128 +1,107 @@
-# Choppiness Index (CHOP)
+# CHOP: Choppiness Index
 
-The **Choppiness Index** is a non-directional volatility indicator developed by Australian commodity trader **E.W. Dreiss**. It measures whether the market is trending or trading sideways (choppy), helping traders identify optimal conditions for trend-following or range-trading strategies.
+The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways. It compares total price movement (sum of True Range) to net price movement (high-low channel width) using a logarithmic ratio, producing a bounded value where high readings indicate choppy/consolidating conditions and low readings indicate trending conditions. CHOP does not indicate direction — only whether directional strategies are likely to succeed. The logarithmic scaling normalizes the output to approximately 0-100 regardless of price level or volatility magnitude.
 
 ## Historical Context
 
-E.W. Dreiss created the Choppiness Index to help traders avoid whipsaw losses by identifying market conditions unsuitable for trend-following strategies. The indicator uses a logarithmic relationship between True Range sums and price channel width to quantify market "trendiness."
+Australian commodity trader E.W. Dreiss created the Choppiness Index to help traders avoid whipsaw losses by identifying market conditions unsuitable for trend-following strategies. The core insight is geometric: in a perfect trend, total bar-by-bar movement (sum of True Range) roughly equals the net distance traveled (channel width). In a choppy market, total movement greatly exceeds net progress — the market thrashes back and forth, accumulating True Range while the net channel stays narrow. The ratio between these two quantities, log-scaled to normalize across instruments and timeframes, produces a clean regime classifier. The conventional thresholds (38.2 and 61.8) are deliberately chosen as Fibonacci levels, though their efficacy is empirical rather than mathematical.
 
 ## Architecture & Physics
 
-### The Physics of Market Trendiness
+### 1. True Range Accumulation
 
-The Choppiness Index compares the sum of True Range values (total price movement) to the overall price channel (net movement). In a perfect trend, these would be nearly equal—price moves efficiently in one direction. In a choppy market, True Range accumulates rapidly while net movement (price channel) remains small.
+$$TR_t = \max(H_t - L_t,\; |H_t - C_{t-1}|,\; |L_t - C_{t-1}|)$$
 
-```
-Trending:  Sum(TR) ≈ Price Channel → Low CHOP
-Choppy:    Sum(TR) >> Price Channel → High CHOP
-```
+A rolling sum maintains $\sum_{i=1}^{N} TR_i$ over the lookback window.
 
-### Logarithmic Scaling
+### 2. Price Channel Width
 
-The use of LOG10 normalizes the indicator to a 0-100 scale regardless of price level or volatility magnitude:
+The net price movement over the same window:
 
-$$\text{CHOP} = 100 \times \frac{\log_{10}\left(\frac{\sum_{i=1}^{n} TR_i}{\text{MaxHigh}_n - \text{MinLow}_n}\right)}{\log_{10}(n)}$$
+$$\text{Channel} = \max(H_{t-N+1:t}) - \min(L_{t-N+1:t})$$
+
+### 3. Choppiness Index
+
+$$\text{CHOP} = 100 \times \frac{\log_{10}\!\left(\dfrac{\sum TR_N}{\text{Channel}}\right)}{\log_{10}(N)}$$
+
+The denominator $\log_{10}(N)$ normalizes the output so that the theoretical maximum approaches 100 (when $\sum TR = N \times \text{Channel}$, which occurs when every bar traverses the full channel).
+
+### 4. Complexity
+
+- **Time:** $O(N)$ per bar for min/max scanning of high/low buffers; rolling sum is $O(1)$
+- **Space:** $O(N)$ — three ring buffers (TR, highs, lows)
+- **Warmup:** $N$ bars
 
 ## Mathematical Foundation
 
-**True Range (TR):**
-$$TR = \max(H - L, |H - C_{prev}|, |L - C_{prev}|)$$
+### Parameters
 
-**Choppiness Index:**
-$$CHOP = 100 \times \frac{\log_{10}\left(\frac{\sum TR_n}{H_{\max} - L_{\min}}\right)}{\log_{10}(n)}$$
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 14 | $N \geq 2$ |
 
-Where:
-- $n$ = Lookback period
-- $\sum TR_n$ = Sum of True Range over n bars
-- $H_{\max}$ = Highest high over n bars
-- $L_{\min}$ = Lowest low over n bars
+### Pseudo-code
 
-## Performance Profile
+```
+Initialize:
+  trBuf = RingBuffer(period)
+  highBuf = RingBuffer(period)
+  lowBuf = RingBuffer(period)
+  trSum = 0
+  prevClose = NaN
+  logPeriod = log10(period)
 
-| Metric | Value |
-|--------|-------|
-| Time Complexity | O(n) per update |
-| Space Complexity | O(n) ring buffers |
-| Memory per Instance | ~24n bytes |
-| Allocations | Zero in hot path |
+On each bar (high, low, close, isNew):
+  if !isNew: restore previous state
 
-### Zero-Allocation Design
+  // True Range
+  if prevClose is valid:
+    TR = max(high - low, |high - prevClose|, |low - prevClose|)
+  else:
+    TR = high - low
 
-The implementation uses three ring buffers for TR values, highs, and lows. Rolling sum for TR values avoids recalculation. Min/max search is O(n) but cache-friendly due to sequential memory access.
+  // Rolling sum update
+  if trBuf is full:
+    trSum -= trBuf.Oldest
+  trBuf.Add(TR)
+  trSum += TR
 
-## Interpretation
+  highBuf.Add(high)
+  lowBuf.Add(low)
 
-| Level | Meaning | Strategy |
-|-------|---------|----------|
-| > 61.8 | High choppiness | Avoid trend strategies, use range trading |
-| 38.2 - 61.8 | Neutral | Mixed conditions |
-| < 38.2 | Low choppiness | Market trending, use trend-following |
+  // Channel width
+  maxHigh = Max(highBuf)
+  minLow = Min(lowBuf)
+  channel = maxHigh - minLow
 
-**Key Insight:** CHOP does not indicate direction—only whether the market is trending or consolidating.
+  // Choppiness Index
+  if channel > 0 AND trSum > 0:
+    CHOP = 100 × log10(trSum / channel) / logPeriod
+  else:
+    CHOP = 50  // neutral fallback
 
-## Usage
-
-### Streaming (Bar-by-Bar)
-```csharp
-var chop = new Chop(14);
-
-foreach (var bar in bars)
-{
-    TValue result = chop.Update(bar);
-    
-    if (chop.IsHot)
-    {
-        if (result.Value < 38.2)
-            Console.WriteLine("Trending market - look for trend entries");
-        else if (result.Value > 61.8)
-            Console.WriteLine("Choppy market - avoid trend trades");
-    }
-}
+  prevClose = close
+  output = Clamp(CHOP, 0, 100)
 ```
 
-### Batch Processing
-```csharp
-var bars = dataSource.GetBars(100);
-var chopSeries = Chop.Batch(bars, period: 14);
+### Interpretation
 
-// Access results
-foreach (var value in chopSeries)
-{
-    Console.WriteLine($"CHOP: {value.Value:F2}");
-}
-```
+| CHOP Value | Market Regime | Strategy Implication |
+|------------|---------------|---------------------|
+| > 61.8 | High choppiness | Avoid trend-following; favor range strategies |
+| 38.2 - 61.8 | Ambiguous | Mixed conditions; reduced position sizing |
+| < 38.2 | Low choppiness | Market trending; favor momentum/breakout strategies |
 
-### Bar Correction
-```csharp
-var chop = new Chop(14);
+### Geometric Intuition
 
-// New bar arrives
-chop.Update(bar, isNew: true);
+- **Perfect trend (straight line):** $\sum TR \approx \text{Channel}$, so $\log_{10}(1) = 0$, CHOP $\to 0$
+- **Maximum chop (full traversal every bar):** $\sum TR \approx N \times \text{Channel}$, so $\log_{10}(N) / \log_{10}(N) = 1$, CHOP $\to 100$
 
-// Bar updates (same bar, corrected values)
-chop.Update(correctedBar, isNew: false);
-```
+### Non-Directional Property
 
-## Validation
+CHOP is completely direction-agnostic. A strong uptrend and a strong downtrend produce identical low CHOP readings. Direction must be determined by a separate indicator (AMAT, ADX directional components, or simple price comparison).
 
-| Reference | Match | Notes |
-|-----------|-------|-------|
-| TradingView | ✓ | Standard implementation |
-| PineScript | ✓ | Matches chop.pine reference |
+## Resources
 
-## Common Pitfalls
-
-1. **Directional Bias**: CHOP does not indicate trend direction—use with directional indicators.
-2. **Lag**: Like all indicators, CHOP lags price action; trend may start before CHOP confirms.
-3. **Threshold Sensitivity**: 38.2 and 61.8 are guidelines; optimal levels vary by market.
-
-## Related Indicators
-
-- **ADX**: Another trend strength indicator (directional)
-- **ATR**: True Range smoothed (volatility)
-- **Aroon**: Trend timing based on high/low recency
-
-## References
-
-- Dreiss, E.W. - Original Choppiness Index development
-- [TradingView CHOP Documentation](https://www.tradingview.com/support/solutions/43000501980)
+- Dreiss, E.W. — Choppiness Index (original development)
+- PineScript reference: `chop.pine` in indicator directory

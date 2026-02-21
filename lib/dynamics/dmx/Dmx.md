@@ -1,86 +1,116 @@
-# DMX: Directional Movement Index
+# DMX: Directional Movement Index (Jurik)
 
-> DMX is what happens when you take Welles Wilder's 1978 engine and swap the carburetor for fuel injection.
-
-The DMX is Mark Jurik's ultra-smooth, low-lag overhaul of the classic Directional Movement system. It replaces Wilder's sluggish smoothing algorithms with the Jurik Moving Average (JMA), resulting in a directional indicator that reacts faster to trend changes while filtering out more noise.
+The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Average (JMA) to achieve faster trend detection with superior noise rejection. The core directional movement logic (+DM, -DM, True Range) is preserved faithfully from Wilder, but the three parallel smoothing passes use JMA's adaptive bandwidth instead of RMA's fixed $\alpha = 1/N$. The result is a directional indicator that reacts 3-5 bars earlier to trend changes than standard DMI while filtering out more noise during consolidation. Output is the difference between smoothed directional indicators: $DMX = DI^+ - DI^-$, positive for uptrends and negative for downtrends.
 
 ## Historical Context
 
-Wilder's original ADX/DMI system is legendary but mathematically primitive; it relies on simple recursive smoothing (RMA) that introduces significant lag. DMX retains the core logic of directional movement ($DM+$ and $DM-$) but upgrades the engine that processes them. By using JMA, DMX achieves the "holy grail" of signal processing: smoothness without lag.
+Wilder's original ADX/DMI system (1978) is foundational but mathematically primitive — its RMA smoothing introduces substantial lag that delays trend detection. Jurik's contribution was recognizing that the directional movement decomposition itself is sound; only the smoothing pipeline needed upgrading. JMA is an adaptive filter that tracks signal closely during transitions (low lag) and smooths aggressively during stable periods (high noise reduction). This dynamic behavior means DMX signals trend changes significantly earlier than DMI without the whipsaw penalty typically associated with faster indicators. DMX is not available in standard TA libraries (TA-Lib, Skender, Tulip) since JMA is a proprietary algorithm. The QuanTAlib implementation uses its own JMA recreation.
 
 ## Architecture & Physics
 
-The physics of DMX are identical to DMI, but the friction is removed.
+### 1. Directional Movement (Wilder's Original)
 
-1. **Decomposition**: Raw Directional Movement ($DM$) and True Range ($TR$) are calculated exactly as Wilder did.
-2. **Smoothing**: Instead of the laggy RMA, these raw signals are fed into three parallel JMA filters.
-3. **Normalization**: The smoothed DM is normalized by the smoothed TR to get Directional Indicators ($DI$).
-4. **Differential**: The DMX is simply $DI^+ - DI^-$.
+$$\text{UpMove} = H_t - H_{t-1}, \quad \text{DownMove} = L_{t-1} - L_t$$
 
-### The Lag Reduction
+$$+DM = \begin{cases} \text{UpMove} & \text{if UpMove} > \text{DownMove and UpMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
 
-JMA is an adaptive filter. It tracks the signal closely when it moves (low lag) and smooths it aggressively when it stalls (high noise reduction). This dynamic behavior means DMX signals trend changes significantly earlier than standard DMI—often by 3-5 bars—without the "whipsaw" penalty usually associated with faster indicators.
+$$-DM = \begin{cases} \text{DownMove} & \text{if DownMove} > \text{UpMove and DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
+
+### 2. True Range
+
+$$TR = \max(H_t - L_t,\; |H_t - C_{t-1}|,\; |L_t - C_{t-1}|)$$
+
+### 3. JMA Smoothing (Replaces RMA)
+
+Three parallel JMA filters replace Wilder's three RMA passes:
+
+$$+DM_{\text{smooth}} = \text{JMA}(+DM, N)$$
+
+$$-DM_{\text{smooth}} = \text{JMA}(-DM, N)$$
+
+$$TR_{\text{smooth}} = \text{JMA}(TR, N)$$
+
+### 4. Directional Indicators
+
+$$DI^+ = 100 \times \frac{+DM_{\text{smooth}}}{TR_{\text{smooth}}}, \quad DI^- = 100 \times \frac{-DM_{\text{smooth}}}{TR_{\text{smooth}}}$$
+
+### 5. DMX Output
+
+$$DMX = DI^+ - DI^-$$
+
+Positive values indicate bullish directional dominance; negative values indicate bearish.
+
+### 6. Complexity
+
+- **Time:** $O(1)$ per bar — three JMA updates (each $O(1)$)
+- **Space:** $O(1)$ — JMA maintains fixed-size internal state
+- **Warmup:** $\approx N$ bars (JMA converges faster than RMA)
 
 ## Mathematical Foundation
 
-The core directional logic remains faithful to Wilder.
+### Parameters
 
-### 1. Raw Directional Movement
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 14 | $N \geq 2$ |
 
-$$ \text{UpMove} = H_t - H_{t-1} $$
-$$ \text{DownMove} = L_{t-1} - L_t $$
+### Pseudo-code
 
-$$ DM^+ = \begin{cases} \text{UpMove} & \text{if } \text{UpMove} > \text{DownMove} \text{ and } \text{UpMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+```
+Initialize:
+  jmaPlusDM = new JMA(period)
+  jmaMinusDM = new JMA(period)
+  jmaTR = new JMA(period)
+  prevHigh = prevLow = prevClose = NaN
 
-$$ DM^- = \begin{cases} \text{DownMove} & \text{if } \text{DownMove} > \text{UpMove} \text{ and } \text{DownMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+On each bar (high, low, close, isNew):
+  if !isNew: restore previous state
 
-### 2. Jurik Smoothing
+  // Wilder's directional movement decomposition
+  TR = max(high - low, |high - prevClose|, |low - prevClose|)
 
-$$ SmoothDM^+ = JMA(DM^+, \text{Period}) $$
-$$ SmoothDM^- = JMA(DM^-, \text{Period}) $$
-$$ SmoothTR = JMA(TR, \text{Period}) $$
+  upMove = high - prevHigh
+  downMove = prevLow - low
 
-### 3. Directional Indicators
+  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
+  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
 
-$$ DI^+ = \frac{SmoothDM^+}{SmoothTR} \times 100 $$
-$$ DI^- = \frac{SmoothDM^-}{SmoothTR} \times 100 $$
+  // Jurik smoothing (replaces Wilder's RMA)
+  smoothPlusDM = jmaPlusDM.Update(+DM)
+  smoothMinusDM = jmaMinusDM.Update(-DM)
+  smoothTR = jmaTR.Update(TR)
 
-### 4. DMX
+  // Directional indicators
+  if smoothTR > 0:
+    DI_plus = 100 × smoothPlusDM / smoothTR
+    DI_minus = 100 × smoothMinusDM / smoothTR
+  else:
+    DI_plus = DI_minus = 0
 
-$$ DMX = DI^+ - DI^- $$
+  DMX = DI_plus - DI_minus
 
-## Performance Profile
+  prevHigh = high
+  prevLow = low
+  prevClose = close
+  output = DMX
+```
 
-The complexity is dominated by the three JMA calculations.
+### DMX vs DMI Comparison
 
-### Zero-Allocation Design
+| Property | DMI (Wilder) | DMX (Jurik) |
+|----------|-------------|-------------|
+| Smoothing | RMA ($\alpha = 1/N$) | JMA (adaptive) |
+| Lag | $\approx N$ bars | $\approx N/2$ bars |
+| Whipsaw rejection | Moderate | High |
+| Available in TA-Lib | Yes | No |
+| Overshoot | Low | Can overshoot in extreme volatility |
 
-The implementation relies on the zero-allocation design of the underlying `Jma` indicators. All internal state is pre-allocated.
+### Period Selection
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 15ns | 3x JMA updates. |
-| **Allocations** | 0 | Hot path is allocation-free. |
-| **Complexity** | O(1) | Constant time per update. |
-| **Accuracy** | 10/10 | Matches Jurik's methodology. |
-| **Timeliness** | 9/10 | Significantly faster than ADX. |
-| **Overshoot** | 2/10 | Can overshoot in extreme volatility. |
-| **Smoothness** | 9/10 | JMA filtering removes noise. |
+Because JMA is more efficient than RMA, slightly longer periods (e.g., 20 instead of 14) can be used without incurring a lag penalty, producing smoother results while maintaining responsiveness.
 
-## Validation
+## Resources
 
-Validation is performed against internal consistency checks and Jurik's published methodology.
-
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **QuanTAlib** | ✅ | Internal consistency (Batch vs Streaming). |
-| **TA-Lib** | N/A | Not implemented in TA-Lib. |
-| **Skender** | N/A | Not implemented in Skender. |
-| **Tulip** | N/A | Not implemented in Tulip. |
-
-| **Ooples** | N/A | Not implemented. |
-
-### Common Pitfalls
-
-* **Period Selection**: Because JMA is so efficient, you can often use slightly longer periods than you would with DMI (e.g., 20 instead of 14) to get even smoother results without incurring a lag penalty.
-* **Dependency**: This indicator depends on the `Jma` class. Ensure `Jma` is validated and performant.
+- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Jurik, M. — JMA adaptive smoothing methodology
+- PineScript reference: `dmx.pine` in indicator directory

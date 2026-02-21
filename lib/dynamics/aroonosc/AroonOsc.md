@@ -1,72 +1,95 @@
-# AroonOsc: Aroon Oscillator
+# AROONOSC: Aroon Oscillator
 
-> Tushar Chande's Aroon system is a dual-line argument. The Oscillator is the verdict.
-
-The Aroon Oscillator condenses the struggle between the "Aroon Up" and "Aroon Down" lines into a single, normalized value. It quantifies not just the existence of a trend, but its freshness. It answers the question: "Are new highs appearing faster than new lows?"
+The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$. This distills the temporal battle between fresh highs and fresh lows into a bounded $[-100, +100]$ metric where positive values indicate bullish recency dominance and negative values indicate bearish. Unlike recursive indicators that accumulate floating-point drift, the Aroon Oscillator is purely windowed — its value depends only on data within the lookback period, making it stateless in the long term and immune to initialization poisoning. The step-function output reflects discrete events (new extremes appearing or aging out) rather than smooth price trajectories.
 
 ## Historical Context
 
-Introduced by Tushar Chande in *The New Technical Trader* (1995), the Aroon system was a departure from price-based momentum. It focused on *time*. While RSI asks "how much did price move?", Aroon asks "how long has it been since the last extreme?". The Oscillator is simply the arithmetic difference between the two, providing a zero-centered metric for trend bias.
+Tushar Chande introduced the Aroon system in *The New Technical Trader* (1995) as a departure from price-magnitude momentum. While RSI and MACD ask "how much did price move?", Aroon asks "how long has it been since the last extreme?" The Oscillator is the net verdict of this temporal argument. Chande's key observation was that the recency of extremes carries more information about trend health than the magnitude of movements. A market making new highs every few bars is trending up regardless of the size of each increment. The Oscillator pegs at +100 when a new high appears on every bar within the window (maximum bullish freshness), and at -100 when new lows dominate. The middle ground (values near zero) indicates neither extreme is particularly fresh — the temporal signature of consolidation.
 
 ## Architecture & Physics
 
-The physics of Aroon are temporal, not spatial. It measures the decay of "recency."
+### 1. Sliding Window Buffers
 
-1. **Time Measurement**: The bars since the highest high and lowest low within the period are counted.
-2. **Normalization**: These counts are converted to a 0-100 scale (100 = happened right now, 0 = happened `Period` bars ago).
-3. **Differential**: The Oscillator is `Up - Down`.
+Two ring buffers of size $N+1$ store the last $N+1$ bars of High and Low values.
 
-### The Drift Resistance
+### 2. Extremum Location
 
-Unlike recursive indicators (EMA, RSI) which accumulate floating-point errors over time, Aroon is stateless in the long term. Its value depends *only* on the data within the lookback window. This makes it mathematically robust and immune to "poisoning" from bad data in the distant past.
+On each bar, scan the buffers to locate the index of the highest high and the lowest low.
+
+### 3. Aroon Components
+
+$$\text{AroonUp} = \frac{N - \text{barsSinceHigh}}{N} \times 100$$
+
+$$\text{AroonDown} = \frac{N - \text{barsSinceLow}}{N} \times 100$$
+
+### 4. Oscillator
+
+$$\text{AroonOsc} = \text{AroonUp} - \text{AroonDown}$$
+
+### 5. Complexity
+
+- **Time:** $O(N)$ per bar for min/max scanning
+- **Space:** $O(N)$ — two ring buffers
+- **Warmup:** $N$ bars to fill the window
 
 ## Mathematical Foundation
 
-The math is purely arithmetic.
+### Parameters
 
-### 1. Aroon Up
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 25 | $N \geq 1$ |
 
-$$ \text{AroonUp} = \frac{\text{Period} - \text{Days Since High}}{\text{Period}} \times 100 $$
+### Pseudo-code
 
-### 2. Aroon Down
+```
+Initialize:
+  highBuf = RingBuffer(period + 1)
+  lowBuf = RingBuffer(period + 1)
+  bar_count = 0
 
-$$ \text{AroonDown} = \frac{\text{Period} - \text{Days Since Low}}{\text{Period}} \times 100 $$
+On each bar (high, low, isNew):
+  if !isNew: restore previous state
 
-### 3. The Oscillator
+  highBuf.Add(high)
+  lowBuf.Add(low)
+  bar_count++
 
-$$ \text{AroonOsc} = \text{AroonUp} - \text{AroonDown} $$
+  len = min(bar_count, period)
 
-## Performance Profile
+  // Scan for extremes
+  maxIdx = index of maximum in highBuf over last (len + 1) entries
+  minIdx = index of minimum in lowBuf over last (len + 1) entries
 
-The algorithm is $O(N)$ where $N$ is the period, as the window must be scanned for extremes. However, for typical periods (14-25), this is negligible.
+  barsSinceHigh = len - maxIdx
+  barsSinceLow = len - minIdx
 
-### Zero-Allocation Design
+  AroonUp = (len - barsSinceHigh) / len × 100
+  AroonDown = (len - barsSinceLow) / len × 100
 
-The implementation uses a circular buffer (`RingBuffer`) to store historical highs and lows, ensuring O(1) access and zero heap allocations during the update cycle. The min/max search is performed in-place on the buffer.
+  output = AroonUp - AroonDown
+```
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 10ns | 10ns / bar. |
-| **Allocations** | 0 | Hot path is allocation-free. |
-| **Complexity** | O(P) | Linear scan of the lookback window. |
-| **Accuracy** | 10/10 | Matches standard implementations. |
-| **Timeliness** | 10/10 | Reacts immediately to new extremes. |
-| **Overshoot** | 0/10 | Bounded -100 to +100. |
-| **Smoothness** | 2/10 | Step-function behavior. |
+### Drift Immunity
 
-## Validation
+Unlike EMA-based oscillators that accumulate rounding errors across thousands of bars, the Aroon Oscillator is computed fresh each bar from a finite window. There is no recursive state that can diverge. This makes it architecturally robust for long-running production systems where indicator drift is a concern.
 
-Validation is performed against industry-standard libraries.
+### Interpretation
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **QuanTAlib** | ✅ | Validated. |
-| **Skender** | ✅ | Matches `GetAroon` (Oscillator). |
-| **TA-Lib** | ✅ | Matches `TA_AROONOSC`. |
-| **Tulip** | ✅ | Matches `ti.aroonosc`. |
-| **Ooples** | ❌ | Deviates significantly from standard. |
+| AroonOsc Value | Meaning |
+|----------------|---------|
+| +100 | New high every bar; no new lows (maximum bullish) |
+| +50 to +100 | Strong bullish bias; highs are fresh |
+| 0 | Balanced; both extremes equally stale/fresh |
+| -50 to -100 | Strong bearish bias; lows are fresh |
+| -100 | New low every bar; no new highs (maximum bearish) |
 
-### Common Pitfalls
+### Flatlining Behavior
 
-* **Lag**: Because it looks back `Period` bars, it will not signal a reversal until the previous extreme "ages out" or is superseded. It is a lagging indicator of trend changes.
-* **Flatlining**: In strong trends, the oscillator can peg at +100 or -100 for extended periods. This is a feature, not a bug—it indicates a "fresh" extreme on every bar.
+In strong trends, the oscillator can hold +100 or -100 for sustained periods. This indicates a continuously refreshing extreme — the market is making a new high (or low) on virtually every bar. This is not saturation; it is the temporal signature of a parabolic move.
+
+## Resources
+
+- Chande, T.S. — *The New Technical Trader* (John Wiley & Sons, 1995)
+- Chande, T.S. — *Beyond Technical Analysis* (John Wiley & Sons, 1995)
+- PineScript reference: `aroonosc.pine` in indicator directory

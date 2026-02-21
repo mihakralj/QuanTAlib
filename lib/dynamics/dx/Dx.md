@@ -1,169 +1,126 @@
 # DX: Directional Movement Index
 
-> "ADX tells you how strong the trend is; DX tells you how strong it is *right now*, without the smoothing delay."
-
-The Directional Movement Index (DX) measures the strength of directional movement in a market, regardless of whether that movement is up or down. Unlike its more famous cousin ADX (Average Directional Index), DX is the raw, unsmoothed version—more responsive but also more noisy.
+The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance — making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.
 
 ## Historical Context
 
-J. Welles Wilder Jr. introduced the Directional Movement System in his 1978 book *New Concepts in Technical Trading Systems*. The system decomposes price action into three components: upward movement (+DM), downward movement (-DM), and volatility (True Range). These components are then normalized and combined to create directional indicators (+DI, -DI) and the index itself (DX).
-
-DX is often overlooked in favor of ADX, which applies an additional smoothing layer. However, DX provides faster signals for traders who can tolerate more noise in exchange for reduced lag.
+J. Welles Wilder Jr. introduced the complete Directional Movement System in *New Concepts in Technical Trading Systems* (1978). The system's pipeline produces several intermediate values — +DM, -DM, TR, +DI, -DI, DX — before reaching the final ADX. Most traders skip directly to ADX, but DX occupies a useful middle ground: it contains all the directional normalization logic (the hard part) without the final smoothing layer (which adds lag). For traders who can tolerate more noise in exchange for faster response, DX provides trend strength signals roughly $N$ bars ahead of ADX. The tradeoff is straightforward: DX spikes on volatile bars and can produce false readings during whipsaw, while ADX absorbs these transients through its additional RMA pass.
 
 ## Architecture & Physics
 
-The DX calculation is a multi-stage pipeline:
+### 1. Directional Movement
 
-1. **Directional Movement Decomposition**: Price expansion is broken into +DM (upward) and -DM (downward) components
-2. **Volatility Normalization**: Raw movements are normalized by True Range to create +DI and -DI
-3. **Index Calculation**: The absolute difference of the DIs is divided by their sum, scaled to 0-100
+$$\text{UpMove} = H_t - H_{t-1}, \quad \text{DownMove} = L_{t-1} - L_t$$
 
-### Key Difference from ADX
+$$+DM = \begin{cases} \text{UpMove} & \text{if UpMove} > \text{DownMove and UpMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
 
-- **DX**: Raw directional strength, updated every bar
-- **ADX**: DX smoothed with RMA (Wilder's Moving Average)
+$$-DM = \begin{cases} \text{DownMove} & \text{if DownMove} > \text{UpMove and DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
 
-DX responds immediately to changes in trend strength; ADX lags by approximately one period.
+### 2. True Range
+
+$$TR = \max(H_t - L_t,\; |H_t - C_{t-1}|,\; |L_t - C_{t-1}|)$$
+
+### 3. Wilder Smoothing (RMA)
+
+All three series use Wilder's smoothing with $\alpha = 1/N$:
+
+$$+DM_{\text{smooth}} = \text{RMA}(+DM, N)$$
+
+$$-DM_{\text{smooth}} = \text{RMA}(-DM, N)$$
+
+$$TR_{\text{smooth}} = \text{RMA}(TR, N)$$
+
+### 4. Directional Indicators
+
+$$+DI = 100 \times \frac{+DM_{\text{smooth}}}{TR_{\text{smooth}}}$$
+
+$$-DI = 100 \times \frac{-DM_{\text{smooth}}}{TR_{\text{smooth}}}$$
+
+### 5. DX (No Final Smoothing)
+
+$$DX = 100 \times \frac{|+DI - (-DI)|}{+DI + (-DI)}$$
+
+When $+DI + (-DI) = 0$ (no directional movement), DX = 0.
+
+### 6. Complexity
+
+- **Time:** $O(1)$ per bar — all RMA updates are recursive
+- **Space:** $O(1)$ — scalar state only
+- **Warmup:** $N$ bars
 
 ## Mathematical Foundation
 
-### 1. Directional Movement (DM)
+### Parameters
 
-Today's high/low expansion is compared to yesterday's:
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 14 | $N \geq 2$ |
 
-$$ \text{UpMove} = H_t - H_{t-1} $$
-$$ \text{DownMove} = L_{t-1} - L_t $$
+### Pseudo-code
 
-$$ +DM = \begin{cases} \text{UpMove} & \text{if } \text{UpMove} > \text{DownMove} \text{ and } \text{UpMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+```
+Initialize:
+  α = 1 / period
+  smoothPlusDM = smoothMinusDM = smoothTR = 0
+  prevHigh = prevLow = prevClose = NaN
 
-$$ -DM = \begin{cases} \text{DownMove} & \text{if } \text{DownMove} > \text{UpMove} \text{ and } \text{DownMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+On each bar (high, low, close, isNew):
+  if !isNew: restore previous state
 
-### 2. True Range (TR)
+  // True Range
+  TR = max(high - low, |high - prevClose|, |low - prevClose|)
 
-$$ TR = \max(H_t - L_t, |H_t - C_{t-1}|, |L_t - C_{t-1}|) $$
+  upMove = high - prevHigh
+  downMove = prevLow - low
 
-### 3. Smoothing (RMA)
+  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
+  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
 
-Wilder's Moving Average is applied to +DM, -DM, and TR:
+  // Wilder smoothing
+  smoothPlusDM = FMA(smoothPlusDM, 1 - α, α × +DM)
+  smoothMinusDM = FMA(smoothMinusDM, 1 - α, α × -DM)
+  smoothTR = FMA(smoothTR, 1 - α, α × TR)
 
-$$ +DM_{smoothed} = RMA(+DM, N) $$
-$$ -DM_{smoothed} = RMA(-DM, N) $$
-$$ TR_{smoothed} = RMA(TR, N) $$
+  // Directional Indicators
+  +DI = smoothTR > 0 ? 100 × smoothPlusDM / smoothTR : 0
+  -DI = smoothTR > 0 ? 100 × smoothMinusDM / smoothTR : 0
 
-Where RMA uses $\alpha = 1/N$ (equivalent to EMA with period $2N-1$).
+  // DX (raw, no final RMA)
+  diSum = +DI + -DI
+  DX = diSum > 0 ? 100 × |+DI - -DI| / diSum : 0
 
-### 4. Directional Indicators (DI)
+  prevHigh = high
+  prevLow = low
+  prevClose = close
 
-$$ +DI = 100 \times \frac{+DM_{smoothed}}{TR_{smoothed}} $$
-$$ -DI = 100 \times \frac{-DM_{smoothed}}{TR_{smoothed}} $$
-
-### 5. Directional Index (DX)
-
-$$ DX = 100 \times \frac{|+DI - -DI|}{+DI + -DI} $$
-
-### 6. Wilder's Smoothing
-
-The smoothing uses Wilder's original method (not standard RMA/EMA):
-
-$$ Smooth_{t} = Smooth_{t-1} - \frac{Smooth_{t-1}}{N} + Input_{t} $$
-
-This differs from standard RMA which divides the input by N.
-
-## Performance Profile
-
-The implementation uses O(1) updates with aggressive inlining and FMA operations.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 3ns | Per-bar update (Apple M1 Max) |
-| **Allocations** | 0 | Hot path is allocation-free |
-| **Complexity** | O(1) | Constant time for streaming updates |
-| **Accuracy** | 10/10 | Matches TA-Lib to 1e-9 |
-| **Timeliness** | 6/10 | Less lag than ADX due to no final smoothing |
-| **Overshoot** | 5/10 | More volatile than ADX |
-| **Smoothness** | 4/10 | Raw signal, noisy |
-
-### Quality Metrics
-
-| Quality | Score | Justification |
-| :--- | :---: | :--- |
-| Accuracy | 9 | Preserves trend structure |
-| Timeliness | 6 | One period faster than ADX |
-| Overshoot | 5 | Can spike on volatile bars |
-| Smoothness | 4 | Unsmoothed, reflects bar-to-bar changes |
-
-## Usage
-
-### Scalar (Streaming)
-
-```csharp
-var dx = new Dx(14);
-
-foreach (var bar in bars)
-{
-    dx.Update(bar);
-    Console.WriteLine($"DX: {dx.Last.Value:F2}, +DI: {dx.DiPlus.Value:F2}, -DI: {dx.DiMinus.Value:F2}");
-}
+  output:
+    DX = DX          // trend strength (0-100)
+    DiPlus = +DI     // bullish directional indicator
+    DiMinus = -DI    // bearish directional indicator
 ```
 
-### Batch (Span-based)
+### DX vs ADX
 
-```csharp
-Span<double> output = stackalloc double[close.Length];
-Dx.Calculate(high, low, close, 14, output);
-```
+| Property | DX | ADX |
+|----------|-----|------|
+| Smoothing | RMA on components only | RMA on components + RMA on DX |
+| Response | Immediate to bar-level changes | Lagged by $\approx N$ bars |
+| Noise | High; can spike on volatile bars | Low; smooth, stable signal |
+| Use case | Fast trend detection, signal generation | Regime classification, filter |
 
-### With Bar Correction
-
-```csharp
-// New bar arrives
-dx.Update(bar, isNew: true);
-
-// Same bar updates (intra-bar corrections)
-dx.Update(modifiedBar, isNew: false);
-```
-
-## Interpretation
+### Interpretation
 
 | DX Value | Trend Strength |
-| :---: | :--- |
-| 0-15 | Weak or no trend |
+|----------|----------------|
+| 0-15 | No meaningful trend |
 | 15-25 | Developing trend |
 | 25-50 | Strong trend |
 | 50-75 | Very strong trend |
-| 75-100 | Extreme trend (rare) |
+| 75-100 | Extreme (rare, usually transient) |
 
-### Trading Signals
+DX measures trend *strength*, not direction. Direction is determined by comparing +DI vs -DI: if $+DI > -DI$, the trend is up; if $-DI > +DI$, the trend is down. DI crossovers signal potential trend reversals.
 
-- **DX Rising**: Trend is strengthening
-- **DX Falling**: Trend is weakening
-- **+DI > -DI**: Uptrend dominates
-- **-DI > +DI**: Downtrend dominates
-- **DI Crossover**: Potential trend reversal
+## Resources
 
-## Validation
-
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | ✅ | Matches `TA_DX` |
-| **Skender** | ✅ | Matches `GetDx` |
-| **Tulip** | ✅ | Matches `ti.dx` |
-| **TradingView** | ✅ | Matches Pine Script `ta.dm` components |
-
-## Common Pitfalls
-
-1. **Confusing DX with ADX**: DX is unsmoothed; ADX is RMA(DX). If you want the classic ADX behavior, use the ADX indicator.
-
-2. **Period Too Short**: Periods below 7 make DX extremely noisy. The standard is 14.
-
-3. **First N Bars**: The first `period` bars output 0 as they're needed for warmup. Don't trade on these values.
-
-4. **DI Sum Near Zero**: When both +DI and -DI approach zero (no directional movement), DX becomes unstable. The implementation guards against division by zero.
-
-5. **Not a Direction Indicator**: DX measures trend *strength*, not direction. Use +DI vs -DI for direction.
-
-## References
-
-- Wilder, J. W. (1978). *New Concepts in Technical Trading Systems*
-- [TradingView DX Documentation](https://www.tradingview.com/support/solutions/43000502250-directional-movement-dm/)
-- [StockCharts ADX/DX](https://school.stockcharts.com/doku.php?id=technical_indicators:average_directional_index_adx)
+- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- PineScript reference: `dx.pine` in indicator directory

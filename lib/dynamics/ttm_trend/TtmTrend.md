@@ -1,113 +1,98 @@
-# TTM_TREND: TTM Trend Indicator
+# TTM_TREND: TTM Trend
 
-> John Carter's TTM Trend - A fast EMA-based trend indicator with color-coded direction.
+> "The simplest trend indicator is the one you actually follow."
+
+John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign. Output is a ternary trend state: +1 (bullish, EMA rising), -1 (bearish, EMA falling), or 0 (neutral, EMA unchanged). The indicator requires only 2 bars warmup, runs at O(1) per bar with O(1) space, and produces zero allocations in the hot path.
 
 ## Historical Context
 
-John Carter developed the TTM (Trade the Markets) Trend indicator as a clean visual tool for identifying short-term trend direction. Popularized through his book *Mastering the Trade* and the thinkorswim platform, it provides a simple but effective way to see trend changes at a glance using color-coded lines.
+John Carter developed the TTM (Trade the Markets) Trend indicator as a clean visual tool for identifying short-term trend direction, popularized through *Mastering the Trade* and the thinkorswim platform. Unlike complex multi-component trend systems, TTM Trend reduces trend detection to its minimum viable form: the slope of a fast exponential moving average. The very short default period (6) makes it responsive to recent price action, positioning it as a "first responder" trend filter meant to be combined with Carter's other TTM tools (Squeeze, Wave, LRC). The color-coded output (green/red/gray) provides at-a-glance trend assessment.
 
-## Algorithm
+## Architecture & Physics
 
-### Core Calculation
-```
-alpha = 2 / (period + 1)
-EMA = alpha × source + (1 - alpha) × prevEMA
-```
+### 1. Typical Price
 
-Or equivalently:
-```
-EMA = alpha × (source - EMA) + EMA
-```
+$$\text{TP}_t = \frac{H_t + L_t + C_t}{3}$$
 
-### Trend Detection
-```
-trend = sign(EMA - prevEMA)
-  +1 = bullish (EMA rising)
-  -1 = bearish (EMA falling)
-   0 = neutral (EMA unchanged)
-```
+Using typical price rather than close reduces susceptibility to closing-tick noise.
 
-### Strength Measurement
-```
-strength = |EMA - prevEMA| / prevEMA × 100%
-```
+### 2. EMA Recursion
 
-## Default Parameters
+$$\alpha = \frac{2}{N + 1}$$
 
-| Parameter | Value | Description |
-|:----------|:------|:------------|
-| Period | 6 | EMA lookback period (very fast) |
-| Source | HLC/3 | Typical price (High + Low + Close) / 3 |
+$$\text{EMA}_t = \alpha \cdot \text{TP}_t + (1 - \alpha) \cdot \text{EMA}_{t-1}$$
 
-## Outputs
+Or equivalently via FMA:
 
-| Output | Type | Description |
-|:-------|:-----|:------------|
-| Value | double | Current EMA value |
-| Trend | int | Trend direction: +1, -1, or 0 |
-| Strength | double | Percent change between EMA values |
-| IsHot | bool | True after warming up (2 bars) |
+$$\text{EMA}_t = \text{FMA}(\alpha,\ \text{TP}_t - \text{EMA}_{t-1},\ \text{EMA}_{t-1})$$
 
-## Color Coding
+### 3. Trend Classification
 
-| Color | Condition | Meaning |
-|:------|:----------|:--------|
-| 🟢 Green | Trend > 0 | EMA rising (bullish) |
-| 🔴 Red | Trend < 0 | EMA falling (bearish) |
-| ⚫ Gray | Trend = 0 | EMA unchanged (neutral) |
+$$\text{Trend}_t = \text{sign}(\text{EMA}_t - \text{EMA}_{t-1})$$
 
-## Performance
+| Value | State | Color |
+|:------|:------|:------|
+| +1 | Bullish | Green |
+| -1 | Bearish | Red |
+| 0 | Neutral | Gray |
+
+### 4. Strength Measurement
+
+$$\text{Strength}_t = \frac{|\text{EMA}_t - \text{EMA}_{t-1}|}{\text{EMA}_{t-1}} \times 100\%$$
+
+This percentage rate-of-change quantifies how aggressively the trend is moving. High strength values indicate strong conviction; near-zero values suggest potential reversal.
+
+### 5. Complexity
 
 | Metric | Value |
 |:-------|:------|
-| Time complexity | O(1) per bar |
-| Space complexity | O(1) |
-| Warmup period | 2 bars |
+| Time | O(1) per bar |
+| Space | O(1) (one EMA state + one previous value) |
+| Warmup | 2 bars |
 | Allocations | Zero in hot path |
 
-## Usage Examples
+## Mathematical Foundation
 
-### Basic Usage
-```csharp
-var ttm = new TtmTrend(period: 6);
+### Parameters
 
-// Update with typical price
-var result = ttm.Update(new TValue(time, typicalPrice));
+| Parameter | Type | Default | Constraint | Description |
+|:----------|:-----|:--------|:-----------|:------------|
+| period | int | 6 | > 0 | EMA lookback period (very fast by default) |
 
-// Or update with bar (uses HLC/3 automatically)
-var result = ttm.Update(bar);
+### Pseudo-code
 
-// Access trend direction
-if (ttm.Trend > 0) { /* bullish */ }
-else if (ttm.Trend < 0) { /* bearish */ }
+```
+TTM_TREND(bar, period=6):
+
+  tp = (bar.High + bar.Low + bar.Close) / 3
+  alpha = 2.0 / (period + 1)
+
+  if count == 0:
+    ema_val = tp
+  else:
+    ema_val = FMA(alpha, tp - ema_val, ema_val)
+
+  // Trend direction from slope sign
+  if count >= 1:
+    if ema_val > prev_ema:
+      trend = +1
+    else if ema_val < prev_ema:
+      trend = -1
+    else:
+      trend = 0
+
+    strength = abs(ema_val - prev_ema) / prev_ema * 100
+
+  prev_ema = ema_val
+  count += 1
+
+  return (ema_val, trend, strength)
 ```
 
-### Batch Processing
-```csharp
-var results = TtmTrend.Batch(barSeries, period: 6);
-```
+### Period Selection
 
-### With Indicator Instance
-```csharp
-var (results, indicator) = TtmTrend.Calculate(barSeries, period: 6);
-bool isBullish = indicator.Trend > 0;
-double strength = indicator.Strength;
-```
+The default period of 6 makes TTM Trend extremely fast-reacting. The EMA half-life is approximately $\ln(2) / \ln(1 + 2/N) \approx 2.4$ bars for $N = 6$. This means the indicator responds within 2-3 bars of a price shift. Longer periods (12, 20) reduce whipsaws but delay detection. Carter's design intent was maximum responsiveness, with noise filtering delegated to companion indicators (Squeeze, Wave).
 
-## Trading Applications
+## Resources
 
-1. **Trend Following**: Trade in the direction of the EMA color
-2. **Trend Confirmation**: Use with other TTM indicators (Squeeze, Wave)
-3. **Entry Timing**: Enter on color change with confirmation
-4. **Exit Signal**: Exit when color changes against position
-
-## Category
-
-**Dynamics** - Measures trend direction and momentum using fast EMA smoothing.
-
-## See Also
-
-- [TTM_SQUEEZE: TTM Squeeze](../ttm_squeeze/TtmSqueeze.md)
-- [TTM_WAVE: TTM Wave](../../oscillators/ttm_wave/TtmWave.md)
-- [TTM_LRC: TTM Linear Regression Channel](../../channels/ttm_lrc/TtmLrc.md)
-- [SUPER: SuperTrend](../super/Super.md)
+- Carter, J. (2005). *Mastering the Trade*. McGraw-Hill.

@@ -1,151 +1,96 @@
 # HT_PHASOR: Ehlers Hilbert Transform Phasor Components
 
-> "Phasors let us measure a cycle's position and strength; trading becomes geometry over time."
-
-HT_PHASOR decomposes the price signal into two orthogonal components: **InPhase** (I) and **Quadrature** (Q) using the Hilbert Transform. These components form a complex phasor (Z = I + jQ) that describes the instantaneous amplitude and phase of the market cycle.
+HT_PHASOR decomposes the price signal into two orthogonal components, InPhase ($I$) and Quadrature ($Q$), using the Hilbert Transform. Together these form a complex phasor $Z = I + jQ$ that describes the instantaneous amplitude and phase of the dominant market cycle. Compatible with TA-Lib's `HT_PHASOR` function, this dual-output indicator provides the fundamental building blocks for cycle analysis, phasor crossover timing, and instantaneous amplitude measurement.
 
 ## Historical Context
 
-John Ehlers introduced the decomposition of market data into phasor components in *Rocket Science for Traders* (2001). This decomposition is fundamental to his entire suite of cycle indicators (SineWave, Homodyne, etc.).
-
-TA-Lib implements HT_PHASOR to expose these intermediate components directly for advanced analysis. QuanTAlib matches the TA-Lib implementation.
+John Ehlers introduced phasor decomposition of market data in *Rocket Science for Traders* (2001). In electrical engineering, a phasor represents a sinusoidal signal as a rotating complex vector, separating the cycle's "position" (InPhase) from its "velocity" (Quadrature). Ehlers recognized that this decomposition is the mathematical foundation for all his cycle indicators: HT_SINE, HT_DCPERIOD, HT_DCPHASE, and HOMOD all derive from these same I/Q components. TA-Lib exposes HT_PHASOR to give advanced users direct access to the analytic signal for custom cycle analysis. The InPhase output is delayed by 3 bars to align with the Quadrature component's effective lag from the Hilbert Transform FIR.
 
 ## Architecture & Physics
 
-The calculation pipeline extracts the analytic signal's real and imaginary components.
-
 ### 1. WMA Smoothing
 
-$$
-SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
-$$
+$$SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}$$
 
-### 2. Hilbert Transform
+### 2. Hilbert Transform FIR
 
-Applied to smoothed price with adaptive bandwidth to generate fundamental components.
+Using Ehlers' coefficients ($A = 0.0962$, $B = 0.5769$), the 4-tap discrete Hilbert approximation generates the detrender, and from it the fundamental In-Phase and Quadrature components ($I_1$, $Q_1$). Further Hilbert transforms of these produce $jI$ and $jQ$.
 
 ### 3. Phasor Components
 
-$$
-I2_t = I1_t - jQ_t
-$$
+$$I_{2,t} = I_{1,t} - jQ_t, \qquad Q_{2,t} = Q_{1,t} + jI_t$$
 
-$$
-Q2_t = Q1_t + jI_t
-$$
+Both smoothed with EMA ($\alpha = 0.2$):
 
-Where:
+$$I_t = 0.2 \cdot I_{2,t} + 0.8 \cdot I_{t-1}$$
 
-- **InPhase (I)**: Smoothed I2—cycle signal aligned with price
-- **Quadrature (Q)**: Smoothed Q2—rate of change (velocity) of cycle
-
-*Note: InPhase output is delayed by 3 bars to align with Quadrature's effective lag.*
+$$Q_t = 0.2 \cdot Q_{2,t} + 0.8 \cdot Q_{t-1}$$
 
 ### 4. Phase Relationship
 
-- Q leads I by 90°
-- When I peaks, Q crosses zero (downward)
-- When I crosses zero (upward), Q peaks
+$Q$ leads $I$ by $90°$. When $I$ peaks, $Q$ crosses zero downward. When $I$ crosses zero upward, $Q$ peaks. The instantaneous amplitude is $A = \sqrt{I^2 + Q^2}$ and the instantaneous phase is $\phi = \arctan(Q/I)$.
 
-## Performance Profile
+### 5. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+$O(1)$ per bar. Fixed Hilbert cascade with circular buffers. Warmup: 32 bars (TA-Lib lookback).
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| MUL (Hilbert taps) | 28 | 3 | 84 |
-| MUL (phasor calc) | 8 | 3 | 24 |
-| ADD/SUB | 35 | 1 | 35 |
-| EMA smoothing | 4 | 4 | 16 |
-| **Total** | **75** | — | **~159 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(1) per bar—fixed Hilbert cascade
-- **Memory:** ~1.2 KB per instance (circular buffers)
-- **Warmup:** 32 bars (TA-Lib lookback)
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| (none) | No user-configurable parameters | | |
 
-## Validation
+### Pseudo-code
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | ✅ | Matches `TALib.Functions.HtPhasor()` |
-| Skender | N/A | Not implemented |
-| PineScript | ✅ | Matches `phasor.pine` |
+```
+function HT_PHASOR(source):
+    A ← 0.0962; B ← 0.5769
+    smoothBuf ← CircularBuffer(7)
+    detBuf, q1Buf, i1Buf ← CircularBuffers
 
-## Usage & Pitfalls
+    I2 ← 0; Q2 ← 0
 
-- **Dual output**—InPhase (Value) and Quadrature (property)
-- **32-bar warmup required**—ignore early values
-- **Capture Quadrature immediately after Update()**—property updated on each call
-- **Trending markets** break orthogonality—use HT_TRENDMODE to filter
-- **Phasor crossover**:
-  - Buy: Q crosses I from below (anticipates cycle trough)
-  - Sell: Q crosses I from above (anticipates cycle peak)
-- **For sine input** sin(ωt): InPhase ≈ sin(ωt), Quadrature ≈ cos(ωt)
+    for each price in source:
+        // WMA smooth
+        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
+        smoothBuf.Add(smooth)
 
-## API
+        // Hilbert FIR (adaptive)
+        det ← A·smooth[0] + B·smooth[2] - B·smooth[4] - A·smooth[6]
+        Q1 ← A·det[0] + B·det[2] - B·det[4] - A·det[6]
+        I1 ← det[3]
 
-```mermaid
-classDiagram
-    class HtPhasor {
-        +double Value
-        +double Quadrature
-        +bool IsHot
-        +HtPhasor()
-        +HtPhasor(ITValuePublisher source)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+        // Hilbert of I1 and Q1
+        jI ← A·I1[0] + B·I1[2] - B·I1[4] - A·I1[6]
+        jQ ← A·Q1[0] + B·Q1[2] - B·Q1[4] - A·Q1[6]
+
+        // Phasor components (EMA smoothed)
+        I2 ← 0.2·(I1 - jQ) + 0.8·I2
+        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2
+
+        emit InPhase = I2, Quadrature = Q2
 ```
 
-### Class: `HtPhasor`
+### Phasor Crossover Signals
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| (none) | — | — | — | No constructor parameters |
+| Condition | Signal |
+|-----------|--------|
+| $Q$ crosses $I$ from below | Bullish (anticipates cycle trough) |
+| $Q$ crosses $I$ from above | Bearish (anticipates cycle peak) |
+| $\sqrt{I^2 + Q^2}$ increasing | Cycle amplitude growing |
+| $\sqrt{I^2 + Q^2}$ decreasing | Cycle amplitude fading (trend or noise) |
 
-### Properties
+### Output Interpretation
 
-- `Value` (`double`): InPhase component of phasor
-- `Quadrature` (`double`): Quadrature component (90° shifted)
-- `IsHot` (`bool`): Returns `true` when warmup (32 bars) is complete
+| Output | Range | Meaning |
+|--------|-------|---------|
+| `InPhase` | unbounded | Cycle component aligned with price |
+| `Quadrature` | unbounded | Rate of change (velocity) of cycle |
 
-### Methods
+## Resources
 
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create HT_PHASOR
-var htPhasor = new HtPhasor();
-double prevInPhase = 0, prevQuadrature = 0;
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = htPhasor.Update(new TValue(bar.Date, bar.Close));
-    double inPhase = result.Value;
-    double quadrature = htPhasor.Quadrature;  // Capture immediately!
-    
-    if (htPhasor.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: I = {inPhase:F4}, Q = {quadrature:F4}");
-        
-        // Phasor crossover detection
-        if (inPhase > quadrature && prevInPhase <= prevQuadrature)
-            Console.WriteLine("  → Bullish crossover (anticipate trough)");
-        else if (inPhase < quadrature && prevInPhase >= prevQuadrature)
-            Console.WriteLine("  → Bearish crossover (anticipate peak)");
-    }
-    
-    prevInPhase = inPhase;
-    prevQuadrature = quadrature;
-}
-
-// Batch calculation
-var output = HtPhasor.Calculate(sourceSeries);
-```
+- **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.
+- **TA-Lib** `TA_HT_PHASOR()` reference implementation.
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.

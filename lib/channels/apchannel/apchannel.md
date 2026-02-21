@@ -1,126 +1,97 @@
 # APCHANNEL: Adaptive Price Channel
 
-> "A channel isn't a prediction—it's an acknowledgment that price has inertia and boundaries."
-
-APCHANNEL (Adaptive Price Channel) transforms the classic high-low tracking problem into an exponentially weighted persistence model. Unlike rigid lookback windows that drop price extremes abruptly, this indicator applies exponential decay to price highs and lows. The result is a channel that "remembers" significant resistance and support levels while gradually fading their influence over time, creating a smooth, lag-free volatility envelope.
+APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes while gradually fading their influence over time. Unlike rigid Donchian channels that drop price extremes abruptly when they exit the lookback window (the "cliff effect"), APCHANNEL decays them smoothly through leaky integration. The result is a channel with continuously sloping boundaries that responds to volatility without the discontinuous jumps that plague fixed-window approaches. The algorithm is $O(1)$ per bar with only two state variables and no buffers.
 
 ## Historical Context
 
-While traditional Price Channels (Donchian) define range by the absolute highest high and lowest low over a fixed period, the Adaptive Price Channel originates from the signal processing domain. It applies the concept of "leaky integration" or exponential smoothing directly to price extremes. This approach addresses the "cliff effect" of fixed windows: where a major high from 20 bars ago suddenly vanishes from the calculation. In APCHANNEL, that high fades gracefully, providing continuous rather than discontinuous volatility modeling.
+Traditional Price Channels (Donchian, 1960s) define range by the absolute highest high and lowest low over a fixed period. When a major high from $n$ bars ago drops out of the window, the upper boundary can collapse instantaneously, producing discontinuous channel behavior that generates false signals. The Adaptive Price Channel addresses this by borrowing the exponential smoothing concept from signal processing, applying the same "leaky integrator" principle that electrical engineers use for envelope detection in AM radio circuits.
+
+The approach is equivalent to running two independent EMAs: one on the High series and one on the Low series. This connection to EMA theory means the channel inherits well-understood convergence properties. The half-life of influence is $\ln(2) / \ln(1/(1-\alpha))$ bars, and the channel is considered warm after approximately $3/\alpha$ bars. The single-parameter design ($\alpha$) makes APCHANNEL simpler to tune than multi-parameter alternatives.
 
 ## Architecture & Physics
 
-The core mechanism is a dual Exponential Moving Average (EMA) system running on parallel tracks: one effectively smoothing the "ceilings" (highs) and another smoothing the "floors" (lows).
+### 1. Dual EMA Recursion
 
-### Calculation Steps
+The upper and lower bands are independent EMA filters on High and Low:
 
-1. **Exponential Decay**:
-    Each new bar's High and Low is integrated into the channel state using a smoothing factor $\alpha$.
-    $$Upper_t = \text{High}_{t} \times \alpha + Upper_{t-1} \times (1 - \alpha)$$
-    $$Lower_t = \text{Low}_{t} \times \alpha + Lower_{t-1} \times (1 - \alpha)$$
+$$\text{Upper}_t = \alpha \cdot H_t + (1 - \alpha) \cdot \text{Upper}_{t-1}$$
 
-2. **Midpoint**:
-    The center of the channel is simply the arithmetic mean of the bands.
-    $$Middle_t = \frac{Upper_t + Lower_t}{2}$$
+$$\text{Lower}_t = \alpha \cdot L_t + (1 - \alpha) \cdot \text{Lower}_{t-1}$$
 
-    Where $\alpha$ (alpha) is the smoothing factor ($0 < \alpha \le 1$).
+Using the FMA pattern with $\text{decay} = 1 - \alpha$:
 
-### Physics of Alpha
+$$\text{Upper}_t = \text{FMA}(\text{decay}, \text{Upper}_{t-1}, \alpha \cdot H_t)$$
 
-- **High Alpha (e.g., 0.8)**: Short memory. The channel snaps quickly to new highs/lows and forgets old ones rapidly.
-- **Low Alpha (e.g., 0.1)**: Long memory. Significant highs persist as resistance for a long time, decaying slowly.
+### 2. Midpoint
 
-## Performance Profile
+$$\text{Middle}_t = \frac{\text{Upper}_t + \text{Lower}_t}{2}$$
 
-Because the calculation relies on recursive EMA logic, it is inherently O(1) in a streaming context—no history buffers or iterations are required.
+### 3. Alpha Semantics
 
-### Operation Count - Single value
+- **High $\alpha$ (e.g., 0.8)**: Short memory. Channel snaps quickly to new extremes, forgets old ones rapidly.
+- **Low $\alpha$ (e.g., 0.1)**: Long memory. Significant highs persist as resistance for dozens of bars.
+- **Period approximation**: $\alpha \approx 2 / (P + 1)$ where $P$ is the equivalent EMA period.
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| FMA | 2 | 4 | 8 |
-| ADD | 1 | 1 | 1 |
-| MUL | 0 | 3 | 0 |
-| DIV | 1 | 15 | 15 |
-| **Total** | **4** | — | **~24 cycles** |
+### 4. Complexity
 
-*Note: The implementation utilizes `Math.FusedMultiplyAdd` (FMA) for the EMA recursion step, combining multiplication and addition into a single, higher-precision CPU instruction.*
+$O(1)$ per bar: 2 FMA operations + 1 addition + 1 division. No buffers, no history. The two bands are independent and can be computed in parallel.
 
-### Operation Count - Batch processing
+## Mathematical Foundation
 
-| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
-| :--- | :---: | :---: | :---: |
-| EMA Recursion | 2N | N/A | 1× |
+### Parameters
 
-*Note: EMA recursion is strictly serial (requires $t-1$ to compute $t$), preventing vectorization across the time dimension. However, the High and Low bands are computed independently.*
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `alpha` | Smoothing factor (higher = faster decay) | 0.2 | $(0, 1]$ |
 
-## Validation
+### Initialization
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | N/A | Not implemented |
-| **Skender** | ✅ | Validated against `GetEma` on High/Low |
-| **Internal** | ✅ | Streaming/Batch/Span match exactly |
+On the first bar:
 
-## Usage & Pitfalls
+$$\text{Upper}_0 = H_0, \quad \text{Lower}_0 = L_0$$
 
-- **Alpha vs Period**: Users familiar with periods can approximate $\alpha \approx 2 / (Period + 1)$.
-- **Warmup**: The EMA structure requires a convergence period. The indicator is considered "hot" after $\approx 3/\alpha$ bars.
-- **Responsiveness**: Unlike Donchian channels which are flat until a new breakout, APCHANNEL is constantly sloping. This makes it excellent for trend-following stops (trailing variance).
-- **Whipsaws**: High alpha values in choppy markets will produce tight bands that generate excessive false breakout signals.
+### Half-Life
 
-## API
+The number of bars for a price extreme's influence to decay by 50%:
 
-```mermaid
-classDiagram
-    class Apchannel {
-        +double UpperBand
-        +double LowerBand
-        +TValue Last
-        +bool IsHot
-        +Update(TBar bar) TValue
-        +Update(TBarSeries source) tuple
-        +Batch(double[] high, double[] low, ...) void
-    }
+$$t_{1/2} = \frac{\ln 2}{\ln(1 / (1 - \alpha))}$$
+
+For $\alpha = 0.2$: $t_{1/2} \approx 3.1$ bars. For $\alpha = 0.05$: $t_{1/2} \approx 13.5$ bars.
+
+### Pseudo-code
+
+```
+function APCHANNEL(high, low, alpha):
+    validate: 0 < alpha ≤ 1
+    decay = 1 - alpha
+
+    // EMA of highs
+    if first_bar:
+        upper = high
+    else:
+        upper = decay * upper + alpha * high
+
+    // EMA of lows
+    if first_bar:
+        lower = low
+    else:
+        lower = decay * lower + alpha * low
+
+    middle = (upper + lower) / 2
+
+    return [middle, upper, lower]
 ```
 
-### Class: `Apchannel`
+### Output Interpretation
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `alpha` | `double` | `0.2` | `(0, 1]` | Smoothing factor (higher = faster decay). |
-| `source` | `TBarSeries` | — | `any` | Initial input source (optional). |
+| Output | Description |
+|--------|-------------|
+| `upper` | Exponentially smoothed high (resistance) |
+| `lower` | Exponentially smoothed low (support) |
+| `middle` | Arithmetic mean of upper and lower |
 
-### Properties
+## Resources
 
-- `Last` (`TValue`): The current midpoint value.
-- `UpperBand` (`double`): The current upper exponential band value.
-- `LowerBand` (`double`): The current lower exponential band value.
-- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
-
-### Methods
-
-- `Update(TBar input)`: Updates the indicator with a new bar.
-- `Update(TBarSeries source)`: Processes a full series.
-- `Batch(...)`: Static method for high-performance batch processing.
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Initialize with slowing decay (long memory)
-var channel = new Apchannel(alpha: 0.1);
-
-// Update Loop
-foreach (var bar in bars)
-{
-    var mid = channel.Update(bar);
-    
-    // Use valid results
-    if (channel.IsHot)
-    {
-        Console.WriteLine($"{bar.Time}: Upper={channel.UpperBand:F2} Lower={channel.LowerBand:F2}");
-    }
-}
-```
+- **Wilder, J.W.** *New Concepts in Technical Trading Systems*. Trend Research, 1978. (EMA smoothing foundations)
+- **Donchian, R.** "Trend Following Methods in Commodity Price Analysis." *Commodity Research Bureau*, 1960. (Fixed-window channel predecessor)
+- **Haykin, S.** *Adaptive Filter Theory*. Prentice Hall, 2002. (Leaky integrator / exponential smoothing theory)

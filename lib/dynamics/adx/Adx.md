@@ -1,93 +1,127 @@
 # ADX: Average Directional Index
 
-> "Is the market trending?" is the only question that matters. ADX answers it, loudly.
-
-The Average Directional Index (ADX) is the industry-standard filter for trend strength. It ignores direction entirely, focusing solely on the velocity of price expansion. It allows systems to switch context: deploying trend-following logic when the market moves, and mean-reversion logic when it chops.
+The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price expansion. Wilder's pipeline decomposes range into directional movement (+DM, -DM), normalizes against True Range to produce directional indicators (+DI, -DI), derives a directional index (DX) from their ratio, then smooths DX with a final RMA pass. The double-smoothed architecture creates significant lag but exceptional noise rejection, making ADX a regime filter rather than a timing tool. Output is unbounded above 0, with readings above 25 conventionally indicating trending conditions and below 20 indicating choppy markets.
 
 ## Historical Context
 
-J. Welles Wilder Jr. was a mechanical engineer, and it shows. Introduced in *New Concepts in Technical Trading Systems* (1978), the ADX is a machine built from moving parts. It doesn't just smooth price; it deconstructs range expansion, normalizes it against volatility, and then smooths the result twice.
+J. Welles Wilder Jr. introduced ADX in *New Concepts in Technical Trading Systems* (1978). Wilder was a mechanical engineer, and the design reflects that discipline: a machine built from modular components where each stage has a defined transfer function. The indicator does not attempt to predict direction. It answers a single question — "Is the market trending?" — and answers it with ruthless indifference to which way.
 
-It is not a modern, low-lag indicator. It is a heavy, momentum-based flywheel that takes time to spin up and time to spin down.
+ADX is a "derivative of a derivative." The calculation pipeline is deep: price range decomposes into directional movement, directional movement normalizes into directional indicators, directional indicators compress into DX, and DX smooths into ADX. Each layer strips noise at the cost of latency. A "cold" start requires at least $2N$ bars to produce statistically meaningful output, and often $3\text{--}4N$ bars to converge to within 4 decimal places of a mature series. The QuanTAlib implementation tracks warmup state explicitly — garbage is not published during convergence.
 
 ## Architecture & Physics
 
-The ADX is a "derivative of a derivative." The calculation pipeline is deep, which creates significant lag but offers exceptional noise reduction.
+### 1. Directional Movement
 
-1. **Decomposition**: Price action is broken into Directional Movement (+DM, -DM) and Volatility (True Range).
-2. **Normalization**: Raw movement is meaningless without context. DM is normalized by TR to get Directional Indicators (+DI, -DI).
-3. **Oscillation**: The Directional Index (DX) is derived from the ratio of the difference to the sum of the DIs.
-4. **Smoothing**: Finally, the DX is smoothed to get ADX.
+Today's range expansion is compared to yesterday's:
 
-### The Stability Problem
+$$\text{UpMove} = H_t - H_{t-1}$$
 
-Because ADX relies on recursive smoothing (RMA) at multiple stages, it is notoriously slow to converge. A "cold" start requires at least $2 \times Period$ bars to produce data that even remotely resembles a mature series, and often $3-4 \times Period$ to match external libraries (like TA-Lib) within 4 decimal places.
+$$\text{DownMove} = L_{t-1} - L_t$$
 
-The QuanTAlib implementation handles this by tracking the "warmup" state explicitly. Garbage is not output during the convergence phase if it can be avoided, but users must be aware that ADX is history-dependent.
+$$+DM = \begin{cases} \text{UpMove} & \text{if UpMove} > \text{DownMove and UpMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
+
+$$-DM = \begin{cases} \text{DownMove} & \text{if DownMove} > \text{UpMove and DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
+
+Only one of +DM or -DM can be non-zero per bar — the dominant direction wins.
+
+### 2. Wilder Smoothing (RMA)
+
+All three series (+DM, -DM, TR) are smoothed using Wilder's Moving Average with $\alpha = 1/N$:
+
+$$+DM_{\text{smooth}} = \text{RMA}(+DM, N)$$
+
+$$-DM_{\text{smooth}} = \text{RMA}(-DM, N)$$
+
+$$TR_{\text{smooth}} = \text{RMA}(TR, N)$$
+
+### 3. Directional Indicators
+
+Normalize smoothed movement against smoothed volatility:
+
+$$+DI = 100 \times \frac{+DM_{\text{smooth}}}{TR_{\text{smooth}}}$$
+
+$$-DI = 100 \times \frac{-DM_{\text{smooth}}}{TR_{\text{smooth}}}$$
+
+### 4. Directional Index and ADX
+
+$$DX = 100 \times \frac{|+DI - (-DI)|}{+DI + (-DI)}$$
+
+$$ADX = \text{RMA}(DX, N)$$
+
+### 5. Complexity
+
+- **Time:** $O(1)$ per bar — all RMA updates are recursive
+- **Space:** $O(1)$ — scalar state only (no buffers)
+- **Warmup:** $\approx 2N$ bars minimum; $3\text{--}4N$ for full convergence
 
 ## Mathematical Foundation
 
-The math is classic Wilder: recursive, stateful, and robust.
+### Parameters
 
-### 1. Directional Movement (DM)
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 14 | $N \geq 2$ |
 
-Today's range is compared to yesterday's.
-$$ \text{UpMove} = H_t - H_{t-1} $$
-$$ \text{DownMove} = L_{t-1} - L_t $$
+### Pseudo-code
 
-$$ +DM = \begin{cases} \text{UpMove} & \text{if } \text{UpMove} > \text{DownMove} \text{ and } \text{UpMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+```
+Initialize:
+  α = 1 / period
+  smoothPlusDM = smoothMinusDM = smoothTR = 0
+  adx = 0
+  prevHigh = prevLow = NaN
+  bar_count = 0
 
-$$ -DM = \begin{cases} \text{DownMove} & \text{if } \text{DownMove} > \text{UpMove} \text{ and } \text{DownMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
+On each bar (high, low, close, isNew):
+  if !isNew: restore previous state
 
-### 2. Smoothing (RMA)
+  TR = max(high - low, |high - prevClose|, |low - prevClose|)
 
-Wilder's Moving Average (RMA) is an exponential moving average with $\alpha = 1/N$. The series $+DM$, $-DM$, and $TR$ (True Range) are smoothed using this operator.
+  upMove = high - prevHigh
+  downMove = prevLow - low
 
-$$ +DM_{smoothed} = RMA(+DM, N) $$
-$$ -DM_{smoothed} = RMA(-DM, N) $$
-$$ TR_{smoothed} = RMA(TR, N) $$
+  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
+  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
 
-### 3. Directional Indicators (DI)
+  // Wilder smoothing (RMA)
+  smoothPlusDM = FMA(smoothPlusDM, 1 - α, α × +DM)
+  smoothMinusDM = FMA(smoothMinusDM, 1 - α, α × -DM)
+  smoothTR = FMA(smoothTR, 1 - α, α × TR)
 
-$$ +DI = 100 \times \frac{+DM_{smoothed}}{TR_{smoothed}} $$
-$$ -DI = 100 \times \frac{-DM_{smoothed}}{TR_{smoothed}} $$
+  // Directional Indicators
+  +DI = 100 × smoothPlusDM / smoothTR
+  -DI = 100 × smoothMinusDM / smoothTR
 
-### 4. The Index (DX and ADX)
+  // Directional Index
+  diSum = +DI + -DI
+  DX = diSum > 0 ? 100 × |+DI - -DI| / diSum : 0
 
-$$ DX = 100 \times \frac{|+DI - -DI|}{+DI + -DI} $$
-$$ ADX = RMA(DX, N) $$
+  // Final smoothing
+  ADX = FMA(ADX, 1 - α, α × DX)
 
-## Performance Profile
+  prevHigh = high
+  prevLow = low
+  prevClose = close
+  output = ADX
+```
 
-Throughput is optimized. The recursive nature of RMA allows for O(1) updates, but the initial calculation over a span requires O(N).
+### The Stability Problem
 
-### Zero-Allocation Design
+Because ADX relies on recursive RMA at multiple stages, convergence is slow. Period 14 needs roughly 40-56 bars before matching TA-Lib to 4 decimal places. The first $2N$ values are mathematically correct but statistically immature — treat them as warmup artifacts.
 
-The implementation uses `stackalloc` for internal buffers when processing spans, ensuring no heap allocations occur during the calculation. The hot path for streaming updates is purely scalar and allocation-free.
+### ADX Interpretation
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 5ns | 5ns / bar (Apple M1 Max). |
-| **Allocations** | 0 | Hot path is allocation-free. |
-| **Complexity** | O(1) | Constant time for streaming updates. |
-| **Accuracy** | 10/10 | Matches TA-Lib to 1e-9. |
-| **Timeliness** | 2/10 | Significant lag due to double smoothing. |
-| **Overshoot** | 10/10 | Very stable; rarely overshoots. |
-| **Smoothness** | 10/10 | Exceptional noise reduction. |
+| ADX Value | Market Regime |
+|-----------|---------------|
+| < 20 | Absent or weak trend (range-bound) |
+| 20–25 | Emerging trend |
+| 25–50 | Strong trend |
+| 50–75 | Very strong trend |
+| > 75 | Extremely strong (rare) |
 
-## Validation
+ADX peaks *after* the trend has exhausted — it is a lagging indicator of trend strength, not a leading indicator of reversal.
 
-Validation is performed against industry-standard libraries.
+## Resources
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | ✅ | Matches `TA_ADX` to 1e-9. |
-| **Skender** | ✅ | Matches `GetAdx`. |
-| **Tulip** | ✅ | Matches `ti.adx` (with offset adjustment). |
-| **Ooples** | ❌ | Deviates significantly (10.7 vs 25.2). |
-
-### Common Pitfalls
-
-* **Period Sensitivity**: The standard period is 14. Lowering it (e.g., 7) makes ADX twitchy and prone to false positives. Raising it (e.g., 30) turns it into a geological indicator—accurate, but late.
-* **The "Turn"**: ADX peaks *after* the trend has exhausted. It is a lagging indicator of trend strength, not a leading indicator of price reversal.
-* **Convergence**: Do not trust the first $2 \times N$ values. They are mathematically correct but statistically immature.
+- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- PineScript reference: `adx.pine` in indicator directory

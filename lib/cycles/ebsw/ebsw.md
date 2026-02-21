@@ -1,151 +1,117 @@
 # EBSW: Ehlers Even Better Sinewave
 
-> "When you combine a high-pass filter with a super-smoother, you get cleaner cycles with automatic gain control."
-
-The Even Better Sinewave (EBSW) indicator is a refined cycle oscillator developed by John Ehlers. It combines a high-pass filter (trend removal) with a Super-Smoother filter (noise removal) and Automatic Gain Control to produce an oscillator normalized between -1 and +1 that synthesizes a clean sine wave from price action.
+EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Control to produce a normalized $[-1, +1]$ output representing the current position within the dominant market cycle. Developed by John Ehlers as an improvement over the original Hilbert Transform SineWave, it provides cleaner turning point detection without requiring complex phase extraction mathematics.
 
 ## Historical Context
 
-Ehlers' original "Sinewave" indicator relied on the Hilbert Transform to extract phase. However, he found that direct Hilbert Transforms were often unstable on real market data. The "Even Better" Sinewave simplifies the approach: instead of complex phase math, it uses a tuned bandpass filter (High-Pass + Low-Pass) to isolate the wave, then normalizes it.
-
-This resulted in a more robust tool for identifying turning points in both trending and ranging markets, first published in *Cycle Analytics for Traders*.
+Ehlers' original SineWave indicator relied on the Hilbert Transform to extract phase, but direct Hilbert Transforms proved unstable on real market data due to amplitude sensitivity and convergence issues during strong trends. The "Even Better" SineWave, published in *Cycle Analytics for Traders* (2013), simplifies the approach: instead of complex phase math, it uses a tuned bandpass filter (high-pass cascaded with a 2-pole low-pass) to isolate the dominant cycle, then normalizes the result via RMS-based AGC. The 3-bar averaging in both the wave and power calculations acts as a simple anti-aliasing stage. The result is a more robust tool for identifying turning points in both trending and ranging markets.
 
 ## Architecture & Physics
 
-The transformation pipeline consists of four distinct stages.
-
 ### 1. High-Pass Filter (Trend Removal)
 
-$$
-\alpha_1 = \frac{1 - \sin(2\pi/HP)}{\cos(2\pi/HP)}
-$$
+A single-pole high-pass filter removes frequencies below the cutoff:
 
-$$
-HP_t = 0.5 (1 + \alpha_1)(P_t - P_{t-1}) + \alpha_1 \cdot HP_{t-1}
-$$
+$$\alpha_1 = \frac{1 - \sin(2\pi / P_{HP})}{\cos(2\pi / P_{HP})}$$
+
+$$HP_t = \frac{1 + \alpha_1}{2}(P_t - P_{t-1}) + \alpha_1 \cdot HP_{t-1}$$
 
 ### 2. Super-Smoother Filter (Noise Removal)
 
-$$
-\alpha_2 = e^{-\sqrt{2}\pi / SSF}
-$$
+A 2-pole Butterworth low-pass attenuates high-frequency aliasing noise:
 
-$$
-Filt_t = \frac{1 - 2\alpha_2\cos(\sqrt{2}\pi/SSF) + \alpha_2^2}{2}(HP_t + HP_{t-1}) + 2\alpha_2\cos(\sqrt{2}\pi/SSF) \cdot Filt_{t-1} - \alpha_2^2 \cdot Filt_{t-2}
-$$
+$$a = e^{-\sqrt{2}\pi / P_{SSF}}$$
 
-### 3. Wave & Power Calculation
+$$b = 2a \cos(\sqrt{2}\pi / P_{SSF})$$
 
-$$
-Wave = \frac{Filt_t + Filt_{t-1} + Filt_{t-2}}{3}
-$$
+$$Filt_t = \frac{(1 - b + a^2)}{2}(HP_t + HP_{t-1}) + b \cdot Filt_{t-1} - a^2 \cdot Filt_{t-2}$$
 
-$$
-Power = \frac{Filt_t^2 + Filt_{t-1}^2 + Filt_{t-2}^2}{3}
-$$
+### 3. Wave and Power Calculation
+
+Three-bar averaging for both signal and energy:
+
+$$Wave_t = \frac{Filt_t + Filt_{t-1} + Filt_{t-2}}{3}$$
+
+$$Power_t = \frac{Filt_t^2 + Filt_{t-1}^2 + Filt_{t-2}^2}{3}$$
 
 ### 4. Normalization (AGC)
 
-$$
-EBSW = \frac{Wave}{\sqrt{Power}}
-$$
+$$EBSW_t = \frac{Wave_t}{\sqrt{Power_t}}$$
 
-Result is clamped to $\pm 1$.
+Result is clamped to $[-1, +1]$. When $Power \approx 0$, output is zero.
 
-## Performance Profile
+### 5. Complexity
 
-### Operation Count (Streaming Mode, per Bar)
+$O(1)$ per bar. Fixed cascaded IIR filters with $O(1)$ memory (only filter state variables and 3-bar history for wave/power).
 
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| FMA (filter updates) | 4 | 4 | 16 |
-| MUL (power calc) | 3 | 3 | 9 |
-| ADD/SUB | 6 | 1 | 6 |
-| DIV | 1 | 15 | 15 |
-| SQRT | 1 | 12 | 12 |
-| **Total** | **15** | — | **~58 cycles** |
+## Mathematical Foundation
 
-### Complexity Analysis
+### Parameters
 
-- **Streaming:** O(1) per bar—fixed cascaded IIR filters
-- **Memory:** O(1)—only filter state variables
-- **Warmup:** ~hpLength bars for HP filter convergence
+| Parameter | Description | Default | Constraint |
+|-----------|-------------|---------|------------|
+| `hpLength` | High-pass filter period (detrending cutoff) | 40 | $\geq 1$, $\neq 4$ |
+| `ssfLength` | Super-smoother filter period (noise cutoff) | 10 | $\geq 1$ |
 
-## Validation
+### Precomputed Coefficients
 
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| TA-Lib | N/A | Not standard |
-| Skender | N/A | Not standard |
-| PineScript | ✅ | Matches `ebsw` script |
-| Reference | ✅ | Matches *Cycle Analytics for Traders* logic |
-
-## Usage & Pitfalls
-
-- **Range is -1 to +1**—zero crossings signal cycle phase changes
-- **HP Length is critical**—should match expected market cycle (e.g., 40 bars)
-- **Too short HP Length** filters out everything as "trend"
-- **AGC amplifies noise** in low volatility—verify with price action
-- **Strong step moves** cause railing at ±1 for extended periods
-- **Buy at valley** (EBSW turning up from -0.8), **sell at peak** (turning down from +0.8)
-
-## API
-
-```mermaid
-classDiagram
-    class Ebsw {
-        +int HpLength
-        +int SsfLength
-        +double Value
-        +bool IsHot
-        +Ebsw(int hpLength, int ssfLength)
-        +Ebsw(ITValuePublisher source, int hpLength, int ssfLength)
-        +TValue Update(TValue input, bool isNew)
-        +void Reset()
-    }
+```
+α₁ = (1 - sin(2π/hpLength)) / cos(2π/hpLength)
+a  = exp(-√2·π / ssfLength)
+b  = 2·a·cos(√2·π / ssfLength)
+c₁ = (1 - b + a²) / 2
 ```
 
-### Class: `Ebsw`
+### Pseudo-code
 
-| Parameter | Type | Default | Range | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `hpLength` | `int` | `40` | `≥1, ≠4` | High-pass filter period (detrending) |
-| `ssfLength` | `int` | `10` | `≥1` | Super-smoother filter period |
-
-### Properties
-
-- `Value` (`double`): The current EBSW value (bounded -1 to +1)
-- `IsHot` (`bool`): Returns `true` when warmup is complete
-
-### Methods
-
-- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
-
-## C# Example
-
-```csharp
-using QuanTAlib;
-
-// Create EBSW for 40-bar cycle with 10-bar smoothing
-var ebsw = new Ebsw(hpLength: 40, ssfLength: 10);
-
-// Update with streaming data
-foreach (var bar in quotes)
-{
-    var result = ebsw.Update(new TValue(bar.Date, bar.Close));
-    
-    if (ebsw.IsHot)
-    {
-        Console.WriteLine($"{bar.Date}: EBSW = {result.Value:F4}");
-        
-        // Cycle turning point detection
-        if (result.Value < -0.8 && result.Value > ebsw.Previous.Value)
-            Console.WriteLine("  → Potential cycle bottom");
-        else if (result.Value > 0.8 && result.Value < ebsw.Previous.Value)
-            Console.WriteLine("  → Potential cycle top");
-    }
-}
-
-// Batch calculation
-var output = Ebsw.Calculate(sourceSeries, hpLength: 40, ssfLength: 10);
 ```
+function EBSW(source, hpLength, ssfLength):
+    // Precompute HP coefficient
+    α₁ ← (1 - sin(2π/hpLength)) / cos(2π/hpLength)
+
+    // Precompute SSF coefficients
+    a ← exp(-√2·π / ssfLength)
+    b ← 2·a·cos(√2·π / ssfLength)
+    c₁ ← (1 - b + a²) / 2
+
+    hp_prev ← 0; p_prev ← 0
+    filt_1 ← 0; filt_2 ← 0
+
+    for each price in source:
+        // High-pass filter
+        hp ← 0.5·(1 + α₁)·(price - p_prev) + α₁·hp_prev
+
+        // Super-smoother
+        filt ← c₁·(hp + hp_prev) + b·filt_1 - a²·filt_2
+
+        // Wave (3-bar average of filtered signal)
+        wave ← (filt + filt_1 + filt_2) / 3
+
+        // Power (3-bar RMS²)
+        power ← (filt² + filt_1² + filt_2²) / 3
+
+        // AGC normalization
+        ebsw ← (power > 0) ? wave / √power : 0
+        ebsw ← clamp(ebsw, -1, +1)
+
+        // Shift state
+        hp_prev ← hp; p_prev ← price
+        filt_2 ← filt_1; filt_1 ← filt
+
+        emit ebsw
+```
+
+### Output Interpretation
+
+| Condition | Meaning |
+|-----------|---------|
+| $EBSW \approx +1$ | Cycle peak (potential short entry) |
+| $EBSW \approx -1$ | Cycle trough (potential long entry) |
+| Zero crossing up | Bullish phase transition |
+| Zero crossing down | Bearish phase transition |
+| Railing at $\pm 1$ | Strong directional move overwhelming cycle |
+
+## Resources
+
+- **Ehlers, J.F.** *Cycle Analytics for Traders*. Wiley, 2013.
+- **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.

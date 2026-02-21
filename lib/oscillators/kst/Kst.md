@@ -1,0 +1,59 @@
+# KST: Know Sure Thing Oscillator
+
+The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smooths each with an independent SMA, then combines them using linearly increasing weights (1, 2, 3, 4) to produce a single composite momentum line. A signal line (SMA of the KST) provides crossover triggers. The weighted summation ensures longer-term momentum dominates the output while shorter-term components contribute responsiveness, creating a momentum indicator that reflects multiple cycle lengths simultaneously.
+
+## Historical Context
+
+Martin Pring developed the KST oscillator in the early 1990s, publishing it in *Technical Analysis of Stocks & Commodities* and later in his comprehensive work on technical analysis. Pring's motivation was to create a single indicator that captured momentum across multiple timeframes, eliminating the need to monitor four separate ROC charts. The name "Know Sure Thing" was somewhat tongue-in-cheek, acknowledging that no indicator provides certainty, but reflecting Pring's confidence that multi-timeframe momentum confirmation produces more reliable signals than any single timeframe. The original design used monthly data with ROC periods of 9, 12, 18, 24 months and SMA periods of 6, 6, 6, 9 months, later adapted to daily timeframes using proportionally scaled periods. The linearly increasing weights (1:2:3:4) were chosen to give progressively more influence to longer-term momentum, reflecting the principle that major market trends are driven by longer-term forces while shorter-term momentum primarily adds noise.
+
+## Architecture & Physics
+
+### Parallel ROC + SMA Pipeline
+
+KST maintains four independent processing channels, each consisting of:
+
+1. **ROC calculation:** $ROC_k = \frac{x_t - x_{t-r_k}}{x_{t-r_k}} \times 100$ for lookback periods $r_1 < r_2 < r_3 < r_4$.
+
+2. **SMA smoothing:** Each ROC is smoothed by an independent SMA with its own circular buffer and running sum, achieving O(1) per bar. The SMA helper function encapsulates buffer management, head pointer, count, and running sum.
+
+### Weighted Combination
+
+The four smoothed ROC values are combined with fixed linear weights:
+
+$$KST = 1 \times SMA(ROC_1) + 2 \times SMA(ROC_2) + 3 \times SMA(ROC_3) + 4 \times SMA(ROC_4)$$
+
+### Signal Line
+
+A fifth SMA is applied to the KST output, using its own circular buffer. Crossovers between KST and signal indicate momentum shifts.
+
+### Total Buffer Count
+
+The implementation maintains 5 independent SMA circular buffers (4 ROC smoothers + 1 signal), each with its own metadata arrays. No ROC circular buffer is needed because PineScript's `source[n]` lookback provides direct access to historical prices.
+
+## Mathematical Foundation
+
+Given source $x_t$, ROC periods $(r_1, r_2, r_3, r_4)$, SMA periods $(s_1, s_2, s_3, s_4)$, signal period $p_s$:
+
+**Rate of Change for each channel:**
+
+$$ROC_k(t) = \frac{x_t - x_{t-r_k}}{x_{t-r_k}} \times 100, \quad k \in \{1,2,3,4\}$$
+
+**SMA smoothing** (O(1) circular buffer per channel):
+
+$$SM_k(t) = \frac{1}{s_k} \sum_{i=0}^{s_k-1} ROC_k(t-i)$$
+
+**KST composite:**
+
+$$KST(t) = 1 \cdot SM_1(t) + 2 \cdot SM_2(t) + 3 \cdot SM_3(t) + 4 \cdot SM_4(t)$$
+
+**Signal line:**
+
+$$Signal(t) = \frac{1}{p_s} \sum_{i=0}^{p_s-1} KST(t-i)$$
+
+**Default parameters:** $r = (10, 15, 20, 30)$, $s = (10, 10, 10, 15)$, $p_s = 9$.
+
+## Resources
+
+- Pring, M.J. (1992). "The KST System." *Technical Analysis of Stocks & Commodities*
+- Pring, M.J. (2002). *Technical Analysis Explained*, 4th ed. McGraw-Hill
+- PineScript reference: [`kst.pine`](kst.pine)

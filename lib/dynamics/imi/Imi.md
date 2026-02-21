@@ -1,16 +1,10 @@
 # IMI: Intraday Momentum Index
 
-> "RSI measures close-to-close momentum. IMI measures open-to-close momentum. One tracks what happened between sessions; the other tracks what happened inside them."
-
-IMI (Intraday Momentum Index), developed by Tushar Chande, combines candlestick analysis with RSI-like overbought/oversold signals. Unlike RSI, which uses close-to-close price changes, IMI measures the relationship between each bar's open and close prices. This makes it particularly effective for detecting intraday buying/selling pressure and candlestick pattern strength. The result oscillates between 0 and 100, with readings above 70 indicating overbought conditions and below 30 indicating oversold.
+The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-close changes used by RSI. Each bar is classified as a gain (close > open) or loss (close < open), with the magnitude being the absolute open-close difference. Rolling sums of gains and losses over the lookback period produce an RSI-like ratio scaled to 0-100. This bridges Japanese candlestick analysis with Western oscillator theory: bullish candles contribute to the gain sum, bearish candles contribute to the loss sum. Unlike RSI, IMI does not require a previous close and uses simple rolling sums rather than exponential smoothing, making it more responsive but noisier. Output is bounded 0-100 with conventional overbought (>70) and oversold (<30) zones.
 
 ## Historical Context
 
-Tushar Chande introduced the Intraday Momentum Index in "The New Technical Trader" (1994), alongside other innovations like the Chande Momentum Oscillator (CMO). Chande observed that traditional momentum indicators like RSI ignored the intraday price action captured by candlestick patterns. By using the open-close relationship instead of close-close changes, IMI bridges the gap between Japanese candlestick analysis and Western oscillator theory.
-
-The indicator is particularly useful on daily charts where the open-close relationship has clear meaning (overnight gap vs session direction). On intraday timeframes, its interpretation shifts to measuring buying pressure within each bar. Unlike RSI, IMI does not require a previous close, making it self-contained within each bar.
-
-The formula structure mirrors RSI: sum of gains over sum of gains plus losses, scaled to 0-100. This provides familiar overbought/oversold levels while measuring a fundamentally different quantity.
+Tushar Chande introduced the Intraday Momentum Index in *The New Technical Trader* (1994), alongside innovations like the Chande Momentum Oscillator. Chande observed that traditional momentum indicators like RSI ignored the intraday price action captured by candlestick patterns. By using the open-close relationship instead of close-close changes, IMI measures a fundamentally different quantity: the directional conviction *within* each bar rather than the change *between* bars. On daily charts, the open-close relationship has clear meaning — it captures overnight positioning gaps plus session direction. The indicator is self-contained within each bar, requiring no previous bar's close, which makes it particularly clean for session-based analysis. The formula structure deliberately mirrors RSI (sum of gains over total) to provide familiar overbought/oversold levels while measuring intra-session momentum.
 
 ## Architecture & Physics
 
@@ -18,139 +12,105 @@ The formula structure mirrors RSI: sum of gains over sum of gains plus losses, s
 
 Each bar is classified based on the open-close relationship:
 
-$$
-\text{Gain}_t = \begin{cases} \text{Close}_t - \text{Open}_t & \text{if Close} > \text{Open} \\ 0 & \text{otherwise} \end{cases}
-$$
+$$G_t = \begin{cases} C_t - O_t & \text{if } C_t > O_t \\ 0 & \text{otherwise} \end{cases}$$
 
-$$
-\text{Loss}_t = \begin{cases} \text{Open}_t - \text{Close}_t & \text{if Close} < \text{Open} \\ 0 & \text{otherwise} \end{cases}
-$$
+$$L_t = \begin{cases} O_t - C_t & \text{if } C_t < O_t \\ 0 & \text{otherwise} \end{cases}$$
 
-### 2. Rolling Sum Calculation
+Doji bars ($C = O$) contribute zero to both sums.
 
-The indicator uses O(1) rolling sums via ring buffers:
+### 2. Rolling Sums
 
-$$
-\text{SumGains}_t = \sum_{i=t-n+1}^{t} \text{Gain}_i
-$$
+Simple rolling sums over the lookback window (no exponential smoothing):
 
-$$
-\text{SumLosses}_t = \sum_{i=t-n+1}^{t} \text{Loss}_i
-$$
+$$\text{SumGains}_t = \sum_{i=t-N+1}^{t} G_i$$
+
+$$\text{SumLosses}_t = \sum_{i=t-N+1}^{t} L_i$$
+
+Implemented with ring buffers and incremental add/subtract for $O(1)$ per bar.
 
 ### 3. IMI Value
 
-$$
-\text{IMI}_t = 100 \times \frac{\text{SumGains}_t}{\text{SumGains}_t + \text{SumLosses}_t}
-$$
+$$\text{IMI}_t = 100 \times \frac{\text{SumGains}_t}{\text{SumGains}_t + \text{SumLosses}_t}$$
 
-When both sums are zero (flat bars only), IMI defaults to 50.0 (neutral).
+When both sums are zero (all doji bars in window), IMI defaults to 50.0 (neutral).
 
-### 4. State Management
+### 4. Complexity
 
-The indicator implements `ITValuePublisher` directly (not `AbstractBase`) because it requires `TBar` input (OHLC data). Rolling sums (`_gainSum`, `_lossSum`) are saved/restored for bar correction via `_savedGainSum` / `_savedLossSum`.
+- **Time:** $O(1)$ per bar — rolling sum add/subtract
+- **Space:** $O(N)$ — two ring buffers for gain and loss history
+- **Warmup:** $N$ bars
 
 ## Mathematical Foundation
 
-### Core Formula
+### Parameters
 
-$$
-\text{IMI} = 100 \times \frac{\sum_{i=1}^{n} G_i}{\sum_{i=1}^{n} G_i + \sum_{i=1}^{n} L_i}
-$$
+| Symbol | Parameter | Default | Constraint |
+|--------|-----------|---------|------------|
+| $N$ | period | 14 | $N \geq 1$ |
 
-where:
+### Pseudo-code
 
-- $G_i = \max(C_i - O_i, 0)$ (gain on bullish bars)
-- $L_i = \max(O_i - C_i, 0)$ (loss on bearish bars)
-- $n$ = lookback period (default 14)
+```
+Initialize:
+  gainBuf = RingBuffer(period)
+  lossBuf = RingBuffer(period)
+  gainSum = lossSum = 0
+  bar_count = 0
 
-### Key Levels
+On each bar (open, close, isNew):
+  if !isNew: restore previous state
 
-| Level | Interpretation |
-|-------|---------------|
-| > 70 | Overbought: strong bullish intraday pressure |
-| < 30 | Oversold: strong bearish intraday pressure |
-| 50 | Neutral: balanced buying/selling pressure |
+  // Classify bar
+  diff = close - open
+  gain = diff > 0 ? diff : 0
+  loss = diff < 0 ? -diff : 0
 
-### Comparison with RSI
+  // Update rolling sums
+  if gainBuf is full:
+    gainSum -= gainBuf.Oldest
+    lossSum -= lossBuf.Oldest
+  gainBuf.Add(gain)
+  lossBuf.Add(loss)
+  gainSum += gain
+  lossSum += loss
+
+  // IMI calculation
+  total = gainSum + lossSum
+  IMI = total > 0 ? 100 × gainSum / total : 50.0
+
+  output = IMI
+```
+
+### IMI vs RSI Comparison
 
 | Property | RSI | IMI |
 |----------|-----|-----|
 | Input | Close-to-close change | Open-to-close change |
 | Measures | Inter-session momentum | Intra-session momentum |
-| Requires previous bar | Yes | No (self-contained) |
-| Smoothing | Wilder's smoothing (EMA) | Simple sum (no smoothing) |
+| Smoothing | Wilder's RMA (exponential) | Simple rolling sum |
+| Previous bar | Required ($C_{t-1}$) | Not required (self-contained) |
+| Response | Smoother, more lag | More responsive, noisier |
 | Range | 0-100 | 0-100 |
-| Default period | 14 | 14 |
 
-### Default Parameters
+### Interpretation
 
-| Parameter | Default | Purpose |
-|-----------|---------|---------|
-| period | 14 | Lookback window for gain/loss sums |
+| IMI Value | Meaning |
+|-----------|---------|
+| > 70 | Overbought — strong bullish intra-session pressure |
+| < 30 | Oversold — strong bearish intra-session pressure |
+| 50 | Neutral — balanced buying/selling within bars |
+| Rising toward 70 | Increasing proportion of bullish candles |
+| Falling toward 30 | Increasing proportion of bearish candles |
 
-### Warmup
+### Timeframe Sensitivity
 
-$$
-\text{WarmupPeriod} = \text{period}
-$$
+On daily charts, the open-close relationship captures overnight gaps plus session direction — the most informative timeframe for IMI. On very short intraday charts (1-minute), the open-close relationship carries less structural information since the open price has minimal gap significance. Choose timeframes where the opening price carries genuine information about session sentiment.
 
-## Performance Profile
+### OHLC Requirement
 
-### Operation Count (Streaming Mode)
+IMI requires both Open and Close prices per bar. It implements `ITValuePublisher` directly rather than `AbstractBase` since it operates on `TBar` (OHLC) input, not single `TValue` input.
 
-| Operation | Count | Notes |
-| :--- | :---: | :--- |
-| SUB | 1 | close - open |
-| CMP | 1 | classify gain vs loss |
-| ADD/SUB | 2 | rolling sum update |
-| DIV | 1 | IMI ratio |
-| MUL | 1 | scale to 100 |
-| **Total** | **~6 ops** | O(1) per bar |
+## Resources
 
-### Batch Mode
-
-| Operation | Complexity | Notes |
-| :--- | :---: | :--- |
-| Per-element | O(1) | Rolling sum, no re-scan |
-| Total | O(n) | Linear scan |
-| Memory | O(period) | Two ring buffers |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact arithmetic, no approximation |
-| **Timeliness** | 8/10 | No smoothing lag beyond window |
-| **Smoothness** | 5/10 | Can be choppy in ranging markets |
-| **Simplicity** | 8/10 | Straightforward gain/loss ratio |
-
-## Validation
-
-| Library | Status | Notes |
-| :--- | :---: | :--- |
-| **Skender** | ✅ | Matches within tolerance |
-| **TA-Lib** | N/A | No IMI function |
-| **Tulip** | N/A | No IMI function |
-| **Ooples** | ✅ | Matches within tolerance |
-| **CQG** | ✅ | Reference implementation matches |
-
-## Common Pitfalls
-
-1. **TBar input required**: IMI needs Open and Close prices. Passing single values (TValue) is not supported. The indicator implements `ITValuePublisher` directly, not `AbstractBase`.
-
-2. **Doji bars**: When Open equals Close, both Gain and Loss are zero. These bars contribute nothing to either sum but still age out of the window.
-
-3. **All-zero edge case**: If all bars in the window are Dojis, both sums are zero. The implementation returns 50.0 (neutral) to avoid division by zero.
-
-4. **Not smoothed**: Unlike RSI, which uses Wilder's smoothing (exponential), IMI uses simple sums. This makes it more responsive but also noisier.
-
-5. **Timeframe sensitivity**: On daily charts, open-close captures overnight gaps plus session direction. On 1-minute charts, the open-close relationship is less meaningful. Choose timeframes where the open price carries information.
-
-6. **NaN handling**: Non-finite Open or Close values cause the bar to be skipped, preserving the last valid IMI value.
-
-## References
-
-- Chande, T. S., & Kroll, S. (1994). "The New Technical Trader." Wiley.
-- Investopedia: "Intraday Momentum Index (IMI) Definition."
-- CQG: "Intraday Momentum Index (IMI)" Technical Reference.
+- Chande, T.S. & Kroll, S. — *The New Technical Trader* (John Wiley & Sons, 1994)
+- PineScript reference: `imi.pine` in indicator directory
