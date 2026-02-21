@@ -1,0 +1,39 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("TRAMA: Trend Regularity Adaptive Moving Average", shorttitle="TRAMA", overlay=true)
+
+// @function Calculates the Trend Regularity Adaptive Moving Average.
+//   An adaptive EMA where the smoothing factor is derived from
+//   the regularity of new highest-highs and lowest-lows over the lookback.
+//   More frequent HH/LL = trending = faster adaptation; fewer = ranging = slower.
+//   tc = sma(HH_or_LL_occurred ? 1 : 0, length)²
+//   TRAMA = TRAMA[1] + tc * (src - TRAMA[1])
+//   Squaring penalizes low trend regularity, making the MA nearly flat in ranges.
+//   Source: LuxAlgo (TradingView, December 2020).
+// @param src Series to smooth.
+// @param length Lookback period. Must be >= 1.
+// @returns The trend regularity adaptive moving average value.
+export trama(series float src, simple int length) =>
+    float ama = 0.0
+    // Detect new highest-high: sign of change in rolling highest
+    float hh = math.max(math.sign(ta.change(ta.highest(length))), 0.0)
+    // Detect new lowest-low: sign of negative change in rolling lowest
+    float ll = math.max(math.sign(ta.change(ta.lowest(length)) * -1.0), 0.0)
+    // Trend coefficient: fraction of bars with HH or LL, squared
+    float tc = math.pow(ta.sma((hh != 0.0 or ll != 0.0) ? 1.0 : 0.0, length), 2)
+    ama := nz(ama[1]) + tc * (src - nz(ama[1]))
+    if na(ama[1])
+        ama := src
+    ama
+
+// ── Inputs ──────────────────────────────────────────────
+p = input.int(14, "Period", minval=1)
+
+// ── Calculation ─────────────────────────────────────────
+result = trama(close, p)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "TRAMA", color=color.yellow, linewidth=2)

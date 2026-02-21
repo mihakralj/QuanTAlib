@@ -14,8 +14,11 @@ namespace QuanTAlib;
 /// </summary>
 public sealed class StarchannelIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 10, minimum: 1, maximum: 500, increment: 1, decimalPlaces: 0)]
+    [InputParameter("SMA Period", sortIndex: 10, minimum: 1, maximum: 500, increment: 1, decimalPlaces: 0)]
     public int Period { get; set; } = 20;
+
+    [InputParameter("ATR Period (0 = same as SMA)", sortIndex: 15, minimum: 0, maximum: 500, increment: 1, decimalPlaces: 0)]
+    public int AtrPeriod { get; set; } = 0;
 
     [InputParameter("Multiplier", sortIndex: 20, minimum: 0.1, maximum: 10.0, increment: 0.1, decimalPlaces: 1)]
     public double Multiplier { get; set; } = 2.0;
@@ -25,8 +28,10 @@ public sealed class StarchannelIndicator : Indicator, IWatchlistIndicator
 
     private Starchannel? _indicator;
 
-    public int MinHistoryDepths => Period;
-    public override string ShortName => $"Starchannel({Period},{Multiplier})";
+    public int MinHistoryDepths => Math.Max(Period, AtrPeriod > 0 ? AtrPeriod : Period);
+    public override string ShortName => AtrPeriod > 0 && AtrPeriod != Period
+        ? $"Starchannel({Period},{Multiplier},{AtrPeriod})"
+        : $"Starchannel({Period},{Multiplier})";
 
     public StarchannelIndicator()
     {
@@ -38,7 +43,7 @@ public sealed class StarchannelIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        _indicator = new Starchannel(Period, Multiplier);
+        _indicator = new Starchannel(Period, Multiplier, AtrPeriod);
 
         AddLineSeries(new LineSeries("Middle", Color.DodgerBlue, 2, LineStyle.Solid));
         AddLineSeries(new LineSeries("Upper", Color.FromArgb(255, 180, 180), 1, LineStyle.Dash));

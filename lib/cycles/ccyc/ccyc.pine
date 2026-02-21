@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ehlers Cyber Cycle (CCYC)", "CCYC", overlay=false)
+
+//@function Computes Ehlers Cyber Cycle — a 2-pole high-pass IIR filter applied to a 4-element
+//          FIR-smoothed price, isolating the dominant cycle component with minimal lag.
+//          Includes a one-bar-delayed trigger line for crossover signals.
+//@param source Series to analyze
+//@param alpha Damping factor controlling the high-pass cutoff (lower = smoother, typical 0.07)
+//@returns [cycle, trigger] — cycle oscillator and one-bar-delayed trigger line
+//@reference John F. Ehlers, "Cybernetic Analysis for Stocks and Futures" (Wiley, 2004), Chapter 4
+//@optimized O(1) per bar; 2 IIR state variables + 4-tap FIR smoother
+ccyc(series float source, simple float alpha) =>
+    if alpha <= 0.0 or alpha >= 1.0
+        runtime.error("Alpha must be between 0 and 1 (exclusive)")
+
+    float price = nz(source)
+
+    // --- 4-element FIR smoother (eliminates 2-bar and 3-bar cycle noise) ---
+    float smooth = (price + 2.0 * nz(source[1], price) + 2.0 * nz(source[2], price) + nz(source[3], price)) / 6.0
+
+    // --- 2-pole high-pass IIR filter (Ehlers Cyber Cycle) ---
+    // Coefficients derived from alpha:
+    //   c_hp = (1 - 0.5*alpha)^2
+    //   c_fb1 = 2*(1 - alpha)
+    //   c_fb2 = -(1 - alpha)^2
+    float c_hp  = math.pow(1.0 - 0.5 * alpha, 2)
+    float c_fb1 = 2.0 * (1.0 - alpha)
+    float c_fb2 = -math.pow(1.0 - alpha, 2)
+
+    var float cycle = 0.0
+    var int bar_count = 0
+    bar_count += 1
+
+    if bar_count < 7
+        // Initialization: simple second-difference of raw price (bootstraps convergence)
+        cycle := (price - 2.0 * nz(source[1], price) + nz(source[2], price)) / 4.0
+    else
+        // Steady-state: high-pass filter on smoothed input
+        // cycle = c_hp * (smooth - 2*smooth[1] + smooth[2]) + c_fb1 * cycle[1] + c_fb2 * cycle[2]
+        cycle := c_hp * (smooth - 2.0 * nz(smooth[1], smooth) + nz(smooth[2], smooth)) + c_fb1 * nz(cycle[1]) + c_fb2 * nz(cycle[2])
+
+    // --- Trigger line: one-bar delay for crossover detection ---
+    float trigger = nz(cycle[1])
+
+    [cycle, trigger]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_alpha  = input.float(0.07, "Alpha (damping)", minval=0.01, maxval=0.99, step=0.01)
+i_source = input.source(hl2, "Source")
+
+// Calculation
+[cycle_out, trigger_out] = ccyc(i_source, i_alpha)
+
+// Plots
+plot(cycle_out, "Cycle", color=color.new(color.yellow, 0), linewidth=2)
+plot(trigger_out, "Trigger", color=color.new(color.red, 0), linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

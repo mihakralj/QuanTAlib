@@ -1,0 +1,53 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2004-2024 John F. Ehlers
+indicator("Ehlers 3-Pole Butterworth Filter (BUTTER3)", "BUTTER3", overlay=true)
+
+//@function Calculates 3-Pole Butterworth Lowpass Filter
+//@param source Series to calculate Butterworth from
+//@param length Cutoff period (related to -3dB frequency)
+//@returns 3-pole Butterworth filter value
+//@optimized Uses 3-pole IIR Butterworth filter with O(1) complexity per bar
+butter3(series float src, simple int length) =>
+    var float SQRT3_PI = math.sqrt(3.0) * math.pi
+    var float butter3_internal = 0.0
+    var float coef1 = 0.0
+    var float coef2 = 0.0
+    var float coef3 = 0.0
+    var float coef4 = 0.0
+    var int prev_length = 0
+    if prev_length != length
+        int p = math.max(2, length)
+        float a1 = math.exp(-math.pi / p)
+        float b1 = 2.0 * a1 * math.cos(SQRT3_PI / p)
+        float c1 = a1 * a1
+        coef2 := b1 + c1
+        coef3 := -(c1 + b1 * c1)
+        coef4 := c1 * c1
+        coef1 := (1.0 - b1 + c1) * (1.0 - c1) / 8.0
+        prev_length := p
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float src3 = nz(src[3], src2)
+    float filt1 = nz(butter3_internal[1], src1)
+    float filt2 = nz(butter3_internal[2], src2)
+    float filt3 = nz(butter3_internal[3], src3)
+    if bar_index < 4
+        butter3_internal := ssrc
+    else
+        butter3_internal := coef1 * (ssrc + 3.0 * src1 + 3.0 * src2 + src3) + coef2 * filt1 + coef3 * filt2 + coef4 * filt3
+    butter3_internal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+butter3_val = butter3(i_source, i_length)
+
+// Plot
+plot(butter3_val, "Butterworth 3-Pole", color=color.yellow, linewidth=2)

@@ -6,24 +6,31 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [CORAL](coral/Coral.md) | Coral Trend Filter | Six-stage cascaded EMA with polynomial combination using Constant D parameter for adaptive smoothing. |
 | [DECYCLER](decycler/Decycler.md) | Ehlers Decycler | Ehlers Decycler — complementary HP filter that subtracts high-frequency components from price. |
 | [DEMA](dema/Dema.md) | Double Exponential MA | Reduces lag by applying double exponential smoothing, enhancing responsiveness while maintaining signal quality. |
 | [DSMA](dsma/Dsma.md) | Deviation-Scaled MA | Adaptive IIR filter that adjusts smoothing factor based on market volatility, increasing responsiveness during high-deviation periods. |
 | [EMA](ema/Ema.md) | Exponential MA | Applies exponentially decreasing weights to price data, balancing responsiveness and stability. |
 | [FRAMA](frama/Frama.md) | Ehlers Fractal Adaptive Moving Average | Adapts smoothing based on fractal dimension analysis, minimizing lag in trends and maximizing smoothing in consolidation. |
 | [HEMA](hema/Hema.md) | Hull Exponential MA | EMA-domain Hull analog using half-life timing and de-lagged EMA cascade. |
+| [HOLT](holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing with separate level and trend components for adaptive trend-following. |
 | [HTIT](htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend | Utilizes Hilbert Transform to isolate instantaneous trend component, providing zero-lag trendline with hybrid FIR-in-IIR design. |
 | [JMA](jma/Jma.md) | Jurik MA | Adaptive filter achieving high noise reduction and low phase delay through multi-stage volatility normalization and dynamic parameter optimization. |
 | [KAMA](kama/Kama.md) | Kaufman Adaptive MA | Automatically adjusts sensitivity based on market volatility using Efficiency Ratio, balancing responsiveness and stability. |
 | [MAMA](mama/Mama.md) | Ehlers MESA Adaptive Moving Average | Applies Hilbert Transform for phase-based adaptation, using dual-line system (MAMA/FAMA) for cycle-sensitive smoothing. |
+| [MAVP](mavp/Mavp.md) | Moving Average Variable Period | EMA with dynamically varying period per bar, clamped to configurable min/max range. |
 | [MGDI](mgdi/Mgdi.md) | McGinley Dynamic Indicator | Adjusts speed based on market volatility using dynamic factor, aiming to hug prices closely. |
 | [MMA](mma/Mma.md) | Modified MA | Combines simple and weighted components, emphasizing central values for balanced smoothing. |
+| [PMA](pma/Pma.md) | Predictive Moving Average | Ehlers predictive filter combining super smoother with linear extrapolation for near-zero lag trend following. |
 | [QEMA](qema/Qema.md) | Quad Exponential MA | Zero-lag filter with four cascaded EMAs using geometrically ramped alphas and minimum-energy weights for DC lag elimination. |
 | [REMA](rema/Rema.md) | Regularized Exponential MA | Applies regularization to EMA using lambda parameter, balancing smoothing and momentum-based prediction. |
+| [REVERSEEMA](reverseema/ReverseEma.md) | Reverse EMA | Reconstructs price from EMA using inverse filter, revealing hidden momentum and deconvolved signal. |
 | [RGMA](rgma/Rgma.md) | Recursive Gaussian MA | Approximates Gaussian smoothing by recursively applying EMA filters multiple times (passes), controlled by adjusted period. |
 | [RMA](rma/Rma.md) | wildeR MA | Wilder's smoothing average using specific alpha (1/period), designed for indicators like RSI and ATR. |
 | [T3](t3/T3.md) | Tillson T3 MA | Six-stage EMA cascade with optimized coefficients based on volume factor for reduced lag and superior noise reduction. |
 | [TEMA](tema/Tema.md) | Triple Exponential MA | Triple-cascade EMA architecture with optimized coefficients (3, -3, 1) for further lag reduction compared to DEMA. |
+| [VAMA](vama/Vama.md) | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
+| [TRENDFLEX](trendflex/Trendflex.md) | Ehlers Trendflex | Ehlers zero-lag trend indicator using super smoother with sum-of-differences normalization for responsive trend detection. |
 | [VAMA](vama/Vama.md) | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
 | [VIDYA](vidya/Vidya.md) | Variable Index Dynamic Average | Adjusts smoothing factor based on market volatility using Volatility Index (ratio of short-term to long-term standard deviation). |
 | [YZVAMA](yzvama/Yzvama.md) | Yang-Zhang Volatility Adjusted MA | Adjusts MA length based on percentile rank of short-term YZV, providing context-aware volatility adaptation for gap-prone markets. |

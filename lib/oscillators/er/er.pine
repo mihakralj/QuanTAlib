@@ -1,0 +1,72 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Efficiency Ratio (ER)", "ER", overlay=false)
+
+//@function Calculates Kaufman's Efficiency Ratio as signal-to-noise measure
+//@param source Series to calculate from
+//@param period Lookback period for efficiency measurement
+//@returns ER value (0 to 1) where 1 = trending, 0 = choppy
+//@optimized O(1) per bar using dual circular buffers with running sum
+er(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    var int p = math.max(1, period)
+
+    // Close buffer: stores source values for signal (net change over period)
+    var array<float> closeBuf = array.new_float(p + 1, na)
+    var int closeHead = 0
+    var int closeCount = 0
+
+    // Noise buffer: stores |change| values for running sum
+    var array<float> noiseBuf = array.new_float(p, na)
+    var int noiseHead = 0
+    var float noiseSum = 0.0
+
+    var float prevVal = na
+
+    float current = nz(source)
+
+    // Compute bar-to-bar absolute change
+    float absChange = not na(prevVal) ? math.abs(current - prevVal) : 0.0
+
+    // Update noise running sum
+    float oldNoise = array.get(noiseBuf, noiseHead)
+    if not na(oldNoise)
+        noiseSum -= oldNoise
+    noiseSum += absChange
+    array.set(noiseBuf, noiseHead, absChange)
+    noiseHead := (noiseHead + 1) % p
+
+    // Update close buffer
+    if na(array.get(closeBuf, closeHead))
+        closeCount := math.min(closeCount + 1, p + 1)
+    array.set(closeBuf, closeHead, current)
+
+    // Get close from period bars ago
+    int oldIdx = (closeHead - p + p + 1) % (p + 1)
+    float oldClose = array.get(closeBuf, oldIdx)
+    closeHead := (closeHead + 1) % (p + 1)
+
+    prevVal := current
+
+    // Signal = |close - close[period]|
+    float signal = not na(oldClose) and closeCount > p ? math.abs(current - oldClose) : 0.0
+
+    // ER = signal / noise (0 when noise is 0)
+    float result = noiseSum != 0.0 ? signal / noiseSum : 0.0
+    math.max(0.0, math.min(1.0, result))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(10, "Period", minval=1, maxval=500)
+
+// Calculation
+er_value = er(i_source, i_period)
+
+// Plot
+plot(er_value, "ER", color.new(color.yellow, 0), 2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)

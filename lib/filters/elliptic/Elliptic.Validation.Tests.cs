@@ -24,19 +24,19 @@ public sealed class EllipticValidationTests : IDisposable
         // We generate a noisy signal (Constant + White Noise) and verify variance reduction.
 
         var filter = new Elliptic(10);
-        var noisySignal = new List<double>();
-        var random = new Random(42);
-
-        // Generate 1000 points of White Noise around 100
-        for (int i = 0; i < 1000; i++)
+        int N = 1000;
+        // Use GBM log-returns as noise around 100 to create high-frequency jitter
+        var closes = new GBM(seed: 42).Fetch(N + 1, DateTime.UtcNow.Ticks, TimeSpan.FromSeconds(1)).CloseValues;
+        var noisySignal = new List<double>(N);
+        for (int i = 0; i < N; i++)
         {
-            noisySignal.Add(100.0 + (random.NextDouble() - 0.5) * 20.0); // Range 90 to 110
+            noisySignal.Add(100.0 + (closes[i + 1] / closes[i] - 1.0) * 1000.0); // amplified jitter around 100
         }
 
         var output = new List<double>();
-        foreach (var val in noisySignal)
+        for (int i = 0; i < N; i++)
         {
-            output.Add(filter.Update(new TValue(DateTime.UtcNow, val)).Value);
+            output.Add(filter.Update(new TValue(DateTime.UtcNow.AddSeconds(i), noisySignal[i])).Value);
         }
 
         double inputStd = StdDev(noisySignal);

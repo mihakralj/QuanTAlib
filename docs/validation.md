@@ -72,7 +72,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
 | **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
 | **Bollinger Bands** | Bbands | ✔️ | ✔️ | ✔️ | ❔ |
-| **Ehlers Butterworth Filter** | [Butter](../lib/trends/butter/Butter.md) | - | - | - | ✔️ |
+| **Ehlers 2-Pole Butterworth Filter** | [Butter2](../lib/filters/butter2/Butter2.md) | - | - | - | ✔️ |
+| **Ehlers 3-Pole Butterworth Filter** | [Butter3](../lib/filters/butter3/Butter3.md) | - | - | - | - |
 | **Camarilla Pivot Points** | [Pivotcam](../lib/reversals/pivotcam/Pivotcam.md) | - | - | - | ❔ |
 | **Chandelier Exit** | [Chandelier](../lib/reversals/chandelier/Chandelier.md) | - | - | ✔️ | - |
 | **Chande Kroll Stop** | [Ckstop](../lib/reversals/ckstop/Ckstop.md) | - | - | - | - |
@@ -89,6 +90,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Composite Fractal Behavior** | [Cfb](../lib/momentum/cfb/cfb.md) | - | - | - | - |
 | **Conditional Volatility** | [Cv](../lib/volatility/cv/Cv.md) | - | - | - | - |
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Coral Trend Filter** | [Coral](../lib/trends_IIR/coral/Coral.md) | - | - | - | - |
 | **Correlation** | Correlation | - | - | ✔️ | - |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
 | **Decay Min-Max Channel** | [Decaychannel](../lib/channels/decaychannel/decaychannel.md) | - | - | - | - |
@@ -114,7 +116,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Ehlers Phasor Analysis** | Phasor | - | - | - | - |
 | **Ehlers Sine Wave** | Sine | - | - | - | ❔ |
 | **Ehlers SSF-Based Detrended Synthetic Price** | Ssfdsp | - | - | - | - |
-| **Ehlers Super Smooth Filter** | [Ssf](../lib/trends/ssf/Ssf.md) | - | - | - | ✔️ |
+| **Ehlers 2-Pole Super Smooth Filter** | [Ssf2](../lib/filters/ssf2/Ssf2.md) | - | - | - | ✔️ |
+| **Ehlers 3-Pole Super Smooth Filter** | [Ssf3](../lib/filters/ssf3/Ssf3.md) | - | - | - | - |
 | **Ehlers Ultrasmooth Filter** | Usf | - | - | - | - |
 | **Elliptic (Cauer) Filter** | [Elliptic](../lib/filters/elliptic/Elliptic.md) | - | - | - | ❔ |
 | **Exponential Moving Average** | [Ema](../lib/trends/ema/ema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
@@ -144,6 +147,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Ehlers Hilbert Transform Trend vs Cycle Mode** | Ht_trendmode | ✔️ | - | - | - |
 | **Historical Volatility (Close-to-Close)** | [Hv](../lib/volatility/hv/Hv.md) | - | - | - | - |
 | **Hodrick-Prescott Filter** | [Hp](../lib/filters/hp/Hp.md) | - | - | - | - |
+| **Holt Exponential Smoothing** | [Holt](../lib/trends_IIR/holt/Holt.md) | - | - | - | - |
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
 | **Ehlers Homodyne Discriminator** | [Homod](../lib/cycles/homod/homod.md) | - | - | - | ❔ |
 | **Huber Loss** | Huber | - | - | - | - |
@@ -277,7 +281,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Symmetric Mean Absolute Percentage Error** | Smape | - | - | - | - |
 | **T3 Moving Average** | [T3](../lib/trends/t3/t3.md) | ✔️ | - | ✔️ | ✔️ |
 | **Theil Index** | Theil | - | - | - | - |
-| **Time Series Forecast** | Tsf | ✔️ | ✔️ | - | ❔ |
+| **Time Series Forecast** | [Tsf](../lib/trends_FIR/tsf/Tsf.md) | ✔️ | ✔️ | - | ❔ |
 | **Time Weighted Average Price** | Twap | - | - | - | - |
 | **Trade Volume Index** | Tvi | - | - | - | ❔ |
 | **Triangular Moving Average** | [Trima](../lib/trends/trima/trima.md) | ✔️ | ✔️ | ✔️ | ❔ |

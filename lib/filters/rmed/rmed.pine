@@ -1,0 +1,68 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Ehlers Recursive Median Filter (RMED)", "RMED", overlay = true)
+
+//@function Ehlers Recursive Median Filter — a nonlinear IIR filter that applies
+//          exponential smoothing to a 5-bar running median. The median rejects
+//          impulsive spike noise that linear filters (SMA, EMA) cannot handle,
+//          while the EMA provides smooth recursive tracking. Alpha is derived from
+//          the Ehlers cycle-period formula: α = (cos(2π/P) + sin(2π/P) - 1) / cos(2π/P).
+//          The combination produces a filter that is both spike-resistant and smooth,
+//          with less lag than a standard median filter of equivalent smoothness.
+//@param source Series to filter
+//@param period Cycle period for EMA constant derivation (>= 1)
+//@returns Recursive median filtered value
+//@reference Ehlers, J.F. (2018). "Recursive Median Filters."
+//           Technical Analysis of Stocks & Commodities, Mar 2018.
+//@optimized O(1) per bar — 5-element sort network + EMA update
+export rmed(series float source, simple int period) =>
+    if period < 1
+        runtime.error("Period must be at least 1")
+
+    float price = nz(source)
+
+    // --- Ehlers EMA constant from cycle period ---
+    // alpha = (cos(2π/P) + sin(2π/P) - 1) / cos(2π/P)
+    float angle = 360.0 / period
+    float cos_a = math.cos(angle * math.pi / 180.0)
+    float sin_a = math.sin(angle * math.pi / 180.0)
+    float alpha = (cos_a + sin_a - 1.0) / cos_a
+
+    // Clamp alpha to valid range
+    alpha := math.max(0.0, math.min(1.0, alpha))
+
+    // --- 5-bar median via circular buffer ---
+    var array<float> buf = array.new_float(5, 0.0)
+    var int head = 0
+    array.set(buf, head, price)
+    head := (head + 1) % 5
+
+    // Copy to temp array for median extraction
+    var array<float> temp = array.new_float(5, 0.0)
+    for i = 0 to 4
+        array.set(temp, i, array.get(buf, i))
+    array.sort(temp)
+    float med5 = array.get(temp, 2)  // middle element of sorted 5
+
+    // --- Recursive filter: EMA of median ---
+    // RM = alpha * Median5 + (1 - alpha) * RM[1]
+    var float rm = 0.0
+    if bar_index == 0
+        rm := price
+    else
+        rm := alpha * med5 + (1.0 - alpha) * rm
+
+    rm
+
+// ── Inputs ──
+int   p_period = input.int(12, "Period", minval = 1)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = rmed(p_src, p_period)
+
+// ── Plot ──
+plot(out, "RMED", color.yellow, 2)

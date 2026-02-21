@@ -36,11 +36,11 @@ public sealed class AbberValidationTests(ITestOutputHelper output) : IDisposable
     [Fact]
     public void Validate_ManualCalculation_Period3()
     {
-        // Manual calculation verification
+        // Manual calculation verification (same-bar SMA deviation)
         // Values: [100, 110, 120]
-        // Bar 1: SMA=100, Dev=0, AvgDev=0
-        // Bar 2: SMA=(100+110)/2=105, Dev1=0, Dev2=|110-100|=10, AvgDev=(0+10)/2=5
-        // Bar 3: SMA=(100+110+120)/3=110, Dev3=|120-105|=15, AvgDev=(0+10+15)/3=8.333
+        // Bar 1: SMA=100, Dev=|100-100|=0, AvgDev=0
+        // Bar 2: SMA=(100+110)/2=105, Dev2=|110-105|=5, AvgDev=(0+5)/2=2.5
+        // Bar 3: SMA=(100+110+120)/3=110, Dev3=|120-110|=10, AvgDev=(0+5+10)/3=5.0
 
         var series = new TSeries();
         var time = DateTime.UtcNow;
@@ -54,8 +54,8 @@ public sealed class AbberValidationTests(ITestOutputHelper output) : IDisposable
         // SMA(3) = 110
         Assert.Equal(110.0, middle.Last.Value, 1e-10);
 
-        // AvgDev = (0 + 10 + 15) / 3 = 25/3
-        const double expectedAvgDev = 25.0 / 3.0;
+        // AvgDev = (0 + 5 + 10) / 3 = 5.0
+        const double expectedAvgDev = 5.0;
         double expectedBandWidth = 2.0 * expectedAvgDev;
 
         Assert.Equal(110.0 + expectedBandWidth, upper.Last.Value, 1e-10);

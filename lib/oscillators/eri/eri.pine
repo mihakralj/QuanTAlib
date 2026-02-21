@@ -1,0 +1,55 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Elder Ray Index (ERI)", "ERI", overlay=false)
+
+//@function Calculates Elder Ray Index (Bull Power and Bear Power)
+//@param period EMA period for the centerline
+//@returns tuple [bullPower, bearPower] measuring buying/selling pressure
+eri(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float alpha = 2.0 / (period + 1.0)
+    float beta = 1.0 - alpha
+
+    var float ema = 0.0
+    var float e = 1.0
+    var bool warmup = true
+    var bool first = true
+
+    float src = nz(close)
+
+    if first
+        ema := src
+        first := false
+    else
+        ema := alpha * src + beta * ema
+
+    float emaVal = src
+    if warmup
+        e *= beta
+        float c = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+        emaVal := ema * c
+        if e <= 1e-10
+            warmup := false
+    else
+        emaVal := ema
+
+    float bullPower = high - emaVal
+    float bearPower = low - emaVal
+
+    [bullPower, bearPower]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(13, "Period", minval=1, maxval=500)
+
+// Calculation
+[bull, bear] = eri(i_period)
+
+// Plot
+plot(bull, "Bull Power", color.new(color.green, 0), 2)
+plot(bear, "Bear Power", color.new(color.red, 0), 2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

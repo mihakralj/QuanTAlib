@@ -5,13 +5,15 @@ indicator("Stoller Average Range Channel (STARCHANNEL)", "STARCHANNEL", overlay=
 
 //@function Calculates Stoller Average Range Channel using ATR for width and SMA for center
 //@param source Source series for the center line
-//@param length Period for ATR and SMA calculations
+//@param length Period for SMA calculation
 //@param multiplier ATR multiplier for band width
+//@param atr_length Period for ATR calculation (0 = same as length)
 //@returns tuple with [middle, upper, lower] band values
 //@optimized Uses circular buffer for SMA and ATR with compensator, O(1) complexity
-starchannel(series float source, simple int length, simple float multiplier) =>
+starchannel(series float source, simple int length, simple float multiplier, simple int atr_length = 0) =>
     if length <= 0 or multiplier <= 0.0
         runtime.error("Length and multiplier must be greater than 0")
+    int effective_atr_length = atr_length > 0 ? atr_length : length
     var float prevClose = close
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)
@@ -44,8 +46,8 @@ starchannel(series float source, simple int length, simple float multiplier) =>
     var float e = 1.0
     float atrValue = na
     if not na(trueRange)
-        float alpha = 1.0 / float(length)
-        raw_rma := (raw_rma * (length - 1) + trueRange) / length
+        float alpha = 1.0 / float(effective_atr_length)
+        raw_rma := (raw_rma * (effective_atr_length - 1) + trueRange) / effective_atr_length
         e := (1.0 - alpha) * e
         atrValue := e > EPSILON ? raw_rma / (1.0 - e) : raw_rma
     float middleBand = nz(sumSource / count, source)
@@ -56,11 +58,12 @@ starchannel(series float source, simple int length, simple float multiplier) =>
 
 // Inputs
 i_source = input.source(close, "Source")
-i_length = input.int(20, "Length", minval=1)
+i_length = input.int(20, "SMA Length", minval=1)
+i_atr_length = input.int(0, "ATR Length (0 = same as SMA)", minval=0)
 i_mult = input.float(2.0, "ATR Multiplier", minval=0.001)
 
 // Calculation
-[middle, upper, lower] = starchannel(i_source, i_length, i_mult)
+[middle, upper, lower] = starchannel(i_source, i_length, i_mult, i_atr_length)
 
 // Plot
 plot(middle, "Middle", color=color.yellow, linewidth=2)

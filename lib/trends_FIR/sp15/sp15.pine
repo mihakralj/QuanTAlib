@@ -1,0 +1,35 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("SP15: Spencer 15-Point Moving Average", shorttitle="SP15", overlay=true)
+
+// @function Calculates the Spencer 15-Point Moving Average.
+//   A symmetric FIR filter with fixed coefficients designed by John Spencer
+//   for seasonal adjustment of economic time series. The 15 weights are:
+//   [-3, -6, -5, 3, 21, 46, 67, 74, 67, 46, 21, 3, -5, -6, -3] / 320.
+//   The filter has zero response at frequencies 2π/4 and 2π/5 (periods 4 and 5),
+//   making it effective at removing quarterly and quintile seasonal components.
+//   Centered at lag 7 bars.
+// @param src Series to smooth.
+// @returns The Spencer 15-point weighted average.
+export sp15(series float src) =>
+    // Spencer 15-point weights (symmetric, sum = 320)
+    float w0  = -3.0
+    float w1  = -6.0
+    float w2  = -5.0
+    float w3  =  3.0
+    float w4  = 21.0
+    float w5  = 46.0
+    float w6  = 67.0
+    float w7  = 74.0
+    // Symmetric: w8=w6, w9=w5, ..., w14=w0
+    float total = w0 * (src[0] + src[14]) + w1 * (src[1] + src[13]) + w2 * (src[2] + src[12]) + w3 * (src[3] + src[11]) + w4 * (src[4] + src[10]) + w5 * (src[5] + src[9]) + w6 * (src[6] + src[8]) + w7 * src[7]
+    total / 320.0
+
+// ── Calculation ─────────────────────────────────────────
+result = sp15(close)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "SP15", color=color.yellow, linewidth=2)

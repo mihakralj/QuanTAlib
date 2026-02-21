@@ -1,0 +1,144 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Poisson Distribution CDF (POISSONDIST)", "POISSONDIST", overlay=false, precision=6)
+
+//@function Log-gamma via Lanczos approximation (g=7, 9 coefficients)
+//@param z Input value (z > 0)
+//@returns ln(Gamma(z))
+lnGamma(simple float z) =>
+    float g = 7.0
+    array<float> c = array.from(
+         0.99999999999980993,
+       676.5203681218851,
+     -1259.1392167224028,
+       771.32342877765313,
+      -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+         9.9843695780195716e-6,
+         1.5056327351493116e-7)
+    float zz = z - 1.0
+    float x = array.get(c, 0)
+    for i = 1 to 8
+        x += array.get(c, i) / (zz + i)
+    float t = zz + g + 0.5
+    0.5 * math.log(2.0 * math.pi) + (zz + 0.5) * math.log(t) - t + math.log(x)
+
+//@function Regularized lower incomplete gamma P(a,x) via series expansion
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns P(a,x) = gamma(a,x) / Gamma(a)
+gammaSeries(series float a, series float x) =>
+    float EPS = 1e-10
+    int MAXITER = 200
+    float ap = a
+    float sum = 1.0 / a
+    float del = sum
+    for n = 1 to MAXITER
+        ap += 1.0
+        del *= x / ap
+        sum += del
+        if math.abs(del) < math.abs(sum) * EPS
+            break
+    float lnPfx = a * math.log(x) - x - lnGamma(a)
+    math.exp(lnPfx) * sum
+
+//@function Regularized upper incomplete gamma Q(a,x) via continued fraction (Lentz)
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns Q(a,x) = 1 - P(a,x)
+gammaCF(series float a, series float x) =>
+    float TINY = 1e-30
+    float EPS = 1e-10
+    int MAXITER = 200
+    float b0 = x + 1.0 - a
+    float C = 1.0 / TINY
+    float D = b0 < TINY ? 1.0 / TINY : 1.0 / b0
+    float f = D
+    for i = 1 to MAXITER
+        float ai = -float(i) * (float(i) - a)
+        float bi = x + 2.0 * float(i) + 1.0 - a
+        D := bi + ai * D
+        if math.abs(D) < TINY
+            D := TINY
+        D := 1.0 / D
+        C := bi + ai / C
+        if math.abs(C) < TINY
+            C := TINY
+        float delta = C * D
+        f *= delta
+        if math.abs(delta - 1.0) < EPS
+            break
+    float lnPfx = a * math.log(x) - x - lnGamma(a)
+    math.exp(lnPfx) * f
+
+//@function Regularized lower incomplete gamma function P(a,x)
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns CDF value P(X <= x) for Gamma(a, 1)
+gammaP(series float a, series float x) =>
+    if x <= 0.0
+        0.0
+    else if x < a + 1.0
+        gammaSeries(a, x)
+    else
+        1.0 - gammaCF(a, x)
+
+//@function Computes Poisson Distribution CDF for a normalized price series
+//@param source Series to transform
+//@param period Lookback period for min-max normalization
+//@param k Threshold count (non-negative integer); P(X <= k)
+//@param lambda_scale Scale factor applied to normalized price to produce lambda
+//@returns Poisson CDF value P(X <= k) in [0,1]
+//@description The Poisson CDF gives P(X <= k) for X ~ Poisson(lambda).
+//  The normalized price is mapped to lambda = x * lambda_scale where
+//  x = (source - min) / (max - min) over the lookback window.
+//  Uses the identity: P(X <= k) = 1 - P(k+1, lambda) where P(a,x)
+//  is the regularized lower incomplete gamma function (reused from GAMMADIST).
+//  When lambda = 0, CDF = 1.0 (degenerate case: all mass at X=0).
+//  lambda_scale controls the effective range of lambda; higher values
+//  spread the CDF response across a wider event-rate range.
+poissondist(series float source, simple int period, simple int k, simple float lambda_scale) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if k < 0
+        runtime.error("Threshold k must be non-negative")
+    if lambda_scale <= 0.0
+        runtime.error("Lambda scale must be greater than 0")
+
+    float minVal = source
+    float maxVal = source
+    for i = 1 to period - 1
+        float v = source[i]
+        if not na(v)
+            if v < minVal
+                minVal := v
+            if v > maxVal
+                maxVal := v
+
+    float range = maxVal - minVal
+    float x = range > 0.0 ? (source - minVal) / range : 0.5
+    float lambda = math.max(0.0, x * lambda_scale)
+
+    if lambda <= 0.0
+        1.0
+    else
+        1.0 - gammaP(float(k + 1), lambda)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source       = input.source(close, "Source")
+i_period       = input.int(50, "Lookback Period", minval=2, maxval=5000, tooltip="Min-max normalization window")
+i_k            = input.int(5, "Threshold (k)", minval=0, tooltip="P(X <= k); number of events threshold")
+i_lambda_scale = input.float(10.0, "Lambda Scale", minval=0.01, step=0.5, tooltip="Scales normalized price to lambda; higher = wider event-rate range")
+
+// Calculation
+result = poissondist(i_source, i_period, i_k, i_lambda_scale)
+
+// Plot
+plot(result, "POISSONDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

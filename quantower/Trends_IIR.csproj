@@ -18,6 +18,7 @@
     <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
+    <Compile Include="..\lib\trends_FIR\wma\Wma.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

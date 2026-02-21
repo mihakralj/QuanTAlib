@@ -9,30 +9,30 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Acceleration Bands are a volatility-based channel indicator developed by Price Headley.
-/// They create an adaptive price envelope around a moving average, with band width determined
-/// by the spread between the high and low moving averages multiplied by a factor.
+/// They create an adaptive price envelope around a moving average, where the band width
+/// is determined by the per-bar normalized range applied before averaging.
 ///
-/// Calculation:
+/// Calculation (Headley's original formula):
+/// w = (High - Low) / (High + Low)          // normalized range width per bar
+/// Upper Band = SMA(High × (1 + factor × w), Period)
+/// Lower Band = SMA(Low × (1 - factor × w), Period)
 /// Middle Band = SMA(Close, Period)
-/// BandWidth = [SMA(High, Period) - SMA(Low, Period)] × Factor
-/// Upper Band = SMA(High, Period) + BandWidth
-/// Lower Band = SMA(Low, Period) - BandWidth
 ///
 /// Key characteristics:
+/// - Width adjustment is applied per bar before averaging (Headley's method)
 /// - Bands expand during volatile periods and contract during consolidation
-/// - Uses SMA of High, Low, and Close for calculations
-/// - Factor parameter controls band sensitivity
+/// - Factor parameter (default 4.0) controls band sensitivity
 ///
 /// Sources:
-/// Headley, P. (2002). Big Trends in Trading. John Wiley & Sons.
+/// Headley, P. (2002). Big Trends in Trading. John Wiley &amp; Sons.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class AccBands : ITValuePublisher, IDisposable
 {
     private readonly int _period;
     private readonly double _factor;
-    private readonly RingBuffer _highBuffer;
-    private readonly RingBuffer _lowBuffer;
+    private readonly RingBuffer _adjHighBuffer;
+    private readonly RingBuffer _adjLowBuffer;
     private readonly RingBuffer _closeBuffer;
     private readonly TBarPublishedHandler _barHandler;
     private TBarSeries? _source;
@@ -42,8 +42,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
-        double SumHigh,
-        double SumLow,
+        double SumAdjHigh,
+        double SumAdjLow,
         double SumClose,
         double LastValidHigh,
         double LastValidLow,
@@ -92,8 +92,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// Creates AccBands with specified period and factor.
     /// </summary>
     /// <param name="period">Lookback period for SMA calculations (must be > 0)</param>
-    /// <param name="factor">Multiplier for band width (must be > 0, default: 2.0)</param>
-    public AccBands(int period, double factor = 2.0)
+    /// <param name="factor">Multiplier for normalized width (must be > 0, default: 4.0 per Headley)</param>
+    public AccBands(int period, double factor = 4.0)
     {
         if (period <= 0)
         {
@@ -107,8 +107,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
 
         _period = period;
         _factor = factor;
-        _highBuffer = new RingBuffer(period);
-        _lowBuffer = new RingBuffer(period);
+        _adjHighBuffer = new RingBuffer(period);
+        _adjLowBuffer = new RingBuffer(period);
         _closeBuffer = new RingBuffer(period);
         Name = $"AccBands({period},{factor:F2})";
         WarmupPeriod = period;
@@ -118,7 +118,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// <summary>
     /// Creates AccBands with TBarSeries source.
     /// </summary>
-    public AccBands(TBarSeries source, int period, double factor = 2.0) : this(period, factor)
+    public AccBands(TBarSeries source, int period, double factor = 4.0) : this(period, factor)
     {
         _source = source;
         Prime(source);
@@ -191,27 +191,36 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         return _state.LastValidClose;
     }
 
+    /// <summary>
+    /// Computes Headley's per-bar adjusted values and updates running sums.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateState(double high, double low, double close)
     {
-        double removedHigh = _highBuffer.Count == _highBuffer.Capacity ? _highBuffer.Oldest : 0.0;
-        double removedLow = _lowBuffer.Count == _lowBuffer.Capacity ? _lowBuffer.Oldest : 0.0;
+        // Headley's per-bar normalized width
+        double denom = high + low;
+        double w = denom != 0.0 ? (high - low) / denom : 0.0;
+        double adjHigh = high * (1.0 + _factor * w);
+        double adjLow = low * (1.0 - _factor * w);
+
+        double removedAdjHigh = _adjHighBuffer.Count == _adjHighBuffer.Capacity ? _adjHighBuffer.Oldest : 0.0;
+        double removedAdjLow = _adjLowBuffer.Count == _adjLowBuffer.Capacity ? _adjLowBuffer.Oldest : 0.0;
         double removedClose = _closeBuffer.Count == _closeBuffer.Capacity ? _closeBuffer.Oldest : 0.0;
 
-        _state.SumHigh = _state.SumHigh - removedHigh + high;
-        _state.SumLow = _state.SumLow - removedLow + low;
+        _state.SumAdjHigh = _state.SumAdjHigh - removedAdjHigh + adjHigh;
+        _state.SumAdjLow = _state.SumAdjLow - removedAdjLow + adjLow;
         _state.SumClose = _state.SumClose - removedClose + close;
 
-        _highBuffer.Add(high);
-        _lowBuffer.Add(low);
+        _adjHighBuffer.Add(adjHigh);
+        _adjLowBuffer.Add(adjLow);
         _closeBuffer.Add(close);
 
         _state.TickCount++;
         if (_closeBuffer.IsFull && _state.TickCount >= ResyncInterval)
         {
             _state.TickCount = 0;
-            _state.SumHigh = _highBuffer.RecalculateSum();
-            _state.SumLow = _lowBuffer.RecalculateSum();
+            _state.SumAdjHigh = _adjHighBuffer.RecalculateSum();
+            _state.SumAdjLow = _adjLowBuffer.RecalculateSum();
             _state.SumClose = _closeBuffer.RecalculateSum();
         }
     }
@@ -239,14 +248,20 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             double low = GetValidLow(input.Low);
             double close = GetValidClose(input.Close);
 
-            _highBuffer.UpdateNewest(high);
-            _lowBuffer.UpdateNewest(low);
+            // Recompute adjusted values for the corrected bar
+            double denom = high + low;
+            double w = denom != 0.0 ? (high - low) / denom : 0.0;
+            double adjHigh = high * (1.0 + _factor * w);
+            double adjLow = low * (1.0 - _factor * w);
+
+            _adjHighBuffer.UpdateNewest(adjHigh);
+            _adjLowBuffer.UpdateNewest(adjLow);
             _closeBuffer.UpdateNewest(close);
 
             _state = _state with
             {
-                SumHigh = _highBuffer.Sum,
-                SumLow = _lowBuffer.Sum,
+                SumAdjHigh = _adjHighBuffer.Sum,
+                SumAdjLow = _adjLowBuffer.Sum,
                 SumClose = _closeBuffer.Sum,
             };
         }
@@ -260,14 +275,13 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         }
         else
         {
-            double smaHigh = _state.SumHigh / count;
-            double smaLow = _state.SumLow / count;
+            double smaAdjHigh = _state.SumAdjHigh / count;
+            double smaAdjLow = _state.SumAdjLow / count;
             double smaClose = _state.SumClose / count;
-            double bandWidth = (smaHigh - smaLow) * _factor;
 
             Last = new TValue(input.Time, smaClose);
-            Upper = new TValue(input.Time, smaHigh + bandWidth);
-            Lower = new TValue(input.Time, smaLow - bandWidth);
+            Upper = new TValue(input.Time, smaAdjHigh);
+            Lower = new TValue(input.Time, smaAdjLow);
         }
 
         PubEvent(Last, isNew);
@@ -332,8 +346,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         }
 
         // Reset state
-        _highBuffer.Clear();
-        _lowBuffer.Clear();
+        _adjHighBuffer.Clear();
+        _adjLowBuffer.Clear();
         _closeBuffer.Clear();
         _state = default;
         _p_state = default;
@@ -413,14 +427,13 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         if (count > 0)
         {
             var lastBar = source.Last;
-            double smaHigh = _state.SumHigh / count;
-            double smaLow = _state.SumLow / count;
+            double smaAdjHigh = _state.SumAdjHigh / count;
+            double smaAdjLow = _state.SumAdjLow / count;
             double smaClose = _state.SumClose / count;
-            double bandWidth = (smaHigh - smaLow) * _factor;
 
             Last = new TValue(lastBar.Time, smaClose);
-            Upper = new TValue(lastBar.Time, smaHigh + bandWidth);
-            Lower = new TValue(lastBar.Time, smaLow - bandWidth);
+            Upper = new TValue(lastBar.Time, smaAdjHigh);
+            Lower = new TValue(lastBar.Time, smaAdjLow);
         }
 
         _p_state = _state;
@@ -431,12 +444,12 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// </summary>
     public void Reset()
     {
-        _highBuffer.Clear();
-        _lowBuffer.Clear();
+        _adjHighBuffer.Clear();
+        _adjLowBuffer.Clear();
         _closeBuffer.Clear();
         _state = new State(
-            SumHigh: 0,
-            SumLow: 0,
+            SumAdjHigh: 0,
+            SumAdjLow: 0,
             SumClose: 0,
             LastValidHigh: double.NaN,
             LastValidLow: double.NaN,
@@ -515,8 +528,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private ref struct ScalarState
     {
-        public double SumHigh;
-        public double SumLow;
+        public double SumAdjHigh;
+        public double SumAdjLow;
         public double SumClose;
         public double LastValidHigh;
         public double LastValidLow;
@@ -529,17 +542,17 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// Working buffers for batch calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
-    private readonly ref struct WorkBuffers(Span<double> high, Span<double> low, Span<double> close)
+    private readonly ref struct WorkBuffers(Span<double> adjHigh, Span<double> adjLow, Span<double> close)
     {
-        public readonly Span<double> High = high;
-        public readonly Span<double> Low = low;
+        public readonly Span<double> AdjHigh = adjHigh;
+        public readonly Span<double> AdjLow = adjLow;
         public readonly Span<double> Close = close;
     }
 
     /// <summary>
     /// Calculates AccBands for the entire TBarSeries using a new instance.
     /// </summary>
-    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period, double factor = 2.0)
+    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period, double factor = 4.0)
     {
         var accBands = new AccBands(period, factor);
         return accBands.Update(source);
@@ -558,7 +571,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         BatchInputs inputs,
         BatchOutputs outputs,
         int period,
-        double factor = 2.0)
+        double factor = 4.0)
     {
         Batch(inputs.High, inputs.Low, inputs.Close, outputs.Middle, outputs.Upper, outputs.Lower, period, factor);
     }
@@ -580,7 +593,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         ReadOnlySpan<double> close,
         BatchOutputs outputs,
         int period,
-        double factor = 2.0)
+        double factor = 4.0)
     {
         Batch(high, low, close, outputs.Middle, outputs.Upper, outputs.Lower, period, factor);
     }
@@ -609,7 +622,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         Span<double> upper,
         Span<double> lower,
         int period,
-        double factor = 2.0)
+        double factor = 4.0)
 #pragma warning restore S107
     {
         int len = close.Length;
@@ -654,15 +667,15 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         int len = inputs.Close.Length;
 
         // Always use ArrayPool to avoid span scope safety issues with stackalloc + ref structs
-        double[] rentedHigh = ArrayPool<double>.Shared.Rent(period);
-        double[] rentedLow = ArrayPool<double>.Shared.Rent(period);
+        double[] rentedAdjHigh = ArrayPool<double>.Shared.Rent(period);
+        double[] rentedAdjLow = ArrayPool<double>.Shared.Rent(period);
         double[] rentedClose = ArrayPool<double>.Shared.Rent(period);
 
         try
         {
             var buffers = new WorkBuffers(
-                rentedHigh.AsSpan(0, period),
-                rentedLow.AsSpan(0, period),
+                rentedAdjHigh.AsSpan(0, period),
+                rentedAdjLow.AsSpan(0, period),
                 rentedClose.AsSpan(0, period));
 
             var state = new ScalarState
@@ -680,8 +693,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         }
         finally
         {
-            ArrayPool<double>.Shared.Return(rentedHigh);
-            ArrayPool<double>.Shared.Return(rentedLow);
+            ArrayPool<double>.Shared.Return(rentedAdjHigh);
+            ArrayPool<double>.Shared.Return(rentedAdjLow);
             ArrayPool<double>.Shared.Return(rentedClose);
         }
     }
@@ -751,13 +764,15 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         return (h, l, c);
     }
 
+    /// <summary>
+    /// Computes adjusted high/low per bar using Headley's formula and writes band outputs.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteBandOutputs(scoped BatchOutputs outputs, int i, double smaHigh, double smaLow, double smaClose, double factor)
+    private static void WriteBandOutputs(scoped BatchOutputs outputs, int i, double smaAdjHigh, double smaAdjLow, double smaClose)
     {
-        double bandWidth = (smaHigh - smaLow) * factor;
         outputs.Middle[i] = smaClose;
-        outputs.Upper[i] = smaHigh + bandWidth;
-        outputs.Lower[i] = smaLow - bandWidth;
+        outputs.Upper[i] = smaAdjHigh;
+        outputs.Lower[i] = smaAdjLow;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -773,16 +788,22 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         {
             var (h, l, c) = GetValidHLC(inputs, i, ref state);
 
-            state.SumHigh += h;
-            state.SumLow += l;
+            // Headley's per-bar adjustment
+            double denom = h + l;
+            double w = denom != 0.0 ? (h - l) / denom : 0.0;
+            double adjHigh = h * (1.0 + factor * w);
+            double adjLow = l * (1.0 - factor * w);
+
+            state.SumAdjHigh += adjHigh;
+            state.SumAdjLow += adjLow;
             state.SumClose += c;
 
-            buffers.High[i] = h;
-            buffers.Low[i] = l;
+            buffers.AdjHigh[i] = adjHigh;
+            buffers.AdjLow[i] = adjLow;
             buffers.Close[i] = c;
 
             int count = i + 1;
-            WriteBandOutputs(outputs, i, state.SumHigh / count, state.SumLow / count, state.SumClose / count, factor);
+            WriteBandOutputs(outputs, i, state.SumAdjHigh / count, state.SumAdjLow / count, state.SumClose / count);
         }
     }
 
@@ -801,12 +822,18 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         {
             var (h, l, c) = GetValidHLC(inputs, i, ref state);
 
-            state.SumHigh = state.SumHigh - buffers.High[state.BufferIndex] + h;
-            state.SumLow = state.SumLow - buffers.Low[state.BufferIndex] + l;
+            // Headley's per-bar adjustment
+            double denom = h + l;
+            double w = denom != 0.0 ? (h - l) / denom : 0.0;
+            double adjHigh = h * (1.0 + factor * w);
+            double adjLow = l * (1.0 - factor * w);
+
+            state.SumAdjHigh = state.SumAdjHigh - buffers.AdjHigh[state.BufferIndex] + adjHigh;
+            state.SumAdjLow = state.SumAdjLow - buffers.AdjLow[state.BufferIndex] + adjLow;
             state.SumClose = state.SumClose - buffers.Close[state.BufferIndex] + c;
 
-            buffers.High[state.BufferIndex] = h;
-            buffers.Low[state.BufferIndex] = l;
+            buffers.AdjHigh[state.BufferIndex] = adjHigh;
+            buffers.AdjLow[state.BufferIndex] = adjLow;
             buffers.Close[state.BufferIndex] = c;
 
             state.BufferIndex++;
@@ -815,7 +842,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
                 state.BufferIndex = 0;
             }
 
-            WriteBandOutputs(outputs, i, state.SumHigh / period, state.SumLow / period, state.SumClose / period, factor);
+            WriteBandOutputs(outputs, i, state.SumAdjHigh / period, state.SumAdjLow / period, state.SumClose / period);
 
             state.TickCount++;
             if (state.TickCount >= ResyncInterval)
@@ -829,18 +856,18 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     private static void ResyncSums(int period, ref WorkBuffers buffers, ref ScalarState state)
     {
         state.TickCount = 0;
-        ReadOnlySpan<double> highSpan = buffers.High[..period];
-        ReadOnlySpan<double> lowSpan = buffers.Low[..period];
+        ReadOnlySpan<double> adjHighSpan = buffers.AdjHigh[..period];
+        ReadOnlySpan<double> adjLowSpan = buffers.AdjLow[..period];
         ReadOnlySpan<double> closeSpan = buffers.Close[..period];
-        state.SumHigh = highSpan.SumSIMD();
-        state.SumLow = lowSpan.SumSIMD();
+        state.SumAdjHigh = adjHighSpan.SumSIMD();
+        state.SumAdjLow = adjLowSpan.SumSIMD();
         state.SumClose = closeSpan.SumSIMD();
     }
 
     /// <summary>
     /// Runs a high-performance batch calculation and returns a "Hot" AccBands instance.
     /// </summary>
-    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, AccBands Indicator) Calculate(TBarSeries source, int period, double factor = 2.0)
+    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, AccBands Indicator) Calculate(TBarSeries source, int period, double factor = 4.0)
     {
         var accBands = new AccBands(period, factor);
         var results = accBands.Update(source);

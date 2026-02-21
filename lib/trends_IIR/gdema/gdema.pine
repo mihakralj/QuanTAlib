@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Generalized Double Exponential Moving Average (GDEMA)", "GDEMA", overlay=true)
+
+//@function Computes Generalized DEMA — extends standard DEMA with a tunable volume factor
+//          that controls the aggressiveness of lag compensation.
+//          GDEMA = (1 + v) * EMA1 - v * EMA2, where EMA2 = EMA(EMA1).
+//          When v=1 → standard DEMA; v=0 → plain EMA; v>1 → more aggressive lag removal.
+//@param source Series to analyze
+//@param period Lookback period for both EMA stages
+//@param vfactor Volume/gain factor controlling lag compensation aggressiveness
+//@returns Generalized DEMA value from first bar with proper warmup compensation
+//@reference Patrick G. Mulloy, "Smoothing Data with Faster Moving Averages" (TASC, Feb 1994)
+//@optimized O(1) per bar; two cascaded EMA states with shared warmup compensator
+gdema(series float source, simple int period, simple float vfactor) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float a = 2.0 / (period + 1)
+    float beta = 1.0 - a
+
+    var bool warmup = true
+    var float e = 1.0
+    var float ema1_raw = 0.0
+    var float ema2_raw = 0.0
+    var float ema1 = source
+    var float ema2 = source
+
+    ema1_raw := a * (source - ema1_raw) + ema1_raw
+
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        ema1 := c * ema1_raw
+        ema2_raw := a * (ema1 - ema2_raw) + ema2_raw
+        ema2 := c * ema2_raw
+        warmup := e > 1e-10
+    else
+        ema1 := ema1_raw
+        ema2_raw := a * (ema1 - ema2_raw) + ema2_raw
+        ema2 := ema2_raw
+
+    // Generalized DEMA: (1 + v) * EMA1 - v * EMA2
+    // v=0 → EMA, v=1 → standard DEMA, v>1 → more lag reduction (more overshoot)
+    (1.0 + vfactor) * ema1 - vfactor * ema2
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period  = input.int(10, "Period", minval=1)
+i_vfactor = input.float(1.0, "Volume Factor (v)", minval=0.0, maxval=3.0, step=0.1,
+     tooltip="0=EMA, 1=standard DEMA, >1=more aggressive lag removal")
+i_source  = input.source(close, "Source")
+
+// Calculation
+gdema_value = gdema(i_source, i_period, i_vfactor)
+
+// Plot
+plot(gdema_value, "GDEMA", color=color.yellow, linewidth=2)

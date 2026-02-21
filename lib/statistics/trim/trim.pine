@@ -1,0 +1,46 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("TRIM: Trimmed Mean Moving Average", shorttitle="TRIM", overlay=true)
+
+// @function Calculates the Trimmed Mean Moving Average.
+//   Sorts the lookback window, discards the lowest and highest trimPct%
+//   of values, and averages the remaining middle portion.
+//   This robust estimator reduces the influence of outliers/spikes
+//   while preserving more information than a pure median.
+//   trimPct=0 → SMA, trimPct=50 → Median.
+// @param src Series to smooth.
+// @param period Window length. Must be >= 3.
+// @param trimPct Percentage of values to trim from each tail (0-49). Default 10.
+// @returns The trimmed mean value.
+export trim(series float src, simple int period, simple int trimPct) =>
+    // Number of values to discard from each end
+    int trimCount = math.max(int(period * trimPct / 100.0), 0)
+    int keepCount = period - 2 * trimCount
+    if keepCount < 1
+        keepCount := 1
+        trimCount := (period - 1) / 2
+
+    // Collect values into array and sort
+    float[] vals = array.new_float(period)
+    for i = 0 to period - 1
+        array.set(vals, i, nz(src[i]))
+    array.sort(vals, order.ascending)
+
+    // Average the middle portion
+    float sum = 0.0
+    for i = trimCount to trimCount + keepCount - 1
+        sum += array.get(vals, i)
+    sum / keepCount
+
+// ── Inputs ──────────────────────────────────────────────
+p = input.int(20, "Period", minval=3)
+t = input.int(10, "Trim %", minval=0, maxval=49, tooltip="Percentage trimmed from each tail. 0=SMA, 50=Median")
+
+// ── Calculation ─────────────────────────────────────────
+result = trim(close, p, t)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "TRIM", color=color.yellow, linewidth=2)

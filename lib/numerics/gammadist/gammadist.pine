@@ -1,0 +1,133 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Gamma Distribution CDF (GAMMADIST)", "GAMMADIST", overlay=false, precision=6)
+
+//@function Log-gamma via Lanczos approximation (g=7, 9 coefficients)
+//@param z Input value (z > 0)
+//@returns ln(Gamma(z))
+lnGamma(simple float z) =>
+    float g = 7.0
+    array<float> c = array.from(
+         0.99999999999980993,
+       676.5203681218851,
+     -1259.1392167224028,
+       771.32342877765313,
+      -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+         9.9843695780195716e-6,
+         1.5056327351493116e-7)
+    float zz = z - 1.0
+    float x = array.get(c, 0)
+    for i = 1 to 8
+        x += array.get(c, i) / (zz + i)
+    float t = zz + g + 0.5
+    0.5 * math.log(2.0 * math.pi) + (zz + 0.5) * math.log(t) - t + math.log(x)
+
+//@function Regularized lower incomplete gamma P(a,x) via series expansion
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns P(a,x) = gamma(a,x) / Gamma(a)
+gammaSeries(series float a, series float x) =>
+    float EPS = 1e-10
+    int MAXITER = 200
+    float ap = a
+    float sum = 1.0 / a
+    float del = sum
+    for n = 1 to MAXITER
+        ap += 1.0
+        del *= x / ap
+        sum += del
+        if math.abs(del) < math.abs(sum) * EPS
+            break
+    float lnPfx = a * math.log(x) - x - lnGamma(a)
+    math.exp(lnPfx) * sum
+
+//@function Regularized upper incomplete gamma Q(a,x) via continued fraction (Lentz)
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns Q(a,x) = 1 - P(a,x)
+gammaCF(series float a, series float x) =>
+    float TINY = 1e-30
+    float EPS = 1e-10
+    int MAXITER = 200
+    float b0 = x + 1.0 - a
+    float C = 1.0 / TINY
+    float D = b0 < TINY ? 1.0 / TINY : 1.0 / b0
+    float f = D
+    for i = 1 to MAXITER
+        float ai = -float(i) * (float(i) - a)
+        float bi = x + 2.0 * float(i) + 1.0 - a
+        D := bi + ai * D
+        if math.abs(D) < TINY
+            D := TINY
+        D := 1.0 / D
+        C := bi + ai / C
+        if math.abs(C) < TINY
+            C := TINY
+        float delta = C * D
+        f *= delta
+        if math.abs(delta - 1.0) < EPS
+            break
+    float lnPfx = a * math.log(x) - x - lnGamma(a)
+    math.exp(lnPfx) * f
+
+//@function Regularized lower incomplete gamma function P(a,x)
+//@param a Shape parameter (a > 0)
+//@param x Evaluation point (x >= 0)
+//@returns CDF value P(X <= x) for Gamma(a, beta)
+gammaP(series float a, series float x) =>
+    if x <= 0.0
+        0.0
+    else if x < a + 1.0
+        gammaSeries(a, x)
+    else
+        1.0 - gammaCF(a, x)
+
+//@function Computes Gamma Distribution CDF for a normalized price series
+//@param source Series to transform
+//@param period Lookback period for min-max normalization
+//@param shape Shape parameter alpha (a > 0)
+//@param rate Rate parameter beta (b > 0); x is scaled by rate
+//@returns Gamma CDF value in [0,1]
+gammadist(series float source, simple int period, simple float shape, simple float rate) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if shape <= 0.0
+        runtime.error("Shape must be greater than 0")
+    if rate <= 0.0
+        runtime.error("Rate must be greater than 0")
+
+    float minVal = source
+    float maxVal = source
+    for i = 1 to period - 1
+        float v = source[i]
+        if not na(v)
+            if v < minVal
+                minVal := v
+            if v > maxVal
+                maxVal := v
+
+    float range = maxVal - minVal
+    float x = range > 0.0 ? (source - minVal) / range : 0.5
+    float scaled = math.max(0.0, x * rate)
+
+    gammaP(shape, scaled)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Lookback Period", minval=2, maxval=5000, tooltip="Min-max normalization window")
+i_shape  = input.float(2.0, "Shape (α)", minval=0.01, step=0.1, tooltip="Shape parameter; α<1 exponential decay, α=1 exponential, α>1 bell-shaped")
+i_rate   = input.float(3.0, "Rate (β)", minval=0.01, step=0.1, tooltip="Rate parameter; scales normalized x before CDF evaluation")
+
+// Calculation
+result = gammadist(i_source, i_period, i_shape, i_rate)
+
+// Plot
+plot(result, "GAMMADIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

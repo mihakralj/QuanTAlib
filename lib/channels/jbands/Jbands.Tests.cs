@@ -11,7 +11,7 @@ public class JbandsTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Jbands(0));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Jbands(-5));
-        Assert.Throws<ArgumentException>(() => new Jbands(14, 0, double.NaN));
+        // power parameter removed - no longer applicable
 
         var j = new Jbands(14);
         Assert.Contains("Jbands", j.Name, StringComparison.OrdinalIgnoreCase);
@@ -19,10 +19,10 @@ public class JbandsTests
     }
 
     [Fact]
-    public void Jbands_Constructor_InfinityPower_Throws()
+    public void Jbands_Constructor_Period1_IsValid()
     {
-        Assert.Throws<ArgumentException>(() => new Jbands(14, 0, double.PositiveInfinity));
-        Assert.Throws<ArgumentException>(() => new Jbands(14, 0, double.NegativeInfinity));
+        var j = new Jbands(1);
+        Assert.True(j.WarmupPeriod > 0);
     }
 
     [Fact]
@@ -276,7 +276,7 @@ public class JbandsTests
     [Fact]
     public void Jbands_Reset_ThenReuse_ProducesSameResults()
     {
-        var j = new Jbands(14, 0, 0.45);
+        var j = new Jbands(14, 0);
         var gbm = new GBM(startPrice: 100, mu: 0.02, sigma: 0.1, seed: 88);
         double[] prices = new double[100];
         for (int i = 0; i < prices.Length; i++)
@@ -424,8 +424,8 @@ public class JbandsTests
     [Fact]
     public void Jbands_Prime_MatchesStreamingResults()
     {
-        var jPrime = new Jbands(14, 0, 0.45);
-        var jStream = new Jbands(14, 0, 0.45);
+        var jPrime = new Jbands(14, 0);
+        var jStream = new Jbands(14, 0);
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: 42);
 
         var series = new TSeries();
@@ -459,7 +459,7 @@ public class JbandsTests
             series.Add(bar.Time, bar.Close);
         }
 
-        var (results, indicator) = Jbands.Calculate(series, 14, 0, 0.45);
+        var (results, indicator) = Jbands.Calculate(series, 14, 0);
 
         Assert.True(indicator.IsHot);
         Assert.Equal(300, results.Middle.Count);
@@ -513,7 +513,7 @@ public class JbandsTests
     [Fact]
     public void Jbands_BatchVsStreaming_Match()
     {
-        var jStream = new Jbands(14, 0, 0.45);
+        var jStream = new Jbands(14, 0);
         var gbm = new GBM(startPrice: 100, mu: 0.02, sigma: 0.1, seed: 42);
         var series = new TSeries();
 
@@ -528,7 +528,7 @@ public class JbandsTests
         double expectedUp = jStream.Upper.Value;
         double expectedLo = jStream.Lower.Value;
 
-        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 0, 0.45);
+        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 0);
 
         Assert.Equal(expectedMid, midBatch.Last.Value, 1e-10);
         Assert.Equal(expectedUp, upBatch.Last.Value, 1e-10);
@@ -634,7 +634,7 @@ public class JbandsTests
     public void Jbands_MiddleBand_MatchesJma()
     {
         // Verify that middle band matches standalone JMA
-        var jbands = new Jbands(14, 0, 0.45);
+        var jbands = new Jbands(14, 0);
         var jma = new Jma(14, 0, 0.45);
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: 999);
 

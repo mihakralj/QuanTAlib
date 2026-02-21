@@ -1,0 +1,35 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Nyquist Moving Average (NYQMA)", "NYQMA", overlay = true)
+
+//@function Nyquist Moving Average per Dr. Manfred G. Dürschner ("Gleitende Durchschnitte 3.0").
+//          Applies the Nyquist-Shannon sampling theorem to cascaded LWMAs: a single-smoothed
+//          LWMA and a double-smoothed LWMA are combined via lag-compensating extrapolation.
+//          Formula: NYQMA = (1 + α) · MA1 − α · MA2, where α = N2 / (N1 − N2).
+//          The second LWMA period (N2) must satisfy N2 ≤ floor(N1/2) per Nyquist criterion
+//          to prevent aliasing artifacts ("ghost signals") in the smoothed output.
+//@param src   Source series
+//@param period  Primary LWMA period (N1)
+//@param nyquist_period  Secondary LWMA period (N2), must be ≤ floor(period/2)
+//@returns     Nyquist-compliant lag-compensated moving average
+export nyqma(float src, int period, int nyquist_period) =>
+    int n2 = math.min(nyquist_period, period / 2)
+    float ma1 = ta.wma(src, period)
+    float ma2 = ta.wma(ma1, n2)
+    float alpha = n2 / (period - n2)
+    float result = (1.0 + alpha) * ma1 - alpha * ma2
+    result
+
+// ── Inputs ──
+int    p_period  = input.int(89, "Period (N1)", minval = 2)
+int    p_nyquist = input.int(21, "Nyquist Period (N2)", minval = 1)
+float  p_src     = input.source(close, "Source")
+
+// ── Calculation ──
+float out = nyqma(p_src, p_period, p_nyquist)
+
+// ── Plot ──
+plot(out, "NYQMA", color.yellow, 2)

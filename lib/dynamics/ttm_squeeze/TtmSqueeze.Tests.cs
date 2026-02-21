@@ -498,21 +498,12 @@ public class TtmSqueezeTests
     public void Update_GbmData_ProducesFiniteValues()
     {
         var squeeze = new TtmSqueeze(bbPeriod: 14, bbMult: 2.0, kcPeriod: 14, kcMult: 1.5, momPeriod: 14);
-        long baseTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var random = new Random(42);
+        var gbm = new GBM(seed: 42);
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        double price = 100.0;
-
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < bars.Count; i++)
         {
-            double change = (random.NextDouble() - 0.5) * 4;
-            double open = price;
-            double high = Math.Max(open, open + Math.Abs(change) + random.NextDouble() * 2);
-            double low = Math.Min(open, open - Math.Abs(change) - random.NextDouble() * 2);
-            double close = open + change;
-
-            squeeze.Update(new TBar(baseTime + i * 60000, open, high, low, close, 1000));
-            price = close;
+            squeeze.Update(bars[i]);
 
             // Momentum should always be finite
             Assert.True(double.IsFinite(squeeze.Momentum.Value));

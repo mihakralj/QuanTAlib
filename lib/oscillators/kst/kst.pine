@@ -1,0 +1,108 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("KST Oscillator (KST)", "KST", overlay=false, precision=4)
+
+//@function SMA helper via circular buffer with running sum, O(1) per bar
+//@param source Input series
+//@param period SMA period
+//@param buf Circular buffer array (pre-allocated)
+//@param head_idx Head index (passed by reference via array)
+//@param sum_val Running sum (passed by reference via array)
+//@param cnt Count of valid values (passed by reference via array)
+//@returns SMA value
+sma_buf(series float source, simple int period, array<float> buf, array<int> meta, array<float> acc) =>
+    int h = array.get(meta, 0)
+    float s = array.get(acc, 0)
+    int c = array.get(meta, 1)
+    float oldest = array.get(buf, h)
+    if not na(oldest)
+        s -= oldest
+    else
+        c += 1
+    float current = nz(source)
+    s += current
+    array.set(buf, h, current)
+    array.set(meta, 0, (h + 1) % period)
+    array.set(meta, 1, c)
+    array.set(acc, 0, s)
+    s / math.max(1, c)
+
+//@function KST Oscillator: weighted sum of 4 smoothed ROC values + signal line
+//@param source Series to analyze
+//@param r1 ROC period 1 (shortest)
+//@param r2 ROC period 2
+//@param r3 ROC period 3
+//@param r4 ROC period 4 (longest)
+//@param s1 SMA smoothing for ROC1
+//@param s2 SMA smoothing for ROC2
+//@param s3 SMA smoothing for ROC3
+//@param s4 SMA smoothing for ROC4
+//@param sigPeriod Signal line SMA period
+//@returns [kst, signal]
+kst(series float source, simple int r1, simple int r2, simple int r3, simple int r4, simple int s1, simple int s2, simple int s3, simple int s4, simple int sigPeriod) =>
+    if r1 <= 0 or r2 <= 0 or r3 <= 0 or r4 <= 0
+        runtime.error("ROC periods must be greater than 0")
+    if s1 <= 0 or s2 <= 0 or s3 <= 0 or s4 <= 0
+        runtime.error("SMA periods must be greater than 0")
+    if sigPeriod <= 0
+        runtime.error("Signal period must be greater than 0")
+
+    float src = nz(source)
+    float prev1 = nz(source[r1])
+    float prev2 = nz(source[r2])
+    float prev3 = nz(source[r3])
+    float prev4 = nz(source[r4])
+    float roc1 = prev1 != 0.0 ? 100.0 * (src - prev1) / prev1 : 0.0
+    float roc2 = prev2 != 0.0 ? 100.0 * (src - prev2) / prev2 : 0.0
+    float roc3 = prev3 != 0.0 ? 100.0 * (src - prev3) / prev3 : 0.0
+    float roc4 = prev4 != 0.0 ? 100.0 * (src - prev4) / prev4 : 0.0
+
+    var array<float> b1 = array.new_float(s1, na)
+    var array<int> m1 = array.from(0, 0)
+    var array<float> a1 = array.from(0.0)
+    var array<float> b2 = array.new_float(s2, na)
+    var array<int> m2 = array.from(0, 0)
+    var array<float> a2 = array.from(0.0)
+    var array<float> b3 = array.new_float(s3, na)
+    var array<int> m3 = array.from(0, 0)
+    var array<float> a3 = array.from(0.0)
+    var array<float> b4 = array.new_float(s4, na)
+    var array<int> m4 = array.from(0, 0)
+    var array<float> a4 = array.from(0.0)
+
+    float sm1 = sma_buf(roc1, s1, b1, m1, a1)
+    float sm2 = sma_buf(roc2, s2, b2, m2, a2)
+    float sm3 = sma_buf(roc3, s3, b3, m3, a3)
+    float sm4 = sma_buf(roc4, s4, b4, m4, a4)
+
+    float kstVal = 1.0 * sm1 + 2.0 * sm2 + 3.0 * sm3 + 4.0 * sm4
+
+    var array<float> bSig = array.new_float(sigPeriod, na)
+    var array<int> mSig = array.from(0, 0)
+    var array<float> aSig = array.from(0.0)
+    float sig = sma_buf(kstVal, sigPeriod, bSig, mSig, aSig)
+
+    [kstVal, sig]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_r1     = input.int(10, "ROC Period 1", minval=1, maxval=500, tooltip="Shortest ROC lookback")
+i_r2     = input.int(15, "ROC Period 2", minval=1, maxval=500)
+i_r3     = input.int(20, "ROC Period 3", minval=1, maxval=500)
+i_r4     = input.int(30, "ROC Period 4", minval=1, maxval=500, tooltip="Longest ROC lookback")
+i_s1     = input.int(10, "SMA Smooth 1", minval=1, maxval=500)
+i_s2     = input.int(10, "SMA Smooth 2", minval=1, maxval=500)
+i_s3     = input.int(10, "SMA Smooth 3", minval=1, maxval=500)
+i_s4     = input.int(15, "SMA Smooth 4", minval=1, maxval=500)
+i_sig    = input.int(9, "Signal Period", minval=1, maxval=500, tooltip="SMA period for signal line")
+
+// Calculation
+[kstVal, sigVal] = kst(i_source, i_r1, i_r2, i_r3, i_r4, i_s1, i_s2, i_s3, i_s4, i_sig)
+
+// Plot
+plot(kstVal, "KST", color=color.yellow, linewidth=2)
+plot(sigVal, "Signal", color=color.aqua, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

@@ -31,7 +31,7 @@ $$
 $$
 
 $$
-Filt_t = \frac{1 - 2\alpha_2\cos(\sqrt{2}\pi/SSF) - \alpha_2^2}{2}(HP_t + HP_{t-1}) + 2\alpha_2\cos(\sqrt{2}\pi/SSF) \cdot Filt_{t-1} - \alpha_2^2 \cdot Filt_{t-2}
+Filt_t = \frac{1 - 2\alpha_2\cos(\sqrt{2}\pi/SSF) + \alpha_2^2}{2}(HP_t + HP_{t-1}) + 2\alpha_2\cos(\sqrt{2}\pi/SSF) \cdot Filt_{t-1} - \alpha_2^2 \cdot Filt_{t-2}
 $$
 
 ### 3. Wave & Power Calculation

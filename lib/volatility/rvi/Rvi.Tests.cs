@@ -530,17 +530,9 @@ public class RviTests
     public void Batch_LargeDataset_NoStackOverflow()
     {
         const int dataLen = 10000;
-        double[] prices = new double[dataLen];
+        var bars = new GBM(seed: 42).Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] prices = bars.CloseValues.ToArray();
         double[] output = new double[dataLen];
-
-        // Fill with realistic data
-        double price = 100.0;
-        var rng = new Random(42);
-        for (int i = 0; i < dataLen; i++)
-        {
-            price *= 1.0 + (rng.NextDouble() - 0.5) * 0.02;
-            prices[i] = price;
-        }
 
         Rvi.Batch(prices, output, stdevLength: 10, rmaLength: 14);
 

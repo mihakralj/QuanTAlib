@@ -105,13 +105,12 @@ public class TsiTests
     public void Update_BoundedOutput()
     {
         var tsi = new Tsi(3, 2, 2);
-        var random = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        // Feed random prices
+        // Feed GBM prices
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + random.NextDouble() * 50 - 25;
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), price));
+            tsi.Update(bars.Close[i]);
 
             // TSI should always be between -100 and +100
             Assert.True(tsi.Last.Value >= -100.0 && tsi.Last.Value <= 100.0);
@@ -218,12 +217,8 @@ public class TsiTests
     [Fact]
     public void Batch_MatchesStreamingCalculation()
     {
-        var source = new TSeries();
-        var random = new Random(42);
-        for (int i = 0; i < 60; i++)
-        {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + random.NextDouble() * 20));
-        }
+        var bars = new GBM(seed: 42).Fetch(60, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var source = bars.Close;
 
         // Batch calculation
         var batchResult = Tsi.Batch(source, 5, 3, 3);
@@ -337,14 +332,9 @@ public class TsiTests
     [Fact]
     public void Calculate_Static_MatchesBatch()
     {
-        double[] source = new double[50];
+        var bars = new GBM(seed: 42).Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] source = bars.CloseValues.ToArray();
         double[] output = new double[50];
-
-        var random = new Random(42);
-        for (int i = 0; i < 50; i++)
-        {
-            source[i] = 100.0 + random.NextDouble() * 20;
-        }
 
         Tsi.Batch(source, output, 5, 3);
 

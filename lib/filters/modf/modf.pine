@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Modular Filter (MODF)", "MODF", overlay=true)
+
+//@function Calculates Modular Filter (alexgrover)
+//@param src Series to filter
+//@param period Smoothing period for EMA alpha = 2/(period+1)
+//@param beta Blend weight: 1.0 = smooth filter, 0.0 = trailing stop
+//@param feedback Enable feedback loop (output fed back as input blend)
+//@param fbWeight Feedback weighting: lower = smoother when feedback enabled
+//@returns Modular Filter value
+//@description Dual-path adaptive filter with upper/lower EMA bands and
+//  conditional state selection. Beta controls blend between filter and
+//  trailing stop behavior. Optional feedback loop for additional smoothing.
+//  Author: alexgrover (TradingView, LuxAlgo CPO)
+modf(series float src, simple int period, simple float beta, simple bool feedback, simple float fbWeight) =>
+    float alpha = 2.0 / (period + 1)
+    float oneMinusAlpha = 1.0 - alpha
+
+    var float b = 0.0
+    var float c = 0.0
+    var float os = 0.0
+    var float ts = 0.0
+
+    // Input: optionally blend source with previous output (feedback)
+    float a = feedback ? fbWeight * src + (1.0 - fbWeight) * nz(ts, src) : src
+
+    // Upper band: EMA that snaps up to 'a' when a exceeds EMA
+    float ema_b = alpha * a + oneMinusAlpha * nz(b, a)
+    b := a > ema_b ? a : ema_b
+
+    // Lower band: EMA that snaps down to 'a' when a falls below EMA
+    float ema_c = alpha * a + oneMinusAlpha * nz(c, a)
+    c := a < ema_c ? a : ema_c
+
+    // Oscillator state: 1 = upper (bullish), 0 = lower (bearish)
+    os := a == b ? 1.0 : a == c ? 0.0 : os
+
+    // Beta-weighted band combinations
+    float upper = beta * b + (1.0 - beta) * c
+    float lower = beta * c + (1.0 - beta) * b
+
+    // Final output: state-selected weighted band
+    ts := os * upper + (1.0 - os) * lower
+    ts
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period   = input.int(14, "Period", minval=2)
+i_beta     = input.float(0.8, "Beta", minval=0.0, maxval=1.0, step=0.1)
+i_feedback = input.bool(false, "Feedback")
+i_fbWeight = input.float(0.5, "Feedback Weight", minval=0.01, maxval=1.0, step=0.05)
+i_source   = input.source(close, "Source")
+
+// Calculation
+result = modf(i_source, i_period, i_beta, i_feedback, i_fbWeight)
+
+// Plot
+plot(result, "MODF", color=color.yellow, linewidth=2)

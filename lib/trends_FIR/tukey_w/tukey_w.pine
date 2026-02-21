@@ -1,0 +1,46 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("TUKEY_W: Tukey (Tapered Cosine) Window MA", shorttitle="TUKEY_W", overlay=true)
+
+// @function Calculates the Tukey (Tapered Cosine) Window Moving Average.
+//   The Tukey window has cosine-tapered edges and a flat-top center.
+//   Parameter alpha controls the taper fraction:
+//     alpha=0 → rectangular window (SMA)
+//     alpha=1 → Hann window (full cosine taper)
+//     alpha=0.5 → half tapered, half flat (typical default)
+//   For sample n in [0, N-1]:
+//     if n < alpha*(N-1)/2: w(n) = 0.5*(1 - cos(2π*n / (alpha*(N-1))))
+//     if n > (N-1)*(1 - alpha/2): w(n) = 0.5*(1 - cos(2π*(N-1-n) / (alpha*(N-1))))
+//     else: w(n) = 1.0  (flat-top center)
+// @param src Series to smooth.
+// @param period Window length. Must be >= 2.
+// @param alpha Taper fraction (0 = rectangular, 1 = Hann). Default 0.5.
+// @returns The Tukey window weighted average.
+export tukey_w(series float src, simple int period, simple float alpha) =>
+    float sumWV = 0.0
+    float sumW  = 0.0
+    int N = period - 1
+    float aN = alpha * N
+    for i = 0 to N
+        float w = 1.0
+        if aN > 0.0
+            if i < aN / 2.0
+                w := 0.5 * (1.0 - math.cos(2.0 * math.pi * i / aN))
+            else if i > N - aN / 2.0
+                w := 0.5 * (1.0 - math.cos(2.0 * math.pi * (N - i) / aN))
+        sumWV += src[i] * w
+        sumW  += w
+    sumWV / sumW
+
+// ── Inputs ──────────────────────────────────────────────
+p = input.int(20, "Period", minval=2)
+a = input.float(0.5, "Alpha (taper fraction)", minval=0.0, maxval=1.0, step=0.05, tooltip="0=SMA, 1=Hann, 0.5=half taper")
+
+// ── Calculation ─────────────────────────────────────────
+result = tukey_w(close, p, a)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "TUKEY_W", color=color.yellow, linewidth=2)

@@ -1,0 +1,70 @@
+// The MIT License (MIT)
+// © mihakralj
+
+//@version=6
+indicator("MCNMA - McNicholl EMA", "MCNMA", overlay=true)
+
+// ── Functions ──────────────────────────────────────────────────────────
+// @function Calculates the McNicholl EMA (Zero-Lag TEMA).
+//   Dennis McNicholl, "Better Bollinger Bands," Futures Magazine, October 1998.
+//   MCNMA = 2*TEMA(src,N) - TEMA(TEMA(src,N),N) where
+//   TEMA(x,N) = 3*EMA1 - 3*EMA2 + EMA3.
+//   Six cascaded EMA stages total, each with warmup compensation.
+// @param source Series to smooth
+// @param period Lookback period (must be > 0)
+// @returns McNicholl EMA value, valid from bar 1
+export mcnma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float src = nz(source)
+    float alpha = 2.0 / (period + 1)
+    float beta = 1.0 - alpha
+
+    var float e1 = 0.0
+    var float e2 = 0.0
+    var float e3 = 0.0
+    var float e4 = 0.0
+    var float e5 = 0.0
+    var float e6 = 0.0
+    var float e_decay = 1.0
+    var int n = 0
+
+    n += 1
+    e_decay *= beta
+    float comp = 1.0 / (1.0 - e_decay)
+
+    e1 += alpha * (src - e1)
+    float c1 = e1 * comp
+
+    e2 += alpha * (c1 - e2)
+    float c2 = e2 * comp
+
+    e3 += alpha * (c2 - e3)
+    float c3 = e3 * comp
+
+    float tema1 = 3.0 * c1 - 3.0 * c2 + c3
+
+    e4 += alpha * (tema1 - e4)
+    float c4 = e4 * comp
+
+    e5 += alpha * (c4 - e5)
+    float c5 = e5 * comp
+
+    e6 += alpha * (c5 - e6)
+    float c6 = e6 * comp
+
+    float tema2 = 3.0 * c4 - 3.0 * c5 + c6
+
+    float result = 2.0 * tema1 - tema2
+    result
+
+// ── Inputs ─────────────────────────────────────────────────────────────
+int i_period = input.int(14, "Period", minval=1)
+string i_source = input.source(close, "Source")
+
+// ── Calculation ────────────────────────────────────────────────────────
+float value = mcnma(i_source, i_period)
+
+// ── Plot ───────────────────────────────────────────────────────────────
+plot(value, "MCNMA", color.yellow, 2)

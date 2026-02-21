@@ -36,12 +36,12 @@ public class HtTrendmodeTests
     {
         var indicator = new HtTrendmode();
 
-        // Use a mix of trending and cycling data
-        var rnd = new Random(42);
-        for (int i = 0; i < 100; i++)
+        // Use GBM-generated price data
+        var gbm = new GBM(seed: 42);
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        for (int i = 0; i < bars.Count; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.1) * 5 + rnd.NextDouble();
-            var result = indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value));
+            var result = indicator.Update(bars[i].C);
 
             // After warmup, output should be 0 or 1
             if (i >= 40)

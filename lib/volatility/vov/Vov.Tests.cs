@@ -614,18 +614,9 @@ public class VovTests
     public void Batch_LargeDataset_NoStackOverflow()
     {
         const int dataLen = 10000;
-        double[] source = new double[dataLen];
+        var bars = new GBM(seed: 42).Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] source = bars.CloseValues.ToArray();
         double[] output = new double[dataLen];
-
-        // Fill with realistic data
-        double price = 100.0;
-        var rng = new Random(42);
-        for (int i = 0; i < dataLen; i++)
-        {
-            double change = (rng.NextDouble() - 0.5) * 2; // -1% to +1%
-            price *= (1 + change / 100);
-            source[i] = price;
-        }
 
         Vov.Batch(source, output, DefaultVolatilityPeriod, DefaultVovPeriod);
 

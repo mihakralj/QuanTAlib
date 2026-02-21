@@ -1,0 +1,72 @@
+// The MIT License (MIT)
+// © mihakralj
+
+//@version=6
+indicator("NMA - Natural Moving Average", "NMA", overlay=true)
+
+// ── Functions ──────────────────────────────────────────────────────────
+// @function Calculates the Natural Moving Average (Jim Sloman, Ocean Theory pgs 63-70).
+//   Adaptive IIR filter where the smoothing ratio derives from volatility-weighted
+//   sqrt-kernel analysis of log-price movements over a lookback window.
+//   Step 1: ln = log(src) × 1000 (scaled natural log)
+//   Step 2: For i=0..period-1, accumulate:
+//     oi  = |ln[i] - ln[i+1]|           (bar-to-bar log-price volatility)
+//     num += oi × (√(i+1) - √i)         (sqrt-differenced weight emphasizes recent bars)
+//     denom += oi                        (total volatility normalization)
+//   Step 3: ratio = num / denom          (adaptive smoothing factor ∈ [0,1])
+//   Step 4: nma = nma[1] + ratio × (src - nma[1])  (IIR adaptive EMA step)
+//   When volatility concentrates in recent bars → ratio ≈ 1 → fast tracking.
+//   When volatility is spread uniformly → ratio ≈ 1/√period → heavy smoothing.
+// @param source Series to smooth
+// @param period Lookback window for volatility analysis (must be > 0)
+// @returns NMA value
+export nma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float src = nz(source)
+
+    // Step 1: scaled natural log of price
+    // Use circular buffer to store log-scaled values for lookback
+    var array<float> lnBuf = array.new_float(period + 1, 0.0)
+    var int head = 0
+
+    float lnVal = src > 0 ? math.log(src) * 1000.0 : 0.0
+    array.set(lnBuf, head, lnVal)
+
+    // Step 2: compute volatility-weighted sqrt ratio over lookback
+    float num = 0.0
+    float denom = 0.0
+    int bars = math.min(bar_index + 1, period)
+
+    for i = 0 to bars - 1
+        int idx0 = (head - i + period + 1) % (period + 1)
+        int idx1 = (head - i - 1 + period + 1) % (period + 1)
+        float oi = math.abs(array.get(lnBuf, idx0) - array.get(lnBuf, idx1))
+        num += oi * (math.sqrt(i + 1) - math.sqrt(i))
+        denom += oi
+
+    // Advance head for next bar
+    head := (head + 1) % (period + 1)
+
+    // Step 3: adaptive ratio
+    float ratio = denom != 0.0 ? num / denom : 0.0
+
+    // Step 4: IIR adaptive EMA step
+    var float result = 0.0
+    if bar_index == 0
+        result := src
+    else
+        result := result + ratio * (src - result)
+
+    result
+
+// ── Inputs ─────────────────────────────────────────────────────────────
+int i_period  = input.int(40, "Period", minval=1)
+string i_source = input.source(close, "Source")
+
+// ── Calculation ────────────────────────────────────────────────────────
+float value = nma(i_source, i_period)
+
+// ── Plot ───────────────────────────────────────────────────────────────
+plot(value, "NMA", color.yellow, 2)

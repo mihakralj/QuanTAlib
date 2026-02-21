@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Exponential Distribution CDF (EXPDIST)", "EXPDIST", overlay=false, precision=6)
+
+//@function Computes Exponential Distribution CDF for a normalized price series
+//@param source Series to transform
+//@param period Lookback period for min-max normalization to [0,1]
+//@param lambda Rate parameter (λ > 0); higher = steeper rise toward 1
+//@returns CDF value in [0,1]: F(x) = 1 - exp(-λ * x)
+//@optimized O(period) per bar for min-max scan; CDF itself is O(1)
+expdist(series float source, simple int period, simple float lambda) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if lambda <= 0.0
+        runtime.error("Lambda must be greater than 0")
+
+    float minVal = source
+    float maxVal = source
+    for i = 1 to period - 1
+        float v = source[i]
+        if not na(v)
+            if v < minVal
+                minVal := v
+            if v > maxVal
+                maxVal := v
+
+    float range = maxVal - minVal
+    float x = range > 0.0 ? (source - minVal) / range : 0.5
+
+    x <= 0.0 ? 0.0 : 1.0 - math.exp(-lambda * x)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Lookback Period", minval=2, maxval=5000, tooltip="Min-max normalization window")
+i_lambda = input.float(3.0, "Lambda (λ)", minval=0.01, step=0.1, tooltip="Rate parameter; higher = faster rise toward 1")
+
+// Calculation
+float result = expdist(i_source, i_period, i_lambda)
+
+// Plot
+plot(result, "EXPDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

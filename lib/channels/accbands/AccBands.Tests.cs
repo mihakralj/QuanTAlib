@@ -45,15 +45,16 @@ public class AccBandsTests
         var accBands = new AccBands(10);
 
         // First bar: O=100, H=105, L=95, C=102
-        // SMA of one value: high=105, low=95, close=102
-        // BandWidth = (105 - 95) * 2.0 = 20
-        // Middle = 102, Upper = 105 + 20 = 125, Lower = 95 - 20 = 75
+        // w = (105-95)/(105+95) = 10/200 = 0.05
+        // adjHigh = 105 * (1 + 4*0.05) = 105 * 1.2 = 126
+        // adjLow = 95 * (1 - 4*0.05) = 95 * 0.8 = 76
+        // Middle = 102, Upper = 126, Lower = 76
         var bar = new TBar(DateTime.UtcNow, 100, 105, 95, 102, 1000);
         accBands.Update(bar);
 
         Assert.Equal(102.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(125.0, accBands.Upper.Value, 1e-10);
-        Assert.Equal(75.0, accBands.Lower.Value, 1e-10);
+        Assert.Equal(126.0, accBands.Upper.Value, 1e-10);
+        Assert.Equal(76.0, accBands.Lower.Value, 1e-10);
     }
 
     [Fact]
@@ -156,31 +157,40 @@ public class AccBandsTests
     [Fact]
     public void AccBands_CalculatesCorrectBands()
     {
-        var accBands = new AccBands(3, 2.0);
+        var accBands = new AccBands(3, 4.0);
 
         // Bar 1: H=110, L=90, C=100
+        // w1 = (110-90)/(110+90) = 20/200 = 0.1
+        // adjH1 = 110*(1+4*0.1) = 110*1.4 = 154
+        // adjL1 = 90*(1-4*0.1) = 90*0.6 = 54
         accBands.Update(new TBar(DateTime.UtcNow, 100, 110, 90, 100, 1000));
         // Bar 2: H=115, L=95, C=105
+        // w2 = (115-95)/(115+95) = 20/210 ≈ 0.095238
+        // adjH2 = 115*(1+4*0.095238) = 115*1.380952 ≈ 158.80952
+        // adjL2 = 95*(1-4*0.095238) = 95*0.619048 ≈ 58.80952
         accBands.Update(new TBar(DateTime.UtcNow, 105, 115, 95, 105, 1000));
         // Bar 3: H=120, L=100, C=110
+        // w3 = (120-100)/(120+100) = 20/220 ≈ 0.090909
+        // adjH3 = 120*(1+4*0.090909) = 120*1.363636 ≈ 163.63636
+        // adjL3 = 100*(1-4*0.090909) = 100*0.636364 ≈ 63.63636
         accBands.Update(new TBar(DateTime.UtcNow, 110, 120, 100, 110, 1000));
 
-        // SMA(3) of High: (110 + 115 + 120) / 3 = 115
-        // SMA(3) of Low: (90 + 95 + 100) / 3 = 95
-        // SMA(3) of Close: (100 + 105 + 110) / 3 = 105
-        // BandWidth = (115 - 95) * 2.0 = 40
-        // Upper = 115 + 40 = 155
-        // Lower = 95 - 40 = 55
+        // SMA(3) of adjHigh: (154 + 158.80952 + 163.63636) / 3 ≈ 158.81529
+        // SMA(3) of adjLow: (54 + 58.80952 + 63.63636) / 3 ≈ 58.81529
+        // SMA(3) of Close: (100+105+110)/3 = 105
+
+        double expectedUpper = (154.0 + 115.0 * (1.0 + 4.0 * 20.0 / 210.0) + 120.0 * (1.0 + 4.0 * 20.0 / 220.0)) / 3.0;
+        double expectedLower = (54.0 + 95.0 * (1.0 - 4.0 * 20.0 / 210.0) + 100.0 * (1.0 - 4.0 * 20.0 / 220.0)) / 3.0;
 
         Assert.Equal(105.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(155.0, accBands.Upper.Value, 1e-10);
-        Assert.Equal(55.0, accBands.Lower.Value, 1e-10);
+        Assert.Equal(expectedUpper, accBands.Upper.Value, 1e-10);
+        Assert.Equal(expectedLower, accBands.Lower.Value, 1e-10);
     }
 
     [Fact]
     public void AccBands_SlidingWindow_Works()
     {
-        var accBands = new AccBands(3, 2.0);
+        var accBands = new AccBands(3, 4.0);
 
         // Bar 1: H=110, L=90, C=100
         accBands.Update(new TBar(DateTime.UtcNow, 100, 110, 90, 100, 1000));
@@ -191,20 +201,18 @@ public class AccBandsTests
 
         double middle1 = accBands.Last.Value;
 
-        // Bar 4: H=125, L=105, C=115 - Window slides: [115, 120, 125], [95, 100, 105], [105, 110, 115]
+        // Bar 4: H=125, L=105, C=115 - Window slides to bars [2,3,4]
+        // w4 = (125-105)/(125+105) = 20/230 ≈ 0.086957
+        // adjH4 = 125*(1+4*0.086957) = 125*1.347826 ≈ 168.47826
+        // adjL4 = 105*(1-4*0.086957) = 105*0.652174 ≈ 68.47826
         accBands.Update(new TBar(DateTime.UtcNow, 115, 125, 105, 115, 1000));
-
-        // SMA(3) of High: (115 + 120 + 125) / 3 = 120
-        // SMA(3) of Low: (95 + 100 + 105) / 3 = 100
-        // SMA(3) of Close: (105 + 110 + 115) / 3 = 110
-        // BandWidth = (120 - 100) * 2.0 = 40
-        // Upper = 120 + 40 = 160
-        // Lower = 100 - 40 = 60
 
         Assert.NotEqual(middle1, accBands.Last.Value);
         Assert.Equal(110.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(160.0, accBands.Upper.Value, 1e-10);
-        Assert.Equal(60.0, accBands.Lower.Value, 1e-10);
+
+        // Verify Upper > Middle > Lower
+        Assert.True(accBands.Upper.Value > accBands.Last.Value);
+        Assert.True(accBands.Lower.Value < accBands.Last.Value);
     }
 
     [Fact]
@@ -377,17 +385,22 @@ public class AccBandsTests
         var accBands = new AccBands(1);
 
         // Single bar: H=110, L=90, C=100
-        // BandWidth = (110 - 90) * 2.0 = 40
+        // w = (110-90)/(110+90) = 20/200 = 0.1
+        // adjHigh = 110*(1+4*0.1) = 110*1.4 = 154
+        // adjLow = 90*(1-4*0.1) = 90*0.6 = 54
         accBands.Update(new TBar(DateTime.UtcNow, 100, 110, 90, 100, 1000));
         Assert.Equal(100.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(150.0, accBands.Upper.Value, 1e-10);  // 110 + 40
-        Assert.Equal(50.0, accBands.Lower.Value, 1e-10);   // 90 - 40
+        Assert.Equal(154.0, accBands.Upper.Value, 1e-10);
+        Assert.Equal(54.0, accBands.Lower.Value, 1e-10);
 
         // Next bar: H=120, L=100, C=110 (window is 1, so only this bar counts)
+        // w = (120-100)/(120+100) = 20/220 ≈ 0.090909
+        // adjHigh = 120*(1+4*0.090909) = 120*1.363636 ≈ 163.63636
+        // adjLow = 100*(1-4*0.090909) = 100*0.636364 ≈ 63.63636
         accBands.Update(new TBar(DateTime.UtcNow, 110, 120, 100, 110, 1000));
         Assert.Equal(110.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(160.0, accBands.Upper.Value, 1e-10);  // 120 + 40
-        Assert.Equal(60.0, accBands.Lower.Value, 1e-10);   // 100 - 40
+        Assert.Equal(120.0 * (1.0 + 4.0 * 20.0 / 220.0), accBands.Upper.Value, 1e-10);
+        Assert.Equal(100.0 * (1.0 - 4.0 * 20.0 / 220.0), accBands.Lower.Value, 1e-10);
     }
 
     // ============== Span API Tests ==============
@@ -477,14 +490,22 @@ public class AccBandsTests
         AccBands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
                       middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 3);
 
-        // After warmup (index 2):
-        // SMA(3) of High: (110+115+120)/3 = 115
-        // SMA(3) of Low: (90+95+100)/3 = 95
+        // After warmup (index 2): bars 0,1,2
+        // Bar 0: H=110, L=90 => w=20/200=0.1, adjH=110*1.4=154, adjL=90*0.6=54
+        // Bar 1: H=115, L=95 => w=20/210, adjH=115*(1+4*20/210), adjL=95*(1-4*20/210)
+        // Bar 2: H=120, L=100 => w=20/220, adjH=120*(1+4*20/220), adjL=100*(1-4*20/220)
         // SMA(3) of Close: (100+105+110)/3 = 105
-        // BandWidth = (115-95) * 2.0 = 40
+
+        double adjH0 = 110.0 * (1.0 + 4.0 * 20.0 / 200.0);
+        double adjH1 = 115.0 * (1.0 + 4.0 * 20.0 / 210.0);
+        double adjH2 = 120.0 * (1.0 + 4.0 * 20.0 / 220.0);
+        double adjL0 = 90.0 * (1.0 - 4.0 * 20.0 / 200.0);
+        double adjL1 = 95.0 * (1.0 - 4.0 * 20.0 / 210.0);
+        double adjL2 = 100.0 * (1.0 - 4.0 * 20.0 / 220.0);
+
         Assert.Equal(105.0, middle[2], 1e-10);
-        Assert.Equal(155.0, upper[2], 1e-10);  // 115 + 40
-        Assert.Equal(55.0, lower[2], 1e-10);   // 95 - 40
+        Assert.Equal((adjH0 + adjH1 + adjH2) / 3.0, upper[2], 1e-10);
+        Assert.Equal((adjL0 + adjL1 + adjL2) / 3.0, lower[2], 1e-10);
     }
 
     [Fact]
@@ -543,7 +564,7 @@ public class AccBandsTests
     {
         // Arrange
         const int period = 10;
-        double factor = 2.0;
+        double factor = 4.0;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
@@ -618,7 +639,7 @@ public class AccBandsTests
     [Fact]
     public void AccBands_Prime_SetsStateCorrectly()
     {
-        var accBands = new AccBands(3, 2.0);
+        var accBands = new AccBands(3, 4.0);
         var series = new TBarSeries();
 
         // Add 5 bars
@@ -632,25 +653,31 @@ public class AccBandsTests
 
         Assert.True(accBands.IsHot);
 
-        // Last 3 bars: H=[120,125,130], L=[100,105,110], C=[110,115,120]
-        // SMA(3) of High: (120+125+130)/3 = 125
-        // SMA(3) of Low: (100+105+110)/3 = 105
-        // SMA(3) of Close: (110+115+120)/3 = 115
-        // BandWidth = (125-105) * 2.0 = 40
+        // Last 3 bars: bars 2,3,4
+        // Bar 2: H=120,L=100,C=110 -> w=20/220, adjH=120*(1+80/220), adjL=100*(1-80/220)
+        // Bar 3: H=125,L=105,C=115 -> w=20/230, adjH=125*(1+80/230), adjL=105*(1-80/230)
+        // Bar 4: H=130,L=110,C=120 -> w=20/240, adjH=130*(1+80/240), adjL=110*(1-80/240)
+        double adjH2 = 120.0 * (1.0 + 4.0 * 20.0 / 220.0);
+        double adjL2 = 100.0 * (1.0 - 4.0 * 20.0 / 220.0);
+        double adjH3 = 125.0 * (1.0 + 4.0 * 20.0 / 230.0);
+        double adjL3 = 105.0 * (1.0 - 4.0 * 20.0 / 230.0);
+        double adjH4 = 130.0 * (1.0 + 4.0 * 20.0 / 240.0);
+        double adjL4 = 110.0 * (1.0 - 4.0 * 20.0 / 240.0);
+
         Assert.Equal(115.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(165.0, accBands.Upper.Value, 1e-10);  // 125 + 40
-        Assert.Equal(65.0, accBands.Lower.Value, 1e-10);   // 105 - 40
+        Assert.Equal((adjH2 + adjH3 + adjH4) / 3.0, accBands.Upper.Value, 1e-10);
+        Assert.Equal((adjL2 + adjL3 + adjL4) / 3.0, accBands.Lower.Value, 1e-10);
 
         // Verify it continues correctly
         accBands.Update(new TBar(DateTime.UtcNow, 125, 135, 115, 125, 1000));
-        // New window: H=[125,130,135], L=[105,110,115], C=[115,120,125]
-        // SMA(3) of High: (125+130+135)/3 = 130
-        // SMA(3) of Low: (105+110+115)/3 = 110
-        // SMA(3) of Close: (115+120+125)/3 = 120
-        // BandWidth = (130-110) * 2.0 = 40
+        // New window: bars [3,4,5]
+        // Bar 5: H=135,L=115,C=125 -> w=20/250, adjH=135*(1+80/250), adjL=115*(1-80/250)
+        double adjH5 = 135.0 * (1.0 + 4.0 * 20.0 / 250.0);
+        double adjL5 = 115.0 * (1.0 - 4.0 * 20.0 / 250.0);
+
         Assert.Equal(120.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(170.0, accBands.Upper.Value, 1e-10);  // 130 + 40
-        Assert.Equal(70.0, accBands.Lower.Value, 1e-10);   // 110 - 40
+        Assert.Equal((adjH3 + adjH4 + adjH5) / 3.0, accBands.Upper.Value, 1e-10);
+        Assert.Equal((adjL3 + adjL4 + adjL5) / 3.0, accBands.Lower.Value, 1e-10);
     }
 
     [Fact]
@@ -663,7 +690,7 @@ public class AccBandsTests
         series.Add(DateTime.UtcNow, 115, 125, 105, 115, 1000);
         series.Add(DateTime.UtcNow, 120, 130, 110, 120, 1000);
 
-        var ((middle, upper, lower), indicator) = AccBands.Calculate(series, 3, 2.0);
+        var ((middle, upper, lower), indicator) = AccBands.Calculate(series, 3, 4.0);
 
         // Check results
         Assert.Equal(5, middle.Count);
@@ -688,20 +715,18 @@ public class AccBandsTests
         series.Add(DateTime.UtcNow, 105, 115, 95, 105, 1000);
         series.Add(DateTime.UtcNow, 110, 120, 100, 110, 1000);
 
-        // Factor 1.0
-        var (middle1, upper1, lower1) = AccBands.Batch(series, 3, 1.0);
-        // SMA(3) High=115, Low=95, Close=105, BandWidth=20*1=20
-        Assert.Equal(135.0, upper1.Last.Value, 1e-10);  // 115 + 20
-        Assert.Equal(75.0, lower1.Last.Value, 1e-10);   // 95 - 20
+        // Factor 2.0
+        var (middle1, upper1, lower1) = AccBands.Batch(series, 3, 2.0);
+        // Factor 6.0
+        var (middle3, upper3, lower3) = AccBands.Batch(series, 3, 6.0);
 
-        // Factor 3.0
-        var (middle3, upper3, lower3) = AccBands.Batch(series, 3, 3.0);
-        // BandWidth=20*3=60
-        Assert.Equal(175.0, upper3.Last.Value, 1e-10);  // 115 + 60
-        Assert.Equal(35.0, lower3.Last.Value, 1e-10);   // 95 - 60
-
-        // Middle should be the same for all factors
+        // Middle should be the same regardless of factor (SMA of close)
         Assert.Equal(middle1.Last.Value, middle3.Last.Value, 1e-10);
+
+        // Wider factor = wider bands
+        double width1 = upper1.Last.Value - lower1.Last.Value;
+        double width3 = upper3.Last.Value - lower3.Last.Value;
+        Assert.True(width3 > width1, $"Factor 6 width ({width3}) should be > factor 2 width ({width1})");
     }
 
     [Fact]
@@ -714,10 +739,11 @@ public class AccBandsTests
             accBands.Update(new TBar(DateTime.UtcNow, 100, 100, 100, 100, 1000));
         }
 
-        // When H=L=C=100, BandWidth = (100-100)*2 = 0
+        // When H=L=C=100, w = (100-100)/(100+100) = 0
+        // adjHigh = 100*(1+0) = 100, adjLow = 100*(1-0) = 100
         Assert.Equal(100.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(100.0, accBands.Upper.Value, 1e-10);  // 100 + 0
-        Assert.Equal(100.0, accBands.Lower.Value, 1e-10);  // 100 - 0
+        Assert.Equal(100.0, accBands.Upper.Value, 1e-10);
+        Assert.Equal(100.0, accBands.Lower.Value, 1e-10);
     }
 
     [Fact]

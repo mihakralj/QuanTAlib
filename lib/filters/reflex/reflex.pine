@@ -1,0 +1,90 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Ehlers Reflex Indicator (REFLEX)", "REFLEX", overlay = false)
+
+//@function Ehlers Reflex — a zero-lag oscillator that measures the reflex (reversal
+//          tendency) of price by comparing the SSF-filtered price against a linear
+//          extrapolation from N bars ago. Applies a 2-pole Super Smoother pre-filter
+//          at half the specified period, then computes slope = (Filt[N] - Filt) / N,
+//          sums deviations of the extrapolated line from actual filtered values over
+//          the window, and normalizes by exponential RMS. Values above 0 suggest
+//          uptrend, below 0 suggest downtrend; crossovers signal reversals.
+//@param source Series to analyze
+//@param period Lookback window / assumed cycle period (>= 2)
+//@returns Reflex oscillator value (normalized, roughly ±σ scale)
+//@reference Ehlers, J.F. (2020). "Reflex: A New Zero-Lag Indicator."
+//           Technical Analysis of Stocks & Commodities, Feb 2020.
+//@optimized O(period) per bar for the summation loop; SSF is O(1) IIR
+export reflex(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // --- 2-Pole Super Smoother Filter (half-period cutoff) ---
+    float half_period = period * 0.5
+    float a1 = math.exp(-1.414 * math.pi / half_period)
+    float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / half_period)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    var float filt  = 0.0
+    var float filt1 = 0.0
+    var float filt2 = 0.0
+    float src1 = nz(source[1])
+    filt2 := filt1
+    filt1 := filt
+    filt := c1 * (price + src1) * 0.5 + c2 * filt1 + c3 * filt2
+
+    // --- Circular buffer to store filtered values for lookback ---
+    var array<float> buf = array.new_float(period + 1, 0.0)
+    var int head = 0
+    array.set(buf, head, filt)
+
+    int count = math.min(bar_index + 1, period)
+
+    // --- Slope: (Filt[Length] - Filt) / Length ---
+    int lag_idx = (head - period + period + 1) % (period + 1)
+    float filt_lag = array.get(buf, lag_idx)
+    float slope = (filt_lag - filt) / period
+
+    // --- Sum the differences ---
+    // Sum = Σ(i=1..Length) [(Filt + i*Slope) - Filt[i]] / Length
+    float the_sum = 0.0
+    if count >= period
+        for i = 1 to period
+            int idx = (head - i + period + 1) % (period + 1)
+            float filt_i = array.get(buf, idx)
+            the_sum += (filt + float(i) * slope) - filt_i
+        the_sum /= period
+
+    // --- Advance head ---
+    head := (head + 1) % (period + 1)
+
+    // --- Normalize in terms of Standard Deviations ---
+    // MS = 0.04 * Sum² + 0.96 * MS[1]  (exponential RMS)
+    var float ms = 0.0
+    ms := 0.04 * the_sum * the_sum + 0.96 * ms
+
+    float result = 0.0
+    if ms > 0.0
+        result := the_sum / math.sqrt(ms)
+
+    result
+
+// ── Inputs ──
+int   p_period = input.int(20, "Period", minval = 2)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = reflex(p_src, p_period)
+
+// ── Plot ──
+plot(out, "REFLEX", color.yellow, 2)
+hline(0, "Zero", color.gray)
+hline(1.0, "+1σ", color.new(color.red, 60))
+hline(-1.0, "-1σ", color.new(color.green, 60))

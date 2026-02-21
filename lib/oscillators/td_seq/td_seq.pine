@@ -1,0 +1,101 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("TD Sequential (TD_SEQ)", "TD_SEQ", overlay=false)
+
+//@function Calculates TD Sequential — Tom DeMark's exhaustion counting system
+//@param comparePeriod Lookback for setup comparison (close vs close[comparePeriod])
+//@returns [setupCount, countdownCount] signed setup (1-9) and countdown (1-13) values
+//@description TD Sequential identifies trend exhaustion via two phases:
+//  Phase 1 — Setup (1 to 9):
+//    Buy Setup: consecutive bars where close < close[comparePeriod] (count negative)
+//    Sell Setup: consecutive bars where close > close[comparePeriod] (count positive)
+//    A completed setup reaches ±9. The count resets when the condition breaks.
+//  Phase 2 — Countdown (1 to 13):
+//    After a completed 9-count setup, countdown begins:
+//    Buy Countdown: close < low[2] (counts negative, toward −13)
+//    Sell Countdown: close > high[2] (counts positive, toward +13)
+//    Countdown is non-consecutive — only qualifying bars increment.
+//    Countdown resets if an opposite setup completes (±9 in other direction).
+//    A completed ±13 signals potential exhaustion reversal.
+//  Setup values: −9 to −1 (buy) or +1 to +9 (sell), 0 = no active setup bar
+//  Countdown values: −13 to −1 (buy) or +1 to +13 (sell), 0 = no active countdown
+//  The oscillator output combines both: setup during phase 1, countdown during phase 2.
+//  All state is O(1) via var scalars — no buffers needed.
+td_seq(simple int comparePeriod) =>
+    if comparePeriod <= 0
+        runtime.error("Compare period must be greater than 0")
+
+    var int setupCount     = 0
+    var int countdownCount = 0
+    var int countdownDir   = 0
+    var bool setupComplete = false
+
+    float curClose  = nz(close)
+    float prevClose = nz(close[comparePeriod])
+
+    // --- Phase 1: Setup counting ---
+    int newSetup = 0
+    if curClose < prevClose
+        newSetup := setupCount < 0 ? setupCount - 1 : -1
+    else if curClose > prevClose
+        newSetup := setupCount > 0 ? setupCount + 1 : 1
+    else
+        newSetup := 0
+
+    if newSetup > 9
+        newSetup := 9
+    if newSetup < -9
+        newSetup := -9
+
+    // --- Check for completed setup (reached ±9) ---
+    bool justCompleted = false
+    if math.abs(newSetup) == 9 and not setupComplete
+        setupComplete := true
+        justCompleted := true
+        countdownCount := 0
+        countdownDir := newSetup > 0 ? 1 : -1
+
+    if math.abs(newSetup) < math.abs(setupCount) or (newSetup > 0 and setupCount < 0) or (newSetup < 0 and setupCount > 0)
+        setupComplete := false
+
+    setupCount := newSetup
+
+    // --- Phase 2: Countdown (non-consecutive) ---
+    if countdownDir != 0
+        float low2  = nz(low[2])
+        float high2 = nz(high[2])
+
+        if countdownDir == -1 and curClose < low2
+            countdownCount -= 1
+        else if countdownDir == 1 and curClose > high2
+            countdownCount += 1
+
+        if math.abs(countdownCount) >= 13
+            countdownCount := countdownDir == 1 ? 13 : -13
+            countdownDir := 0
+
+        if (countdownDir == 1 and newSetup == -9) or (countdownDir == -1 and newSetup == 9)
+            countdownCount := 0
+            countdownDir := newSetup > 0 ? 1 : -1
+
+    // --- Output: show countdown if active, else setup ---
+    int result = countdownDir != 0 ? countdownCount : setupCount
+    [setupCount, countdownCount]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_comparePeriod = input.int(4, "Compare Period", minval=1)
+
+// Calculation
+[setup, countdown] = td_seq(i_comparePeriod)
+
+// Plot
+plot(setup, "Setup", color=color.yellow, linewidth=2, style=plot.style_histogram)
+plot(countdown, "Countdown", color=color.aqua, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+hline(9, "Sell Setup Complete", color=color.red, linestyle=hline.style_dashed)
+hline(-9, "Buy Setup Complete", color=color.green, linestyle=hline.style_dashed)
+hline(13, "Sell Countdown", color=color.red, linestyle=hline.style_dotted)
+hline(-13, "Buy Countdown", color=color.green, linestyle=hline.style_dotted)

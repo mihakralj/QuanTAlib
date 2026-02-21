@@ -24,18 +24,22 @@
 		"dotnet.unitTests.runSettingsPath": ".config/coverage.runsettings",
 		"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
 		"dotnet.server.useOmnisharp": false,
-		"coderabbit.agentType": "Cline",
+		"coderabbit.agentType": "Roo",
 		"qodana.pathPrefix": "",
 		"terminal.integrated.defaultProfile.windows": "PowerShell",
 		"terminal.integrated.profiles.windows": {
 			"PowerShell": {
 				"source": "PowerShell",
+				"path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
 				"icon": "terminal-powershell"
 			},
 			"Git Bash": {
 				"path": "C:\\Program Files\\Git\\bin\\bash.exe",
 				"icon": "terminal-bash"
 			}
+		},
+		"terminal.integrated.automationProfile.windows": {
+			"path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
 		},
 		"qodana.projectId": "KbxmN",
 		"sarif-viewer.connectToGithubCodeScanning": "on",

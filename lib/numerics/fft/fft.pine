@@ -1,0 +1,75 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Fast Fourier Transform (FFT)", "FFT", overlay=false, precision=2)
+
+//@function Computes dominant cycle period via DFT with Hanning window
+//@param source Series to analyze
+//@param windowSize DFT window size (power of 2: 32, 64, 128)
+//@param minPeriod Minimum detectable cycle period (>= 2)
+//@param maxPeriod Maximum detectable cycle period (<= windowSize/2)
+//@returns dominant cycle period in bars
+//@optimized O(N * N/2) per bar; N=64 → ~2048 multiply-adds
+fft(series float source, simple int windowSize, simple int minPeriod, simple int maxPeriod) =>
+    if windowSize != 32 and windowSize != 64 and windowSize != 128
+        runtime.error("Window size must be 32, 64, or 128")
+    if minPeriod < 2
+        runtime.error("Min period must be >= 2")
+    if maxPeriod > windowSize / 2
+        runtime.error("Max period must be <= windowSize / 2")
+
+    int N = windowSize
+    int halfN = N / 2
+    float twoPiOverN = 2.0 * math.pi / N
+
+    float maxMag = 0.0
+    int peakBin = 0
+    float peakMagA = 0.0
+    float peakMagB = 0.0
+
+    int minBin = math.max(1, N / maxPeriod)
+    int maxBin = math.min(halfN, N / minPeriod)
+
+    for k = minBin to maxBin
+        float re = 0.0
+        float im = 0.0
+        float omega_k = twoPiOverN * k
+        for n = 0 to N - 1
+            float val = nz(source[n])
+            float w = 0.5 - 0.5 * math.cos(twoPiOverN * n)
+            float xw = val * w
+            float angle = omega_k * n
+            re += xw * math.cos(angle)
+            im -= xw * math.sin(angle)
+        float mag = re * re + im * im
+        if mag > maxMag
+            if peakBin > 0
+                peakMagA := maxMag
+            maxMag := mag
+            peakBin := k
+        else if peakBin > 0 and peakMagB == 0.0
+            peakMagB := mag
+
+    float dominantPeriod = float(N)
+    if peakBin > 0
+        float denom = peakMagA + 2.0 * maxMag + peakMagB
+        float shift = denom > 0.0 ? (peakMagA - peakMagB) / denom : 0.0
+        dominantPeriod := N / (peakBin + shift)
+
+    math.max(float(minPeriod), math.min(float(maxPeriod), dominantPeriod))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_window = input.int(64, "Window Size", options=[32, 64, 128], tooltip="DFT window; larger = finer frequency resolution")
+i_minP   = input.int(4, "Min Period", minval=2, maxval=64, tooltip="Shortest cycle to detect (bars)")
+i_maxP   = input.int(32, "Max Period", minval=4, maxval=64, tooltip="Longest cycle to detect (bars)")
+
+// Calculation
+float period = fft(i_source, i_window, i_minP, i_maxP)
+
+// Plot
+plot(period, "Dominant Period", color=color.yellow, linewidth=2)
+hline(8, "Fast Cycle", color=color.green, linestyle=hline.style_dashed)
+hline(20, "Slow Cycle", color=color.red, linestyle=hline.style_dashed)

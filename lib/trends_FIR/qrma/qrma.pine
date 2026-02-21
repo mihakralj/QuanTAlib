@@ -1,0 +1,113 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Quadratic Regression Moving Average (QRMA)", "QRMA", overlay = true)
+
+//@function Quadratic Regression Moving Average — fits a second-degree polynomial
+//          y = a + b·x + c·x² to the lookback window via ordinary least squares and
+//          returns the fitted value at the most recent bar (the endpoint). Captures
+//          both linear trends and curvature, providing better tracking of parabolic
+//          price movements than linear regression (LSMA). Uses x = 0..N-1 convention
+//          where x=0 is the oldest bar and the endpoint is evaluated at x=N-1.
+//@param source Series to smooth
+//@param period Lookback window (>= 3, need at least 3 points for quadratic fit)
+//@returns Quadratic regression endpoint value
+//@reference Savitzky, A. & Golay, M.J.E. (1964). Analytical Chemistry, 36(8), 1627–1639.
+//           (Quadratic regression is a special case of Savitzky-Golay degree=2 smoothing.)
+//@optimized O(period) per bar via circular buffer; sums precomputed for normal equations
+export qrma(series float source, simple int period) =>
+    if period < 3
+        runtime.error("Period must be at least 3")
+
+    float price = nz(source)
+
+    // --- Circular buffer ---
+    var array<float> buffer = array.new_float(period, 0.0)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % period
+
+    int count = math.min(bar_index + 1, period)
+    if count < period
+        price
+    else
+        // --- Precompute constant sums for x = 0, 1, ..., N-1 ---
+        // These only depend on period (N) and could be precomputed once,
+        // but Pine Script handles them efficiently inline.
+        float n = period
+
+        // Σx = N(N-1)/2
+        float sx = n * (n - 1.0) / 2.0
+        // Σx² = N(N-1)(2N-1)/6
+        float sx2 = n * (n - 1.0) * (2.0 * n - 1.0) / 6.0
+        // Σx³ = [N(N-1)/2]²
+        float sx3 = sx * sx
+        // Σx⁴ = N(N-1)(2N-1)(3N²-3N-1)/30
+        float sx4 = n * (n - 1.0) * (2.0 * n - 1.0) * (3.0 * n * n - 3.0 * n - 1.0) / 30.0
+
+        // --- Compute data-dependent sums ---
+        // Buffer: head points to next-write = oldest entry
+        float sy = 0.0
+        float sxy = 0.0
+        float sx2y = 0.0
+        for j = 0 to period - 1
+            int idx = (head + j) % period
+            float val = array.get(buffer, idx)
+            float x = j  // x=0 is oldest, x=N-1 is newest
+            sy += val
+            sxy += x * val
+            sx2y += x * x * val
+
+        // --- Solve 3x3 normal equations via Cramer's rule ---
+        // [n    Σx   Σx²] [a]   [Σy  ]
+        // [Σx   Σx²  Σx³] [b] = [Σxy ]
+        // [Σx²  Σx³  Σx⁴] [c]   [Σx²y]
+
+        float d00 = n
+        float d01 = sx
+        float d02 = sx2
+        float d10 = sx
+        float d11 = sx2
+        float d12 = sx3
+        float d20 = sx2
+        float d21 = sx3
+        float d22 = sx4
+
+        // Determinant of coefficient matrix
+        float det = d00 * (d11 * d22 - d12 * d21) -
+                     d01 * (d10 * d22 - d12 * d20) +
+                     d02 * (d10 * d21 - d11 * d20)
+
+        if math.abs(det) < 1e-20
+            price
+        else
+            // Solve for a, b, c using Cramer's rule
+            float det_a = sy  * (d11 * d22 - d12 * d21) -
+                          d01 * (sxy * d22 - sx2y * d21) +
+                          d02 * (sxy * d21 - sx2y * d11)
+            float det_b = d00 * (sxy * d22 - sx2y * d21) -
+                          sy  * (d10 * d22 - d12 * d20) +
+                          d02 * (d10 * sx2y - sxy * d20)
+            float det_c = d00 * (d11 * sx2y - sxy * d21) -
+                          d01 * (d10 * sx2y - sxy * d20) +
+                          sy  * (d10 * d21 - d11 * d20)
+
+            float a = det_a / det
+            float b = det_b / det
+            float c = det_c / det
+
+            // Evaluate at x = N-1 (newest bar = endpoint)
+            float x_end = n - 1.0
+            a + b * x_end + c * x_end * x_end
+
+// ── Inputs ──
+int   p_period = input.int(14, "Period", minval = 3)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = qrma(p_src, p_period)
+
+// ── Plot ──
+plot(out, "QRMA", color.yellow, 2)

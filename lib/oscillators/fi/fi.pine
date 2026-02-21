@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Force Index (FI)", "FI", overlay=false)
+
+//@function Calculates Force Index — EMA-smoothed price change × volume
+//@param period EMA smoothing period for the raw force
+//@returns smoothed Force Index value
+fi(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float alpha = 2.0 / (period + 1.0)
+    float beta = 1.0 - alpha
+
+    var float ema = 0.0
+    var float e = 1.0
+    var bool warmup = true
+    var bool first = true
+    var float prevClose = na
+
+    float src = nz(close)
+    float vol = nz(volume)
+
+    float rawForce = not na(prevClose) ? (src - prevClose) * vol : 0.0
+    prevClose := src
+
+    if first
+        ema := rawForce
+        first := false
+    else
+        ema := alpha * rawForce + beta * ema
+
+    float result = rawForce
+    if warmup
+        e *= beta
+        float c = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+        result := ema * c
+        if e <= 1e-10
+            warmup := false
+    else
+        result := ema
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(13, "Period", minval=1, maxval=500)
+
+// Calculation
+float forceIndex = fi(i_period)
+
+// Plot
+plot(forceIndex, "Force Index", color.yellow, 2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

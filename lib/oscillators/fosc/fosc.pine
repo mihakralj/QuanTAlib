@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Forecast Oscillator (FOSC)", "FOSC", overlay=false)
+
+//@function Calculates Forecast Oscillator — percentage deviation from linear regression forecast
+//@param source Series to calculate from
+//@param period Lookback period for linear regression
+//@returns FOSC value: 100 * (source - LinReg) / source
+//@optimized O(1) complexity using incremental running sums for linear regression
+fosc(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
+
+    var int count = 0
+    var int head = 0
+    var float sumY = 0.0
+    var float sumXY = 0.0
+    var array<float> buffer = array.new_float(period, na)
+
+    if na(source)
+        na
+    else
+        float oldest = array.get(buffer, head)
+        if not na(oldest)
+            sumY -= oldest
+            sumXY -= sumY
+            sumXY += (period - 1) * source
+        else
+            sumXY += count * source
+            count += 1
+
+        sumY += source
+        array.set(buffer, head, source)
+        head := (head + 1) % period
+
+        if count < 2
+            0.0
+        else
+            float n = float(count)
+            float sumX = n * (n - 1.0) / 2.0
+            float sumX2 = n * (n - 1.0) * (2.0 * n - 1.0) / 6.0
+            float denomX = n * sumX2 - sumX * sumX
+
+            if denomX == 0.0
+                0.0
+            else
+                float slope = (n * sumXY - sumX * sumY) / denomX
+                float intercept = (sumY - slope * sumX) / n
+                float forecast = slope * (n - 1.0) + intercept
+
+                source != 0.0 ? (source - forecast) / source * 100.0 : 0.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(14, "Period", minval=2, maxval=5000)
+
+// Calculation
+float result = fosc(i_source, i_period)
+
+// Plot
+plot(result, "FOSC", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

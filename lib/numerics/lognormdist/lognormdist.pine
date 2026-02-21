@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Log-Normal Distribution CDF (LOGNORMDIST)", "LOGNORMDIST", overlay=false, precision=6)
+
+//@function Standard normal CDF Φ(z) via Abramowitz & Stegun rational approximation (7.1.26)
+//@param z Input value
+//@returns Φ(z) = P(Z <= z) for Z ~ N(0,1), accurate to ~1.5e-7
+normalCdf(series float z) =>
+    float P = 0.2316419
+    float B1 = 0.319381530
+    float B2 = -0.356563782
+    float B3 = 1.781477937
+    float B4 = -1.821255978
+    float B5 = 1.330274429
+    float az = math.abs(z)
+    float t = 1.0 / (1.0 + P * az)
+    float phi = math.exp(-0.5 * az * az) / math.sqrt(2.0 * math.pi)
+    float poly = ((((B5 * t + B4) * t + B3) * t + B2) * t + B1) * t
+    float cdf = 1.0 - phi * poly
+    z >= 0.0 ? cdf : 1.0 - cdf
+
+//@function Log-Normal Distribution CDF for a normalized price series
+//@param source Series to transform
+//@param period Lookback period for min-max normalization
+//@param mu Location parameter (mean of ln(X))
+//@param sigma Scale parameter (std dev of ln(X)), sigma > 0
+//@returns Log-normal CDF value in [0,1]
+lognormdist(series float source, simple int period, simple float mu, simple float sigma) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if sigma <= 0.0
+        runtime.error("Sigma must be greater than 0")
+
+    float minVal = source
+    float maxVal = source
+    for i = 1 to period - 1
+        float v = source[i]
+        if not na(v)
+            if v < minVal
+                minVal := v
+            if v > maxVal
+                maxVal := v
+
+    float range = maxVal - minVal
+    float x = range > 0.0 ? (source - minVal) / range : 0.5
+    float safeX = math.max(1e-10, x)
+
+    float z = (math.log(safeX) - mu) / sigma
+    normalCdf(z)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Lookback Period", minval=2, maxval=5000, tooltip="Min-max normalization window")
+i_mu     = input.float(0.0, "Mu (μ)", step=0.1, tooltip="Location parameter; mean of ln(X). 0 = centered on geometric mean of [0,1]")
+i_sigma  = input.float(1.0, "Sigma (σ)", minval=0.01, step=0.1, tooltip="Scale parameter; std dev of ln(X). Lower = steeper S-curve")
+
+// Calculation
+float result = lognormdist(i_source, i_period, i_mu, i_sigma)
+
+// Plot
+plot(result, "LOGNORMDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

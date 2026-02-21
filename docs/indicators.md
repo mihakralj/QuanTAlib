@@ -54,6 +54,7 @@ Finite Impulse Response filters. Output depends only on a fixed window of inputs
 | [**SINEMA**](../lib/trends_FIR/sinema/Sinema.md) | Sine-Weighted MA | Sinusoidal weight distribution |
 | [**SMA**](../lib/trends_FIR/sma/Sma.md) | Simple MA | Equal weights, the baseline |
 | [**TRIMA**](../lib/trends_FIR/trima/Trima.md) | Triangular MA | Double-smoothed SMA |
+| [**TSF**](../lib/trends_FIR/tsf/Tsf.md) | Time Series Forecast | Linear regression one-step-ahead projection |
 | [**WMA**](../lib/trends_FIR/wma/Wma.md) | Weighted MA | Linear weight decay |
 
 ### Trends (IIR)
@@ -62,24 +63,30 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**CORAL**](../lib/trends_IIR/coral/Coral.md) | Coral Trend Filter | Six-stage cascaded EMA with polynomial combination |
 | [**DECYCLER**](../lib/trends_IIR/decycler/Decycler.md) | Ehlers Decycler | Complementary HP filter subtracting high-frequency noise |
 | [**DEMA**](../lib/trends_IIR/dema/Dema.md) | Double Exponential MA | EMA of EMA with lag compensation |
 | [**DSMA**](../lib/trends_IIR/dsma/Dsma.md) | Deviation-Scaled MA | Volatility-adaptive smoothing |
 | [**EMA**](../lib/trends_IIR/ema/Ema.md) | Exponential MA | The fundamental IIR filter |
 | [**FRAMA**](../lib/trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Dimension-based adaptation |
 | [**HEMA**](../lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Hull concept with EMA |
+| [**HOLT**](../lib/trends_IIR/holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing (level + trend) |
 | [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend | Dominant cycle extraction |
 | [**JMA**](../lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive, low-lag, proprietary algorithm |
 | [**KAMA**](../lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Efficiency ratio adaptation |
 | [**MAMA**](../lib/trends_IIR/mama/Mama.md) | Ehlers MESA Adaptive MA | Homodyne discriminator based |
+| [**MAVP**](../lib/trends_IIR/mavp/Mavp.md) | Moving Average Variable Period | Per-bar dynamic period EMA |
 | [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic | Market-speed tracking |
 | [**MMA**](../lib/trends_IIR/mma/Mma.md) | Modified MA | Smoothed EMA variant |
+| [**PMA**](../lib/trends_IIR/pma/Pma.md) | Predictive Moving Average | Ehlers super smoother + extrapolation |
 | [**QEMA**](../lib/trends_IIR/qema/Qema.md) | Quad Exponential MA | Four-stage exponential |
 | [**REMA**](../lib/trends_IIR/rema/Rema.md) | Regularized Exponential MA | Regularization for stability |
+| [**REVERSEEMA**](../lib/trends_IIR/reverseema/ReverseEma.md) | Reverse EMA | Inverse EMA deconvolution |
 | [**RGMA**](../lib/trends_IIR/rgma/Rgma.md) | Recursive Gaussian MA | Gaussian approximation |
 | [**RMA**](../lib/trends_IIR/rma/Rma.md) | WildeR MA | Wilder's smoothing (1/n decay) |
 | [**T3**](../lib/trends_IIR/t3/T3.md) | Tillson T3 MA | Six-stage DEMA variant |
 | [**TEMA**](../lib/trends_IIR/tema/Tema.md) | Triple Exponential MA | Three-stage lag reduction |
+| [**TRENDFLEX**](../lib/trends_IIR/trendflex/Trendflex.md) | Ehlers Trendflex | Zero-lag sum-of-differences trend |
 | [**VAMA**](../lib/trends_IIR/vama/Vama.md) | Volatility Adjusted MA | ATR-based adaptation |
 | [**VIDYA**](../lib/trends_IIR/vidya/Vidya.md) | Variable Index Dynamic | CMO-based adaptation |
 | [**YZVAMA**](../lib/trends_IIR/yzvama/Yzvama.md) | Yang-Zhang Vol Adjusted MA | YZ volatility adaptation |
@@ -100,7 +107,8 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**BESSEL**](../lib/filters/bessel/Bessel.md) | Bessel Filter | Maximally flat group delay |
 | [**BILATERAL**](../lib/filters/bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing |
 | [**BPF**](../lib/filters/bpf/Bpf.md) | BandPass Filter | Frequency band isolation |
-| [**BUTTER**](../lib/filters/butter/Butter.md) | Ehlers Butterworth Filter | Maximally flat passband |
+| [**BUTTER2**](../lib/filters/butter2/Butter2.md) | Ehlers 2-Pole Butterworth Filter | Maximally flat passband |
+| [**BUTTER3**](../lib/filters/butter3/Butter3.md) | Ehlers 3-Pole Butterworth Filter | Steeper rolloff, 3rd-order |
 | [**CHEBY1**](../lib/filters/cheby1/Cheby1.md) | Chebyshev Type I | Steeper rolloff with passband ripple |
 | [**CHEBY2**](../lib/filters/cheby2/Cheby2.md) | Chebyshev Type II | Steeper rolloff with stopband ripple |
 | [**EDCF**](../lib/filters/edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR, distance-weighted smoothing |
@@ -119,7 +127,8 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**ROOFING**](../lib/filters/roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers HP + SS bandpass cascade |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
 | [**SPBF**](../lib/filters/spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
-| [**SSF**](../lib/filters/ssf/Ssf.md) | Ehlers Super Smoother Filter | Ehlers two-pole design |
+| [**SSF2**](../lib/filters/ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers two-pole design |
+| [**SSF3**](../lib/filters/ssf3/Ssf3.md) | Ehlers 3-Pole Super Smoother Filter | Ehlers three-pole, single-sample feedforward |
 | [**USF**](../lib/filters/usf/Usf.md) | Ehlers Ultimate Smoother | Ehlers high-fidelity filter |
 | [**VOSS**](../lib/filters/voss/Voss.md) | Ehlers Voss Predictive Filter | Ehlers BPF + negative group delay predictor |
 | [**WAVELET**](../lib/filters/wavelet/Wavelet.md) | Wavelet Denoising Filter | A trous Haar + MAD soft thresholding |
@@ -245,6 +254,7 @@ Price-volume relationships and accumulation/distribution measurements.
 | [**CMF**](../lib/volume/cmf/Cmf.md) | Chaikin Money Flow | Volume-weighted close position over period |
 | [**EFI**](../lib/volume/efi/Efi.md) | Elder's Force Index | Price change × volume |
 | [**EOM**](../lib/volume/eom/Eom.md) | Ease of Movement | Price movement per unit volume |
+| [**EVWMA**](../lib/volume/evwma/Evwma.md) | Elastic Volume Weighted MA | Volume-adaptive smoothing weight per bar |
 | [**III**](../lib/volume/iii/Iii.md) | Intraday Intensity Index | Close position within H-L × volume |
 | [**KVO**](../lib/volume/kvo/Kvo.md) | Klinger Volume Oscillator | Trend-volume force oscillator |
 | [**MFI**](../lib/volume/mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI |

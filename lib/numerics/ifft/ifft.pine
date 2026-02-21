@@ -1,0 +1,58 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Inverse Fast Fourier Transform (IFFT)", "IFFT", overlay=true, precision=6)
+
+//@function Spectral filter via forward DFT + frequency zeroing + inverse DFT
+//@param source Series to filter
+//@param windowSize DFT window size (power of 2: 32, 64, 128)
+//@param numHarmonics Number of lowest-frequency harmonics to keep (1..windowSize/2)
+//@returns reconstructed (filtered) value at the current bar
+//@optimized Forward O(N*H) + inverse O(H); H = numHarmonics
+ifft(series float source, simple int windowSize, simple int numHarmonics) =>
+    if windowSize != 32 and windowSize != 64 and windowSize != 128
+        runtime.error("Window size must be 32, 64, or 128")
+    if numHarmonics < 1
+        runtime.error("Number of harmonics must be >= 1")
+
+    int N = windowSize
+    int halfN = N / 2
+    int H = math.min(numHarmonics, halfN)
+    float twoPiOverN = 2.0 * math.pi / N
+
+    float dcRe = 0.0
+    for n = 0 to N - 1
+        float val = nz(source[n])
+        float w = 0.5 - 0.5 * math.cos(twoPiOverN * n)
+        dcRe += val * w
+
+    float result = dcRe / N
+
+    for k = 1 to H
+        float re = 0.0
+        float im = 0.0
+        float omega_k = twoPiOverN * k
+        for n = 0 to N - 1
+            float val = nz(source[n])
+            float w = 0.5 - 0.5 * math.cos(twoPiOverN * n)
+            float xw = val * w
+            float angle = omega_k * n
+            re += xw * math.cos(angle)
+            im -= xw * math.sin(angle)
+
+        result += 2.0 * re / N
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source     = input.source(close, "Source")
+i_window     = input.int(64, "Window Size", options=[32, 64, 128], tooltip="DFT window; larger = finer frequency resolution")
+i_harmonics  = input.int(5, "Harmonics", minval=1, maxval=32, tooltip="Number of lowest-frequency components to keep; fewer = smoother")
+
+// Calculation
+float filtered = ifft(i_source, i_window, i_harmonics)
+
+// Plot
+plot(filtered, "IFFT", color=color.yellow, linewidth=2)

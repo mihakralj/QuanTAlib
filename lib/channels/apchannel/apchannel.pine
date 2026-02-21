@@ -1,56 +1,54 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Andrews' Pitchfork (AP)", "AP", overlay=true)
+indicator("Adaptive Price Channel (APCHANNEL)", "APCHANNEL", overlay=true)
 
-//@function Calculates Andrews' Pitchfork lines based on three pivot points
-//@param p1_back Bars back to first pivot point (leftmost)
-//@param p2_back Bars back to second pivot point (middle)
-//@param p3_back Bars back to third pivot point (rightmost)
-//@returns tuple of [median, upper, lower] lines for current bar
-//@optimized Geometric projection with O(1) complexity per bar
-apchannel(simple int p1_back, simple int p2_back, simple int p3_back) =>
-    if p1_back <= 0 or p2_back <= 0 or p3_back <= 0 or not (p1_back > p2_back and p2_back > p3_back)
-        runtime.error("Use P1 oldest, P2 newer, P3 newest — all >0")
-        [na, na, na]
-    int p1_b = math.min(p1_back, bar_index)
-    int p2_b = math.min(p2_back, bar_index)
-    int p3_b = math.min(p3_back, bar_index)
-    int p1_time = bar_index - p1_b
-    int p2_time = bar_index - p2_b
-    int p3_time = bar_index - p3_b
-    float p1_price = nz(close[p1_b])
-    float p2_price = nz(high[p2_b])
-    float p3_price = nz(low[p3_b])
-    if na(close[p1_b]) or na(high[p2_b]) or na(low[p3_b])
+//@function Calculates the Adaptive Price Channel using dual EMA on highs and lows.
+//@doc The channel applies exponential smoothing to price highs and lows independently,
+//     creating a dynamic envelope that "remembers" significant extremes while gradually
+//     fading their influence. Unlike fixed-window Donchian channels that drop extremes
+//     abruptly, APCHANNEL decays them smoothly (leaky integration).
+//@param alpha Smoothing factor (0 < alpha <= 1). Higher = faster decay, shorter memory.
+//@returns tuple of [middle, upper, lower] band values
+//@optimized O(1) per bar via EMA recursion; uses FMA pattern: decay*prev + alpha*new
+apchannel(simple float alpha) =>
+    if alpha <= 0.0 or alpha > 1.0
+        runtime.error("Alpha must be > 0 and <= 1")
         [float(na), float(na), float(na)]
-    float mid_time_float = (float(p2_time) + float(p3_time)) / 2.0
-    float mid_price = (p2_price + p3_price) / 2.0
-    float time_diff = mid_time_float - float(p1_time)
-    float median_slope = math.abs(time_diff) > 1e-10 ? (mid_price - p1_price) / time_diff : 0.0
-    float median_value = p1_price + median_slope * (float(bar_index) - float(p1_time))
-    float upper_value = p2_price + median_slope * (float(bar_index) - float(p2_time))
-    float lower_value = p3_price + median_slope * (float(bar_index) - float(p3_time))
-    if math.abs(median_value) > 1e9 or math.abs(upper_value) > 1e9 or math.abs(lower_value) > 1e9
-        [float(na), float(na), float(na)]
-    [median_value, upper_value, lower_value]
+
+    float decay = 1.0 - alpha
+
+    // EMA of highs (upper band)
+    var float high_ema = na
+    float valid_high = nz(high, nz(high_ema, 0.0))
+    if na(high_ema)
+        high_ema := valid_high
+    else
+        high_ema := decay * high_ema + alpha * valid_high
+
+    // EMA of lows (lower band)
+    var float low_ema = na
+    float valid_low = nz(low, nz(low_ema, 0.0))
+    if na(low_ema)
+        low_ema := valid_low
+    else
+        low_ema := decay * low_ema + alpha * valid_low
+
+    // Midpoint
+    float mid = (high_ema + low_ema) / 2.0
+
+    [mid, high_ema, low_ema]
 
 // ---------- Main loop ----------
 
 // Inputs
-i_p1_back = input.int(45, "Point 1 (Leftmost)", minval=1)
-i_p2_back = input.int(30, "Point 2 (Second)", minval=1)
-i_p3_back = input.int(15, "Point 3 (Third)", minval=1)
-
-// Validation
-if i_p1_back <= i_p2_back or i_p2_back <= i_p3_back
-    runtime.error("Points must be in chronological order (P1 > P2 > P3)")
+i_alpha = input.float(0.2, "Alpha (smoothing factor)", minval=0.01, maxval=1.0, step=0.01)
 
 // Calculation
-[median, upper, lower] = apchannel(i_p1_back, i_p2_back, i_p3_back)
+[middle, upper, lower] = apchannel(i_alpha)
 
 // Plot
-plot(median, "Median", color=color.yellow, linewidth=2)
+plot(middle, "Middle", color=color.yellow, linewidth=2)
 p1 = plot(upper, "Upper", color=color.new(color.blue, 50), linewidth=1)
 p2 = plot(lower, "Lower", color=color.new(color.blue, 50), linewidth=1)
 fill(p1, p2, color=color.new(color.blue, 90))

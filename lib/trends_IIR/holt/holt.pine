@@ -1,0 +1,52 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Holt Exponential Moving Average (HOLT)", "HOLT", overlay=true)
+
+//@function Calculates Holt EMA using double exponential smoothing (level + trend)
+//@param source Series to smooth
+//@param period Lookback period (determines alpha = 2/(period+1))
+//@param gamma Trend smoothing factor (0..1). Default: same as alpha
+//@returns Holt EMA value (level + trend) from first bar
+//@description Holt's (1957) double exponential smoothing tracks both level and trend.
+//  Level equation:  L_t = alpha * y_t + (1 - alpha) * (L_{t-1} + B_{t-1})
+//  Trend equation:  B_t = gamma * (L_t - L_{t-1}) + (1 - gamma) * B_{t-1}
+//  Output:          HOLT_t = L_t + B_t   (1-step-ahead forecast)
+//  When gamma=0, degenerates to standard EMA (no trend correction).
+//  When gamma=alpha, provides balanced level/trend tracking.
+holt(series float source, simple int period, simple float gamma=0) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float alpha = 2.0 / (period + 1)
+    float g = gamma > 0 ? gamma : alpha
+    var float level = na
+    var float trend = 0.0
+    var float result = source
+
+    if na(level)
+        // First bar: initialize level to source, trend to 0
+        level := source
+        trend := 0.0
+        result := source
+    else
+        float prevLevel = level
+        // Level: alpha * source + (1 - alpha) * (prevLevel + trend)
+        level := alpha * source + (1.0 - alpha) * (prevLevel + trend)
+        // Trend: gamma * (level - prevLevel) + (1 - gamma) * trend
+        trend := g * (level - prevLevel) + (1.0 - g) * trend
+        // Output: level + trend (1-step-ahead forecast)
+        result := level + trend
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_gamma  = input.float(0, "Gamma (0 = auto)", minval=0, maxval=1, step=0.01)
+i_source = input.source(close, "Source")
+
+// Calculation
+holt_value = holt(i_source, period=i_period, gamma=i_gamma)
+
+// Plot
+plot(holt_value, "HOLT", color=color.yellow, linewidth=2)

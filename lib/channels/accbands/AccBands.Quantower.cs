@@ -9,7 +9,7 @@ namespace QuanTAlib;
 /// <summary>
 /// AccBands: Acceleration Bands - Quantower Indicator Adapter
 /// Volatility-based channel indicator developed by Price Headley that creates
-/// an adaptive price envelope around a moving average.
+/// an adaptive price envelope using per-bar normalized width adjustment.
 /// </summary>
 public sealed class AccBandsIndicator : Indicator, IWatchlistIndicator
 {
@@ -17,7 +17,7 @@ public sealed class AccBandsIndicator : Indicator, IWatchlistIndicator
     public int Period { get; set; } = 20;
 
     [InputParameter("Factor", sortIndex: 11, minimum: 0.1, maximum: 10.0, increment: 0.1, decimalPlaces: 2)]
-    public double Factor { get; set; } = 2.0;
+    public double Factor { get; set; } = 4.0;
 
     [InputParameter("Show Cold Values", sortIndex: 100)]
     public bool ShowColdValues { get; set; } = true;
@@ -30,7 +30,7 @@ public sealed class AccBandsIndicator : Indicator, IWatchlistIndicator
     public AccBandsIndicator()
     {
         Name = "AccBands - Acceleration Bands";
-        Description = "Volatility-based adaptive price channel using SMA of High, Low, and Close";
+        Description = "Volatility-based adaptive price channel using per-bar normalized width (Headley)";
         SeparateWindow = false;
         OnBackGround = true;
     }

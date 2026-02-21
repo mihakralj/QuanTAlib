@@ -92,12 +92,11 @@ public class TsiIndicatorTests
     public void Indicator_OutputBounded()
     {
         var core = new Tsi(5, 3, 3);
-        var random = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + random.NextDouble() * 50;
-            core.Update(new TValue(DateTime.Now.AddMinutes(i), price));
+            core.Update(bars.Close[i]);
 
             // TSI must be bounded [-100, 100]
             Assert.True(core.Last.Value >= -100.0 && core.Last.Value <= 100.0);

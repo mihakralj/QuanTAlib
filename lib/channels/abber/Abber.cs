@@ -190,9 +190,12 @@ public sealed class Abber : ITValuePublisher, IDisposable
         {
             _pState = _state;
 
-            // Calculate SMA first to get deviation
+            // Compute SMA including the new value with correct divisor (matches batch ProcessMainLoop)
             int count = _sourceBuffer.Count;
-            double sma = count > 0 ? _state.SumSource / count : value;
+            double removedSource = count == _sourceBuffer.Capacity ? _sourceBuffer.Oldest : 0.0;
+            double newSum = _state.SumSource - removedSource + value;
+            int newCount = count < _sourceBuffer.Capacity ? count + 1 : count;
+            double sma = newSum / newCount;
             double deviation = Math.Abs(value - sma);
 
             UpdateState(value, deviation);
@@ -201,17 +204,18 @@ public sealed class Abber : ITValuePublisher, IDisposable
         {
             _state = _pState;
 
-            // Calculate SMA first to get deviation
-            int count = _sourceBuffer.Count;
-            double sma = count > 0 ? _state.SumSource / count : value;
-            double deviation = Math.Abs(value - sma);
-
+            // Replace newest source value and recompute sum for current-bar SMA (matches Pine)
             _sourceBuffer.UpdateNewest(value);
-            _deviationBuffer.UpdateNewest(deviation);
+            double currentSum = _sourceBuffer.Sum;
+            int corrCount = _sourceBuffer.Count;
+            double corrSma = corrCount > 0 ? currentSum / corrCount : value;
+            double corrDeviation = Math.Abs(value - corrSma);
+
+            _deviationBuffer.UpdateNewest(corrDeviation);
 
             _state = _state with
             {
-                SumSource = _sourceBuffer.Sum,
+                SumSource = currentSum,
                 SumDeviation = _deviationBuffer.Sum,
             };
         }
@@ -357,9 +361,12 @@ public sealed class Abber : ITValuePublisher, IDisposable
         {
             double value = GetValidValue(source[i].Value);
 
-            // Calculate SMA to get deviation
+            // Compute SMA including the new value with correct divisor (matches batch ProcessMainLoop)
             int count = _sourceBuffer.Count;
-            double sma = count > 0 ? _state.SumSource / count : value;
+            double removedSource = count == _sourceBuffer.Capacity ? _sourceBuffer.Oldest : 0.0;
+            double newSum = _state.SumSource - removedSource + value;
+            int newCount = count < _sourceBuffer.Capacity ? count + 1 : count;
+            double sma = newSum / newCount;
             double deviation = Math.Abs(value - sma);
 
             UpdateState(value, deviation);
@@ -606,18 +613,18 @@ public sealed class Abber : ITValuePublisher, IDisposable
         {
             double v = GetValidValue(source, i, ref state);
 
-            // Calculate current SMA to get deviation
-            int count = i;
-            double sma = count > 0 ? state.SumSource / count : v;
+            // Compute SMA including the new value to get same-bar deviation (matches Pine)
+            int newCount = i + 1;
+            double newSum = state.SumSource + v;
+            double sma = newSum / newCount;
             double deviation = Math.Abs(v - sma);
 
-            state.SumSource += v;
+            state.SumSource = newSum;
             state.SumDeviation += deviation;
 
             buffers.Source[i] = v;
             buffers.Deviation[i] = deviation;
 
-            int newCount = i + 1;
             double middle = state.SumSource / newCount;
             double avgDeviation = state.SumDeviation / newCount;
             WriteBandOutputs(outputs, i, middle, avgDeviation, multiplier);
@@ -639,12 +646,13 @@ public sealed class Abber : ITValuePublisher, IDisposable
         {
             double v = GetValidValue(source, i, ref state);
 
-            // Calculate current SMA to get deviation
-            double sma = state.SumSource / period;
+            // Compute SMA including the new value to get same-bar deviation (matches Pine)
+            double newSumSource = state.SumSource - buffers.Source[state.BufferIndex] + v;
+            double sma = newSumSource / period;
             double deviation = Math.Abs(v - sma);
 
             // Update running sums using single buffer index
-            state.SumSource = state.SumSource - buffers.Source[state.BufferIndex] + v;
+            state.SumSource = newSumSource;
             buffers.Source[state.BufferIndex] = v;
 
             state.SumDeviation = state.SumDeviation - buffers.Deviation[state.BufferIndex] + deviation;

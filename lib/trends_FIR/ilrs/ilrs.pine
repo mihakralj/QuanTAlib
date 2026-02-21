@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Integral of Linear Regression Slope (ILRS)", "ILRS", overlay=true)
+
+//@function Computes the Integral of Linear Regression Slope — cumulative sum of the
+//          least-squares slope computed over a rolling window. Tracks accumulated
+//          trend direction as a price-overlay smoothing filter.
+//@param source Series to analyze
+//@param period Lookback window for slope calculation (>= 2)
+//@returns Cumulative integral of the rolling linear regression slope
+//@reference John Ehlers, "Rocket Science for Traders" (Wiley, 2001).
+//@reference Concept: ILRS is the discrete integral (running sum) of the LinReg slope,
+//           producing a smoother trend follower than LSMA. Equivalent to filtering
+//           the first derivative and reconstructing via integration.
+//@optimized O(period) per bar for slope via circular buffer accumulation
+ilrs(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // --- Circular buffer for rolling window ---
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % period
+
+    // --- Running integral state ---
+    var float integral = na
+
+    int count = math.min(bar_index + 1, period)
+    if count < 2
+        integral := price
+        integral
+    else
+        // --- Compute linear regression slope over the buffer ---
+        // x-indices: 0, 1, ..., n-1 (oldest to newest)
+        // Analytical x-sums: ΣX = n(n-1)/2, ΣX² = n(n-1)(2n-1)/6
+        float n = count
+        float sumX  = 0.5 * (n - 1) * n
+        float sumX2 = (n - 1) * n * (2 * n - 1) / 6.0
+
+        // Accumulate y-sums from circular buffer
+        int start = count < period ? 0 : head
+        float sumY  = 0.0
+        float sumXY = 0.0
+        for i = 0 to int(n) - 1
+            int idx = (start + i) % period
+            float val = nz(array.get(buffer, idx))
+            sumY  += val
+            sumXY += i * val
+
+        float denomX = n * sumX2 - sumX * sumX
+        float slope = denomX != 0 ? (n * sumXY - sumX * sumY) / denomX : 0.0
+
+        // --- Integrate: ILRS = ILRS[1] + slope ---
+        if na(integral)
+            integral := price
+        integral := integral + slope
+        integral
+
+// ── Inputs ──────────────────────────────────────────────────────────────
+src = input.source(close, "Source")
+per = input.int(14, "Period", minval=2)
+
+// ── Plot ────────────────────────────────────────────────────────────────
+plot(ilrs(src, per), "ILRS", color.new(color.yellow, 0), 2)

@@ -1,0 +1,129 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Quantitative Qualitative Estimation (QQE)", "QQE", overlay=false)
+
+//@function Calculates QQE — smoothed RSI with dynamic volatility bands
+//@param source Series to evaluate (typically close)
+//@param rsiPeriod RSI lookback period
+//@param smoothFactor EMA smoothing factor for RSI (SF)
+//@param qqeFactor Multiplier for the ATR-like trailing band (Wilders factor)
+//@returns [qqeLine, trailingLevel] QQE smoothed RSI and its trailing signal
+//@description QQE applies a multi-stage smoothing pipeline to RSI:
+//  Stage 1: Compute RSI using Wilder's RMA (alpha=1/rsiPeriod) with §2 warmup.
+//  Stage 2: Smooth RSI with EMA(smoothFactor) → rsiMA. Also §2 warmup.
+//  Stage 3: Compute |rsiMA − rsiMA[1]|, smooth with double EMA(2*SF-1)
+//           → "dar" (dynamic average range). Both EMAs use §2 warmup.
+//  Stage 4: Build trailing level: upper/lower bands at rsiMA ± qqeFactor*dar.
+//           Trailing level follows price directionally (like Parabolic SAR logic):
+//             if rsiMA > prevTrail and rsiMA[1] > prevTrail → trail = max(trail, lower)
+//             if rsiMA < prevTrail and rsiMA[1] < prevTrail → trail = min(trail, upper)
+//             else → trail flips to upper or lower based on rsiMA side.
+//  The QQE line is rsiMA; the trailing level acts as signal for crossover triggers.
+//  Crosses of QQE above/below trailing level indicate momentum shifts.
+//  Zero-crossing of (QQE - 50) can also be used for trend direction.
+qqe(series float source, simple int rsiPeriod, simple int smoothFactor, simple float qqeFactor) =>
+    if rsiPeriod <= 0
+        runtime.error("RSI period must be greater than 0")
+    if smoothFactor <= 0
+        runtime.error("Smooth factor must be greater than 0")
+    if qqeFactor <= 0.0
+        runtime.error("QQE factor must be greater than 0")
+
+    float EPSILON = 1e-10
+
+    // --- Stage 1: Wilder RSI via RMA (alpha = 1/rsiPeriod) with §2 warmup ---
+    var float prevSrc   = na
+    var float rmaGain   = 0.0
+    var float rmaLoss   = 0.0
+    var float eRma      = 1.0
+    float rmaAlpha      = 1.0 / float(rsiPeriod)
+    float rmaBeta       = 1.0 - rmaAlpha
+
+    float chg = not na(prevSrc) ? nz(source) - prevSrc : 0.0
+    prevSrc := nz(source)
+    float gain = chg > 0 ? chg : 0.0
+    float loss = chg < 0 ? -chg : 0.0
+
+    rmaGain := rmaGain * rmaBeta + gain * rmaAlpha
+    rmaLoss := rmaLoss * rmaBeta + loss * rmaAlpha
+    eRma *= rmaBeta
+    float cRma = eRma > EPSILON ? 1.0 / (1.0 - eRma) : 1.0
+    float avgGain = rmaGain * cRma
+    float avgLoss = rmaLoss * cRma
+    float rs = avgLoss == 0.0 ? 100.0 : avgGain / avgLoss
+    float rsiVal = 100.0 - 100.0 / (1.0 + rs)
+
+    // --- Stage 2: EMA smooth of RSI (alpha = 2/(SF+1)) with §2 warmup ---
+    var float rawRsiMa = 0.0
+    var float eRsiMa   = 1.0
+    float sfAlpha       = 2.0 / (float(smoothFactor) + 1.0)
+    float sfBeta        = 1.0 - sfAlpha
+
+    rawRsiMa := rawRsiMa * sfBeta + rsiVal * sfAlpha
+    eRsiMa *= sfBeta
+    float cRsiMa = eRsiMa > EPSILON ? 1.0 / (1.0 - eRsiMa) : 1.0
+    float rsiMa = rawRsiMa * cRsiMa
+
+    // --- Stage 3: Double EMA of |delta(rsiMA)| → dar ---
+    //  Both EMAs use period = 2*SF - 1 → alpha = 2 / (2*SF)
+    var float prevRsiMa = na
+    float darPeriod     = float(2 * smoothFactor - 1)
+    float darAlpha      = 2.0 / (darPeriod + 1.0)
+    float darBeta       = 1.0 - darAlpha
+
+    float absDelta = not na(prevRsiMa) ? math.abs(rsiMa - prevRsiMa) : 0.0
+    prevRsiMa := rsiMa
+
+    var float rawDar1 = 0.0
+    var float eDar1   = 1.0
+    rawDar1 := rawDar1 * darBeta + absDelta * darAlpha
+    eDar1 *= darBeta
+    float cDar1 = eDar1 > EPSILON ? 1.0 / (1.0 - eDar1) : 1.0
+    float dar1 = rawDar1 * cDar1
+
+    var float rawDar2 = 0.0
+    var float eDar2   = 1.0
+    rawDar2 := rawDar2 * darBeta + dar1 * darAlpha
+    eDar2 *= darBeta
+    float cDar2 = eDar2 > EPSILON ? 1.0 / (1.0 - eDar2) : 1.0
+    float dar = rawDar2 * cDar2
+
+    // --- Stage 4: Trailing level (directional flip logic) ---
+    float band = qqeFactor * dar
+    float upperBand = rsiMa + band
+    float lowerBand = rsiMa - band
+
+    var float trail = 0.0
+    var float prevRsiMa2 = 50.0
+
+    float newTrail = trail
+    if rsiMa > trail and prevRsiMa2 > trail
+        newTrail := math.max(trail, lowerBand)
+    else if rsiMa < trail and prevRsiMa2 < trail
+        newTrail := math.min(trail, upperBand)
+    else
+        newTrail := rsiMa > trail ? lowerBand : upperBand
+
+    prevRsiMa2 := rsiMa
+    trail := newTrail
+
+    [rsiMa, trail]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source       = input.source(close, "Source")
+i_rsiPeriod    = input.int(14, "RSI Period", minval=1)
+i_smoothFactor = input.int(5, "Smooth Factor", minval=1)
+i_qqeFactor    = input.float(4.236, "QQE Factor", minval=0.001, step=0.001)
+
+// Calculation
+[qqeLine, trailLine] = qqe(i_source, i_rsiPeriod, i_smoothFactor, i_qqeFactor)
+
+// Plot
+plot(qqeLine, "QQE", color=color.yellow, linewidth=2)
+plot(trailLine, "Trailing", color=color.aqua, linewidth=1)
+hline(50, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(70, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(30, "Oversold", color=color.green, linestyle=hline.style_dashed)

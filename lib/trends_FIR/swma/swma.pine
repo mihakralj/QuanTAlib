@@ -1,0 +1,36 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("SWMA: Symmetric Weighted Moving Average", shorttitle="SWMA", overlay=true)
+
+// @function Calculates the Symmetric Weighted Moving Average.
+//   Uses triangular/symmetric weights that peak at the center of the window.
+//   For period N, weight at position i (0-based from newest) is:
+//     w(i) = (N/2 + 1) - |i - N/2|  (triangular shape)
+//   This is equivalent to convolving two rectangular windows (SMA of SMA)
+//   and produces a smooth, low-lag FIR filter with zero phase distortion
+//   at the center of the window.
+//   For period=4 (Pine's built-in ta.swma): weights are [1, 2, 2, 1] / 6.
+// @param src Series to smooth.
+// @param period Window length. Must be >= 2.
+// @returns The symmetric weighted moving average value.
+export swma(series float src, simple int period) =>
+    float sumWV = 0.0
+    float sumW  = 0.0
+    float half  = (period - 1) / 2.0
+    for i = 0 to period - 1
+        float w = half + 1.0 - math.abs(i - half)
+        sumWV += src[i] * w
+        sumW  += w
+    sumWV / sumW
+
+// ── Inputs ──────────────────────────────────────────────
+p = input.int(4, "Period", minval=2)
+
+// ── Calculation ─────────────────────────────────────────
+result = swma(close, p)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "SWMA", color=color.yellow, linewidth=2)

@@ -180,12 +180,11 @@ public class TtmLrcIndicatorTests
         var ind = new TtmLrcIndicator { Period = 10 };
         ind.Initialize();
 
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + rng.NextDouble() * 20;
-            ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price);
+            var bar = bars[i];
+            ind.HistoricalData.AddBar(bar.AsDateTime, bar.Open, bar.High, bar.Low, bar.Close);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 
@@ -285,11 +284,11 @@ public class TtmLrcIndicatorTests
         ind.Initialize();
 
         var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(20, now.Ticks, TimeSpan.FromMinutes(1));
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + rng.NextDouble() * 30;
-            ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price);
+            var bar = bars[i];
+            ind.HistoricalData.AddBar(bar.AsDateTime, bar.Open, bar.High, bar.Low, bar.Close);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 

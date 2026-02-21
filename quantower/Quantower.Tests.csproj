@@ -62,6 +62,8 @@
     <Compile Include="..\lib\numerics\**\*.cs" Exclude="..\lib\numerics\**\*.Tests.cs;..\lib\numerics\**\*.Validation.Tests.cs;..\lib\numerics\**\*.Quantower.cs;..\lib\numerics\**\obj\**;..\lib\numerics\**\bin\**" />
     <!-- Include reversals implementations (excluding Quantower adapters - handled separately) -->
     <Compile Include="..\lib\reversals\**\*.cs" Exclude="..\lib\reversals\**\*.Tests.cs;..\lib\reversals\**\*.Validation.Tests.cs;..\lib\reversals\**\*.Quantower.cs;..\lib\reversals\**\obj\**;..\lib\reversals\**\bin\**" />
+    <!-- Include feeds implementations for GBM test data generation -->
+    <Compile Include="..\lib\feeds\**\*.cs" Exclude="..\lib\feeds\**\*.Tests.cs;..\lib\feeds\**\*.Validation.Tests.cs;..\lib\feeds\**\ValidationTestData.cs;..\lib\feeds\**\ValidationHelper.cs;..\lib\feeds\**\obj\**;..\lib\feeds\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
     <!-- Include Quantower adapter implementations from quantower folder -->

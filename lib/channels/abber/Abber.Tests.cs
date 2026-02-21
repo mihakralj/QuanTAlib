@@ -144,28 +144,27 @@ public class AbberTests
         var abber = new Abber(3, 2.0);
 
         // Bar 1: source = 100
-        // SMA = 100, Deviation = 0, AvgDev = 0
+        // SMA = 100, Deviation = |100-100| = 0, AvgDev = 0
         abber.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100.0, abber.Last.Value, 1e-10);
 
         // Bar 2: source = 110
         // SMA(2) = (100+110)/2 = 105
-        // Dev1 = |100 - 100| = 0 (calculated when 100 was added, SMA was 100)
-        // Dev2 = |110 - 100| = 10 (calculated when 110 is added, SMA was 100)
-        // AvgDev = (0+10)/2 = 5
-        // Upper = 105 + 2*5 = 115, Lower = 105 - 2*5 = 95
+        // Dev1 = 0, Dev2 = |110 - 105| = 5 (same-bar SMA)
+        // AvgDev = (0+5)/2 = 2.5
+        // Upper = 105 + 2*2.5 = 110, Lower = 105 - 2*2.5 = 100
         abber.Update(new TValue(DateTime.UtcNow, 110));
         Assert.Equal(105.0, abber.Last.Value, 1e-10);
 
         // Bar 3: source = 120
         // SMA(3) = (100+110+120)/3 = 110
-        // Dev3 = |120 - 105| = 15 (calculated when 120 is added, SMA was 105)
-        // AvgDev = (0+10+15)/3 = 8.333...
-        // Upper = 110 + 2*8.333 = 126.666..., Lower = 110 - 2*8.333 = 93.333...
+        // Dev3 = |120 - 110| = 10 (same-bar SMA)
+        // AvgDev = (0+5+10)/3 = 5.0
+        // Upper = 110 + 2*5 = 120, Lower = 110 - 2*5 = 100
         abber.Update(new TValue(DateTime.UtcNow, 120));
         Assert.Equal(110.0, abber.Last.Value, 1e-10);
-        Assert.Equal(110.0 + 2.0 * 25.0 / 3.0, abber.Upper.Value, 1e-10);
-        Assert.Equal(110.0 - 2.0 * 25.0 / 3.0, abber.Lower.Value, 1e-10);
+        Assert.Equal(120.0, abber.Upper.Value, 1e-10);
+        Assert.Equal(100.0, abber.Lower.Value, 1e-10);
     }
 
     [Fact]

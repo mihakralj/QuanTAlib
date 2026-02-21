@@ -272,16 +272,14 @@ public class NotchIndicatorTests
         var indicator = new NotchIndicator { Period = 14, Q = 1.0 };
         indicator.Initialize();
 
-        var now = DateTime.UtcNow;
-        var random = new Random(42); // Fixed seed for reproducibility
+        var bars = new GBM(seed: 42).Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Generate 100 bars
         for (int i = 0; i < 100; i++)
         {
-            double close = 100 + random.NextDouble() * 20;
-            indicator.HistoricalData.AddBar(now, close - 1, close + 2, close - 3, close);
+            var bar = bars[i];
+            indicator.HistoricalData.AddBar(bar.AsDateTime, bar.Open, bar.High, bar.Low, bar.Close);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-            now = now.AddMinutes(1);
         }
 
         // All values should be finite after long sequence

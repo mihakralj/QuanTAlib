@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="feeds\csv\daily_IBM.csv">
+    <None Include="feeds\csvfeed\daily_IBM.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>daily_IBM.csv</Link>
     </None>

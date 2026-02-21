@@ -1,0 +1,86 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+// Indicator algorithm (C) 2013 John F. Ehlers
+// "Cycle Analytics for Traders", Wiley, 2013
+indicator("Ehlers MESA Stochastic (MSTOCH)", "MSTOCH", overlay=false)
+
+//@function Calculates Ehlers MESA Stochastic
+//@param src Series to calculate MESA Stochastic from
+//@param stochLength Lookback period for the stochastic highest/lowest calculation
+//@param hpLength Cutoff period for the Roofing Filter highpass stage (default 48)
+//@param ssLength Cutoff period for the Roofing Filter super smoother stage (default 10)
+//@returns MESA Stochastic value (0 to 1 range, smoothed)
+//@description Applies Ehlers Roofing Filter (HP + Super Smoother) to remove spectral
+//  dilation, then computes stochastic on the filtered data, then smoothes the
+//  stochastic with another Super Smoother for a clean oscillator output.
+//  Reference: John F. Ehlers, "Cycle Analytics for Traders" (2013), Chapter 6
+mstoch(series float src, simple int stochLength, simple int hpLength, simple int ssLength) =>
+    float SQRT2_PI = math.sqrt(2.0) * math.pi
+
+    // === Stage 1: Roofing Filter (HP + Super Smoother) ===
+
+    // --- Highpass Filter (2-pole Butterworth, removes trend below hpLength) ---
+    int safe_hp = math.max(hpLength, 1)
+    float hp_arg = SQRT2_PI / float(safe_hp)
+    float hp_exp_arg = math.exp(-hp_arg)
+    float hp_c2 = 2.0 * hp_exp_arg * math.cos(hp_arg)
+    float hp_c3 = -hp_exp_arg * hp_exp_arg
+    float hp_c1 = (1.0 + hp_c2 - hp_c3) / 4.0
+
+    var float hp = 0.0
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float hp1 = nz(hp[1], 0.0)
+    float hp2 = nz(hp[2], 0.0)
+    hp := hp_c1 * (ssrc - 2.0 * src1 + src2) + hp_c2 * hp1 + hp_c3 * hp2
+
+    // --- Super Smoother (removes noise above ssLength) ---
+    int safe_ss = math.max(ssLength, 1)
+    float ss_arg = SQRT2_PI / float(safe_ss)
+    float ss_exp_arg = math.exp(-ss_arg)
+    float ss_c2 = 2.0 * ss_exp_arg * math.cos(ss_arg)
+    float ss_c3 = -ss_exp_arg * ss_exp_arg
+    float ss_c1 = 1.0 - ss_c2 - ss_c3
+
+    var float filt = 0.0
+    filt := ss_c1 * (hp + nz(hp[1], hp)) / 2.0 + ss_c2 * nz(filt[1], hp) + ss_c3 * nz(filt[2], nz(hp[1], hp))
+
+    // === Stage 2: Stochastic on roofing-filtered data ===
+    float highestC = filt
+    float lowestC = filt
+    for count = 1 to stochLength - 1
+        float val = nz(filt[count], filt)
+        if val > highestC
+            highestC := val
+        if val < lowestC
+            lowestC := val
+
+    float range_val = highestC - lowestC
+    float stoc = range_val > 0.0 ? (filt - lowestC) / range_val : 0.5
+
+    // === Stage 3: Smooth stochastic with Super Smoother ===
+    var float mstoc = 0.0
+    mstoc := ss_c1 * (stoc + nz(stoc[1], stoc)) / 2.0 + ss_c2 * nz(mstoc[1], stoc) + ss_c3 * nz(mstoc[2], nz(stoc[1], stoc))
+
+    // Clamp to valid range
+    float result = math.max(0.0, math.min(1.0, mstoc))
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_stochLength = input.int(20, "Stochastic Length", minval=2)
+i_hpLength    = input.int(48, "HP Length", minval=1, tooltip="Highpass cutoff period — removes cycles longer than this")
+i_ssLength    = input.int(10, "SS Length", minval=1, tooltip="Super Smoother cutoff period — removes cycles shorter than this")
+i_source      = input.source(close, "Source")
+
+// Calculation
+result = mstoch(i_source, i_stochLength, i_hpLength, i_ssLength)
+
+// Plot
+plot(result, "MSTOCH", color=color.yellow, linewidth=2)
+hline(0.8, "Overbought", color=color.gray, linestyle=hline.style_dotted)
+hline(0.2, "Oversold", color=color.gray, linestyle=hline.style_dotted)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)

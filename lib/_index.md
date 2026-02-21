@@ -4,22 +4,22 @@
 
 | Category | Count | Description |
 | :--- | :---: | :--- |
-| [Trends (FIR)](trends_FIR/_index.md) | 17 | Finite Impulse Response moving averages |
-| [Trends (IIR)](trends_IIR/_index.md) | 24 | Infinite Impulse Response moving averages |
-| [Filters](filters/_index.md) | 31 | Signal processing filters |
-| [Oscillators](oscillators/_index.md) | 20 | Indicators that fluctuate around a center line |
+| [Trends (FIR)](trends_FIR/_index.md) | 29 | Finite Impulse Response moving averages |
+| [Trends (IIR)](trends_IIR/_index.md) | 42 | Infinite Impulse Response moving averages |
+| [Filters](filters/_index.md) | 39 | Signal processing filters |
+| [Oscillators](oscillators/_index.md) | 37 | Indicators that fluctuate around a center line |
 | [Dynamics](dynamics/_index.md) | 18 | Trend strength and direction indicators |
-| [Momentum](momentum/_index.md) | 16 | Momentum-based indicators |
+| [Momentum](momentum/_index.md) | 17 | Momentum-based indicators |
 | [Volatility](volatility/_index.md) | 26 | Volatility estimators and indicators |
-| [Volume](volume/_index.md) | 26 | Volume-based indicators |
-| [Statistics](statistics/_index.md) | 30 | Statistical measures and tests |
+| [Volume](volume/_index.md) | 27 | Volume-based indicators |
+| [Statistics](statistics/_index.md) | 34 | Statistical measures and tests |
 | [Channels](channels/_index.md) | 23 | Price channels and bands |
-| [Cycles](cycles/_index.md) | 14 | Cycle analysis and signal processing |
+| [Cycles](cycles/_index.md) | 16 | Cycle analysis and signal processing |
 | [Reversals](reversals/_index.md) | 12 | Pattern recognition and reversal detection |
-| [Forecasts](forecasts/_index.md) | 1 | Predictive indicators |
+| [Forecasts](forecasts/_index.md) | 2 | Predictive indicators |
 | [Errors](errors/_index.md) | 26 | Error metrics and loss functions |
-| [Numerics](numerics/_index.md) | 15 | Mathematical transformations |
-| **Total** | **299** | |
+| [Numerics](numerics/_index.md) | 29 | Mathematical transformations |
+| **Total** | **377** | |
 
 ## All Indicators
 
@@ -34,9 +34,11 @@
 | [ADOSC](volume/adosc/Adosc.md) | Chaikin A/D Oscillator | Volume |
 | [ADR](volatility/adr/Adr.md) | Average Daily Range | Volatility |
 | [ADX](dynamics/adx/Adx.md) | Average Directional Index | Dynamics |
+| ADXVMA | ADX Variable MA | Trends (IIR) |
 | [ADXR](dynamics/adxr/Adxr.md) | Average Directional Movement Rating | Dynamics |
 | [AFIRMA](forecasts/afirma/Afirma.md) | Adaptive FIR Moving Average | Forecasts |
 | [AGC](filters/agc/Agc.md) | Ehlers Automatic Gain Control | Filters |
+| AHRENS | Ahrens MA | Trends (IIR) |
 | [ALAGUERRE](filters/alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Filters |
 | [ALLIGATOR](dynamics/alligator/Alligator.md) | Williams Alligator | Dynamics |
 | [ALMA](trends_FIR/alma/Alma.md) | Arnaud Legoux MA | Trends (FIR) |
@@ -71,10 +73,13 @@
 | [BOP](momentum/bop/Bop.md) | Balance of Power | Momentum |
 | [BPF](filters/bpf/Bpf.md) | BandPass Filter | Filters |
 | BRAR | BRAR | Oscillators |
-| [BUTTER](filters/butter/Butter.md) | Ehlers Butterworth Filter | Filters |
+| [BUTTER2](filters/butter2/Butter2.md) | Ehlers 2-Pole Butterworth Filter | Filters |
+| [BUTTER3](filters/butter3/Butter3.md) | Ehlers 3-Pole Butterworth Filter | Filters |
 | [BWMA](trends_FIR/bwma/Bwma.md) | Bessel-Weighted MA | Trends (FIR) |
+| CCOR | Ehlers Correlation Cycle | Cycles |
 | [CCI](momentum/cci/Cci.md) | Commodity Channel Index | Momentum |
 | [CCV](volatility/ccv/Ccv.md) | Close-to-Close Volatility | Volatility |
+| CCYC | Ehlers Cyber Cycle | Cycles |
 | [CFB](momentum/cfb/Cfb.md) | Composite Fractal Behavior | Momentum |
 | [CFO](oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Oscillators |
 | [CG](cycles/cg/Cg.md) | Ehlers Center of Gravity | Cycles |
@@ -89,9 +94,11 @@
 | [CMO](momentum/cmo/Cmo.md) | Chande Momentum Oscillator | Momentum |
 | [COINTEGRATION](statistics/cointegration/Cointegration.md) | Cointegration | Statistics |
 | [CONV](trends_FIR/conv/Conv.md) | Convolution MA | Trends (FIR) |
+| [CORAL](trends_IIR/coral/Coral.md) | Coral Trend Filter | Trends (IIR) |
 | COPPOCK | Coppock Curve | Oscillators |
 | [CORRELATION](statistics/correlation/Correlation.md) | Correlation | Statistics |
 | [COVARIANCE](statistics/covariance/Covariance.md) | Covariance | Statistics |
+| CRMA | Cubic Regression MA | Trends (FIR) |
 | CRSI | Connors RSI | Oscillators |
 | CTI | Correlation Trend Indicator | Oscillators |
 | [CV](volatility/cv/Cv.md) | Coefficient of Variation | Volatility |
@@ -118,6 +125,7 @@
 | [EMA](trends_IIR/ema/Ema.md) | Exponential MA | Trends (IIR) |
 | [ENTROPY](statistics/entropy/Entropy.md) | Shannon Entropy | Statistics |
 | [EOM](volume/eom/Eom.md) | Ease of Movement | Volume |
+| [EVWMA](volume/evwma/Evwma.md) | Elastic Volume Weighted MA | Volume |
 | ER | Efficiency Ratio | Oscillators |
 | ERI | Elder Ray Index | Oscillators |
 | [EWMA](volatility/ewma/Ewma.md) | EWMA Volatility | Volatility |
@@ -129,6 +137,7 @@
 | FOSC | Forecast Oscillator | Oscillators |
 | [FRACTALS](reversals/fractals/Fractals.md) | Williams Fractals | Reversals |
 | [FCB](channels/fcb/fcb.md) | Fractal Chaos Bands | Channels |
+| GDEMA | Generalized DEMA | Trends (IIR) |
 | [FRAMA](trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Trends (IIR) |
 | GAMMADIST | Gamma Distribution | Numerics |
 | [GAUSS](filters/gauss/Gauss.md) | Gaussian Filter | Filters |
@@ -137,12 +146,15 @@
 | [GRANGER](statistics/granger/Granger.md) | Granger Causality | Statistics |
 | [GWMA](trends_FIR/gwma/Gwma.md) | Gaussian Weighted MA | Trends (FIR) |
 | [HAMMA](trends_FIR/hamma/Hamma.md) | Hamming MA | Trends (FIR) |
+| HEND | Henderson Moving Average | Trends (FIR) |
 | [HANN](filters/hann/Hann.md) | Hann Filter | Filters |
 | [HANMA](trends_FIR/hanma/Hanma.md) | Hanning MA | Trends (FIR) |
 | [HARMEAN](statistics/harmean/Harmean.md) | Harmonic Mean | Statistics |
 | [HEMA](trends_IIR/hema/Hema.md) | Hull Exponential MA | Trends (IIR) |
 | [HIGHEST](numerics/highest/Highest.md) | Rolling Maximum | Numerics |
 | [HLV](volatility/hlv/Hlv.md) | High-Low Volatility | Volatility |
+| [HOLT](trends_IIR/holt/Holt.md) | Holt Exponential Smoothing | Trends (IIR) |
+| HW | Holt-Winters Triple Smoothing | Trends (IIR) |
 | [HMA](trends_FIR/hma/Hma.md) | Hull MA | Trends (FIR) |
 | [HOMOD](cycles/homod/Homod.md) | Ehlers Homodyne Discriminator | Cycles |
 | [HP](filters/hp/Hp.md) | Hodrick-Prescott | Filters |
@@ -159,6 +171,7 @@
 | [HWMA](trends_FIR/hwma/Hwma.md) | Holt-Winters MA | Trends (FIR) |
 | [ICHIMOKU](dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Dynamics |
 | IFFT | Inverse Fast Fourier Transform | Numerics |
+| ILRS | Integral of LinReg Slope | Trends (FIR) |
 | [III](volume/iii/Iii.md) | Intraday Intensity Index | Volume |
 | [IMI](dynamics/imi/Imi.md) | Intraday Momentum Index | Dynamics |
 | [IMPULSE](dynamics/impulse/Impulse.md) | Elder Impulse System | Dynamics |
@@ -169,6 +182,7 @@
 | [JERK](numerics/jerk/Jerk.md) | Jerk | Numerics |
 | [JMA](trends_IIR/jma/Jma.md) | Jurik MA | Trends (IIR) |
 | [JVOLTY](volatility/jvolty/Jvolty.md) | Jurik Volatility | Volatility |
+| KAISER | Kaiser Window MA | Trends (FIR) |
 | [JVOLTYN](volatility/jvoltyn/Jvoltyn.md) | Jurik Volatility Normalized | Volatility |
 | [KALMAN](filters/kalman/Kalman.md) | Kalman Filter | Filters |
 | [LAGUERRE](filters/laguerre/Laguerre.md) | Ehlers Laguerre Filter | Filters |
@@ -179,9 +193,11 @@
 | [KDJ](oscillators/kdj/Kdj.md) | KDJ Indicator | Oscillators |
 | [KENDALL](statistics/kendall/Kendall.md) | Kendall Rank Correlation | Statistics |
 | KRI | Kairi Relative Index | Oscillators |
+| LANCZOS | Lanczos (sinc) Window MA | Trends (FIR) |
 | KST | KST Oscillator | Oscillators |
 | [KURTOSIS](statistics/kurtosis/Kurtosis.md) | Kurtosis | Statistics |
 | [KVO](volume/kvo/Kvo.md) | Klinger Volume Oscillator | Volume |
+| LEMA | Leader EMA | Trends (IIR) |
 | [LINEARTRANS](numerics/lineartrans/Lineartrans.md) | Linear Transform | Numerics |
 | [LINREG](statistics/linreg/LinReg.md) | Linear Regression | Statistics |
 | [LOESS](filters/loess/Loess.md) | LOESS Smoothing | Filters |
@@ -195,8 +211,10 @@
 | [MAAPE](errors/maape/Maape.md) | Mean Arctangent APE | Errors |
 | [MACD](momentum/macd/Macd.md) | Moving Average Convergence Divergence | Momentum |
 | [MAE](errors/mae/Mae.md) | Mean Absolute Error | Errors |
+| MCNMA | McNicholl EMA | Trends (IIR) |
 | [MAENV](channels/maenv/maenv.md) | Moving Average Envelope | Channels |
 | [MAMA](trends_IIR/mama/Mama.md) | Ehlers MESA Adaptive MA | Trends (IIR) |
+| [MAVP](trends_IIR/mavp/Mavp.md) | Moving Average Variable Period | Trends (IIR) |
 | [MAPD](errors/mapd/Mapd.md) | Mean Absolute % Deviation | Errors |
 | [MAPE](errors/mape/Mape.md) | Mean Absolute % Error | Errors |
 | [MASE](errors/mase/Mase.md) | Mean Absolute Scaled Error | Errors |
@@ -205,11 +223,13 @@
 | [MDAPE](errors/mdape/Mdape.md) | Median Absolute % Error | Errors |
 | [ME](errors/me/Me.md) | Mean Error | Errors |
 | [MEDIAN](statistics/median/Median.md) | Median | Statistics |
+| MEDF | Moving Median Filter | Filters |
 | [MFI](volume/mfi/Mfi.md) | Money Flow Index | Volume |
 | [MGDI](trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic Indicator | Trends (IIR) |
 | [MIDPOINT](numerics/midpoint/Midpoint.md) | Midrange | Numerics |
 | MLP | Multilayer Perceptron | Forecasts |
 | [MMA](trends_IIR/mma/Mma.md) | Modified MA | Trends (IIR) |
+| MODF | Modular Filter | Filters |
 | [MMCHANNEL](channels/mmchannel/Mmchannel.md) | Min-Max Channel | Channels |
 | [MODE](statistics/mode/Mode.md) | Mode | Statistics |
 | [MOM](momentum/mom/Mom.md) | Momentum | Momentum |
@@ -217,24 +237,30 @@
 | [MRAE](errors/mrae/Mrae.md) | Mean Relative Absolute Error | Errors |
 | [MSE](errors/mse/Mse.md) | Mean Squared Error | Errors |
 | [MSLE](errors/msle/Msle.md) | Mean Squared Log Error | Errors |
+| MSTOCH | Ehlers MESA Stochastic | Oscillators |
 | [NATR](volatility/natr/Natr.md) | Normalized ATR | Volatility |
 | NORMDIST | Normal Distribution | Numerics |
 | [NORMALIZE](numerics/normalize/Normalize.md) | Min-Max Normalization | Numerics |
+| NLMA | Non-Lag Moving Average | Trends (IIR) |
+| NMA | Natural Moving Average | Trends (IIR) |
 | [NOTCH](filters/notch/Notch.md) | Notch Filter | Filters |
+| NW | Nadaraya-Watson Kernel Regression | Filters |
 | [ONEEURO](filters/oneeuro/OneEuro.md) | One Euro Filter | Filters |
 | [NVI](volume/nvi/Nvi.md) | Negative Volume Index | Volume |
+| NYQMA | Nyquist MA | Trends (IIR) |
 | [OBV](volume/obv/Obv.md) | On Balance Volume | Volume |
 | [PACF](statistics/pacf/Pacf.md) | Partial Autocorrelation Function | Statistics |
+| PARZEN | Parzen Window MA | Trends (FIR) |
 | [PCHANNEL](channels/pchannel/Pchannel.md) | Price Channel | Channels |
 | [PERCENTILE](statistics/percentile/Percentile.md) | Percentile | Statistics |
 | [PGO](oscillators/pgo/Pgo.md) | Pretty Good Oscillator | Oscillators |
-| PHASOR | Phasor Analysis | Cycles |
 | [PIVOT](reversals/pivot/Pivot.md) | Pivot Points (Classic) | Reversals |
 | [PIVOTCAM](reversals/pivotcam/Pivotcam.md) | Camarilla Pivot Points | Reversals |
 | [PIVOTDEM](reversals/pivotdem/Pivotdem.md) | DeMark Pivot Points | Reversals |
 | [PIVOTEXT](reversals/pivotext/Pivotext.md) | Extended Traditional Pivots | Reversals |
 | [PIVOTFIB](reversals/pivotfib/Pivotfib.md) | Fibonacci Pivot Points | Reversals |
 | [PIVOTWOOD](reversals/pivotwood/Pivotwood.md) | Woodie's Pivot Points | Reversals |
+| [PMA](trends_IIR/pma/Pma.md) | Predictive Moving Average | Trends (IIR) |
 | [PMO](momentum/pmo/Pmo.md) | Price Momentum Oscillator | Momentum |
 | POISSONDIST | Poisson Distribution | Numerics |
 | POLYFIT | Polynomial Fitting | Statistics |
@@ -251,14 +277,19 @@
 | [PWMA](trends_FIR/pwma/Pwma.md) | Pascal Weighted MA | Trends (FIR) |
 | [QEMA](trends_IIR/qema/Qema.md) | Quad Exponential MA | Trends (IIR) |
 | QQE | Quantitative Qualitative Estimation | Oscillators |
+| QRMA | Quadratic Regression MA | Trends (FIR) |
 | [QSTICK](dynamics/qstick/Qstick.md) | Qstick | Dynamics |
 | [QUANTILE](statistics/quantile/Quantile.md) | Quantile | Statistics |
-| [QUANTILELOSS](errors/quantile/Quantile.md) | Quantile Loss | Errors |
+| [QUANTILELOSS](errors/quantileloss/QuantileLoss.md) | Quantile Loss | Errors |
 | [RAE](errors/rae/Rae.md) | Relative Absolute Error | Errors |
+| RAIN | Rainbow MA | Trends (IIR) |
 | [REGCHANNEL](channels/regchannel/Regchannel.md) | Regression Channels | Channels |
+| REFLEX | Ehlers Reflex Indicator | Filters |
 | [RELU](numerics/relu/Relu.md) | Rectified Linear Unit | Numerics |
 | [REMA](trends_IIR/rema/Rema.md) | Regularized Exponential MA | Trends (IIR) |
+| [REVERSEEMA](trends_IIR/reverseema/ReverseEma.md) | Reverse EMA | Trends (IIR) |
 | [RGMA](trends_IIR/rgma/Rgma.md) | Recursive Gaussian MA | Trends (IIR) |
+| RMED | Ehlers Recursive Median Filter | Filters |
 | [RMA](trends_IIR/rma/Rma.md) | wildeR MA | Trends (IIR) |
 | [RMSE](errors/rmse/Rmse.md) | Root Mean Squared Error | Errors |
 | [RMSLE](errors/rmsle/Rmsle.md) | Root Mean Squared Log Error | Errors |
@@ -274,7 +305,10 @@
 | [RV](volatility/rv/Rv.md) | Realized Volatility | Volatility |
 | [RVI](volatility/rvi/Rvi.md) | Relative Volatility Index | Volatility |
 | RVGI | Relative Vigor Index | Oscillators |
+| RWMA | Range Weighted MA | Trends (FIR) |
 | [SDCHANNEL](channels/sdchannel/Sdchannel.md) | Standard Deviation Channel | Channels |
+| SAK | Ehlers Swiss Army Knife | Filters |
+| SAM | Smoothed Adaptive Momentum | Momentum |
 | [SGF](filters/sgf/Sgf.md) | Savitzky-Golay Filter | Filters |
 | [SGMA](trends_FIR/sgma/Sgma.md) | Savitzky-Golay MA | Trends (FIR) |
 | [SIGMOID](numerics/sigmoid/Sigmoid.md) | Logistic Function | Numerics |
@@ -286,11 +320,13 @@
 | [SMAPE](errors/smape/Smape.md) | Symmetric MAPE | Errors |
 | [SMI](oscillators/smi/Smi.md) | Stochastic Momentum Index | Oscillators |
 | [SOLAR](cycles/solar/Solar.md) | Solar Activity Cycle | Cycles |
+| SP15 | Spencer's 15-point MA | Trends (FIR) |
 | [SPBF](filters/spbf/Spbf.md) | Ehlers Super Passband Filter | Filters |
 | [SPEARMAN](statistics/spearman/Spearman.md) | Spearman Rank Correlation | Statistics |
 | SQUEEZE | Squeeze | Oscillators |
 | [SQRTTRANS](numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | Numerics |
-| [SSF](filters/ssf/Ssf.md) | Ehlers Super Smoother | Filters |
+| [SSF2](filters/ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother | Filters |
+| [SSF3](filters/ssf3/Ssf3.md) | Ehlers 3-Pole Super Smoother | Filters |
 | [SSFDSP](cycles/ssfdsp/Ssfdsp.md) | Ehlers SSF Detrended Synthetic Price | Cycles |
 | [STANDARDIZE](numerics/standardize/Standardize.md) | Z-Score Normalization | Numerics |
 | [STARCHANNEL](channels/starchannel/Starchannel.md) | Stoller Average Range Channel | Channels |
@@ -302,6 +338,7 @@
 | [STOCHRSI](oscillators/stochrsi/Stochrsi.md) | Stochastic RSI | Oscillators |
 | [SUM](statistics/sum/Sum.md) | Rolling Sum | Statistics |
 | [SUPER](dynamics/super/Super.md) | SuperTrend | Dynamics |
+| SWMA | Symmetric Weighted MA | Trends (FIR) |
 | [SWINGS](reversals/swings/Swings.md) | Swing High/Low Detection | Reversals |
 | [T3](trends_IIR/t3/T3.md) | Tillson T3 MA | Trends (IIR) |
 | TDIST | Student's t-Distribution | Numerics |
@@ -310,16 +347,20 @@
 | [THEIL](statistics/theil/Theil.md) | Theil Index | Statistics |
 | [THEILU](errors/theilu/Theilu.md) | Theil's U Statistic | Errors |
 | [TR](volatility/tr/Tr.md) | True Range | Volatility |
+| TRAMA | Trend Regularity Adaptive MA | Trends (IIR) |
+| [TRENDFLEX](trends_IIR/trendflex/Trendflex.md) | Ehlers Trendflex | Trends (IIR) |
+| TRIM | Trimmed Mean MA | Statistics |
 | [TRIMA](trends_FIR/trima/Trima.md) | Triangular MA | Trends (FIR) |
+| [TSF](trends_FIR/tsf/Tsf.md) | Time Series Forecast | Trends (FIR) |
 | [TRIX](oscillators/trix/Trix.md) | Triple Exponential Average | Oscillators |
-| TSF | Time Series Forecast | Trends (FIR) |
 | [TSI](momentum/tsi/Tsi.md) | True Strength Index | Momentum |
 | [TTM_LRC](channels/ttm_lrc/TtmLrc.md) | TTM Linear Regression Channel | Channels |
 | [TTM_SCALPER](reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | Reversals |
 | [TTM_SQUEEZE](dynamics/ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | Dynamics |
 | [TTM_TREND](dynamics/ttm_trend/TtmTrend.md) | TTM Trend | Dynamics |
 | [TTM_WAVE](oscillators/ttm_wave/TtmWave.md) | TTM Wave | Oscillators |
-| [TUKEY](errors/tukey/Tukey.md) | Tukey Biweight Loss | Errors |
+| [TUKEY](errors/tukeybiweight/TukeyBiweight.md) | Tukey Biweight Loss | Errors |
+| TUKEY_W | Tukey (Tapered Cosine) Window MA | Trends (FIR) |
 | [TVI](volume/tvi/Tvi.md) | Trade Volume Index | Volume |
 | [TWAP](volume/twap/Twap.md) | Time Weighted Average Price | Volume |
 | [UBANDS](channels/ubands/Ubands.md) | Ehlers Ultimate Bands | Channels |
@@ -350,6 +391,7 @@
 | WEIBULLDIST | Weibull Distribution | Numerics |
 | [WIENER](filters/wiener/Wiener.md) | Wiener Filter | Filters |
 | [WILLR](oscillators/willr/Willr.md) | Williams %R | Oscillators |
+| WINS | Winsorized Mean MA | Statistics |
 | [WMA](trends_FIR/wma/Wma.md) | Weighted MA | Trends (FIR) |
 | [WMAPE](errors/wmape/Wmape.md) | Weighted MAPE | Errors |
 | [WRMSE](errors/wrmse/Wrmse.md) | Weighted RMSE | Errors |

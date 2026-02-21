@@ -453,26 +453,11 @@ public class TrTests
     public void Batch_LargeDataset_NoStackOverflow()
     {
         const int dataLen = 10000;
-        double[] highs = new double[dataLen];
-        double[] lows = new double[dataLen];
-        double[] closes = new double[dataLen];
+        var bars = new GBM(seed: 42).Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] highs = bars.HighValues.ToArray();
+        double[] lows = bars.LowValues.ToArray();
+        double[] closes = bars.CloseValues.ToArray();
         double[] output = new double[dataLen];
-
-        // Fill with realistic data
-        double price = 100.0;
-        var rng = new Random(42);
-        for (int i = 0; i < dataLen; i++)
-        {
-            double volatility = 0.02;
-            double high = price * (1 + rng.NextDouble() * volatility);
-            double low = price * (1 - rng.NextDouble() * volatility);
-            double close = low + rng.NextDouble() * (high - low);
-
-            highs[i] = high;
-            lows[i] = low;
-            closes[i] = close;
-            price = close;
-        }
 
         Tr.Batch(highs, lows, closes, output);
 

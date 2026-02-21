@@ -11,7 +11,7 @@ public class AccBandsIndicatorTests
         var indicator = new AccBandsIndicator();
 
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(2.0, indicator.Factor);
+        Assert.Equal(4.0, indicator.Factor);
         Assert.True(indicator.ShowColdValues);
         Assert.Equal("AccBands - Acceleration Bands", indicator.Name);
         Assert.False(indicator.SeparateWindow);
@@ -123,7 +123,7 @@ public class AccBandsIndicatorTests
     [Fact]
     public void BandRelationship_UpperAboveLowerBelowMiddle()
     {
-        var indicator = new AccBandsIndicator { Period = 5, Factor = 2.0 };
+        var indicator = new AccBandsIndicator { Period = 5, Factor = 4.0 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -147,12 +147,12 @@ public class AccBandsIndicatorTests
     {
         var now = DateTime.UtcNow;
 
-        // Narrow bands with factor 1.0
-        var narrowIndicator = new AccBandsIndicator { Period = 5, Factor = 1.0 };
+        // Narrow bands with factor 2.0
+        var narrowIndicator = new AccBandsIndicator { Period = 5, Factor = 2.0 };
         narrowIndicator.Initialize();
 
-        // Wide bands with factor 3.0
-        var wideIndicator = new AccBandsIndicator { Period = 5, Factor = 3.0 };
+        // Wide bands with factor 6.0
+        var wideIndicator = new AccBandsIndicator { Period = 5, Factor = 6.0 };
         wideIndicator.Initialize();
 
         for (int i = 0; i < 10; i++)
@@ -183,8 +183,8 @@ public class AccBandsIndicatorTests
     [Fact]
     public void Factor_CanBeChanged()
     {
-        var indicator = new AccBandsIndicator { Factor = 2.0 };
-        Assert.Equal(2.0, indicator.Factor);
+        var indicator = new AccBandsIndicator { Factor = 4.0 };
+        Assert.Equal(4.0, indicator.Factor);
 
         indicator.Factor = 3.5;
         Assert.Equal(3.5, indicator.Factor);

@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Leader EMA (LEMA)", "LEMA", overlay=true)
+
+//@function Computes Leader EMA — Siligardos' leading exponential moving average.
+//          Adds a smoothed error correction to the standard EMA, making it respond
+//          faster than EMA while maintaining smoothness.
+//          Formula: Leader = EMA(source, N) + EMA(source - EMA(source, N), N)
+//          The second term smooths the estimation error and adds it back, creating
+//          a "leading" effect that anticipates price movement.
+//@param source Series to smooth
+//@param period Lookback period (determines alpha = 2/(period+1))
+//@returns Leader EMA value from first bar (with warmup compensation)
+//@reference Siligardos, G.E. (2008). "Leader of the MACD." Technical Analysis of
+//           Stocks & Commodities, 26(7), 30-37.
+//@optimized O(1) per bar — two IIR state variables with warmup compensation
+lema(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float price = nz(source)
+    float alpha = 2.0 / (period + 1)
+    float beta = 1.0 - alpha
+
+    // --- EMA1: standard EMA of source ---
+    var float ema1 = 0.0
+    var float e1 = 1.0
+    var bool warmup1 = true
+
+    ema1 := alpha * (price - ema1) + ema1
+    float comp_ema1 = ema1
+    if warmup1
+        e1 *= beta
+        comp_ema1 := ema1 / (1.0 - e1)
+        warmup1 := e1 > 1e-10
+
+    // --- Error: source - EMA(source) ---
+    float error = price - comp_ema1
+
+    // --- EMA2: EMA of the error series ---
+    var float ema2 = 0.0
+    var float e2 = 1.0
+    var bool warmup2 = true
+
+    ema2 := alpha * (error - ema2) + ema2
+    float comp_ema2 = ema2
+    if warmup2
+        e2 *= beta
+        comp_ema2 := ema2 / (1.0 - e2)
+        warmup2 := e2 > 1e-10
+
+    // --- Leader EMA = EMA(source) + EMA(error) ---
+    comp_ema1 + comp_ema2
+
+// ── Inputs ──────────────────────────────────────────────────────────────
+src = input.source(close, "Source")
+per = input.int(14, "Period", minval=1)
+
+// ── Plot ────────────────────────────────────────────────────────────────
+plot(lema(src, per), "LEMA", color.new(color.yellow, 0), 2)

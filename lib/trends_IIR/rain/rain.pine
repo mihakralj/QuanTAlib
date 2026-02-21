@@ -1,0 +1,132 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Rainbow Moving Average (RAIN)", "RAIN", overlay = true)
+
+//@function Rainbow Moving Average — recursively applies SMA 10 times, then computes
+//          a weighted average of all 10 layers. Layers 1–4 receive weights 5,4,3,2
+//          and layers 5–10 each receive weight 1, for a total divisor of 20.
+//          The recursive SMA application creates progressively smoother versions
+//          of price, and the weighting scheme emphasizes the less-smoothed (more
+//          responsive) layers. Developed by Mel Widner, published in Technical
+//          Analysis of Stocks & Commodities (TASC), 1998.
+//@param source Series to smooth
+//@param period Lookback window for each SMA layer (>= 1)
+//@returns Weighted average of 10 recursive SMA layers
+//@reference Widner, M. (1998). "Rainbow Charts." Technical Analysis of Stocks & Commodities.
+//@reference thinkorswim RainbowAverage study documentation.
+//@optimized O(10 × period) per bar; each SMA uses circular buffer with O(1) running sum
+export rain(series float source, simple int period) =>
+    if period < 1
+        runtime.error("Period must be at least 1")
+
+    float price = nz(source)
+
+    // --- 10 circular buffers for 10 SMA layers ---
+    var array<float> buf1  = array.new_float(period, 0.0)
+    var array<float> buf2  = array.new_float(period, 0.0)
+    var array<float> buf3  = array.new_float(period, 0.0)
+    var array<float> buf4  = array.new_float(period, 0.0)
+    var array<float> buf5  = array.new_float(period, 0.0)
+    var array<float> buf6  = array.new_float(period, 0.0)
+    var array<float> buf7  = array.new_float(period, 0.0)
+    var array<float> buf8  = array.new_float(period, 0.0)
+    var array<float> buf9  = array.new_float(period, 0.0)
+    var array<float> buf10 = array.new_float(period, 0.0)
+
+    // --- Running sums for O(1) SMA ---
+    var float sum1  = 0.0
+    var float sum2  = 0.0
+    var float sum3  = 0.0
+    var float sum4  = 0.0
+    var float sum5  = 0.0
+    var float sum6  = 0.0
+    var float sum7  = 0.0
+    var float sum8  = 0.0
+    var float sum9  = 0.0
+    var float sum10 = 0.0
+
+    // --- Shared head pointer (all buffers same size, same cadence) ---
+    var int head = 0
+    int count = math.min(bar_index + 1, period)
+    float n = count
+
+    // --- Layer 1: SMA(price, period) ---
+    sum1 -= array.get(buf1, head)
+    sum1 += price
+    array.set(buf1, head, price)
+    float ma1 = sum1 / n
+
+    // --- Layer 2: SMA(ma1, period) ---
+    sum2 -= array.get(buf2, head)
+    sum2 += ma1
+    array.set(buf2, head, ma1)
+    float ma2 = sum2 / n
+
+    // --- Layer 3: SMA(ma2, period) ---
+    sum3 -= array.get(buf3, head)
+    sum3 += ma2
+    array.set(buf3, head, ma2)
+    float ma3 = sum3 / n
+
+    // --- Layer 4: SMA(ma3, period) ---
+    sum4 -= array.get(buf4, head)
+    sum4 += ma3
+    array.set(buf4, head, ma3)
+    float ma4 = sum4 / n
+
+    // --- Layer 5: SMA(ma4, period) ---
+    sum5 -= array.get(buf5, head)
+    sum5 += ma4
+    array.set(buf5, head, ma4)
+    float ma5 = sum5 / n
+
+    // --- Layer 6: SMA(ma5, period) ---
+    sum6 -= array.get(buf6, head)
+    sum6 += ma5
+    array.set(buf6, head, ma5)
+    float ma6 = sum6 / n
+
+    // --- Layer 7: SMA(ma6, period) ---
+    sum7 -= array.get(buf7, head)
+    sum7 += ma6
+    array.set(buf7, head, ma6)
+    float ma7 = sum7 / n
+
+    // --- Layer 8: SMA(ma7, period) ---
+    sum8 -= array.get(buf8, head)
+    sum8 += ma7
+    array.set(buf8, head, ma7)
+    float ma8 = sum8 / n
+
+    // --- Layer 9: SMA(ma8, period) ---
+    sum9 -= array.get(buf9, head)
+    sum9 += ma8
+    array.set(buf9, head, ma8)
+    float ma9 = sum9 / n
+
+    // --- Layer 10: SMA(ma9, period) ---
+    sum10 -= array.get(buf10, head)
+    sum10 += ma9
+    array.set(buf10, head, ma9)
+    float ma10 = sum10 / n
+
+    // --- Advance shared head ---
+    head := (head + 1) % period
+
+    // --- Weighted average (Widner/thinkorswim weights) ---
+    // Layers 1-4: weights 5,4,3,2; Layers 5-10: weight 1 each
+    // Total weight = 5 + 4 + 3 + 2 + 1 + 1 + 1 + 1 + 1 + 1 = 20
+    (5.0 * ma1 + 4.0 * ma2 + 3.0 * ma3 + 2.0 * ma4 + ma5 + ma6 + ma7 + ma8 + ma9 + ma10) / 20.0
+
+// ── Inputs ──
+int   p_period = input.int(2, "Period", minval = 1)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = rain(p_src, p_period)
+
+// ── Plot ──
+plot(out, "RAIN", color.yellow, 2)

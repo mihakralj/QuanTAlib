@@ -16,7 +16,8 @@ Signal processing filters adapted for financial time series. These are not indic
 | [BESSEL](bessel/Bessel.md) | Bessel Filter | Maximally flat group delay. Best phase response. Minimal overshoot. |
 | [BILATERAL](bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing. Adapts to local gradients. |
 | [BPF](bpf/Bpf.md) | BandPass Filter | 2nd-order IIR. Cascade of HP + LP. Extracts specific frequency band. |
-| [BUTTER](butter/Butter.md) | Ehlers Butterworth Filter | Maximally flat frequency response. Classic IIR filter. |
+| [BUTTER2](butter2/Butter2.md) | Ehlers 2-Pole Butterworth Filter | Maximally flat frequency response. Classic 2-pole IIR filter. |
+| [BUTTER3](butter3/Butter3.md) | Ehlers 3-Pole Butterworth Filter | Steeper rolloff (-60 dB/decade). 3rd-order IIR with binomial feedforward. |
 | [CHEBY1](cheby1/Cheby1.md) | Chebyshev Type I | Steeper roll-off with passband ripple. Sharper cutoff than Butterworth. |
 | [CHEBY2](cheby2/Cheby2.md) | Chebyshev Type II | Equiripple stopband, monotonic passband. Better stopband rejection. |
 | [ELLIPTIC](elliptic/Elliptic.md) | Elliptic Filter | Equiripple both bands. Sharpest transition for given order. |
@@ -34,7 +35,8 @@ Signal processing filters adapted for financial time series. These are not indic
 | [ROOFING](roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers. HP + SS cascade. Bandpass for cycle extraction. |
 | [SGF](sgf/Sgf.md) | Savitzky-Golay | Polynomial smoothing. Preserves higher moments (derivatives). |
 | [SPBF](spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers. Wide-band bandpass via differenced EMAs with RMS envelope. |
-| [SSF](ssf/Ssf.md) | Ehlers Super Smoother Filter | Ehlers. 2-pole Butterworth variant. Standard cycle pre-filter. |
+| [SSF2](ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers. 2-pole Butterworth variant. Standard cycle pre-filter. |
+| [SSF3](ssf3/Ssf3.md) | Ehlers 3-Pole Super Smoother Filter | Ehlers. 3-pole single-sample feedforward. Steeper rolloff than SSF2. |
 | [USF](usf/Usf.md) | Ehlers Ultimate Smoother Filter | Ehlers. 3-pole variant. More smoothing than SSF. |
 | [VOSS](voss/Voss.md) | Ehlers Voss Predictive Filter | Ehlers. BPF + negative group delay predictor. Anticipatory cycle extraction. |
 | [WAVELET](wavelet/Wavelet.md) | Wavelet Denoising Filter | A trous Haar decomposition + MAD soft thresholding. Edge-preserving. |

@@ -1,0 +1,34 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("RWMA: Range Weighted Moving Average", shorttitle="RWMA", overlay=true)
+
+// @function Calculates the Range Weighted Moving Average.
+//   Each bar's contribution is weighted by its range (high - low),
+//   giving more influence to volatile bars and less to narrow-range bars.
+//   RWMA = Σ(close[i] × range[i]) / Σ(range[i]) over the lookback period.
+// @param src Series to smooth (typically close).
+// @param high_src High price series.
+// @param low_src Low price series.
+// @param period Lookback window length. Must be > 0.
+// @returns The range-weighted moving average value.
+export rwma(series float src, series float high_src, series float low_src, simple int period) =>
+    float sumWV = 0.0
+    float sumW  = 0.0
+    for i = 0 to period - 1
+        float rng = high_src[i] - low_src[i]
+        float w   = math.max(rng, 0.0)
+        sumWV += src[i] * w
+        sumW  += w
+    sumW > 0.0 ? sumWV / sumW : src
+
+// ── Inputs ──────────────────────────────────────────────
+p = input.int(14, "Period", minval=1)
+
+// ── Calculation ─────────────────────────────────────────
+result = rwma(close, high, low, p)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "RWMA", color=color.yellow, linewidth=2)

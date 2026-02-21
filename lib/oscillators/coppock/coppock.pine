@@ -1,0 +1,86 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Coppock Curve (COPPOCK)", "COPPOCK", overlay=false)
+
+//@function Calculates the Coppock Curve as WMA of summed long and short ROC
+//@param source Series to calculate from
+//@param longRoc Long ROC lookback period
+//@param shortRoc Short ROC lookback period
+//@param wmaPeriod WMA smoothing period
+//@returns Coppock Curve value
+coppock(series float source, simple int longRoc, simple int shortRoc, simple int wmaPeriod) =>
+    if longRoc <= 0 or shortRoc <= 0 or wmaPeriod <= 0
+        runtime.error("All periods must be greater than 0")
+
+    // ROC buffer — stores historical close values for both ROC lookbacks
+    int maxRoc = math.max(longRoc, shortRoc)
+    var array<float> rocBuf = array.new_float(maxRoc, na)
+    var int rocHead = 0
+    var int rocCount = 0
+
+    // WMA buffer — stores combined ROC for weighted smoothing
+    var array<float> wmaBuf = array.new_float(wmaPeriod, na)
+    var int wmaHead = 0
+    var int wmaCount = 0
+    var float wmaSum = 0.0
+    var float wmaWeightedSum = 0.0
+    var float wmaNorm = 0.0
+
+    float current = nz(source)
+
+    // Compute ROC values from circular buffer
+    // ROC(n) = (close - close[n]) / close[n] * 100
+    int longIdx = (rocHead - longRoc + maxRoc) % maxRoc
+    int shortIdx = (rocHead - shortRoc + maxRoc) % maxRoc
+    float longClose = array.get(rocBuf, longIdx)
+    float shortClose = array.get(rocBuf, shortIdx)
+
+    // Store current close in ROC buffer
+    if na(array.get(rocBuf, rocHead))
+        rocCount := math.min(rocCount + 1, maxRoc)
+    array.set(rocBuf, rocHead, current)
+    rocHead := (rocHead + 1) % maxRoc
+
+    // Calculate individual ROCs (only when enough history)
+    float longRocVal = not na(longClose) and longClose != 0.0 and rocCount >= longRoc
+         ? ((current - longClose) / longClose) * 100.0 : 0.0
+    float shortRocVal = not na(shortClose) and shortClose != 0.0 and rocCount >= shortRoc
+         ? ((current - shortClose) / shortClose) * 100.0 : 0.0
+
+    float combinedRoc = longRocVal + shortRocVal
+
+    // WMA smoothing using dual running sums (O(1) per bar)
+    float wmaOldest = array.get(wmaBuf, wmaHead)
+
+    if not na(wmaOldest)
+        float oldSum = wmaSum
+        wmaSum -= wmaOldest
+        wmaSum += combinedRoc
+        wmaWeightedSum := wmaWeightedSum - oldSum + (wmaPeriod * combinedRoc)
+    else
+        wmaCount += 1
+        wmaSum += combinedRoc
+        wmaWeightedSum := wmaWeightedSum + (wmaCount * combinedRoc)
+        wmaNorm := wmaCount * (wmaCount + 1) * 0.5
+
+    array.set(wmaBuf, wmaHead, combinedRoc)
+    wmaHead := (wmaHead + 1) % wmaPeriod
+
+    float result = wmaNorm != 0.0 ? wmaWeightedSum / wmaNorm : 0.0
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_longRoc = input.int(14, "Long ROC Period", minval=1, maxval=500)
+i_shortRoc = input.int(11, "Short ROC Period", minval=1, maxval=500)
+i_wmaPeriod = input.int(10, "WMA Period", minval=1, maxval=500)
+
+// Calculation
+coppock_value = coppock(i_source, i_longRoc, i_shortRoc, i_wmaPeriod)
+
+// Plot
+plot(coppock_value, "Coppock", color.new(color.yellow, 0), 2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

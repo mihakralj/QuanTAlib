@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ahrens Moving Average (AHRENS)", "AHRENS", overlay=true)
+
+//@function Calculates Ahrens Moving Average using midpoint correction between current and lagged MA values
+//@param source Series to smooth
+//@param period Lookback length for the lag component and smoothing divisor
+//@returns Ahrens MA value — a recursive IIR filter that adjusts toward source minus the midpoint of its current and lagged states
+//@algorithm ahma = ahma[1] + (source - (ahma[1] + ahma[period]) / 2) / period
+//@reference Richard D. Ahrens, "Build A Better Moving Average" (Stocks & Commodities V.31:11, October 2013)
+//@optimized O(1) per bar via circular buffer for lagged MA state; O(period) memory for the ring buffer
+ahrens(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // Circular buffer to store past ahma values for period-bar lookback
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    var float result = na
+
+    if not na(source)
+        float prev = nz(result, source)
+        float lagged = nz(array.get(buffer, head), source)
+
+        // Ahrens formula: ahma = prev + (source - midpoint(prev, lagged)) / period
+        float midpoint = (prev + lagged) * 0.5
+        result := prev + (source - midpoint) / float(period)
+
+        // Store current result in circular buffer and advance head
+        array.set(buffer, head, result)
+        head := (head + 1) % period
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(9, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+ahrens_value = ahrens(i_source, i_period)
+
+// Plot
+plot(ahrens_value, "AHRENS", color=color.yellow, linewidth=2)

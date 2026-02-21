@@ -1,0 +1,85 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("SAM: Smoothed Adaptive Momentum", shorttitle="SAM", overlay=false)
+
+// @function Calculates the Ehlers Smoothed Adaptive Momentum.
+//   Measures the Dominant Cycle period via Homodyne Discriminator,
+//   then computes one-cycle momentum (close - close[DC]) and applies
+//   a 2-pole Super Smoother filter for final output.
+//   Source: John F. Ehlers, "Cybernetic Analysis for Stocks and Futures" (2004),
+//   Chapter 12: "Adapting to the Trend," p.166.
+// @param src Series to analyze.
+// @param alpha Smoothing factor for cycle measurement. Default 0.07.
+// @param cutoff Super Smoother cutoff period. Default 8.
+// @returns The smoothed adaptive momentum oscillator value.
+export sam(series float src, simple float alpha, simple int cutoff) =>
+    // ── 4-bar FIR smoother ──
+    float smooth = (src + 2.0 * nz(src[1]) + 2.0 * nz(src[2]) + nz(src[3])) / 6.0
+
+    // ── Hilbert Transform via Ehlers' detrender/quadrature ──
+    float pi = math.pi
+    float detrend = 0.0
+    detrend := (0.0962 * smooth + 0.5769 * nz(smooth[2]) - 0.5769 * nz(smooth[4]) - 0.0962 * nz(smooth[6])) * (0.075 * nz(detrend[1]) + 0.54)
+
+    // ── In-phase and Quadrature components ──
+    float q1 = 0.0
+    q1 := (0.0962 * detrend + 0.5769 * nz(detrend[2]) - 0.5769 * nz(detrend[4]) - 0.0962 * nz(detrend[6])) * (0.075 * nz(q1[1]) + 0.54)
+    float i1 = nz(detrend[3])
+
+    // ── Advance phase by 90 degrees ──
+    float ji = (0.0962 * i1 + 0.5769 * nz(i1[2]) - 0.5769 * nz(i1[4]) - 0.0962 * nz(i1[6])) * (0.075 * nz(ji[1]) + 0.54)
+    float jq = (0.0962 * q1 + 0.5769 * nz(q1[2]) - 0.5769 * nz(q1[4]) - 0.0962 * nz(q1[6])) * (0.075 * nz(jq[1]) + 0.54)
+
+    // ── Phasor addition for Homodyne Discriminator ──
+    float i2 = 0.0
+    float q2 = 0.0
+    i2 := i1 - jq
+    q2 := q1 + ji
+    i2 := alpha * i2 + (1.0 - alpha) * nz(i2[1])
+    q2 := alpha * q2 + (1.0 - alpha) * nz(q2[1])
+
+    // ── Homodyne Discriminator for period ──
+    float re = 0.0
+    float im = 0.0
+    re := i2 * nz(i2[1]) + q2 * nz(q2[1])
+    im := i2 * nz(q2[1]) - q2 * nz(i2[1])
+    re := alpha * re + (1.0 - alpha) * nz(re[1])
+    im := alpha * im + (1.0 - alpha) * nz(im[1])
+
+    float period = 0.0
+    if im != 0.0 and re != 0.0
+        period := 2.0 * pi / math.atan(im / re)
+    period := math.max(math.min(period, 50.0), 6.0)
+
+    float instPeriod = 0.0
+    instPeriod := 0.33 * period + 0.67 * nz(instPeriod[1])
+    float dcPeriod = 0.0
+    dcPeriod := 0.15 * instPeriod + 0.85 * nz(dcPeriod[1])
+
+    // ── Adaptive Momentum: one dominant-cycle lookback ──
+    int dcLen = math.max(int(dcPeriod), 1)
+    float momentum = src - nz(src[dcLen])
+
+    // ── 2-pole Super Smoother on momentum ──
+    float a1 = math.exp(-math.sqrt(2.0) * pi / cutoff)
+    float b1 = 2.0 * a1 * math.cos(math.sqrt(2.0) * pi / cutoff)
+    float c2 = b1
+    float c3 = -a1 * a1
+    float c1 = 1.0 - c2 - c3
+    float filt = 0.0
+    filt := c1 * (momentum + nz(momentum[1])) / 2.0 + c2 * nz(filt[1]) + c3 * nz(filt[2])
+    filt
+
+// ── Inputs ──────────────────────────────────────────────
+a = input.float(0.07, "Alpha", minval=0.01, maxval=1.0, step=0.01)
+c = input.int(8, "Cutoff", minval=2)
+
+// ── Calculation ─────────────────────────────────────────
+result = sam(close, a, c)
+
+// ── Plot ────────────────────────────────────────────────
+plot(result, "SAM", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

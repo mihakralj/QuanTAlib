@@ -72,9 +72,15 @@ homod(series float source,simple float minPeriod,simple float maxPeriod)=>
             float candidate=2.0*math.pi/angle
             float clamped=math.max(minPeriod,math.min(maxPeriod,math.abs(candidate)))
             period:=0.2*clamped+0.8*period
-    float alpha=0.33
-    smooth_period:=smooth_period+alpha*(period-smooth_period)
+    // Rate limiter: ±50% bar-to-bar, then clamp 6..50
+    float prevPeriod = nz(period[1], 15.0)
+    period := math.max(period, 0.67 * prevPeriod)
+    period := math.min(period, 1.5 * prevPeriod)
+    period := math.max(period, 6.0)
+    period := math.min(period, 50.0)
+    smooth_period := 0.2 * period + 0.8 * nz(smooth_period[1], period)
     float result=smooth_period
+    float alpha=0.2
     if warmup
         warm_decay*=1.0-alpha
         float denom=1.0-warm_decay

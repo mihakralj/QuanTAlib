@@ -7,14 +7,16 @@ namespace QuanTAlib;
 /// STARCHANNEL: Stoller Average Range Channel
 /// A volatility-based envelope using SMA as the middle line and ATR for band width.
 /// Middle = SMA(source, period)
-/// Upper = Middle + (multiplier × ATR)
-/// Lower = Middle - (multiplier × ATR)
+/// Upper = Middle + (multiplier × ATR(atrPeriod))
+/// Lower = Middle - (multiplier × ATR(atrPeriod))
 /// ATR uses RMA (Wilder's smoothing) with warmup compensation.
+/// Supports separate SMA and ATR periods for traditional Stoller dual-period design.
 /// </summary>
 [SkipLocalsInit]
 public sealed class Starchannel : ITValuePublisher
 {
     private readonly int _period;
+    private readonly int _atrPeriod;
     private readonly double _multiplier;
     private readonly double _atrAlpha;
     private readonly RingBuffer _smaBuffer;
@@ -46,7 +48,7 @@ public sealed class Starchannel : ITValuePublisher
 
     public event TValuePublishedHandler? Pub;
 
-    public Starchannel(int period = 20, double multiplier = 2.0)
+    public Starchannel(int period = 20, double multiplier = 2.0, int atrPeriod = 0)
     {
         if (period < 1)
         {
@@ -58,20 +60,30 @@ public sealed class Starchannel : ITValuePublisher
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be > 0.");
         }
 
+        // Default atrPeriod to period when 0 (backward compatible)
+        int effectiveAtrPeriod = atrPeriod > 0 ? atrPeriod : period;
+        if (effectiveAtrPeriod < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(atrPeriod), "ATR period must be >= 1.");
+        }
+
         _period = period;
+        _atrPeriod = effectiveAtrPeriod;
         _multiplier = multiplier;
-        _atrAlpha = 1.0 / period;
+        _atrAlpha = 1.0 / effectiveAtrPeriod;
         _smaBuffer = new RingBuffer(period);
 
-        WarmupPeriod = period;
+        WarmupPeriod = Math.Max(period, effectiveAtrPeriod);
 
-        Name = $"Starchannel({period},{multiplier})";
+        Name = effectiveAtrPeriod == period
+            ? $"Starchannel({period},{multiplier})"
+            : $"Starchannel({period},{multiplier},{effectiveAtrPeriod})";
         _barHandler = HandleBar;
 
         Reset();
     }
 
-    public Starchannel(TBarSeries source, int period = 20, double multiplier = 2.0) : this(period, multiplier)
+    public Starchannel(TBarSeries source, int period = 20, double multiplier = 2.0, int atrPeriod = 0) : this(period, multiplier, atrPeriod)
     {
         Prime(source);
         source.Pub += _barHandler;
@@ -179,8 +191,8 @@ public sealed class Starchannel : ITValuePublisher
         double tr3 = Math.Abs(low - prevClose);
         double trueRange = Math.Max(tr1, Math.Max(tr2, tr3));
 
-        // ATR using RMA with warmup compensation
-        double newRawRma = (_state.RawRma * (_period - 1) + trueRange) / _period;
+        // ATR using RMA with warmup compensation (uses _atrPeriod for separate ATR smoothing)
+        double newRawRma = (_state.RawRma * (_atrPeriod - 1) + trueRange) / _atrPeriod;
         double newE = (1.0 - _atrAlpha) * _state.E;
         double atrValue = newE > Epsilon ? newRawRma / (1.0 - newE) : newRawRma;
 
@@ -238,7 +250,7 @@ public sealed class Starchannel : ITValuePublisher
         var vLowerSpan = CollectionsMarshal.AsSpan(vLower);
 
         Batch(source.HighValues, source.LowValues, source.CloseValues,
-              vMiddleSpan, vUpperSpan, vLowerSpan, _period, _multiplier);
+              vMiddleSpan, vUpperSpan, vLowerSpan, _period, _multiplier, _atrPeriod);
 
         source.Times.CopyTo(tSpan);
         tSpan.CopyTo(CollectionsMarshal.AsSpan(tUpper));
@@ -281,7 +293,8 @@ public sealed class Starchannel : ITValuePublisher
         Span<double> upper,
         Span<double> lower,
         int period,
-        double multiplier = 2.0)
+        double multiplier = 2.0,
+        int atrPeriod = 0)
     {
         if (period < 1)
         {
@@ -292,6 +305,9 @@ public sealed class Starchannel : ITValuePublisher
         {
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be > 0.");
         }
+
+        // Default atrPeriod to period when 0 (backward compatible)
+        int effectiveAtrPeriod = atrPeriod > 0 ? atrPeriod : period;
 
         if (high.Length != low.Length || high.Length != close.Length)
         {
@@ -309,7 +325,7 @@ public sealed class Starchannel : ITValuePublisher
             return;
         }
 
-        double atrAlpha = 1.0 / period;
+        double atrAlpha = 1.0 / effectiveAtrPeriod;
 
         // First bar - sanitize first values
         double lastValidClose = double.IsFinite(close[0]) ? close[0] : 0;
@@ -389,8 +405,8 @@ public sealed class Starchannel : ITValuePublisher
             double tr3 = Math.Abs(l - prevClose);
             double tr = Math.Max(tr1, Math.Max(tr2, tr3));
 
-            // ATR (RMA with warmup compensation)
-            rawRma = (rawRma * (period - 1) + tr) / period;
+            // ATR (RMA with warmup compensation, uses effectiveAtrPeriod)
+            rawRma = (rawRma * (effectiveAtrPeriod - 1) + tr) / effectiveAtrPeriod;
             e = (1.0 - atrAlpha) * e;
             double atr = e > Epsilon ? rawRma / (1.0 - e) : rawRma;
 
@@ -403,7 +419,7 @@ public sealed class Starchannel : ITValuePublisher
         }
     }
 
-    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period = 20, double multiplier = 2.0)
+    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period = 20, double multiplier = 2.0, int atrPeriod = 0)
     {
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -424,7 +440,7 @@ public sealed class Starchannel : ITValuePublisher
               CollectionsMarshal.AsSpan(vMiddle),
               CollectionsMarshal.AsSpan(vUpper),
               CollectionsMarshal.AsSpan(vLower),
-              period, multiplier);
+              period, multiplier, atrPeriod);
 
         source.Times.CopyTo(CollectionsMarshal.AsSpan(tMiddle));
         CollectionsMarshal.AsSpan(tMiddle).CopyTo(CollectionsMarshal.AsSpan(tUpper));
@@ -433,9 +449,9 @@ public sealed class Starchannel : ITValuePublisher
         return (new TSeries(tMiddle, vMiddle), new TSeries(tUpper, vUpper), new TSeries(tLower, vLower));
     }
 
-    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Starchannel Indicator) Calculate(TBarSeries source, int period = 20, double multiplier = 2.0)
+    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Starchannel Indicator) Calculate(TBarSeries source, int period = 20, double multiplier = 2.0, int atrPeriod = 0)
     {
-        var indicator = new Starchannel(source, period, multiplier);
+        var indicator = new Starchannel(source, period, multiplier, atrPeriod);
         var results = indicator.Update(source);
         return (results, indicator);
     }

@@ -1,0 +1,72 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Correlation Trend Indicator (CTI)", "CTI", overlay=false)
+
+//@function Calculates Pearson correlation between price and linear time index
+//@param source Series to calculate correlation from
+//@param period Lookback period for correlation window
+//@returns CTI value (-1 to +1) measuring linear trend strength
+//@optimized O(1) complexity using incremental running sums
+cti(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
+
+    var int count = 0
+    var int head = 0
+    var float sumY = 0.0
+    var float sumY2 = 0.0
+    var float sumXY = 0.0
+    var array<float> buffer = array.new_float(period, na)
+
+    if na(source)
+        na
+    else
+        float oldest = array.get(buffer, head)
+        if not na(oldest)
+            sumY -= oldest
+            sumY2 -= oldest * oldest
+            sumXY -= sumY
+            sumXY += (period - 1) * source
+        else
+            sumXY += count * source
+            count += 1
+
+        sumY += source
+        sumY2 += source * source
+        array.set(buffer, head, source)
+        head := (head + 1) % period
+
+        if count < 2
+            na
+        else
+            float n = float(count)
+            float sumX = n * (n - 1.0) / 2.0
+            float sumX2 = n * (n - 1.0) * (2.0 * n - 1.0) / 6.0
+            float denomX = n * sumX2 - sumX * sumX
+            float denomY = n * sumY2 - sumY * sumY
+
+            float denom = denomX * denomY
+            if denom <= 0.0
+                0.0
+            else
+                float numer = n * sumXY - sumX * sumY
+                float r = numer / math.sqrt(denom)
+                math.max(-1.0, math.min(1.0, r))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(20, "Period", minval=2, maxval=5000)
+
+// Calculation
+cti_value = cti(i_source, i_period)
+
+// Plot
+plot(cti_value, "CTI", color.new(color.yellow, 0), 2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+hline(0.5, "Upper", color=color.gray, linestyle=hline.style_dotted)
+hline(-0.5, "Lower", color=color.gray, linestyle=hline.style_dotted)

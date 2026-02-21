@@ -1,0 +1,76 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Parzen Window Moving Average (PARZEN)", "PARZEN", overlay=true)
+
+//@function Computes Parzen (de la Vallée-Poussin) Window Moving Average — a symmetric
+//          FIR filter using the Parzen window function. The Parzen window is a piecewise
+//          cubic polynomial with zero sidelobe discontinuity, giving excellent sidelobe
+//          suppression (-24 dB/octave rolloff). It is the convolution of two triangular
+//          (Bartlett) windows at half-length, producing a smooth bell-shaped kernel.
+//          w(k) = 1 - 6u² + 6|u|³        for |u| ≤ 0.5
+//          w(k) = 2(1 - |u|)³             for 0.5 < |u| ≤ 1.0
+//          where u = 2k/(N-1) normalized to [-1,1] center-symmetric.
+//@param source Series to smooth
+//@param period Lookback window (>= 2)
+//@returns Parzen-weighted moving average
+//@reference Parzen, E. (1961). "Mathematical Considerations in the Estimation of Spectra."
+//           Technometrics, 3(2), 167–190.
+//@optimized O(period) per bar for convolution; weights precomputed once
+export parzen(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // --- Circular buffer for rolling window ---
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % period
+
+    // --- Precompute Parzen window weights once ---
+    var array<float> weights = array.new_float(0)
+    if barstate.isfirst
+        float half_N = (period - 1) / 2.0
+        float wsum = 0.0
+        for k = 0 to period - 1
+            // u normalized to [-1, 1] centered on the middle of the window
+            float u = half_N > 0 ? (k - half_N) / half_N : 0.0
+            float abs_u = math.abs(u)
+            float w = 0.0
+            if abs_u <= 0.5
+                // Inner region: cubic spline
+                w := 1.0 - 6.0 * abs_u * abs_u + 6.0 * abs_u * abs_u * abs_u
+            else if abs_u <= 1.0
+                // Outer region: cubic taper to zero
+                float t = 1.0 - abs_u
+                w := 2.0 * t * t * t
+            array.push(weights, w)
+            wsum += w
+
+        // Normalize weights to sum exactly 1.0
+        if wsum > 0
+            for j = 0 to period - 1
+                array.set(weights, j, array.get(weights, j) / wsum)
+
+    int count = math.min(bar_index + 1, period)
+    if count < period
+        price
+    else
+        // --- Apply Parzen window convolution via circular buffer ---
+        // Buffer: head points to next-write = oldest entry
+        // Weight[0] = oldest bar, Weight[period-1] = newest
+        float result = 0.0
+        for j = 0 to period - 1
+            int idx = (head + j) % period
+            float val = nz(array.get(buffer, idx))
+            result += val * array.get(weights, j)
+        result
+
+// ── Inputs ──
+src = input.source(close, "Source")
+per = input.int(14, "Period", minval = 2)
+
+// ── Plot ──
+plot(parzen(src, per), "PARZEN", color.yellow, 2)

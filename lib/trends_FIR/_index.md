@@ -24,4 +24,5 @@ Finite Impulse Response (FIR) trend indicators. These use fixed-length windows w
 | [SINEMA](sinema/Sinema.md) | Sine-Weighted MA | Sine wave weighting. Smooth bell-shaped emphasis. |
 | [SMA](sma/Sma.md) | Simple MA | Equal weights. Baseline reference. Lag = (N-1)/2. |
 | [TRIMA](trima/Trima.md) | Triangular MA | Triangular weights. SMA of SMA. Emphasizes middle. |
+| [TSF](tsf/Tsf.md) | Time Series Forecast | Linear regression projected one step ahead. Extrapolates trend. |
 | [WMA](wma/Wma.md) | Weighted MA | Linear weights. Recent prices weighted more. Lag < SMA. |

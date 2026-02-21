@@ -295,9 +295,17 @@ public sealed class Decaychannel : ITValuePublisher
         double top = Math.Min(decayedMax, rawMax);
         double bot = Math.Max(decayedMin, rawMin);
 
+        // Guard: aggressive decay can cause bot > top; clamp to midpoint
+        if (bot > top)
+        {
+            double clamp = (top + bot) * 0.5;
+            top = clamp;
+            bot = clamp;
+        }
+
         // Update tracked values for next iteration
-        _currentMax = Math.Max(top, rawMax);
-        _currentMin = Math.Min(bot, rawMin);
+        _currentMax = top;
+        _currentMin = bot;
 
         double mid = (top + bot) * 0.5;
 
@@ -477,8 +485,16 @@ public sealed class Decaychannel : ITValuePublisher
                 double top = Math.Min(decayedMax, rawMax);
                 double bot = Math.Max(decayedMin, rawMin);
 
-                currentMax = Math.Max(top, rawMax);
-                currentMin = Math.Min(bot, rawMin);
+                // Guard: aggressive decay can cause bot > top; clamp to midpoint
+                if (bot > top)
+                {
+                    double clamp = (top + bot) * 0.5;
+                    top = clamp;
+                    bot = clamp;
+                }
+
+                currentMax = top;
+                currentMin = bot;
 
                 double mid = (top + bot) * 0.5;
 

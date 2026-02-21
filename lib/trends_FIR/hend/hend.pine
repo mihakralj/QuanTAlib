@@ -1,0 +1,80 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Henderson Moving Average (HEND)", "HEND", overlay=true)
+
+//@function Computes Henderson Moving Average — a symmetric FIR filter that preserves
+//          cubic polynomial trends without distortion, from the X-11 seasonal adjustment
+//          framework. Weights are derived from the closed-form Henderson formula and
+//          can be negative at the edges (bandpass-like property).
+//@param source Series to smooth
+//@param period Lookback window (must be odd >= 5)
+//@returns Henderson-weighted moving average
+//@reference Henderson, R. (1916). "Note on Graduation by Adjusted Average."
+//           Transactions of the Actuarial Society of America, 17, 43-48.
+//@reference Hyndman, R.J. (2011). "Moving Averages" (International Encyclopedia of
+//           Statistical Science). Springer.
+//@optimized O(period) per bar for convolution; weights precomputed once
+hend(series float source, simple int period) =>
+    if period < 5
+        runtime.error("Period must be at least 5 for Henderson filter")
+    if period % 2 == 0
+        runtime.error("Period must be odd for Henderson filter")
+
+    float price = nz(source)
+
+    // --- Circular buffer for rolling window ---
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % period
+
+    // --- Precompute Henderson weights once ---
+    // Formula: w(k) = 315 * [(n-1)^2 - k^2] * [n^2 - k^2] * [(n+1)^2 - k^2]
+    //                * [3*n^2 - 16 - 11*k^2]
+    //          / {8 * n * (n^2-1) * (4*n^2 - 1) * (4*n^2 - 9) * (4*n^2 - 25)}
+    // where n = (period + 3) / 2, k ranges from -(period-1)/2 to (period-1)/2
+    var array<float> weights = array.new_float(0)
+    if barstate.isfirst
+        int half = (period - 1) / 2
+        float n = (period + 3) / 2.0
+        float n2 = n * n
+        float nm1_2 = (n - 1) * (n - 1)
+        float np1_2 = (n + 1) * (n + 1)
+        float denom = 8.0 * n * (n2 - 1) * (4 * n2 - 1) * (4 * n2 - 9) * (4 * n2 - 25)
+
+        float wsum = 0.0
+        for k = -half to half
+            float k2 = float(k * k)
+            float w = 315.0 * (nm1_2 - k2) * (n2 - k2) * (np1_2 - k2) * (3 * n2 - 16 - 11 * k2) / denom
+            array.push(weights, w)
+            wsum += w
+
+        // Normalize weights to sum exactly 1.0 (handles floating-point drift)
+        if wsum != 0
+            for j = 0 to period - 1
+                array.set(weights, j, array.get(weights, j) / wsum)
+
+    int count = math.min(bar_index + 1, period)
+    if count < period
+        price
+    else
+        // --- Apply Henderson convolution via circular buffer ---
+        // Buffer position: head points to next-write = oldest entry
+        // Weight[0] corresponds to oldest bar, Weight[period-1] to newest
+        float result = 0.0
+        for j = 0 to period - 1
+            int idx = (head + j) % period
+            float val = nz(array.get(buffer, idx))
+            result += val * array.get(weights, j)
+        result
+
+// ── Inputs ──────────────────────────────────────────────────────────────
+src  = input.source(close, "Source")
+per  = input.int(7, "Period", minval=5, step=2, tooltip="Must be odd, >= 5")
+
+// Enforce odd period at input level
+period_adj = per % 2 == 0 ? per + 1 : per
+
+// ── Plot ────────────────────────────────────────────────────────────────
+plot(hend(src, period_adj), "HEND", color.new(color.yellow, 0), 2)

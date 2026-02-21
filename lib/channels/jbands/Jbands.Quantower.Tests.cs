@@ -12,7 +12,6 @@ public class JbandsIndicatorTests
 
         Assert.Equal(7, ind.Period);
         Assert.Equal(0, ind.Phase);
-        Assert.Equal(0.45, ind.Power);
         Assert.True(ind.ShowColdValues);
         Assert.Equal("Jbands - Jurik Adaptive Envelope Bands", ind.Name);
         Assert.False(ind.SeparateWindow);
@@ -171,32 +170,30 @@ public class JbandsIndicatorTests
     }
 
     [Fact]
-    public void Power_Parameter_Stored_Correctly()
+    public void Phase_Parameter_Stored_Correctly()
     {
-        // Power parameter is accepted and stored but not currently used in Jbands calculation.
-        // This test verifies the parameter is properly stored and accessible.
-        var indLow = new JbandsIndicator { Period = 7, Power = 0.3 };
-        var indHigh = new JbandsIndicator { Period = 7, Power = 0.8 };
+        var indPos = new JbandsIndicator { Period = 7, Phase = 50 };
+        var indNeg = new JbandsIndicator { Period = 7, Phase = -50 };
 
-        Assert.Equal(0.3, indLow.Power);
-        Assert.Equal(0.8, indHigh.Power);
+        Assert.Equal(50, indPos.Phase);
+        Assert.Equal(-50, indNeg.Phase);
 
         // Verify both indicators produce valid output
-        indLow.Initialize();
-        indHigh.Initialize();
+        indPos.Initialize();
+        indNeg.Initialize();
 
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
             double price = 100 + Math.Sin(i * 0.3) * 10;
-            indLow.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
-            indHigh.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
-            indLow.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
-            indHigh.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
+            indPos.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
+            indNeg.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
+            indPos.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
+            indNeg.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 
         // Both should produce finite values
-        Assert.True(double.IsFinite(indLow.LinesSeries[0].GetValue(0)));
-        Assert.True(double.IsFinite(indHigh.LinesSeries[0].GetValue(0)));
+        Assert.True(double.IsFinite(indPos.LinesSeries[0].GetValue(0)));
+        Assert.True(double.IsFinite(indNeg.LinesSeries[0].GetValue(0)));
     }
 }

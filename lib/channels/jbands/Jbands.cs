@@ -60,16 +60,11 @@ public sealed class Jbands : ITValuePublisher, IDisposable
 
     public event TValuePublishedHandler? Pub;
 
-    public Jbands(int period, int phase = 0, double power = 0.45)
+    public Jbands(int period, int phase = 0)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
-        }
-
-        if (!double.IsFinite(power))
-        {
-            throw new ArgumentException("Power must be finite.", nameof(power));
         }
 
         // Phase parameter: maps -100..100 -> 0.5..2.5
@@ -107,7 +102,7 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
 
         _handler = Handle;
-        Name = $"Jbands({period},{phase},{power})";
+        Name = $"Jbands({period},{phase})";
 
         _devBuffer = new RingBuffer(DevWindowSize);
         _volBuffer = new RingBuffer(VolWindowSize);
@@ -115,8 +110,8 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         Reset();
     }
 
-    public Jbands(ITValuePublisher source, int period, int phase = 0, double power = 0.45)
-        : this(period, phase, power)
+    public Jbands(ITValuePublisher source, int period, int phase = 0)
+        : this(period, phase)
     {
         _source = source;
         source.Pub += _handler;
@@ -380,9 +375,9 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         }
     }
 
-    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TSeries source, int period, int phase = 0, double power = 0.45)
+    public static (TSeries Middle, TSeries Upper, TSeries Lower) Batch(TSeries source, int period, int phase = 0)
     {
-        var jbands = new Jbands(period, phase, power);
+        var jbands = new Jbands(period, phase);
         return jbands.Update(source);
     }
 
@@ -392,8 +387,7 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         Span<double> upper,
         Span<double> lower,
         int period,
-        int phase = 0,
-        double power = 0.45)
+        int phase = 0)
     {
         if (middle.Length != source.Length)
         {
@@ -415,7 +409,7 @@ public sealed class Jbands : ITValuePublisher, IDisposable
             return;
         }
 
-        var jbands = new Jbands(period, phase, power);
+        var jbands = new Jbands(period, phase);
         for (int i = 0; i < source.Length; i++)
         {
             var (jma, u, l) = jbands.Step(source[i], isNew: true);
@@ -428,9 +422,9 @@ public sealed class Jbands : ITValuePublisher, IDisposable
     /// <summary>
     /// Calculates Jbands and returns both the results and the indicator instance.
     /// </summary>
-    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Jbands Indicator) Calculate(TSeries source, int period, int phase = 0, double power = 0.45)
+    public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Jbands Indicator) Calculate(TSeries source, int period, int phase = 0)
     {
-        var indicator = new Jbands(period, phase, power);
+        var indicator = new Jbands(period, phase);
         var results = indicator.Update(source);
         return (results, indicator);
     }

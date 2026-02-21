@@ -1,0 +1,73 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("ADX Variable Moving Average (ADXVMA)", "ADXVMA", overlay=true)
+
+//@function Calculates ADXVMA using ADX as adaptive smoothing constant for a variable moving average
+//@param source Series to calculate ADXVMA from
+//@param period Length of the ADX calculation period
+//@returns ADXVMA value that adapts smoothing based on trend strength measured by ADX
+//@optimized O(1) per bar using Wilder's RMA with warmup compensation for all smoothed components
+adxvma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float alpha = 1.0 / float(period)
+    float beta = 1.0 - alpha
+    float EPSILON = 1e-10
+
+    var float raw_tr = 0.0
+    var float raw_pdm = 0.0
+    var float raw_ndm = 0.0
+    var float raw_dx = 0.0
+    var float e_tr = 1.0
+    var float e_pdm = 1.0
+    var float e_ndm = 1.0
+    var float e_dx = 1.0
+    var float result = na
+
+    if not na(source)
+        float prev_close = nz(close[1], close)
+        float prev_high = nz(high[1], high)
+        float prev_low = nz(low[1], low)
+
+        float tr = math.max(high - low, math.max(math.abs(high - prev_close), math.abs(low - prev_close)))
+        float up_move = high - prev_high
+        float down_move = prev_low - low
+        float plus_dm = up_move > down_move and up_move > 0 ? up_move : 0.0
+        float minus_dm = down_move > up_move and down_move > 0 ? down_move : 0.0
+
+        raw_tr := raw_tr * beta + tr * alpha
+        raw_pdm := raw_pdm * beta + plus_dm * alpha
+        raw_ndm := raw_ndm * beta + minus_dm * alpha
+        e_tr *= beta
+        e_pdm *= beta
+        e_ndm *= beta
+
+        float comp_tr = e_tr > EPSILON ? raw_tr / (1.0 - e_tr) : raw_tr
+        float comp_pdm = e_pdm > EPSILON ? raw_pdm / (1.0 - e_pdm) : raw_pdm
+        float comp_ndm = e_ndm > EPSILON ? raw_ndm / (1.0 - e_ndm) : raw_ndm
+
+        float plus_di = comp_tr != 0.0 ? 100.0 * comp_pdm / comp_tr : 0.0
+        float minus_di = comp_tr != 0.0 ? 100.0 * comp_ndm / comp_tr : 0.0
+        float di_sum = plus_di + minus_di
+        float dx = di_sum != 0.0 ? 100.0 * math.abs(plus_di - minus_di) / di_sum : 0.0
+
+        raw_dx := raw_dx * beta + dx * alpha
+        e_dx *= beta
+        float adx_val = e_dx > EPSILON ? raw_dx / (1.0 - e_dx) : raw_dx
+
+        float sc = math.max(0.0, math.min(adx_val / 100.0, 1.0))
+        result := na(result) ? source : result + sc * (source - result)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+adxvma_value = adxvma(i_source, i_period)
+
+// Plot
+plot(adxvma_value, "ADXVMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,125 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Connors RSI (CRSI)", "CRSI", overlay=false)
+
+//@function Calculates RSI using Wilder's smoothing with warmup compensation
+//@param source Series to calculate RSI from
+//@param period RSI lookback period
+//@returns RSI value (0-100) with valid output from bar 1
+rsi_calc(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    float alpha = 1.0 / period
+    float beta = 1.0 - alpha
+
+    var float prevVal = na
+    var float avgGain = 0.0
+    var float avgLoss = 0.0
+    var float e = 1.0
+    var bool warmup = true
+
+    float result = 50.0
+
+    if not na(source)
+        if na(prevVal)
+            prevVal := source
+        else
+            float change = source - prevVal
+            float gain = change > 0.0 ? change : 0.0
+            float loss = change < 0.0 ? -change : 0.0
+            prevVal := source
+
+            avgGain := alpha * gain + beta * avgGain
+            avgLoss := alpha * loss + beta * avgLoss
+
+            if warmup
+                e *= beta
+                float c = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+                float aG = avgGain * c
+                float aL = avgLoss * c
+                float total = aG + aL
+                result := total != 0.0 ? 100.0 * aG / total : 50.0
+                if e <= 1e-10
+                    warmup := false
+            else
+                float total = avgGain + avgLoss
+                result := total != 0.0 ? 100.0 * avgGain / total : 50.0
+
+    result
+
+//@function Calculates Connors RSI as average of price RSI, streak RSI, and percent rank
+//@param source Series to calculate from
+//@param rsiPeriod Period for price RSI component
+//@param streakPeriod Period for streak RSI component
+//@param rankPeriod Lookback period for percent rank of ROC
+//@returns Connors RSI value (0-100)
+crsi(series float source, simple int rsiPeriod, simple int streakPeriod, simple int rankPeriod) =>
+    if rsiPeriod <= 0 or streakPeriod <= 0 or rankPeriod <= 0
+        runtime.error("All periods must be greater than 0")
+
+    // Component 1: RSI of price
+    float priceRsi = rsi_calc(source, rsiPeriod)
+
+    // Component 2: Streak calculation + RSI of streak
+    var float prevClose = na
+    var float streak = 0.0
+
+    if not na(source)
+        if na(prevClose)
+            streak := 0.0
+        else if source > prevClose
+            streak := streak >= 0.0 ? streak + 1.0 : 1.0
+        else if source < prevClose
+            streak := streak <= 0.0 ? streak - 1.0 : -1.0
+        else
+            streak := 0.0
+        prevClose := source
+
+    float streakRsi = rsi_calc(streak, streakPeriod)
+
+    // Component 3: Percent rank of 1-bar ROC
+    var float prevSrc = na
+    var array<float> rocBuf = array.new_float(rankPeriod, na)
+    var int rocHead = 0
+    var int rocCount = 0
+
+    float roc = 0.0
+    if not na(source) and not na(prevSrc) and prevSrc != 0.0
+        roc := (source - prevSrc) / prevSrc * 100.0
+    if not na(source)
+        prevSrc := source
+
+    if na(array.get(rocBuf, rocHead))
+        rocCount := math.min(rocCount + 1, rankPeriod)
+    array.set(rocBuf, rocHead, roc)
+    rocHead := (rocHead + 1) % rankPeriod
+
+    // Count how many historical ROC values <= current ROC
+    int lessEqual = 0
+    for i = 0 to rocCount - 1
+        float val = array.get(rocBuf, i)
+        if not na(val) and val <= roc
+            lessEqual += 1
+    float pctRank = rocCount > 0 ? (float(lessEqual) / float(rocCount)) * 100.0 : 50.0
+
+    // Connors RSI = average of three components
+    float result = (priceRsi + streakRsi + pctRank) / 3.0
+    math.max(0.0, math.min(100.0, result))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_rsiPeriod = input.int(3, "RSI Period", minval=1, maxval=500)
+i_streakPeriod = input.int(2, "Streak RSI Period", minval=1, maxval=500)
+i_rankPeriod = input.int(100, "Percent Rank Period", minval=1, maxval=1000)
+
+// Calculation
+crsi_value = crsi(i_source, i_rsiPeriod, i_streakPeriod, i_rankPeriod)
+
+// Plot
+plot(crsi_value, "CRSI", color.new(color.yellow, 0), 2)
+hline(70, "Overbought", color=color.gray, linestyle=hline.style_dotted)
+hline(30, "Oversold", color=color.gray, linestyle=hline.style_dotted)

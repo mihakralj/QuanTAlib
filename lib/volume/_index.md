@@ -12,6 +12,7 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [CMF](cmf/Cmf.md) | Chaikin Money Flow | Measures money flow volume over set period (typically 20-21 days). |
 | [EFI](efi/Efi.md) | Elder's Force Index | Combines price movement, direction, volume to measure buying/selling power. |
 | [EOM](eom/Eom.md) | Ease of Movement | Relates price change to volume. Highlights periods of effortless price movement. |
+| [EVWMA](evwma/Evwma.md) | Elastic Volume Weighted MA | Volume-adaptive moving average where volume directly controls smoothing weight per bar. |
 | [III](iii/Iii.md) | Intraday Intensity Index | Measures buying/selling pressure within day's range using close position. |
 | [KVO](kvo/Kvo.md) | Klinger Volume Oscillator | Compares short-term and long-term volume trends to identify potential reversals. |
 | [MFI](mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |

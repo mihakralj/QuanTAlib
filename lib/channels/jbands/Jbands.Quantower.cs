@@ -18,9 +18,6 @@ public sealed class JbandsIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Phase", sortIndex: 20, minimum: -100, maximum: 100, increment: 1, decimalPlaces: 0)]
     public int Phase { get; set; } = 0;
 
-    [InputParameter("Power", sortIndex: 30, minimum: 0.01, maximum: 5.0, increment: 0.01, decimalPlaces: 2)]
-    public double Power { get; set; } = 0.45;
-
     [InputParameter("Show Cold Values", sortIndex: 100)]
     public bool ShowColdValues { get; set; } = true;
 
@@ -39,7 +36,7 @@ public sealed class JbandsIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        _indicator = new Jbands(Period, Phase, Power);
+        _indicator = new Jbands(Period, Phase);
 
         AddLineSeries(new LineSeries("Middle", Color.DodgerBlue, 2, LineStyle.Solid));
         AddLineSeries(new LineSeries("Upper", Color.FromArgb(255, 180, 180), 1, LineStyle.Dash));

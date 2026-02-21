@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Continuous Wavelet Transform (CWT)", "CWT", overlay=false, precision=6)
+
+//@function Computes CWT magnitude using Morlet wavelet at a given scale
+//@param source Series to analyze
+//@param scale Wavelet scale parameter (controls frequency resolution)
+//@param omega Central frequency of Morlet wavelet (default 6.0)
+//@returns CWT magnitude (power) at the specified scale
+cwt(series float source, simple float scale, simple float omega) =>
+    if scale <= 0.0
+        runtime.error("Scale must be greater than 0")
+    if omega <= 0.0
+        runtime.error("Omega must be greater than 0")
+
+    int halfWin = math.max(1, int(math.round(3.0 * scale)))
+    float invScale = 1.0 / scale
+    float normFactor = 1.0 / math.sqrt(scale)
+
+    float realSum = 0.0
+    float imagSum = 0.0
+
+    for k = -halfWin to halfWin
+        float srcVal = nz(source[halfWin - k])
+        float t = float(k) * invScale
+        float gauss = math.exp(-0.5 * t * t)
+        float angle = omega * t
+        realSum += srcVal * gauss * math.cos(angle)
+        imagSum += srcVal * gauss * math.sin(angle)
+
+    float magnitude = math.sqrt(realSum * realSum + imagSum * imagSum) * normFactor
+    magnitude
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_scale = input.float(10.0, "Scale", minval=0.5, maxval=200.0, step=0.5,
+     tooltip="Wavelet scale — higher values capture lower frequencies")
+i_omega = input.float(6.0, "Omega (Central Frequency)", minval=1.0, maxval=20.0, step=0.5,
+     tooltip="Morlet central frequency — standard value is 6.0")
+
+// Calculation
+cwt_value = cwt(i_source, i_scale, i_omega)
+
+// Plot
+plot(cwt_value, "CWT", color.new(color.yellow, 0), 2)

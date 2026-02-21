@@ -132,11 +132,12 @@ public class OneEuroValidationTests
     public void NoiseReduction_SmoothsJitter()
     {
         int N = 500;
+        // Use GBM log-returns as jitter around 100 to create high-frequency noise
+        var closes = new GBM(seed: 42).Fetch(N + 1, DateTime.UtcNow.Ticks, TimeSpan.FromSeconds(1)).CloseValues;
         double[] src = new double[N];
-        var rng = new Random(42);
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + rng.NextDouble() * 2.0 - 1.0; // ±1 jitter around 100
+            src[i] = 100.0 + (closes[i + 1] / closes[i] - 1.0) * 100.0; // ±pct jitter around 100
         }
 
         double[] output = new double[N];

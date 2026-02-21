@@ -275,12 +275,7 @@ public class SigmoidTests
     [Fact]
     public void Calculate_Span_MatchesStreaming()
     {
-        double[] source = new double[100];
-        var rng = new Random(42);
-        for (int i = 0; i < source.Length; i++)
-        {
-            source[i] = rng.NextDouble() * 200 - 100;
-        }
+        double[] source = new GBM(seed: 42).Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1)).CloseValues.ToArray();
 
         double[] spanOutput = new double[source.Length];
         Sigmoid.Batch(source.AsSpan(), spanOutput.AsSpan());

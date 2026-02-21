@@ -1,0 +1,132 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Polynomial Fitting (POLYFIT)", "POLYFIT", overlay=true, precision=8)
+
+//@function Rolling polynomial regression fit of degree d over a lookback window
+//@param source Series to fit
+//@param period Lookback period (number of data points)
+//@param degree Polynomial degree (1=linear, 2=quadratic, 3=cubic, etc.)
+//@returns Fitted value at the current bar (polynomial endpoint)
+//@description Fits a polynomial P(x) = a_0 + a_1*x + ... + a_d*x^d to the most
+//  recent `period` data points using the normal equations (X'X)a = X'y.
+//  The x-values are normalized to [0,1] for numerical stability.
+//  Solves via Gauss-Jordan elimination with partial pivoting.
+//  Output is P(1.0) — the polynomial evaluated at the current bar.
+//  Degree 1 = linear regression (endpoint), degree 2 = quadratic fit, etc.
+//  Complexity: O(period * degree + degree^3) per bar.
+polyfit(series float source, simple int period, simple int degree) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+    if degree < 1
+        runtime.error("Degree must be at least 1")
+    int d = math.min(degree, period - 1)
+    int m = d + 1
+
+    var array<float> buf = array.new_float(period, na)
+    var int head = 0
+    var int count = 0
+    var float lastValid = na
+
+    float curr = source
+    if na(curr) and not na(lastValid)
+        curr := lastValid
+    if not na(curr)
+        lastValid := curr
+
+    if not na(curr)
+        array.set(buf, head, curr)
+        if count < period
+            count += 1
+        head := (head + 1) % period
+
+    int n = count
+    if n < m + 1
+        na
+    else
+        int start = n < period ? 0 : head
+        float nf = float(n)
+        float invN = 1.0 / (nf - 1.0)
+
+        int matSize = m * m
+        array<float> mat = array.new_float(matSize, 0.0)
+        array<float> rhs = array.new_float(m, 0.0)
+
+        for i = 0 to n - 1
+            int idx = (start + i) % period
+            float y = array.get(buf, idx)
+            float x = float(i) * invN
+
+            float xp = 1.0
+            for r = 0 to d
+                float val_r = array.get(rhs, r)
+                array.set(rhs, r, val_r + xp * y)
+
+                float xq = xp
+                for c = r to d
+                    int pos = r * m + c
+                    float val_m = array.get(mat, pos)
+                    array.set(mat, pos, val_m + xp * xq)
+                    if c != r
+                        int pos2 = c * m + r
+                        array.set(mat, pos2, val_m + xp * xq)
+                    xq *= x
+                xp *= x
+
+        for col = 0 to d
+            int pivRow = col
+            float pivMax = math.abs(array.get(mat, col * m + col))
+            for row = col + 1 to d
+                float absVal = math.abs(array.get(mat, row * m + col))
+                if absVal > pivMax
+                    pivMax := absVal
+                    pivRow := row
+            if pivRow != col
+                for k = 0 to d
+                    int p1 = col * m + k
+                    int p2 = pivRow * m + k
+                    float tmp = array.get(mat, p1)
+                    array.set(mat, p1, array.get(mat, p2))
+                    array.set(mat, p2, tmp)
+                float tmpR = array.get(rhs, col)
+                array.set(rhs, col, array.get(rhs, pivRow))
+                array.set(rhs, pivRow, tmpR)
+
+            float piv = array.get(mat, col * m + col)
+            if math.abs(piv) < 1e-30
+                break
+
+            float invPiv = 1.0 / piv
+            for k = col to d
+                int pos = col * m + k
+                array.set(mat, pos, array.get(mat, pos) * invPiv)
+            array.set(rhs, col, array.get(rhs, col) * invPiv)
+
+            for row = 0 to d
+                if row != col
+                    float factor = array.get(mat, row * m + col)
+                    for k = col to d
+                        int p1 = row * m + k
+                        int p2 = col * m + k
+                        array.set(mat, p1, array.get(mat, p1) - factor * array.get(mat, p2))
+                    array.set(rhs, row, array.get(rhs, row) - factor * array.get(rhs, col))
+
+        float result = 0.0
+        float xp = 1.0
+        for r = 0 to d
+            result += array.get(rhs, r) * xp
+            xp *= 1.0
+        result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=2, tooltip="Number of data points in the fitting window")
+i_degree = input.int(2, "Degree", minval=1, maxval=6, tooltip="Polynomial degree: 1=linear, 2=quadratic, 3=cubic")
+i_source = input.source(close, "Source")
+
+// Calculation
+fit_value = polyfit(i_source, i_period, i_degree)
+
+// Plot
+plot(fit_value, "POLYFIT", color=color.yellow, linewidth=2)

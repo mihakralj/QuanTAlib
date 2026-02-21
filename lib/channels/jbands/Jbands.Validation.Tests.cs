@@ -16,34 +16,34 @@ public class JbandsValidationTests
     [Fact]
     public void Jbands_MiddleBand_MatchesJma_Period7()
     {
-        ValidateMiddleBandMatchesJma(7, 0, 0.45, 42);
+        ValidateMiddleBandMatchesJma(7, 0, 42);
     }
 
     [Fact]
     public void Jbands_MiddleBand_MatchesJma_Period14()
     {
-        ValidateMiddleBandMatchesJma(14, 0, 0.45, 123);
+        ValidateMiddleBandMatchesJma(14, 0, 123);
     }
 
     [Fact]
     public void Jbands_MiddleBand_MatchesJma_Period20()
     {
-        ValidateMiddleBandMatchesJma(20, 0, 0.45, 456);
+        ValidateMiddleBandMatchesJma(20, 0, 456);
     }
 
     [Fact]
     public void Jbands_MiddleBand_MatchesJma_WithPhase()
     {
-        ValidateMiddleBandMatchesJma(14, 50, 0.45, 789);
-        ValidateMiddleBandMatchesJma(14, -50, 0.45, 321);
-        ValidateMiddleBandMatchesJma(14, 100, 0.45, 654);
-        ValidateMiddleBandMatchesJma(14, -100, 0.45, 987);
+        ValidateMiddleBandMatchesJma(14, 50, 789);
+        ValidateMiddleBandMatchesJma(14, -50, 321);
+        ValidateMiddleBandMatchesJma(14, 100, 654);
+        ValidateMiddleBandMatchesJma(14, -100, 987);
     }
 
-    private static void ValidateMiddleBandMatchesJma(int period, int phase, double power, int seed)
+    private static void ValidateMiddleBandMatchesJma(int period, int phase, int seed)
     {
-        var jbands = new Jbands(period, phase, power);
-        var jma = new Jma(period, phase, power);
+        var jbands = new Jbands(period, phase);
+        var jma = new Jma(period, phase);
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: seed);
 
         for (int i = 0; i < 500; i++)
@@ -60,7 +60,7 @@ public class JbandsValidationTests
     [Fact]
     public void Jbands_StreamingVsBatch_Match()
     {
-        var jStream = new Jbands(14, 0, 0.45);
+        var jStream = new Jbands(14, 0);
         var gbm = new GBM(startPrice: 100, mu: 0.02, sigma: 0.1, seed: 42);
         var series = new TSeries();
 
@@ -71,13 +71,13 @@ public class JbandsValidationTests
             jStream.Update(new TValue(bar.Time, bar.Close), isNew: true);
         }
 
-        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 0, 0.45);
+        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 0);
 
         // Compare last 100 values
         for (int i = series.Count - 100; i < series.Count; i++)
         {
             // Rebuild streaming to get value at index i
-            var jCheck = new Jbands(14, 0, 0.45);
+            var jCheck = new Jbands(14, 0);
             for (int j = 0; j <= i; j++)
             {
                 jCheck.Update(new TValue(new DateTime(series.Times[j], DateTimeKind.Utc), series.Values[j]), isNew: true);
@@ -131,23 +131,23 @@ public class JbandsValidationTests
         }
 
         // Mode 1: Streaming
-        var jStream = new Jbands(14, 25, 0.45);
+        var jStream = new Jbands(14, 25);
         for (int i = 0; i < rawValues.Length; i++)
         {
             jStream.Update(new TValue(DateTime.UtcNow, rawValues[i]), isNew: true);
         }
 
         // Mode 2: Batch (TSeries)
-        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 25, 0.45);
+        var (midBatch, upBatch, loBatch) = Jbands.Batch(series, 14, 25);
 
         // Mode 3: Span Calculate
         double[] middleSpan = new double[150];
         double[] upperSpan = new double[150];
         double[] lowerSpan = new double[150];
-        Jbands.Batch(rawValues.AsSpan(), middleSpan.AsSpan(), upperSpan.AsSpan(), lowerSpan.AsSpan(), 14, 25, 0.45);
+        Jbands.Batch(rawValues.AsSpan(), middleSpan.AsSpan(), upperSpan.AsSpan(), lowerSpan.AsSpan(), 14, 25);
 
         // Mode 4: Event-based
-        var jEvent = new Jbands(14, 25, 0.45);
+        var jEvent = new Jbands(14, 25);
         double lastEventMid = 0, lastEventUp = 0, lastEventLo = 0;
         jEvent.Pub += (object? sender, in TValueEventArgs args) =>
         {

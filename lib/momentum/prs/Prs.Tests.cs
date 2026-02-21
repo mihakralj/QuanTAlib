@@ -104,13 +104,12 @@ public class PrsTests
         var prsRaw = new Prs(1);
         var prsSmoothed = new Prs(10);
 
-        var random = new Random(42);
+        var baseBars = new GBM(seed: 42).Fetch(30, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var compBars = new GBM(seed: 123).Fetch(30, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100.0 + random.NextDouble() * 10;
-            double compPrice = 100.0 + random.NextDouble() * 10;
-            prsRaw.Update(basePrice, compPrice);
-            prsSmoothed.Update(basePrice, compPrice);
+            prsRaw.Update(baseBars.Close[i], compBars.Close[i]);
+            prsSmoothed.Update(baseBars.Close[i], compBars.Close[i]);
         }
 
         // Smoothed should differ from raw due to EMA averaging
@@ -430,15 +429,10 @@ public class PrsTests
     [Fact]
     public void Calculate_Batch_MatchesStreaming()
     {
-        var baseSeries = new TSeries();
-        var compSeries = new TSeries();
-        var random = new Random(42);
-
-        for (int i = 0; i < 50; i++)
-        {
-            baseSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + random.NextDouble() * 10));
-            compSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 50.0 + random.NextDouble() * 5));
-        }
+        var baseBars = new GBM(seed: 42).Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var compBars = new GBM(seed: 123).Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var baseSeries = baseBars.Close;
+        var compSeries = compBars.Close;
 
         // Batch calculation
         var batchResult = Prs.Batch(baseSeries, compSeries, 5);

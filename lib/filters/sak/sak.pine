@@ -1,0 +1,130 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("SAK: Swiss Army Knife Indicator", shorttitle="SAK", overlay=false)
+
+// @function Calculates the Ehlers Swiss Army Knife indicator.
+//   A unified second-order IIR filter framework where coefficient selection
+//   determines the filter type: EMA, SMA, Gaussian, Butterworth, Smoother,
+//   HighPass, 2-Pole HighPass, BandPass, or BandStop.
+//   Filt = c0 * (b0*Price + b1*Price[1] + b2*Price[2]) + a1*Filt[1] + a2*Filt[2]
+//   Source: John F. Ehlers, "Swiss Army Knife Indicator," TASC January 2006.
+// @param src Series to filter.
+// @param filterType Filter mode string: "EMA","SMA","Gauss","Butter","Smooth","HP","2PHP","BP","BS"
+// @param period Cycle period for coefficient computation. Must be >= 2.
+// @param n SMA lookback length (used only for SMA mode). Must be >= 1.
+// @param delta Bandwidth parameter for BandPass/BandStop modes.
+// @returns The filtered value.
+export sak(series float src, simple string filterType, simple int period, simple int n, simple float delta) =>
+    // ── Compute alpha, beta, gamma from Period and filterType ──
+    float alpha = 0.0
+    float beta1 = 0.0
+    float gamma1 = 0.0
+
+    if filterType == "BP" or filterType == "BS"
+        gamma1 := 1.0 / math.cos(2.0 * math.pi * delta / period)
+        beta1  := math.cos(2.0 * math.pi / period)
+        alpha  := gamma1 - math.sqrt(gamma1 * gamma1 - 1.0)
+    else if filterType == "Gauss" or filterType == "Butter" or filterType == "2PHP"
+        beta1 := 2.415 * (1.0 - math.cos(2.0 * math.pi / period))
+        alpha := -beta1 + math.sqrt(beta1 * beta1 + 2.0 * beta1)
+    else  // EMA, HP, SMA, Smooth
+        alpha := (math.cos(2.0 * math.pi / period) + math.sin(2.0 * math.pi / period) - 1.0) / math.cos(2.0 * math.pi / period)
+
+    // ── Assign unified coefficients c0, b0, b1, b2, a1, a2 ──
+    float c0 = 1.0
+    float c1 = 0.0
+    float b0 = 1.0
+    float b1 = 0.0
+    float b2 = 0.0
+    float a1 = 0.0
+    float a2 = 0.0
+
+    if filterType == "EMA"
+        c0 := 1.0
+        b0 := alpha
+        b1 := 0.0
+        b2 := 0.0
+        a1 := 1.0 - alpha
+        a2 := 0.0
+    else if filterType == "SMA"
+        c0 := 1.0
+        c1 := 1.0 / n
+        b0 := 1.0 / n
+        b1 := 0.0
+        b2 := 0.0
+        a1 := 1.0
+        a2 := 0.0
+    else if filterType == "Gauss"
+        c0 := alpha * alpha
+        b0 := 1.0
+        b1 := 0.0
+        b2 := 0.0
+        a1 := 2.0 * (1.0 - alpha)
+        a2 := -(1.0 - alpha) * (1.0 - alpha)
+    else if filterType == "Butter"
+        c0 := alpha * alpha / 4.0
+        b0 := 1.0
+        b1 := 2.0
+        b2 := 1.0
+        a1 := 2.0 * (1.0 - alpha)
+        a2 := -(1.0 - alpha) * (1.0 - alpha)
+    else if filterType == "Smooth"
+        c0 := alpha * alpha / 4.0
+        b0 := 1.0
+        b1 := 2.0
+        b2 := 1.0
+        a1 := 0.0
+        a2 := 0.0
+    else if filterType == "HP"
+        c0 := 1.0 - alpha / 2.0
+        b0 := 1.0
+        b1 := -1.0
+        b2 := 0.0
+        a1 := 1.0 - alpha
+        a2 := 0.0
+    else if filterType == "2PHP"
+        c0 := (1.0 - alpha / 2.0) * (1.0 - alpha / 2.0)
+        b0 := 1.0
+        b1 := -2.0
+        b2 := 1.0
+        a1 := 2.0 * (1.0 - alpha)
+        a2 := -(1.0 - alpha) * (1.0 - alpha)
+    else if filterType == "BP"
+        c0 := (1.0 - alpha) / 2.0
+        b0 := 1.0
+        b1 := 0.0
+        b2 := -1.0
+        a1 := beta1 * (1.0 + alpha)
+        a2 := -alpha
+    else if filterType == "BS"
+        c0 := (1.0 + alpha) / 2.0
+        b0 := 1.0
+        b1 := -2.0 * beta1
+        b2 := 1.0
+        a1 := beta1 * (1.0 + alpha)
+        a2 := -alpha
+
+    // ── SMA special path: uses running sum via c1 ──
+    float result = 0.0
+    if filterType == "SMA"
+        result := c1 * src + a1 * nz(result[1]) - c1 * nz(src[n])
+    else
+        result := c0 * (b0 * src + b1 * nz(src[1]) + b2 * nz(src[2])) + a1 * nz(result[1]) + a2 * nz(result[2])
+    result
+
+// ── Inputs ──────────────────────────────────────────────
+filterType = input.string("BP", "Filter Type", options=["EMA","SMA","Gauss","Butter","Smooth","HP","2PHP","BP","BS"])
+p          = input.int(20, "Period", minval=2)
+n          = input.int(10, "SMA Length (N)", minval=1, tooltip="Only used for SMA mode")
+delta      = input.float(0.1, "Delta (BW)", minval=0.01, step=0.01, tooltip="Bandwidth for BP/BS modes")
+
+// ── Calculation ─────────────────────────────────────────
+result = sak(close, filterType, p, n, delta)
+
+// ── Plot ────────────────────────────────────────────────
+isOverlay = filterType == "EMA" or filterType == "SMA" or filterType == "Gauss" or filterType == "Butter" or filterType == "Smooth"
+plot(result, "SAK", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Kairi Relative Index (KRI)", "KRI", overlay=false, precision=4)
+
+//@function Kairi Relative Index: percentage deviation of source from its SMA
+//@param source Series to analyze
+//@param period SMA lookback period
+//@returns 100 * (source - SMA) / SMA
+//@optimized O(1) per bar via circular buffer with running sum
+kri(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    var float sum = 0.0
+    var int count = 0
+
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+    else
+        count += 1
+
+    float current = nz(source)
+    sum += current
+    array.set(buffer, head, current)
+    head := (head + 1) % period
+
+    float sma = sum / math.max(1, count)
+    sma != 0.0 ? 100.0 * (current - sma) / sma : 0.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(14, "Period", minval=1, maxval=5000, tooltip="SMA lookback period")
+
+// Calculation
+float result = kri(i_source, i_period)
+
+// Plot
+plot(result, "KRI", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

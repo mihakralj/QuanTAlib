@@ -1,0 +1,70 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Discrete Wavelet Transform (DWT)", "DWT", overlay=false, precision=6)
+
+//@function À trous (stationary) Haar DWT decomposition — returns selected component
+//@param src Input series to decompose
+//@param levels Number of decomposition levels (1-8, each doubles effective window)
+//@param output Which component to return: 0 = approximation at deepest level,
+//       1-8 = detail coefficient at that level
+//@returns Selected wavelet component (approximation or detail at chosen level)
+//@optimized O(levels) per bar using Pine native series indexing, no arrays needed
+dwt(series float src, simple int levels, simple int output) =>
+    if levels < 1 or levels > 8
+        runtime.error("Levels must be between 1 and 8")
+    if output < 0 or output > levels
+        runtime.error("Output must be 0 (approximation) or 1-levels (detail)")
+
+    float c0 = nz(src, 0.0)
+
+    float c1 = (c0 + nz(src[1], c0)) * 0.5
+    float d1 = c0 - c1
+
+    float c2 = levels >= 2 ? (c1 + nz(c1[2], c1)) * 0.5 : c1
+    float d2 = levels >= 2 ? c1 - c2 : 0.0
+
+    float c3 = levels >= 3 ? (c2 + nz(c2[4], c2)) * 0.5 : c2
+    float d3 = levels >= 3 ? c2 - c3 : 0.0
+
+    float c4 = levels >= 4 ? (c3 + nz(c3[8], c3)) * 0.5 : c3
+    float d4 = levels >= 4 ? c3 - c4 : 0.0
+
+    float c5 = levels >= 5 ? (c4 + nz(c4[16], c4)) * 0.5 : c4
+    float d5 = levels >= 5 ? c4 - c5 : 0.0
+
+    float c6 = levels >= 6 ? (c5 + nz(c5[32], c5)) * 0.5 : c5
+    float d6 = levels >= 6 ? c5 - c6 : 0.0
+
+    float c7 = levels >= 7 ? (c6 + nz(c6[64], c6)) * 0.5 : c6
+    float d7 = levels >= 7 ? c6 - c7 : 0.0
+
+    float c8 = levels >= 8 ? (c7 + nz(c7[128], c7)) * 0.5 : c7
+    float d8 = levels >= 8 ? c7 - c8 : 0.0
+
+    float approx = levels == 1 ? c1 : levels == 2 ? c2 : levels == 3 ? c3 :
+         levels == 4 ? c4 : levels == 5 ? c5 : levels == 6 ? c6 :
+         levels == 7 ? c7 : c8
+
+    float result = output == 0 ? approx :
+         output == 1 ? d1 : output == 2 ? d2 : output == 3 ? d3 :
+         output == 4 ? d4 : output == 5 ? d5 : output == 6 ? d6 :
+         output == 7 ? d7 : d8
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_levels = input.int(4, "Decomposition Levels", minval=1, maxval=8,
+     tooltip="Number of levels — lookback = 2^levels bars")
+i_output = input.int(0, "Output Component", minval=0, maxval=8,
+     tooltip="0 = approximation (trend), 1-8 = detail at that level (noise/cycles)")
+
+// Calculation
+dwt_value = dwt(i_source, i_levels, i_output)
+
+// Plot
+plot(dwt_value, "DWT", color.new(color.yellow, 0), 2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

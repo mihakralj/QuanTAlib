@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Weibull Distribution CDF (WEIBULLDIST)", "WEIBULLDIST", overlay=false, precision=6)
+
+//@function Calculates the Weibull Distribution CDF
+//@param source Series to evaluate (typically close)
+//@param period Lookback period for min-max normalization
+//@param shape Shape parameter k (> 0) — controls distribution form
+//@param scale Scale parameter λ (> 0) — scales the normalized price
+//@returns CDF value F(x) in [0, 1]
+//@description The Weibull distribution CDF has a simple closed form:
+//    F(x; k, λ) = 1 − exp(−(x/λ)^k)   for x ≥ 0
+//    F(x) = 0                            for x < 0
+//  The source is min-max normalized over the lookback period to [0, 1],
+//  then treated as the input x to the CDF (no additional scaling needed
+//  since λ handles the effective range).
+//  Shape k controls the distribution form:
+//    k < 1: decreasing failure rate (early failures) — concave CDF
+//    k = 1: constant failure rate (exponential distribution) — same as EXPDIST
+//    k = 2: Rayleigh distribution — linear failure rate
+//    k > 3: approaches normal-like shape — S-curve CDF
+//  Scale λ controls how quickly CDF rises:
+//    larger λ → slower rise (more spread), smaller λ → faster saturation
+//  No special functions needed — only exp and pow. O(period) for min-max scan,
+//  CDF itself is O(1). Stateless pure function — no var state.
+//  Trading interpretation: CDF near 1.0 = price at top of recent range,
+//  near 0.0 = price at bottom. Shape k tunes sensitivity to extremes.
+weibulldist(series float source, simple int period, simple float shape, simple float scale) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if shape <= 0.0
+        runtime.error("Shape parameter must be greater than 0")
+    if scale <= 0.0
+        runtime.error("Scale parameter must be greater than 0")
+
+    float src = nz(source)
+    float hi = src
+    float lo = src
+    for i = 1 to period - 1
+        float v = nz(source[i])
+        hi := math.max(hi, v)
+        lo := math.min(lo, v)
+
+    float range = hi - lo
+    float x = range == 0.0 ? 0.5 : (src - lo) / range
+
+    float safeX = math.max(0.0, x)
+    float ratio = safeX / scale
+    float raised = math.pow(ratio, shape)
+    1.0 - math.exp(-raised)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Period", minval=1)
+i_shape  = input.float(2.0, "Shape (k)", minval=0.01, step=0.1)
+i_scale  = input.float(0.5, "Scale (λ)", minval=0.01, step=0.1)
+
+// Calculation
+weibull_value = weibulldist(i_source, i_period, i_shape, i_scale)
+
+// Plot
+plot(weibull_value, "WEIBULLDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

@@ -1,0 +1,98 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bulls Bears Index (BBI)", "BBI", overlay=true)
+
+//@function Calculates Bulls Bears Index as average of four SMAs with different periods
+//@param source Series to calculate BBI from
+//@param p1 First SMA period (ultra-short trend)
+//@param p2 Second SMA period (short trend)
+//@param p3 Third SMA period (medium trend)
+//@param p4 Fourth SMA period (long trend)
+//@returns BBI value (average of four SMAs)
+//@optimized O(1) complexity using four independent circular buffers
+bbi(series float source, simple int p1, simple int p2, simple int p3, simple int p4) =>
+    if p1 <= 0 or p2 <= 0 or p3 <= 0 or p4 <= 0
+        runtime.error("All periods must be greater than 0")
+    if p1 > 5000 or p2 > 5000 or p3 > 5000 or p4 > 5000
+        runtime.error("Periods must not exceed 5000")
+
+    var array<float> buf1 = array.new_float(p1, na)
+    var int head1 = 0
+    var float sum1 = 0.0
+    var int cnt1 = 0
+
+    var array<float> buf2 = array.new_float(p2, na)
+    var int head2 = 0
+    var float sum2 = 0.0
+    var int cnt2 = 0
+
+    var array<float> buf3 = array.new_float(p3, na)
+    var int head3 = 0
+    var float sum3 = 0.0
+    var int cnt3 = 0
+
+    var array<float> buf4 = array.new_float(p4, na)
+    var int head4 = 0
+    var float sum4 = 0.0
+    var int cnt4 = 0
+
+    float val = nz(source)
+
+    float old1 = array.get(buf1, head1)
+    if not na(old1)
+        sum1 -= old1
+    else
+        cnt1 += 1
+    sum1 += val
+    array.set(buf1, head1, val)
+    head1 := (head1 + 1) % p1
+
+    float old2 = array.get(buf2, head2)
+    if not na(old2)
+        sum2 -= old2
+    else
+        cnt2 += 1
+    sum2 += val
+    array.set(buf2, head2, val)
+    head2 := (head2 + 1) % p2
+
+    float old3 = array.get(buf3, head3)
+    if not na(old3)
+        sum3 -= old3
+    else
+        cnt3 += 1
+    sum3 += val
+    array.set(buf3, head3, val)
+    head3 := (head3 + 1) % p3
+
+    float old4 = array.get(buf4, head4)
+    if not na(old4)
+        sum4 -= old4
+    else
+        cnt4 += 1
+    sum4 += val
+    array.set(buf4, head4, val)
+    head4 := (head4 + 1) % p4
+
+    float sma1 = sum1 / math.max(1, cnt1)
+    float sma2 = sum2 / math.max(1, cnt2)
+    float sma3 = sum3 / math.max(1, cnt3)
+    float sma4 = sum4 / math.max(1, cnt4)
+
+    (sma1 + sma2 + sma3 + sma4) / 4.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_p1 = input.int(3, "Period 1 (Ultra-Short)", minval=1, maxval=5000)
+i_p2 = input.int(6, "Period 2 (Short)", minval=1, maxval=5000)
+i_p3 = input.int(12, "Period 3 (Medium)", minval=1, maxval=5000)
+i_p4 = input.int(24, "Period 4 (Long)", minval=1, maxval=5000)
+
+// Calculation
+bbi_value = bbi(i_source, i_p1, i_p2, i_p3, i_p4)
+
+// Plot
+plot(bbi_value, "BBI", color=color.yellow, linewidth=2)

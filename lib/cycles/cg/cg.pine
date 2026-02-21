@@ -16,8 +16,8 @@ cg(series float src, simple int length) =>
         float price = nz(src[count - 1])
         num += count * price
         den += price
-    float result = den != 0 ? num / den : (length + 1) / 2.0
-    result - (length + 1) / 2.0
+    float result = den != 0 ? -num / den : -(length + 1) / 2.0
+    result + (length + 1) / 2.0
 
 // ---------- Main loop ----------
 

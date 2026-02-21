@@ -1,0 +1,142 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Student's t-Distribution CDF (TDIST)", "TDIST", overlay=false, precision=6)
+
+//@function Natural log of the Gamma function via Lanczos approximation (g=7, 9 coefficients)
+//@param z Argument (must be > 0)
+//@returns ln(Γ(z))
+lnGamma(float z) =>
+    float g = 7.0
+    array<float> c = array.from(
+         0.99999999999980993,
+       676.5203681218851,
+     -1259.1392167224028,
+       771.32342877765313,
+      -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+         9.9843695780195716e-6,
+         1.5056327351493116e-7)
+    float zz = z < 0.5 ? 1.0 - z : z - 1.0
+    float x = array.get(c, 0)
+    for i = 1 to 8
+        x += array.get(c, i) / (zz + float(i))
+    float t = zz + g + 0.5
+    float logSqrt2Pi = 0.9189385332046727
+    float lnG = logSqrt2Pi + math.log(t) * (zz + 0.5) - t + math.log(x)
+    z < 0.5 ? math.log(math.pi / math.sin(math.pi * z)) - lnG : lnG
+
+//@function Regularized incomplete beta function I_x(a, b) via Lentz continued fraction
+//@param x Upper integration limit in [0, 1]
+//@param a First shape parameter (> 0)
+//@param b Second shape parameter (> 0)
+//@returns I_x(a, b) in [0, 1]
+betaReg(float x, float a, float b) =>
+    int MAXITER = 200
+    float EPS   = 1e-10
+    float TINY  = 1e-30
+
+    float result = 0.0
+    if x <= 0.0
+        result := 0.0
+    else if x >= 1.0
+        result := 1.0
+    else
+        bool flipped = x > (a + 1.0) / (a + b + 2.0)
+        float xx = flipped ? 1.0 - x : x
+        float aa = flipped ? b : a
+        float bb = flipped ? a : b
+
+        float logPfx = aa * math.log(xx) + bb * math.log(1.0 - xx)
+                     - math.log(aa)
+                     - lnGamma(aa) - lnGamma(bb) + lnGamma(aa + bb)
+        float pfx = math.exp(logPfx)
+
+        float f = 1.0 + TINY
+        float C = f
+        float D = 0.0
+        for m = 1 to MAXITER
+            float m2 = 2.0 * float(m)
+            float numEven = float(m) * (bb - float(m)) * xx /
+                           ((aa + m2 - 1.0) * (aa + m2))
+            D := 1.0 + numEven * D
+            D := math.abs(D) < TINY ? TINY : D
+            D := 1.0 / D
+            C := 1.0 + numEven / C
+            C := math.abs(C) < TINY ? TINY : C
+            f *= C * D
+            float numOdd = -(aa + float(m)) * (aa + bb + float(m)) * xx /
+                          ((aa + m2) * (aa + m2 + 1.0))
+            D := 1.0 + numOdd * D
+            D := math.abs(D) < TINY ? TINY : D
+            D := 1.0 / D
+            C := 1.0 + numOdd / C
+            C := math.abs(C) < TINY ? TINY : C
+            float delta = C * D
+            f *= delta
+            if math.abs(delta - 1.0) < EPS
+                break
+
+        float raw = pfx * f
+        result := flipped ? 1.0 - raw : raw
+    result
+
+//@function Calculates Student's t-Distribution CDF
+//@param source Series to evaluate (typically close)
+//@param period Lookback period for min-max normalization
+//@param df Degrees of freedom (ν > 0)
+//@returns CDF value P(T ≤ t) in [0, 1]
+//@description The Student's t-distribution CDF is computed via the relation:
+//    CDF(t; ν) = 1 − 0.5 × I(ν/(ν+t²), ν/2, 1/2)  if t ≥ 0
+//    CDF(t; ν) = 0.5 × I(ν/(ν+t²), ν/2, 1/2)        if t < 0
+//  where I is the regularized incomplete beta function (Lentz CF).
+//  The source is min-max normalized over the lookback period, then mapped
+//  to a t-statistic via linear transform: t = (x − 0.5) × tScale where
+//  tScale = 6.0 maps the [0,1] range to approximately [−3, +3].
+//  Reuses lnGamma (Lanczos 9-coeff) and betaReg (Lentz CF with symmetry flip)
+//  from BETADIST/FDIST. Stateless pure function — no var state.
+//  df=1 → Cauchy (heavy tails), df=5 → moderate tails, df→∞ → normal.
+//  Trading interpretation: CDF near 1.0 = price at top of recent range
+//  (assuming large df, approaches normal behavior). Heavy tails (low df) make
+//  the CDF less extreme, reflecting uncertainty about outlier moves.
+tdist(series float source, simple int period, simple float df) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if df <= 0.0
+        runtime.error("Degrees of freedom must be greater than 0")
+
+    float src = nz(source)
+    float hi = src
+    float lo = src
+    for i = 1 to period - 1
+        float v = nz(source[i])
+        hi := math.max(hi, v)
+        lo := math.min(lo, v)
+    float range = hi - lo
+    float x = range == 0.0 ? 0.5 : (src - lo) / range
+
+    float tScale = 6.0
+    float t = (x - 0.5) * tScale
+
+    float t2 = t * t
+    float bx = df / (df + t2)
+    float ibeta = betaReg(bx, df / 2.0, 0.5)
+
+    t >= 0.0 ? 1.0 - 0.5 * ibeta : 0.5 * ibeta
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Period", minval=1)
+i_df     = input.float(5.0, "Degrees of Freedom", minval=0.1, step=0.1)
+
+// Calculation
+tdist_value = tdist(i_source, i_period, i_df)
+
+// Plot
+plot(tdist_value, "TDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

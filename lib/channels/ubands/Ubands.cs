@@ -114,10 +114,10 @@ public sealed class Ubands : AbstractBase
         _state = default;
         _p_state = default;
         _residualBuffer.Clear();
-        Upper = default;
-        Middle = default;
-        Lower = default;
-        Width = default;
+        Upper = new TValue(DateTime.UtcNow, double.NaN);
+        Middle = new TValue(DateTime.UtcNow, double.NaN);
+        Lower = new TValue(DateTime.UtcNow, double.NaN);
+        Width = new TValue(DateTime.UtcNow, double.NaN);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

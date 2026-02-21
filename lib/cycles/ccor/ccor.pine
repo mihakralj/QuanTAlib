@@ -1,0 +1,107 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ehlers Correlation Cycle (CCOR)", "CCOR", overlay=false)
+
+//@function Computes Ehlers Correlation Cycle — extracts cycle phase via Pearson correlation of price
+//          with cosine (Real) and negative-sine (Imag) reference waves of a presumed fixed period.
+//          Converts to phasor angle with monotonic constraint, and derives market state.
+//@param source Series to analyze
+//@param period Presumed dominant cycle wavelength
+//@param threshold Angle rate-of-change threshold (degrees) for trend/cycle state detection
+//@returns [real, imag, angle, state] — correlation components, phasor angle, market state (+1/-1/0)
+//@reference John F. Ehlers, "Correlation As A Cycle Indicator" (Stocks & Commodities, TASC Jun 2020)
+//@optimized O(period) per bar for dual correlation loops; O(1) state variables
+ccor(series float source, simple int period, simple float threshold) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if threshold <= 0
+        runtime.error("Threshold must be greater than 0")
+
+    var float prev_angle = 0.0
+
+    float price = nz(source)
+
+    // --- Correlate price with cosine wave (Real component) ---
+    float sx_r = 0.0
+    float sy_r = 0.0
+    float sxx_r = 0.0
+    float sxy_r = 0.0
+    float syy_r = 0.0
+    for count = 0 to period - 1
+        float x = nz(source[count], price)
+        float y = math.cos(2.0 * math.pi * count / float(period))
+        sx_r += x
+        sy_r += y
+        sxx_r += x * x
+        sxy_r += x * y
+        syy_r += y * y
+
+    float n = float(period)
+    float denom_r = (n * sxx_r - sx_r * sx_r) * (n * syy_r - sy_r * sy_r)
+    float real_val = denom_r > 0.0 ? (n * sxy_r - sx_r * sy_r) / math.sqrt(denom_r) : 0.0
+
+    // --- Correlate price with negative sine wave (Imaginary component) ---
+    float sx_i = 0.0
+    float sy_i = 0.0
+    float sxx_i = 0.0
+    float sxy_i = 0.0
+    float syy_i = 0.0
+    for count = 0 to period - 1
+        float x = nz(source[count], price)
+        float y = -math.sin(2.0 * math.pi * count / float(period))
+        sx_i += x
+        sy_i += y
+        sxx_i += x * x
+        sxy_i += x * y
+        syy_i += y * y
+
+    float denom_i = (n * sxx_i - sx_i * sx_i) * (n * syy_i - sy_i * sy_i)
+    float imag_val = denom_i > 0.0 ? (n * sxy_i - sx_i * sy_i) / math.sqrt(denom_i) : 0.0
+
+    // --- Compute phasor angle (degrees) with quadrant resolution ---
+    float angle = 0.0
+    if imag_val != 0.0
+        angle := 90.0 + math.todegrees(math.atan(real_val / imag_val))
+    if imag_val > 0.0
+        angle -= 180.0
+
+    // --- Monotonic constraint: angle cannot go backward ---
+    float saved_prev = prev_angle
+    if angle < prev_angle
+        angle := prev_angle
+    prev_angle := angle
+
+    // --- Market state detection ---
+    // Small angle change → trending; large angle change → cycling
+    float angle_change = math.abs(angle - saved_prev)
+    int state = 0
+    if angle_change < threshold and angle <= 0.0
+        state := -1    // downtrend
+    if angle_change < threshold and angle >= 0.0
+        state := 1     // uptrend
+    // state = 0 → cycling mode
+
+    [real_val, imag_val, angle, state]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period    = input.int(20, "Period", minval=2)
+i_threshold = input.float(9.0, "State Threshold (degrees)", minval=0.1, step=0.5)
+i_source    = input.source(close, "Source")
+
+// Calculation
+[real_out, imag_out, angle_out, state_out] = ccor(i_source, i_period, i_threshold)
+
+// Scaled Real/Imag for display: map [-1,+1] → [-100,+100]
+float real_scaled = real_out * 100.0
+float imag_scaled = imag_out * 100.0
+
+// Colors based on Real vs Imag crossover
+color sig_color = real_scaled > imag_scaled ? color.new(color.green, 0) : color.new(color.red, 0)
+
+// Plots
+plot(real_scaled, "Real (×100)", color=sig_color, linewidth=2)
+plot(imag_scaled, "Imag (×100)", color=color.gray, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

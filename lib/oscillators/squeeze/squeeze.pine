@@ -1,0 +1,175 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Squeeze Momentum (SQUEEZE)", "SQUEEZE", overlay=false)
+
+//@function Calculates Squeeze Momentum — BB vs KC squeeze detection with LinReg momentum
+//@param source Series to evaluate (typically close)
+//@param period Lookback period for BB, KC, Donchian midline, and LinReg
+//@param bbMult Bollinger Band standard deviation multiplier
+//@param kcMult Keltner Channel ATR multiplier
+//@returns [momentum, squeezeOn] momentum histogram and squeeze state (1=on, 0=off)
+//@description Squeeze Momentum detects low-volatility compressions (BB inside KC)
+//  and measures directional momentum via linear regression:
+//    Bollinger Bands: SMA ± bbMult × StdDev(period)
+//    Keltner Channel: EMA ± kcMult × ATR(period) using Wilder RMA
+//    Squeeze On: BB_upper < KC_upper and BB_lower > KC_lower
+//    Midline: (Highest(high, period) + Lowest(low, period)) / 2
+//    Delta: close - (midline + SMA) / 2
+//    Momentum: LinReg(delta, period) evaluated at endpoint
+//  SMA and variance use O(1) circular buffer (§3 warmup).
+//  EMA and RMA use §2 exponential warmup compensators.
+//  Donchian highest/lowest use circular buffers with running max/min scan.
+//  LinReg uses incremental O(1) running sums (ΣY, ΣXY).
+//  Positive momentum = bullish, negative = bearish.
+//  Squeeze transitions (on→off) signal potential breakout moves.
+squeeze(series float source, simple int period, simple float bbMult, simple float kcMult) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if bbMult <= 0.0
+        runtime.error("BB multiplier must be greater than 0")
+    if kcMult <= 0.0
+        runtime.error("KC multiplier must be greater than 0")
+
+    float EPSILON = 1e-10
+
+    // ===== SMA + Variance (circular buffer, §3 warmup) =====
+    var array<float> smaBuf = array.new_float(period, na)
+    var int smaHead         = 0
+    var float smaSum        = 0.0
+    var float smaSumSq      = 0.0
+    var int smaCount        = 0
+
+    float srcVal = nz(source)
+    float oldSma = array.get(smaBuf, smaHead)
+    if not na(oldSma)
+        smaSum   -= oldSma
+        smaSumSq -= oldSma * oldSma
+    else
+        smaCount += 1
+    smaSum   += srcVal
+    smaSumSq += srcVal * srcVal
+    array.set(smaBuf, smaHead, srcVal)
+    smaHead := (smaHead + 1) % period
+
+    int n = math.max(1, smaCount)
+    float smaVal  = smaSum / float(n)
+    float variance = math.max(0.0, smaSumSq / float(n) - smaVal * smaVal)
+    float stddev   = math.sqrt(variance)
+
+    float bbUpper = smaVal + bbMult * stddev
+    float bbLower = smaVal - bbMult * stddev
+
+    // ===== EMA for KC midline (§2 warmup) =====
+    var float rawEma = 0.0
+    var float eEma   = 1.0
+    float emaAlpha   = 2.0 / (float(period) + 1.0)
+    float emaBeta    = 1.0 - emaAlpha
+
+    rawEma := rawEma * emaBeta + srcVal * emaAlpha
+    eEma *= emaBeta
+    float cEma = eEma > EPSILON ? 1.0 / (1.0 - eEma) : 1.0
+    float emaVal = rawEma * cEma
+
+    // ===== True Range + RMA for ATR (§2 warmup) =====
+    var float prevClose = na
+    float trueRange = high - low
+    if not na(prevClose)
+        trueRange := math.max(trueRange, math.max(math.abs(high - prevClose), math.abs(low - prevClose)))
+    prevClose := close
+
+    var float rawRma = 0.0
+    var float eRma   = 1.0
+    float rmaAlpha   = 1.0 / float(period)
+    float rmaBeta    = 1.0 - rmaAlpha
+
+    rawRma := rawRma * rmaBeta + trueRange * rmaAlpha
+    eRma *= rmaBeta
+    float cRma = eRma > EPSILON ? 1.0 / (1.0 - eRma) : 1.0
+    float atr = rawRma * cRma
+
+    float kcUpper = emaVal + kcMult * atr
+    float kcLower = emaVal - kcMult * atr
+
+    // ===== Squeeze detection =====
+    float sqOn = bbUpper < kcUpper and bbLower > kcLower ? 1.0 : 0.0
+
+    // ===== Donchian midline: (highest + lowest) / 2 over period =====
+    var array<float> hiBuf = array.new_float(period, na)
+    var array<float> loBuf = array.new_float(period, na)
+    var int donHead        = 0
+
+    array.set(hiBuf, donHead, high)
+    array.set(loBuf, donHead, low)
+    donHead := (donHead + 1) % period
+
+    float highest = high
+    float lowest  = low
+    for i = 0 to period - 1
+        float h = array.get(hiBuf, i)
+        float l = array.get(loBuf, i)
+        if not na(h)
+            highest := math.max(highest, h)
+        if not na(l)
+            lowest := math.min(lowest, l)
+
+    float donMid = (highest + lowest) / 2.0
+
+    // ===== Delta: close - average of donchian midline and SMA =====
+    float delta = srcVal - (donMid + smaVal) / 2.0
+
+    // ===== LinReg of delta over period (O(1) incremental) =====
+    var array<float> lrBuf = array.new_float(period, na)
+    var int lrHead         = 0
+    var float sumY         = 0.0
+    var float sumXY        = 0.0
+    var int lrCount        = 0
+
+    float oldLr = array.get(lrBuf, lrHead)
+    if not na(oldLr)
+        int oldIdx = lrCount - period
+        sumY  -= oldLr
+        sumXY -= float(oldIdx) * oldLr
+    else
+        // noop — count handles warmup
+        nop = 0
+
+    sumY  += delta
+    sumXY += float(lrCount) * delta
+    array.set(lrBuf, lrHead, delta)
+    lrHead := (lrHead + 1) % period
+
+    lrCount += 1
+
+    int pn = math.min(lrCount, period)
+    int startIdx = lrCount - pn
+    float sumX   = float(pn) * float(startIdx + startIdx + pn - 1) / 2.0
+    float sumX2  = 0.0
+    for i = 0 to pn - 1
+        float xi = float(startIdx + i)
+        sumX2 += xi * xi
+
+    float denomX = float(pn) * sumX2 - sumX * sumX
+    float slope  = denomX == 0.0 ? 0.0 : (float(pn) * sumXY - sumX * sumY) / denomX
+    float intercept = (sumY - slope * sumX) / float(pn)
+    float momentum  = slope * float(lrCount - 1) + intercept
+
+    [momentum, sqOn]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(20, "Period", minval=1)
+i_bbMult = input.float(2.0, "BB Multiplier", minval=0.001, step=0.1)
+i_kcMult = input.float(1.5, "KC Multiplier", minval=0.001, step=0.1)
+
+// Calculation
+[mom, sqOn] = squeeze(i_source, i_period, i_bbMult, i_kcMult)
+
+// Plot
+momColor = mom > 0 ? (mom > nz(mom[1]) ? color.lime : color.green) : (mom < nz(mom[1]) ? color.red : color.maroon)
+plot(mom, "Momentum", color=momColor, linewidth=2, style=plot.style_histogram)
+plot(sqOn == 1.0 ? 0 : na, "Squeeze On", color=color.red, linewidth=4, style=plot.style_circles)
+plot(sqOn == 0.0 ? 0 : na, "Squeeze Off", color=color.lime, linewidth=4, style=plot.style_circles)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

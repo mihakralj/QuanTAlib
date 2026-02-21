@@ -81,15 +81,14 @@ public class SigmoidValidationTests
     public void Sigmoid_OutputAlwaysBetweenZeroAndOne()
     {
         var sigmoid = new Sigmoid();
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromSeconds(1));
 
         for (int i = 0; i < 1000; i++)
         {
-            double x = rng.NextDouble() * 2000 - 1000;  // Range [-1000, 1000]
-            var result = sigmoid.Update(new TValue(DateTime.UtcNow.AddSeconds(i), x), true);
+            var result = sigmoid.Update(bars.Close[i], true);
 
-            Assert.True(result.Value >= 0.0, $"Output {result.Value} should be >= 0 for input {x}");
-            Assert.True(result.Value <= 1.0, $"Output {result.Value} should be <= 1 for input {x}");
+            Assert.True(result.Value >= 0.0, $"Output {result.Value} should be >= 0 for input {bars.Close[i].Value}");
+            Assert.True(result.Value <= 1.0, $"Output {result.Value} should be <= 1 for input {bars.Close[i].Value}");
         }
     }
 
@@ -219,12 +218,7 @@ public class SigmoidValidationTests
     {
         double k = 0.5;
         double x0 = 50.0;
-        double[] source = new double[500];
-        var rng = new Random(42);
-        for (int i = 0; i < source.Length; i++)
-        {
-            source[i] = rng.NextDouble() * 200 - 50;  // Range [-50, 150]
-        }
+        double[] source = new GBM(seed: 42).Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromSeconds(1)).CloseValues.ToArray();
 
         // Span calculation
         double[] spanOutput = new double[source.Length];

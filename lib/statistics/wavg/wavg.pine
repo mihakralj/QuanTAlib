@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Weighted Average (WAVG)", "WAVG", overlay=true)
+
+//@function Calculates rolling linearly-weighted average over a lookback window
+//@param source Series to evaluate (typically close)
+//@param period Lookback period (number of bars)
+//@returns Weighted average where weight[i] = position from oldest (1) to newest (period)
+//@description WAVG assigns linearly increasing weights to the lookback window:
+//    weight_i = i + 1   for i = 0 (oldest) to period-1 (newest)
+//    WAVG = Σ(weight_i × value_i) / Σ(weight_i)
+//    Σ(weight_i) = period × (period + 1) / 2
+//  Uses a circular buffer for O(1) updates per bar. On each new bar:
+//    1. Subtract the departing oldest value's contribution from weightedSum
+//    2. Shift all existing weights down by 1 (subtract runningSum from weightedSum)
+//    3. Add the new value with weight = count (current fill level)
+//  runningSum tracks the unweighted sum for the shift operation.
+//  §3 count-based warmup: during filling, actual count < period, and
+//  denominator = count × (count + 1) / 2.
+//  This is mathematically identical to WMA but categorized as a statistical measure.
+wavg(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    var array<float> buffer = array.new_float(period, na)
+    var int head            = 0
+    var float weightedSum   = 0.0
+    var float runningSum    = 0.0
+    var int count           = 0
+
+    float srcVal = nz(source)
+    float oldest = array.get(buffer, head)
+
+    if not na(oldest)
+        runningSum -= oldest
+    else
+        count += 1
+
+    weightedSum -= runningSum
+    runningSum  += srcVal
+    weightedSum += float(count) * srcVal
+
+    array.set(buffer, head, srcVal)
+    head := (head + 1) % period
+
+    float denom = float(count) * float(count + 1) / 2.0
+    denom > 0.0 ? weightedSum / denom : srcVal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(14, "Period", minval=1)
+
+// Calculation
+wavg_value = wavg(i_source, i_period)
+
+// Plot
+plot(wavg_value, "WAVG", color=color.yellow, linewidth=2)

@@ -1,0 +1,55 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Psychological Line (PSL)", "PSL", overlay=false)
+
+//@function Calculates Psychological Line — percentage of up-bars over lookback
+//@param source Series to evaluate (typically close)
+//@param period Lookback period (number of bars to count)
+//@returns PSL value in [0, 100]
+//@description PSL counts the number of bars where source > source[1] (up-bars)
+//  within the lookback window and expresses it as a percentage:
+//    PSL = 100 × (count of up-bars in period) / period
+//  Uses a circular buffer storing 1.0 (up) or 0.0 (down/unchanged) with
+//  a running sum for O(1) updates per bar.
+//  Readings above 50 indicate bullish sentiment (more up-bars than down).
+//  Extreme readings (>75 or <25) suggest overbought/oversold conditions.
+//  First bar has no prior close reference — defaults to 0 (not an up-bar).
+psl(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    var float upSum = 0.0
+    var int count = 0
+
+    float prev = source[1]
+    float upVal = not na(prev) and source > prev ? 1.0 : 0.0
+
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        upSum -= oldest
+    else
+        count += 1
+
+    upSum += upVal
+    array.set(buffer, head, upVal)
+    head := (head + 1) % period
+
+    100.0 * upSum / math.max(1, count)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(12, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+psl_value = psl(i_source, period=i_period)
+
+// Plot
+plot(psl_value, "PSL", color=color.yellow, linewidth=2)
+hline(50, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(75, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(25, "Oversold", color=color.green, linestyle=hline.style_dashed)

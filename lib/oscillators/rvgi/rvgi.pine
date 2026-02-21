@@ -1,0 +1,98 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Relative Vigor Index (RVGI)", "RVGI", overlay=false)
+
+//@function Calculates RVGI — momentum oscillator comparing close-open vs high-low
+//@param period SMA smoothing period for the SWMA-weighted numerator/denominator
+//@returns [rvgi, signal] RVGI value and its 4-bar SWMA signal line
+//@description RVGI measures the conviction of a price move by comparing closing
+//  strength to the full range:
+//    Step 1: SWMA(close-open, 4 bars) with weights [1/6, 2/6, 2/6, 1/6]
+//    Step 2: SWMA(high-low, 4 bars) with same weights
+//    Step 3: SMA(step1, period) / SMA(step2, period) → RVGI
+//    Step 4: SWMA(RVGI, 4 bars) → Signal line
+//  The SWMA (Symmetrically Weighted Moving Average) uses fixed 4-bar kernel:
+//    swma(x) = (x[3] + 2*x[2] + 2*x[1] + x[0]) / 6
+//  SMA sums use O(1) circular buffers with §3 count-based warmup.
+//  Defensive division: denominator == 0 returns 0.
+//  Crossovers of RVGI and Signal indicate momentum shifts.
+//  In uptrends, closes tend near highs → positive RVGI; downtrends → negative.
+rvgi(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // --- SWMA of (close - open): weights [1,2,2,1]/6 over 4 bars ---
+    float co0 = close - open
+    float co1 = nz(close[1]) - nz(open[1])
+    float co2 = nz(close[2]) - nz(open[2])
+    float co3 = nz(close[3]) - nz(open[3])
+    float swmaNum = (co3 + 2.0 * co2 + 2.0 * co1 + co0) / 6.0
+
+    // --- SWMA of (high - low): weights [1,2,2,1]/6 over 4 bars ---
+    float hl0 = high - low
+    float hl1 = nz(high[1]) - nz(low[1])
+    float hl2 = nz(high[2]) - nz(low[2])
+    float hl3 = nz(high[3]) - nz(low[3])
+    float swmaDen = (hl3 + 2.0 * hl2 + 2.0 * hl1 + hl0) / 6.0
+
+    // --- SMA of swmaNum over period (circular buffer, §3 warmup) ---
+    var array<float> numBuf  = array.new_float(period, na)
+    var int numHead          = 0
+    var float numSum         = 0.0
+    var int numCount         = 0
+
+    float oldNum = array.get(numBuf, numHead)
+    if not na(oldNum)
+        numSum -= oldNum
+    else
+        numCount += 1
+    numSum += nz(swmaNum)
+    array.set(numBuf, numHead, nz(swmaNum))
+    numHead := (numHead + 1) % period
+
+    float smaNum = numSum / math.max(1, numCount)
+
+    // --- SMA of swmaDen over period (circular buffer, §3 warmup) ---
+    var array<float> denBuf  = array.new_float(period, na)
+    var int denHead          = 0
+    var float denSum         = 0.0
+    var int denCount         = 0
+
+    float oldDen = array.get(denBuf, denHead)
+    if not na(oldDen)
+        denSum -= oldDen
+    else
+        denCount += 1
+    denSum += nz(swmaDen)
+    array.set(denBuf, denHead, nz(swmaDen))
+    denHead := (denHead + 1) % period
+
+    float smaDen = denSum / math.max(1, denCount)
+
+    // --- RVGI = numSMA / denSMA ---
+    float rvgiVal = smaDen == 0.0 ? 0.0 : smaNum / smaDen
+
+    // --- Signal: SWMA of RVGI over 4 bars ---
+    var float rv1 = 0.0
+    var float rv2 = 0.0
+    var float rv3 = 0.0
+    float sig = (rv3 + 2.0 * rv2 + 2.0 * rv1 + rvgiVal) / 6.0
+    rv3 := rv2
+    rv2 := rv1
+    rv1 := rvgiVal
+
+    [rvgiVal, sig]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+
+// Calculation
+[rvgiLine, sigLine] = rvgi(i_period)
+
+// Plot
+plot(rvgiLine, "RVGI", color=color.yellow, linewidth=2)
+plot(sigLine, "Signal", color=color.aqua, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

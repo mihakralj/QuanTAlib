@@ -1,0 +1,85 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Kaiser Window Moving Average (KAISER)", "KAISER", overlay=true)
+
+//@function Computes Kaiser Window Moving Average — a symmetric FIR filter using the
+//          Kaiser-Bessel window function for optimal sidelobe attenuation. The beta
+//          parameter controls the trade-off between main lobe width and sidelobe level.
+//@param source Series to smooth
+//@param period Lookback window (>= 2)
+//@param beta Kaiser shape parameter controlling sidelobe attenuation (default 3.0).
+//            Higher beta = smoother (more attenuation) but wider transition band.
+//            beta=0 reduces to rectangular (SMA), beta~5.65 approximates Blackman.
+//@returns Kaiser-weighted moving average
+//@reference Kaiser, J.F. & Schafer, R.W. (1980). "On the Use of the I0-Sinh Window
+//           for Spectrum Analysis." IEEE Trans. Acoust., Speech, Signal Process.
+//@optimized O(period) per bar for convolution; weights precomputed once via I0 series
+kaiser(series float source, simple int period, simple float beta = 3.0) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // --- Circular buffer for rolling window ---
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % period
+
+    // --- Precompute Kaiser window weights once ---
+    // Kaiser window: w(k) = I0(beta * sqrt(1 - ((2k/(N-1)) - 1)^2)) / I0(beta)
+    // I0(x) = modified Bessel function of the first kind, order 0
+    // Approximated via power series: I0(x) = sum_{m=0}^{M} [(x/2)^m / m!]^2
+    var array<float> weights = array.new_float(0)
+    if barstate.isfirst
+        // I0 approximation via power series (25 terms — sufficient for double precision)
+        bessel_i0(float x) =>
+            float sum = 1.0
+            float term = 1.0
+            float half_x = x / 2.0
+            for m = 1 to 25
+                term *= (half_x / m)
+                sum += term * term
+            sum
+
+        float i0_beta = bessel_i0(beta)
+        float N = period - 1
+
+        float wsum = 0.0
+        for k = 0 to period - 1
+            float t = N > 0 ? (2.0 * k / N) - 1.0 : 0.0
+            float arg_sq = 1.0 - t * t
+            // Clamp to avoid sqrt of negative due to floating-point
+            float arg = arg_sq > 0 ? math.sqrt(arg_sq) : 0.0
+            float w = i0_beta > 0 ? bessel_i0(beta * arg) / i0_beta : 1.0
+            array.push(weights, w)
+            wsum += w
+
+        // Normalize weights to sum exactly 1.0
+        if wsum > 0
+            for j = 0 to period - 1
+                array.set(weights, j, array.get(weights, j) / wsum)
+
+    int count = math.min(bar_index + 1, period)
+    if count < period
+        price
+    else
+        // --- Apply Kaiser window convolution via circular buffer ---
+        // Buffer: head points to next-write = oldest entry
+        // Weight[0] = oldest bar, Weight[period-1] = newest
+        float result = 0.0
+        for j = 0 to period - 1
+            int idx = (head + j) % period
+            float val = nz(array.get(buffer, idx))
+            result += val * array.get(weights, j)
+        result
+
+// ── Inputs ──────────────────────────────────────────────────────────────
+src  = input.source(close, "Source")
+per  = input.int(14, "Period", minval=2)
+bet  = input.float(3.0, "Beta (shape)", minval=0, maxval=20, step=0.1,
+           tooltip="0=rectangular(SMA), 3=good general, 5.65≈Blackman, 8.6=Hamming-like")
+
+// ── Plot ────────────────────────────────────────────────────────────────
+plot(kaiser(src, per, bet), "KAISER", color.new(color.yellow, 0), 2)

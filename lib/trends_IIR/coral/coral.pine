@@ -1,0 +1,66 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Coral Filter (CORAL)", "CORAL", overlay=true)
+
+//@function Calculates the Coral trend filter using 6 cascaded EMAs with polynomial combination
+//@param source Series to smooth
+//@param period Smoothing period (determines EMA alpha via di = (period-1)/2 + 1)
+//@param cd Constant D — controls the polynomial weighting of cascaded EMAs (default 0.4)
+//@returns Coral filter value from first bar
+//@description The Coral filter (LazyBear, adapted from MT4) chains 6 EMA passes and linearly
+//  combines stages 3-6 using polynomial coefficients derived from 'cd'. This creates a smooth,
+//  low-lag trend line. Structure: 6× cascaded EMA → polynomial combination.
+//  di  = (period - 1) / 2 + 1
+//  c1  = 2 / (di + 1)                     (EMA alpha)
+//  c2  = 1 - c1                            (EMA complement)
+//  c3  = 3*(cd² + cd³)
+//  c4  = -3*(2*cd² + cd + cd³)
+//  c5  = 3*cd + 1 + cd³ + 3*cd²
+//  bfr = -cd³*i6 + c3*i5 + c4*i4 + c5*i3
+//  Note: c3 + c4 + c5 + (-cd³) = 1 (unity DC gain).
+coral(series float source, simple int period, simple float cd = 0.4) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float di = (period - 1.0) / 2.0 + 1.0
+    float c1 = 2.0 / (di + 1.0)
+    float c2 = 1.0 - c1
+
+    // Polynomial combination coefficients from Constant D
+    float cd2 = cd * cd
+    float cd3 = cd2 * cd
+    float c3 = 3.0 * (cd2 + cd3)
+    float c4 = -3.0 * (2.0 * cd2 + cd + cd3)
+    float c5 = 3.0 * cd + 1.0 + cd3 + 3.0 * cd2
+
+    // 6 cascaded EMAs
+    var float i1 = 0.0
+    var float i2 = 0.0
+    var float i3 = 0.0
+    var float i4 = 0.0
+    var float i5 = 0.0
+    var float i6 = 0.0
+
+    i1 := c1 * source + c2 * i1
+    i2 := c1 * i1 + c2 * i2
+    i3 := c1 * i2 + c2 * i3
+    i4 := c1 * i3 + c2 * i4
+    i5 := c1 * i4 + c2 * i5
+    i6 := c1 * i5 + c2 * i6
+
+    // Polynomial combination of stages 3-6
+    float bfr = -cd3 * i6 + c3 * i5 + c4 * i4 + c5 * i3
+    bfr
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(21, "Smoothing Period", minval=1)
+i_cd     = input.float(0.4, "Constant D", minval=0, maxval=1, step=0.01)
+i_source = input.source(close, "Source")
+
+// Calculation
+coral_value = coral(i_source, period=i_period, cd=i_cd)
+
+// Plot
+plot(coral_value, "CORAL", color=color.yellow, linewidth=2)

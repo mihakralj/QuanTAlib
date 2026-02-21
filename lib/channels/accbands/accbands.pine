@@ -3,56 +3,60 @@
 //@version=6
 indicator("Acceleration Bands (ACCBANDS)", "ACCBANDS", overlay=true)
 
-//@function Calculates Acceleration Bands using SMAs of high, low, close prices
+//@function Calculates Acceleration Bands using Price Headley's original formula
 //@param high Series of high prices
 //@param low Series of low prices
 //@param close Series of close prices
 //@param period Lookback period for the moving average
-//@param factor Multiplier for band width calculation
+//@param factor Multiplier for normalized width (default 4.0 per Headley)
 //@returns tuple with [middle, upper, lower] band values
 //@optimized Uses circular buffers with O(1) complexity per bar
-accbands(series float high, series float low, series float close, simple int period, simple float factor = 2.0) =>
+accbands(series float high, series float low, series float close, simple int period, simple float factor = 4.0) =>
     if period <= 0 or factor <= 0.0
         runtime.error("Period and factor must be greater than 0")
     var int p = math.max(1, period)
     var int head = 0
     var int count = 0
-    var array<float> bufferHigh = array.new_float(p, na)
-    var array<float> bufferLow = array.new_float(p, na)
+    var array<float> bufferAdjHigh = array.new_float(p, na)
+    var array<float> bufferAdjLow = array.new_float(p, na)
     var array<float> bufferClose = array.new_float(p, na)
-    var float sumHigh = 0.0
-    var float sumLow = 0.0
+    var float sumAdjHigh = 0.0
+    var float sumAdjLow = 0.0
     var float sumClose = 0.0
-    float oldestHigh = array.get(bufferHigh, head)
-    float oldestLow = array.get(bufferLow, head)
+    float oldestAdjHigh = array.get(bufferAdjHigh, head)
+    float oldestAdjLow = array.get(bufferAdjLow, head)
     float oldestClose = array.get(bufferClose, head)
-    if not na(oldestHigh)
-        sumHigh -= oldestHigh
-        sumLow -= oldestLow
+    if not na(oldestAdjHigh)
+        sumAdjHigh -= oldestAdjHigh
+        sumAdjLow -= oldestAdjLow
         sumClose -= oldestClose
         count -= 1
     float currentHigh = nz(high)
     float currentLow = nz(low)
     float currentClose = nz(close)
-    sumHigh += currentHigh
-    sumLow += currentLow
+    // Headley's per-bar normalized width
+    float denom = currentHigh + currentLow
+    float w = denom != 0.0 ? (currentHigh - currentLow) / denom : 0.0
+    float adjHigh = currentHigh * (1.0 + factor * w)
+    float adjLow = currentLow * (1.0 - factor * w)
+    sumAdjHigh += adjHigh
+    sumAdjLow += adjLow
     sumClose += currentClose
     count += 1
-    array.set(bufferHigh, head, currentHigh)
-    array.set(bufferLow, head, currentLow)
+    array.set(bufferAdjHigh, head, adjHigh)
+    array.set(bufferAdjLow, head, adjLow)
     array.set(bufferClose, head, currentClose)
     head := (head + 1) % p
-    float smaHigh = nz(sumHigh / count)
-    float smaLow = nz(sumLow / count)
+    float smaAdjHigh = nz(sumAdjHigh / count)
+    float smaAdjLow = nz(sumAdjLow / count)
     float smaClose = nz(sumClose / count)
-    float bandWidth = (smaHigh - smaLow) * factor
-    [smaClose, smaHigh + bandWidth, smaLow - bandWidth]
+    [smaClose, smaAdjHigh, smaAdjLow]
 
 // ---------- Main loop ----------
 
 // Inputs
 i_period = input.int(20, "Period", minval=1)
-i_factor = input.float(2.0, "Factor", minval=0.001)
+i_factor = input.float(4.0, "Factor", minval=0.001)
 
 // Calculation
 [middle, upper, lower] = accbands(high, low, close, i_period, i_factor)

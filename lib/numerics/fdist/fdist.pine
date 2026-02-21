@@ -1,0 +1,127 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("F-Distribution CDF (FDIST)", "FDIST", overlay=false, precision=6)
+
+//@function Log-gamma via Lanczos approximation (g=7, 9 coefficients)
+//@param z Input value (z > 0)
+//@returns ln(Gamma(z))
+lnGamma(simple float z) =>
+    float g = 7.0
+    array<float> c = array.from(
+         0.99999999999980993,
+       676.5203681218851,
+     -1259.1392167224028,
+       771.32342877765313,
+      -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+         9.9843695780195716e-6,
+         1.5056327351493116e-7)
+    float zz = z - 1.0
+    float x = array.get(c, 0)
+    for i = 1 to 8
+        x += array.get(c, i) / (zz + i)
+    float t = zz + g + 0.5
+    0.5 * math.log(2.0 * math.pi) + (zz + 0.5) * math.log(t) - t + math.log(x)
+
+//@function Regularized incomplete beta function I_x(a,b) via continued fraction (Lentz)
+//@param x Evaluation point (0 <= x <= 1)
+//@param a Shape parameter alpha (a > 0)
+//@param b Shape parameter beta (b > 0)
+//@returns CDF value P(X <= x) for Beta(a,b)
+betaReg(series float x, simple float a, simple float b) =>
+    if x <= 0.0
+        0.0
+    else if x >= 1.0
+        1.0
+    else
+        float lnPfx = a * math.log(x) + b * math.log(1.0 - x) - math.log(a) - lnGamma(a) - lnGamma(b) + lnGamma(a + b)
+        float front = math.exp(lnPfx)
+        bool flip = x > (a + 1.0) / (a + b + 2.0)
+        float xx = flip ? 1.0 - x : x
+        float aa = flip ? b : a
+        float bb = flip ? a : b
+        float lnPfx2 = aa * math.log(xx) + bb * math.log(1.0 - xx) - math.log(aa) - lnGamma(aa) - lnGamma(bb) + lnGamma(aa + bb)
+        float front2 = math.exp(lnPfx2)
+        float TINY = 1e-30
+        float EPS = 1e-10
+        int MAXITER = 200
+        float f = TINY
+        float C = TINY
+        float D = 0.0
+        float delta = 0.0
+        for m = 0 to MAXITER - 1
+            float d_val = 0.0
+            int mm = m / 2
+            if m == 0
+                d_val := 1.0
+            else if m % 2 == 0
+                float mf = float(mm)
+                d_val := mf * (bb - mf) * xx / ((aa + 2.0 * mf - 1.0) * (aa + 2.0 * mf))
+            else
+                float mf = float(mm) + 1.0
+                d_val := -(aa + mf - 1.0) * (aa + bb + mf - 1.0) * xx / ((aa + 2.0 * mf - 2.0) * (aa + 2.0 * mf - 1.0))
+            D := 1.0 + d_val * D
+            if math.abs(D) < TINY
+                D := TINY
+            D := 1.0 / D
+            C := 1.0 + d_val / C
+            if math.abs(C) < TINY
+                C := TINY
+            delta := C * D
+            f *= delta
+            if math.abs(delta - 1.0) < EPS
+                break
+        float result = front2 * f
+        flip ? 1.0 - result : result
+
+//@function Computes F-Distribution CDF for a normalized price series
+//@param source Series to transform
+//@param period Lookback period for min-max normalization
+//@param d1 Numerator degrees of freedom (d1 > 0)
+//@param d2 Denominator degrees of freedom (d2 > 0)
+//@returns CDF value in [0,1]: P(F <= x) via regularized incomplete beta
+//@optimized Lentz continued fraction converges in ~10-20 iterations
+fdist(series float source, simple int period, simple float d1, simple float d2) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if d1 <= 0.0
+        runtime.error("d1 must be greater than 0")
+    if d2 <= 0.0
+        runtime.error("d2 must be greater than 0")
+
+    float minVal = source
+    float maxVal = source
+    for i = 1 to period - 1
+        float v = source[i]
+        if not na(v)
+            if v < minVal
+                minVal := v
+            if v > maxVal
+                maxVal := v
+
+    float range = maxVal - minVal
+    float x = range > 0.0 ? (source - minVal) / range : 0.5
+
+    float safeX = math.max(0.0, x)
+    float t = d1 * safeX / (d1 * safeX + d2)
+
+    betaReg(t, d1 / 2.0, d2 / 2.0)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(50, "Lookback Period", minval=2, maxval=5000, tooltip="Min-max normalization window")
+i_d1     = input.float(5.0, "d1 (numerator df)", minval=0.1, step=1.0, tooltip="Numerator degrees of freedom")
+i_d2     = input.float(5.0, "d2 (denominator df)", minval=0.1, step=1.0, tooltip="Denominator degrees of freedom")
+
+// Calculation
+float result = fdist(i_source, i_period, i_d1, i_d2)
+
+// Plot
+plot(result, "FDIST", color=color.yellow, linewidth=2)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_dotted)
+hline(0.95, "Upper", color=color.red, linestyle=hline.style_dashed)
+hline(0.05, "Lower", color=color.green, linestyle=hline.style_dashed)

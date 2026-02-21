@@ -240,13 +240,12 @@ public class HomodValidationTests
     public void Homod_HandlesVolatileInput()
     {
         var homod = new Homod(6, 50);
-        var random = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromSeconds(1));
 
-        // Highly volatile random input
+        // Highly volatile GBM input
         for (int i = 0; i < 500; i++)
         {
-            double value = 100.0 + (random.NextDouble() - 0.5) * 50;
-            var result = homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
+            var result = homod.Update(bars.Close[i]);
 
             Assert.True(double.IsFinite(result.Value));
             if (homod.IsHot)

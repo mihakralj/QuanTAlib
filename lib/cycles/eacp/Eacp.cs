@@ -56,7 +56,8 @@ public sealed class Eacp : AbstractBase
         double Hp0, double Hp1, double Hp2,
         double Filt0, double Filt1, double Filt2,
         double Dom, double DomPower, double MaxPwr,
-        int BarCount, double LastValidValue
+        int BarCount, double LastValidValue,
+        double WarmupDecay, bool InWarmup
     );
 
     private State _s;
@@ -128,7 +129,7 @@ public sealed class Eacp : AbstractBase
 
         // Initialize state
         double initialDom = (minPeriod + maxPeriod) * 0.5;
-        _s = new State(0, 0, 0, 0, 0, 0, 0, 0, 0, initialDom, 0, 0, 0, 0);
+        _s = new State(0, 0, 0, 0, 0, 0, 0, 0, 0, initialDom, 0, 0, 0, 0, 1.0, true);
         _ps = _s;
     }
 
@@ -205,12 +206,14 @@ public sealed class Eacp : AbstractBase
         // Compute power spectrum via DFT
         ComputePowerSpectrum();
 
-        // Find dominant cycle
-        var (dom, domPower, maxPwr) = FindDominantCycle(s.Dom, s.MaxPwr);
+        // Find dominant cycle (with warmup compensation)
+        var (dom, domPower, maxPwr, warmupDecay, inWarmup) =
+            FindDominantCycle(s.Dom, s.MaxPwr, s.WarmupDecay, s.InWarmup);
 
         // Update state
         _s = new State(price0, price1, price2, hp0, hp1, hp2, filt0, filt1, filt2,
-                       dom, domPower, maxPwr, barCount, s.LastValidValue);
+                       dom, domPower, maxPwr, barCount, s.LastValidValue,
+                       warmupDecay, inWarmup);
 
         Last = new TValue(input.Time, dom);
         PubEvent(Last, isNew);
@@ -314,12 +317,14 @@ public sealed class Eacp : AbstractBase
             double sq = cosAcc * cosAcc + sinAcc * sinAcc;
 
             // Smooth the power spectrum (EMA-like smoothing)
-            _smooth[period] = 0.2 * sq + 0.8 * _smooth[period];
+            // Power squared per Ehlers: emphasizes spectral peaks, suppresses noise
+            _smooth[period] = Math.FusedMultiplyAdd(0.2, sq * sq, 0.8 * _smooth[period]);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (double dom, double domPower, double maxPwr) FindDominantCycle(double prevDom, double prevMaxPwr)
+    private (double dom, double domPower, double maxPwr, double warmupDecay, bool inWarmup)
+        FindDominantCycle(double prevDom, double prevMaxPwr, double prevWarmupDecay, bool prevInWarmup)
     {
         // Find local maximum power
         double localMaxPwr = 0;
@@ -368,9 +373,19 @@ public sealed class Eacp : AbstractBase
         // Calculate dominant cycle - use prevDom as fallback
         double baseDom = sumWeight >= 0.25 ? weighted / sumWeight : prevDom;
 
-        // Apply EMA smoothing (alpha = 0.2) - this is the PineScript formula
-        // dom := alpha*(base-dom)+dom which equals dom + alpha*(base-dom)
-        double dom = prevDom + 0.2 * (baseDom - prevDom);
+        // Apply EMA smoothing (alpha = 0.2, beta = 0.8)
+        double dom = Math.FusedMultiplyAdd(0.2, baseDom - prevDom, prevDom);
+
+        // Warmup compensation §2: correct EMA bias during early bars
+        double warmupDecay = prevWarmupDecay;
+        bool inWarmup = prevInWarmup;
+        if (inWarmup)
+        {
+            warmupDecay *= 0.8; // beta = 1 - alpha = 0.8
+            double c = 1.0 / (1.0 - warmupDecay);
+            dom *= c;
+            inWarmup = warmupDecay > 1e-10;
+        }
 
         // Ensure dom stays within bounds
         dom = Math.Clamp(dom, _minPeriod, _maxPeriod);
@@ -379,13 +394,13 @@ public sealed class Eacp : AbstractBase
         int domIdx = Math.Clamp((int)Math.Round(dom), _minPeriod, _maxPeriod);
         double domPower = Math.Clamp(_power[domIdx], 0.0, 1.0);
 
-        return (dom, domPower, maxPwr);
+        return (dom, domPower, maxPwr, warmupDecay, inWarmup);
     }
 
     public override void Reset()
     {
         double initialDom = (_minPeriod + _maxPeriod) * 0.5;
-        _s = new State(0, 0, 0, 0, 0, 0, 0, 0, 0, initialDom, 0, 0, 0, 0);
+        _s = new State(0, 0, 0, 0, 0, 0, 0, 0, 0, initialDom, 0, 0, 0, 0, 1.0, true);
         _ps = _s;
         _filtHistory.Clear();
         Array.Clear(_corr);

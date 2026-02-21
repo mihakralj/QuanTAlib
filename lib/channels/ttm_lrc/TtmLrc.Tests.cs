@@ -96,12 +96,11 @@ public class TtmLrcTests
     public void Bands_Symmetry_Upper1AndLower1EquidistantFromMiddle()
     {
         var indicator = new TtmLrc(10);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(15, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 10), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
         }
 
         double mid = indicator.Midline.Value;
@@ -119,12 +118,11 @@ public class TtmLrcTests
     public void Bands_Symmetry_Upper2AndLower2EquidistantFromMiddle()
     {
         var indicator = new TtmLrc(10);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(15, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 10), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
         }
 
         double mid = indicator.Midline.Value;
@@ -142,12 +140,11 @@ public class TtmLrcTests
     public void Bands_Ordering_UpperGreaterThanMiddleGreaterThanLower()
     {
         var indicator = new TtmLrc(10);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(15, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 10), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
         }
 
         Assert.True(indicator.Upper2.Value >= indicator.Upper1.Value, "Upper2 should be >= Upper1");
@@ -249,12 +246,11 @@ public class TtmLrcTests
     public void RSquared_RandomData_LessThanOne()
     {
         var indicator = new TtmLrc(20);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(30, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 30; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 50), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
         }
 
         Assert.True(indicator.RSquared < 1.0, $"R² should be less than 1.0 for random data, got {indicator.RSquared}");
@@ -265,12 +261,11 @@ public class TtmLrcTests
     public void RSquared_ClampedBetweenZeroAndOne()
     {
         var indicator = new TtmLrc(5);
-        var now = DateTime.UtcNow;
-        var rng = new Random(123);
+        var bars = new GBM(seed: 123).Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 20; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 100 - 50), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
             Assert.True(indicator.RSquared >= 0.0 && indicator.RSquared <= 1.0, $"R² should be in [0,1], got {indicator.RSquared}");
         }
     }
@@ -368,23 +363,15 @@ public class TtmLrcTests
     public void BatchVsStreaming_SameResults()
     {
         var streamingIndicator = new TtmLrc(20);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
         int count = 50;
-
-        var times = new List<long>(count);
-        var values = new List<double>(count);
+        var bars = new GBM(seed: 42).Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < count; i++)
         {
-            long t = (now.AddMinutes(i)).Ticks;
-            double v = 100 + rng.NextDouble() * 20;
-            times.Add(t);
-            values.Add(v);
-            streamingIndicator.Update(new TValue(new DateTime(t, DateTimeKind.Utc), v), isNew: true);
+            streamingIndicator.Update(bars.Close[i], isNew: true);
         }
 
-        var source = new TSeries(times, values);
+        var source = bars.Close;
         var (bMid, bU1, bL1, bU2, bL2) = TtmLrc.Batch(source, 20);
 
         // Compare streaming final values to batch final values
@@ -399,20 +386,10 @@ public class TtmLrcTests
     public void Update_TSeries_ReturnsAllFiveBands()
     {
         var indicator = new TtmLrc(10);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
         int count = 20;
+        var bars = new GBM(seed: 42).Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        var times = new List<long>(count);
-        var values = new List<double>(count);
-
-        for (int i = 0; i < count; i++)
-        {
-            times.Add(now.AddMinutes(i).Ticks);
-            values.Add(100 + rng.NextDouble() * 10);
-        }
-
-        var source = new TSeries(times, values);
+        var source = bars.Close;
         var (mid, u1, l1, u2, l2) = indicator.Update(source);
 
         Assert.Equal(count, mid.Count);
@@ -425,20 +402,10 @@ public class TtmLrcTests
     [Fact]
     public void Calculate_ReturnsIndicatorAndResults()
     {
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
         int count = 30;
+        var bars = new GBM(seed: 42).Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        var times = new List<long>(count);
-        var values = new List<double>(count);
-
-        for (int i = 0; i < count; i++)
-        {
-            times.Add(now.AddMinutes(i).Ticks);
-            values.Add(100 + rng.NextDouble() * 15);
-        }
-
-        var source = new TSeries(times, values);
+        var source = bars.Close;
         var (results, indicator) = TtmLrc.Calculate(source, 15);
 
         Assert.NotNull(indicator);
@@ -674,12 +641,11 @@ public class TtmLrcTests
     public void LargePeriod_HandlesCorrectly()
     {
         var indicator = new TtmLrc(200);
-        var now = DateTime.UtcNow;
-        var rng = new Random(42);
+        var bars = new GBM(seed: 42).Fetch(250, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 250; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + rng.NextDouble() * 50), isNew: true);
+            indicator.Update(bars.Close[i], isNew: true);
         }
 
         Assert.True(indicator.IsHot);

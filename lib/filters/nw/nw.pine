@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+
+//@version=6
+indicator("NW - Nadaraya-Watson Kernel Regression", "NW", overlay=true)
+
+// ── Functions ──────────────────────────────────────────────────────────
+// @function Calculates the Nadaraya-Watson kernel regression estimator
+//   (Nadaraya 1964, Watson 1964) with Gaussian kernel.
+//   Non-repainting endpoint estimation (backward-looking only).
+//   For each bar t, computes the weighted average:
+//     nw(t) = Σ_{i=0}^{N-1} w_i × src[i] / Σ_{i=0}^{N-1} w_i
+//   where w_i = K(i/h) and K(u) = exp(-u²/2) is the Gaussian kernel.
+//   The bandwidth h controls the effective smoothing radius:
+//     small h → tight kernel → tracks price closely (low bias, high variance)
+//     large h → wide kernel → heavy smoothing (high bias, low variance)
+//   The period limits the lookback window; weights beyond ~3h are negligible.
+//   Mathematically equivalent to a normalized Gaussian-weighted FIR filter
+//   where the kernel width is parameterized by h rather than period.
+// @param source Series to smooth
+// @param period Lookback window (must be > 0)
+// @param bandwidth Gaussian kernel bandwidth h (must be > 0)
+// @returns NW kernel regression estimate
+export nw(series float source, simple int period, simple float bandwidth) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if bandwidth <= 0
+        runtime.error("Bandwidth must be greater than 0")
+
+    float src = nz(source)
+    int bars = math.min(bar_index + 1, period)
+
+    // Nadaraya-Watson: weighted average with Gaussian kernel
+    float num = 0.0
+    float den = 0.0
+    float h2x2 = 2.0 * bandwidth * bandwidth
+
+    for i = 0 to bars - 1
+        float dist = float(i)
+        float w = math.exp(-(dist * dist) / h2x2)
+        float val = nz(source[i])
+        num += w * val
+        den += w
+
+    float result = den > 0.0 ? num / den : src
+    result
+
+// ── Inputs ─────────────────────────────────────────────────────────────
+int    i_period    = input.int(64, "Period", minval=1)
+float  i_bandwidth = input.float(8.0, "Bandwidth (h)", minval=0.1, step=0.5)
+string i_source    = input.source(close, "Source")
+
+// ── Calculation ────────────────────────────────────────────────────────
+float value = nw(i_source, i_period, i_bandwidth)
+
+// ── Plot ───────────────────────────────────────────────────────────────
+plot(value, "NW", color.yellow, 2)

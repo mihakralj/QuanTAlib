@@ -6,7 +6,7 @@ indicator("Schaff Trend Cycle (STC)", "STC", overlay=false)
 ema(series float source,simple int period=0,simple float alpha=0)=>
     if alpha<=0 and period<=0
         runtime.error("Alpha or period must be provided")
-    float a=alpha>0?alpha:2.0/math.max(period,1)
+    float a=alpha>0?alpha:2.0/(math.max(period,1)+1)
     var float raw_ema=na
     var float ema=na
     var float e=1.0 
@@ -34,7 +34,7 @@ ema(series float source,simple int period=0,simple float alpha=0)=>
 //@param slowLength Period for slow EMA calculation
 //@param smoothingType Type of smoothing (0:none, 1:ema, 2:sigmoid, 3:digital)
 //@returns Smoothed STC value
-stc(series float source, simple int cycleLength, simple int fastLength, simple int slowLength, simple int smoothingType = 2) =>
+stc(series float source, simple int cycleLength, simple int fastLength, simple int slowLength, simple int smoothingType = 1) =>
     float fast_ema = ema(source, fastLength)
     float slow_ema = ema(source, slowLength)
     float macdLine = fast_ema - slow_ema
@@ -45,8 +45,11 @@ stc(series float source, simple int cycleLength, simple int fastLength, simple i
     float stoch1 = ema(stoch1_raw, 3)
     h2 = ta.highest(stoch1, cycleLength)
     l2 = ta.lowest(stoch1, cycleLength)
-    float stoch2 = (h2 - l2) > 0 ? 100 * (stoch1 - l2) / (h2 - l2) : 0
+    float stoch2_raw = (h2 - l2) > 0 ? 100 * (stoch1 - l2) / (h2 - l2) : 0
 
+    // Second-stage IIR smoothing: PFF = PFF[1] + 0.5 * (Frac2 - PFF[1])
+    var float stoch2 = na
+    stoch2 := na(stoch2[1]) ? stoch2_raw : stoch2[1] + 0.5 * (stoch2_raw - stoch2[1])
 
     float stcValue = stoch2
     if smoothingType == 1
@@ -61,10 +64,10 @@ stc(series float source, simple int cycleLength, simple int fastLength, simple i
 
 // Inputs
 i_source = input.source(close, title="Source")
-i_cycleLength = input.int(12, title="Cycle Length", minval=2)
-i_fastLength = input.int(26, title="Fast Length", minval=2)
+i_cycleLength = input.int(10, title="Cycle Length", minval=2)
+i_fastLength = input.int(23, title="Fast Length", minval=2)
 i_slowLength = input.int(50, title="Slow Length", minval=2)
-i_smoothingType = input.int(2, title="Smoothing", minval=0, maxval=3, tooltip="0: none, 1:ema, 2:sigmoid, 3:digital")
+i_smoothingType = input.int(1, title="Smoothing", minval=0, maxval=3, tooltip="0: none, 1:ema, 2:sigmoid, 3:digital")
 
 // Calculation
 stcValue = stc(i_source, i_cycleLength, i_fastLength, i_slowLength, i_smoothingType)
