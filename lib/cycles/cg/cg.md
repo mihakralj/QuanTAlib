@@ -73,6 +73,28 @@ function CG(source, period):
 | Zero crossing down | Momentum shifting bearish |
 | Hanging at extremes | Strong trend in progress |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 2×N | 1 | 2N |
+| MUL | N | 3 | 3N |
+| DIV | 1 | 15 | 15 |
+| **Total** | **~3N+1** | — | **~5N+15** |
+
+The `RecalculateSums()` loop iterates over the full buffer each bar, making this O(N) per bar. For default $N = 10$: ~65 cycles. A periodic resync every 1000 bars maintains numerical stability.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact weighted center-of-mass calculation |
+| **Timeliness** | 9/10 | Leads price movement by construction |
+| **Smoothness** | 7/10 | Raw oscillator; no internal smoothing |
+| **Memory** | 9/10 | O(N) ring buffer + 2 running sums |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2002.

@@ -8,7 +8,6 @@ Signal processing filters adapted for financial time series. These are not indic
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [AGC](agc/Agc.md) | Ehlers Automatic Gain Control | Ehlers. Amplitude normalization via exponential peak tracking. |
 | [ALAGUERRE](alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers. Variable-alpha Laguerre from tracking-error normalization. |
 | [BAXTERKING](baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass. Ideal for business cycle extraction. |
 | [CFITZ](cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass. Optimal under random-walk assumption. |

@@ -83,6 +83,36 @@ $$\text{Close}_t > \text{Upper}_t \quad \text{AND} \quad \text{Close}_{t-1} > \t
 | `lower` | SMA of adjusted lows (support envelope) |
 | `middle` | SMA of close (center line) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ACCBANDS computes per-bar normalized width, two adjusted prices, and three independent SMA running sums:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD (H + L for denom) | 1 | 1 | 1 |
+| SUB (H - L for range) | 1 | 1 | 1 |
+| DIV (range / denom for w) | 1 | 15 | 15 |
+| MUL (factor × w) | 1 | 3 | 3 |
+| MUL (H × (1 + F·w), L × (1 - F·w)) | 2 | 3 | 6 |
+| SUB (oldest from 3 running sums) | 3 | 1 | 3 |
+| ADD (new value to 3 running sums) | 3 | 1 | 3 |
+| DIV (sum / count, three SMAs) | 3 | 15 | 45 |
+| **Total (hot)** | **15** | — | **~77 cycles** |
+
+The three DIV operations dominate. When the denominator is zero ($H + L = 0$), a branch sets $w = 0$, adding one CMP.
+
+### Batch Mode (SIMD Analysis)
+
+The three SMA running sums are sequential. The per-bar width computation ($w$, adjusted prices) is independent across bars and vectorizable in a batch pre-pass:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Width + adjusted price computation | Vectorizable with `Vector<double>` (ADD, SUB, MUL, DIV) |
+| Three SMA running sums | Sequential; cannot parallelize across bars |
+| Band output assembly | Trivial; already scalar from SMA |
+
 ## Resources
 
 - **Headley, P.** *Big Trends in Trading*. Wiley, 2002. (Original Acceleration Bands specification)

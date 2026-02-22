@@ -48,7 +48,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **ATR Bands** | Atrbands | ✔️ | - | ✔️ | ❔ |
 | **Adaptive FIR Moving Average** | [Afirma](../lib/forecasts/afirma/Afirma.md) | - | - | - | - |
 | **Ehlers Adaptive Laguerre Filter** | [ALaguerre](../lib/filters/alaguerre/ALaguerre.md) | - | - | - | - |
-| **Ehlers Automatic Gain Control** | [Agc](../lib/filters/agc/Agc.md) | - | - | - | - |
+| **Ehlers Automatic Gain Control** | [Agc](../lib/numerics/agc/Agc.md) | - | - | - | - |
 | **Average Daily Range** | [Adr](../lib/volatility/adr/Adr.md) | - | - | - | - |
 | **Average Directional Index** | [Adx](../lib/momentum/adx/adx.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |
@@ -109,6 +109,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Ehlers Autocorrelation Periodogram** | [Eacp](../lib/cycles/eacp/eacp.md) | - | - | - | - |
 | **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | - | - | - | - |
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
+| **Ehlers Correlation Cycle** | [Ccor](../lib/cycles/ccor/Ccor.md) | - | - | - | - |
+| **Ehlers Cyber Cycle** | [Ccyc](../lib/cycles/ccyc/Ccyc.md) | - | - | - | ❔ |
 | **Ehlers Distance Coefficient Filter** | [Edcf](../lib/filters/edcf/Edcf.md) | - | - | - | - |
 | **Ehlers Even Better Sinewave** | [Ebsw](../lib/cycles/ebsw/ebsw.md) | - | - | - | ❔ |
 | **Ehlers Fractal Adaptive MA** | [Frama](../lib/trends_IIR/frama/Frama.md) | - | - | - | ❔ |
@@ -202,6 +204,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Min-Max Scaling (Normalization)** | [Normalize](../lib/numerics/normalize/Normalize.md) | - | - | - | - |
 | **Mode (Most Frequent)** | Mode | - | - | - | - |
 | **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
+| **Natural Moving Average** | [Nma](../lib/trends_IIR/nma/Nma.md) | - | - | - | - |
 | **Momentum** | Mom | ✔️ | ✔️ | ✔️ | ❔ |
 | **Momentum change; 2nd derivative** | Accel | - | - | - | - |
 | **Money Flow Index** | [Mfi](../lib/volume/mfi/Mfi.md) | - | - | ✔️ | ✔️ |
@@ -259,6 +262,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | ✔️ | ❔ |
 | **Savitzky-Golay Filter** | [Sgf](../lib/filters/sgf/Sgf.md) | - | - | - | - |
 | **Savitzky-Golay MA** | [Sgma](../lib/trends_FIR/sgma/Sgma.md) | - | - | - | - |
+| **Smoothed Adaptive Momentum** | [Sam](../lib/momentum/sam/Sam.md) | - | - | - | - |
 | **Schaff Trend Cycle** | [Stc](../lib/cycles/stc/Stc.md) | - | - | ✔️ | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sine-weighted MA** | [Sinema](../lib/trends_FIR/sinema/Sinema.md) | - | - | - | - |
@@ -287,6 +291,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Triangular Moving Average** | [Trima](../lib/trends/trima/trima.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Triple Exponential Average** | [Trix](../lib/oscillators/trix/Trix.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Triple Exponential Moving Average** | [Tema](../lib/trends/tema/tema.md) | ✔️ | ✔️ | ✔️ | ❔ |
+| **Trend Regularity Adaptive MA** | [Trama](../lib/trends_IIR/trama/Trama.md) | - | - | - | - |
 | **True Range** | Tr | ✔️ | ✔️ | - | - |
 | **True Strength Index** | Tsi | - | - | ✔️ | ✔️ |
 | **TTM Trend** | Ttm | - | - | - | - |

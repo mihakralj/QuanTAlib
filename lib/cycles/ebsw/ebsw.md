@@ -111,6 +111,31 @@ function EBSW(source, hpLength, ssfLength):
 | Zero crossing down | Bearish phase transition |
 | Railing at $\pm 1$ | Strong directional move overwhelming cycle |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| High-pass filter | ~4 | 1 SUB + 1 MUL + 1 FMA |
+| Super-Smoother (2-pole IIR) | ~5 | 1 ADD + 2 FMA + 1 MUL |
+| Wave (3-bar average) | ~3 | 2 ADD + 1 MUL |
+| Power (3-bar RMS²) | ~5 | 3 MUL + 2 ADD |
+| SQRT normalization | ~4 | 1 SQRT + 1 DIV + 1 branch |
+| Clamp | ~2 | 2 comparisons |
+| State shift | ~4 | 4 register moves |
+| **Total** | **~27** | **O(1) fixed; no loops or allocations** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: HP and SSF are recursive IIR filters with sequential dependencies |
+| Bottleneck | `Math.Sqrt` in AGC normalization (~15 cycles per call) |
+| Parallelism | None: each bar depends on previous bar's filter state |
+| Memory | O(1): 6 scalar state variables + 2 previous filter values |
+| Throughput | Very fast; comparable to single EMA despite 3-stage pipeline |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cycle Analytics for Traders*. Wiley, 2013.

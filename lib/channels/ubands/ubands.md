@@ -146,6 +146,37 @@ Standard deviation measures dispersion around the mean: $\sigma = \sqrt{E[(X - \
 | Price at upper band | High-frequency component is large positive |
 | Price at lower band | High-frequency component is large negative |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+UBANDS combines an $O(1)$ USF IIR recursion (center line) with an $O(n)$ RMS scan (band width):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL + ADD (USF coefficients, 4 terms) | 4 | 4 | 16 |
+| ADD (USF: 2 feedback + 3 feedforward) | 5 | 1 | 5 |
+| SUB (residual = source - USF) | 1 | 1 | 1 |
+| MUL (residual² for RMS buffer) | 1 | 3 | 3 |
+| ADD (sum of squared residuals, $n$) | $n$ | 1 | $n$ |
+| DIV (sumSq / count) | 1 | 15 | 15 |
+| SQRT (RMS) | 1 | 20 | 20 |
+| MUL (k × RMS) | 1 | 3 | 3 |
+| ADD/SUB (USF ± width) | 2 | 1 | 2 |
+| **Total** | **~$n + 16$** | — | **~$n + 65$ cycles** |
+
+For period 20: ~85 cycles/bar. The USF recursion is fast ($\sim$21 cycles); the RMS window scan at $O(n)$ dominates.
+
+### Batch Mode (SIMD Analysis)
+
+The USF is recursive (IIR dependency). The RMS scan over squared residuals is vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| USF 2-pole IIR | Sequential; 5 multiply-adds per bar |
+| RMS accumulation (sum of r²) | Vectorizable with `Vector.Multiply` + horizontal sum |
+| Band arithmetic | Vectorizable in a post-pass |
+
 ## Resources
 
 - Ehlers, J. F. (2024). "Ultimate Bands." *Technical Analysis of Stocks & Commodities*.

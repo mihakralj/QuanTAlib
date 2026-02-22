@@ -89,6 +89,31 @@ function HT_PHASOR(source):
 | `InPhase` | unbounded | Cycle component aligned with price |
 | `Quadrature` | unbounded | Rate of change (velocity) of cycle |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| 4-bar WMA | ~5 | 3 MUL + 1 ADD + 1 MUL(×0.1) |
+| Hilbert FIR (detrender) | ~7 | 4-tap FIR: 4 MUL + 3 ADD |
+| Hilbert FIR (Q1) | ~7 | Same 4-tap structure on det buffer |
+| Hilbert FIR (jI) | ~7 | 4-tap on I1 history |
+| Hilbert FIR (jQ) | ~7 | 4-tap on Q1 history |
+| Phasor EMA (I2, Q2) | ~8 | 2 SUB/ADD + 4 FMA |
+| Buffer management | ~10 | 4 circular buffer writes + index arithmetic |
+| **Total** | **~51** | **O(1) fixed; no transcendentals (no period/phase extraction)** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: cascaded IIR EMA smoothing creates sequential dependencies |
+| Bottleneck | Circular buffer indexed lookups for 4 Hilbert FIR passes |
+| Parallelism | None: each bar's phasor depends on previous bar's EMA state |
+| Memory | O(1): 4 circular buffers (7 elements each) + 2 scalar EMA states (~240 bytes) |
+| Throughput | Fastest of the HT family; no transcendental calls (no ATAN/SIN/COS) |
+
 ## Resources
 
 - **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

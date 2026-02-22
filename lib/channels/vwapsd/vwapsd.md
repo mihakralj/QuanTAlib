@@ -122,6 +122,38 @@ function vwapsd(source[], volume[], reset[], numDevs):
 | Band width expanding | Intraday volume-weighted dispersion increasing |
 | Band width near zero | Very tight price clustering around VWAP |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+VWAPSD is slightly simpler than VWAPBANDS (one band pair instead of two), with identical VWAP and variance computation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (price × vol for sum_pv) | 1 | 3 | 3 |
+| MUL (price² × vol for sum_pv2) | 2 | 3 | 6 |
+| ADD (3 running sums) | 3 | 1 | 3 |
+| DIV (sum_pv / sum_vol for VWAP) | 1 | 15 | 15 |
+| DIV (sum_pv2 / sum_vol for E[X²]) | 1 | 15 | 15 |
+| MUL (VWAP² for variance) | 1 | 3 | 3 |
+| SUB (E[X²] - VWAP²) | 1 | 1 | 1 |
+| SQRT (σ) | 1 | 20 | 20 |
+| MUL (k × σ) | 1 | 3 | 3 |
+| ADD/SUB (VWAP ± k·σ) | 2 | 1 | 2 |
+| **Total (hot)** | **14** | — | **~71 cycles** |
+
+Saves ~5 cycles vs VWAPBANDS by emitting 2 bands instead of 4. Session reset adds one CMP per bar.
+
+### Batch Mode (SIMD Analysis)
+
+Cumulative sums are inherently sequential. Band arithmetic is vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Running sum accumulation | Sequential (prefix sum dependency) |
+| Variance → SQRT → bands | Vectorizable in a batch post-pass |
+| Session reset detection | Sequential (comparison per bar) |
+
 ## Resources
 
 - Berkowitz, S., Logue, D. & Noser, E. (1988). "The Total Cost of Transactions on the NYSE." *The Journal of Finance*, 43(1), 97–112.

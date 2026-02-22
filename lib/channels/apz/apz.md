@@ -113,6 +113,46 @@ function APZ(source, high, low, period, multiplier):
 | `upper` | Center + scaled adaptive range (overbought zone) |
 | `lower` | Center - scaled adaptive range (oversold zone) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+APZ runs four EMA updates (double-smoothed price + double-smoothed range) plus warmup compensation and band arithmetic:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (H - L for range) | 1 | 1 | 1 |
+| FMA (EMA1 price) | 1 | 4 | 4 |
+| FMA (EMA2 price → center) | 1 | 4 | 4 |
+| FMA (EMA1 range) | 1 | 4 | 4 |
+| FMA (EMA2 range → smoothRange) | 1 | 4 | 4 |
+| MUL (multiplier × smoothRange) | 1 | 3 | 3 |
+| ADD/SUB (center ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **8** | — | **~22 cycles** |
+
+During warmup (compensator active):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (e × β²) | 1 | 3 | 3 |
+| SUB (1 - e) | 1 | 1 | 1 |
+| DIV (center / compensator) | 1 | 15 | 15 |
+| DIV (smoothRange / compensator) | 1 | 15 | 15 |
+| CMP (e > threshold) | 1 | 1 | 1 |
+| **Warmup overhead** | **5** | — | **~35 cycles** |
+
+**Total during warmup:** ~57 cycles/bar; **Post-warmup:** ~22 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+All four EMA recursions are state-dependent, preventing SIMD parallelization across bars:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | 4 hardware FMAs per bar; no software emulation |
+| State locality | 4 EMA states + compensator fit in registers |
+| Band arithmetic | Vectorizable in a post-pass across output arrays |
+
 ## Resources
 
 - **Leibfarth, L.** "Trading With An Adaptive Price Zone." *Technical Analysis of Stocks & Commodities*, September 2006. (Original APZ specification)

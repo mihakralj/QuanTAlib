@@ -90,6 +90,32 @@ function APCHANNEL(high, low, alpha):
 | `lower` | Exponentially smoothed low (support) |
 | `middle` | Arithmetic mean of upper and lower |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+APCHANNEL is pure IIR with no buffers. Two independent EMA updates plus a midpoint:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (decay × Upper + α × H) | 1 | 4 | 4 |
+| FMA (decay × Lower + α × L) | 1 | 4 | 4 |
+| ADD (Upper + Lower) | 1 | 1 | 1 |
+| MUL (× 0.5 for midpoint) | 1 | 3 | 3 |
+| **Total (hot)** | **4** | — | **~12 cycles** |
+
+No warmup overhead. First bar initializes directly from input, adding one CMP.
+
+### Batch Mode (SIMD Analysis)
+
+Both EMA recursions are state-dependent ($\text{Upper}_t$ depends on $\text{Upper}_{t-1}$), preventing SIMD parallelization across bars:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | Already using 2 FMAs per bar; hardware-accelerated |
+| State locality | Upper + Lower fit in 2 registers; zero cache pressure |
+| Midpoint computation | Vectorizable in a post-pass across output arrays |
+
 ## Resources
 
 - **Wilder, J.W.** *New Concepts in Technical Trading Systems*. Trend Research, 1978. (EMA smoothing foundations)

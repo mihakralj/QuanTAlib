@@ -99,6 +99,30 @@ function HT_DCPHASE(source):
 | Rapid phase change | Potential reversal imminent |
 | Discontinuity ($315° \to -45°$) | One cycle complete, new cycle begins |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Hilbert cascade (WMA + 4×FIR + phasor + homodyne) | ~84 | Same as HT_DCPERIOD pipeline |
+| DFT sin/cos evaluation | 2P | `Math.Sin` + `Math.Cos` per iteration (~15-20 cycles each) |
+| DFT multiply-accumulate | 2P | realPart/imagPart FMA per iteration |
+| ATAN phase extraction | ~15 | `Math.Atan` transcendental |
+| Phase adjustment + wrapping | ~5 | 2 ADD + 2 comparisons + 1 conditional ADD |
+| **Total (P=20 typical)** | **~184** | **O(P) dominated by DFT sin/cos loop** |
+| **Total (P=50 worst case)** | **~384** | **Upper bound when period near maximum** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | Partially: DFT inner loop sin/cos accumulation is vectorizable with precomputed twiddle factors |
+| Bottleneck | DFT loop: P transcendental calls per bar; Hilbert cascade is sequential |
+| Parallelism | DFT accumulation independent per frequency bin; `Vector<double>` applicable to sin/cos MACs |
+| Memory | O(P): ~50-element smooth price circular buffer + Hilbert state (~1.2 KB) |
+| Throughput | ~2-4× slower than O(1) Hilbert-only indicators (HOMOD, HT_DCPERIOD) due to variable-length DFT |
+
 ## Resources
 
 - **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

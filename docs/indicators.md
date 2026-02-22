@@ -47,7 +47,10 @@ Finite Impulse Response filters. Output depends only on a fixed window of inputs
 | [**HAMMA**](../lib/trends_FIR/hamma/Hamma.md) | Hamming Weighted MA | Spectral analysis window |
 | [**HANMA**](../lib/trends_FIR/hanma/Hanma.md) | Hanning Weighted MA | Cosine-based window |
 | [**HMA**](../lib/trends_FIR/hma/Hma.md) | Hull MA | Reduced lag via WMA differencing |
-| [**HWMA**](../lib/trends_FIR/hwma/Hwma.md) | Henderson Weighted MA | Henderson curve smoothing |
+| [**NLMA**](../lib/trends_FIR/nlma/Nlma.md) | Non-Lag MA | Damped cosine kernel FIR |
+| [**NYQMA**](../lib/trends_FIR/nyqma/Nyqma.md) | Nyquist MA | Dual LWMA cascade FIR |
+| [**PMA**](../lib/trends_FIR/pma/Pma.md) | Predictive Moving Average | Ehlers WMA cascade + extrapolation |
+| [**RAIN**](../lib/trends_FIR/rain/Rain.md) | Rainbow MA | 10× cascaded SMA |
 | [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) | Least Squares MA | Linear regression endpoint |
 | [**PWMA**](../lib/trends_FIR/pwma/Pwma.md) | Pascal Weighted MA | Binomial coefficient weights |
 | [**SGMA**](../lib/trends_FIR/sgma/Sgma.md) | Savitzky-Golay MA | Polynomial smoothing |
@@ -78,7 +81,8 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 | [**MAVP**](../lib/trends_IIR/mavp/Mavp.md) | Moving Average Variable Period | Per-bar dynamic period EMA |
 | [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic | Market-speed tracking |
 | [**MMA**](../lib/trends_IIR/mma/Mma.md) | Modified MA | Smoothed EMA variant |
-| [**PMA**](../lib/trends_IIR/pma/Pma.md) | Predictive Moving Average | Ehlers super smoother + extrapolation |
+| [**NMA**](../lib/trends_IIR/nma/Nma.md) | Natural MA | Volatility-weighted sqrt-kernel adaptation (Sloman) |
+| [**HWMA**](../lib/trends_IIR/hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing (IIR) |
 | [**QEMA**](../lib/trends_IIR/qema/Qema.md) | Quad Exponential MA | Four-stage exponential |
 | [**REMA**](../lib/trends_IIR/rema/Rema.md) | Regularized Exponential MA | Regularization for stability |
 | [**REVERSEEMA**](../lib/trends_IIR/reverseema/ReverseEma.md) | Reverse EMA | Inverse EMA deconvolution |
@@ -86,7 +90,7 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 | [**RMA**](../lib/trends_IIR/rma/Rma.md) | WildeR MA | Wilder's smoothing (1/n decay) |
 | [**T3**](../lib/trends_IIR/t3/T3.md) | Tillson T3 MA | Six-stage DEMA variant |
 | [**TEMA**](../lib/trends_IIR/tema/Tema.md) | Triple Exponential MA | Three-stage lag reduction |
-| [**TRENDFLEX**](../lib/trends_IIR/trendflex/Trendflex.md) | Ehlers Trendflex | Zero-lag sum-of-differences trend |
+| [**TRAMA**](../lib/trends_IIR/trama/Trama.md) | Trend Regularity Adaptive MA | HH/LL frequency-based adaptation |
 | [**VAMA**](../lib/trends_IIR/vama/Vama.md) | Volatility Adjusted MA | ATR-based adaptation |
 | [**VIDYA**](../lib/trends_IIR/vidya/Vidya.md) | Variable Index Dynamic | CMO-based adaptation |
 | [**YZVAMA**](../lib/trends_IIR/yzvama/Yzvama.md) | Yang-Zhang Vol Adjusted MA | YZ volatility adaptation |
@@ -100,7 +104,6 @@ Signal processing filters adapted for financial time series. Designed to separat
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
-| [**AGC**](../lib/filters/agc/Agc.md) | Ehlers Automatic Gain Control | Ehlers amplitude normalization via peak tracking |
 | [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
 | [**BAXTERKING**](../lib/filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass for cycle extraction |
 | [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
@@ -152,10 +155,12 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
+| [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
 | [**STOCH**](../lib/oscillators/stoch/Stoch.md) | Stochastic Oscillator | Close within N-period H/L range (%K/%D) |
 | [**STOCHF**](../lib/oscillators/stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic (%K/%D, SMA smoothing only) |
 | [**STOCHRSI**](../lib/oscillators/stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI (%K/%D) |
+| [**TRENDFLEX**](../lib/oscillators/trendflex/Trendflex.md) | Ehlers Trendflex | Zero-lag sum-of-differences trend oscillator |
 | [**TRIX**](../lib/oscillators/trix/Trix.md) | Triple Exponential Average | ROC of triple-smoothed EMA |
 | [**TTM_WAVE**](../lib/oscillators/ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (A/B/C waves) |
 | [**ULTOSC**](../lib/oscillators/ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe weighted buying pressure |
@@ -206,6 +211,7 @@ Rate of change and velocity measurements. First derivatives of price.
 | [**ROCR**](../lib/momentum/rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods |
 | [**RSI**](../lib/momentum/rsi/Rsi.md) | Relative Strength Index | Bounded 0-100 momentum |
 | [**RSX**](../lib/momentum/rsx/Rsx.md) | Jurik RSX | Smoothed RSI variant |
+| [**SAM**](../lib/momentum/sam/Sam.md) | Smoothed Adaptive Momentum | Ehlers adaptive cycle momentum |
 | [**TSI**](../lib/momentum/tsi/Tsi.md) | True Strength Index | Double-smoothed momentum oscillator |
 | [**VEL**](../lib/momentum/vel/Vel.md) | Jurik Velocity | Adaptive velocity |
 
@@ -357,6 +363,8 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**CCOR**](../lib/cycles/ccor/Ccor.md) | Ehlers Correlation Cycle | Dual Pearson correlation phasor + market state |
+| [**CCYC**](../lib/cycles/ccyc/Ccyc.md) | Ehlers Cyber Cycle | 4-tap FIR + 2-pole high-pass IIR cycle extraction |
 | [**CG**](../lib/cycles/cg/Cg.md) | Ehlers Center of Gravity | Ehlers cycle measurement |
 | [**DSP**](../lib/cycles/dsp/Dsp.md) | Ehlers Detrended Synthetic Price | Cycle-isolated price component |
 | [**EACP**](../lib/cycles/eacp/Eacp.md) | Ehlers Autocorrelation Periodogram | Ehlers dominant cycle detection |
@@ -379,6 +387,7 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope |
+| [**AGC**](../lib/numerics/agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via peak tracking |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |

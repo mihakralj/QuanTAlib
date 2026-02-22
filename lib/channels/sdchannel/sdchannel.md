@@ -138,6 +138,38 @@ function sdchannel(source[], period, multiplier):
 | $\sigma \to 0$ | Perfect linear trend; bands collapse |
 | Band width expanding | Increasing noise around the trend |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+SDCHANNEL is algorithmically identical to REGCHANNEL — two $O(n)$ passes per bar:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD (sum_y accumulation, pass 1) | $n$ | 1 | $n$ |
+| FMA (i × y for sum_xy, pass 1) | $n$ | 4 | $4n$ |
+| MUL + DIV (slope, intercept) | 4 | ~9 | 36 |
+| FMA (slope × i + intercept, pass 2) | $n$ | 4 | $4n$ |
+| SUB (residual = y - predicted) | $n$ | 1 | $n$ |
+| MUL (residual², pass 2) | $n$ | 3 | $3n$ |
+| ADD (ssr accumulation, pass 2) | $n$ | 1 | $n$ |
+| DIV (ssr / n) | 1 | 15 | 15 |
+| SQRT (σ) | 1 | 20 | 20 |
+| MUL + ADD/SUB (bands) | 3 | ~5 | 15 |
+| **Total** | **~$7n + 9$** | — | **~$14n + 86$ cycles** |
+
+For period 20: ~366 cycles/bar. Identical performance characteristics to REGCHANNEL.
+
+### Batch Mode (SIMD Analysis)
+
+Both passes iterate over contiguous memory, enabling SIMD vectorization of the inner loops:
+
+| Operation | Scalar Ops | SIMD Ops (AVX-512) | Speedup |
+| :--- | :---: | :---: | :---: |
+| Pass 1: sum_y, sum_xy | $2n$ | $n/8$ | ~16× |
+| Pass 2: residuals + squared sum | $4n$ | $n/2$ | ~8× |
+| Slope/intercept/bands | 9 | 9 | 1× |
+
 ## Resources
 
 - Raff, G. (1991). "Trading the Regression Channel." *Technical Analysis of Stocks & Commodities*.

@@ -102,6 +102,35 @@ function HT_DCPERIOD(source):
 | `period` $\approx 30$-$50$ | Long-cycle or trending; period drifting toward upper bound suggests trend |
 | Stable value | Regular cyclical market, ideal for oscillator-based strategies |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| 4-bar WMA | ~5 | 3 MUL + 1 ADD + 1 MUL(×0.1) |
+| Hilbert FIR (detrender) | ~7 | 4-tap FIR with period-adaptive coefficients |
+| Hilbert FIR (Q1) | ~7 | Same structure applied to detrender buffer |
+| Hilbert FIR (jI) | ~7 | Applied to I1 history buffer |
+| Hilbert FIR (jQ) | ~7 | Applied to Q1 history buffer |
+| Phasor EMA (I2, Q2) | ~8 | 2 SUB/ADD + 4 FMA |
+| Homodyne mixing + EMA | ~12 | 4 MUL + 2 ADD/SUB + 2 FMA |
+| ATAN | ~15 | `Math.Atan` transcendental |
+| Period division (2π/θ) | ~2 | 1 DIV |
+| Clamp + EMA smoothing | ~4 | 2 comparisons + 1 FMA |
+| Buffer management | ~10 | 4 circular buffer writes + index arithmetic |
+| **Total** | **~84** | **O(1) fixed; identical pipeline to HOMOD** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: full Hilbert cascade is sequentially dependent IIR chain |
+| Bottleneck | `Math.Atan` transcendental + 4 Hilbert FIR passes per bar |
+| Parallelism | None: each bar's phasor depends on previous bar's EMA state |
+| Memory | O(1): 4 circular buffers (7 elements each) + 6 scalar EMA states (~280 bytes) |
+| Throughput | Moderate; ~3× slower than simple EMA; matches HOMOD performance |
+
 ## Resources
 
 - **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

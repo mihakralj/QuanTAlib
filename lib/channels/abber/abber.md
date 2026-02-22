@@ -82,6 +82,35 @@ function ABBER(source, ma_line, period, multiplier):
 | `lower` | Lower aberration band |
 | `avg_dev` | Current average absolute deviation (band half-width before scaling) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ABBER maintains two running-sum ring buffers (SMA of price and SMA of absolute deviations), each updated in $O(1)$:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (oldest from running sum) | 2 | 1 | 2 |
+| ADD (new value to running sum) | 2 | 1 | 2 |
+| DIV (sum / count, two SMAs) | 2 | 15 | 30 |
+| SUB (price - prevMiddle) | 1 | 1 | 1 |
+| ABS (deviation) | 1 | 1 | 1 |
+| MUL (multiplier × avgDev) | 1 | 3 | 3 |
+| ADD/SUB (middle ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **11** | — | **~41 cycles** |
+
+Warmup overhead is negligible: the ring buffer tracks count, adding one CMP per bar until full.
+
+### Batch Mode (SIMD Analysis)
+
+The running-sum SMA is inherently sequential (each bar depends on the previous running sum). SIMD parallelization across bars is not possible for the core SMA path:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Band arithmetic (middle ± k × dev) | Vectorizable across output array with `Vector<double>` |
+| ABS of deviations | Vectorizable with `Vector.Abs` for batch deviation pass |
+| Running-sum maintenance | Sequential; cannot parallelize |
+
 ## Resources
 
 - **Pham-Gia, T. & Hung, T.L.** "The Mean and Median Absolute Deviations." *Mathematical and Computer Modelling*, 34(7-8), 2001. (MAD vs. standard deviation theory)

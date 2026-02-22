@@ -91,6 +91,48 @@ function ATRBANDS(source, high, low, close, period, multiplier):
 | `upper` | Middle + scaled ATR (volatility-adjusted resistance) |
 | `lower` | Middle - scaled ATR (volatility-adjusted support) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ATRBANDS combines an SMA running sum (center line), True Range computation, and Wilder's RMA with warmup compensation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (oldest from SMA sum) | 1 | 1 | 1 |
+| ADD (new to SMA sum) | 1 | 1 | 1 |
+| DIV (SMA = sum / count) | 1 | 15 | 15 |
+| SUB (H - L) | 1 | 1 | 1 |
+| SUB + ABS (H - prevC, L - prevC) | 2 | 2 | 4 |
+| CMP (max of 3 for TR) | 2 | 1 | 2 |
+| FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
+| MUL (multiplier × ATR) | 1 | 3 | 3 |
+| ADD/SUB (middle ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **12** | — | **~33 cycles** |
+
+During warmup (compensator active):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (e × (1 - α)) | 1 | 3 | 3 |
+| SUB (1 - e) | 1 | 1 | 1 |
+| DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
+| CMP (e > ε) | 1 | 1 | 1 |
+| **Warmup overhead** | **4** | — | **~20 cycles** |
+
+**Total during warmup:** ~53 cycles/bar; **Post-warmup:** ~33 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+The SMA running sum and RMA recursion are both sequential. True Range computation is independent per bar and vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| True Range (3-way max) | Vectorizable with `Vector.Max` and `Vector.Abs` |
+| RMA recursion | Sequential (IIR dependency) |
+| SMA running sum | Sequential |
+| Band arithmetic | Vectorizable in a post-pass |
+
 ## Resources
 
 - **Wilder, J.W.** *New Concepts in Technical Trading Systems*. Trend Research, 1978. (Original ATR and Wilder's Smoothing)

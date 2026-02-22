@@ -82,6 +82,46 @@ function MAENV(source, period, percentage, ma_type):
 | `upper` | MA + fixed percentage (overbought threshold) |
 | `lower` | MA - fixed percentage (oversold threshold) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+MAENV complexity depends on the MA type. Band arithmetic is identical for all three:
+
+**SMA mode** (type = 0):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (oldest from running sum) | 1 | 1 | 1 |
+| ADD (new to running sum) | 1 | 1 | 1 |
+| DIV (sum / count for SMA) | 1 | 15 | 15 |
+| MUL (middle × pct/100) | 1 | 3 | 3 |
+| ADD/SUB (middle ± distance) | 2 | 1 | 2 |
+| **Total (SMA, hot)** | **6** | — | **~22 cycles** |
+
+**EMA mode** (type = 1):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (EMA update) | 1 | 4 | 4 |
+| FMA (weight accumulator) | 1 | 4 | 4 |
+| DIV (raw / weight) | 1 | 15 | 15 |
+| MUL (middle × pct/100) | 1 | 3 | 3 |
+| ADD/SUB (middle ± distance) | 2 | 1 | 2 |
+| **Total (EMA, hot)** | **6** | — | **~28 cycles** |
+
+**WMA mode** (type = 2): $O(n)$ weighted sum per bar, ~$4n + 20$ cycles.
+
+### Batch Mode (SIMD Analysis)
+
+SMA and EMA modes are sequential (running sum or IIR dependency). Band arithmetic is vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Band arithmetic (middle × pct ± dist) | Vectorizable with `Vector<double>` in batch post-pass |
+| SMA running sum / EMA recursion | Sequential |
+| WMA weighted sum | Partially vectorizable with `Vector.Multiply` + reduction |
+
 ## Resources
 
 - **Murphy, J.J.** *Technical Analysis of the Financial Markets*. New York Institute of Finance, 1999. (Moving average envelope fundamentals)

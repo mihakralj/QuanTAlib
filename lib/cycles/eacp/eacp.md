@@ -110,6 +110,34 @@ function EACP(source, minPeriod, maxPeriod, enhance):
 | Rapidly changing value | Market transitioning between regimes |
 | Pegged at maxPeriod | No clear cycle detected; likely trending |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| HP filter (2-pole IIR) | ~8 | Pre-processing trend removal |
+| Super-Smoother (2-pole IIR) | ~6 | Anti-aliasing low-pass |
+| Pearson autocorrelation | ~5M | Mean, variance, cross-product over M samples per lag |
+| Autocorrelation loop (N lags) | ~5NM | Nested: N lags × M-sample windows |
+| DFT cosine transform | ~3NM | N periods × M cosine multiply-accumulates |
+| Cosine evaluation | NM | `Math.Cos` calls (expensive transcendental) |
+| Exponential smoothing | ~2N | FMA per period bin |
+| Cubic enhancement | ~2N | Two multiplies per bin (when enabled) |
+| AGC normalization | ~2N | Max scan + N divides |
+| Center-of-gravity | ~3N | Weighted sum + division |
+| **Total (default N=41, M=48)** | **~16,000** | **Dominated by autocorrelation + DFT** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | Partially: inner DFT cosine loops vectorizable; autocorrelation outer loop sequential |
+| Bottleneck | Pearson autocorrelation: N×M multiply-accumulates with data-dependent means |
+| Parallelism | DFT accumulation per period is independent; `Vector<double>` applicable to inner sums |
+| Memory | O(N) power arrays + O(M) circular buffer for SSF history |
+| Throughput | ~100-200× slower than O(1) IIR indicators; most expensive cycle indicator |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cycle Analytics for Traders*. Wiley, 2013.

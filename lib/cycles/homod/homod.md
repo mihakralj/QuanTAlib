@@ -118,6 +118,34 @@ function HOMOD(source, minPeriod, maxPeriod):
 | Period drifting to maxPeriod | Trending market; cycle measurement unreliable |
 | Rapidly fluctuating period | Noisy or transitioning market regime |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| 4-bar WMA | ~5 | 3 MUL + 1 ADD + 1 DIV (precomputed as ×0.1) |
+| Hilbert FIR (detrender) | ~7 | 4-tap FIR: 4 MUL + 3 ADD |
+| Hilbert FIR (Q1) | ~7 | Same 4-tap structure on det buffer |
+| Hilbert FIR (jI, jQ) | ~14 | Two additional 4-tap Hilbert passes |
+| Phasor EMA (I2, Q2) | ~8 | 2 SUB/ADD + 4 FMA |
+| Homodyne mixing | ~8 | 4 MUL + 2 ADD/SUB per Re/Im |
+| Homodyne EMA smoothing | ~4 | 2 FMA for Re, Im |
+| ATAN2 | ~20 | `Math.Atan2` transcendental (~15-20 cycles) |
+| Period clamp + EMA | ~4 | 2 comparisons + 1 FMA |
+| Buffer management | ~8 | 4 circular buffer writes + index updates |
+| **Total** | **~85** | **O(1) fixed; dominated by ATAN2** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: cascaded IIR filters and Hilbert FIR with sequential state dependencies |
+| Bottleneck | `Math.Atan2` transcendental (~20 cycles); Hilbert FIR circular buffer lookups |
+| Parallelism | None: each bar depends on previous bar's I2, Q2, Re, Im state |
+| Memory | O(1): ~7-element circular buffers × 4 + 6 scalar EMA states (~300 bytes) |
+| Throughput | Moderate; ~3× slower than simple EMA due to multi-stage Hilbert pipeline |
+
 ## Resources
 
 - **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

@@ -170,6 +170,42 @@ function stbands(high[], low[], close[], period, multiplier):
 | Trend flip $-1 \to +1$ | Bullish reversal; price breached lower band |
 | Band width contracting | ATR falling; volatility decreasing |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+STBANDS computes True Range, an SMA of TR via running sum, basic band math from HL2, ratchet logic, and trend determination:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (H - L) | 1 | 1 | 1 |
+| SUB + ABS (H - prevC, L - prevC) | 2 | 2 | 4 |
+| CMP (max of 3 for TR) | 2 | 1 | 2 |
+| SUB (oldest from TR sum) | 1 | 1 | 1 |
+| ADD (new to TR sum) | 1 | 1 | 1 |
+| DIV (TR sum / count for ATR) | 1 | 15 | 15 |
+| ADD (H + L for HL2) | 1 | 1 | 1 |
+| MUL (× 0.5 for HL2) | 1 | 3 | 3 |
+| MUL (k × ATR) | 1 | 3 | 3 |
+| ADD/SUB (HL2 ± k·ATR) | 2 | 1 | 2 |
+| CMP (ratchet: upper tightens?) | 2 | 1 | 2 |
+| CMP (ratchet: lower tightens?) | 2 | 1 | 2 |
+| CMP (trend: close vs bands) | 2 | 1 | 2 |
+| **Total (hot)** | **19** | — | **~39 cycles** |
+
+The ratchet logic is pure comparisons with no expensive math. The DIV for ATR is the costliest single operation.
+
+### Batch Mode (SIMD Analysis)
+
+The ATR running sum and ratchet logic are both sequential (state-dependent). True Range and basic band computation are vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| True Range (3-way max) | Vectorizable with `Vector.Max` and `Vector.Abs` |
+| HL2 + basic bands | Vectorizable in a batch pre-pass |
+| ATR running sum | Sequential |
+| Ratchet logic + trend | Sequential (conditional state) |
+
 ## Resources
 
 - Seban, O. SuperTrend Indicator methodology.

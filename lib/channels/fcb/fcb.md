@@ -86,6 +86,34 @@ function FCB(high, low, period):
 | `upper` | Highest confirmed fractal high over lookback (structural resistance) |
 | `lower` | Lowest confirmed fractal low over lookback (structural support) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+FCB combines 3-bar fractal detection ($O(1)$) with two monotonic deques for sliding-window max/min of fractal values:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (H[t-1] > H[t-2]) | 1 | 1 | 1 |
+| CMP (H[t-1] > H[t]) | 1 | 1 | 1 |
+| CMP (L[t-1] < L[t-2]) | 1 | 1 | 1 |
+| CMP (L[t-1] < L[t]) | 1 | 1 | 1 |
+| Deque ops (max, amortized) | ~2 | 1 | 2 |
+| Deque ops (min, amortized) | ~2 | 1 | 2 |
+| **Total (amortized)** | **~8** | — | **~8 cycles** |
+
+The fractal detection requires retaining 3 bars of H and L history (6 values). Between fractals, only the deque expiry/push operations execute. Fractal confirmation adds one assignment per detected fractal.
+
+### Batch Mode (SIMD Analysis)
+
+Fractal detection involves comparisons that could theoretically be vectorized, but the conditional fractal-value tracking and deque operations are sequential:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Fractal detection (4 comparisons) | Vectorizable with `Vector.GreaterThan` / `Vector.LessThan` |
+| Deque max/min maintenance | Sequential (amortized O(1) already optimal) |
+| Fractal value persistence | Sequential (conditional state update) |
+
 ## Resources
 
 - **Williams, B.** *Trading Chaos*. Wiley, 1995. (Original fractal definition for markets)

@@ -101,6 +101,90 @@ ratio = denom != 0 ? num/denom : 0
 result = result + ratio * (src - result)
 ```
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per Update | Notes |
+|-----------|-----------------|-------|
+| Log | 1 | `Math.Log(price)` |
+| Abs | $N$ | `|lnBuf[i] - lnBuf[i+1]|` per lookback step |
+| Multiply | $N$ | $o_i \times \phi_i$ |
+| Add | $2N + 1$ | Numerator sum + denominator sum + EMA step |
+| Divide | 1 | `num / denom` |
+| FMA | 1 | `FusedMultiplyAdd(prev, decay, ratio * price)` |
+| **Total** | $\approx 4N + 4$ | $N = \text{period}$ |
+
+For `period = 40`: approximately 164 FLOPs per streaming update.
+
+### Batch Mode (SIMD Analysis)
+
+The inner `ComputeRatio()` loop walks backward through the ring buffer with data-dependent indexing, which resists SIMD vectorization. The batch `Calculate(Span)` method uses the same scalar loop per bar.
+
+SIMD opportunity exists for the sqrt-weight precomputation (done once in the constructor), but not for the per-bar ratio computation due to the sequential buffer access pattern.
+
+| Metric | Score |
+|--------|-------|
+| Streaming latency | 8/10 (O(N) per bar, but small constant) |
+| Batch throughput | 5/10 (O(N*M) total, no SIMD in hot loop) |
+| Memory efficiency | 9/10 (single RingBuffer + precomputed weights) |
+| Warmup speed | 9/10 (hot after N bars) |
+| Numerical stability | 7/10 (log-scale amplifies FP drift in corrections; mitigated by CopyFrom pattern) |
+
+### Memory Layout
+
+| Field | Type | Size | Purpose |
+|-------|------|------|---------|
+| `_lnBuf` | RingBuffer | ~40B + (N+1)x8B | Circular log-price buffer |
+| `_p_lnBuf` | RingBuffer | ~40B + (N+1)x8B | Backup buffer for bar correction |
+| `_sqrtWeights` | double[] | Nx8B | Precomputed $\sqrt{i+1} - \sqrt{i}$ |
+| `_state` | State | 32B | Current NMA, last NMA, bar count, flags |
+| `_p_state` | State | 32B | Previous state for rollback |
+| **Total** | | ~144B + 3Nx8B | |
+
+For `period = 40`: approximately 144 + 984 = **1128 bytes** per instance.
+
+### Bar Correction Pattern
+
+NMA requires full buffer copy (`CopyFrom`) for bar correction rather than the lighter `Snapshot`/`Restore` used by simpler indicators. The reason: `ComputeRatio()` reads all buffer positions during backward traversal, so a single-value restore is insufficient.
+
+```csharp
+if (isNew) { _p_state = _state; _p_lnBuf.CopyFrom(_lnBuf); }
+else       { _state = _p_state; _lnBuf.CopyFrom(_p_lnBuf); }
+_ = _lnBuf.Add(lnVal); // always Add() since CopyFrom restores pre-Add state
+```
+
+## Validation
+
+| Library | Batch | Streaming | Span | Notes |
+|---------|-------|-----------|------|-------|
+| Skender | N/A | N/A | N/A | Not available |
+| TA-Lib | N/A | N/A | N/A | Not available |
+| Tulip | N/A | N/A | N/A | Not available |
+| Ooples | N/A | N/A | N/A | Not available |
+
+NMA is a proprietary indicator from Sloman's *Ocean Theory*. No reference implementations exist in standard TA libraries. Validation relies on:
+
+- Internal consistency: batch == streaming == span == eventing (4-mode consistency test)
+- Mathematical verification: ratio bounds $[1/\sqrt{N}, 1]$ confirmed
+- Edge cases: NaN/Infinity handling, bar correction precision
+
+## Common Pitfalls
+
+1. **Log of non-positive prices**: If `price <= 0`, `Math.Log` returns `-Infinity` or `NaN`. The implementation guards with `price > 0 ? Math.Log(price) * 1000 : 0.0`.
+
+2. **Bar correction drift with Snapshot/Restore**: RingBuffer's `Snapshot()`/`Restore()` only saves one buffer position. NMA's `ComputeRatio()` reads ALL positions, so `CopyFrom()` is mandatory. Using Snapshot/Restore produces ~1% drift after corrections.
+
+3. **Zero denominator in ratio**: When all adjacent log-prices are identical ($o_i = 0$ for all $i$), the denominator is zero. The implementation returns `ratio = 0`, causing NMA to hold its previous value.
+
+4. **Period = 1 degeneracy**: With a single-bar lookback, `ComputeRatio()` has zero iterations and returns 0. NMA becomes a constant after initialization. Use `period >= 2` for meaningful adaptation.
+
+5. **Log-scale amplification**: The $\times 1000$ scaling factor amplifies differences between log-prices. While this improves numerical resolution for the ratio computation, it also amplifies floating-point errors during buffer operations.
+
+6. **Memory cost of CopyFrom**: Each bar correction copies the entire buffer array ($N+1$ doubles = 328 bytes for period 40). This is ~8x more expensive than Snapshot/Restore but necessary for correctness.
+
+7. **No external validation available**: Unlike SMA, EMA, or KAMA, there are no reference implementations to validate against. All correctness assurance comes from internal consistency tests and mathematical bound verification.
+
 ## Resources
 
 - Sloman, J. *Ocean Theory*. Pages 63-70. (Original NMA description.)

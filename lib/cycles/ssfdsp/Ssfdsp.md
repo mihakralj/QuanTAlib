@@ -118,6 +118,29 @@ function SSFDSP(source, period):
 | Divergence with price | Cycle energy waning; trend exhaustion |
 | Amplitude shrinking | Cycle losing dominance; transition to trend |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Input averaging | ~2 | 1 ADD + 1 MUL(×0.5) |
+| Fast SSF (2-pole IIR) | ~5 | 1 MUL(c1f) + 2 FMA(c2f, c3f) |
+| Slow SSF (2-pole IIR) | ~5 | 1 MUL(c1s) + 2 FMA(c2s, c3s) |
+| Subtraction (output) | ~1 | 1 SUB |
+| State shift | ~5 | 5 register moves |
+| **Total** | **~18** | **O(1) fixed; pure FMA arithmetic, zero transcendentals** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: both SSF filters are recursive 2-pole IIR with sequential state dependencies |
+| Bottleneck | None significant; pure multiply-accumulate with precomputed coefficients |
+| Parallelism | None: each bar depends on two previous bars' filter state |
+| Memory | O(1): 4 scalar filter states + 1 previous price (~40 bytes) |
+| Throughput | Among fastest cycle indicators; comparable to dual-EMA DSP; no transcendentals at runtime |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.

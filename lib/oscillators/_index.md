@@ -22,10 +22,12 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [KRI](kri/Kri.md) | Kairi Relative Index | Percentage deviation of price from SMA. Overbought/oversold. |
 | [PGO](pgo/Pgo.md) | Pretty Good Oscillator | Distance from SMA normalized by ATR. Units: ATR multiples. |
 | [PSL](psl/Psl.md) | Psychological Line | Ratio of up periods to total periods. Crowd sentiment gauge. |
+| [REFLEX](reflex/Reflex.md) | Ehlers Reflex | Ehlers zero-centered reversal oscillator using super smoother with normalized sum-of-differences. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [STOCH](stoch/Stoch.md) | Stochastic Oscillator | Close position within N-period high-low range. Classic overbought/oversold. |
 | [STOCHF](stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic. Faster but noisier. |
 | [STOCHRSI](stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI. More sensitive than either alone. |
+| [TRENDFLEX](trendflex/Trendflex.md) | Ehlers Trendflex | Ehlers zero-lag trend oscillator using super smoother with sum-of-differences normalization. |
 | [TRIX](trix/Trix.md) | Triple Exponential Average | ROC of triple EMA. Filters noise through three smoothings. |
 | [TTM_WAVE](ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (Waves A/B/C). John Carter. |
 | [ULTOSC](ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe oscillator. Combines 7, 14, 28 period buying pressure. |

@@ -8,6 +8,8 @@ Cycle analysis identifies repeating patterns in price data. John Ehlers pioneere
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [CCOR](ccor/Ccor.md) | Ehlers Correlation Cycle | Ehlers. Dual Pearson correlation (cos + -sin). Phasor angle + market state. |
+| [CCYC](ccyc/Ccyc.md) | Ehlers Cyber Cycle | Ehlers. 4-tap FIR + 2-pole high-pass IIR. Isolates dominant cycle component. |
 | [CG](cg/Cg.md) | Ehlers Center of Gravity | Ehlers. Weighted sum position. Minimal lag cycle indicator. |
 | [DSP](dsp/Dsp.md) | Ehlers Detrended Synthetic Price | Removes trend to reveal underlying cycles. |
 | [EACP](eacp/Eacp.md) | Ehlers Autocorrelation Periodogram | Ehlers. Spectral analysis via autocorrelation. Detects dominant period. |

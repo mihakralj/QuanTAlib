@@ -7,6 +7,7 @@ Basic mathematical transforms and utility functions for time series. These build
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
 | [ACCEL](accel/Accel.md) | Acceleration | Momentum change; second derivative of price. |
+| [AGC](agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via exponential peak tracking. |
 | [CHANGE](change/Change.md) | Percentage Change | Relative price movement over lookback period. |
 | [EXPTRANS](exptrans/Exptrans.md) | Exponential Transform | e^x transform for log-space conversion reversal. |
 | [HIGHEST](highest/Highest.md) | Rolling Maximum | Maximum value over lookback window. |

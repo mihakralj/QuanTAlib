@@ -114,6 +114,31 @@ function LUNAR(timestamp):
 | $k \approx 0.5$ (falling) | Last Quarter |
 | $k$ falling, $< 0.5$ | Waning Crescent |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Julian date conversion | ~4 | 1 DIV + 1 ADD + 1 SUB + 1 DIV |
+| Horner polynomial (5 elements) | ~25 | 5 FMA chains (3-4 deep each) |
+| Modular reduction (5 elements) | ~5 | 5 `mod 360` operations |
+| SIN evaluations (perturbations) | ~48 | 6 `Math.Sin` calls (~8 cycles each) |
+| Perturbation sum | ~11 | 6 MUL + 5 ADD |
+| Solar longitude (Horner + 2 SIN) | ~20 | 2 FMA + 2 `Math.Sin` + 2 FMA |
+| Phase angle + COS | ~10 | 1 SUB + 1 `Math.Cos` + 1 SUB + 1 MUL |
+| **Total** | **~123** | **O(1) pure arithmetic; no state, no buffers** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | Yes: fully stateless; each timestamp independent; `Vector<double>` applicable to Horner chains |
+| Bottleneck | 8 transcendental calls (6 SIN + 1 SIN + 1 COS); ~64 cycles total |
+| Parallelism | Full: no inter-bar dependencies; ideal for `Vector<double>` batch processing |
+| Memory | O(0): zero state; pure function of timestamp |
+| Throughput | Very fast; bulk evaluation benefits from SIMD Horner + vectorized sin/cos |
+
 ## Resources
 
 - **Meeus, J.** *Astronomical Algorithms*. 2nd ed., Willmann-Bell, 1998.

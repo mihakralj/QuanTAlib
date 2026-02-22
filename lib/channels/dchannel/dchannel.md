@@ -78,6 +78,34 @@ function DCHANNEL(high, low, period):
 | `lower` | Lowest low over the lookback (support) |
 | `middle` | Midpoint of channel (trend bias) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+DCHANNEL uses two monotonic deques for $O(1)$ amortized sliding-window max/min:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (expire stale front, max deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, max deque) | ~1 avg | 1 | 1 |
+| CMP (expire stale front, min deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, min deque) | ~1 avg | 1 | 1 |
+| ADD (upper + lower) | 1 | 1 | 1 |
+| MUL (× 0.5 for middle) | 1 | 3 | 3 |
+| **Total (amortized)** | **~6** | — | **~8 cycles** |
+
+Each element enters and exits each deque exactly once over the full series, so worst-case per-bar is $O(n)$ but amortized cost is $O(1)$. Memory: two deques of up to $n$ index entries + two circular buffers of $n$ values.
+
+### Batch Mode (SIMD Analysis)
+
+Monotonic deques are inherently sequential (deque state depends on insertion order). No SIMD parallelization across bars is possible:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Deque operations | Sequential; amortized O(1) already optimal |
+| Midpoint computation | Vectorizable in a post-pass with `Vector<double>` |
+| Memory layout | Circular buffers are cache-friendly for sequential access |
+
 ## Resources
 
 - **Donchian, R.** "High Finance in Copper." *Financial Analysts Journal*, 16(6), 1960. (Original channel concept)

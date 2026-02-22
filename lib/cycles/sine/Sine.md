@@ -121,6 +121,31 @@ function SINE(source, hpPeriod, ssfPeriod):
 | Zero crossing down | Bearish phase transition |
 | Erratic output | Strong trend overwhelming cycle extraction |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| High-pass filter | ~4 | 1 SUB + 1 MUL + 1 FMA |
+| Super-Smoother (2-pole IIR) | ~5 | 1 ADD + 2 FMA + 1 MUL |
+| Hilbert FIR (quadrature) | ~7 | 4-tap FIR: 4 MUL + 3 ADD |
+| I² + Q² (power) | ~3 | 2 MUL + 1 ADD |
+| SQRT + normalization | ~4 | 1 SQRT + 1 DIV + 1 branch |
+| Buffer management | ~3 | 1 circular buffer write + index update |
+| State shift | ~4 | 4 register moves |
+| **Total** | **~30** | **O(1) fixed; single SQRT is only transcendental** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: HP and SSF are recursive IIR with sequential state dependencies |
+| Bottleneck | `Math.Sqrt` in power normalization (~15 cycles); rest is pure arithmetic |
+| Parallelism | None: each bar's HP/SSF output depends on previous bar |
+| Memory | O(1): 8-element ring buffer + 4 scalar state variables (~96 bytes) |
+| Throughput | Very fast; slightly faster than EBSW (no 3-bar averaging, no clamp) |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.

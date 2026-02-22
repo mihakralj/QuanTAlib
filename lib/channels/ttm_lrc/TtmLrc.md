@@ -129,6 +129,39 @@ function ttm_lrc(source[], period, deviations):
 | $-2\sigma$ to $-1\sigma$ | ~13.5% | Oversold |
 | Below $-2\sigma$ | ~2.5% | Extremely oversold relative to trend |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+TTM_LRC extends REGCHANNEL with dual bands and $R^2$ computation. Two $O(n)$ passes plus additional statistics:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD (sum_y accumulation, pass 1) | $n$ | 1 | $n$ |
+| FMA (i × y for sum_xy, pass 1) | $n$ | 4 | $4n$ |
+| MUL + DIV (slope, intercept, mean_y) | 5 | ~9 | 45 |
+| FMA (slope × i + intercept, pass 2) | $n$ | 4 | $4n$ |
+| SUB (residual, pass 2) | $n$ | 1 | $n$ |
+| MUL (residual², pass 2) | $n$ | 3 | $3n$ |
+| ADD (ssr accumulation, pass 2) | $n$ | 1 | $n$ |
+| SUB + MUL + ADD (sst, pass 2) | $2n$ | 2 | $4n$ |
+| DIV (ssr/n, sst check, R²) | 3 | 15 | 45 |
+| SQRT (σ) | 1 | 20 | 20 |
+| MUL + ADD/SUB (4 bands: ±1σ, ±kσ) | 6 | ~2 | 12 |
+| **Total** | **~$9n + 15$** | — | **~$18n + 122$ cycles** |
+
+For period 100: ~1922 cycles/bar. The longer default period (100 vs 20) makes the window scans significantly more expensive than REGCHANNEL.
+
+### Batch Mode (SIMD Analysis)
+
+Both passes iterate over contiguous ring buffer memory, enabling SIMD vectorization:
+
+| Operation | Scalar Ops | SIMD Ops (AVX-512) | Speedup |
+| :--- | :---: | :---: | :---: |
+| Pass 1: sum_y, sum_xy | $2n$ | $n/8$ | ~16× |
+| Pass 2: residuals + ssr + sst | $6n$ | $3n/4$ | ~8× |
+| Slope/intercept/bands/R² | 15 | 15 | 1× |
+
 ## Resources
 
 - Carter, J. (2005). *Mastering the Trade*. McGraw-Hill.

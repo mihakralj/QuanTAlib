@@ -102,6 +102,38 @@ function BBANDS(source, period, multiplier):
 | `bandwidth` | $[0, \infty)$ | Normalized volatility; low values signal "squeeze" |
 | `percentB` | typically $[0, 1]$ | $> 1$: above upper band; $< 0$: below lower band |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+BBANDS maintains running sums of $x$ and $x^2$ via a circular buffer for $O(1)$ mean and variance:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (source² for sumSq) | 1 | 3 | 3 |
+| SUB (oldest from sum, sumSq) | 2 | 1 | 2 |
+| ADD (new to sum, sumSq) | 2 | 1 | 2 |
+| DIV (sum / count for mean) | 1 | 15 | 15 |
+| MUL (mean² for variance) | 1 | 3 | 3 |
+| DIV (sumSq / count) | 1 | 15 | 15 |
+| SUB (sumSq/n - mean²) | 1 | 1 | 1 |
+| SQRT (σ from variance) | 1 | 20 | 20 |
+| MUL (k × σ) | 1 | 3 | 3 |
+| ADD/SUB (middle ± dev) | 2 | 1 | 2 |
+| **Total (hot)** | **13** | — | **~66 cycles** |
+
+The SQRT dominates. Derived metrics (%B, BandWidth) add 2 DIV + 2 SUB (~34 cycles) when requested.
+
+### Batch Mode (SIMD Analysis)
+
+The running-sum maintenance is sequential. The variance and SQRT are per-bar and parallelizable in a batch post-pass:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Running sum/sumSq | Sequential (sliding window dependency) |
+| Variance → SQRT → bands | Vectorizable with `Vector.SquareRoot` across output |
+| %B and BandWidth derivations | Vectorizable (element-wise arithmetic) |
+
 ## Resources
 
 - **Bollinger, J.** *Bollinger on Bollinger Bands*. McGraw-Hill, 2001. (Definitive reference)

@@ -92,6 +92,31 @@ function HT_SINE(source):
 | `Sine` | $[-1, +1]$ | Current cycle phase position |
 | `LeadSine` | $[-1, +1]$ | 45° advanced cycle phase (early warning) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Hilbert cascade (WMA + 4×FIR + phasor + homodyne) | ~84 | Same pipeline as HT_DCPERIOD |
+| DFT sin/cos accumulation | ~4P | P sin + P cos evaluations + 2P FMA |
+| Phase ATAN extraction | ~15 | `Math.Atan` transcendental |
+| Phase adjustment + unwrapping | ~5 | Quadrant correction + wrapping |
+| Final SIN (sine) | ~15 | `Math.Sin` transcendental |
+| Final SIN (leadSine) | ~15 | `Math.Sin(φ + π/4)` transcendental |
+| **Total (P=20 typical)** | **~214** | **O(P) dominated by DFT + 3 transcendentals** |
+| **Total (P=50 worst case)** | **~454** | **Heaviest of the HT family** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | Partially: DFT inner loop vectorizable; final sin calls are scalar |
+| Bottleneck | DFT loop (P sin/cos calls) + 3 final transcendentals per bar |
+| Parallelism | DFT accumulation independent; dual sin output trivially parallel |
+| Memory | O(P): ~50-element smooth price buffer + ~44-element det buffer + Hilbert state (~1.3 KB) |
+| Throughput | Slowest HT variant; ~2.5× HT_DCPHASE due to extra sin evaluations |
+
 ## Resources
 
 - **Ehlers, J.F.** *Rocket Science for Traders*. Wiley, 2001.

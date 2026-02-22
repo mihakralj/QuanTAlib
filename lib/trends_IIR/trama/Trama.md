@@ -89,6 +89,51 @@ tc = sma((hh or ll) ? 1 : 0, length) ^ 2
 trama = trama[1] + tc * (src - trama[1])
 ```
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+| :--- | :---: | :--- |
+| RingBuffer.Add (prices) | 1 | Rolling window update |
+| RingBuffer.Max() | 1 | O(N) scan for highest |
+| RingBuffer.Min() | 1 | O(N) scan for lowest |
+| Comparison (HH detect) | 1 | currentHighest > prevHighest |
+| Comparison (LL detect) | 1 | currentLowest < prevLowest |
+| RingBuffer.Add (events) | 1 | Binary event push |
+| Running sum update | 1 | O(1) via add-subtract |
+| Division (SMA) | 1 | eventSum / period |
+| Multiply (square) | 1 | tc = sma * sma |
+| FMA (EMA step) | 1 | FusedMultiplyAdd for adaptive update |
+| State copy (isNew) | 1 | Snapshot/Restore for bar correction |
+| **Total** | **~11 + 2N** | **Dominated by Max/Min scans** |
+
+Streaming complexity: **O(N)** per bar due to RingBuffer.Max()/Min() linear scans. The EMA step itself is O(1). For typical periods (14-50), the constant factor is small. A monotonic deque optimization could reduce to amortized O(1) but adds implementation complexity for marginal gain at these window sizes.
+
+### Batch Mode (SIMD Analysis)
+
+| Component | SIMD candidate? | Reason |
+| :--- | :---: | :--- |
+| Rolling max/min | ⚠️ Partial | Sliding window max/min has data dependencies; vectorizable within window scan |
+| HH/LL detection | ✔️ Yes | Independent comparisons across bars |
+| Event SMA | ⚠️ Partial | Running sum is sequential; initial accumulation vectorizable |
+| Squaring tc | ✔️ Yes | Independent multiply |
+| Adaptive EMA | ❌ No | Output[t] depends on output[t-1]; inherently sequential |
+| **Overall** | **Limited** | **IIR feedback loop blocks full vectorization** |
+
+Batch implementation uses ArrayPool-rented circular buffers for prices and events, avoiding heap allocations for the common case. The sequential dependency in the adaptive EMA step prevents SIMD acceleration of the core output loop, consistent with all IIR-class filters in QuanTAlib.
+
+### Quality Metrics
+
+| Metric | Score (1-10) | Notes |
+| :--- | :---: | :--- |
+| Lag reduction | 8 | Excellent in trends; near-zero movement in ranges |
+| Noise suppression | 7 | Strong in consolidation; less filtering in trends (by design) |
+| Whipsaw resistance | 9 | Squaring penalty sharply separates trend/range regimes |
+| Responsiveness | 8 | Fast adaptation when HH/LL frequency increases |
+| Parameter sensitivity | 7 | Single parameter (period); robust across 10-50 range |
+| Computational cost | 6 | O(N) per bar from max/min scans; acceptable for typical periods |
+
 ## Resources
 
 - LuxAlgo (2020). "TRAMA - Trend Regularity Adaptive Moving Average." TradingView. Published December 2020.

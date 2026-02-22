@@ -160,6 +160,38 @@ function uchannel(close[], high[], low[], strPeriod, centerPeriod, multiplier):
 | Band width contracting | Volatility compression |
 | Price beyond upper | Extreme positive deviation from USF trend |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+UCHANNEL runs two independent USF IIR recursions (one for close, one for True Range) plus True Range and band arithmetic — all $O(1)$:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (max(H, prevC) for TR) | 1 | 1 | 1 |
+| CMP (min(L, prevC) for TR) | 1 | 1 | 1 |
+| SUB (TH - TL for TR) | 1 | 1 | 1 |
+| MUL + ADD (USF center, 4 terms) | 4 | 4 | 16 |
+| ADD (USF center feedback, 5 terms) | 5 | 1 | 5 |
+| MUL + ADD (USF STR, 4 terms) | 4 | 4 | 16 |
+| ADD (USF STR feedback, 5 terms) | 5 | 1 | 5 |
+| MUL (k × STR) | 1 | 3 | 3 |
+| ADD/SUB (center ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **24** | — | **~50 cycles** |
+
+No buffers, no window scans. All state fits in ~200 bytes (two USF 2-element histories + metadata). This is the fastest ATR-class channel indicator.
+
+### Batch Mode (SIMD Analysis)
+
+Both USF recursions are IIR-dependent, preventing SIMD parallelization across bars:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| USF IIR (2 instances) | Sequential; ~21 cycles each per bar |
+| True Range computation | Vectorizable in a batch pre-pass |
+| Band arithmetic | Vectorizable in a post-pass |
+| No allocations | Zero heap allocation; all state in registers/stack |
+
 ## Resources
 
 - Ehlers, J. F. (2024). "Ultimate Channel." *Technical Analysis of Stocks & Commodities*.

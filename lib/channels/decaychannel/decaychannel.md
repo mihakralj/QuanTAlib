@@ -107,6 +107,39 @@ function DECAYCHANNEL(high, low, period):
 | `upper` | Decayed high (resistance that fades with time) |
 | `lower` | Decayed low (support that fades with time) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+DECAYCHANNEL scans the circular buffer for Donchian bounds ($O(n)$) plus exponential decay computation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (scan buffer for max, $n$ bars) | $n$ | 1 | $n$ |
+| CMP (scan buffer for min, $n$ bars) | $n$ | 1 | $n$ |
+| CMP (H ≥ currentMax, snap check) | 1 | 1 | 1 |
+| CMP (L ≤ currentMin, snap check) | 1 | 1 | 1 |
+| MUL (-λ × age) | 2 | 3 | 6 |
+| EXP (e^{-λ·age}, two bands) | 2 | 25 | 50 |
+| SUB (1 - exp result) | 2 | 1 | 2 |
+| MUL + SUB (decay × distance) | 2 | 4 | 8 |
+| ADD (midpoint) | 1 | 1 | 1 |
+| MUL (× 0.5) | 1 | 3 | 3 |
+| CMP (clamp to Donchian) | 2 | 1 | 2 |
+| **Total** | **$2n + 14$** | — | **~$2n + 74$ cycles** |
+
+For period 100: ~274 cycles/bar. The two EXP calls and the $O(n)$ Donchian scan dominate.
+
+### Batch Mode (SIMD Analysis)
+
+The Donchian scan is vectorizable for max/min reduction. The decay computation per bar depends on mutable age counters, limiting parallelism:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Donchian max/min scan | Vectorizable with `Vector.Max` / `Vector.Min` reduction |
+| EXP computation | Sequential (depends on age state) |
+| Decay application + clamping | Sequential (depends on currentMax/Min state) |
+
 ## Resources
 
 - **Rutherford, E.** "Radioactive Substances and their Radiations." Cambridge University Press, 1913. (Exponential decay / half-life mathematics)

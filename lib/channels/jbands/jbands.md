@@ -123,6 +123,39 @@ function JBANDS(source, period, phase):
 | `upper` | Adaptive upper envelope (snaps up, decays down) |
 | `lower` | Adaptive lower envelope (snaps down, decays up) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+JBANDS is the most complex channel indicator, combining snap-and-decay bands, a two-stage volatility estimator, and a 2-pole JMA IIR filter:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB + ABS (local deviation, 2 distances) | 3 | 1 | 3 |
+| CMP (max of 2 for dLocal) | 1 | 1 | 1 |
+| SMA update (10-bar highD, running sum) | 3 | 1 | 3 |
+| Partial sort (128-bar trimmed mean) | ~900 | 1 | ~900 |
+| DIV (ratio = distance / dRef) | 2 | 15 | 30 |
+| POW (ratio^Pexp) | 2 | 30 | 60 |
+| SQRT (√d) | 2 | 20 | 40 |
+| POW (sqrtDiv^√d for adapt) | 2 | 30 | 60 |
+| MUL + SUB (snap-decay, 2 bands) | 4 | 3 | 12 |
+| JMA IIR (3 recursion stages) | ~8 | 4 | 32 |
+| **Total** | **~930** | — | **~1141 cycles** |
+
+The 128-element trimmed mean (partial sort) dominates. In practice, the sort operates on a cache-friendly 1 KB buffer, making actual latency lower than raw cycle count suggests. The JMA IIR adds ~32 cycles per bar, comparable to a double-EMA.
+
+### Batch Mode (SIMD Analysis)
+
+The JMA IIR and snap-decay bands are recursive, preventing SIMD parallelization across bars. The trimmed mean sort is $O(n \log n)$ on a fixed 128-element buffer:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Trimmed mean | Fixed 128 elements; fits in L1 cache; intrinsics-friendly sort |
+| JMA 2-pole IIR | Sequential (3-stage recursion) |
+| Snap-and-decay bands | Sequential (conditional state updates) |
+| POW/SQRT computations | Hardware-accelerated; no vectorization opportunity |
+
 ## Resources
 
 - **Jurik, M.** Jurik Research. (Proprietary JMA specification and band logic)

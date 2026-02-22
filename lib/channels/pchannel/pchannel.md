@@ -108,6 +108,34 @@ function pchannel(high[], low[], period):
 | $U_t - L_t$ contracting | Consolidation; range tightening |
 | $U_t - L_t$ expanding | Volatility expansion |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+PCHANNEL uses two monotonic deques for $O(1)$ amortized sliding-window max/min plus a midpoint:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (expire stale front, max deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, max deque) | ~1 avg | 1 | 1 |
+| CMP (expire stale front, min deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, min deque) | ~1 avg | 1 | 1 |
+| ADD (upper + lower) | 1 | 1 | 1 |
+| MUL (× 0.5 for middle) | 1 | 3 | 3 |
+| **Total (amortized)** | **~6** | — | **~8 cycles** |
+
+Identical to DCHANNEL in cost. Each element enters and exits each deque exactly once over the full series, yielding $O(N)$ total work across $N$ bars regardless of period.
+
+### Batch Mode (SIMD Analysis)
+
+Monotonic deques are inherently sequential. No SIMD parallelization across bars is possible:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Deque operations | Sequential; amortized O(1) already optimal |
+| Midpoint computation | Vectorizable in a post-pass with `Vector<double>` |
+| Memory layout | Two circular buffers + two deques; cache-friendly |
+
 ## Resources
 
 - Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*.

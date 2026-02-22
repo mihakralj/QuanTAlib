@@ -129,6 +129,48 @@ function starchannel(source[], high[], low[], close[], period, multiplier, atr_l
 | Price at lower band | Overextended below SMA by ATR measure |
 | Middle band slope positive | SMA trending upward |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+STARCHANNEL combines an SMA running sum (center), True Range, and Wilder's RMA with warmup compensation — identical cost to ATRBANDS:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (oldest from SMA sum) | 1 | 1 | 1 |
+| ADD (new to SMA sum) | 1 | 1 | 1 |
+| DIV (SMA = sum / count) | 1 | 15 | 15 |
+| SUB (H - L) | 1 | 1 | 1 |
+| SUB + ABS (H - prevC, L - prevC) | 2 | 2 | 4 |
+| CMP (max of 3 for TR) | 2 | 1 | 2 |
+| FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
+| MUL (multiplier × ATR) | 1 | 3 | 3 |
+| ADD/SUB (middle ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **12** | — | **~33 cycles** |
+
+During warmup (RMA compensator active):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (e × (1 - α)) | 1 | 3 | 3 |
+| SUB (1 - e) | 1 | 1 | 1 |
+| DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
+| CMP (e > ε) | 1 | 1 | 1 |
+| **Warmup overhead** | **4** | — | **~20 cycles** |
+
+**Total during warmup:** ~53 cycles/bar; **Post-warmup:** ~33 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+The SMA running sum and RMA recursion are sequential. True Range computation is independent per bar:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| True Range (3-way max) | Vectorizable with `Vector.Max` and `Vector.Abs` |
+| RMA recursion | Sequential (IIR dependency) |
+| SMA running sum | Sequential |
+| Band arithmetic | Vectorizable in a post-pass |
+
 ## Resources
 
 - Stoller, M. (1980s). Development of the Stoller Average Range Channel.

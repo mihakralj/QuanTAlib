@@ -107,6 +107,31 @@ function SOLAR(timestamp):
 | $Solar = 0$ (falling) | Autumn equinox crossing |
 | Southern Hemisphere | Negate the output |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Julian date conversion | ~4 | 1 DIV + 1 ADD + 1 SUB + 1 DIV |
+| Horner polynomial (L0) | ~5 | 2 FMA + 1 mod |
+| Horner polynomial (M) | ~5 | 2 FMA + 1 mod |
+| SIN evaluations (equation of center) | ~24 | 3 `Math.Sin` calls (~8 cycles each) |
+| Equation of center arithmetic | ~8 | 3 FMA chains + 2 ADD |
+| True longitude addition | ~1 | 1 ADD |
+| Final SIN (seasonal index) | ~10 | 1 degree-to-radian MUL + 1 `Math.Sin` |
+| **Total** | **~57** | **O(1) pure arithmetic; simpler than LUNAR** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | Yes: fully stateless; each timestamp independent; `Vector<double>` applicable |
+| Bottleneck | 4 transcendental calls (3 SIN for equation of center + 1 final SIN); ~32 cycles |
+| Parallelism | Full: no inter-bar dependencies; ideal for `Vector<double>` batch processing |
+| Memory | O(0): zero state; pure function of timestamp |
+| Throughput | Fastest cycle indicator; ~2× faster than LUNAR (fewer perturbation terms) |
+
 ## Resources
 
 - **Meeus, J.** *Astronomical Algorithms*. 2nd ed., Willmann-Bell, 1998.

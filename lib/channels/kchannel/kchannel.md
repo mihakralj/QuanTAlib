@@ -100,6 +100,48 @@ function KCHANNEL(source, high, low, close, period, multiplier):
 | `upper` | EMA + scaled ATR (dynamic resistance) |
 | `lower` | EMA - scaled ATR (dynamic support) |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+KCHANNEL combines an EMA with warmup compensation (center), True Range computation, and Wilder's RMA with warmup compensation (ATR):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (EMA: α×source + (1-α)×prev) | 1 | 4 | 4 |
+| FMA (weight accumulator update) | 1 | 4 | 4 |
+| DIV (raw / weight for EMA) | 1 | 15 | 15 |
+| SUB (H - L) | 1 | 1 | 1 |
+| SUB + ABS (H - prevC, L - prevC) | 2 | 2 | 4 |
+| CMP (max of 3 for TR) | 2 | 1 | 2 |
+| FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
+| MUL (multiplier × ATR) | 1 | 3 | 3 |
+| ADD/SUB (EMA ± width) | 2 | 1 | 2 |
+| **Total (hot)** | **12** | — | **~39 cycles** |
+
+During warmup (RMA compensator active):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (e × (1 - α)) | 1 | 3 | 3 |
+| SUB (1 - e) | 1 | 1 | 1 |
+| DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
+| CMP (e > ε) | 1 | 1 | 1 |
+| **Warmup overhead** | **4** | — | **~20 cycles** |
+
+**Total during warmup:** ~59 cycles/bar; **Post-warmup:** ~39 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+All IIR recursions (EMA, RMA) are state-dependent, preventing SIMD parallelization across bars:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | 3 hardware FMAs per bar |
+| True Range computation | Vectorizable in a batch pre-pass |
+| Band arithmetic | Vectorizable in a post-pass |
+| No buffers | Zero allocation; all state fits in registers |
+
 ## Resources
 
 - **Keltner, C.** *How to Make Money in Commodities*. 1960. (Original channel concept)

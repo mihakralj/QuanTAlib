@@ -129,6 +129,38 @@ function vwapbands(source[], volume[], reset[], multiplier):
 | $\sigma$ increasing | Volume-weighted dispersion growing |
 | Bands expanding | Intraday volatility increasing |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+VWAPBANDS maintains three cumulative running sums plus variance computation and dual band construction — all $O(1)$:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (price × vol for sum_pv) | 1 | 3 | 3 |
+| MUL (price² × vol for sum_pv2) | 2 | 3 | 6 |
+| ADD (3 running sums) | 3 | 1 | 3 |
+| DIV (sum_pv / sum_vol for VWAP) | 1 | 15 | 15 |
+| DIV (sum_pv2 / sum_vol for E[X²]) | 1 | 15 | 15 |
+| MUL (VWAP² for variance) | 1 | 3 | 3 |
+| SUB (E[X²] - VWAP²) | 1 | 1 | 1 |
+| SQRT (σ) | 1 | 20 | 20 |
+| MUL (k × σ, 2k × σ) | 2 | 3 | 6 |
+| ADD/SUB (VWAP ± 1σ, ± 2σ, 4 bands) | 4 | 1 | 4 |
+| **Total (hot)** | **17** | — | **~76 cycles** |
+
+Session reset adds a CMP per bar. The two DIV operations and SQRT dominate. No buffers required — purely cumulative sums.
+
+### Batch Mode (SIMD Analysis)
+
+Cumulative sums are inherently sequential. Band arithmetic is vectorizable:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Running sum accumulation | Sequential (prefix sum dependency) |
+| Variance → SQRT → bands | Vectorizable in a batch post-pass |
+| Session reset detection | Sequential (comparison per bar) |
+
 ## Resources
 
 - Berkowitz, S., Logue, D. & Noser, E. (1988). "The Total Cost of Transactions on the NYSE." *The Journal of Finance*, 43(1), 97–112.

@@ -129,6 +129,32 @@ function CCOR(source, period, threshold):
 | `angle` | monotonically increasing degrees | Phasor angle of detected cycle |
 | `state` | $\{-1, 0, +1\}$ | $-1$ = downtrend, $0$ = cycling, $+1$ = uptrend |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 5×N | 1 | 5N |
+| MUL | 5×N | 3 | 15N |
+| DIV | 2 | 15 | 30 |
+| SQRT | 1 | 15 | 15 |
+| ATAN | 1 | 20 | 20 |
+| CMP | 3 | 1 | 3 |
+| CLAMP | 1 | 1 | 1 |
+| **Total** | **~10N+8** | — | **~20N+69** |
+
+For default period $N = 20$: ~269 cycles per bar. The O(N) cost comes from dual Pearson correlation loops over the sliding window. Precomputed cos/sin tables eliminate per-bar trig calls.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Pearson correlation bounded [-1, +1] by construction |
+| **Timeliness** | 8/10 | Full-window correlation; no recursive lag |
+| **Smoothness** | 7/10 | Monotonic angle constraint prevents backward jumps |
+| **Memory** | 8/10 | O(N) ring buffer + precomputed trig tables |
+
 ## Resources
 
 - **Ehlers, J.F.** "Correlation As A Cycle Indicator." *Technical Analysis of Stocks & Commodities*, June 2020.

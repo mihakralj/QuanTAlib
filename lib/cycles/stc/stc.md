@@ -142,6 +142,37 @@ Setting $k \approx f/2$ targets the half-cycle of the MACD's dominant frequency,
 
 The recursive EMA dependencies and sequential min/max ring buffer updates prevent SIMD vectorization of the streaming path. The `Calculate(Span)` path can parallelize independent MACD computations but must serialize the double-Stochastic pipeline.
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count per bar | Notes |
+|-----------|--------------|-------|
+| Fast EMA | ~3 | 1 FMA + 1 MUL |
+| Slow EMA | ~3 | 1 FMA + 1 MUL |
+| MACD subtraction | ~1 | 1 SUB |
+| Ring buffer add (MACD) | ~1 | 1 write + index update |
+| Min/Max scan (MACD buf) | ~2k | Linear scan of k elements × 2 (min + max) |
+| First Stochastic (%K₁) | ~4 | 1 SUB + 1 DIV + 1 MUL + 1 branch |
+| First EMA smoothing (%D₁) | ~3 | 1 FMA + 1 MUL |
+| Ring buffer add (%D₁) | ~1 | 1 write + index update |
+| Min/Max scan (%D₁ buf) | ~2k | Linear scan of k elements × 2 |
+| Second Stochastic (%K₂) | ~4 | 1 SUB + 1 DIV + 1 MUL + 1 branch |
+| Final smoothing (EMA) | ~3 | 1 FMA + 1 MUL |
+| Clamp | ~2 | 2 comparisons |
+| **Total (k=10 default)** | **~65** | **O(k) dominated by dual min/max scans** |
+| **Total (k=50 worst)** | **~225** | **Linear growth with kPeriod** |
+
+### Batch Mode (SIMD Analysis)
+
+| Aspect | Assessment |
+|--------|------------|
+| SIMD vectorizable | No: recursive EMAs + sequential ring buffer min/max prevent vectorization |
+| Bottleneck | Dual min/max scans over ring buffers (2×k comparisons per bar) |
+| Parallelism | MACD EMA computation is independent of Stochastic pipeline but still sequential IIR |
+| Memory | O(k): two ring buffers of kPeriod doubles + 6 scalar EMA states (~200 bytes at k=10) |
+| Throughput | Moderate; faster than HT family (no transcendentals) but slower than pure IIR (min/max scans) |
+
 ## Resources
 
 - Schaff, D. — "Schaff Trend Cycle" (currency trading methodology, 1990s)

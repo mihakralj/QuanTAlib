@@ -87,6 +87,32 @@ Each element is pushed to the deque exactly once and popped at most once (either
 | $U_t - L_t$ contracting | Consolidation; range tightening |
 | $U_t - L_t$ expanding | Volatility expansion; breakout potential |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+MMCHANNEL uses two monotonic deques for $O(1)$ amortized sliding-window max/min with no midpoint calculation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (expire stale front, max deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, max deque) | ~1 avg | 1 | 1 |
+| CMP (expire stale front, min deque) | 1 | 1 | 1 |
+| CMP (remove dominated back, min deque) | ~1 avg | 1 | 1 |
+| **Total (amortized)** | **~4** | — | **~4 cycles** |
+
+MMCHANNEL is the lightest channel indicator — no midpoint computation, no band arithmetic. Each element enters and exits each deque exactly once over the full series.
+
+### Batch Mode (SIMD Analysis)
+
+Monotonic deques are inherently sequential. No SIMD parallelization across bars is possible:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| Deque operations | Sequential; amortized O(1) already optimal |
+| No midpoint/band math | Nothing to vectorize in a post-pass |
+| Memory layout | Circular buffers are cache-friendly for sequential access |
+
 ## Resources
 
 - Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6).

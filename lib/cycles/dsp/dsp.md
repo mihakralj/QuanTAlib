@@ -87,6 +87,29 @@ function DSP(source, period):
 | Zero crossing | Cycle phase transition point |
 | Divergence from price | Cycle energy waning; potential trend exhaustion |
 
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 3 | 1 | 3 |
+| MUL | 4 | 3 | 12 |
+| FMA | 2 | 4 | 8 |
+| DIV | 2 | 15 | 30 |
+| **Total** | **11** | — | **~53 cycles** |
+
+O(1) per bar. Two EMA updates (fast + slow) using FMA, plus warmup bias-correction divisions. After warmup completes, the DIV cost drops to zero, reducing steady-state to ~23 cycles.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Bias-corrected EMAs eliminate warmup distortion |
+| **Timeliness** | 8/10 | Quarter-cycle EMA responds quickly; half-cycle provides reference |
+| **Smoothness** | 8/10 | Dual EMA differencing inherently smooths noise |
+| **Memory** | 10/10 | O(1) state: 6 scalar values in record struct |
+
 ## Resources
 
 - **Ehlers, J.F.** *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
