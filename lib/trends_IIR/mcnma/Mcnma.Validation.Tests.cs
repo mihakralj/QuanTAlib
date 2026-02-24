@@ -37,7 +37,7 @@ public sealed class McnmaValidationTests : IDisposable
     [Fact]
     public void Validate_ManualTemaComposition_Batch()
     {
-        // MCNMA = 2*TEMA(src) - TEMA(TEMA(src))
+        // Manual 6-EMA with first-value seeding (matches Pine exactly)
         int[] periods = { 5, 10, 14, 20, 50 };
 
         foreach (var period in periods)
@@ -45,17 +45,34 @@ public sealed class McnmaValidationTests : IDisposable
             var mcnma = new Mcnma(period);
             var qResult = mcnma.Update(_testData.Data);
 
-            // Manual composition using two TEMA instances
-            var tema1 = new Tema(period);
-            var tema2 = new Tema(period);
+            double alpha = 2.0 / (period + 1);
+            double decay = 1.0 - alpha;
+            double e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0, e6 = 0;
+            bool init = false;
             var manualResults = new List<double>();
 
             for (int i = 0; i < _testData.Data.Count; i++)
             {
-                var item = _testData.Data[i];
-                var t1 = tema1.Update(item);
-                var t2 = tema2.Update(t1);
-                manualResults.Add(2.0 * t1.Value - t2.Value);
+                double val = _testData.Data[i].Value;
+                if (!init)
+                {
+                    e1 = e2 = e3 = e4 = e5 = e6 = val;
+                    init = true;
+                    manualResults.Add(val);
+                    continue;
+                }
+
+                e1 = Math.FusedMultiplyAdd(e1, decay, alpha * val);
+                e2 = Math.FusedMultiplyAdd(e2, decay, alpha * e1);
+                e3 = Math.FusedMultiplyAdd(e3, decay, alpha * e2);
+                double tema1 = 3.0 * e1 - 3.0 * e2 + e3;
+
+                e4 = Math.FusedMultiplyAdd(e4, decay, alpha * tema1);
+                e5 = Math.FusedMultiplyAdd(e5, decay, alpha * e4);
+                e6 = Math.FusedMultiplyAdd(e6, decay, alpha * e5);
+                double tema2 = 3.0 * e4 - 3.0 * e5 + e6;
+
+                manualResults.Add(2.0 * tema1 - tema2);
             }
 
             for (int i = 0; i < qResult.Count; i++)
@@ -63,7 +80,7 @@ public sealed class McnmaValidationTests : IDisposable
                 Assert.Equal(manualResults[i], qResult[i].Value, 1e-9);
             }
         }
-        _output.WriteLine("MCNMA Batch(TSeries) validated successfully against manual TEMA composition");
+        _output.WriteLine("MCNMA Batch(TSeries) validated successfully against manual 6-EMA composition");
     }
 
     [Fact]
@@ -136,29 +153,46 @@ public sealed class McnmaValidationTests : IDisposable
     [Fact]
     public void Validate_Against_ManualFormula()
     {
-        // Validate the explicit formula: 2*TEMA(src,N) - TEMA(TEMA(src,N),N)
+        // Manual 6-EMA with first-value seeding (matches Pine exactly)
         int[] periods = { 5, 10, 14, 20 };
 
         foreach (var period in periods)
         {
             var mcnma = new Mcnma(period);
-            var tema1 = new Tema(period);
-            var tema2 = new Tema(period);
+            double alpha = 2.0 / (period + 1);
+            double decay = 1.0 - alpha;
+            double e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0, e6 = 0;
+            bool init = false;
 
             for (int i = 0; i < _testData.Data.Count; i++)
             {
                 var item = _testData.Data[i];
-
                 var qVal = mcnma.Update(item);
+                double val = item.Value;
 
-                var t1 = tema1.Update(item);
-                var t2 = tema2.Update(t1);
-                double manualVal = 2.0 * t1.Value - t2.Value;
+                if (!init)
+                {
+                    e1 = e2 = e3 = e4 = e5 = e6 = val;
+                    init = true;
+                    Assert.Equal(val, qVal.Value, ValidationHelper.DefaultTolerance);
+                    continue;
+                }
 
+                e1 = Math.FusedMultiplyAdd(e1, decay, alpha * val);
+                e2 = Math.FusedMultiplyAdd(e2, decay, alpha * e1);
+                e3 = Math.FusedMultiplyAdd(e3, decay, alpha * e2);
+                double tema1 = 3.0 * e1 - 3.0 * e2 + e3;
+
+                e4 = Math.FusedMultiplyAdd(e4, decay, alpha * tema1);
+                e5 = Math.FusedMultiplyAdd(e5, decay, alpha * e4);
+                e6 = Math.FusedMultiplyAdd(e6, decay, alpha * e5);
+                double tema2 = 3.0 * e4 - 3.0 * e5 + e6;
+
+                double manualVal = 2.0 * tema1 - tema2;
                 Assert.Equal(manualVal, qVal.Value, ValidationHelper.DefaultTolerance);
             }
         }
-        _output.WriteLine("MCNMA validated successfully against manual formula (2*TEMA - TEMA(TEMA))");
+        _output.WriteLine("MCNMA validated successfully against manual 6-EMA formula");
     }
 
     [Fact]

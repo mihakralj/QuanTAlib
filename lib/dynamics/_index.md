@@ -19,10 +19,14 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | [DX](dx/Dx.md) | Directional Movement Index | Raw directional strength. Unsmoothed ADX component. |
 | [HT_TRENDMODE](ht_trendmode/Ht_trendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
 | [ICHIMOKU](ichimoku/Ichimoku.md) | Ichimoku Cloud | Five-line system. Cloud defines support/resistance zones. |
-| [IMI](imi/Imi.md) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold. |
 | [IMPULSE](impulse/Impulse.md) | Elder Impulse System | EMA + MACD histogram alignment. Color-coded trend/momentum filter. |
 | [QSTICK](qstick/Qstick.md) | Qstick | MA of (Close - Open). Positive = buying pressure. |
 | [SUPER](super/Super.md) | SuperTrend | ATR-based trailing stop. Flips on breakout. Color-coded direction. |
 | [TTM_TREND](ttm_trend/TtmTrend.md) | TTM Trend | Fast 6-period EMA. Color-coded trend from John Carter. |
 | [TTM_SQUEEZE](ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze detection with linear regression momentum. John Carter. |
 | [VORTEX](vortex/Vortex.md) | Vortex Indicator | VI+ and VI- measure positive/negative trend movement. |
+| GATOR | Williams Gator Oscillator | Histogram of Alligator line differences. |
+| GHLA | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover. |
+| PFE | Polarized Fractal Efficiency | Trend efficiency: straight-line / total path distance. |
+| RAVI | Chande Range Action Verification Index | \|SMA(short) − SMA(long)\| / SMA(long) × 100. |
+| VHF | Vertical Horizontal Filter | Max-min range / sum of absolute changes. |

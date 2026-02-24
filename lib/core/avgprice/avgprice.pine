@@ -1,0 +1,13 @@
+// AVGPRICE: Average Price
+// (Open + High + Low + Close) / 4
+// TA-Lib compatible — equivalent to TBar.OHLC4
+
+//@version=6
+indicator("AVGPRICE: Average Price", overlay=true)
+
+avgprice(float o, float h, float l, float c) =>
+    (o + h + l + c) * 0.25
+
+result = avgprice(open, high, low, close)
+
+plot(result, "AvgPrice", color.new(color.blue, 0), 2)

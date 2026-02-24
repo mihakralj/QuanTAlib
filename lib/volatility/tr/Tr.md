@@ -201,7 +201,7 @@ TR is one of the most consistently implemented indicators across all libraries.
 
 2. **Confusing TR with ATR**: TR is the raw, unsmoothed value per bar. ATR is TR smoothed over a period. TR can be very volatile; ATR provides a more stable volatility estimate.
 
-3. **Unit dependency**: TR is in the same units as price. A $500 stock might have TR=10 while a $50 stock has TR=1, even if percentage volatility is identical. Use NATR (Normalized ATR) or ATRP (ATR Percent) for percentage-based comparisons.
+3. **Unit dependency**: TR is in the same units as price. A $500 stock might have TR=10 while a $50 stock has TR=1, even if percentage volatility is identical. Use NATR (Normalized ATR) for percentage-based comparisons.
 
 4. **Gap sensitivity**: TR captures gaps, which may or may not be desirable. For intraday-only volatility, use High-Low range instead.
 
@@ -263,8 +263,7 @@ If gap contribution > 50% of TR: Significant gap move
 | Indicator | Relationship to TR |
 | :--- | :--- |
 | **ATR** | Smoothed TR (RMA/Wilder's MA) |
-| **NATR** | ATR / Close × 100 |
-| **ATRP** | ATR / Close × 100 (same as NATR) |
+| **NATR** | ATR / Close × 100 (also known as ATRP) |
 | **Keltner Channel** | Uses ATR for band width |
 | **Chandelier Exit** | Uses ATR for trailing stop |
 | **SuperTrend** | Uses ATR for trend bands |

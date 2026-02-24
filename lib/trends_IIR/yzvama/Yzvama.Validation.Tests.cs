@@ -85,13 +85,17 @@ public class YzvamaValidationTests
             yzvama.Update(bar, isNew: true);
         }
 
-        // One large-range bar should rank at the top of the volatility buffer (percentile ~= 100),
-        // which maps adjusted length to minLength. The SMA then uses the last minLength closes.
+        // A single large-range bar ranks at the top of the volatility buffer.
+        // EMA smoothing on the percentile prevents an instant snap to minLength.
+        // Instead the smoothed percentile ramps gradually, placing the output
+        // between the full-buffer SMA (around 100) and an instant-jump value (120).
         var spike = new TBar(t + percentileLookback, 100, 200, 50, 200, 0);
         var result = yzvama.Update(spike, isNew: true);
 
-        // Last 5 closes: 100,100,100,100,200 => average = 120
-        Assert.Equal(120.0, result.Value, 1e-6);
+        // Smoothed percentile dampens the response: adjusted length is shorter than maxLength
+        // but not yet at minLength. Result should be above the all-100 average and below 120.
+        Assert.True(result.Value > 100.0, $"Expected output > 100 after spike, got {result.Value}");
+        Assert.True(result.Value <= 120.0, $"Expected output <= 120 after spike, got {result.Value}");
     }
 }
 

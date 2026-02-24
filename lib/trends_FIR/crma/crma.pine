@@ -5,12 +5,12 @@ indicator("Cubic Regression Moving Average (CRMA)", "CRMA", overlay=true)
 
 //@function Computes Cubic Regression Moving Average — fits a degree-3 polynomial
 //          y = a0 + a1*x + a2*x² + a3*x³ to the most recent `period` bars via
-//          normal equations with Gaussian elimination, returns the fitted endpoint.
+//          normal equations solved by closed-form elimination, returns the fitted endpoint.
 //@param source Series to analyze
 //@param period Lookback window for the cubic regression
 //@returns Fitted value at the most recent bar (x = 0)
 //@reference Polynomial least-squares regression (degree 3), evaluated at endpoint
-//@optimized O(period) per bar for accumulating sums; O(1) for 4×4 solve
+//@optimized O(period) per bar for accumulating sums; O(1) for solve
 crma(series float source, simple int period) =>
     if period < 4
         runtime.error("Period must be at least 4 for cubic regression")
@@ -20,6 +20,7 @@ crma(series float source, simple int period) =>
     // --- Circular buffer for rolling window ---
     var array<float> buffer = array.new_float(period, na)
     var int head = 0
+
     array.set(buffer, head, price)
     head := (head + 1) % period
 
@@ -28,12 +29,17 @@ crma(series float source, simple int period) =>
         price
     else
         // --- Accumulate power sums and cross-products ---
-        // Normal equations for degree-3 polynomial: M * a = rhs
-        // M[i][j] = Σ x^(i+j),  rhs[i] = Σ x^i * y   for i,j = 0..3
-        // x = 0 (newest) to p-1 (oldest), so a0 = fitted value at newest bar
-        float s0 = 0.0,  s1 = 0.0,  s2 = 0.0,  s3 = 0.0
-        float s4 = 0.0,  s5 = 0.0,  s6 = 0.0
-        float r0 = 0.0,  r1 = 0.0,  r2 = 0.0,  r3 = 0.0
+        float s0 = 0.0
+        float s1 = 0.0
+        float s2 = 0.0
+        float s3 = 0.0
+        float s4 = 0.0
+        float s5 = 0.0
+        float s6 = 0.0
+        float r0 = 0.0
+        float r1 = 0.0
+        float r2 = 0.0
+        float r3 = 0.0
 
         int idx = (head - 1 + period) % period
         for i = 0 to p - 1
@@ -43,75 +49,218 @@ crma(series float source, simple int period) =>
             float x2 = x * x
             float x3 = x2 * x
 
-            s0 += 1.0       // Σ x^0 = count
-            s1 += x         // Σ x^1
-            s2 += x2        // Σ x^2
-            s3 += x3        // Σ x^3
-            s4 += x2 * x2   // Σ x^4
-            s5 += x2 * x3   // Σ x^5
-            s6 += x3 * x3   // Σ x^6
+            s0 += 1.0
+            s1 += x
+            s2 += x2
+            s3 += x3
+            s4 += x2 * x2
+            s5 += x2 * x3
+            s6 += x3 * x3
 
-            r0 += v          // Σ y
-            r1 += x * v      // Σ x*y
-            r2 += x2 * v     // Σ x²*y
-            r3 += x3 * v     // Σ x³*y
+            r0 += v
+            r1 += x * v
+            r2 += x2 * v
+            r3 += x3 * v
 
             idx := (idx - 1 + period) % period
 
-        // --- Build 4×4 augmented matrix (row-major, 4 rows × 5 cols) ---
-        var matrix<float> m = matrix.new<float>(4, 5, 0.0)
+        // --- Solve 4x4 via scalar Gaussian elimination with partial pivoting ---
+        // Row 0
+        float a00 = s0
+        float a01 = s1
+        float a02 = s2
+        float a03 = s3
+        float b0  = r0
+        // Row 1
+        float a10 = s1
+        float a11 = s2
+        float a12 = s3
+        float a13 = s4
+        float b1  = r1
+        // Row 2
+        float a20 = s2
+        float a21 = s3
+        float a22 = s4
+        float a23 = s5
+        float b2  = r2
+        // Row 3
+        float a30 = s3
+        float a31 = s4
+        float a32 = s5
+        float a33 = s6
+        float b3  = r3
 
-        // Row 0: [s0, s1, s2, s3 | r0]
-        matrix.set(m, 0, 0, s0), matrix.set(m, 0, 1, s1), matrix.set(m, 0, 2, s2), matrix.set(m, 0, 3, s3), matrix.set(m, 0, 4, r0)
-        // Row 1: [s1, s2, s3, s4 | r1]
-        matrix.set(m, 1, 0, s1), matrix.set(m, 1, 1, s2), matrix.set(m, 1, 2, s3), matrix.set(m, 1, 3, s4), matrix.set(m, 1, 4, r1)
-        // Row 2: [s2, s3, s4, s5 | r2]
-        matrix.set(m, 2, 0, s2), matrix.set(m, 2, 1, s3), matrix.set(m, 2, 2, s4), matrix.set(m, 2, 3, s5), matrix.set(m, 2, 4, r2)
-        // Row 3: [s3, s4, s5, s6 | r3]
-        matrix.set(m, 3, 0, s3), matrix.set(m, 3, 1, s4), matrix.set(m, 3, 2, s5), matrix.set(m, 3, 3, s6), matrix.set(m, 3, 4, r3)
+        // --- Column 0: partial pivoting among rows 0-3 ---
+        float best0 = math.abs(a00)
+        int piv0 = 0
+        if math.abs(a10) > best0
+            best0 := math.abs(a10)
+            piv0 := 1
+        if math.abs(a20) > best0
+            best0 := math.abs(a20)
+            piv0 := 2
+        if math.abs(a30) > best0
+            best0 := math.abs(a30)
+            piv0 := 3
 
-        // --- Gaussian elimination with partial pivoting ---
-        bool singular = false
-        for col = 0 to 3
-            // Find pivot row
-            int pivot_row = col
-            float pivot_max = math.abs(matrix.get(m, col, col))
-            for row = col + 1 to 3
-                float absval = math.abs(matrix.get(m, row, col))
-                if absval > pivot_max
-                    pivot_max := absval
-                    pivot_row := row
+        // Swap pivot row with row 0
+        if piv0 == 1
+            float t0 = a00
+            float t1 = a01
+            float t2 = a02
+            float t3 = a03
+            float t4 = b0
+            a00 := a10
+            a01 := a11
+            a02 := a12
+            a03 := a13
+            b0 := b1
+            a10 := t0
+            a11 := t1
+            a12 := t2
+            a13 := t3
+            b1 := t4
+        else if piv0 == 2
+            float t0 = a00
+            float t1 = a01
+            float t2 = a02
+            float t3 = a03
+            float t4 = b0
+            a00 := a20
+            a01 := a21
+            a02 := a22
+            a03 := a23
+            b0 := b2
+            a20 := t0
+            a21 := t1
+            a22 := t2
+            a23 := t3
+            b2 := t4
+        else if piv0 == 3
+            float t0 = a00
+            float t1 = a01
+            float t2 = a02
+            float t3 = a03
+            float t4 = b0
+            a00 := a30
+            a01 := a31
+            a02 := a32
+            a03 := a33
+            b0 := b3
+            a30 := t0
+            a31 := t1
+            a32 := t2
+            a33 := t3
+            b3 := t4
 
-            if pivot_max < 1e-12
-                singular := true
-                break
+        bool singular = best0 < 1e-12
+        if not singular
+            // Eliminate column 0 from rows 1,2,3
+            float f1 = a10 / a00
+            a11 -= f1 * a01
+            a12 -= f1 * a02
+            a13 -= f1 * a03
+            b1  -= f1 * b0
+            a10 := 0.0
 
-            // Swap rows if needed
-            if pivot_row != col
-                for k = col to 4
-                    float tmp = matrix.get(m, col, k)
-                    matrix.set(m, col, k, matrix.get(m, pivot_row, k))
-                    matrix.set(m, pivot_row, k, tmp)
+            float f2 = a20 / a00
+            a21 -= f2 * a01
+            a22 -= f2 * a02
+            a23 -= f2 * a03
+            b2  -= f2 * b0
+            a20 := 0.0
 
-            // Eliminate below
-            float diag = matrix.get(m, col, col)
-            for row = col + 1 to 3
-                float factor = matrix.get(m, row, col) / diag
-                for k = col to 4
-                    matrix.set(m, row, k, matrix.get(m, row, k) - factor * matrix.get(m, col, k))
+            float f3 = a30 / a00
+            a31 -= f3 * a01
+            a32 -= f3 * a02
+            a33 -= f3 * a03
+            b3  -= f3 * b0
+            a30 := 0.0
+
+            // --- Column 1: partial pivoting among rows 1-3 ---
+            float best1 = math.abs(a11)
+            int piv1 = 1
+            if math.abs(a21) > best1
+                best1 := math.abs(a21)
+                piv1 := 2
+            if math.abs(a31) > best1
+                best1 := math.abs(a31)
+                piv1 := 3
+
+            if piv1 == 2
+                float t1 = a11
+                float t2 = a12
+                float t3 = a13
+                float t4 = b1
+                a11 := a21
+                a12 := a22
+                a13 := a23
+                b1 := b2
+                a21 := t1
+                a22 := t2
+                a23 := t3
+                b2 := t4
+            else if piv1 == 3
+                float t1 = a11
+                float t2 = a12
+                float t3 = a13
+                float t4 = b1
+                a11 := a31
+                a12 := a32
+                a13 := a33
+                b1 := b3
+                a31 := t1
+                a32 := t2
+                a33 := t3
+                b3 := t4
+
+            singular := best1 < 1e-12
+
+        if not singular
+            // Eliminate column 1 from rows 2,3
+            float g2 = a21 / a11
+            a22 -= g2 * a12
+            a23 -= g2 * a13
+            b2  -= g2 * b1
+            a21 := 0.0
+
+            float g3 = a31 / a11
+            a32 -= g3 * a12
+            a33 -= g3 * a13
+            b3  -= g3 * b1
+            a31 := 0.0
+
+            // --- Column 2: partial pivoting among rows 2-3 ---
+            if math.abs(a32) > math.abs(a22)
+                float t2 = a22
+                float t3 = a23
+                float t4 = b2
+                a22 := a32
+                a23 := a33
+                b2 := b3
+                a32 := t2
+                a33 := t3
+                b3 := t4
+
+            singular := math.abs(a22) < 1e-12
+
+        if not singular
+            // Eliminate column 2 from row 3
+            float h3 = a32 / a22
+            a33 -= h3 * a23
+            b3  -= h3 * b2
+            a32 := 0.0
+
+            singular := math.abs(a33) < 1e-12
 
         float result = price
         if not singular
             // Back-substitution
-            var array<float> a = array.new_float(4, 0.0)
-            for row = 3 to 0
-                float val = matrix.get(m, row, 4)
-                for k = row + 1 to 3
-                    val -= matrix.get(m, row, k) * array.get(a, k)
-                array.set(a, row, val / matrix.get(m, row, row))
-
-            // a[0] is the fitted value at x = 0 (most recent bar)
-            result := array.get(a, 0)
+            float c3 = b3 / a33
+            float c2 = (b2 - a23 * c3) / a22
+            float c1 = (b1 - a12 * c2 - a13 * c3) / a11
+            float c0 = (b0 - a01 * c1 - a02 * c2 - a03 * c3) / a00
+            result := c0
 
         result
 

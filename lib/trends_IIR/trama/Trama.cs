@@ -81,13 +81,6 @@ public sealed class Trama : AbstractBase
         _isNew = isNew;
         if (isNew)
         {
-            _state.BarCount++;
-            if (_state.IsInitialized)
-            {
-                _state.PrevHighest = _prices.Max();
-                _state.PrevLowest = _prices.Min();
-                _state.LastTrama = _state.CurrentTrama;
-            }
             _p_state = _state;
             _prices.Snapshot();
             _events.Snapshot();
@@ -99,26 +92,41 @@ public sealed class Trama : AbstractBase
             _events.Restore();
         }
 
+        // Local copy for register promotion
+        var s = _state;
+
         double price = input.Value;
         if (!double.IsFinite(price))
         {
-            if (!_state.IsInitialized)
+            if (!s.IsInitialized)
             {
                 return input;
             }
             price = _prices.Newest;
         }
 
-        _prices.Add(price, isNew);
-
-        if (_state.BarCount <= 1)
+        // Advance bar counter and capture previous-bar context
+        // These steps are identical for isNew=true and isNew=false
+        // because after Restore, we're at the same pre-bar state
+        if (isNew) { s.BarCount++; }
+        if (s.IsInitialized)
         {
-            _state.PrevHighest = price;
-            _state.PrevLowest = price;
-            _state.LastTrama = price;
-            _state.CurrentTrama = price;
-            _state.IsInitialized = true;
-            _events.Add(0, isNew);
+            s.PrevHighest = _prices.Max();
+            s.PrevLowest = _prices.Min();
+            s.LastTrama = s.CurrentTrama;
+        }
+
+        _prices.Add(price);
+
+        if (s.BarCount <= 1)
+        {
+            s.PrevHighest = price;
+            s.PrevLowest = price;
+            s.LastTrama = price;
+            s.CurrentTrama = price;
+            s.IsInitialized = true;
+            _events.Add(0);
+            _state = s;
             Last = new TValue(input.Time, price);
             PubEvent(Last);
             return Last;
@@ -128,12 +136,12 @@ public sealed class Trama : AbstractBase
         double currentLowest = _prices.Min();
 
         // Detect new highest-high or lowest-low
-        double hh = currentHighest > _state.PrevHighest ? 1.0 : 0.0;
-        double ll = currentLowest < _state.PrevLowest ? 1.0 : 0.0;
+        double hh = currentHighest > s.PrevHighest ? 1.0 : 0.0;
+        double ll = currentLowest < s.PrevLowest ? 1.0 : 0.0;
 
         // Binary event: did HH or LL occur?
         double evt = (hh != 0.0 || ll != 0.0) ? 1.0 : 0.0;
-        _events.Add(evt, isNew);
+        _events.Add(evt);
 
         // tc = SMA(events, period)² = Average²
         double avg = _events.Average;
@@ -141,9 +149,10 @@ public sealed class Trama : AbstractBase
 
         // Adaptive EMA: TRAMA = prev + tc * (price - prev) = FMA(prev, 1-tc, tc*price)
         double decay = 1.0 - tc;
-        _state.CurrentTrama = Math.FusedMultiplyAdd(_state.LastTrama, decay, tc * price);
+        s.CurrentTrama = Math.FusedMultiplyAdd(s.LastTrama, decay, tc * price);
 
-        Last = new TValue(input.Time, _state.CurrentTrama);
+        _state = s;
+        Last = new TValue(input.Time, s.CurrentTrama);
         PubEvent(Last);
         return Last;
     }

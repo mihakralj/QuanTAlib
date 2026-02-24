@@ -1,4 +1,4 @@
-# HTIT: Ehlers Hilbert Transform Instantaneous Trend
+# HTIT: Ehlers Hilbert Transform Instantaneous Trend (also known as HT_TRENDLINE)
 
 > "John Ehlers brought rocket science to trading. Literally. HTIT uses signal processing to find the trend by removing the cycle. It's not smoothing; it's extraction."
 

@@ -92,30 +92,30 @@ public sealed class ZscoreValidationTests
     }
 
     [Fact]
-    public void Zscore_MatchesStandardize_WithPopulationCorrection()
+    public void Zscore_MatchesManualPopulationStddev()
     {
-        // ZSCORE uses population stddev, Standardize uses sample stddev
-        // zscore = value_offset / pop_sigma
-        // standardize = value_offset / sample_sigma
-        // sample_sigma = pop_sigma * sqrt(n/(n-1))
-        // So: zscore = standardize * sqrt(n/(n-1))
+        // Verify zscore = (value - mean) / population_stddev
         int period = 10;
         var zs = new Zscore(period);
-        var st = new Standardize(period);
         var rng = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 99);
+        var values = new List<double>();
 
         for (int i = 0; i < 20; i++)
         {
             double val = rng.Next().Close;
+            values.Add(val);
             var tv = new TValue(DateTime.UtcNow, val);
             zs.Update(tv);
-            st.Update(tv);
 
-            if (zs.IsHot && st.IsHot)
+            if (zs.IsHot)
             {
-                // zscore = standardize * sqrt(n / (n-1))
-                double correction = Math.Sqrt((double)period / (period - 1));
-                Assert.Equal(st.Last.Value * correction, zs.Last.Value, 1e-6);
+                // Manual population z-score over the last 'period' values
+                var window = values.Skip(values.Count - period).Take(period).ToArray();
+                double mean = window.Average();
+                double popVariance = window.Select(v => (v - mean) * (v - mean)).Average();
+                double popSigma = Math.Sqrt(popVariance);
+                double expected = popSigma > 0 ? (val - mean) / popSigma : 0;
+                Assert.Equal(expected, zs.Last.Value, 1e-9);
             }
         }
     }

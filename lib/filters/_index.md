@@ -8,6 +8,7 @@ Signal processing filters adapted for financial time series. These are not indic
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [AGC](agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via exponential peak tracking. Signal processing building block. |
 | [ALAGUERRE](alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers. Variable-alpha Laguerre from tracking-error normalization. |
 | [BAXTERKING](baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass. Ideal for business cycle extraction. |
 | [CFITZ](cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass. Optimal under random-walk assumption. |
@@ -27,11 +28,15 @@ Signal processing filters adapted for financial time series. These are not indic
 | [KALMAN](kalman/Kalman.md) | Kalman Filter | Recursive state estimation. Optimal under Gaussian assumptions. |
 | [LAGUERRE](laguerre/Laguerre.md) | Ehlers Laguerre Filter | Ehlers. 4-element all-pass cascade. γ-controlled smoothing. |
 | [LMS](lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR. NLMS weight update. O(order) per bar. |
-| [RLS](rls/Rls.md) | Recursive Least Squares | Inverse correlation matrix. Faster convergence than LMS. O(order²) per bar. |
 | [LOESS](loess/Loess.md) | LOESS Smoothing | Local polynomial regression. Robust to outliers. |
+| [MODF](modf/Modf.md) | Modular Filter | Dual-path adaptive filter with upper/lower EMA bands and state selection. |
 | [NOTCH](notch/Notch.md) | Notch Filter | Band-stop. Removes specific frequency (e.g., 60 Hz noise). |
+| [NW](nw/Nw.md) | Nadaraya-Watson Kernel Regression | Non-parametric kernel regression smoothing. Bandwidth-adaptive. |
 | [ONEEURO](oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass. Adaptive cutoff from signal derivative. |
+| [RLS](rls/Rls.md) | Recursive Least Squares | Inverse correlation matrix. Faster convergence than LMS. O(order²) per bar. |
+| [RMED](rmed/Rmed.md) | Ehlers Recursive Median Filter | Recursive median approximation via IIR structure. Outlier-resistant. |
 | [ROOFING](roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers. HP + SS cascade. Bandpass for cycle extraction. |
+| SAK | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS). Single framework. |
 | [SGF](sgf/Sgf.md) | Savitzky-Golay | Polynomial smoothing. Preserves higher moments (derivatives). |
 | [SPBF](spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers. Wide-band bandpass via differenced EMAs with RMS envelope. |
 | [SSF2](ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers. 2-pole Butterworth variant. Standard cycle pre-filter. |

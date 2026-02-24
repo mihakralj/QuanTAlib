@@ -17,7 +17,7 @@ indicator("Quadratic Regression Moving Average (QRMA)", "QRMA", overlay = true)
 //@reference Savitzky, A. & Golay, M.J.E. (1964). Analytical Chemistry, 36(8), 1627–1639.
 //           (Quadratic regression is a special case of Savitzky-Golay degree=2 smoothing.)
 //@optimized O(period) per bar via circular buffer; sums precomputed for normal equations
-export qrma(series float source, simple int period) =>
+qrma(series float source, simple int period) =>
     if period < 3
         runtime.error("Period must be at least 3")
 

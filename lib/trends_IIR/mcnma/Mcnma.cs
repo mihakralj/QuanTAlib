@@ -14,6 +14,9 @@ namespace QuanTAlib;
 /// Dennis McNicholl, "Better Bollinger Bands," Futures Magazine, October 1998.
 ///
 /// Calculation: <c>MCNMA = 2×TEMA(src,N) - TEMA(TEMA(src,N),N)</c>.
+///
+/// All six EMA stages are seeded to the first source value (matching Pine
+/// reference implementation). No warmup compensator; output is valid from bar 1.
 /// </remarks>
 /// <seealso href="Mcnma.md">Detailed documentation</seealso>
 /// <seealso href="mcnma.pine">Reference Pine Script implementation</seealso>
@@ -21,9 +24,9 @@ namespace QuanTAlib;
 public sealed class Mcnma : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
+    private record struct EmaState(double Ema, bool IsInit)
     {
-        public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
+        public static EmaState New() => new() { Ema = 0, IsInit = false };
     }
 
     private readonly double _alpha;
@@ -52,7 +55,7 @@ public sealed class Mcnma : AbstractBase
     private readonly TValuePublishedHandler? _listener;
 
     public bool IsNew => _isNew;
-    public override bool IsHot => _s6.IsHot;
+    public override bool IsHot => _s1.IsInit;
 
     public Mcnma(int period)
     {
@@ -121,19 +124,35 @@ public sealed class Mcnma : AbstractBase
             return Last;
         }
 
+        // Seed all 6 stages on first valid value (matches Pine na-guard init)
+        if (!_s1.IsInit)
+        {
+            _s1 = new EmaState(val, true);
+            _s2 = new EmaState(val, true);
+            _s3 = new EmaState(val, true);
+            _s4 = new EmaState(val, true);
+            _s5 = new EmaState(val, true);
+            _s6 = new EmaState(val, true);
+
+            // TEMA1 = 3*val - 3*val + val = val; TEMA2 = same; MCNMA = 2*val - val = val
+            Last = new TValue(input.Time, val);
+            PubEvent(Last, isNew);
+            return Last;
+        }
+
         // Inner TEMA: 3 cascaded EMAs
-        double c1 = Compute(val, _alpha, _decay, ref _s1);
-        double c2 = Compute(c1, _alpha, _decay, ref _s2);
-        double c3 = Compute(c2, _alpha, _decay, ref _s3);
-        // TEMA1 = 3*c1 - 3*c2 + c3
-        double tema1 = Math.FusedMultiplyAdd(3.0, c1, Math.FusedMultiplyAdd(-3.0, c2, c3));
+        double e1 = Compute(val, _alpha, _decay, ref _s1);
+        double e2 = Compute(e1, _alpha, _decay, ref _s2);
+        double e3 = Compute(e2, _alpha, _decay, ref _s3);
+        // TEMA1 = 3*e1 - 3*e2 + e3
+        double tema1 = Math.FusedMultiplyAdd(3.0, e1, Math.FusedMultiplyAdd(-3.0, e2, e3));
 
         // Outer TEMA: 3 cascaded EMAs of TEMA1
-        double c4 = Compute(tema1, _alpha, _decay, ref _s4);
-        double c5 = Compute(c4, _alpha, _decay, ref _s5);
-        double c6 = Compute(c5, _alpha, _decay, ref _s6);
-        // TEMA2 = 3*c4 - 3*c5 + c6
-        double tema2 = Math.FusedMultiplyAdd(3.0, c4, Math.FusedMultiplyAdd(-3.0, c5, c6));
+        double e4 = Compute(tema1, _alpha, _decay, ref _s4);
+        double e5 = Compute(e4, _alpha, _decay, ref _s5);
+        double e6 = Compute(e5, _alpha, _decay, ref _s6);
+        // TEMA2 = 3*e4 - 3*e5 + e6
+        double tema2 = Math.FusedMultiplyAdd(3.0, e4, Math.FusedMultiplyAdd(-3.0, e5, e6));
 
         // MCNMA = 2*TEMA1 - TEMA2
         double result = Math.FusedMultiplyAdd(2.0, tema1, -tema2);
@@ -189,15 +208,28 @@ public sealed class Mcnma : AbstractBase
                 continue;
             }
 
-            double c1 = Compute(val, alpha, decay, ref s1);
-            double c2 = Compute(c1, alpha, decay, ref s2);
-            double c3 = Compute(c2, alpha, decay, ref s3);
-            double tema1 = Math.FusedMultiplyAdd(3.0, c1, Math.FusedMultiplyAdd(-3.0, c2, c3));
+            // Seed on first valid value
+            if (!s1.IsInit)
+            {
+                s1 = new EmaState(val, true);
+                s2 = new EmaState(val, true);
+                s3 = new EmaState(val, true);
+                s4 = new EmaState(val, true);
+                s5 = new EmaState(val, true);
+                s6 = new EmaState(val, true);
+                vSpan[i] = val;
+                continue;
+            }
 
-            double c4 = Compute(tema1, alpha, decay, ref s4);
-            double c5 = Compute(c4, alpha, decay, ref s5);
-            double c6 = Compute(c5, alpha, decay, ref s6);
-            double tema2 = Math.FusedMultiplyAdd(3.0, c4, Math.FusedMultiplyAdd(-3.0, c5, c6));
+            double e1v = Compute(val, alpha, decay, ref s1);
+            double e2v = Compute(e1v, alpha, decay, ref s2);
+            double e3v = Compute(e2v, alpha, decay, ref s3);
+            double tema1 = Math.FusedMultiplyAdd(3.0, e1v, Math.FusedMultiplyAdd(-3.0, e2v, e3v));
+
+            double e4v = Compute(tema1, alpha, decay, ref s4);
+            double e5v = Compute(e4v, alpha, decay, ref s5);
+            double e6v = Compute(e5v, alpha, decay, ref s6);
+            double tema2 = Math.FusedMultiplyAdd(3.0, e4v, Math.FusedMultiplyAdd(-3.0, e5v, e6v));
 
             vSpan[i] = Math.FusedMultiplyAdd(2.0, tema1, -tema2);
         }
@@ -225,34 +257,9 @@ public sealed class Mcnma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double Compute(double input, double alpha, double decay, ref EmaState state)
     {
+        // Raw EMA: ema = alpha * input + beta * ema (no compensator)
         state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
-
-        double result;
-        if (!state.IsCompensated)
-        {
-            state.E *= decay;
-
-            if (!state.IsHot && state.E <= 0.05)
-            {
-                state.IsHot = true;
-            }
-
-            if (state.E <= 1e-10)
-            {
-                state.IsCompensated = true;
-                result = state.Ema;
-            }
-            else
-            {
-                result = state.Ema / (1.0 - state.E);
-            }
-        }
-        else
-        {
-            result = state.Ema;
-        }
-
-        return result;
+        return state.Ema;
     }
 
     public static TSeries Batch(TSeries source, int period)
@@ -298,11 +305,9 @@ public sealed class Mcnma : AbstractBase
         double decay = 1.0 - alpha;
         double lastValid = double.NaN;
 
-        // 6 EMA stages inlined for maximum performance
+        // 6 EMA stages — seeded on first valid value (no compensator)
         double e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0, e6 = 0;
-        double d1 = 1.0, d2 = 1.0, d3 = 1.0, d4 = 1.0, d5 = 1.0, d6 = 1.0;
-        bool comp1 = false, comp2 = false, comp3 = false;
-        bool comp4 = false, comp5 = false, comp6 = false;
+        bool isInit = false;
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -322,47 +327,30 @@ public sealed class Mcnma : AbstractBase
                 continue;
             }
 
-            // Stage 1: EMA of source
+            if (!isInit)
+            {
+                e1 = val; e2 = val; e3 = val;
+                e4 = val; e5 = val; e6 = val;
+                isInit = true;
+                output[i] = val;
+                continue;
+            }
+
+            // Stage 1-3: Inner TEMA
             e1 = Math.FusedMultiplyAdd(e1, decay, alpha * val);
-            double c1;
-            if (!comp1) { d1 *= decay; if (d1 <= 1e-10) { comp1 = true; c1 = e1; } else { c1 = e1 / (1.0 - d1); } }
-            else { c1 = e1; }
+            e2 = Math.FusedMultiplyAdd(e2, decay, alpha * e1);
+            e3 = Math.FusedMultiplyAdd(e3, decay, alpha * e2);
 
-            // Stage 2: EMA of c1
-            e2 = Math.FusedMultiplyAdd(e2, decay, alpha * c1);
-            double c2;
-            if (!comp2) { d2 *= decay; if (d2 <= 1e-10) { comp2 = true; c2 = e2; } else { c2 = e2 / (1.0 - d2); } }
-            else { c2 = e2; }
+            // TEMA1 = 3*e1 - 3*e2 + e3
+            double tema1 = Math.FusedMultiplyAdd(3.0, e1, Math.FusedMultiplyAdd(-3.0, e2, e3));
 
-            // Stage 3: EMA of c2
-            e3 = Math.FusedMultiplyAdd(e3, decay, alpha * c2);
-            double c3;
-            if (!comp3) { d3 *= decay; if (d3 <= 1e-10) { comp3 = true; c3 = e3; } else { c3 = e3 / (1.0 - d3); } }
-            else { c3 = e3; }
-
-            // TEMA1 = 3*c1 - 3*c2 + c3
-            double tema1 = Math.FusedMultiplyAdd(3.0, c1, Math.FusedMultiplyAdd(-3.0, c2, c3));
-
-            // Stage 4: EMA of TEMA1
+            // Stage 4-6: Outer TEMA
             e4 = Math.FusedMultiplyAdd(e4, decay, alpha * tema1);
-            double c4;
-            if (!comp4) { d4 *= decay; if (d4 <= 1e-10) { comp4 = true; c4 = e4; } else { c4 = e4 / (1.0 - d4); } }
-            else { c4 = e4; }
+            e5 = Math.FusedMultiplyAdd(e5, decay, alpha * e4);
+            e6 = Math.FusedMultiplyAdd(e6, decay, alpha * e5);
 
-            // Stage 5: EMA of c4
-            e5 = Math.FusedMultiplyAdd(e5, decay, alpha * c4);
-            double c5;
-            if (!comp5) { d5 *= decay; if (d5 <= 1e-10) { comp5 = true; c5 = e5; } else { c5 = e5 / (1.0 - d5); } }
-            else { c5 = e5; }
-
-            // Stage 6: EMA of c5
-            e6 = Math.FusedMultiplyAdd(e6, decay, alpha * c5);
-            double c6;
-            if (!comp6) { d6 *= decay; if (d6 <= 1e-10) { comp6 = true; c6 = e6; } else { c6 = e6 / (1.0 - d6); } }
-            else { c6 = e6; }
-
-            // TEMA2 = 3*c4 - 3*c5 + c6
-            double tema2 = Math.FusedMultiplyAdd(3.0, c4, Math.FusedMultiplyAdd(-3.0, c5, c6));
+            // TEMA2 = 3*e4 - 3*e5 + e6
+            double tema2 = Math.FusedMultiplyAdd(3.0, e4, Math.FusedMultiplyAdd(-3.0, e5, e6));
 
             // MCNMA = 2*TEMA1 - TEMA2
             output[i] = Math.FusedMultiplyAdd(2.0, tema1, -tema2);

@@ -21,7 +21,7 @@ yzvama(series float source, simple int yzv_short_period=3, simple int yzv_long_p
         runtime.error("Min length must be less than or equal to max length")
     if percentile_lookback <= 0
         runtime.error("Percentile lookback must be greater than 0")
-    var float prev_close = close
+    var float prev_close = na
     float o = open
     float h = high
     float l = low
@@ -81,8 +81,12 @@ yzvama(series float source, simple int yzv_short_period=3, simple int yzv_long_p
             if array.get(sorted_yzv, i) < yzv_short
                 rank_pos += 1
         percentile_value := (float(rank_pos) / float(n_valid - 1)) * 100.0
+    // EMA-smooth the percentile to prevent wild adjusted_length swings
+    var float smooth_pct = 50.0
+    float pct_alpha = 2.0 / (float(percentile_lookback) + 1.0)
+    smooth_pct := pct_alpha * percentile_value + (1.0 - pct_alpha) * smooth_pct
     float length_range = max_length - min_length
-    float adjusted_length_f = max_length - (percentile_value / 100.0) * length_range
+    float adjusted_length_f = max_length - (smooth_pct / 100.0) * length_range
     int adjusted_length = int(math.max(min_length, math.min(max_length, adjusted_length_f)))
     var array<float> buffer = array.new_float(max_length, na)
     var int head = 0

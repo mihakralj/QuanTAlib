@@ -21,7 +21,7 @@ vama(series float source, simple int base_length, simple int short_atr_period=10
         runtime.error("Min and max length must be greater than 0")
     if min_length > max_length
         runtime.error("Min length must be less than or equal to max length")
-    var float prevClose = close
+    var float prevClose = na
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)
     float tr3 = math.abs(low - prevClose)

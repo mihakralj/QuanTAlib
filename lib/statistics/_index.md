@@ -8,7 +8,6 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | :--- | :--- | :--- |
 | [ACF](acf/Acf.md) | Autocorrelation Function | Correlation of time series with lagged copy. For ARMA model identification. |
 | [BETA](beta/Beta.md) | Beta Coefficient | Asset volatility relative to market. β=1 means market-matched risk. |
-| [BIAS](bias/Bias.md) | Bias | Percentage deviation from moving average. Measures overextension. |
 | [CMA](cma/Cma.md) | Cumulative Moving Average | Running average of all values. Welford's algorithm. No window. |
 | [COINTEGRATION](cointegration/Cointegration.md) | Cointegration | Tests if series share long-term equilibrium. Pairs trading foundation. |
 | [CORRELATION](correlation/Correlation.md) | Correlation | Linear relationship between two variables. Range: -1 to +1. |
@@ -36,3 +35,8 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [VARIANCE](variance/Variance.md) | Variance | Average squared deviation from mean. Units are squared. |
 | [ZSCORE](zscore/Zscore.md) | Z-Score | Standard deviations from mean. Normalizes different scales. |
 | [ZTEST](ztest/Ztest.md) | Z-Test | One-sample t-test statistic against hypothesized mean. |
+| MEANDEV | Mean Absolute Deviation | Robust dispersion measure. |
+| POLYFIT | Polynomial Fitting | Least-squares polynomial regression. |
+| TRIM | Trimmed Mean MA | Mean after discarding extreme percentiles. |
+| WAVG | Weighted Average | Generic weighted mean. |
+| WINS | Winsorized Mean MA | Mean with extreme values clamped to percentile bounds. |

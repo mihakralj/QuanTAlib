@@ -19,11 +19,11 @@ Each additional stage of nesting removes another order of lag, but also amplifie
 
 ### 1. Inner TEMA (Stages 1-3)
 
-Three cascaded EMAs compute $\text{TEMA}_1 = 3 \cdot C_1 - 3 \cdot C_2 + C_3$, where $C_i$ is the warmup-compensated output of EMA stage $i$.
+Three cascaded EMAs compute $\text{TEMA}_1 = 3 \cdot E_1 - 3 \cdot E_2 + E_3$, where $E_i$ is the raw EMA output of stage $i$.
 
 ### 2. Outer TEMA (Stages 4-6)
 
-Three more EMAs receive $\text{TEMA}_1$ as input and compute $\text{TEMA}_2 = 3 \cdot C_4 - 3 \cdot C_5 + C_6$.
+Three more EMAs receive $\text{TEMA}_1$ as input and compute $\text{TEMA}_2 = 3 \cdot E_4 - 3 \cdot E_5 + E_6$.
 
 ### 3. DEMA Combination
 
@@ -31,43 +31,41 @@ $$
 \text{MCNMA} = 2 \cdot \text{TEMA}_1 - \text{TEMA}_2
 $$
 
-### 4. Shared Warmup Compensator
+### 4. First-Value Seeding
 
-All six stages share a single decay tracker $e = \beta^n$, with compensation factor $c = 1/(1-e)$.
+All six EMA stages are initialized to the first source value. This eliminates warmup bias without a compensator and produces output from bar 1. On the first bar, all stages equal the source, so $\text{TEMA}_1 = \text{TEMA}_2 = \text{source}$ and $\text{MCNMA} = \text{source}$.
 
 ## Mathematical Foundation
 
-With $\alpha = 2/(N+1)$, $\beta = 1 - \alpha$, and warmup compensator $c = 1/(1-\beta^n)$:
+With $\alpha = 2/(N+1)$ and $\beta = 1 - \alpha$:
 
 **Inner TEMA:**
 
 $$
-C_1 = c \cdot E_1, \quad C_2 = c \cdot E_2, \quad C_3 = c \cdot E_3
+E_1 = \alpha \cdot x + \beta \cdot E_1, \quad E_2 = \alpha \cdot E_1 + \beta \cdot E_2, \quad E_3 = \alpha \cdot E_2 + \beta \cdot E_3
 $$
 
 $$
-\text{TEMA}_1 = 3C_1 - 3C_2 + C_3
+\text{TEMA}_1 = 3E_1 - 3E_2 + E_3
 $$
-
-where $E_1 = \alpha(x - E_1) + E_1$, $E_2 = \alpha(C_1 - E_2) + E_2$, $E_3 = \alpha(C_2 - E_3) + E_3$.
 
 **Outer TEMA:**
 
 $$
-C_4 = c \cdot E_4, \quad C_5 = c \cdot E_5, \quad C_6 = c \cdot E_6
+E_4 = \alpha \cdot \text{TEMA}_1 + \beta \cdot E_4, \quad E_5 = \alpha \cdot E_4 + \beta \cdot E_5, \quad E_6 = \alpha \cdot E_5 + \beta \cdot E_6
 $$
 
 $$
-\text{TEMA}_2 = 3C_4 - 3C_5 + C_6
+\text{TEMA}_2 = 3E_4 - 3E_5 + E_6
 $$
-
-where $E_4 = \alpha(\text{TEMA}_1 - E_4) + E_4$, etc.
 
 **Output:**
 
 $$
 \text{MCNMA} = 2 \cdot \text{TEMA}_1 - \text{TEMA}_2
 $$
+
+**Initialization:** $E_1 = E_2 = E_3 = E_4 = E_5 = E_6 = x_0$ (first source value).
 
 **Effective lag:** Near zero for polynomial trends up to degree 3. The six-stage cascade provides approximately $5\times$ less lag than a single EMA of the same period.
 
@@ -79,19 +77,23 @@ $$
 
 ```
 alpha = 2/(period+1); beta = 1-alpha
-e_decay *= beta; comp = 1/(1-e_decay)
+
+// First bar: seed all 6 stages to source
+if not initialized:
+    e1 = e2 = e3 = e4 = e5 = e6 = src
+    return src
 
 // Inner TEMA: 3 cascaded EMAs
-e1 += alpha*(src - e1);  c1 = e1*comp
-e2 += alpha*(c1 - e2);   c2 = e2*comp
-e3 += alpha*(c2 - e3);   c3 = e3*comp
-tema1 = 3*c1 - 3*c2 + c3
+e1 = alpha*src + beta*e1
+e2 = alpha*e1  + beta*e2
+e3 = alpha*e2  + beta*e3
+tema1 = 3*e1 - 3*e2 + e3
 
 // Outer TEMA: 3 cascaded EMAs of tema1
-e4 += alpha*(tema1 - e4); c4 = e4*comp
-e5 += alpha*(c4 - e5);    c5 = e5*comp
-e6 += alpha*(c5 - e6);    c6 = e6*comp
-tema2 = 3*c4 - 3*c5 + c6
+e4 = alpha*tema1 + beta*e4
+e5 = alpha*e4    + beta*e5
+e6 = alpha*e5    + beta*e6
+tema2 = 3*e4 - 3*e5 + e6
 
 return 2*tema1 - tema2
 ```

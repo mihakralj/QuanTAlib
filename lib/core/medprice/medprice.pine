@@ -1,0 +1,13 @@
+// MEDPRICE: Median Price
+// (High + Low) / 2
+// TA-Lib compatible — equivalent to TBar.HL2
+
+//@version=6
+indicator("MEDPRICE: Median Price", overlay=true)
+
+medprice(float h, float l) =>
+    (h + l) * 0.5
+
+result = medprice(high, low)
+
+plot(result, "MedPrice", color.new(color.orange, 0), 2)

@@ -3,58 +3,41 @@
 //@version=6
 indicator("Linear Trend Moving Average (LTMA)", "LTMA", overlay=true)
 
-//@function Calculates Linear Trend MA using dual EMA with linear extrapolation
+//@function Calculates LTMA using dual cascaded EMAs with linear trend extrapolation
 //@param source Series to smooth
 //@param period Lookback period (determines alpha = 2/(period+1))
-//@returns LTMA value: EMA-based linear trend projection from first bar
-//@description LTMA tracks both level and slope using two cascaded EMAs,
-//  then extrapolates the linear trend forward. Unlike DEMA (which cancels
-//  first-order lag via 2×EMA1 − EMA2), LTMA estimates the instantaneous
-//  slope from the EMA difference and projects it forward by the full period:
-//    slope = (EMA1 − EMA2) / (decay − 1)
-//    LTMA  = EMA1 + slope × period
-//  where decay = (1 − alpha). This produces a predictive moving average
-//  that follows linear trends with zero steady-state error.
-//  Uses §2 exponential warmup compensator on both EMAs (e*=beta,
-//  c=1/(1-e)) for valid output from bar 1.
+//@returns LTMA value: lag-corrected EMA (equivalent to DEMA = 2·EMA1 − EMA2)
+//@description Removes the EMA lag by estimating the per-bar slope from the spread
+//  between two cascaded EMAs and projecting forward by exactly one lag interval.
+//  EMA1 lags by τ = (1−α)/α bars; EMA1−EMA2 ≈ slope·τ; result = EMA1 + (EMA1−EMA2).
+//  Initializing both EMAs to source on bar 1 gives zero warmup bias with no compensator needed.
 ltma(series float source, simple int period) =>
     if period <= 0
         runtime.error("Period must be greater than 0")
     float alpha = 2.0 / (period + 1)
     float beta  = 1.0 - alpha
 
-    var bool  warmup = true
-    var float e      = 1.0
-    var float ema1   = 0.0
-    var float ema2   = 0.0
-    var float result = source
+    var float ema1 = na
+    var float ema2 = na
 
     float src = nz(source)
 
-    ema1 := alpha * (src - ema1) + ema1
-    ema2 := alpha * (ema1 - ema2) + ema2
-
-    if warmup
-        e *= beta
-        float c = 1.0 / (1.0 - e)
-        float comp1 = c * ema1
-        float comp2 = c * ema2
-        float slope = comp1 - comp2
-        result := comp1 + slope * period
-        warmup := e > 1e-10
+    if na(ema1)
+        ema1 := src
+        ema2 := src
     else
-        float slope = ema1 - ema2
-        result := ema1 + slope * period
-    result
+        ema1 := alpha * src + beta * ema1
+        ema2 := alpha * ema1 + beta * ema2
+
+    // slope = EMA1 − EMA2 ≈ slope_per_bar × lag
+    // result = EMA1 + slope × 1.0  →  2·EMA1 − EMA2
+    ema1 + (ema1 - ema2)
 
 // ---------- Main loop ----------
 
-// Inputs
 i_period = input.int(14, "Period", minval=1)
 i_source = input.source(close, "Source")
 
-// Calculation
 ltma_value = ltma(i_source, period=i_period)
 
-// Plot
 plot(ltma_value, "LTMA", color=color.yellow, linewidth=2)

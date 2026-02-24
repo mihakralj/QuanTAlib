@@ -34,7 +34,7 @@
     <!-- Include Quantower adapter implementations from lib folder -->
     <Compile Include="..\lib\**\*.Quantower.cs" />
     <!-- Include core library types -->
-    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
+    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\*.Quantower.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <!-- Include trends implementations (excluding Quantower adapters - handled separately) -->
     <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\*.Validation.Tests.cs;..\lib\trends_FIR\**\*.Quantower.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
     <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\*.Validation.Tests.cs;..\lib\trends_IIR\**\*.Quantower.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />

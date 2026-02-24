@@ -21,7 +21,7 @@ holt(series float source, simple int period, simple float gamma=0) =>
     float g = gamma > 0 ? gamma : alpha
     var float level = na
     var float trend = 0.0
-    var float result = source
+    float result = na
 
     if na(level)
         // First bar: initialize level to source, trend to 0

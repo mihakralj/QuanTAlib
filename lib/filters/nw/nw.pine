@@ -21,7 +21,7 @@ indicator("NW - Nadaraya-Watson Kernel Regression", "NW", overlay=true)
 // @param period Lookback window (must be > 0)
 // @param bandwidth Gaussian kernel bandwidth h (must be > 0)
 // @returns NW kernel regression estimate
-export nw(series float source, simple int period, simple float bandwidth) =>
+nw(series float source, simple int period, simple float bandwidth) =>
     if period <= 0
         runtime.error("Period must be greater than 0")
     if bandwidth <= 0
@@ -48,7 +48,7 @@ export nw(series float source, simple int period, simple float bandwidth) =>
 // ── Inputs ─────────────────────────────────────────────────────────────
 int    i_period    = input.int(64, "Period", minval=1)
 float  i_bandwidth = input.float(8.0, "Bandwidth (h)", minval=0.1, step=0.5)
-string i_source    = input.source(close, "Source")
+float i_source    = input.source(close, "Source")
 
 // ── Calculation ────────────────────────────────────────────────────────
 float value = nw(i_source, i_period, i_bandwidth)

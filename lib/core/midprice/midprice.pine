@@ -1,0 +1,17 @@
+// MIDPRICE: Midpoint Price over Period
+// (Highest(High, N) + Lowest(Low, N)) / 2
+// TA-Lib compatible — center of the H/L price channel
+
+//@version=6
+indicator("MIDPRICE: Midpoint Price over Period", overlay=true)
+
+int p = input.int(14, "Period", minval=1)
+
+midprice(int period) =>
+    float hi = ta.highest(high, period)
+    float lo = ta.lowest(low, period)
+    (hi + lo) * 0.5
+
+result = midprice(p)
+
+plot(result, "MidPrice", color.new(color.purple, 0), 2)

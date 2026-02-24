@@ -1,4 +1,4 @@
-// ZSCORE: Z-Score (Population Standard Score)
+// ZSCORE: Z-Score (Population Standard Score) — also known as STANDARDIZE
 // Calculates z = (x - μ) / σ using population standard deviation (N denominator)
 // Formula: z = (x - mean) / sqrt(Σ(xi - mean)² / N)
 
@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// ZSCORE: Z-Score — measures how many population standard deviations a value
-/// lies from the rolling mean over a lookback window.
+/// ZSCORE: Z-Score (also known as STANDARDIZE) — measures how many population
+/// standard deviations a value lies from the rolling mean over a lookback window.
 /// </summary>
 /// <remarks>
 /// Key properties:

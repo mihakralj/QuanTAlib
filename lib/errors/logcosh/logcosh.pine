@@ -10,7 +10,7 @@ stable_logcosh(float x) =>
     float LOG2 = 0.6931471805599453
     float absX = math.abs(x)
     // For large values, use asymptotic approximation to avoid overflow
-    absX > 20.0 ? absX - LOG2 : math.log(math.cosh(x))
+    absX > 20.0 ? absX - LOG2 : math.log((math.exp(x) + math.exp(-x)) / 2.0)
 
 //@function Calculates Log-Cosh Loss
 //@param   actual Series of actual values

@@ -5,24 +5,28 @@ indicator("HEMA (Exponential Hull Analog)", "HEMAx", overlay=true)
 
 //@function Calculates Hull Exponential Moving Average (EMA-domain HMA analog)
 //@param src Series to calculate HEMA from
-//@param N Period in half-life bars (>= 2)
+//@param N Period (matches HMA lag at same period)
 //@returns HEMA value with reduced lag
 //@optimized Uses cascaded EMA de-lag structure with O(1) complexity per bar
 
-// Half-life -> alpha (exponential definition)
-alphaFromHalfLife(float hl) =>
-    hl := math.max(1.0, hl)
-    -math.expm1(-math.log(2.0) / hl)
+// WMA-lag-matched alpha: EMA lag = (P-1)/3, same as WMA(P)
+alphaFromWmaLag(int p) =>
+    float fp = math.max(float(p), 1.0)
+    3.0 / (fp + 2.0)
 
 // Exponential Hull Analog (EMA-domain HMA)
 hema(series float src, simple int N) =>
     // --- guardrails ---
-    float n = math.max(float(N), 2.0)  // HMA-like structure needs N>=2 to avoid fast==slow weirdness
+    int n = math.max(N, 2)  // HMA-like structure needs N>=2
 
-    // --- alphas (period converted immediately to half-life alpha) ---
-    float aS = alphaFromHalfLife(n)
-    float aF = alphaFromHalfLife(math.max(1.0, n * 0.5))
-    float aM = alphaFromHalfLife(math.max(1.0, math.sqrt(n)))
+    // --- sub-periods matching HMA's integer floor divisions ---
+    int halfN = int(n / 2)                        // floor(N/2), same as HMA
+    int sqrtN = math.max(int(math.sqrt(n)), 1)    // floor(sqrt(N)), same as HMA
+
+    // --- alphas (lag-matched to WMA) ---
+    float aS = alphaFromWmaLag(n)
+    float aF = alphaFromWmaLag(math.max(halfN, 1))
+    float aM = alphaFromWmaLag(math.max(sqrtN, 1))
 
     float bS = 1.0 - aS
     float bF = 1.0 - aF
@@ -81,8 +85,8 @@ hema(series float src, simple int N) =>
     out
 
 // Inputs
-i_period = input.int(10, "Period (half-life bars)", minval=1)
+i_period = input.int(10, "Period", minval=2)
 i_source = input.source(close, "Source")
 
 hema_value = hema(i_source, i_period)
-plot(hema_value, "HEMAx", color=color.yellow, linewidth=2)
+plot(hema_value, "HEMA", color=color.yellow, linewidth=2)

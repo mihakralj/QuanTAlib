@@ -1,0 +1,19 @@
+// HA: Heikin-Ashi
+// Smoothed candle transformation with recursive open
+// HA_Close = (O + H + L + C) / 4
+// HA_Open  = (prev_HA_Open + prev_HA_Close) / 2
+// HA_High  = max(H, HA_Open, HA_Close)
+// HA_Low   = min(L, HA_Open, HA_Close)
+
+//@version=6
+indicator("HA: Heikin-Ashi", overlay=true)
+
+var float haOpen  = na
+var float haClose = na
+
+haClose := (open + high + low + close) * 0.25
+haOpen  := na(haOpen) ? (open + close) * 0.5 : (haOpen + haClose[1]) * 0.5
+haHigh   = math.max(high, haOpen, haClose)
+haLow    = math.min(low,  haOpen, haClose)
+
+plotcandle(haOpen, haHigh, haLow, haClose, "HA", color=haClose >= haOpen ? color.green : color.red)

@@ -75,11 +75,19 @@ percentile = (count of historical YZV values < current YZV) / (total count - 1) 
 
 A circular buffer stores the last `percentileLookback` YZV readings. On each bar, the buffer is sorted and binary search locates the current value's rank. This produces a 0-100 score indicating where current volatility sits relative to recent history.
 
+The raw percentile is then EMA-smoothed to prevent wild bar-to-bar swings in the adjusted length:
+
+$$\alpha_{\text{pct}} = \frac{2}{\text{percentileLookback} + 1}$$
+
+$$\text{smoothedPct}_t = \alpha_{\text{pct}} \cdot \text{rawPct}_t + (1 - \alpha_{\text{pct}}) \cdot \text{smoothedPct}_{t-1}$$
+
+Initialized at 50.0 (midpoint). Without this smoothing, a short lookback (e.g., 3) causes the percentile rank to jump wildly from 0 to 100 bar-to-bar, producing an erratic adjusted length that fragments the SMA output.
+
 ### 4. Dynamic SMA Calculator
 
-The percentile maps linearly to an adjusted SMA length:
+The smoothed percentile maps linearly to an adjusted SMA length:
 
-$$\text{adjustedLength} = \text{maxLength} - \frac{\text{percentile}}{100} \times (\text{maxLength} - \text{minLength})$$
+$$\text{adjustedLength} = \text{maxLength} - \frac{\text{smoothedPct}}{100} \times (\text{maxLength} - \text{minLength})$$
 
 | Percentile | Interpretation | Adjusted Length |
 |------------|----------------|-----------------|

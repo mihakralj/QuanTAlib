@@ -6,6 +6,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 
 | Category | What It Measures | Representative Indicators | When to Reach for It |
 | :------- | :--------------- | :------------------------ | :------------------- |
+| [**Core**](../lib/core/_index.md) | Price transforms and fundamental building blocks | AVGPRICE, MEDPRICE, MIDPRICE, TYPPRICE, WCLPRICE, MIDPOINT | Derived prices from OHLCV bars. Inputs to higher-order indicators. |
 | [**Trends (FIR)**](../lib/trends_FIR/_index.md) | Trend direction via finite impulse response filters | SMA, WMA, ALMA, HMA, LSMA | Trend identification with predictable lag and finite memory. Output depends only on a fixed window of past prices. |
 | [**Trends (IIR)**](../lib/trends_IIR/_index.md) | Trend direction via infinite impulse response filters | EMA, DEMA, TEMA, JMA, KAMA, MAMA | Trend identification with recursive calculation and theoretically infinite memory. More responsive per unit of smoothness. |
 | [**Filters**](../lib/filters/_index.md) | Signal processing filters for noise reduction | Bessel, Butterworth, Super Smoother | Removing noise while preserving trend structure. Designed by engineers, borrowed by traders. |
@@ -19,7 +20,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 | [**Numerics**](../lib/numerics/_index.md) | Mathematical transformations and signal processing | Slope, Accel, Normalize, Sigmoid | Custom indicator development and advanced signal processing. Building blocks for novel indicators. |
 | [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, R², Huber | Model validation and forecast assessment. Quantifying wrongness before production quantifies losses. |
 | [**Forecasts**](../lib/forecasts/_index.md) | Future price prediction and projection | AFIRMA | Projecting price based on historical patterns. Predictions that invite humility. |
-| [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, EBSW, STC | Identifying cyclical market behavior. Markets exhibit cycles; detecting them reliably remains hard. |
+| [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, EBSW | Identifying cyclical market behavior. Markets exhibit cycles; detecting them reliably remains hard. |
 | [**Reversals**](../lib/reversals/_index.md) | Turning points and stop levels | Pivot Points, PSAR, Chandelier, Swings | Identifying potential trend reversals, computing adaptive stops, and defining support/resistance. |
 
 ## Selection by Experience Level
@@ -74,7 +75,7 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 | [**FRAMA**](../lib/trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Dimension-based adaptation |
 | [**HEMA**](../lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Hull concept with EMA |
 | [**HOLT**](../lib/trends_IIR/holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing (level + trend) |
-| [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend | Dominant cycle extraction |
+| [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend (also known as HT_TRENDLINE) | Dominant cycle extraction |
 | [**JMA**](../lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive, low-lag, proprietary algorithm |
 | [**KAMA**](../lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Efficiency ratio adaptation |
 | [**MAMA**](../lib/trends_IIR/mama/Mama.md) | Ehlers MESA Adaptive MA | Homodyne discriminator based |
@@ -85,7 +86,6 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 | [**HWMA**](../lib/trends_IIR/hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing (IIR) |
 | [**QEMA**](../lib/trends_IIR/qema/Qema.md) | Quad Exponential MA | Four-stage exponential |
 | [**REMA**](../lib/trends_IIR/rema/Rema.md) | Regularized Exponential MA | Regularization for stability |
-| [**REVERSEEMA**](../lib/trends_IIR/reverseema/ReverseEma.md) | Reverse EMA | Inverse EMA deconvolution |
 | [**RGMA**](../lib/trends_IIR/rgma/Rgma.md) | Recursive Gaussian MA | Gaussian approximation |
 | [**RMA**](../lib/trends_IIR/rma/Rma.md) | WildeR MA | Wilder's smoothing (1/n decay) |
 | [**T3**](../lib/trends_IIR/t3/T3.md) | Tillson T3 MA | Six-stage DEMA variant |
@@ -104,6 +104,7 @@ Signal processing filters adapted for financial time series. Designed to separat
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**AGC**](../lib/filters/agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via peak tracking |
 | [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
 | [**BAXTERKING**](../lib/filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass for cycle extraction |
 | [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
@@ -125,7 +126,10 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**LMS**](../lib/filters/lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR filter |
 | [**RLS**](../lib/filters/rls/Rls.md) | Recursive Least Squares | Faster convergence than LMS |
 | [**LOESS**](../lib/filters/loess/Loess.md) | LOESS Smoothing | Local polynomial regression |
+| [**MODF**](../lib/filters/modf/Modf.md) | Modular Filter | Dual-path adaptive filter with state selection |
 | [**NOTCH**](../lib/filters/notch/Notch.md) | Notch Filter | Single frequency rejection |
+| [**NW**](../lib/filters/nw/Nw.md) | Nadaraya-Watson Estimator | Non-parametric Gaussian kernel regression smoothing |
+| [**RMED**](../lib/filters/rmed/Rmed.md) | Ehlers Recursive Median Filter | Recursive median + IIR smoothing, outlier-resistant |
 | [**ONEEURO**](../lib/filters/oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass, adaptive cutoff |
 | [**ROOFING**](../lib/filters/roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers HP + SS bandpass cascade |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
@@ -152,11 +156,14 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
+| [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
 | [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
+| [**REVERSEEMA**](../lib/oscillators/reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion oscillator |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
+| [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100 momentum oscillator) |
 | [**STOCH**](../lib/oscillators/stoch/Stoch.md) | Stochastic Oscillator | Close within N-period H/L range (%K/%D) |
 | [**STOCHF**](../lib/oscillators/stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic (%K/%D, SMA smoothing only) |
 | [**STOCHRSI**](../lib/oscillators/stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI (%K/%D) |
@@ -183,7 +190,6 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
 | [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Cycle vs trend regime detection |
 | [**ICHIMOKU**](../lib/dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Multi-component trend system |
-| [**IMI**](../lib/dynamics/imi/Imi.md) | Intraday Momentum Index | Candlestick-based momentum |
 | [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
 | [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |
@@ -197,6 +203,7 @@ Rate of change and velocity measurements. First derivatives of price.
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**BIAS**](../lib/momentum/bias/Bias.md) | Bias / Disparity Index | Percentage deviation from SMA |
 | [**BOP**](../lib/momentum/bop/Bop.md) | Balance of Power | Close position in range |
 | [**CCI**](../lib/momentum/cci/Cci.md) | Commodity Channel Index | Mean deviation normalized |
 | [**CFB**](../lib/momentum/cfb/Cfb.md) | Composite Fractal Behavior | Jurik fractal momentum |
@@ -224,7 +231,6 @@ Measures of price variability and range. Essential for position sizing and stop 
 | [**ADR**](../lib/volatility/adr/Adr.md) | Average Daily Range | Simple range averaging |
 | [**ATR**](../lib/volatility/atr/Atr.md) | Average True Range | Gap-adjusted range |
 | [**ATRN**](../lib/volatility/atrn/Atrn.md) | ATR Normalized | ATR scaled to [0,1] |
-| [**ATRP**](../lib/volatility/atrp/Atrp.md) | ATR Percent | Percentage-based ATR |
 | [**BBW**](../lib/volatility/bbw/Bbw.md) | Bollinger Band Width | Band width as percentage of middle band |
 | [**BBWN**](../lib/volatility/bbwn/Bbwn.md) | BB Width Normalized | Band width normalized to [0,1] |
 | [**BBWP**](../lib/volatility/bbwp/Bbwp.md) | BB Width Percentile | Band width historical percentile |
@@ -320,7 +326,6 @@ Mathematical and statistical computations on price series.
 | :-------- | :-------- | :---- |
 | [**ACF**](../lib/statistics/acf/Acf.md) | Autocorrelation Function | Lagged self-correlation |
 | [**BETA**](../lib/statistics/beta/Beta.md) | Beta Coefficient | Systematic risk measure |
-| [**BIAS**](../lib/statistics/bias/Bias.md) | Bias | Percentage deviation from SMA |
 | [**CMA**](../lib/statistics/cma/Cma.md) | Cumulative Moving Average | Expanding window average |
 | [**COINTEGRATION**](../lib/statistics/cointegration/Cointegration.md) | Cointegration | Engle-Granger two-step with ADF test |
 | [**CORRELATION**](../lib/statistics/correlation/Correlation.md) | Pearson Correlation | Linear relationship [-1, +1] |
@@ -373,12 +378,23 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 | [**HT_DCPERIOD**](../lib/cycles/ht_dcperiod/HtDcperiod.md) | Ehlers HT Dominant Cycle Period | Hilbert Transform period estimation |
 | [**HT_DCPHASE**](../lib/cycles/ht_dcphase/HtDcphase.md) | Ehlers HT Dominant Cycle Phase | Hilbert Transform phase angle |
 | [**HT_PHASOR**](../lib/cycles/ht_phasor/HtPhasor.md) | Ehlers HT Phasor Components | In-phase and quadrature components |
-| [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Ehlers HT SineWave | Dominant cycle phase with lead signal |
+| [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Ehlers HT SineWave (also known as SINE) | Dominant cycle phase with lead signal |
 | [**LUNAR**](../lib/cycles/lunar/Lunar.md) | Lunar Phase | Moon phase cycle |
-| [**SINE**](../lib/cycles/sine/Sine.md) | Ehlers Sine Wave | Periodic sine oscillation |
 | [**SOLAR**](../lib/cycles/solar/Solar.md) | Solar Activity Cycle | Solar activity periodicity |
 | [**SSFDSP**](../lib/cycles/ssfdsp/Ssfdsp.md) | Ehlers SSF Detrended Synthetic Price | Dual Super Smoother oscillator |
-| [**STC**](../lib/cycles/stc/Stc.md) | Schaff Trend Cycle | MACD-based cycle oscillator |
+
+### Core
+
+Price transforms and fundamental building blocks. These indicators compute derived prices from OHLCV bars and serve as inputs to higher-order indicators.
+
+| Indicator | Full Name | Notes |
+| :-------- | :-------- | :---- |
+| [**AVGPRICE**](../lib/core/avgprice/Avgprice.md) | Average Price | (O+H+L+C) * 0.25 via FMA |
+| [**MEDPRICE**](../lib/core/medprice/Medprice.md) | Median Price | (H+L) * 0.5 |
+| [**MIDPOINT**](../lib/core/midpoint/Midpoint.md) | Rolling Midpoint | (Max+Min) * 0.5 over lookback window |
+| [**MIDPRICE**](../lib/core/midprice/Midprice.md) | Mid Price | (Highest High + Lowest Low) * 0.5 |
+| [**TYPPRICE**](../lib/core/typprice/Typprice.md) | Typical Price | (H+L+C) * OneThird via FMA |
+| [**WCLPRICE**](../lib/core/wclprice/Wclprice.md) | Weighted Close Price | (H+L+2C) * 0.25 via FMA |
 
 ### Numerics
 
@@ -387,7 +403,6 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope |
-| [**AGC**](../lib/numerics/agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via peak tracking |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |
@@ -395,13 +410,11 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**LINEARTRANS**](../lib/numerics/lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling |
 | [**LOGTRANS**](../lib/numerics/logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage analysis |
 | [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) via monotonic deque |
-| [**MIDPOINT**](../lib/numerics/midpoint/Midpoint.md) | Rolling Midpoint | (Highest + Lowest) / 2 |
 | [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |
 | [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x) activation |
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x) bounded [0,1] |
 | [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |
 | [**SQRTTRANS**](../lib/numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | √x variance-to-StdDev conversion |
-| [**STANDARDIZE**](../lib/numerics/standardize/Standardize.md) | Z-Score Normalization | (x - mean) / StdDev scaling |
 
 ### Errors
 
@@ -424,7 +437,7 @@ Error metrics and loss functions for model evaluation, forecast assessment, and 
 | [**MSE**](../lib/errors/mse/Mse.md) | Mean Squared Error | Variance of residuals |
 | [**MSLE**](../lib/errors/msle/Msle.md) | Mean Squared Log Error | Ratio-sensitive error |
 | [**PSEUDOHUBER**](../lib/errors/pseudohuber/PseudoHuber.md) | Pseudo-Huber Loss | Differentiable Huber approximation |
-| [**QUANTILELOSS**](../lib/errors/quantile/QuantileLoss.md) | Quantile Loss | Asymmetric pinball loss |
+| [**QUANTILELOSS**](../lib/errors/quantileloss/QuantileLoss.md) | Quantile Loss | Asymmetric pinball loss |
 | [**RAE**](../lib/errors/rae/Rae.md) | Relative Absolute Error | MAE relative to baseline |
 | [**RMSE**](../lib/errors/rmse/Rmse.md) | Root Mean Squared Error | Standard error magnitude |
 | [**RMSLE**](../lib/errors/rmsle/Rmsle.md) | Root Mean Squared Log Error | Ratio-sensitive RMSE |
@@ -432,7 +445,7 @@ Error metrics and loss functions for model evaluation, forecast assessment, and 
 | [**RSQUARED**](../lib/errors/rsquared/Rsquared.md) | R² (Coefficient of Determination) | Explained variance fraction |
 | [**SMAPE**](../lib/errors/smape/Smape.md) | Symmetric MAPE | Symmetric percentage error |
 | [**THEILU**](../lib/errors/theilu/TheilU.md) | Theil's U Statistic | Forecast accuracy relative to naive |
-| [**TUKEY**](../lib/errors/tukey/TukeyBiweight.md) | Tukey Biweight Loss | Robust regression loss |
+| [**TUKEY**](../lib/errors/tukeybiweight/TukeyBiweight.md) | Tukey Biweight Loss | Robust regression loss |
 | [**WMAPE**](../lib/errors/wmape/Wmape.md) | Weighted MAPE | Volume-weighted percentage error |
 | [**WRMSE**](../lib/errors/wrmse/Wrmse.md) | Weighted RMSE | Observation-weighted RMSE |
 

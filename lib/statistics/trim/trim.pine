@@ -15,7 +15,7 @@ indicator("TRIM: Trimmed Mean Moving Average", shorttitle="TRIM", overlay=true)
 // @param period Window length. Must be >= 3.
 // @param trimPct Percentage of values to trim from each tail (0-49). Default 10.
 // @returns The trimmed mean value.
-export trim(series float src, simple int period, simple int trimPct) =>
+trim(series float src, simple int period, simple int trimPct) =>
     // Number of values to discard from each end
     int trimCount = math.max(int(period * trimPct / 100.0), 0)
     int keepCount = period - 2 * trimCount

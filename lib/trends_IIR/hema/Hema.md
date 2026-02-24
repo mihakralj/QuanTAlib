@@ -1,71 +1,68 @@
 # HEMA: Hull Exponential Moving Average
 
-## An EMA-domain analog of HMA using half-life semantics
+## An EMA-domain analog of HMA with WMA-lag-matched alphas
 
-> "HMA is a topology. HEMA keeps the topology and swaps the physics: windows → decay."
+> "HMA is a topology. HEMA keeps the topology and swaps the physics: windows to decay, with identical lag."
 
-HEMA is a Hull-style moving average built entirely from **exponential smoothers**. It preserves the classic HMA pipeline—**fast minus slow, then smooth**—but defines timing in **half-life** (exponential decay) rather than finite window length. The result is a **lag-reduced trend line** with consistent behavior across instruments and sampling rates (when you think in "how fast memory fades," not "how wide the window is").
+HEMA is a Hull-style moving average built entirely from **exponential smoothers**. It preserves the classic HMA pipeline (fast minus slow, then smooth) but replaces WMA sub-filters with EMAs whose alphas are tuned to produce **identical lag** to the WMA stages they replace. At period $N$: HEMA($N$) and HMA($N$) have the same theoretical group delay, but HEMA has infinite memory and smoother transient behavior.
 
 ## Historical Context
 
-The Hull Moving Average was designed around weighted moving averages (WMA), which have **finite memory** and are parameterized by a **window length**. EMA-family filters have **infinite memory** and are parameterized by a **decay rate**. Mapping HMA to an EMA world is not "replace WMA with EMA and hope"—you need a clear definition of *what the period means* (HEMA uses **half-life**), and a de-lag combiner that stays consistent when the underlying smoother is exponential.
+The Hull Moving Average was designed around weighted moving averages (WMA), which have **finite memory** and are parameterized by a **window length**. EMA-family filters have **infinite memory** and are parameterized by a **decay rate**. Mapping HMA to an EMA world is not "replace WMA with EMA and hope." You need a clear definition of *what the period means* in EMA terms, and a de-lag combiner that stays consistent when the underlying smoother is exponential.
 
-HEMA is exactly that: **HMA topology, EMA half-life semantics**.
+Early implementations used a half-life mapping ($\alpha = 1 - e^{-\ln 2 / N}$), but this produces EMA lag $\approx 1.44N$ instead of WMA lag $(N-1)/3$. The mismatch made HEMA(10) behave like HMA(30) in practice: roughly 4.6x more sluggish at every period. The current implementation uses a **WMA-lag-matched alpha** ($\alpha = 3/(N+2)$) that produces exactly the same lag as WMA($N$), making period comparisons between HMA and HEMA meaningful.
 
-## Architecture & Physics
+## Architecture and Physics
 
 ### Topology (the pipeline)
 
-Given input series $x_t$ and user period $N$ (interpreted as **half-life in bars**):
+Given input series $x_t$ and user period $N$:
 
 1. **Slow smoother**
 
-$$s_t = \text{EMA}_{\text{hl}=N}(x_t)$$
+$$s_t = \text{EMA}_{\alpha_s}(x_t), \quad \alpha_s = \frac{3}{N+2}$$
 
-2. **Fast smoother**
+1. **Fast smoother** (integer floor sub-period, same as HMA)
 
-$$f_t = \text{EMA}_{\text{hl}=N/2}(x_t)$$
+$$f_t = \text{EMA}_{\alpha_f}(x_t), \quad \alpha_f = \frac{3}{\lfloor N/2 \rfloor + 2}$$
 
-3. **De-lag combiner** (DC gain = 1)
+1. **De-lag combiner** (DC gain = 1)
 
 $$d_t = \frac{f_t - r\,s_t}{1-r}$$
 
-4. **Final smoothing**
+1. **Final smoothing** (integer floor sub-period, same as HMA)
 
-$$\text{HEMA}_t = \text{EMA}_{\text{hl}=\sqrt{N}}(d_t)$$
+$$\text{HEMA}_t = \text{EMA}_{\alpha_m}(d_t), \quad \alpha_m = \frac{3}{\lfloor\sqrt{N}\rfloor + 2}$$
 
 This mirrors classic HMA:
 
-$$\text{HMA}_N(x) = \text{WMA}_{\sqrt{N}}\left(2\,\text{WMA}_{N/2}(x)-\text{WMA}_N(x)\right)$$
+$$\text{HMA}_N(x) = \text{WMA}_{\lfloor\sqrt{N}\rfloor}\!\left(2\,\text{WMA}_{\lfloor N/2\rfloor}(x)-\text{WMA}_N(x)\right)$$
 
-The difference: HEMA's stages are exponential and its timing is defined by half-life.
+The difference: HEMA's stages are exponential with infinite memory. The sub-periods use integer floor division to match HMA's behavior exactly.
 
-### Half-life semantics (what "Period" actually means)
+### WMA-lag-matched alpha (what "Period" actually means)
 
-HEMA's `Period = N` is **not** a window length.
+HEMA's `Period = N` means: **the EMA has the same lag as WMA(N)**.
 
-- Half-life $N$ means: after $N$ bars, the contribution of a past sample decays to **50%** (relative to the next bar's contribution), in the exponential weighting sense.
-- This is often a more intuitive and stable control knob than "window length," especially across different bar sizes.
+For a WMA of length $N$, the steady-state mean lag is:
 
-**Half-life → EMA alpha:**
+$$\text{lag}_{\text{WMA}}(N) = \frac{N-1}{3}$$
 
-For an EMA written as:
+For an EMA with smoothing constant $\alpha$, the steady-state mean lag is:
 
-$$y_t = y_{t-1} + \alpha(x_t - y_{t-1})$$
+$$\text{lag}_{\text{EMA}}(\alpha) = \frac{1-\alpha}{\alpha}$$
 
-half-life mapping is:
+Setting these equal and solving for $\alpha$:
 
-$$\alpha = 1 - e^{-\ln(2)/\text{hl}}$$
+$$\frac{1-\alpha}{\alpha} = \frac{N-1}{3} \implies \alpha = \frac{3}{N+2}$$
 
-This makes "half-life" the primitive, and $\alpha$ derived.
-
-**Numerical note:** for large $\text{hl}$, use `-Math.Expm1(-ln2/hl)` instead of `1-Math.Exp(-ln2/hl)` to avoid catastrophic cancellation.
+This makes "WMA-equivalent period" the primitive, and $\alpha$ derived. At $N=10$: $\alpha = 3/12 = 0.25$, lag $= 0.75/0.25 = 3.0$ bars, exactly matching WMA(10) lag.
 
 ### The de-lag ratio $r$: derived, not guessed
 
 Classic HMA uses $2f - s$. That implicitly assumes a particular lag relationship between the fast and slow smoothers.
 
-In EMA half-life space, the "correct" proportionality is best expressed using an EMA's **steady-state mean lag** approximation:
+In EMA space, the "correct" proportionality uses EMA's **steady-state mean lag**:
 
 $$\text{lag}(\alpha)\approx \frac{1-\alpha}{\alpha}$$
 
@@ -84,11 +81,7 @@ $$d_t = \frac{f_t - r\,s_t}{1-r}$$
 
 $$r \approx \frac{\alpha_s}{\alpha_f} \approx \frac{1}{2}$$
 
-and the combiner approaches:
-
-$$d_t \approx 2f_t - s_t$$
-
-i.e., the classic HMA shape emerges as a limiting case.
+and the combiner approaches $d_t \approx 2f_t - s_t$, i.e., the classic HMA shape emerges as a limiting case.
 
 ### Warmup: unbiased EMA from bar 1
 
@@ -100,13 +93,19 @@ $$y_t^{*} = \frac{y_t}{1-\beta^{t}}$$
 
 HEMA performs this independently for slow stage, fast stage, and smooth stage, and exits warmup only when **all three** decays are negligible.
 
-**Practical implication:** early samples converge *fast* to a meaningful value. Use `IsHot` (or `WarmupPeriod`) if you need "fully settled" behavior for signal generation.
+**Practical implication:** early samples converge fast to a meaningful value. Use `IsHot` (or `WarmupPeriod`) if you need "fully settled" behavior for signal generation.
 
-## Math Foundation
+## Mathematical Foundation
 
-**Half-life to alpha conversion:**
+**WMA-lag-matched alpha:**
 
-$$\alpha = 1 - e^{-\ln(2) / \text{halfLife}}$$
+$$\alpha = \frac{3}{N+2}$$
+
+where $N$ is the period parameter (minimum 2). This produces EMA lag = $(N-1)/3$ = WMA($N$) lag.
+
+**Sub-period alphas (integer floor, matching HMA):**
+
+$$\alpha_{\text{slow}} = \frac{3}{N+2}, \quad \alpha_{\text{fast}} = \frac{3}{\lfloor N/2 \rfloor+2}, \quad \alpha_{\text{smooth}} = \frac{3}{\lfloor\sqrt{N}\rfloor+2}$$
 
 **EMA recursion:**
 
@@ -137,26 +136,26 @@ $$\text{HEMA}_t = \text{EMA}_{\text{smooth}}(d_t)$$
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | **Stage 1: EMA Slow** | | | |
-| FMA (emaSlowRaw × betaSlow + alphaSlow × input) | 1 | 4 | 4 |
-| MUL (alphaSlow × input) | 1 | 3 | 3 |
+| FMA (emaSlowRaw x betaSlow + alphaSlow x input) | 1 | 4 | 4 |
+| MUL (alphaSlow x input) | 1 | 3 | 3 |
 | **Stage 2: EMA Fast** | | | |
-| FMA (emaFastRaw × betaFast + alphaFast × input) | 1 | 4 | 4 |
-| MUL (alphaFast × input) | 1 | 3 | 3 |
+| FMA (emaFastRaw x betaFast + alphaFast x input) | 1 | 4 | 4 |
+| MUL (alphaFast x input) | 1 | 3 | 3 |
 | **Stage 3: De-Lag Combiner** | | | |
-| FMA (-ratio × emaSlow + emaFast) | 1 | 4 | 4 |
-| MUL (× invOneMinusRatio) | 1 | 3 | 3 |
+| FMA (-ratio x emaSlow + emaFast) | 1 | 4 | 4 |
+| MUL (x invOneMinusRatio) | 1 | 3 | 3 |
 | **Stage 4: Final EMA Smooth** | | | |
-| FMA (emaSmoothRaw × betaSmooth + alphaSmooth × deLag) | 1 | 4 | 4 |
-| MUL (alphaSmooth × deLag) | 1 | 3 | 3 |
+| FMA (emaSmoothRaw x betaSmooth + alphaSmooth x deLag) | 1 | 4 | 4 |
+| MUL (alphaSmooth x deLag) | 1 | 3 | 3 |
 | **Total (Hot Path)** | | | **~28 cycles** |
 
 **Warmup Path (Additional Operations):**
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| MUL (decay × beta) | 3 | 3 | 9 |
+| MUL (decay x beta) | 3 | 3 | 9 |
 | DIV (1 / (1 - decay)) | 3 | 15 | 45 |
-| MUL (raw × invDecay) | 3 | 3 | 9 |
+| MUL (raw x invDecay) | 3 | 3 | 9 |
 | CMP/MAX (decay comparisons) | 3 | 1 | 3 |
 | **Total (Warmup)** | | | **~66 cycles** |
 
@@ -165,6 +164,7 @@ $$\text{HEMA}_t = \text{EMA}_{\text{smooth}}(d_t)$$
 ### Batch Mode (SIMD Analysis)
 
 HEMA is **not SIMD-parallelizable** across bars due to:
+
 1. All three EMA stages are recursive IIR filters (output[t] depends on output[t-1])
 2. De-lag combiner depends on current slow/fast EMA values
 3. Final smoother depends on de-lagged series
@@ -175,12 +175,12 @@ HEMA is **not SIMD-parallelizable** across bars due to:
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 8/10 | Matches PineScript reference implementation |
+| **Accuracy** | 9/10 | WMA-lag-matched alphas produce identical theoretical lag to HMA |
 | **Timeliness** | 8/10 | Faster response than plain EMA via de-lag combiner |
 | **Overshoot** | 6/10 | De-lag combiner can overshoot during sharp reversals |
 | **Smoothness** | 7/10 | Smoother than DEMA, less smooth than T3 |
 
-*Benchmark environment: .NET 10, Release build, no SIMD (stateful recursion). Measured via BenchmarkDotNet on synthetic GBM data (μ=0.0001, σ=0.02, 10K bars).*
+*Benchmark environment: .NET 10, Release build, no SIMD (stateful recursion). Measured via BenchmarkDotNet on synthetic GBM data (mu=0.0001, sigma=0.02, 10K bars).*
 
 ## Validation
 
@@ -188,11 +188,11 @@ HEMA is not commonly available in mainstream TA libraries. Validation uses a **r
 
 | Library | Status | Tolerance | Notes |
 |:---|:---|:---|:---|
-| **TA-Lib** | N/A | — | Not implemented |
-| **Skender** | N/A | — | Not implemented |
-| **Tulip** | N/A | — | Not implemented |
-| **Ooples** | N/A | — | Not implemented |
-| **PineScript** | ✅ Passed | 1e-10 | Matches `lib/trends_IIR/hema/hema.pine` |
+| **TA-Lib** | N/A | - | Not implemented |
+| **Skender** | N/A | - | Not implemented |
+| **Tulip** | N/A | - | Not implemented |
+| **Ooples** | N/A | - | Not implemented |
+| **PineScript** | Passed | 1e-10 | Matches `lib/trends_IIR/hema/hema.pine` |
 
 **Validation strategy:**
 
@@ -230,15 +230,31 @@ else { _state = _p_state; _lastValidValue = _p_lastValidValue; }
 
 ### Precomputed Constants
 
-Constructor calculates all alpha/beta pairs and the lag ratio once:
+Constructor calculates all alpha/beta pairs and the lag ratio once using integer floor sub-periods:
 
 ```csharp
-_alphaSlow = AlphaFromHalfLife(n);
-_alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
-_alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
-_betaSlow = 1.0 - _alphaSlow;
-_ratio = Math.Clamp(lagFast / lagSlow, 0.0, MaxRatio);
+int halfPeriod = period / 2;                          // integer floor, same as HMA
+int sqrtPeriod = Math.Max((int)Math.Sqrt(period), 1); // integer floor, same as HMA
+
+_alphaSlow   = AlphaFromWmaLag(period);
+_alphaFast   = AlphaFromWmaLag(Math.Max(halfPeriod, 1));
+_alphaSmooth = AlphaFromWmaLag(Math.Max(sqrtPeriod, 1));
+_betaSlow    = 1.0 - _alphaSlow;
+_ratio       = Math.Clamp(lagFast / lagSlow, 0.0, MaxRatio);
 _invOneMinusRatio = 1.0 / Math.Max(1.0 - _ratio, MinDenominator);
+```
+
+### WMA-Lag-Matched Alpha Calculation
+
+A single division replaces the old half-life exponential mapping:
+
+```csharp
+private static double AlphaFromWmaLag(int period)
+{
+    // WMA-lag-matched alpha: EMA lag = (1-a)/a = (P-1)/3
+    // Solving: a = 3/(P+2)
+    return 3.0 / (Math.Max(period, 1) + 2.0);
+}
 ```
 
 ### FMA Usage
@@ -249,23 +265,6 @@ All EMA updates use FusedMultiplyAdd for precision and performance:
 state.EmaSlowRaw = Math.FusedMultiplyAdd(state.EmaSlowRaw, _betaSlow, _alphaSlow * input);
 state.EmaFastRaw = Math.FusedMultiplyAdd(state.EmaFastRaw, _betaFast, _alphaFast * input);
 double deLag = Math.FusedMultiplyAdd(-_ratio, emaSlow, emaFast) * _invOneMinusRatio;
-```
-
-### Numerically Stable Alpha Calculation
-
-Uses Taylor-expanded `expm1` for small arguments to avoid catastrophic cancellation:
-
-```csharp
-private static double Expm1(double x)
-{
-    double ax = Math.Abs(x);
-    if (ax < 1e-5)
-    {
-        double x2 = x * x;
-        return x + (x2 * 0.5) + (x2 * x * (1.0 / 6.0));
-    }
-    return Math.Exp(x) - 1.0;
-}
 ```
 
 ### Memory Layout
@@ -288,9 +287,9 @@ private static double Expm1(double x)
 
 ## Common Pitfalls
 
-1. **Period semantics mismatch**
+1. **Period semantics are now WMA-lag-matched**
 
-   `Period` is half-life (decay), not window length (finite history). Comparing "period=20" between HMA and HEMA is not apples-to-apples. HEMA's 20-bar half-life corresponds to roughly 28–30 bars of HMA window length in steady-state lag, but the transient behavior differs.
+   `Period = N` means "same lag as WMA(N)." HEMA(10) and HMA(10) have the same theoretical group delay. Earlier versions used half-life semantics where HEMA(10) was roughly equivalent to HMA(30). If you are upgrading from the half-life version, expect HEMA to now be noticeably more responsive at the same period.
 
 2. **Warmup assumptions**
 
@@ -298,7 +297,7 @@ private static double Expm1(double x)
 
 3. **Overshoot on reversals**
 
-   De-lag can overshoot. This is the price of reduced lag—same tradeoff as DEMA/ZLEMA family. If overshoot is unacceptable, prefer a slower final smoother or reduce de-lag strength (requires custom variant).
+   De-lag can overshoot. This is the price of reduced lag, same tradeoff as the DEMA/ZLEMA family. If overshoot is unacceptable, prefer a slower final smoother or reduce de-lag strength (requires custom variant).
 
 4. **Non-finite data handling**
 
@@ -308,20 +307,11 @@ private static double Expm1(double x)
 
    Use `isNew=false` when correcting the last bar (same timestamp, revised OHLC). Failing to do so causes state drift and inconsistent results across runs.
 
-## Implementation Notes
+6. **Integer floor sub-periods**
 
-- Uses `Math.FusedMultiplyAdd` for tighter numerics and throughput in EMA recursions.
-- Warmup compensation uses per-stage decay tracking (`Math.Pow(1-alpha, t)`) to produce unbiased EMAs from bar 1.
-- Constructor validates `period > 0` and throws `ArgumentException(nameof(period))` for invalid input (MA0001-compliant).
-- Internal state uses `private record struct State` for rollback support (`isNew=false`).
-- `GetFiniteValue` helper ensures NaN/Infinity never contaminate state.
+   Sub-periods use integer floor division (`period / 2`, `(int)Math.Sqrt(period)`) to match HMA behavior exactly. This means HEMA(5) uses halfPeriod=2 and sqrtPeriod=2, not 2.5 and 2.236.
 
-**C# snippet (FMA pattern):**
+## References
 
-```csharp
-// EMA update: ema = ema + alpha * (input - ema)
-// Rewritten as FMA: ema = ema * (1-alpha) + alpha * input
-_stateSlow.Ema = Math.FusedMultiplyAdd(_stateSlow.Ema, _decaySlow, _alphaSlow * input);
-```
-
-Consider using `-Math.Expm1(-Ln2/hl)` in `AlphaFromHalfLife()` for accuracy at large periods (avoids catastrophic cancellation in `1 - Exp(x)` when `x` is near zero).
+- Hull, A. "Hull Moving Average." Technical analysis methodology using WMA lag cancellation.
+- Wolfram Alpha verification: EMA lag with alpha=3/(N+2) equals (N-1)/3, matching WMA(N) lag exactly.

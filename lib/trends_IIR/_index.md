@@ -14,11 +14,12 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 | [FRAMA](frama/Frama.md) | Ehlers Fractal Adaptive Moving Average | Adapts smoothing based on fractal dimension analysis, minimizing lag in trends and maximizing smoothing in consolidation. |
 | [HEMA](hema/Hema.md) | Hull Exponential MA | EMA-domain Hull analog using half-life timing and de-lagged EMA cascade. |
 | [HOLT](holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing with separate level and trend components for adaptive trend-following. |
-| [HTIT](htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend | Utilizes Hilbert Transform to isolate instantaneous trend component, providing zero-lag trendline with hybrid FIR-in-IIR design. |
+| [HTIT](htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend (also known as HT_TRENDLINE) | Utilizes Hilbert Transform to isolate instantaneous trend component, providing zero-lag trendline with hybrid FIR-in-IIR design. |
 | [HWMA](hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing. Tracks level, velocity, acceleration. Recursive IIR structure. |
 | [JMA](jma/Jma.md) | Jurik MA | Adaptive filter achieving high noise reduction and low phase delay through multi-stage volatility normalization and dynamic parameter optimization. |
 | [KAMA](kama/Kama.md) | Kaufman Adaptive MA | Automatically adjusts sensitivity based on market volatility using Efficiency Ratio, balancing responsiveness and stability. |
 | [LEMA](lema/Lema.md) | Leader EMA | Dual EMA architecture: primary EMA(source) plus error-correction EMA(source − EMA), reducing lag while maintaining smoothness. |
+| LTMA | Linear Trend MA | Linear trend extraction via recursive IIR smoothing. |
 | [MAMA](mama/Mama.md) | Ehlers MESA Adaptive Moving Average | Applies Hilbert Transform for phase-based adaptation, using dual-line system (MAMA/FAMA) for cycle-sensitive smoothing. |
 | [MAVP](mavp/Mavp.md) | Moving Average Variable Period | EMA with dynamically varying period per bar, clamped to configurable min/max range. |
 | [MCNMA](mcnma/Mcnma.md) | McNicholl EMA | Six cascaded EMA stages forming inner TEMA + outer TEMA, combined as 2×TEMA(src) − TEMA(TEMA(src)) for superior lag reduction. |
@@ -27,7 +28,6 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 | [NMA](nma/Nma.md) | Natural MA | Adaptive IIR filter whose smoothing ratio derives from volatility-weighted sqrt-kernel analysis of log-price movements (Sloman, Ocean Theory). |
 | [QEMA](qema/Qema.md) | Quad Exponential MA | Zero-lag filter with four cascaded EMAs using geometrically ramped alphas and minimum-energy weights for DC lag elimination. |
 | [REMA](rema/Rema.md) | Regularized Exponential MA | Applies regularization to EMA using lambda parameter, balancing smoothing and momentum-based prediction. |
-| [REVERSEEMA](reverseema/ReverseEma.md) | Reverse EMA | Reconstructs price from EMA using inverse filter, revealing hidden momentum and deconvolved signal. |
 | [RGMA](rgma/Rgma.md) | Recursive Gaussian MA | Approximates Gaussian smoothing by recursively applying EMA filters multiple times (passes), controlled by adjusted period. |
 | [RMA](rma/Rma.md) | wildeR MA | Wilder's smoothing average using specific alpha (1/period), designed for indicators like RSI and ATR. |
 | [T3](t3/T3.md) | Tillson T3 MA | Six-stage EMA cascade with optimized coefficients based on volume factor for reduced lag and superior noise reduction. |

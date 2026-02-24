@@ -18,7 +18,7 @@ indicator("Ehlers Recursive Median Filter (RMED)", "RMED", overlay = true)
 //@reference Ehlers, J.F. (2018). "Recursive Median Filters."
 //           Technical Analysis of Stocks & Commodities, Mar 2018.
 //@optimized O(1) per bar — 5-element sort network + EMA update
-export rmed(series float source, simple int period) =>
+rmed(series float source, simple int period) =>
     if period < 1
         runtime.error("Period must be at least 1")
 

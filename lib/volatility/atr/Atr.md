@@ -155,7 +155,7 @@ Validated against external libraries in `Atr.Validation.Tests.cs`. Tests run aga
 
 1. **Directionality Assumption**: ATR is non-directional. A crashing market has high ATR. A rallying market has high ATR. Do not use ATR to predict direction. Use it to measure potential magnitude of moves.
 
-2. **Scale Dependence**: ATR is absolute, not percentage-based. An ATR of 5.0 on a $100 stock (5% daily range) differs from ATR of 5.0 on a $10 stock (50% daily range). Use ATRP (ATR Percent) or NATR for cross-asset comparisons.
+2. **Scale Dependence**: ATR is absolute, not percentage-based. An ATR of 5.0 on a $100 stock (5% daily range) differs from ATR of 5.0 on a $10 stock (50% daily range). Use NATR (Normalized ATR, also known as ATRP) for cross-asset comparisons.
 
 3. **Lag Characteristics**: Because RMA decays slowly, ATR lags actual volatility changes. It tells what *has* happened, not what *will* happen. A volatility spike appears immediately; the subsequent decay takes many bars.
 

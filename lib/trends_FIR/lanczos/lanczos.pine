@@ -3,18 +3,11 @@
 //@version=6
 indicator("Lanczos (Sinc) Window Moving Average (LANCZOS)", "LANCZOS", overlay=true)
 
-//@function Computes Lanczos Window Moving Average — a symmetric FIR filter using the
-//          normalized sinc function as the window shape. The Lanczos window is the
-//          central lobe of a sinc function, providing excellent frequency-domain
-//          characteristics with minimal Gibbs phenomenon ringing.
-//@param source Series to smooth
-//@param period Lookback window (>= 2)
-//@returns Lanczos-windowed moving average
+//@function Calculates LANCZOS using sinc window weighting
+//@param source Series to calculate LANCZOS from
+//@param period Lookback period - FIR window size
+//@returns LANCZOS value, calculates from first bar using available data
 //@reference Lanczos, C. (1956). "Applied Analysis." Prentice-Hall.
-//@reference The Lanczos window w(k) = sinc(2k/(N-1) - 1) where sinc(x) = sin(πx)/(πx).
-//           This is the simplest sinc-based window; higher-order Lanczos kernels use
-//           sinc(x) * sinc(x/a) for Lanczos-a resampling (a=2 or 3 typical).
-//@optimized O(period) per bar for convolution; weights precomputed once
 lanczos(series float source, simple int period) =>
     if period < 2
         runtime.error("Period must be at least 2")
@@ -28,27 +21,20 @@ lanczos(series float source, simple int period) =>
     head := (head + 1) % period
 
     // --- Precompute Lanczos (sinc) window weights once ---
-    // Lanczos window: w(k) = sinc(2k/(N-1) - 1)
-    // sinc(x) = sin(π·x) / (π·x) for x != 0, sinc(0) = 1
+    // w(k) = sinc(2k/(N-1) - 1), sinc(x) = sin(pi*x)/(pi*x), sinc(0) = 1
     var array<float> weights = array.new_float(0)
     if barstate.isfirst
-        float N = period - 1
+        float nm1 = (period - 1) * 1.0
         float wsum = 0.0
         for k = 0 to period - 1
-            float x = N > 0 ? (2.0 * k / N) - 1.0 : 0.0
-            float w = 0.0
-            if math.abs(x) < 1e-10
-                w := 1.0  // sinc(0) = 1
-            else
-                float pi_x = math.pi * x
-                w := math.sin(pi_x) / pi_x
-            // Clamp negative weights to 0 for pure Lanczos window
-            // (sinc sidelobes are negative but we keep them for fidelity)
+            float x = nm1 > 0 ? (2.0 * k / nm1) - 1.0 : 0.0
+            float pix = math.pi * x
+            // Ternary guarantees lazy evaluation — avoids 0/0 when pix≈0
+            float w = math.abs(pix) < 1e-8 ? 1.0 : math.sin(pix) / pix
             array.push(weights, w)
             wsum += w
-
-        // Normalize weights to sum exactly 1.0
-        if wsum > 0
+        // Normalize weights to sum = 1
+        if wsum > 1e-15
             for j = 0 to period - 1
                 array.set(weights, j, array.get(weights, j) / wsum)
 
@@ -56,7 +42,7 @@ lanczos(series float source, simple int period) =>
     if count < period
         price
     else
-        // --- Apply Lanczos convolution via circular buffer ---
+        // --- Apply Lanczos window convolution via circular buffer ---
         // Buffer: head points to next-write = oldest entry
         // Weight[0] = oldest bar, Weight[period-1] = newest
         float result = 0.0
@@ -66,9 +52,14 @@ lanczos(series float source, simple int period) =>
             result += val * array.get(weights, j)
         result
 
-// ── Inputs ──────────────────────────────────────────────────────────────
-src = input.source(close, "Source")
-per = input.int(14, "Period", minval=2)
+// ---------- Main loop ----------
 
-// ── Plot ────────────────────────────────────────────────────────────────
-plot(lanczos(src, per), "LANCZOS", color.new(color.yellow, 0), 2)
+// Inputs
+i_period = input.int(14, "Period", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+lanczos_value = lanczos(i_source, i_period)
+
+// Plot
+plot(lanczos_value, "LANCZOS", color=color.yellow, linewidth=2)

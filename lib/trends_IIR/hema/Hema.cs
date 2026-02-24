@@ -9,16 +9,16 @@ namespace QuanTAlib;
 /// HEMA: Exponential Hull Analog (EMA-domain HMA)
 /// </summary>
 /// <remarks>
-/// HEMA adapts the HMA topology to EMA half-life space.
+/// HEMA adapts the HMA topology to EMA domain with WMA-lag-matched alphas.
 ///
 /// Steps:
-/// 1) EMA_slow(hl=N)
-/// 2) EMA_fast(hl=N/2)
+/// 1) EMA_slow(period=N)          alpha = 3/(N+2)
+/// 2) EMA_fast(period=N/2)        alpha = 3/(N/2+2), integer floor like HMA
 /// 3) De-lag: (EMA_fast - r * EMA_slow) / (1 - r), where r = lag_fast / lag_slow
-/// 4) EMA_smooth(hl=sqrt(N)) applied to the de-lagged series
+/// 4) EMA_smooth(period=sqrt(N))  alpha = 3/(sqrt(N)+2), integer floor like HMA
 ///
-/// Half-life mapping:
-/// alpha = 1 - exp(-ln(2) / hl)
+/// WMA-lag-matched alpha mapping:
+/// alpha = 3 / (N + 2)   →   EMA lag = (N-1)/3 = WMA(N) lag
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Hema : AbstractBase
@@ -27,7 +27,6 @@ public sealed class Hema : AbstractBase
     private const double CompensatorThreshold = 1e-10;
     private const double MinDenominator = 1e-12;
     private const double MaxRatio = 0.999999;
-    private const double Ln2 = 0.693147180559945309417232121458176568;
 
     [StructLayout(LayoutKind.Sequential)]
     private record struct State
@@ -77,10 +76,12 @@ public sealed class Hema : AbstractBase
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 2);
 
-        double n = (double)period;
-        _alphaSlow = AlphaFromHalfLife(n);
-        _alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
-        _alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
+        int halfPeriod = period / 2;                        // integer floor, same as HMA
+        int sqrtPeriod = Math.Max((int)Math.Sqrt(period), 1); // integer floor, same as HMA
+
+        _alphaSlow = AlphaFromWmaLag(period);
+        _alphaFast = AlphaFromWmaLag(Math.Max(halfPeriod, 1));
+        _alphaSmooth = AlphaFromWmaLag(Math.Max(sqrtPeriod, 1));
 
         _betaSlow = 1.0 - _alphaSlow;
         _betaFast = 1.0 - _alphaFast;
@@ -296,10 +297,13 @@ public sealed class Hema : AbstractBase
             return;
         }
 
-        double n = Math.Max((double)period, 2.0);
-        double alphaSlow = AlphaFromHalfLife(n);
-        double alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
-        double alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
+        int n = Math.Max(period, 2);
+        int halfN = n / 2;                        // integer floor, same as HMA
+        int sqrtN = Math.Max((int)Math.Sqrt(n), 1); // integer floor, same as HMA
+
+        double alphaSlow = AlphaFromWmaLag(n);
+        double alphaFast = AlphaFromWmaLag(Math.Max(halfN, 1));
+        double alphaSmooth = AlphaFromWmaLag(Math.Max(sqrtN, 1));
 
         double betaSlow = 1.0 - alphaSlow;
         double betaFast = 1.0 - alphaFast;
@@ -435,24 +439,11 @@ public sealed class Hema : AbstractBase
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double AlphaFromHalfLife(double halfLife)
+    private static double AlphaFromWmaLag(int period)
     {
-        double hl = Math.Max(1.0, halfLife);
-        double x = -Ln2 / hl;
-        return -Expm1(x);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double Expm1(double x)
-    {
-        double ax = Math.Abs(x);
-        if (ax < 1e-5)
-        {
-            double x2 = x * x;
-            return Math.FusedMultiplyAdd(x2 * x, 1.0 / 6.0, x + (x2 * 0.5));
-        }
-
-        return Math.Exp(x) - 1.0;
+        // WMA-lag-matched alpha: EMA lag = (1-α)/α = (P-1)/3
+        // Solving: α = 3/(P+2)
+        return 3.0 / (Math.Max(period, 1) + 2.0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

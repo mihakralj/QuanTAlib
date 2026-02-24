@@ -34,3 +34,4 @@ Error metrics and loss functions for model/strategy evaluation. All error indica
 | [TUKEY](tukey/Tukey.md) | Tukey Biweight Loss | Hard-rejects outliers beyond threshold. Redescending. |
 | [WMAPE](wmape/Wmape.md) | Weighted MAPE | Volume-weighted percentage error. For heterogeneous data. |
 | [WRMSE](wrmse/Wrmse.md) | Weighted RMSE | Weighted root mean squared error. Custom observation weighting. |
+| STDERR | Standard Error | StdDev / √n. Measures sampling variability. |

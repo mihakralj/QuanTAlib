@@ -33,3 +33,4 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [VWAP](vwap/Vwap.md) | Volume Weighted Average Price | Average price weighted by volume. Common execution benchmark and intraday reference. |
 | [VWMA](vwma/Vwma.md) | Volume Weighted Moving Average | Moving average where each price point is weighted by its volume over a sliding window. |
 | [WAD](wad/Wad.md) | Williams Accumulation/Distribution | Measures cumulative buying/selling pressure using True Range and volume. |
+| MARKETFI | Market Facilitation Index | (High − Low) / Volume. Measures price efficiency per unit volume. |

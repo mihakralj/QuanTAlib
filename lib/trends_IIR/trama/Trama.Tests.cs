@@ -232,7 +232,6 @@ public class TramaTests
             trama.Update(series[i]);
         }
 
-        var beforeNaN = trama.Last.Value;
         var nanResult = trama.Update(new TValue(DateTime.UtcNow.Ticks, double.NaN));
 
         Assert.True(double.IsFinite(nanResult.Value));
@@ -401,7 +400,10 @@ public class TramaTests
         var source = ReadOnlySpan<double>.Empty;
         var output = Span<double>.Empty;
 
-        Trama.Batch(source, output, DefaultPeriod); // Should not throw
+        Trama.Batch(source, output, DefaultPeriod);
+
+        // If we reach here, no exception was thrown — that IS the assertion
+        Assert.True(true, "Batch with empty spans should not throw");
     }
 
     [Fact]
@@ -496,8 +498,6 @@ public class TramaTests
             trama.Update(new TValue(DateTime.UtcNow.AddMinutes(i).Ticks, 100.0));
         }
 
-        double valueAfterWarmup = trama.Last.Value;
-
         // Now oscillate in a tight range
         for (int i = 0; i < 50; i++)
         {
@@ -538,6 +538,7 @@ public class TramaTests
         trama2.Dispose();
 
         // Should not crash after unsubscribe
-        trama1.Update(new TValue(DateTime.UtcNow.Ticks, 100.0));
+        var result = trama1.Update(new TValue(DateTime.UtcNow.Ticks, 100.0));
+        Assert.True(double.IsFinite(result.Value));
     }
 }

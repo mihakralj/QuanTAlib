@@ -43,8 +43,8 @@ chop(simple int length) =>
     float price_range = hhv - llv
     float chop_value = na
     if win >= 2 and price_range > 0
-        float log_ratio = math.log10(sum_tr / price_range)
-        float log_len = math.log10(win)
+        float log_ratio = math.log(sum_tr / price_range) / math.log(10)
+        float log_len = math.log(win) / math.log(10)
         chop_value := 100.0 * log_ratio / log_len
         chop_value := math.max(0.0, math.min(100.0, chop_value))
     chop_value

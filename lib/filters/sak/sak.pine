@@ -17,7 +17,7 @@ indicator("SAK: Swiss Army Knife Indicator", shorttitle="SAK", overlay=false)
 // @param n SMA lookback length (used only for SMA mode). Must be >= 1.
 // @param delta Bandwidth parameter for BandPass/BandStop modes.
 // @returns The filtered value.
-export sak(series float src, simple string filterType, simple int period, simple int n, simple float delta) =>
+sak(series float src, simple string filterType, simple int period, simple int n, simple float delta) =>
     // ── Compute alpha, beta, gamma from Period and filterType ──
     float alpha = 0.0
     float beta1 = 0.0

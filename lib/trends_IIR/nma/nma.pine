@@ -20,7 +20,7 @@ indicator("NMA - Natural Moving Average", "NMA", overlay=true)
 // @param source Series to smooth
 // @param period Lookback window for volatility analysis (must be > 0)
 // @returns NMA value
-export nma(series float source, simple int period) =>
+nma(series float source, simple int period) =>
     if period <= 0
         runtime.error("Period must be greater than 0")
 
@@ -63,7 +63,7 @@ export nma(series float source, simple int period) =>
 
 // ── Inputs ─────────────────────────────────────────────────────────────
 int i_period  = input.int(40, "Period", minval=1)
-string i_source = input.source(close, "Source")
+float i_source = input.source(close, "Source")
 
 // ── Calculation ────────────────────────────────────────────────────────
 float value = nma(i_source, i_period)

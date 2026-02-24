@@ -16,7 +16,7 @@ indicator("SWMA: Symmetric Weighted Moving Average", shorttitle="SWMA", overlay=
 // @param src Series to smooth.
 // @param period Window length. Must be >= 2.
 // @returns The symmetric weighted moving average value.
-export swma(series float src, simple int period) =>
+swma(series float src, simple int period) =>
     float sumWV = 0.0
     float sumW  = 0.0
     float half  = (period - 1) / 2.0

@@ -15,7 +15,7 @@ indicator("SAM: Smoothed Adaptive Momentum", shorttitle="SAM", overlay=false)
 // @param alpha Smoothing factor for cycle measurement. Default 0.07.
 // @param cutoff Super Smoother cutoff period. Default 8.
 // @returns The smoothed adaptive momentum oscillator value.
-export sam(series float src, simple float alpha, simple int cutoff) =>
+sam(series float src, simple float alpha, simple int cutoff) =>
     // ── 4-bar FIR smoother ──
     float smooth = (src + 2.0 * nz(src[1]) + 2.0 * nz(src[2]) + nz(src[3])) / 6.0
 

@@ -1,9 +1,7 @@
-// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
-// https://mozilla.org/MPL/2.0/
-// © QuanTAlib
-
+// The MIT License (MIT)
+// © mihakralj
 //@version=6
-indicator("Nyquist Moving Average (NYQMA)", "NYQMA", overlay = true)
+indicator("Nyquist Moving Average (NYQMA)", "NYQMA", overlay=true)
 
 //@function Nyquist Moving Average per Dr. Manfred G. Dürschner ("Gleitende Durchschnitte 3.0").
 //          Applies the Nyquist-Shannon sampling theorem to cascaded LWMAs: a single-smoothed
@@ -11,22 +9,76 @@ indicator("Nyquist Moving Average (NYQMA)", "NYQMA", overlay = true)
 //          Formula: NYQMA = (1 + α) · MA1 − α · MA2, where α = N2 / (N1 − N2).
 //          The second LWMA period (N2) must satisfy N2 ≤ floor(N1/2) per Nyquist criterion
 //          to prevent aliasing artifacts ("ghost signals") in the smoothed output.
-//@param src   Source series
-//@param period  Primary LWMA period (N1)
-//@param nyquist_period  Secondary LWMA period (N2), must be ≤ floor(period/2)
-//@returns     Nyquist-compliant lag-compensated moving average
-export nyqma(float src, int period, int nyquist_period) =>
-    int n2 = math.min(nyquist_period, period / 2)
-    float ma1 = ta.wma(src, period)
-    float ma2 = ta.wma(ma1, n2)
-    float alpha = n2 / (period - n2)
+//@param source Series to smooth
+//@param period Primary LWMA period (N1), must be ≥ 3
+//@param nyquist_period Secondary LWMA period (N2), clamped to ≤ floor(N1/2)
+//@returns Nyquist-compliant lag-compensated moving average
+nyqma(series float source, simple int period, simple int nyquist_period) =>
+    if period < 3
+        runtime.error("Period must be at least 3")
+
+    float price = nz(source)
+    int n2 = math.min(math.max(nyquist_period, 1), period / 2)
+
+    // ── MA1: LWMA(source, period) with O(1) circular buffer ──
+    var array<float> buf1 = array.new_float(period, na)
+    var int head1 = 0
+    var float sum1 = 0.0
+    var float wsum1 = 0.0
+    var int cnt1 = 0
+
+    float oldest1 = array.get(buf1, head1)
+    if not na(oldest1)
+        float old_sum1 = sum1
+        sum1 -= oldest1
+        sum1 += price
+        wsum1 := wsum1 - old_sum1 + period * price
+    else
+        cnt1 += 1
+        sum1 += price
+        wsum1 := wsum1 + cnt1 * price
+
+    array.set(buf1, head1, price)
+    head1 := (head1 + 1) % period
+
+    int p1 = math.min(cnt1, period)
+    float norm1 = p1 * (p1 + 1) * 0.5
+    float ma1 = wsum1 / norm1
+
+    // ── MA2: LWMA(MA1, n2) with O(1) circular buffer ──
+    var array<float> buf2 = array.new_float(n2, na)
+    var int head2 = 0
+    var float sum2 = 0.0
+    var float wsum2 = 0.0
+    var int cnt2 = 0
+
+    float oldest2 = array.get(buf2, head2)
+    if not na(oldest2)
+        float old_sum2 = sum2
+        sum2 -= oldest2
+        sum2 += ma1
+        wsum2 := wsum2 - old_sum2 + n2 * ma1
+    else
+        cnt2 += 1
+        sum2 += ma1
+        wsum2 := wsum2 + cnt2 * ma1
+
+    array.set(buf2, head2, ma1)
+    head2 := (head2 + 1) % n2
+
+    int p2 = math.min(cnt2, n2)
+    float norm2 = p2 * (p2 + 1) * 0.5
+    float ma2 = wsum2 / norm2
+
+    // ── Lag-compensating extrapolation ──
+    float alpha = float(n2) / float(period - n2)
     float result = (1.0 + alpha) * ma1 - alpha * ma2
     result
 
 // ── Inputs ──
-int    p_period  = input.int(89, "Period (N1)", minval = 2)
-int    p_nyquist = input.int(21, "Nyquist Period (N2)", minval = 1)
-float  p_src     = input.source(close, "Source")
+int   p_period  = input.int(89, "Period (N1)", minval=3)
+int   p_nyquist = input.int(21, "Nyquist Period (N2)", minval=1)
+float p_src     = input.source(close, "Source")
 
 // ── Calculation ──
 float out = nyqma(p_src, p_period, p_nyquist)

@@ -186,8 +186,7 @@ Ensures equal percentage risk per position regardless of asset price.
 ## Related Indicators
 
 - **ATR**: Absolute volatility measure NATR normalizes
-- **ATRP**: Mathematically identical; different naming convention
-- **ATRN**: ATR normalized to [0,1] based on historical min/max
+- **ATRN**: ATR normalized to [0,1] based on historical min/max (different algorithm)
 - **CV**: Coefficient of Variation—alternative percentage volatility measure
 - **HV**: Historical Volatility—annualized standard deviation approach
 

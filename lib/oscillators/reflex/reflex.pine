@@ -18,7 +18,7 @@ indicator("Ehlers Reflex Indicator (REFLEX)", "REFLEX", overlay = false)
 //@reference Ehlers, J.F. (2020). "Reflex: A New Zero-Lag Indicator."
 //           Technical Analysis of Stocks & Commodities, Feb 2020.
 //@optimized O(period) per bar for the summation loop; SSF is O(1) IIR
-export reflex(series float source, simple int period) =>
+reflex(series float source, simple int period) =>
     if period < 2
         runtime.error("Period must be at least 2")
 

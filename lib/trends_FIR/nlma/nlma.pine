@@ -3,47 +3,80 @@
 //@version=6
 indicator("Non-Lag Moving Average (NLMA)", "NLMA", overlay=true)
 
-//@function Calculates NLMA using damped cosine (fading sinusoid) FIR kernel
+//@function Calculates NLMA using the original Igorad (TrendLaboratory) kernel
 //@param source Series to calculate NLMA from
-//@param period Lookback period - defines the cycle length of the cosine kernel
-//@returns NLMA value, calculates from first bar using available data
-//@description NonLagMA by Igorad (TrendLaboratory). Uses a damped cosine kernel
-//  (fading sinusoid) derived from FATL/SATL digital filter coefficient analysis.
-//  The cosine creates negative weights that subtract lagged price components,
-//  reducing lag while maintaining smoothness. Weight formula:
-//    w[i] = cos(2*PI*i / cycle) * (1 - i/cycle)
-//  where cycle = period, creating one full cosine oscillation with linear decay.
-//  Negative weights in the mid-section cancel lag (analogous to DEMA's 2*EMA-EMA2).
-//  Normalization by signed weight sum preserves DC gain = 1.
+//@param period Length parameter (conceptual averaging period)
+//@returns NLMA value, returns price during warmup
+//@description NonLagMA by Igorad (TrendLaboratory). Original two-phase kernel:
+//  Phase 1 (focus zone, i=0..Length-2): t = i/(Length-2), beta=cos(pi*t), g=1 for t<=0.5 else 1/(Coeff*t+1)
+//  Phase 2 (cycle zone, i=Length-1..Len-2): oscillating cosine with 1/(Coeff*t+1) decay
+//  Coeff = 3*pi. Kernel length Len = 4*Length + (Length-1) = 5*Length-1.
+//  alfa[i] = g * beta. Normalized by signed sum preserves DC gain = 1.
 nlma(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    int p = math.min(bar_index + 1, period)
-    var int prev_p = 0
-    var array<float> cos_weights = array.new_float(period, 0.0)
-    // Recompute weights when effective period changes (warmup)
-    if p != prev_p
-        cos_weights := array.new_float(p, 0.0)
-        for j = 0 to p - 1
-            // Damped cosine: cosine oscillation × linear decay envelope
-            float angle = 2.0 * math.pi * j / p
-            float decay = 1.0 - float(j) / float(p)
-            array.set(cos_weights, j, math.cos(angle) * decay)
-        prev_p := p
-    float sum_wv = 0.0
-    float sum_w = 0.0
-    for i = 0 to p - 1
-        float price = source[i]
-        if not na(price)
-            float w = array.get(cos_weights, i)
-            sum_wv += price * w
-            sum_w += w
-    nz(sum_wv / sum_w, source)
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // Original Igorad parameters
+    int phase = period - 1           // Phase zone length
+    int cycle = 4                     // Default cycle parameter
+    int flen = period * 4 + phase     // Full kernel length = 5*period - 1
+
+    // --- Circular buffer for rolling window ---
+    var array<float> buffer = array.new_float(flen, na)
+    var int head = 0
+    array.set(buffer, head, price)
+    head := (head + 1) % flen
+
+    // --- Precompute Igorad kernel weights once ---
+    var array<float> weights = array.new_float(0)
+    var float weightSum = 0.0
+    if barstate.isfirst
+        float coeff = 3.0 * math.pi
+        float wsum = 0.0
+
+        for i = 0 to flen - 2
+            float t = 0.0
+            if i <= phase - 1
+                // Phase zone: t ramps from 0 to 1
+                t := phase > 1 ? float(i) / float(phase - 1) : 0.0
+            else
+                // Cycle zone: t continues from 1 upward
+                float numer = float(i - phase + 1) * float(2 * cycle - 1)
+                float denom = float(cycle * period - 1)
+                t := 1.0 + (denom > 0 ? numer / denom : 0.0)
+
+            float beta = math.cos(math.pi * t)
+            float g = t <= 0.5 ? 1.0 : 1.0 / (coeff * t + 1.0)
+            float w = g * beta
+            array.push(weights, w)
+            wsum += w
+
+        // Last tap (i = flen-1) has weight 0 (original loop goes to Len-2)
+        array.push(weights, 0.0)
+        weightSum := wsum
+
+    int count = math.min(bar_index + 1, flen)
+    if count < flen
+        price
+    else
+        // --- Convolution via circular buffer ---
+        // head = next write = oldest | weights[0] maps to oldest bar
+        // Original MQL4: alfa[0] = newest price, alfa[Len-1] = oldest
+        // Our buffer: (head+0) = oldest, (head+flen-1) = newest
+        // So we need to reverse: oldest bar × weights[flen-1], newest bar × weights[0]
+        float nlma_sum = 0.0
+        for j = 0 to flen - 1
+            int idx = (head + j) % flen
+            float val = nz(array.get(buffer, idx))
+            nlma_sum += val * array.get(weights, flen - 1 - j)
+        math.abs(weightSum) > 1e-15 ? nlma_sum / weightSum : price
 
 // ---------- Main loop ----------
 
 // Inputs
-i_period = input.int(14, "Period", minval=1)
+i_period = input.int(14, "Period", minval=2)
 i_source = input.source(close, "Source")
 
 // Calculation

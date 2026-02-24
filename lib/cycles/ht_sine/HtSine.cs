@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// HT_SINE: Hilbert Transform - SineWave indicator that uses the Hilbert Transform
-/// to compute the sine of the dominant cycle phase. Returns both Sine and LeadSine
-/// (45° phase lead) for cycle timing.
+/// HT_SINE: Hilbert Transform - SineWave (also known as SINE) indicator that uses
+/// the Hilbert Transform to compute the sine of the dominant cycle phase. Returns
+/// both Sine and LeadSine (45° phase lead) for cycle timing.
 /// </summary>
 /// <remarks>
 /// The Hilbert Transform SineWave indicator identifies the dominant market cycle

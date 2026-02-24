@@ -1,0 +1,75 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("Time Series Forecast (TSF)", "TSF", overlay = true)
+
+//@function Time Series Forecast — fits a least-squares regression line to the
+//          lookback window and projects it one bar forward. Mathematically
+//          identical to LSMA(offset=1): TSF = intercept + slope, where
+//          intercept is the regression endpoint at the newest bar and slope
+//          is the per-bar rate of change. Uses reversed-x convention where
+//          x=0 is the newest bar.
+//@param source Series to forecast
+//@param period Lookback window (>= 2)
+//@returns Regression value projected one step ahead of the current bar
+//@reference Chande, T. (1994). The New Technical Trader. Wiley.
+//@reference TA-Lib: TA_TSF function
+//@optimized O(period) per bar via circular buffer; same linear regression as LSMA
+tsf(series float source, simple int period) =>
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+        source
+    else
+        int p = math.min(bar_index + 1, period)
+        if p <= 1
+            source
+        else
+            var array<float> buffer = array.new_float(period, na)
+            var int head = 0
+            array.set(buffer, head, source)
+            head := (head + 1) % period
+
+            float sum_y = 0.0
+            float sum_xy = 0.0
+            float sum_x = 0.0
+            float sum_x2 = 0.0
+            float count = 0.0
+
+            // Walk buffer: x=0 is newest, x increases going back
+            int idx = (head - 1 + period) % period
+            for i = 0 to p - 1
+                float val = array.get(buffer, idx)
+                if not na(val)
+                    sum_x += i
+                    sum_y += val
+                    sum_xy += i * val
+                    sum_x2 += i * i
+                    count += 1.0
+                idx := (idx - 1 + period) % period
+
+            if count <= 1.0
+                source
+            else
+                float denom = count * sum_x2 - sum_x * sum_x
+                if denom == 0.0
+                    source
+                else
+                    // slope: positive when price is falling (x=0=newest, higher x=older)
+                    float slope = (count * sum_xy - sum_x * sum_y) / denom
+                    float intercept = (sum_y - slope * sum_x) / count
+
+                    // LSMA = intercept (value at x=0, current bar)
+                    // TSF  = intercept - slope (project one step forward: x=-1)
+                    intercept - slope
+
+// ── Inputs ──
+int   p_period = input.int(14, "Period", minval = 2)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = tsf(p_src, p_period)
+
+// ── Plot ──
+plot(out, "TSF", color.yellow, 2)

@@ -29,6 +29,7 @@ public sealed class Yzvama : AbstractBase
         int SourceValidCount,
         int YzvHead,
         int YzvCount,
+        double SmoothedPercentile,
         bool IsInitialized)
     {
         public static YzvamaState New() => new()
@@ -41,6 +42,7 @@ public sealed class Yzvama : AbstractBase
             SourceValidCount = 0,
             YzvHead = 0,
             YzvCount = 0,
+            SmoothedPercentile = 50.0,
             IsInitialized = false
         };
     }
@@ -55,6 +57,8 @@ public sealed class Yzvama : AbstractBase
     private readonly double _longDecay;
     private readonly double _kShort;
     private readonly double _kLong;
+    private readonly double _pctAlpha;
+    private readonly double _pctDecay;
 
     private YzvamaState _state;
     private YzvamaState _p_state;
@@ -125,6 +129,8 @@ public sealed class Yzvama : AbstractBase
 
         _kShort = ComputeYangZhangK(yzvShortPeriod);
         _kLong = ComputeYangZhangK(yzvLongPeriod);
+        _pctAlpha = 2.0 / (percentileLookback + 1.0);
+        _pctDecay = 1.0 - _pctAlpha;
 
         // Dual buffers for pointer-swap on state transitions
         _activeSourceBuffer = new double[maxLength];
@@ -361,9 +367,12 @@ public sealed class Yzvama : AbstractBase
             percentileValue = (rankPos / (double)(yzvCount - 1)) * 100.0;
         }
 
+        // EMA-smooth the percentile to prevent wild adjusted_length swings (matches Pine)
+        double smoothedPct = Math.FusedMultiplyAdd(_state.SmoothedPercentile, _pctDecay, _pctAlpha * percentileValue);
+
         double lengthRange = _maxLength - _minLength;
-        // Use FMA for adjustedLengthF: _maxLength - (percentileValue/100.0)*lengthRange
-        double adjustedLengthF = Math.FusedMultiplyAdd(percentileValue / 100.0, -lengthRange, _maxLength);
+        // Use FMA for adjustedLengthF: _maxLength - (smoothedPct/100.0)*lengthRange
+        double adjustedLengthF = Math.FusedMultiplyAdd(smoothedPct / 100.0, -lengthRange, _maxLength);
         int adjustedLength = (int)Math.Max(_minLength, Math.Min(_maxLength, adjustedLengthF));
 
         // Update source circular buffer and rolling sum
@@ -420,6 +429,7 @@ public sealed class Yzvama : AbstractBase
             validCount,
             yzvHead,
             yzvCount,
+            smoothedPct,
             IsInitialized: true);
 
         Last = new TValue(input.Time, result);

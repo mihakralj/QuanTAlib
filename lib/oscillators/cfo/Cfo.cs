@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// CFO: Chande Forecast Oscillator
+/// CFO: Chande Forecast Oscillator (also known as FOSC)
 /// </summary>
 /// <remarks>
 /// Measures the percentage difference between the current price and the

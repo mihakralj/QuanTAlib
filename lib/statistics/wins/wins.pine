@@ -15,7 +15,7 @@ indicator("WINS: Winsorized Mean Moving Average", shorttitle="WINS", overlay=tru
 // @param period Window length. Must be >= 3.
 // @param winPct Percentage of values to winsorize from each tail (0-49). Default 10.
 // @returns The winsorized mean value.
-export wins(series float src, simple int period, simple int winPct) =>
+wins(series float src, simple int period, simple int winPct) =>
     // Number of values to winsorize from each end
     int winCount = math.max(int(period * winPct / 100.0), 0)
     if winCount >= period / 2

@@ -111,5 +111,5 @@ i_source    = input.source(close, "Source")
 wav_val = wavelet(i_source, i_levels, i_threshold)
 
 // Plot
-plot(wav_val, "Wavelet", color=color.new(color.purple, 0), linewidth=2)
-plot(i_source, "Source", color=color.new(color.gray, 60), linewidth=1)
+plot(wav_val, "Wavelet", color=color.new(color.yellow, 0), linewidth=2)
+

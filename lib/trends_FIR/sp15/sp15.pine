@@ -14,7 +14,7 @@ indicator("SP15: Spencer 15-Point Moving Average", shorttitle="SP15", overlay=tr
 //   Centered at lag 7 bars.
 // @param src Series to smooth.
 // @returns The Spencer 15-point weighted average.
-export sp15(series float src) =>
+sp15(series float src) =>
     // Spencer 15-point weights (symmetric, sum = 320)
     float w0  = -3.0
     float w1  = -6.0

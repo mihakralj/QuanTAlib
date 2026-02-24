@@ -16,7 +16,7 @@ indicator("TRAMA: Trend Regularity Adaptive Moving Average", shorttitle="TRAMA",
 // @param src Series to smooth.
 // @param length Lookback period. Must be >= 1.
 // @returns The trend regularity adaptive moving average value.
-export trama(series float src, simple int length) =>
+trama(series float src, simple int length) =>
     float ama = 0.0
     // Detect new highest-high: sign of change in rolling highest
     float hh = math.max(math.sign(ta.change(ta.highest(length))), 0.0)

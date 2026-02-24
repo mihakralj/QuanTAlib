@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// HTIT: Hilbert Transform Instantaneous Trendline
+/// HTIT: Hilbert Transform Instantaneous Trendline (also known as HT_TRENDLINE)
 /// </summary>
 /// <remarks>
 /// Ehlers' adaptive trendline using Hilbert Transform cycle measurement.

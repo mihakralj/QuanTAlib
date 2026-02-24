@@ -3,6 +3,16 @@
 //@version=6
 indicator("Kaiser Window Moving Average (KAISER)", "KAISER", overlay=true)
 
+//@function I0 approximation (modified Bessel, first kind, order 0) via 25-term power series.
+bessel_i0(float x) =>
+    float sum = 1.0
+    float term = 1.0
+    float half_x = x / 2.0
+    for m = 1 to 25
+        term *= (half_x / m)
+        sum += term * term
+    sum
+
 //@function Computes Kaiser Window Moving Average — a symmetric FIR filter using the
 //          Kaiser-Bessel window function for optimal sidelobe attenuation. The beta
 //          parameter controls the trade-off between main lobe width and sidelobe level.
@@ -29,20 +39,8 @@ kaiser(series float source, simple int period, simple float beta = 3.0) =>
 
     // --- Precompute Kaiser window weights once ---
     // Kaiser window: w(k) = I0(beta * sqrt(1 - ((2k/(N-1)) - 1)^2)) / I0(beta)
-    // I0(x) = modified Bessel function of the first kind, order 0
-    // Approximated via power series: I0(x) = sum_{m=0}^{M} [(x/2)^m / m!]^2
     var array<float> weights = array.new_float(0)
     if barstate.isfirst
-        // I0 approximation via power series (25 terms — sufficient for double precision)
-        bessel_i0(float x) =>
-            float sum = 1.0
-            float term = 1.0
-            float half_x = x / 2.0
-            for m = 1 to 25
-                term *= (half_x / m)
-                sum += term * term
-            sum
-
         float i0_beta = bessel_i0(beta)
         float N = period - 1
 

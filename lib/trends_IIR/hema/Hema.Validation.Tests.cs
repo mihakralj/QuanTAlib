@@ -57,15 +57,13 @@ public class HemaValidationTests
 
     private static void ReferenceHema(ReadOnlySpan<double> source, Span<double> output, int period)
     {
-        double n = Math.Max(period, 2);
+        int n = Math.Max(period, 2);
+        int halfN = n / 2;                        // integer floor, same as HMA
+        int sqrtN = Math.Max((int)Math.Sqrt(n), 1); // integer floor, same as HMA
 
-        double hlSlow = n;
-        double hlFast = Math.Max(1.0, n * 0.5);
-        double hlSmooth = Math.Max(1.0, Math.Sqrt(n));
-
-        double aS = AlphaFromHalfLife(hlSlow);
-        double aF = AlphaFromHalfLife(hlFast);
-        double aM = AlphaFromHalfLife(hlSmooth);
+        double aS = AlphaFromWmaLag(n);
+        double aF = AlphaFromWmaLag(Math.Max(halfN, 1));
+        double aM = AlphaFromWmaLag(Math.Max(sqrtN, 1));
 
         double bS = 1.0 - aS;
         double bF = 1.0 - aF;
@@ -104,8 +102,8 @@ public class HemaValidationTests
                 continue;
             }
 
-            eSraw = aS * (val - eSraw) + eSraw;
-            eFraw = aF * (val - eFraw) + eFraw;
+            eSraw = Math.FusedMultiplyAdd(eSraw, bS, aS * val);
+            eFraw = Math.FusedMultiplyAdd(eFraw, bF, aF * val);
 
             if (warmup)
             {
@@ -119,9 +117,9 @@ public class HemaValidationTests
 
                 double eS = eSraw * invS;
                 double eF = eFraw * invF;
-                double deLag = (eF - ratio * eS) * invOneMinusRatio;
+                double deLag = Math.FusedMultiplyAdd(-ratio, eS, eF) * invOneMinusRatio;
 
-                eMraw = aM * (deLag - eMraw) + eMraw;
+                eMraw = Math.FusedMultiplyAdd(eMraw, bM, aM * deLag);
                 output[i] = eMraw * invM;
 
                 double maxDecay = Math.Max(decayS, Math.Max(decayF, decayM));
@@ -129,30 +127,18 @@ public class HemaValidationTests
             }
             else
             {
-                double deLag = (eFraw - ratio * eSraw) * invOneMinusRatio;
-                eMraw = aM * (deLag - eMraw) + eMraw;
+                double deLag = Math.FusedMultiplyAdd(-ratio, eSraw, eFraw) * invOneMinusRatio;
+                eMraw = Math.FusedMultiplyAdd(eMraw, bM, aM * deLag);
                 output[i] = eMraw;
             }
         }
     }
 
-    private static double AlphaFromHalfLife(double halfLife)
+    private static double AlphaFromWmaLag(int p)
     {
-        double hl = Math.Max(1.0, halfLife);
-        double x = -0.693147180559945309417232121458176568 / hl;
-        return -Expm1(x);
-    }
-
-    private static double Expm1(double x)
-    {
-        double ax = Math.Abs(x);
-        if (ax < 1e-5)
-        {
-            double x2 = x * x;
-            return x + (x2 * 0.5) + (x2 * x * (1.0 / 6.0));
-        }
-
-        return Math.Exp(x) - 1.0;
+        // WMA-lag-matched alpha: EMA lag = (1-α)/α = (P-1)/3
+        // Solving: α = 3/(P+2)
+        return 3.0 / (Math.Max(p, 1) + 2.0);
     }
 
     private static TSeries BuildSeries(int count, int seed)

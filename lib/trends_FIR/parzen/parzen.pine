@@ -17,7 +17,7 @@ indicator("Parzen Window Moving Average (PARZEN)", "PARZEN", overlay=true)
 //@reference Parzen, E. (1961). "Mathematical Considerations in the Estimation of Spectra."
 //           Technometrics, 3(2), 167–190.
 //@optimized O(period) per bar for convolution; weights precomputed once
-export parzen(series float source, simple int period) =>
+parzen(series float source, simple int period) =>
     if period < 2
         runtime.error("Period must be at least 2")
 

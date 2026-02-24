@@ -18,11 +18,12 @@ Finite Impulse Response (FIR) trend indicators. These use fixed-length windows w
 | [HANMA](hanma/Hanma.md) | Hanning MA | Hanning (raised cosine). Zero at edges. Smooth roll-off. |
 | [HMA](hma/Hma.md) | Hull MA | Reduced lag via weighted average differencing. Can overshoot. |
 | [LSMA](lsma/Lsma.md) | Least Squares MA | Linear regression endpoint. Extrapolates trend. |
+| [FWMA](fwma/Fwma.md) | Fibonacci Weighted MA | Fibonacci-number kernel convolution. Golden ratio weighting. |
 | [NLMA](nlma/Nlma.md) | Non-Lag MA | Damped cosine kernel convolution. Near-zero lag FIR. |
-| [NYQMA](nyqma/Nyqma.md) | Nyquist MA | Dual LWMA cascade. Nyquist-compliant FIR smoothing. |
+| NYQMA | Nyquist MA | Dual LWMA cascade. Nyquist-compliant FIR smoothing. |
 | [PMA](pma/Pma.md) | Predictive Moving Average | Ehlers predictive filter combining WMA cascade with linear extrapolation. |
 | [PWMA](pwma/Pwma.md) | Pascal Weighted MA | Pascal's triangle coefficients. Binomial distribution weights. |
-| [RAIN](rain/Rain.md) | Rainbow MA | 10× cascaded SMA. Extreme smoothing via FIR convolution. |
+| RAIN | Rainbow MA | 10× cascaded SMA. Extreme smoothing via FIR convolution. |
 | [SGMA](sgma/Sgma.md) | Savitzky-Golay MA | Polynomial fit. Preserves higher moments. Shape-preserving. |
 | [SINEMA](sinema/Sinema.md) | Sine-Weighted MA | Sine wave weighting. Smooth bell-shaped emphasis. |
 | [SMA](sma/Sma.md) | Simple MA | Equal weights. Baseline reference. Lag = (N-1)/2. |

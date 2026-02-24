@@ -8,7 +8,7 @@ While ATR tells you *how much* an asset moves, ATRN tells you *how unusual* that
 
 ## Historical Context
 
-ATRN is a practical extension of Wilder's ATR, developed to solve the **context problem** in volatility analysis. Raw ATR values are meaningless in isolation—you need to compare them to something. Some traders compare ATR to price (ATRP/NATR), which gives a percentage. ATRN takes a different approach: it compares ATR to its own recent range.
+ATRN is a practical extension of Wilder's ATR, developed to solve the **context problem** in volatility analysis. Raw ATR values are meaningless in isolation—you need to compare them to something. Some traders compare ATR to price (NATR), which gives a percentage. ATRN takes a different approach: it compares ATR to its own recent range.
 
 This normalization approach is common in machine learning and signal processing, where inputs are scaled to [0,1] for better model performance. ATRN applies the same principle to volatility measurement.
 

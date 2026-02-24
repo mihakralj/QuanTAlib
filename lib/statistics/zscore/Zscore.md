@@ -1,10 +1,10 @@
-# ZSCORE: Z-Score (Population Standard Score)
+# ZSCORE: Z-Score (Population Standard Score, also known as STANDARDIZE)
 
 > "How far from normal is this?" — Every risk manager, every day.
 
 ## Introduction
 
-The Z-Score measures how many population standard deviations a value lies from the rolling mean over a lookback window. Unlike the related Standardize indicator (which uses sample standard deviation with Bessel's correction), ZSCORE uses population standard deviation, matching the PineScript `ta.zscore` convention. Output is unbounded, typically ranging from -3 to +3 for normally distributed data. A z-score of 0 means the value equals the window mean; ±2 flags statistical outliers at the 95% level.
+The Z-Score measures how many population standard deviations a value lies from the rolling mean over a lookback window. ZSCORE is the canonical implementation for z-score standardization in QuanTAlib (the former Standardize indicator, which used sample standard deviation with N-1, has been consolidated into this indicator). ZSCORE uses population standard deviation, matching the PineScript `ta.zscore` convention. Output is unbounded, typically ranging from -3 to +3 for normally distributed data. A z-score of 0 means the value equals the window mean; ±2 flags statistical outliers at the 95% level.
 
 ## Historical Context
 
@@ -43,7 +43,7 @@ This avoids a two-pass algorithm. One pass computes both $\sum x_i$ and $\sum x_
 | Variant | Denominator | Use Case |
 |---------|-------------|----------|
 | ZSCORE (this) | $N$ | Rolling window IS the population |
-| Standardize | $N - 1$ | Window is sample from larger population |
+| Standardize (removed, consolidated into ZSCORE) | $N - 1$ | Window is sample from larger population |
 
 Relationship: $z_{\text{pop}} = z_{\text{sample}} \cdot \sqrt{\frac{N}{N-1}}$
 
@@ -104,12 +104,12 @@ Z-scores are invariant under positive linear transformations. This property make
 | Library | Status | Notes |
 |---------|--------|-------|
 | Manual | Verified | Known-value tests match hand computation |
-| Standardize | Cross-validated | $z_{\text{pop}} = z_{\text{sample}} \cdot \sqrt{N/(N-1)}$ holds |
+| Standardize (consolidated) | Cross-validated | $z_{\text{pop}} = z_{\text{sample}} \cdot \sqrt{N/(N-1)}$ holds |
 | PineScript | Formula match | Population stddev, same edge-case handling |
 
 ## Common Pitfalls
 
-1. **Population vs sample confusion.** ZSCORE uses N denominator. Standardize uses N-1. The difference matters for small windows: at period=5, the ratio is $\sqrt{5/4} = 1.118$, an 11.8% discrepancy.
+1. **Population vs sample confusion.** ZSCORE uses N denominator. The former Standardize indicator (now consolidated into ZSCORE) used N-1. The difference matters for small windows: at period=5, the ratio is $\sqrt{5/4} = 1.118$, an 11.8% discrepancy.
 
 2. **Assuming normality.** Z-scores measure distance in sigma units but don't guarantee the underlying distribution is normal. Fat-tailed financial returns make |z| > 3 more common than the 0.3% a normal distribution predicts.
 

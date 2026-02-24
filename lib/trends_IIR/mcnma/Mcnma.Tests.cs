@@ -5,12 +5,15 @@ public class McnmaTests
     [Fact]
     public void Mcnma_Matches_ManualCalculation()
     {
-        // MCNMA = 2*TEMA(src,N) - TEMA(TEMA(src,N),N)
+        // Manual 6-EMA with first-value seeding (matches Pine exactly)
         const int period = 10;
+        double alpha = 2.0 / (period + 1);
+        double decay = 1.0 - alpha;
         var mcnma = new Mcnma(period);
-        var tema1 = new Tema(period);
-        var tema2 = new Tema(period);
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+
+        double e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0, e6 = 0;
+        bool init = false;
 
         for (int i = 0; i < 100; i++)
         {
@@ -19,10 +22,26 @@ public class McnmaTests
 
             var mVal = mcnma.Update(tVal);
 
-            var t1Val = tema1.Update(tVal);
-            var t2Val = tema2.Update(t1Val);
-            double expected = 2.0 * t1Val.Value - t2Val.Value;
+            double val = tVal.Value;
+            if (!init)
+            {
+                e1 = e2 = e3 = e4 = e5 = e6 = val;
+                init = true;
+                Assert.Equal(val, mVal.Value, 1e-9);
+                continue;
+            }
 
+            e1 = Math.FusedMultiplyAdd(e1, decay, alpha * val);
+            e2 = Math.FusedMultiplyAdd(e2, decay, alpha * e1);
+            e3 = Math.FusedMultiplyAdd(e3, decay, alpha * e2);
+            double tema1 = 3.0 * e1 - 3.0 * e2 + e3;
+
+            e4 = Math.FusedMultiplyAdd(e4, decay, alpha * tema1);
+            e5 = Math.FusedMultiplyAdd(e5, decay, alpha * e4);
+            e6 = Math.FusedMultiplyAdd(e6, decay, alpha * e5);
+            double tema2 = 3.0 * e4 - 3.0 * e5 + e6;
+
+            double expected = 2.0 * tema1 - tema2;
             Assert.Equal(expected, mVal.Value, 1e-9);
         }
     }

@@ -1,0 +1,13 @@
+// WCLPRICE: Weighted Close Price
+// (High + Low + 2 * Close) / 4
+// TA-Lib compatible — equivalent to TBar.HLCC4
+
+//@version=6
+indicator("WCLPRICE: Weighted Close Price", overlay=true)
+
+wclprice(float h, float l, float c) =>
+    (h + l + 2.0 * c) * 0.25
+
+result = wclprice(high, low, close)
+
+plot(result, "WclPrice", color.new(color.red, 0), 2)

@@ -18,7 +18,7 @@ indicator("Rainbow Moving Average (RAIN)", "RAIN", overlay = true)
 //@reference Widner, M. (1998). "Rainbow Charts." Technical Analysis of Stocks & Commodities.
 //@reference thinkorswim RainbowAverage study documentation.
 //@optimized O(10 × period) per bar; each SMA uses circular buffer with O(1) running sum
-export rain(series float source, simple int period) =>
+rain(series float source, simple int period) =>
     if period < 1
         runtime.error("Period must be at least 1")
 

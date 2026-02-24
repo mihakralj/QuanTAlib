@@ -1,0 +1,17 @@
+// MIDPOINT: Rolling Midpoint
+// (Highest(source, N) + Lowest(source, N)) / 2
+// TA-Lib compatible — rolling center of value range
+
+//@version=6
+indicator("MIDPOINT: Rolling Midpoint", overlay=true)
+
+int p = input.int(14, "Period", minval=1)
+
+midpoint(series float src, int period) =>
+    float hi = ta.highest(src, period)
+    float lo = ta.lowest(src, period)
+    (hi + lo) * 0.5
+
+result = midpoint(close, p)
+
+plot(result, "Midpoint", color.new(color.teal, 0), 2)

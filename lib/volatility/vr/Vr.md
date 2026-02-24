@@ -240,7 +240,7 @@ Trend following: Best when VR 1.0-1.5 (movement with stability)
 | **Bollinger Width** | Both measure volatility; VR uses TR, BB uses std dev |
 | **Keltner Width** | KC uses ATR; VR provides ratio view of same data |
 | **ADX** | ADX measures trend strength; VR measures volatility expansion |
-| **ATRP** | ATRP = ATR/Close×100; VR = TR/ATR |
+| **NATR** | NATR = ATR/Close×100; VR = TR/ATR |
 
 ## Implementation Notes
 

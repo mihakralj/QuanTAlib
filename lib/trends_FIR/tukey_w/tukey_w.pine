@@ -19,7 +19,7 @@ indicator("TUKEY_W: Tukey (Tapered Cosine) Window MA", shorttitle="TUKEY_W", ove
 // @param period Window length. Must be >= 2.
 // @param alpha Taper fraction (0 = rectangular, 1 = Hann). Default 0.5.
 // @returns The Tukey window weighted average.
-export tukey_w(series float src, simple int period, simple float alpha) =>
+tukey_w(series float src, simple int period, simple float alpha) =>
     float sumWV = 0.0
     float sumW  = 0.0
     int N = period - 1
