@@ -63,6 +63,18 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Bessel Filter** | [Bessel](../lib/filters/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | [Bwma](../lib/trends_FIR/bwma/Bwma.md) | - | - | - | - |
 | **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | ❔ | - | ✔️ | - |
+| **Beta Distribution** | [Betadist](../lib/numerics/betadist/Betadist.md) | - | - | - | - |
+| **Binomial Distribution** | [Binomdist](../lib/numerics/binomdist/Binomdist.md) | - | - | - | - |
+| **Exponential Distribution** | [Expdist](../lib/numerics/expdist/Expdist.md) | - | - | - | - |
+| **F-Distribution** | [Fdist](../lib/numerics/fdist/Fdist.md) | - | - | - | - |
+| **Gamma Distribution** | [Gammadist](../lib/numerics/gammadist/Gammadist.md) | - | - | - | - |
+| **Log-Normal Distribution** | [Lognormdist](../lib/numerics/lognormdist/Lognormdist.md) | - | - | - | - |
+| **Normal Distribution** | [Normdist](../lib/numerics/normdist/Normdist.md) | - | - | - | - |
+| **Poisson Distribution** | [Poissondist](../lib/numerics/poissondist/Poissondist.md) | - | - | - | - |
+| **Student's t-Distribution** | [Tdist](../lib/numerics/tdist/Tdist.md) | - | - | - | - |
+| **Weibull Distribution** | [Weibulldist](../lib/numerics/weibulldist/Weibulldist.md) | - | - | - | - |
+| **Continuous Wavelet Transform** | [Cwt](../lib/numerics/cwt/Cwt.md) | - | - | - | - |
+| **Discrete Wavelet Transform** | [Dwt](../lib/numerics/dwt/Dwt.md) | - | - | - | - |
 | **Bias** | [Bias](../lib/momentum/bias/Bias.md) | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/filters/bilateral/Bilateral.md) | - | - | - | - |
 | **Blackman Window MA** | [Blma](../lib/trends_FIR/blma/Blma.md) | - | - | - | - |
@@ -125,12 +137,15 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Exponential Moving Average** | [Ema](../lib/trends_IIR/ema/Ema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Exponential Transformation** | Exptrans | - | - | - | - |
 | **Exponential Weighted MA Volatility** | [Ewma](../lib/volatility/ewma/Ewma.md) | - | - | - | ❔ |
+| **Elder's Thermometer** | [Etherm](../lib/volatility/etherm/Etherm.md) | - | - | - | - |
 | **Extended Traditional Pivots** | [Pivotext](../lib/reversals/pivotext/Pivotext.md) | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
 | **Ehlers Fisher Transform** | [Fisher](../lib/oscillators/fisher/Fisher.md) | - | ❔ | ❔ | ❔ |
 | **Force Index** | [Efi](../lib/volume/efi/Efi.md) | - | - | ✔️ | ✔️ |
 | **Fractal Chaos Bands** | [Fcb](../lib/channels/fcb/fcb.md) | - | - | ✔️ | ❔ |
 | **Garman-Klass Volatility** | [Gkv](../lib/volatility/gkv/Gkv.md) | - | - | - | - |
+| **Gator Oscillator** | [Gator](../lib/oscillators/gator/Gator.md) | - | - | - | - |
+| **Gann High-Low Activator** | [Ghla](../lib/dynamics/ghla/Ghla.md) | - | - | - | - |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
 | **Geometric Mean** | [Geomean](../lib/statistics/geomean/Geomean.md) | - | - | - | - |
@@ -227,6 +242,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Percentage Price Oscillator** | Ppo | ✔️ | ✔️ | - | ✔️ |
 | **Percentage Volume Oscillator** | [Pvo](../lib/volume/pvo/Pvo.md) | - | - | - | ❔ |
 | **Percentile** | Percentile | - | - | - | - |
+| **Polarized Fractal Efficiency** | [Pfe](../lib/dynamics/pfe/Pfe.md) | - | - | - | - |
 | **Pivot Points** | [Pivot](../lib/reversals/pivot/Pivot.md) | - | - | - | ❔ |
 | **Pivot Points (Camarilla)** | [Pivotcam](../lib/reversals/pivotcam/Pivotcam.md) | - | - | - | ❔ |
 | **Pivot Points (DeMark)** | [Pivotdem](../lib/reversals/pivotdem/Pivotdem.md) | - | - | - | ❔ |
@@ -243,6 +259,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Qstick Indicator** | Qstick | - | - | - | ❔ |
 | **Quad Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | - |
 | **Quantile** | Quantile | - | - | - | - |
+| **Range Action Verification Index** | [Ravi](../lib/dynamics/ravi/Ravi.md) | - | - | - | - |
 | **Rate of acceleration; 3rd derivative** | [Jerk](../lib/numerics/jerk/Jerk.md) | - | - | - | - |
 | **Rate of Change** | [Roc](../lib/momentum/roc/Roc.md) | - | ✔️ | ✔️ | ❔ |
 | **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | - | - | ✔️ | ❔ |
@@ -320,6 +337,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Volume Weighted Accumulation/Distribution** | [Vwad](../lib/volume/vwad/Vwad.md) | - | - | - | - |
 | **Volume Weighted Average Price** | [Vwap](../lib/volume/vwap/Vwap.md) | - | - | - | - |
 | **Volume Weighted Moving Average** | [Vwma](../lib/volume/vwma/Vwma.md) | - | - | ✔️ | - |
+| **Vertical Horizontal Filter** | [Vhf](../lib/dynamics/vhf/Vhf.md) | - | - | - | - |
 | **Vortex Indicator** | Vortex | - | - | ✔️ | ❔ |
 | **Ehlers Voss Predictive Filter** | [Voss](../lib/filters/voss/Voss.md) | - | - | - | ✔️ |
 | **VWAP Bands** | [Vwapbands](../lib/channels/vwapbands/Vwapbands.md) | - | - | - | - |

@@ -8,10 +8,10 @@
 | [Trends (FIR)](trends_FIR/_index.md) | 24 | Finite Impulse Response moving averages |
 | [Trends (IIR)](trends_IIR/_index.md) | 32 | Infinite Impulse Response moving averages |
 | [Filters](filters/_index.md) | 16 | Signal processing filters |
-| [Oscillators](oscillators/_index.md) | 16 | Indicators that fluctuate around a center line |
-| [Dynamics](dynamics/_index.md) | 14 | Trend strength and direction indicators |
+| [Oscillators](oscillators/_index.md) | 17 | Indicators that fluctuate around a center line |
+| [Dynamics](dynamics/_index.md) | 18 | Trend strength and direction indicators |
 | [Momentum](momentum/_index.md) | 19 | Momentum-based indicators |
-| [Volatility](volatility/_index.md) | 20 | Volatility estimators and indicators |
+| [Volatility](volatility/_index.md) | 21 | Volatility estimators and indicators |
 | [Volume](volume/_index.md) | 15 | Volume-based indicators |
 | [Statistics](statistics/_index.md) | 13 | Statistical measures and tests |
 | [Channels](channels/_index.md) | 18 | Price channels and bands |
@@ -20,7 +20,7 @@
 | [Forecasts](forecasts/_index.md) | 4 | Predictive indicators |
 | [Errors](errors/_index.md) | 13 | Error metrics and loss functions |
 | [Numerics](numerics/_index.md) | 5 | Mathematical transformations |
-| **Total** | **229** | |
+| **Total** | **235** | |
 
 ## All Indicators
 
@@ -132,7 +132,7 @@
 | [EVWMA](volume/evwma/Evwma.md)                             | Elastic Volume Weighted MA                                                | Volume       |
 | [ER](oscillators/er/Er.md)                                 | Efficiency Ratio                                                          | Oscillators  |
 | [ERI](oscillators/eri/Eri.md)                              | Elder Ray Index                                                           | Oscillators  |
-| ETHERM                                                     | Elder's Thermometer                                                       | Volatility   |
+| [ETHERM](volatility/etherm/Etherm.md)                      | Elder's Thermometer                                                       | Volatility   |
 | [EWMA](volatility/ewma/Ewma.md)                            | EWMA Volatility                                                           | Volatility   |
 | EXPDIST                                                    | Exponential Distribution                                                  | Numerics     |
 | [EXPTRANS](numerics/exptrans/Exptrans.md)                  | Exponential Transform                                                     | Numerics     |
@@ -145,11 +145,11 @@
 | [FRAMA](trends_IIR/frama/Frama.md)                         | Ehlers Fractal Adaptive MA                                                | Trends (IIR) |
 | [FWMA](trends_FIR/fwma/Fwma.md)                           | Fibonacci Weighted MA                                                     | Trends (FIR) |
 | GAMMADIST                                                  | Gamma Distribution                                                        | Numerics     |
-| GATOR                                                      | Williams Gator Oscillator                                                 | Dynamics     |
+| [GATOR](oscillators/gator/Gator.md)                       | Williams Gator Oscillator                                                 | Oscillators  |
 | [GAUSS](filters/gauss/Gauss.md)                            | Gaussian Filter                                                           | Filters      |
 | [GEOMEAN](statistics/geomean/Geomean.md)                   | Geometric Mean                                                            | Statistics   |
 | [GKV](volatility/gkv/Gkv.md)                               | Garman-Klass Volatility                                                   | Volatility   |
-| GHLA                                                       | Gann High-Low Activator                                                   | Dynamics     |
+| [GHLA](dynamics/ghla/Ghla.md)                              | Gann High-Low Activator                                                   | Dynamics     |
 | [GRANGER](statistics/granger/Granger.md)                   | Granger Causality                                                         | Statistics   |
 | [GWMA](trends_FIR/gwma/Gwma.md)                            | Gaussian Weighted MA                                                      | Trends (FIR) |
 | [HA](core/ha/Ha.md)                                        | Heikin-Ashi                                                               | Core         |
@@ -263,7 +263,7 @@
 | [PARZEN](trends_FIR/parzen/Parzen.md)                      | Parzen Window MA                                                          | Trends (FIR) |
 | [PCHANNEL](channels/pchannel/Pchannel.md)                  | Price Channel                                                             | Channels     |
 | [PERCENTILE](statistics/percentile/Percentile.md)          | Percentile                                                                | Statistics   |
-| PFE                                                        | Polarized Fractal Efficiency                                              | Dynamics     |
+| [PFE](dynamics/pfe/Pfe.md)                                | Polarized Fractal Efficiency                                              | Dynamics     |
 | [PGO](oscillators/pgo/Pgo.md)                              | Pretty Good Oscillator                                                    | Oscillators  |
 | [PIVOT](reversals/pivot/Pivot.md)                          | Pivot Points (Classic)                                                    | Reversals    |
 | [PIVOTCAM](reversals/pivotcam/Pivotcam.md)                 | Camarilla Pivot Points                                                    | Reversals    |
@@ -294,7 +294,7 @@
 | [QUANTILELOSS](errors/quantileloss/QuantileLoss.md)        | Quantile Loss                                                             | Errors       |
 | [RAE](errors/rae/Rae.md)                                   | Relative Absolute Error                                                   | Errors       |
 | RAIN                                                       | Rainbow MA                                                                | Trends (FIR) |
-| RAVI                                                       | Chande Range Action Verification Index                                    | Dynamics     |
+| [RAVI](dynamics/ravi/Ravi.md)                              | Chande Range Action Verification Index                                    | Dynamics     |
 | [REGCHANNEL](channels/regchannel/Regchannel.md)            | Regression Channels                                                       | Channels     |
 | REFLEX                                                     | Ehlers Reflex Indicator                                                   | Oscillators  |
 | [RELU](numerics/relu/Relu.md)                              | Rectified Linear Unit                                                     | Numerics     |
@@ -385,7 +385,7 @@
 | [VARIANCE](statistics/variance/Variance.md)                | Variance                                                                  | Statistics   |
 | [VEL](momentum/vel/Vel.md)                                 | Jurik Velocity                                                            | Momentum     |
 | [VF](volume/vf/Vf.md)                                      | Volume Force                                                              | Volume       |
-| VHF                                                        | Vertical Horizontal Filter                                                | Dynamics     |
+| [VHF](dynamics/vhf/Vhf.md)                                | Vertical Horizontal Filter                                                | Dynamics     |
 | [VIDYA](trends_IIR/vidya/Vidya.md)                         | Variable Index Dynamic Average                                            | Trends (IIR) |
 | [VO](volume/vo/Vo.md)                                      | Volume Oscillator                                                         | Volume       |
 | [VORTEX](dynamics/vortex/Vortex.md)                        | Vortex Indicator                                                          | Dynamics     |

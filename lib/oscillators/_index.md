@@ -24,6 +24,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
 | [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
 | [FISHER](fisher/Fisher.md) | Ehlers Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
+| [GATOR](gator/Gator.md) | Williams Gator Oscillator | Dual histogram from Alligator SMMA lines. Visualizes trend convergence/divergence. |
 | [IMI](imi/Imi.md) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold 0-100. |
 | [INERTIA](inertia/Inertia.md) | Inertia | Linear regression residual. Raw deviation from trend forecast. |
 | [KDJ](kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic. J = 3K - 2D provides leading signal. |

@@ -1,80 +1,67 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("BRAR Indicator (BRAR)", "BRAR", overlay=false)
+indicator("Bull-Bear Power Ratio (BRAR)", "BRAR", overlay=false)
 
-//@function Calculates BRAR (AR + BR) sentiment oscillators from OHLC data
-//@param period Lookback period for running sums
-//@returns tuple [AR, BR] where AR = atmosphere ratio, BR = buying ratio
+//@function Calculates BRAR (BR and AR) sentiment oscillator
+//@param period Rolling window length for summation (default 26)
+//@returns tuple [br, ar] where BR measures buying pressure vs previous close,
+//         AR measures selling pressure vs today's open. Both scaled x100.
+//@optimized Uses 4 circular buffers for O(1) per-bar complexity
 brar(simple int period) =>
     if period <= 0
         runtime.error("Period must be greater than 0")
-
-    var int p = math.max(1, period)
-    var int head = 0
-    var int count = 0
-
-    // Four circular buffers for running sums
-    var array<float> arNumBuf = array.new_float(p, na)   // HIGH - OPEN
-    var array<float> arDenBuf = array.new_float(p, na)   // OPEN - LOW
-    var array<float> brNumBuf = array.new_float(p, na)   // max(0, HIGH - prevClose)
-    var array<float> brDenBuf = array.new_float(p, na)   // max(0, prevClose - LOW)
-
-    var float arNumSum = 0.0
-    var float arDenSum = 0.0
-    var float brNumSum = 0.0
-    var float brDenSum = 0.0
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
 
     float prevClose = nz(close[1], open)
 
-    // Current bar components
-    float arNum = high - open
-    float arDen = open - low
     float brNum = math.max(0.0, high - prevClose)
     float brDen = math.max(0.0, prevClose - low)
+    float arNum = math.max(0.0, high - open)
+    float arDen = math.max(0.0, open - low)
 
-    // Remove oldest values from running sums
-    float oldArNum = array.get(arNumBuf, head)
-    float oldArDen = array.get(arDenBuf, head)
-    float oldBrNum = array.get(brNumBuf, head)
-    float oldBrDen = array.get(brDenBuf, head)
+    var array<float> brNumBuf = array.new_float(period, 0.0)
+    var array<float> brDenBuf = array.new_float(period, 0.0)
+    var array<float> arNumBuf = array.new_float(period, 0.0)
+    var array<float> arDenBuf = array.new_float(period, 0.0)
+    var int idx = 0
+    var float brNumSum = 0.0
+    var float brDenSum = 0.0
+    var float arNumSum = 0.0
+    var float arDenSum = 0.0
 
-    if not na(oldArNum)
-        arNumSum -= oldArNum
-        arDenSum -= oldArDen
-        brNumSum -= oldBrNum
-        brDenSum -= oldBrDen
-    else
-        count := math.min(count + 1, p)
+    brNumSum -= array.get(brNumBuf, idx)
+    brDenSum -= array.get(brDenBuf, idx)
+    arNumSum -= array.get(arNumBuf, idx)
+    arDenSum -= array.get(arDenBuf, idx)
 
-    // Add current values to running sums
-    arNumSum += arNum
-    arDenSum += arDen
+    array.set(brNumBuf, idx, brNum)
+    array.set(brDenBuf, idx, brDen)
+    array.set(arNumBuf, idx, arNum)
+    array.set(arDenBuf, idx, arDen)
+
     brNumSum += brNum
     brDenSum += brDen
+    arNumSum += arNum
+    arDenSum += arDen
 
-    // Store in circular buffers
-    array.set(arNumBuf, head, arNum)
-    array.set(arDenBuf, head, arDen)
-    array.set(brNumBuf, head, brNum)
-    array.set(brDenBuf, head, brDen)
-    head := (head + 1) % p
+    idx := (idx + 1) % period
 
-    // Calculate AR and BR ratios (* 100)
-    float ar = arDenSum != 0.0 ? (arNumSum / arDenSum) * 100.0 : 0.0
-    float br = brDenSum != 0.0 ? (brNumSum / brDenSum) * 100.0 : 0.0
+    float br = brDenSum != 0.0 ? brNumSum / brDenSum * 100.0 : 100.0
+    float ar = arDenSum != 0.0 ? arNumSum / arDenSum * 100.0 : 100.0
 
-    [ar, br]
+    [br, ar]
 
 // ---------- Main loop ----------
 
 // Inputs
-i_period = input.int(26, "Period", minval=1, maxval=500)
+i_period = input.int(26, "Period", minval=1, maxval=5000, tooltip="Rolling window for summation (traditional: 26)")
 
 // Calculation
-[ar_value, br_value] = brar(i_period)
+[br_value, ar_value] = brar(i_period)
 
 // Plot
-plot(ar_value, "AR", color.new(color.yellow, 0), 2)
 plot(br_value, "BR", color.new(color.aqua, 0), 2)
-hline(100, "Reference", color=color.gray, linestyle=hline.style_dotted)
+plot(ar_value, "AR", color.new(color.yellow, 0), 2)
+hline(100, "Equilibrium", color=color.gray, linestyle=hline.style_dotted)

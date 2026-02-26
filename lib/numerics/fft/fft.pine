@@ -1,75 +1,177 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Fast Fourier Transform (FFT)", "FFT", overlay=false, precision=2)
+indicator("FFT Dominant Cycle (Radix-2 FFT)", "FFT-DC", overlay=false, precision=2)
 
-//@function Computes dominant cycle period via DFT with Hanning window
-//@param source Series to analyze
-//@param windowSize DFT window size (power of 2: 32, 64, 128)
-//@param minPeriod Minimum detectable cycle period (>= 2)
-//@param maxPeriod Maximum detectable cycle period (<= windowSize/2)
-//@returns dominant cycle period in bars
-//@optimized O(N * N/2) per bar; N=64 → ~2048 multiply-adds
-fft(series float source, simple int windowSize, simple int minPeriod, simple int maxPeriod) =>
-    if windowSize != 32 and windowSize != 64 and windowSize != 128
-        runtime.error("Window size must be 32, 64, or 128")
-    if minPeriod < 2
-        runtime.error("Min period must be >= 2")
-    if maxPeriod > windowSize / 2
-        runtime.error("Max period must be <= windowSize / 2")
+// -----------------------
+// Helpers
+// -----------------------
 
-    int N = windowSize
+int ilog2(int n) =>
+    // n must be power of 2
+    int p = 0
+    int x = n
+    while x > 1
+        x := x / 2
+        p += 1
+    p
+
+int bitReverse(int x, int bits) =>
+    int r = 0
+    for i = 0 to bits - 1
+        r := (r << 1) | (x & 1)
+        x := x >> 1
+    r
+
+// In-place iterative radix-2 FFT on arrays re/im of length N
+void fft_inplace(float[] re, float[] im, int N) =>
+    int bits = ilog2(N)
+
+    // Bit-reversal permutation
+    for i = 0 to N - 1
+        int j = bitReverse(i, bits)
+        if j > i
+            float tre = array.get(re, i)
+            float tim = array.get(im, i)
+            array.set(re, i, array.get(re, j))
+            array.set(im, i, array.get(im, j))
+            array.set(re, j, tre)
+            array.set(im, j, tim)
+
+    // Cooley–Tukey butterflies
+    int len = 2
+    while len <= N
+        int half = len / 2
+        float angStep = -2.0 * math.pi / len
+
+        for start = 0 to N - 1 by len
+            for k = 0 to half - 1
+                float ang = angStep * k
+                float wr = math.cos(ang)
+                float wi = math.sin(ang)
+
+                int i0 = start + k
+                int i1 = i0 + half
+
+                float ur = array.get(re, i0)
+                float ui = array.get(im, i0)
+                float vr = array.get(re, i1)
+                float vi = array.get(im, i1)
+
+                // t = w * v
+                float tr = vr * wr - vi * wi
+                float ti = vr * wi + vi * wr
+
+                array.set(re, i0, ur + tr)
+                array.set(im, i0, ui + ti)
+                array.set(re, i1, ur - tr)
+                array.set(im, i1, ui - ti)
+
+        len *= 2
+
+// Dominant cycle period via FFT magnitude peak + parabolic interpolation
+float dominantPeriod_fft(series float src, int N, int minPeriod, int maxPeriod, float[] win) =>
     int halfN = N / 2
-    float twoPiOverN = 2.0 * math.pi / N
-
-    float maxMag = 0.0
-    int peakBin = 0
-    float peakMagA = 0.0
-    float peakMagB = 0.0
-
     int minBin = math.max(1, N / maxPeriod)
     int maxBin = math.min(halfN, N / minPeriod)
 
+    // Build windowed input (oldest..newest), imag=0
+    float[] re = array.new_float(N, 0.0)
+    float[] im = array.new_float(N, 0.0)
+
+    for n = 0 to N - 1
+        // src[n] in Pine: n bars ago; so n = N-1 is oldest in the window
+        // We want time order oldest..newest in FFT input:
+        // oldest = src[N-1], newest = src[0]
+        float x = nz(src[N - 1 - n])
+        float w = array.get(win, n)
+        array.set(re, n, x * w)
+        array.set(im, n, 0.0)
+
+    // FFT
+    fft_inplace(re, im, N)
+
+    // Find peak magnitude in requested bin range
+    float bestMag = na
+    int   bestK = minBin
+
+    // We also need neighbor mags for interpolation later.
+    // We'll compute mags on-demand because range is small.
     for k = minBin to maxBin
-        float re = 0.0
-        float im = 0.0
-        float omega_k = twoPiOverN * k
-        for n = 0 to N - 1
-            float val = nz(source[n])
-            float w = 0.5 - 0.5 * math.cos(twoPiOverN * n)
-            float xw = val * w
-            float angle = omega_k * n
-            re += xw * math.cos(angle)
-            im -= xw * math.sin(angle)
-        float mag = re * re + im * im
-        if mag > maxMag
-            if peakBin > 0
-                peakMagA := maxMag
-            maxMag := mag
-            peakBin := k
-        else if peakBin > 0 and peakMagB == 0.0
-            peakMagB := mag
+        float rr = array.get(re, k)
+        float ii = array.get(im, k)
+        float mag = rr * rr + ii * ii
+        if na(bestMag) or mag > bestMag
+            bestMag := mag
+            bestK := k
 
-    float dominantPeriod = float(N)
-    if peakBin > 0
-        float denom = peakMagA + 2.0 * maxMag + peakMagB
-        float shift = denom > 0.0 ? (peakMagA - peakMagB) / denom : 0.0
-        dominantPeriod := N / (peakBin + shift)
+    // Neighbor magnitudes for interpolation (handle edges)
+    float a = 0.0
+    float b = bestMag
+    float c = 0.0
 
-    math.max(float(minPeriod), math.min(float(maxPeriod), dominantPeriod))
+    if bestK > minBin
+        float rrA = array.get(re, bestK - 1)
+        float iiA = array.get(im, bestK - 1)
+        a := rrA * rrA + iiA * iiA
+    else
+        a := b
 
-// ---------- Main loop ----------
+    if bestK < maxBin
+        float rrC = array.get(re, bestK + 1)
+        float iiC = array.get(im, bestK + 1)
+        c := rrC * rrC + iiC * iiC
+    else
+        c := b
 
+    // Correct parabolic interpolation:
+    // shift = 0.5*(a - c)/(a - 2b + c)
+    float denom = (a - 2.0 * b + c)
+    float shift = math.abs(denom) > 0.0 ? 0.5 * (a - c) / denom : 0.0
+
+    float period = N / (bestK + shift)
+    math.max(float(minPeriod), math.min(float(maxPeriod), period))
+
+// -----------------------
 // Inputs
-i_source = input.source(close, "Source")
-i_window = input.int(64, "Window Size", options=[32, 64, 128], tooltip="DFT window; larger = finer frequency resolution")
-i_minP   = input.int(4, "Min Period", minval=2, maxval=64, tooltip="Shortest cycle to detect (bars)")
-i_maxP   = input.int(32, "Max Period", minval=4, maxval=64, tooltip="Longest cycle to detect (bars)")
+// -----------------------
 
-// Calculation
-float period = fft(i_source, i_window, i_minP, i_maxP)
+i_source = input.source(close, "Source")
+i_window = input.int(64, "Window Size", options=[32, 64, 128])
+i_minP   = input.int(4, "Min Period", minval=2, maxval=64)
+i_maxP   = input.int(32, "Max Period", minval=4, maxval=64)
+
+// Validate
+if i_window != 32 and i_window != 64 and i_window != 128
+    runtime.error("Window size must be 32, 64, or 128")
+if i_minP < 2
+    runtime.error("Min period must be >= 2")
+if i_maxP > i_window / 2
+    runtime.error("Max period must be <= windowSize/2")
+
+// -----------------------
+// Precompute Hanning window once per N
+// -----------------------
+
+var int    prevN = na
+var float[] win = array.new_float(0)
+
+if na(prevN) or prevN != i_window
+    prevN := i_window
+    win := array.new_float(i_window, 0.0)
+    float twoPiOverN = 2.0 * math.pi / i_window
+    for n = 0 to i_window - 1
+        array.set(win, n, 0.5 - 0.5 * math.cos(twoPiOverN * n))
+
+// -----------------------
+// Main
+// -----------------------
+
+float period = na
+if bar_index >= i_window
+    period := dominantPeriod_fft(i_source, i_window, i_minP, i_maxP, win)
 
 // Plot
 plot(period, "Dominant Period", color=color.yellow, linewidth=2)
-hline(8, "Fast Cycle", color=color.green, linestyle=hline.style_dashed)
-hline(20, "Slow Cycle", color=color.red, linestyle=hline.style_dashed)
+hline(8,  "Fast Cycle", color=color.green, linestyle=hline.style_dashed)
+hline(20, "Slow Cycle", color=color.red,   linestyle=hline.style_dashed)

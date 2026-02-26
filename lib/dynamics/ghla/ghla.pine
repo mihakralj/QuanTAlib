@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Gann High-Low Activator", "GHLA", overlay=true)
+
+//@function Calculates Gann High-Low Activator using SMA of Highs/Lows with trend-state switching
+//@param period Lookback period for SMA calculation (Krausz default: 3)
+//@returns Tuple [activator, trend] where trend is 1 (bullish) or -1 (bearish)
+//@optimized O(period) SMA via ta.sma built-in; O(1) state transition with hysteresis
+ghla(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // Step 1: Compute SMA of Highs and SMA of Lows over N periods
+    float smaHigh = ta.sma(high, period)
+    float smaLow = ta.sma(low, period)
+
+    // Step 2: Determine trend state with hysteresis
+    // Close > SMA(High) => bullish (+1)
+    // Close < SMA(Low) => bearish (-1)
+    // Between the two SMAs => retain previous state
+    var int trend = 0
+
+    if trend == 0
+        // Seed: classify first bar
+        trend := close >= smaHigh ? 1 : close <= smaLow ? -1 : 1
+
+    if close > smaHigh
+        trend := 1
+    else if close < smaLow
+        trend := -1
+    // else: trend retains previous value (hysteresis zone)
+
+    // Step 3: Select activator line based on trend state
+    // Bullish: activator = SMA(Low) — trailing support below price
+    // Bearish: activator = SMA(High) — trailing resistance above price
+    float activator = trend == 1 ? smaLow : smaHigh
+
+    [activator, trend]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(3, "Period", minval=1, maxval=100, tooltip="SMA lookback period (Krausz default: 3)")
+
+// Calculation
+[ghla_line, ghla_trend] = ghla(i_period)
+
+// Colors
+color bullish_color = color.new(color.green, 0)
+color bearish_color = color.new(color.red, 0)
+color line_color = ghla_trend == 1 ? bullish_color : bearish_color
+
+// Plot
+plot(ghla_line, "GHLA", color=line_color, linewidth=2, style=plot.style_line)
+
+// Optional: Plot buy/sell signals when trend flips
+bool trend_changed = ghla_trend != nz(ghla_trend[1])
+plotshape(trend_changed and ghla_trend == 1, "Buy Signal", shape.labelup, location.belowbar, color=bullish_color, text="BUY", textcolor=color.white, size=size.small)
+plotshape(trend_changed and ghla_trend == -1, "Sell Signal", shape.labeldown, location.abovebar, color=bearish_color, text="SELL", textcolor=color.white, size=size.small)

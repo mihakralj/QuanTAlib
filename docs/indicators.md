@@ -156,6 +156,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
+| [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms (upper/lower) |
 | [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
@@ -188,13 +189,17 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**CHOP**](../lib/dynamics/chop/Chop.md) | Choppiness Index | ATR sum vs range; trending vs choppy |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
+| [**GHLA**](../lib/dynamics/ghla/Ghla.md) | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover |
 | [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Cycle vs trend regime detection |
 | [**ICHIMOKU**](../lib/dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Multi-component trend system |
 | [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
 | [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
+| [**PFE**](../lib/dynamics/pfe/Pfe.md) | Polarized Fractal Efficiency | Fractal path efficiency as trend strength |
+| [**RAVI**](../lib/dynamics/ravi/Ravi.md) | Chande Range Action Verification Index | Dual-SMA divergence as trend strength |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |
 | [**TTM_SQUEEZE**](../lib/dynamics/ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze with momentum |
 | [**TTM_TREND**](../lib/dynamics/ttm_trend/TtmTrend.md) | TTM Trend | Bar coloring by close vs midline |
+| [**VHF**](../lib/dynamics/vhf/Vhf.md) | Vertical Horizontal Filter | Range / path ratio trend strength |
 | [**VORTEX**](../lib/dynamics/vortex/Vortex.md) | Vortex Indicator | Uptrend/downtrend movement comparison |
 
 ### Momentum
@@ -237,6 +242,7 @@ Measures of price variability and range. Essential for position sizing and stop 
 | [**CCV**](../lib/volatility/ccv/Ccv.md) | Close-to-Close Volatility | Log-return standard deviation |
 | [**CV**](../lib/volatility/cv/Cv.md) | Coefficient of Variation | StdDev / Mean ratio |
 | [**CVI**](../lib/volatility/cvi/Cvi.md) | Chaikin Volatility | EMA change of H-L range |
+| [**ETHERM**](../lib/volatility/etherm/Etherm.md) | Elder's Thermometer | Absolute bar range in ATR units |
 | [**EWMA**](../lib/volatility/ewma/Ewma.md) | EWMA Volatility | Exponentially weighted variance |
 | [**GKV**](../lib/volatility/gkv/Gkv.md) | Garman-Klass Volatility | OHLC-based efficiency estimator |
 | [**HLV**](../lib/volatility/hlv/Hlv.md) | High-Low Volatility | Parkinson range-based estimator |
@@ -403,11 +409,23 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope |
+| [**BETADIST**](../lib/numerics/betadist/Betadist.md) | Beta Distribution (CDF/PDF) | Rolling Beta CDF — probability normalized observation falls below threshold |
+| [**BINOMDIST**](../lib/numerics/binomdist/Binomdist.md) | Binomial Distribution (CDF) | Rolling Binomial CDF — probability normalized observation falls below threshold |
+| [**EXPDIST**](../lib/numerics/expdist/Expdist.md) | Exponential Distribution (CDF) | Rolling Exponential CDF — probability normalized observation falls below threshold |
+| [**FDIST**](../lib/numerics/fdist/Fdist.md) | F-Distribution (CDF) | Rolling Fisher-Snedecor CDF — variance-ratio probability transform via regularized incomplete beta |
+| [**GAMMADIST**](../lib/numerics/gammadist/Gammadist.md) | Gamma Distribution (CDF) | Rolling Gamma CDF — shape/scale-parameterized probability transform via regularized incomplete gamma |
+| [**NORMDIST**](../lib/numerics/normdist/Normdist.md) | Normal Distribution (CDF) | Rolling Gaussian CDF — z-score normalized probability transform via erf approximation |
+| [**POISSONDIST**](../lib/numerics/poissondist/Poissondist.md) | Poisson Distribution (CDF) | Rolling Poisson CDF — count-based probability transform via regularized incomplete gamma |
+| [**TDIST**](../lib/numerics/tdist/Tdist.md) | Student's t-Distribution (CDF) | Rolling Student's t CDF — heavy-tailed probability transform via regularized incomplete beta |
+| [**WEIBULLDIST**](../lib/numerics/weibulldist/Weibulldist.md) | Weibull Distribution (CDF) | Rolling Weibull CDF — two-parameter closed-form probability transform via pow + exp |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement |
+| [**CWT**](../lib/numerics/cwt/Cwt.md) | Continuous Wavelet Transform | Morlet CWT magnitude at a specified scale — time-frequency decomposition |
+| [**DWT**](../lib/numerics/dwt/Dwt.md) | Discrete Wavelet Transform | À trous Haar stationary DWT — multi-resolution approximation + detail, WarmupPeriod = 2^levels |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |
 | [**JERK**](../lib/numerics/jerk/Jerk.md) | Jerk (3rd Derivative) | Change in acceleration |
 | [**LINEARTRANS**](../lib/numerics/lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling |
+| [**LOGNORMDIST**](../lib/numerics/lognormdist/Lognormdist.md) | Log-Normal Distribution | Log-normal CDF via min-max normalization |
 | [**LOGTRANS**](../lib/numerics/logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage analysis |
 | [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) via monotonic deque |
 | [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |

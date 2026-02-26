@@ -268,7 +268,9 @@ public sealed class Ssf2 : AbstractBase
                     state.PrevInput = state.LastValidValue;
                     output[i] = state.LastValidValue;
                     state.Count = 1;
+#pragma warning disable S127 // Warmup init: advance past first valid to seed state machine
                     i++;
+#pragma warning restore S127
                     break;
                 }
                 output[i] = double.NaN;

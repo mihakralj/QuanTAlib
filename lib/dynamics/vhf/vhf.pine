@@ -1,0 +1,93 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("VHF: Vertical Horizontal Filter", "VHF", overlay=false)
+
+//@function Calculates Vertical Horizontal Filter using max-min range vs sum of absolute changes
+//@param period Lookback period for range and path measurement (default: 28)
+//@returns VHF value (positive, typically 0 to 1; higher = trending, lower = ranging)
+//@references Adam White, "Vertical Horizontal Filter", Futures magazine, August 1991
+//@optimized O(1) per bar via circular buffer with running sum + deque-based min/max tracking
+vhf(simple int period) =>
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+
+    // Circular buffer for close values (size = period + 1 to access close[period])
+    var array<float> closeBuf = array.new_float(period + 1, na)
+    var int head = 0
+    var int filled = 0
+
+    // Running sum of absolute bar-to-bar changes over period bars
+    // |close[0]-close[1]| + |close[1]-close[2]| + ... + |close[period-2]-close[period-1]|
+    // That is period terms of absolute 1-bar changes within the window
+    var array<float> absDiffBuf = array.new_float(period, na)
+    var int diffHead = 0
+    var int diffFilled = 0
+    var float diffSum = 0.0
+
+    // Store current close in buffer
+    array.set(closeBuf, head, close)
+    filled := math.min(filled + 1, period + 1)
+
+    // Compute absolute change from previous close (if available)
+    float absDiff = na
+    if filled >= 2
+        int prevIdx = (head - 1 + period + 1) % (period + 1)
+        float prevClose = array.get(closeBuf, prevIdx)
+        if not na(prevClose)
+            absDiff := math.abs(close - prevClose)
+
+    // Update running sum of absolute differences
+    if not na(absDiff)
+        float oldDiff = array.get(absDiffBuf, diffHead)
+        if not na(oldDiff)
+            diffSum -= oldDiff
+        diffSum += absDiff
+        array.set(absDiffBuf, diffHead, absDiff)
+        diffFilled := math.min(diffFilled + 1, period)
+        diffHead := (diffHead + 1) % period
+
+    float result = na
+
+    // Need period+1 close values to compute:
+    //   - Highest/Lowest over period+1 values (current + period historical)
+    //   - Sum of period absolute bar-to-bar changes
+    if filled >= period + 1 and diffFilled >= period
+        // Step 1: Numerator (Vertical) = Highest(close, period+1) - Lowest(close, period+1)
+        // Scan the circular buffer for max and min over the full window
+        float hi = -1e308
+        float lo = 1e308
+        for i = 0 to period
+            int idx = (head - i + period + 1) % (period + 1)
+            float val = array.get(closeBuf, idx)
+            if not na(val)
+                hi := math.max(hi, val)
+                lo := math.min(lo, val)
+
+        float numerator = hi - lo
+
+        // Step 2: Denominator (Horizontal) = Sum of |close[i] - close[i-1]| over period bars
+        float denominator = diffSum
+
+        // Step 3: VHF = Numerator / Denominator
+        // Guard against division by zero (flat price = all changes zero)
+        if denominator > 1e-10
+            result := numerator / denominator
+
+    head := (head + 1) % (period + 1)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(28, "Period", minval=2, maxval=200, tooltip="Lookback period (Adam White default: 28)")
+i_trendThreshold = input.float(0.40, "Trend Threshold", minval=0.0, maxval=2.0, step=0.05, tooltip="Above this level = trending market")
+i_rangeThreshold = input.float(0.25, "Range Threshold", minval=0.0, maxval=2.0, step=0.05, tooltip="Below this level = ranging market")
+
+// Calculation
+vhf_value = vhf(i_period)
+
+// Plot
+plot(vhf_value, "VHF", color=color.yellow, linewidth=2)
+hline(i_trendThreshold, "Trend Threshold", color=color.new(color.green, 50), linestyle=hline.style_dashed)
+hline(i_rangeThreshold, "Range Threshold", color=color.new(color.red, 50), linestyle=hline.style_dashed)

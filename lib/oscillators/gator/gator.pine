@@ -1,0 +1,103 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Williams Gator Oscillator", "GATOR", overlay=false)
+
+//@function Calculates Williams Gator Oscillator from Alligator lines
+//@param source Series to calculate from
+//@param jawPeriod Period for Jaw SMMA (typically 13)
+//@param jawOffset Forward offset for Jaw line (typically 8)
+//@param teethPeriod Period for Teeth SMMA (typically 8)
+//@param teethOffset Forward offset for Teeth line (typically 5)
+//@param lipsPeriod Period for Lips SMMA (typically 5)
+//@param lipsOffset Forward offset for Lips line (typically 3)
+//@returns Tuple [upper, lower] histogram values
+//@optimized Uses Wilder's RMA (SMMA) with exponential warmup compensator for O(1) complexity
+gator(series float source, simple int jawPeriod, simple int jawOffset, simple int teethPeriod, simple int teethOffset, simple int lipsPeriod, simple int lipsOffset) =>
+    if jawPeriod <= 0 or teethPeriod <= 0 or lipsPeriod <= 0
+        runtime.error("All periods must be greater than 0")
+    if jawOffset < 0 or teethOffset < 0 or lipsOffset < 0
+        runtime.error("All offsets must be non-negative")
+
+    // Step 1: Compute SMMA (Wilder's RMA) for each Alligator line
+    float alphaJaw = 1.0 / float(jawPeriod)
+    float alphaTeeth = 1.0 / float(teethPeriod)
+    float alphaLips = 1.0 / float(lipsPeriod)
+
+    var bool warmupJaw = true
+    var bool warmupTeeth = true
+    var bool warmupLips = true
+    var float eJaw = 1.0
+    var float eTeeth = 1.0
+    var float eLips = 1.0
+    var float emaJaw = 0.0
+    var float emaTeeth = 0.0
+    var float emaLips = 0.0
+    var float jaw = source
+    var float teeth = source
+    var float lips = source
+
+    emaJaw := alphaJaw * (source - emaJaw) + emaJaw
+    emaTeeth := alphaTeeth * (source - emaTeeth) + emaTeeth
+    emaLips := alphaLips * (source - emaLips) + emaLips
+
+    if warmupJaw
+        eJaw *= (1.0 - alphaJaw)
+        float cJaw = 1.0 / (1.0 - eJaw)
+        jaw := cJaw * emaJaw
+        warmupJaw := eJaw > 1e-10
+    else
+        jaw := emaJaw
+
+    if warmupTeeth
+        eTeeth *= (1.0 - alphaTeeth)
+        float cTeeth = 1.0 / (1.0 - eTeeth)
+        teeth := cTeeth * emaTeeth
+        warmupTeeth := eTeeth > 1e-10
+    else
+        teeth := emaTeeth
+
+    if warmupLips
+        eLips *= (1.0 - alphaLips)
+        float cLips = 1.0 / (1.0 - eLips)
+        lips := cLips * emaLips
+        warmupLips := eLips > 1e-10
+    else
+        lips := emaLips
+
+    // Step 2: Apply offsets and compute histogram differences
+    float jawShifted = jaw[jawOffset]
+    float teethShifted = teeth[teethOffset]
+    float lipsShifted = lips[lipsOffset]
+
+    // Upper histogram: abs(Jaw - Teeth), always positive
+    float upper = math.abs(jawShifted - teethShifted)
+    // Lower histogram: -abs(Teeth - Lips), always negative
+    float lower = -math.abs(teethShifted - lipsShifted)
+
+    [upper, lower]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(hlc3, "Source")
+i_jawPeriod = input.int(13, "Jaw Period", minval=1)
+i_jawOffset = input.int(8, "Jaw Offset", minval=0)
+i_teethPeriod = input.int(8, "Teeth Period", minval=1)
+i_teethOffset = input.int(5, "Teeth Offset", minval=0)
+i_lipsPeriod = input.int(5, "Lips Period", minval=1)
+i_lipsOffset = input.int(3, "Lips Offset", minval=0)
+
+// Calculation
+[upper, lower] = gator(i_source, i_jawPeriod, i_jawOffset, i_teethPeriod, i_teethOffset, i_lipsPeriod, i_lipsOffset)
+float prevUpper = upper[1]
+float prevLower = lower[1]
+
+// Colors: green when expanding (upper rising or lower falling), red when contracting
+color upperColor = upper >= prevUpper ? color.green : color.red
+color lowerColor = lower <= prevLower ? color.green : color.red
+
+// Plot
+plot(upper, "Upper", color=upperColor, style=plot.style_histogram, linewidth=2)
+plot(lower, "Lower", color=lowerColor, style=plot.style_histogram, linewidth=2)
+plot(0, "Zero", color=color.gray, linewidth=1)

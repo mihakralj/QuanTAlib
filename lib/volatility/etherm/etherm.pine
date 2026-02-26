@@ -1,0 +1,54 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Elder's Thermometer", "ETHERM", overlay=false)
+
+//@function Calculates Elder's Market Thermometer with EMA signal line
+//@param period The EMA smoothing period for the signal line
+//@returns [thermometer, signal] The raw thermometer value and EMA signal line
+//@optimized Beta precomputation for EMA warmup compensation
+etherm(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // Step 1: Calculate raw thermometer value
+    // Temperature = max(abs(High - prevHigh), abs(prevLow - Low))
+    // Inside bar (High < prevHigh AND Low > prevLow) => 0
+    float prevHigh = nz(high[1], high)
+    float prevLow = nz(low[1], low)
+    float highDiff = math.abs(high - prevHigh)
+    float lowDiff = math.abs(prevLow - low)
+    bool isInsideBar = high < prevHigh and low > prevLow
+    float temp = isInsideBar ? 0.0 : math.max(highDiff, lowDiff)
+
+    // Step 2: EMA of thermometer with warmup compensation
+    float alpha = 2.0 / float(period + 1)
+    float beta = 1.0 - alpha
+    var float EPSILON = 1e-10
+    var float raw_ema = 0.0
+    var float e = 1.0
+    float signal = na
+    if not na(temp)
+        raw_ema := raw_ema * beta + temp * alpha
+        e *= beta
+        signal := e > EPSILON ? raw_ema / (1.0 - e) : raw_ema
+
+    [temp, signal]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(22, "EMA Period", minval=1, tooltip="Number of bars for the EMA signal line")
+i_multiplier = input.float(3.0, "Explosive Threshold", minval=0.1, step=0.5, tooltip="Multiplier for explosive move detection")
+
+// Calculation
+[thermValue, signalValue] = etherm(i_period)
+
+// Colors
+bool isExplosive = thermValue >= signalValue * i_multiplier
+bool isHot = thermValue >= signalValue
+color thermColor = isExplosive ? color.red : isHot ? color.orange : color.new(color.blue, 30)
+
+// Plot
+plot(thermValue, "Thermometer", color=thermColor, style=plot.style_histogram, linewidth=2)
+plot(signalValue, "Signal", color=color.yellow, linewidth=2)

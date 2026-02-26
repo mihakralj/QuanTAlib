@@ -409,7 +409,9 @@ public sealed class Bessel : AbstractBase
                     state.F2 = state.LastValidValue;
                     output[i] = state.LastValidValue;
                     state.Count = 1;
+#pragma warning disable S127 // Warmup init: advance past first valid to seed state machine
                     i++;
+#pragma warning restore S127
                     break;
                 }
 

@@ -15,7 +15,7 @@ Volatility measures the magnitude of price changes, independent of direction. Lo
 | [CCV](ccv/Ccv.md) | Close-to-Close Volatility | Annualized volatility from log returns. |
 | [CV](cv/Cv.md) | Conditional Volatility | GARCH(1,1) model for time-varying volatility. |
 | [CVI](cvi/Cvi.md) | Chaikin Volatility | Rate of change in smoothed High-Low range. |
-| ETHERM | Elder's Thermometer | Absolute bar range in ATR units. Identifies abnormal activity. |
+| [ETHERM](etherm/Etherm.md) | Elder's Thermometer | Absolute bar range in ATR units. Identifies abnormal activity. |
 | [EWMA](ewma/Ewma.md) | EWMA Volatility | Exponentially weighted squared returns with bias correction. |
 | [GKV](gkv/Gkv.md) | Garman-Klass Volatility | Efficient OHLC-based estimator with RMA smoothing. |
 | [HLV](hlv/Hlv.md) | High-Low Volatility (Parkinson) | Range-based volatility using only high-low prices. |

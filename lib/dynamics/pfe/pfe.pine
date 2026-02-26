@@ -1,0 +1,96 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("PFE: Polarized Fractal Efficiency", "PFE", overlay=false)
+
+//@function Calculates Polarized Fractal Efficiency using fractal geometry
+//@param period Lookback period for fractal path measurement (default: 10)
+//@param smoothPeriod EMA smoothing period for raw PFE (default: 5)
+//@returns Smoothed PFE value oscillating between -100 and +100
+//@references Hans Hannula, TASC January 1994
+//@optimized O(period) per bar via circular buffer for fractal path sum; O(1) EMA smoothing
+pfe(simple int period, simple int smoothPeriod) =>
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+    if smoothPeriod <= 0
+        runtime.error("Smooth period must be greater than 0")
+
+    // Circular buffer for close values (size = period + 1 to access close[period])
+    var array<float> closeBuf = array.new_float(period + 1, na)
+    var int head = 0
+    var int filled = 0
+
+    // Store current close in buffer
+    array.set(closeBuf, head, close)
+    filled := math.min(filled + 1, period + 1)
+
+    float rawPfe = na
+
+    if filled >= period + 1
+        // Retrieve close[period] from circular buffer
+        int lagIdx = (head - period + period + 1) % (period + 1)
+        float closeLag = array.get(closeBuf, lagIdx)
+
+        // Step 1: Straight-line distance (Euclidean in price-time space)
+        // D_straight = sqrt((close - close[period])^2 + period^2)
+        float priceDiff = close - closeLag
+        float straightLine = math.sqrt(priceDiff * priceDiff + period * period)
+
+        // Step 2: Fractal path length (sum of bar-to-bar Euclidean distances)
+        // D_fractal = sum of sqrt((close[i] - close[i+1])^2 + 1) for i = 0 to period-1
+        float fractalPath = 0.0
+        for i = 0 to period - 1
+            int currIdx = (head - i + period + 1) % (period + 1)
+            int prevIdx = (head - i - 1 + period + 1) % (period + 1)
+            float c1 = array.get(closeBuf, currIdx)
+            float c2 = array.get(closeBuf, prevIdx)
+            if not na(c1) and not na(c2)
+                float d = c1 - c2
+                fractalPath += math.sqrt(d * d + 1.0)
+
+        // Step 3: Raw PFE = sign * (straight / fractal) * 100
+        // Sign: positive when close > close[period] (uptrend), negative otherwise
+        if fractalPath > 0.0
+            float efficiency = straightLine / fractalPath * 100.0
+            rawPfe := priceDiff >= 0.0 ? efficiency : -efficiency
+
+    // Step 4: EMA smoothing of raw PFE
+    var float ema = na
+    var float e = 1.0
+    var bool warmup = true
+    float alpha = 2.0 / (smoothPeriod + 1.0)
+    float beta = 1.0 - alpha
+
+    float result = na
+    if not na(rawPfe)
+        if na(ema)
+            ema := rawPfe
+            e := beta
+            result := rawPfe
+        else
+            ema := alpha * rawPfe + beta * ema
+            if warmup
+                e *= beta
+                float c = 1.0 / (1.0 - e)
+                result := c * ema
+                warmup := e > 1e-10
+            else
+                result := ema
+
+    head := (head + 1) % (period + 1)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=2, maxval=200, tooltip="Fractal path lookback period (Hannula default: 10)")
+i_smooth = input.int(5, "Smooth Period", minval=1, maxval=100, tooltip="EMA smoothing period (Hannula default: 5)")
+
+// Calculation
+pfe_value = pfe(i_period, i_smooth)
+
+// Plot
+plot(pfe_value, "PFE", color=color.yellow, linewidth=2)
+hline(50, "Upper Threshold", color=color.new(color.red, 50), linestyle=hline.style_dashed)
+hline(-50, "Lower Threshold", color=color.new(color.green, 50), linestyle=hline.style_dashed)
+hline(0, "Zero Line", color=color.new(color.gray, 70), linestyle=hline.style_dotted)

@@ -6,27 +6,26 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 
 ## Indicators
 
-| Indicator | Full Name | Description |
-| :--- | :--- | :--- |
-| [ADX](adx/Adx.md) | Average Directional Index | Trend strength 0-100. Direction-agnostic. <20 weak, >40 strong. |
-| [ADXR](adxr/Adxr.md) | Average Directional Movement Rating | Smoothed ADX. Average of current and N-period ago ADX. |
-| [ALLIGATOR](alligator/Alligator.md) | Williams Alligator | Three SMAs (Jaw, Teeth, Lips). Spread indicates trend strength. |
-| [AMAT](amat/Amat.md) | Archer Moving Averages Trends | Multiple EMA alignment. Requires fast/slow EMA plus directional confirmation. |
-| [AROON](aroon/Aroon.md) | Aroon | Time since high/low. Aroon Up/Down measure recency of extremes. |
-| [AROONOSC](aroonosc/Aroonosc.md) | Aroon Oscillator | Aroon Up minus Aroon Down. Single line: +100 to -100. |
-| [CHOP](chop/Chop.md) | Choppiness Index | Trendiness measure. High values = choppy. Low = trending. |
-| [DMX](dmx/Dmx.md) | Jurik DMX | Smoothed bipolar DMI using Jurik smoothing. Low noise. |
-| [DX](dx/Dx.md) | Directional Movement Index | Raw directional strength. Unsmoothed ADX component. |
-| [HT_TRENDMODE](ht_trendmode/Ht_trendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
-| [ICHIMOKU](ichimoku/Ichimoku.md) | Ichimoku Cloud | Five-line system. Cloud defines support/resistance zones. |
-| [IMPULSE](impulse/Impulse.md) | Elder Impulse System | EMA + MACD histogram alignment. Color-coded trend/momentum filter. |
-| [QSTICK](qstick/Qstick.md) | Qstick | MA of (Close - Open). Positive = buying pressure. |
-| [SUPER](super/Super.md) | SuperTrend | ATR-based trailing stop. Flips on breakout. Color-coded direction. |
-| [TTM_TREND](ttm_trend/TtmTrend.md) | TTM Trend | Fast 6-period EMA. Color-coded trend from John Carter. |
-| [TTM_SQUEEZE](ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze detection with linear regression momentum. John Carter. |
-| [VORTEX](vortex/Vortex.md) | Vortex Indicator | VI+ and VI- measure positive/negative trend movement. |
-| GATOR | Williams Gator Oscillator | Histogram of Alligator line differences. |
-| GHLA | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover. |
-| PFE | Polarized Fractal Efficiency | Trend efficiency: straight-line / total path distance. |
-| RAVI | Chande Range Action Verification Index | \|SMA(short) − SMA(long)\| / SMA(long) × 100. |
-| VHF | Vertical Horizontal Filter | Max-min range / sum of absolute changes. |
+| Indicator                                   | Full Name                                    | Description                                                                   |
+| :------------------------------------------ | :------------------------------------------- | :---------------------------------------------------------------------------- |
+| [ADX](adx/Adx.md)                           | Average Directional Index                    | Trend strength 0-100. Direction-agnostic. <20 weak, >40 strong.               |
+| [ADXR](adxr/Adxr.md)                        | Average Directional Movement Rating          | Smoothed ADX. Average of current and N-period ago ADX.                        |
+| [ALLIGATOR](alligator/Alligator.md)         | Williams Alligator                           | Three SMAs (Jaw, Teeth, Lips). Spread indicates trend strength.               |
+| [AMAT](amat/Amat.md)                        | Archer Moving Averages Trends                | Multiple EMA alignment. Requires fast/slow EMA plus directional confirmation. |
+| [AROON](aroon/Aroon.md)                     | Aroon                                        | Time since high/low. Aroon Up/Down measure recency of extremes.               |
+| [AROONOSC](aroonosc/Aroonosc.md)            | Aroon Oscillator                             | Aroon Up minus Aroon Down. Single line: +100 to -100.                         |
+| [CHOP](chop/Chop.md)                        | Choppiness Index                             | Trendiness measure. High values = choppy. Low = trending.                     |
+| [DMX](dmx/Dmx.md)                           | Jurik DMX                                    | Smoothed bipolar DMI using Jurik smoothing. Low noise.                        |
+| [DX](dx/Dx.md)                              | Directional Movement Index                   | Raw directional strength. Unsmoothed ADX component.                           |
+| [HT_TRENDMODE](ht_trendmode/Httrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Ehlers Hilbert Transform. Binary trend/cycle mode detection.                  |
+| [ICHIMOKU](ichimoku/Ichimoku.md)            | Ichimoku Cloud                               | Five-line system. Cloud defines support/resistance zones.                     |
+| [IMPULSE](impulse/Impulse.md)               | Elder Impulse System                         | EMA + MACD histogram alignment. Color-coded trend/momentum filter.            |
+| [QSTICK](qstick/Qstick.md)                  | Qstick                                       | MA of (Close - Open). Positive = buying pressure.                             |
+| [SUPER](super/Super.md)                     | SuperTrend                                   | ATR-based trailing stop. Flips on breakout. Color-coded direction.            |
+| [TTM_TREND](ttm_trend/TtmTrend.md)          | TTM Trend                                    | Fast 6-period EMA. Color-coded trend from John Carter.                        |
+| [TTM_SQUEEZE](ttm_squeeze/TtmSqueeze.md)    | TTM Squeeze                                  | BB inside KC squeeze detection with linear regression momentum. John Carter.  |
+| [VORTEX](vortex/Vortex.md)                  | Vortex Indicator                             | VI+ and VI- measure positive/negative trend movement.                         |
+| [GHLA](ghla/Ghla.md)                       | Gann High-Low Activator                      | SMA(High)/SMA(Low) alternating on crossover.                                  |
+| [PFE](pfe/Pfe.md)                          | Polarized Fractal Efficiency                 | Trend efficiency: straight-line / total path distance.                        |
+| [RAVI](ravi/Ravi.md)                        | Chande Range Action Verification Index       | \|SMA(short) − SMA(long)\| / SMA(long) × 100.                                 |
+| [VHF](vhf/Vhf.md)                          | Vertical Horizontal Filter                   | Max-min range / sum of absolute changes.                                      |

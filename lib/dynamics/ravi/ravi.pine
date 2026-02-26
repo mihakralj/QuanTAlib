@@ -1,0 +1,79 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("RAVI: Chande Range Action Verification Index", "RAVI", overlay=false)
+
+//@function Calculates Range Action Verification Index using short/long SMA divergence
+//@param shortPeriod Lookback period for fast SMA (default: 7, ~10% of longPeriod)
+//@param longPeriod Lookback period for slow SMA (default: 65, ~13 weeks daily)
+//@returns RAVI value as absolute percentage divergence between short and long SMAs
+//@references Tushar Chande, "Beyond Technical Analysis", Wiley, 2nd ed. (2001), pp. 66-70
+//@optimized O(1) per bar via circular buffer running sums for both SMAs
+ravi(simple int shortPeriod, simple int longPeriod) =>
+    if shortPeriod <= 0
+        runtime.error("Short period must be greater than 0")
+    if longPeriod <= 0
+        runtime.error("Long period must be greater than 0")
+    if shortPeriod >= longPeriod
+        runtime.error("Short period must be less than long period")
+
+    // Circular buffer for short SMA (O(1) running sum)
+    var array<float> shortBuf = array.new_float(shortPeriod, na)
+    var int shortHead = 0
+    var int shortFilled = 0
+    var float shortSum = 0.0
+
+    // Circular buffer for long SMA (O(1) running sum)
+    var array<float> longBuf = array.new_float(longPeriod, na)
+    var int longHead = 0
+    var int longFilled = 0
+    var float longSum = 0.0
+
+    // Update short SMA buffer
+    float oldShort = array.get(shortBuf, shortHead)
+    if not na(oldShort)
+        shortSum -= oldShort
+    shortSum += close
+    array.set(shortBuf, shortHead, close)
+    shortFilled := math.min(shortFilled + 1, shortPeriod)
+    shortHead := (shortHead + 1) % shortPeriod
+
+    // Update long SMA buffer
+    float oldLong = array.get(longBuf, longHead)
+    if not na(oldLong)
+        longSum -= oldLong
+    longSum += close
+    array.set(longBuf, longHead, close)
+    longFilled := math.min(longFilled + 1, longPeriod)
+    longHead := (longHead + 1) % longPeriod
+
+    float result = na
+
+    if shortFilled >= shortPeriod and longFilled >= longPeriod
+        // Step 1: Compute short-period SMA
+        float smaShort = shortSum / shortPeriod
+
+        // Step 2: Compute long-period SMA
+        float smaLong = longSum / longPeriod
+
+        // Step 3: RAVI = |SMA(short) - SMA(long)| / SMA(long) * 100
+        // Guard against division by zero (long SMA at zero)
+        if math.abs(smaLong) > 1e-10
+            result := math.abs(smaShort - smaLong) / math.abs(smaLong) * 100.0
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_short = input.int(7, "Short Period", minval=1, maxval=100, tooltip="Fast SMA period (~10% of long period; Chande default: 7)")
+i_long = input.int(65, "Long Period", minval=2, maxval=500, tooltip="Slow SMA period (~13 weeks daily; Chande default: 65)")
+i_threshold = input.float(3.0, "Threshold", minval=0.0, maxval=20.0, step=0.5, tooltip="Trend/range classification level (Chande default: 3%)")
+
+// Calculation
+ravi_value = ravi(i_short, i_long)
+
+// Plot
+plot(ravi_value, "RAVI", color=color.yellow, linewidth=2)
+hline(i_threshold, "Threshold", color=color.new(color.red, 50), linestyle=hline.style_dashed)
+hline(0, "Zero Line", color=color.new(color.gray, 70), linestyle=hline.style_dotted)
