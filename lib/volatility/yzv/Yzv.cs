@@ -144,7 +144,7 @@ public sealed class Yzv : AbstractBase
         double kYz = 0.34 / (1.34 + ratioN);
 
         // Combined daily variance
-        double sSqDaily = sOSq + kYz * sCSq + (1.0 - kYz) * sRsSq;
+        double sSqDaily = Math.FusedMultiplyAdd(kYz, sCSq, Math.FusedMultiplyAdd(1.0 - kYz, sRsSq, sOSq));
 
         // Bias-corrected RMA smoothing
         double alpha = 1.0 / _period;
@@ -338,7 +338,7 @@ public sealed class Yzv : AbstractBase
             double sRsSq = rh * (rh - rc) + rl * (rl - rc);
 
             // Combined daily variance
-            double sSqDaily = sOSq + kYz * sCSq + (1.0 - kYz) * sRsSq;
+            double sSqDaily = Math.FusedMultiplyAdd(kYz, sCSq, Math.FusedMultiplyAdd(1.0 - kYz, sRsSq, sOSq));
 
             // Bias-corrected RMA
             if (i == 0)
@@ -417,7 +417,7 @@ public sealed class Yzv : AbstractBase
             double sCSq = rc * rc;
             double sRsSq = rh * (rh - rc) + rl * (rl - rc);
 
-            double sSqDaily = sOSq + kYz * sCSq + (1.0 - kYz) * sRsSq;
+            double sSqDaily = Math.FusedMultiplyAdd(kYz, sCSq, Math.FusedMultiplyAdd(1.0 - kYz, sRsSq, sOSq));
 
             if (i == 0)
             {

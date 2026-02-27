@@ -8,7 +8,7 @@ Momentum indicators measure the velocity and acceleration of price changes. Unli
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| ASI | Accumulation Swing Index | Wilder's cumulative swing index. Breakout confirmation. |
+| [ASI](asi/Asi.md) | Accumulation Swing Index | Wilder's cumulative swing index. Breakout confirmation. |
 | [BIAS](bias/Bias.md) | Bias (also known as Disparity Index) | Percentage deviation from moving average. Measures overextension. |
 | [BOP](bop/Bop.md) | Balance of Power | Measures buyer/seller strength by comparing close to open relative to range. |
 | [CCI](cci/Cci.md) | Commodity Channel Index | Measures price deviation from statistical mean, identifies cyclical turns. |

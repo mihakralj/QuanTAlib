@@ -40,6 +40,21 @@ Output is in [0, 1] where:
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Entropy computes Shannon entropy over a sliding window after binning values into discrete buckets.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Re-bin all N values | N | 3 cy | ~3N cy |
+| Build frequency table | N | 2 cy | ~2N cy |
+| Compute sum(-p * log p) | k | 8 cy | ~8k cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20, k=5 bins)** | **O(N)** | — | **~107 cy** |
+
+O(N) per update due to full window rebinning each bar. No O(1) sliding-window entropy algorithm exists for exact bin counts.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | ~50ns/bar | Histogram rebuild each update. |

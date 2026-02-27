@@ -160,15 +160,15 @@ public sealed class Mama : AbstractBase
             double adj = (AdjSlope * _state.Period) + AdjIntercept;
 
             // Smooth
-            double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
+            double smooth = Math.FusedMultiplyAdd(4.0, _priceBuffer[^1], Math.FusedMultiplyAdd(3.0, _priceBuffer[^2], Math.FusedMultiplyAdd(2.0, _priceBuffer[^3], _priceBuffer[^4]))) * 0.1;
             _smoothBuffer.Add(smooth, isNew);
 
             // Detrender
-            double dt = (C1 * _smoothBuffer[^1] + C2 * _smoothBuffer[^3] - C2 * _smoothBuffer[^5] - C1 * _smoothBuffer[^7]) * adj;
+            double dt = Math.FusedMultiplyAdd(C1, _smoothBuffer[^1], Math.FusedMultiplyAdd(C2, _smoothBuffer[^3], Math.FusedMultiplyAdd(-C2, _smoothBuffer[^5], -C1 * _smoothBuffer[^7]))) * adj;
             _detrender.Add(dt, isNew);
 
             // Q1
-            double q1 = (C1 * dt + C2 * _detrender[^3] - C2 * _detrender[^5] - C1 * _detrender[^7]) * adj;
+            double q1 = Math.FusedMultiplyAdd(C1, dt, Math.FusedMultiplyAdd(C2, _detrender[^3], Math.FusedMultiplyAdd(-C2, _detrender[^5], -C1 * _detrender[^7]))) * adj;
             _Q1_buffer.Add(q1, isNew);
 
             // I1 = dt[3]
@@ -177,9 +177,9 @@ public sealed class Mama : AbstractBase
 
             // Advance phases
             // jI = CalculateHilbertTransform(_i1, adj)
-            double jI = (C1 * i1 + C2 * _I1_buffer[^3] - C2 * _I1_buffer[^5] - C1 * _I1_buffer[^7]) * adj;
+            double jI = Math.FusedMultiplyAdd(C1, i1, Math.FusedMultiplyAdd(C2, _I1_buffer[^3], Math.FusedMultiplyAdd(-C2, _I1_buffer[^5], -C1 * _I1_buffer[^7]))) * adj;
             // jQ = CalculateHilbertTransform(_q1, adj)
-            double jQ = (C1 * q1 + C2 * _Q1_buffer[^3] - C2 * _Q1_buffer[^5] - C1 * _Q1_buffer[^7]) * adj;
+            double jQ = Math.FusedMultiplyAdd(C1, q1, Math.FusedMultiplyAdd(C2, _Q1_buffer[^3], Math.FusedMultiplyAdd(-C2, _Q1_buffer[^5], -C1 * _Q1_buffer[^7]))) * adj;
 
             // Phasor addition
             double i2_val = i1 - jQ;

@@ -3,6 +3,8 @@
 // No standard external library equivalents with matching implementation.
 // Validation uses mathematical property testing.
 
+using Tulip;
+
 namespace QuanTAlib.Tests;
 
 using Xunit;
@@ -194,5 +196,64 @@ public class VoValidationTests
         var finalBar = new TBar(DateTime.UtcNow.AddMinutes(DefaultLongPeriod), 100, 101, 99, 100, 1000);
         vo.Update(finalBar, isNew: true);
         Assert.True(vo.IsHot, "Should be hot after longPeriod bars");
+    }
+
+    // === Tulip Cross-Validation ===
+
+    /// <summary>
+    /// Structural validation against Tulip <c>vosc</c> (volume oscillator).
+    /// Algorithm variant: Tulip <c>vosc</c> takes one input (volume only) with two options
+    /// (short_period, long_period) and computes <c>(sma_short - sma_long) / sma_long × 100</c>.
+    /// QuanTAlib Vo also adds an optional signal EMA. With <c>signalPeriod=1</c> the signal
+    /// equals Vo itself, so raw Vo output is directly comparable to Tulip vosc.
+    /// </summary>
+    [Fact]
+    public void Vo_Matches_Tulip_Vosc_Batch()
+    {
+        const int shortPeriod = 5;
+        const int longPeriod = 10;
+        var bars = new GBM(sigma: 0.3, seed: 42).Fetch(300, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] volumeData = new double[bars.Count];
+        for (int i = 0; i < bars.Count; i++) { volumeData[i] = bars[i].Volume; }
+
+        // QuanTAlib Vo batch
+        var qResult = Vo.Batch(bars, shortPeriod, longPeriod, signalPeriod: 1);
+
+        // Tulip vosc — volume only, no signal period
+        var tulipIndicator = Tulip.Indicators.vosc;
+        double[][] inputs = { volumeData };
+        double[] options = { shortPeriod, longPeriod };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[volumeData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        ValidationHelper.VerifyData(qResult, tResult, lookback);
+    }
+
+    [Fact]
+    public void Vo_Matches_Tulip_Vosc_Streaming()
+    {
+        const int shortPeriod = 5;
+        const int longPeriod = 10;
+        var bars = new GBM(sigma: 0.3, seed: 42).Fetch(300, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] volumeData = new double[bars.Count];
+        for (int i = 0; i < bars.Count; i++) { volumeData[i] = bars[i].Volume; }
+
+        // QuanTAlib Vo streaming (signalPeriod=1 → signal equals Vo)
+        var vo = new Vo(shortPeriod, longPeriod, signalPeriod: 1);
+        var qResults = new List<double>();
+        foreach (var bar in bars) { qResults.Add(vo.Update(bar).Value); }
+
+        // Tulip vosc
+        var tulipIndicator = Tulip.Indicators.vosc;
+        double[][] inputs = { volumeData };
+        double[] options = { shortPeriod, longPeriod };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[volumeData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        ValidationHelper.VerifyData(qResults, tResult, lookback);
     }
 }

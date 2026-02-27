@@ -1,4 +1,4 @@
-# HOLT: Holt Exponential Moving Average
+﻿# HOLT: Holt Exponential Moving Average
 
 > "Single smoothing tracks level. Double smoothing tracks trend. The elegance is not in complexity but in the admission that yesterday's direction matters." — Charles C. Holt (1957)
 
@@ -63,6 +63,29 @@ $$\text{HOLT}_t = L_t + B_t$$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+HOLT(N, γ) tracks both level and trend via two EMA-like updates per bar. The dominant cost is two FMAs (level update and trend update) plus a final addition.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Level: FMA(α, src, decay×(level+trend)) | 1 | 4 | ~4 |
+| Level delta: new_level − prev_level | 1 | 1 | ~1 |
+| Trend: FMA(γ, delta, gammaDecay×trend) | 1 | 4 | ~4 |
+| Output: level + trend | 1 | 1 | ~1 |
+| **Total** | **4** | — | **~10 cycles** |
+
+O(1) per bar. One of the fastest trends_IIR indicators — only 4 operations per bar. When γ = 0 (γ defaults to α), the trend EMA degenerates to a standard EMA with no trend correction. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Level update | No | Recursive: depends on previous level + trend |
+| Trend update | No | Recursive: depends on previous trend and new level |
+| Output (level + trend) | Yes | `VADDPD` once level and trend series complete |
+
+Both state variables are recursive. Batch mode provides no SIMD opportunity beyond the final addition. Holt's method is strictly serial.
 | Metric | Value |
 |--------|-------|
 | Time complexity | O(1) per bar |

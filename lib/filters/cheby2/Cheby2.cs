@@ -73,7 +73,7 @@ public sealed class Cheby2 : AbstractBase
         double omegaP = Wc * coshMu / sqrt2;
         double omegaZ = Wc / Math.Cos(Math.PI * 0.25); // Cos(pi/4) = 1/sqrt(2), so this is Wc * sqrt(2)
 
-        double Kp = sigmaP * sigmaP + omegaP * omegaP;
+        double Kp = Math.FusedMultiplyAdd(sigmaP, sigmaP, omegaP * omegaP);
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
 
@@ -254,7 +254,7 @@ public sealed class Cheby2 : AbstractBase
         double omegaP = Wc * coshMu / sqrt2;
         double omegaZ = Wc / Math.Cos(Math.PI * 0.25);
 
-        double Kp = sigmaP * sigmaP + omegaP * omegaP;
+        double Kp = Math.FusedMultiplyAdd(sigmaP, sigmaP, omegaP * omegaP);
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
 

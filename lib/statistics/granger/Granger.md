@@ -68,6 +68,21 @@ where $q = 1$ (one restriction: $d_2 = 0$) and $k = 3$ (unrestricted model param
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Granger causality fits two rolling OLS regressions (restricted and unrestricted) per bar using sliding-window normal equations.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict (2 series) | 2 | 3 cy | ~6 cy |
+| Restricted OLS (AR of Y) | L ops | 8 cy | ~8L cy |
+| Unrestricted OLS (AR of Y + lags of X) | 2L ops | 8 cy | ~16L cy |
+| RSS computation (2 models) | 2N | 2 cy | ~4N cy |
+| F-statistic calculation | 1 | 5 cy | ~5 cy |
+| **Total (L=2, N=30)** | **O(L*N)** | — | **~189 cy** |
+
+O(L·N) per update where L = number of lags, N = period. Heavy enough that batch mode (pre-computing all bars at once) is preferred for historical analysis.
+
 | Metric | Value |
 | :--- | :--- |
 | Update complexity | O(1) amortized, O(N) for SSR2 loop |

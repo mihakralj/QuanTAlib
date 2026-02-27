@@ -1,4 +1,4 @@
-# PMA: Predictive Moving Average
+﻿# PMA: Predictive Moving Average
 
 > "John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been."
 
@@ -93,6 +93,31 @@ The second WMA requires $N$ bars of valid input from the first WMA, which itself
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+PMA(N) composes two WMA(N) instances in sequence: WMA₁ processes the raw input, WMA₂ processes WMA₁'s output. Each WMA uses O(1) running weighted-sum via a ring buffer. The extrapolation and trigger formulae are simple linear combinations of the two WMA outputs.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| WMA₁ ring buffer push + weighted sum update | 3 | 3 | ~9 |
+| WMA₁ divide by weight sum | 1 | 8 | ~8 |
+| WMA₂ ring buffer push + weighted sum update | 3 | 3 | ~9 |
+| WMA₂ divide by weight sum | 1 | 8 | ~8 |
+| PMA: FMA(2, WMA₁, −WMA₂) | 1 | 4 | ~4 |
+| Trigger: FMA(4, WMA₁, −WMA₂) / 3 | 2 | 6 | ~12 |
+| **Total** | **11** | — | **~50 cycles** |
+
+O(1) per bar. Both WMA instances use O(1) ring-buffer running sums; no N-scan. WarmupPeriod = 2×N − 1 (second WMA needs N bars of WMA₁ output).
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| WMA₁ sliding weighted sum | Partial | Prefix-weighted-sum enables batch; stride-1 pattern |
+| WMA₂ (depends on WMA₁ output) | No | Sequential dependency: WMA₂[i] depends on WMA₁[i] |
+| PMA and Trigger formulae | Yes | Linear combination of two scalars per bar |
+
+WMA₂ creates a pipeline dependency — it cannot start until WMA₁ is complete for the full series. In batch mode: compute WMA₁ for all bars first (vectorizable prefix weighted sum), then WMA₂ (second pass, also vectorizable). Final PMA/Trigger formulae are fully vectorizable. Estimated batch speedup: ~3× for large series.
 | Metric | Value |
 |--------|-------|
 | Update complexity | O(1) per bar |

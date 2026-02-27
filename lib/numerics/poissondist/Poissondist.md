@@ -64,6 +64,34 @@ POISSONDIST(source, period, k, lambda_scale):
     return 1.0 - gammaP(k + 1, lambda)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Poisson PMF = e^(-lambda) * lambda^k / k! computed via log-space to avoid overflow.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (lambda > 0; k >= 0) | 2 | 2 cy | ~4 cy |
+| k * log(lambda) - lgamma(k+1) - lambda | 3 | 10 cy | ~30 cy |
+| exp() of log-PMF | 1 | 20 cy | ~20 cy |
+| CDF cumulative sum (k terms) | k | 50 cy | ~50k cy |
+| **Total (PMF only)** | **O(1)** | — | **~54 cy** |
+
+PMF is O(1) via log-space computation. CDF is O(k) — expensive for large k. For k > 30, use Normal approximation. lgamma() dominates for small k.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| log(lambda) | Partial | _mm256_log_pd with SVML |
+| lgamma(k+1) | No | Transcendental; scalar |
+| exp() | Partial | _mm256_exp_pd with SVML |
+| CDF sum | No | Sequential dependency |
+
+PMF batch: partial SIMD with SVML. CDF must be scalar. For large lambda, Normal approximation enables full vectorization.
+
 ## Resources
 
 - Poisson, S.D. "Recherches sur la probabilite des jugements en matiere criminelle et en matiere civile." 1837.

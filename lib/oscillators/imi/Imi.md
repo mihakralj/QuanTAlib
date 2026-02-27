@@ -1,4 +1,4 @@
-# IMI: Intraday Momentum Index
+﻿# IMI: Intraday Momentum Index
 
 The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-close changes used by RSI. Each bar is classified as a gain (close > open) or loss (close < open), with the magnitude being the absolute open-close difference. Rolling sums of gains and losses over the lookback period produce an RSI-like ratio scaled to 0-100. This bridges Japanese candlestick analysis with Western oscillator theory: bullish candles contribute to the gain sum, bearish candles contribute to the loss sum. Unlike RSI, IMI does not require a previous close and uses simple rolling sums rather than exponential smoothing, making it more responsive but noisier. Output is bounded 0-100 with conventional overbought (>70) and oversold (<30) zones.
 
@@ -109,6 +109,44 @@ On daily charts, the open-close relationship captures overnight gaps plus sessio
 ### OHLC Requirement
 
 IMI requires both Open and Close prices per bar. It implements `ITValuePublisher` directly rather than `AbstractBase` since it operates on `TBar` (OHLC) input, not single `TValue` input.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+IMI (Intraday Momentum Index) tracks rolling sums of up-body and total-body candles over N bars.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (Close − Open = body) | 1 | 1 | 1 |
+| CMP (up body vs down body) | 1 | 1 | 1 |
+| RingBuffer add + oldest sub × 2 (ΣUp, ΣTotal) | 4 | 1 | 4 |
+| DIV (ΣUp / ΣTotal) | 1 | 15 | 15 |
+| MUL × 100 | 1 | 3 | 3 |
+| CMP (guard div-by-zero) | 1 | 1 | 1 |
+| **Total** | **9** | — | **~25 cycles** |
+
+~25 cycles per bar. Fast O(1) running sums.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Body computation | Yes | VSUBPD — independent per bar |
+| Up/total conditional accumulation | Partial | VCMPPD mask + VADDPD (masked add) |
+| Prefix-sum sliding window | Partial | Sum scan with subtract-lag |
+| Division + scale | Yes | VDIVPD + VMULPD |
+
+The conditional accumulation (masked add for up bodies) is SIMD-friendly with AVX2 blend/mask operations.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact running sum arithmetic; integer-like body logic |
+| **Timeliness** | 7/10 | N-bar window; reacts immediately to intraday momentum shifts |
+| **Smoothness** | 5/10 | Raw ratio can swing sharply with candle character changes |
+| **Noise Rejection** | 6/10 | Window averaging provides moderate smoothing |
 
 ## Resources
 

@@ -63,6 +63,20 @@ This bounds the accumulated error to $O(\varepsilon)$ rather than $O(n\varepsilo
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Harmonic Mean uses a running sum of reciprocals over the sliding window for O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| 1/new - 1/evict on reciprocal sum | 2 | 4 cy | ~8 cy |
+| N / reciprocal_sum | 1 | 4 cy | ~4 cy |
+| NaN guard (zero values) | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~17 cy** |
+
+O(1) per update via reciprocal-sum trick. Guard against division by zero: substitute last-valid when any input is zero.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | ~5ns/bar | O(1) reciprocal-add/subtract per update. |

@@ -1,5 +1,8 @@
 using Xunit.Abstractions;
 
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+
 namespace QuanTAlib.Tests;
 
 public sealed class PgoValidationTests
@@ -221,5 +224,22 @@ public sealed class PgoValidationTests
         }
 
         _output.WriteLine("PGO determinism: two runs produce identical results.");
+    }
+
+    [Fact]
+    public void Pgo_MatchesOoples_Structural()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: 42);
+        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var ooplesData = bars.Select(b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open, High = b.High, Low = b.Low,
+            Close = b.Close, Volume = b.Volume
+        }).ToList();
+        var result = new StockData(ooplesData).CalculatePrettyGoodOscillator();
+        var values = result.CustomValuesList;
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
     }
 }

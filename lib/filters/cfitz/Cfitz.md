@@ -1,4 +1,4 @@
-# CFITZ: Christiano-Fitzgerald Band-Pass Filter
+﻿# CFITZ: Christiano-Fitzgerald Band-Pass Filter
 
 ## Overview
 
@@ -98,6 +98,34 @@ Standard `isNew` / restore pattern:
 | Parameters | pLow, pHigh, K | pLow, pHigh |
 | Delay | Fixed K-bar delay | No fixed delay |
 | Complexity per bar | O(K) | O(T) streaming, O(T) per bar in batch |
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CFITZ accumulates O(N) ideal band-pass weights per new bar, with endpoint correction forcing total weight to zero. Window size N grows until the sample fills, at which point it stabilizes at O(N) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Cosine/sine weight computation | N | ~20 cy | ~640 cy (N=32) |
+| Endpoint correction (sum-to-zero) | 2 | ~3 cy | ~6 cy |
+| Weighted sum (FMA) | N | ~5 cy | ~160 cy |
+| Sum normalization | 1 | ~3 cy | ~3 cy |
+| **Total** | **2N+3** | — | **~810 cycles (N=32)** |
+
+At N=32 the per-bar cost is ~810 cycles. The O(N) weight recomputation each bar is the dominant cost. Batch mode can precompute a weight matrix for fixed N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Cosine/sine weight table | Yes | Precompute once per period pair; vectorize weight application |
+| Dot-product convolution | Yes | `Vector<double>` over N-length window; 4x-8x speedup |
+| Endpoint sum correction | No | Scalar update to weights |
+| Sum normalization | No | Single scalar division |
+
+SIMD cuts the dot-product pass to ~100 cycles for N=32 with AVX2 (4 doubles/vector). Cosine weight table is computed once at initialization.
 
 ## Validation
 

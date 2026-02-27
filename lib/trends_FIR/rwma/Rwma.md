@@ -1,4 +1,4 @@
-# RWMA: Range Weighted Moving Average
+﻿# RWMA: Range Weighted Moving Average
 
 > "Most averages weight by position: recent bars matter more. RWMA weights by volatility: volatile bars matter more. The market spoke loudest when the range was widest, so listen to those bars."
 
@@ -76,3 +76,32 @@ else:
 - Bollinger, J. (2001). *Bollinger on Bollinger Bands*. McGraw-Hill. (Discusses range-based volatility measures in the context of band-width indicators.)
 - Achelis, S.B. (2000). *Technical Analysis from A to Z*, 2nd ed. McGraw-Hill.
 - Garman, M.B. & Klass, M.J. (1980). "On the Estimation of Security Price Volatilities from Historical Data." *Journal of Business*, 53(1), 67-78. (Range-based volatility estimation from OHLC data.)
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+RWMA(N) maintains two running sums: `SumCR` (close × range) and `SumR` (range). Each bar subtracts the evicted bar's contributions and adds the new bar's. The output is a single division. Requires TBar (OHLCV) input.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Range: max(high − low, 0) | 2 | 1 | ~2 |
+| Close × range product | 1 | 3 | ~3 |
+| SumCR update (subtract evicted, add new) | 2 | 1 | ~2 |
+| SumR update (subtract evicted, add new) | 2 | 1 | ~2 |
+| RWMA: SumCR / SumR (with zero-guard) | 1 | 8 | ~8 |
+| **Total** | **8** | — | **~17 cycles** |
+
+O(1) per bar. The division is the dominant cost. Resync every 1000 bars prevents floating-point drift in the running sums. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Range computation (H − L) | Yes | `VSUBPD`; element-wise across bar array |
+| Close × range product | Yes | `VMULPD`; element-wise |
+| Prefix sum of (close × range) | Partial | Sliding window subtraction requires scan; prefix approach viable |
+| Prefix sum of range | Partial | Same as above |
+| Final division | Yes | `VDIVPD` after prefix sums built; zero-guard via `VCMPPD` + blend |
+
+Both prefix sums can be built with AVX2 prefix-scan kernels. Once built, all N sliding-window divisions can be computed in parallel. Batch speedup: approximately 4× over scalar for large series.

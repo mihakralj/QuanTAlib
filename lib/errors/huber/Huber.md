@@ -1,4 +1,4 @@
-# Huber: Huber Loss
+﻿# Huber: Huber Loss
 
 > "The Goldilocks of loss functions: not too sensitive, not too robust, just right."
 
@@ -85,6 +85,31 @@ Huber.Batch(actualSpan, predictedSpan, outputSpan, period: 20, delta: 1.345);
 | **WarmupPeriod** | int | Number of periods before valid output |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Huber loss: L = 0.5*e^2 if |e|<=delta, else delta*(|e| - 0.5*delta). Conditional on residual vs threshold; two paths.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Residual e = actual - forecast | 1 | ~2 cy | ~2 cy |
+| Absolute value + comparison vs delta | 1 | ~3 cy | ~3 cy |
+| Quadratic path: 0.5*e^2 | 1 | ~4 cy | ~4 cy |
+| Linear path: delta*(|e| - 0.5*delta) | 2 | ~4 cy | ~8 cy |
+| Running accumulator update | 1 | ~4 cy | ~4 cy |
+| **Total** | **~5** | — | **~15 cycles** |
+
+O(1) per bar. Branch prediction favors the quadratic path for small errors. ~15 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Residual computation | Yes | Element-wise subtract |
+| Conditional Huber selection | Yes | Branchless via SIMD blend/mask |
+| Accumulation | Yes | Parallel reduction |
+
+Branchless SIMD implementation eliminates branch mispredictions. ~4 cy/bar in batch mode.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

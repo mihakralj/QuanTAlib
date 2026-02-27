@@ -1,4 +1,4 @@
-# Loess: Locally Estimated Scatterplot Smoothing
+﻿# Loess: Locally Estimated Scatterplot Smoothing
 
 > "When global models fail, act locally. LOESS fits the data by ignoring the noise and embracing the neighborhood."
 
@@ -49,6 +49,29 @@ $$ \hat{y} = \sum_{j=0}^{N-1} y_{t-j} \cdot K_j $$
 where $K$ is the pre-computed row of the hat matrix corresponding to the target point.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+LOESS (Locally Estimated Scatterplot Smoothing): tricube-weighted local polynomial regression over N neighbors. O(N) per bar for degree-1 (linear) fit.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Tricube weight computation | N | ~10 cy | ~300 cy (N=30) |
+| Weighted sums (Sx, Sy, Sxx, Sxy) | 4N | ~4 cy | ~480 cy |
+| Linear regression solve (2x2 system) | 4 | ~5 cy | ~20 cy |
+| **Total (N=30)** | **5N+4** | — | **~800 cycles** |
+
+O(N) per bar. Dominant cost: 4-accumulator pass over N-element window. ~800 cycles for N=30.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Tricube weight + distance | Partial | Norm and power; polynomial approx enables SIMD |
+| Weighted accumulation (4 accumulators) | Yes | 4-wide FMA lanes; AVX2 gives ~3x speedup here |
+| 2x2 solve | No | Scalar; 4 ops negligible |
+
+SIMD batch: ~250 cy for N=30.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

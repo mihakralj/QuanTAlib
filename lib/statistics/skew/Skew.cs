@@ -119,7 +119,7 @@ public sealed class Skew : AbstractBase
             // Since Sum = n*mean:
             // = SumCu - 3*mean*SumSq + 2*n*mean^3
 
-            double m3Numerator = _sumCu - 3 * mean * _sumSq + 2 * n * mean * mean * mean;
+            double m3Numerator = Math.FusedMultiplyAdd(-3 * mean, _sumSq, Math.FusedMultiplyAdd(2 * n * mean, mean * mean, _sumCu));
             double m3 = m3Numerator / n;
 
             if (m2 > Epsilon)
@@ -357,7 +357,7 @@ public sealed class Skew : AbstractBase
 
         double m2 = m2Numerator / n;
 
-        double m3Numerator = sumCu - 3 * mean * sumSq + 2 * n * mean * mean * mean;
+        double m3Numerator = Math.FusedMultiplyAdd(-3 * mean, sumSq, Math.FusedMultiplyAdd(2 * n * mean, mean * mean, sumCu));
         double m3 = m3Numerator / n;
 
         if (m2 <= Epsilon)

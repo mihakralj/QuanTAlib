@@ -282,7 +282,8 @@ public sealed class Sam : AbstractBase
         double mom1 = s.Mom0;
         double mom0 = momentum;
 
-        double filt = _ssC1 * (mom0 + mom1) / 2.0 + _ssC2 * s.Filt1 + _ssC3 * s.Filt2;
+        double filt = Math.FusedMultiplyAdd(_ssC1, (mom0 + mom1) * 0.5,
+                          Math.FusedMultiplyAdd(_ssC2, s.Filt1, _ssC3 * s.Filt2));
 
         // Update state
         _s = new State(

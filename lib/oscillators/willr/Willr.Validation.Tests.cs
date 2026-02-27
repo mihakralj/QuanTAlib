@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit;
 using Xunit.Abstractions;
@@ -356,5 +358,44 @@ public sealed class WillrValidationTests : IDisposable
         }
 
         _output.WriteLine("All WillR values within [-100, 0] range.");
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Willr_MatchesOoples_Structural()
+    {
+        const int period = 14;
+        var ooplesData = _data.Bars.Select(static b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open,
+            High = b.High,
+            Low = b.Low,
+            Close = b.Close,
+            Volume = b.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateWilliamsR(length: period);
+        var oValues = oResult.OutputValues.Values.First();
+
+        var willr = new Willr(period);
+        var qValues = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            qValues.Add(willr.Update(bar).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples WillR must produce output");
+        int finiteCount = 0;
+        for (int i = period; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite WillR pairs, got {finiteCount}");
+        _output.WriteLine($"WillR Ooples structural: {finiteCount} finite pairs verified.");
     }
 }

@@ -97,6 +97,20 @@ Values outside $[Q_1 - 1.5 \times \text{IQR},\ Q_3 + 1.5 \times \text{IQR}]$ are
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+IQR collects the window, partially sorts to find Q1 and Q3, then returns Q3 - Q1.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer collect | N | 1 cy | ~N cy |
+| Partial sort for Q1, Q3 | N log N | 2 cy | ~2N log N cy |
+| Subtract Q3 - Q1 | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20)** | **O(N log N)** | — | **~183 cy** |
+
+O(N log N) per update due to sort. No O(1) sliding-window IQR algorithm exists without maintaining a sorted structure (e.g., two heaps), which adds complexity.
+
 | Metric | Value |
 |--------|-------|
 | Update complexity | O(N) per bar (binary search + array shift) |

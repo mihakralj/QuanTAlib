@@ -1,4 +1,4 @@
-# Hann: Hann FIR Filter
+﻿# Hann: Hann FIR Filter
 
 > "The Hanning window whispers where the Boxcar screams. Smoothness is not just an aesthetic; it's a mathematical necessity."
 
@@ -45,6 +45,27 @@ $$ y_t = \sum_{i=0}^{N-1} x_{t-i} \cdot W_i $$
 > **Note:** $w_0$ and $w_{N-1}$ are mathematically zero. This means the effective window width is slightly narrower than $N$ in terms of data usage, but $N$ is preserved for phase characteristics.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Hann-windowed FIR: N weights with Hann taper w[i] = sin^2(pi*i/(N-1)), precomputed and normalized. Per bar: O(N) dot product over history buffer.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer write | 1 | ~2 cy | ~2 cy |
+| Weighted sum FMA (N taps) | N | ~5 cy | ~250 cy (N=50) |
+| **Total (N=50)** | **N+1** | — | **~252 cycles** |
+
+O(N) per bar. Hann weights precomputed at construction; identical per-bar cost to rectangular SMA of same length except zero-allocation.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR dot product | Yes | `Vector<double>` 4x speedup |
+| Hann weight table | N/A | Precomputed once |
+
+AVX2 batch: ~65 cy for N=50.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

@@ -1,0 +1,73 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Standard Error of Regression (STDERR)", "STDERR", overlay=false, precision=8)
+
+//@function Calculates the standard error of the linear regression estimate over the specified period.
+//@param src {series float} Source series.
+//@param len {simple int} Lookback length. `len` >= 3.
+//@returns {series float} Standard error of regression for `len` bars back. Returns `na` if not enough data.
+stderr(series float src, simple int len) =>
+    if len < 3
+        runtime.error("Period must be at least 3")
+    var int p = math.max(3, len)
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0, var int count = 0
+
+    // Update circular buffer
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        count -= 1
+    float val = nz(src)
+    array.set(buffer, head, val)
+    count += 1
+    head := (head + 1) % p
+
+    if count < 3
+        na
+    else
+        // Calculate regression coefficients
+        int n = count
+        int start = count < p ? 0 : head
+        float sumX = 0.0, float sumY = 0.0
+        float sumXY = 0.0, float sumX2 = 0.0
+        for i = 0 to n - 1
+            int idx = (start + i) % p
+            float y_val = array.get(buffer, idx)
+            float x_val = float(i)
+            sumX += x_val
+            sumY += y_val
+            sumXY += x_val * y_val
+            sumX2 += x_val * x_val
+
+        float nf = float(n)
+        float denom = nf * sumX2 - sumX * sumX
+        if denom == 0
+            0.0
+        else
+            float slope = (nf * sumXY - sumX * sumY) / denom
+            float intercept = (sumY - slope * sumX) / nf
+
+            // Calculate sum of squared residuals
+            float ssr = 0.0
+            for i = 0 to n - 1
+                int idx = (start + i) % p
+                float y_val = array.get(buffer, idx)
+                float predicted = intercept + slope * float(i)
+                float residual = y_val - predicted
+                ssr += residual * residual
+
+            math.sqrt(ssr / (nf - 2.0))
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=3)
+i_source = input.source(close, "Source")
+
+// Calculation
+stderr_value = stderr(i_source, i_period)
+
+// Plot
+plot(stderr_value, "Stderr", color=color.yellow, linewidth=2)

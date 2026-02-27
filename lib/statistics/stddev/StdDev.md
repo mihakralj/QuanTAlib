@@ -36,6 +36,21 @@ $$ \text{Variance} = \frac{\sum_{i=1}^{N} (x_i - \mu)^2}{N-1} $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Standard Deviation uses Welford-style running sums of x and x^2 for exact O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update sum_x and sum_x2 | 2 | 2 cy | ~4 cy |
+| Compute variance via shortcut formula | 1 | 5 cy | ~5 cy |
+| sqrt (variance -> std dev) | 1 | 14 cy | ~14 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~28 cy** |
+
+O(1) per update. sqrt() dominates at ~14 cy. Periodic resync prevents catastrophic cancellation in the shortcut variance formula for near-constant series.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 1.5ns/bar | SIMD-accelerated batch processing. |

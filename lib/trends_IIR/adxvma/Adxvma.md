@@ -1,4 +1,4 @@
-# ADXVMA: ADX Variable Moving Average
+﻿# ADXVMA: ADX Variable Moving Average
 
 > "Use ADX to measure trend strength, then feed that measurement back as the smoothing constant. When the trend is strong, track fast. When it is not, stand still. The market tells you how much to listen."
 
@@ -98,3 +98,37 @@ result = result + sc * (source - result)
 - Wilder, J.W. (1978). *New Concepts in Technical Trading Systems*. Trend Research. Chapter 6: Directional Movement.
 - Kaufman, P.J. (1995). *Smarter Trading*. McGraw-Hill. Chapter 7: Adaptive Techniques.
 - Chande, T.S. (2001). *Beyond Technical Analysis*, 2nd ed. John Wiley & Sons.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ADXVMA(N) runs a full 4-RMA ADX pipeline internally, then uses the resulting ADX value as the EMA alpha. Each RMA update is one FMA. The adaptive VMA update is one additional FMA. Total: 5 EMA/RMA updates plus the TR/DM preprocessing.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| TR: max(H-L, |H-C₁|, |L-C₁|) | 5 | 1 | ~5 |
+| +DM / -DM directional moves | 4 | 1 | ~4 |
+| RMA TR: FMA (α×TR + decay×prev) | 1 | 4 | ~4 |
+| RMA +DM: FMA | 1 | 4 | ~4 |
+| RMA -DM: FMA | 1 | 4 | ~4 |
+| +DI / -DI: 2 divisions | 2 | 8 | ~16 |
+| DX: ABS + ADD + DIV | 3 | 5 | ~15 |
+| RMA DX: FMA | 1 | 4 | ~4 |
+| ADX-to-alpha conversion | 2 | 3 | ~6 |
+| Adaptive VMA update: FMA | 1 | 4 | ~4 |
+| **Total** | **21** | — | **~66 cycles** |
+
+O(1) per bar. State is 4 RMA scalars + OHLC history + VMA output. WarmupPeriod = 2 × period (ADX requires full ADX convergence before meaningful adaptive tracking).
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| TR / DM preprocessing | Yes | `VSUBPD`, `VABSPD`, `VMAXPD`; independent per bar |
+| RMA passes (TR, +DM, -DM, DX) | No | Recursive IIR; each value depends on previous |
+| +DI / -DI divisions | Yes | `VDIVPD` once RMA series are completed |
+| ADX computation | Partial | Vectorizable ratio except for recursive RMA |
+| Adaptive VMA | No | Recursive IIR (alpha depends on computed ADX) |
+
+All four RMA passes and the adaptive VMA are recursive IIR — inherently sequential. Batch mode can vectorize TR and DM computation (pure per-bar arithmetic) then run scalar RMA sweeps. Net batch speedup for large series: ~1.5× (TR/DM vectorization only).

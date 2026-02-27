@@ -1,4 +1,4 @@
-# CRSI: Connors RSI
+﻿# CRSI: Connors RSI
 
 Connors RSI is a composite momentum oscillator that combines three independent measurements of price behavior into a single bounded (0-100) output: a short-term RSI of price, an RSI of the consecutive up/down streak length, and a percentile rank of the current rate of change within its recent history. The equal-weighted average of these three components produces a mean-reverting oscillator where extreme readings (above 90 or below 10) identify statistically overbought or oversold conditions with higher reliability than single-component RSI alone.
 
@@ -55,6 +55,42 @@ $$PctRank_t = \frac{|\{ROC_i : ROC_i \leq ROC_t,\; i \in \text{window}\}|}{|\tex
 $$CRSI_t = \frac{RSI_1 + RSI_2 + PctRank}{3}$$
 
 **Default parameters:** rsiPeriod = 3, streakPeriod = 2, rankPeriod = 100.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ConnorsRSI = average of RSI(3), StreakRSI(2), PercentRank(100). Three sub-indicators.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RSI(3) update (2 EMA + ratio) | 6 | 4 | 24 |
+| Streak count (up/down/flat) | 2 | 1 | 2 |
+| StreakRSI(2) update (2 EMA + ratio) | 6 | 4 | 24 |
+| PercentRank scan (O(N), N=100) | 100 | 1 | 100 |
+| ADD × 2 + MUL ÷3 (average) | 3 | 3 | 9 |
+| **Total** | **117** | — | **~159 cycles** |
+
+The O(100) PercentRank linear scan dominates. For N=100: ~159 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| RSI(3) / StreakRSI(2) EMA passes | **No** | Recursive IIR — sequential |
+| PercentRank scan | Yes | SIMD comparison count: VCMPPD + VPCNT per window |
+| Final averaging | Yes | VADDPD + VMULPD |
+
+PercentRank scan is the only sub-step with meaningful SIMD acceleration potential.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Three independently calibrated sub-signals |
+| **Timeliness** | 5/10 | 100-bar PercentRank window dominates warmup |
+| **Smoothness** | 7/10 | Averaging three signals reduces individual signal noise |
+| **Noise Rejection** | 7/10 | Multi-component design reduces false signals |
 
 ## Resources
 

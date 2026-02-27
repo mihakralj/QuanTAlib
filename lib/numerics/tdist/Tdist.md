@@ -76,6 +76,34 @@ TDIST(source, period, df):
     else:      return 0.5 * ibeta
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+T-distribution CDF uses regularized incomplete beta — same continued fraction as BetaDist/FDist.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (df > 0) | 1 | 2 cy | ~2 cy |
+| Transform t to beta variable | 1 | 4 cy | ~4 cy |
+| Regularized incomplete beta (Lentz CF, ~20 iter) | ~20 | 15 cy | ~300 cy |
+| Two-tailed adjustment | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~310 cy** |
+
+O(1). Same continued fraction as FDist. For df > 30, Normal approximation is faster (~22 cy) and accurate to 1e-4.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| t-to-beta transformation | Yes | Vector arithmetic |
+| Continued fraction | No | Sequential convergence |
+| Two-tailed flip | Yes | Vector conditional |
+
+Dominated by sequential CF solver. Outer loop PLINQ for bulk p-value computation.
+
 ## Resources
 
 - Student (Gosset, W.S.). "The Probable Error of a Mean." Biometrika, 1908.

@@ -65,6 +65,21 @@ No price movement detected; no volume impact on WAD.
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Williams Accumulation/Distribution uses directional price comparison to select a TrueRange component, then accumulates — O(1).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Previous close comparison | 1 | 2 cy | ~2 cy |
+| TrueHigh / TrueLow conditional select | 1 | 3 cy | ~3 cy |
+| WAD_bar = C - TrueRange selected | 1 | 1 cy | ~1 cy |
+| WAD cumulative += WAD_bar | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~9 cy** |
+
+O(1) cumulative. No window, no smoothing. The conditional branch (up day vs down day vs unchanged) is predicted by the CPU after a few bars.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 10 | High; O(1) calculation with simple comparisons. |

@@ -1,4 +1,4 @@
-# LMS: Least Mean Squares Adaptive Filter
+﻿# LMS: Least Mean Squares Adaptive Filter
 
 > "The filter that learns from its mistakes, one gradient step at a time."
 
@@ -88,6 +88,29 @@ $$\mathbf{w} \leftarrow \mathbf{w} + \frac{\mu}{\epsilon + \|\mathbf{x}\|^2} \cd
 | Position/trend | 32-128 | 0.1-0.3 | Smooth, slow adaptation |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Least Mean Squares (LMS) adaptive filter: per bar updates N weight coefficients based on prediction error. O(N) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Dot product (prediction) | N | ~5 cy | ~160 cy (N=32) |
+| Error = target - prediction | 1 | ~2 cy | ~2 cy |
+| Weight update (N FMA: w += mu*err*x) | N | ~4 cy | ~128 cy |
+| **Total (N=32)** | **2N+1** | — | **~290 cycles** |
+
+O(N) per bar. Both prediction and weight-update passes are O(N). LMS convergence requires many bars; adapt rate mu controls speed/stability tradeoff.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Dot product | Yes | `Vector<double>` 4x speedup |
+| Weight update FMA | Yes | Independent weight updates; fully vectorizable |
+| Error scalar | No | Single value; no benefit |
+
+SIMD batch: ~75 cy for N=32 (dot product + weight update both vectorized).
 
 | Metric | Impact | Notes |
 | :--- | :--- | :--- |

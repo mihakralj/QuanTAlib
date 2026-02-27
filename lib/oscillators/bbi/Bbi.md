@@ -1,4 +1,4 @@
-# BBI: Bulls Bears Index
+﻿# BBI: Bulls Bears Index
 
 > "Average four moving averages of doubling periods and you get a single line that votes on whether bulls or bears own the tape. It is a committee of trends, each watching a different time horizon, forced to agree on one number."
 
@@ -92,6 +92,40 @@ for k = 1 to 4:
 
 return (sma[1] + sma[2] + sma[3] + sma[4]) / 4
 ```
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+BBI averages four SMA instances (3, 6, 12, 24 periods) using O(1) running sums.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer add + oldest sub × 4 SMAs | 8 | 1 | 8 |
+| MUL × 4 (1/N each SMA) | 4 | 3 | 12 |
+| ADD × 3 (sum four SMA values) | 3 | 1 | 3 |
+| MUL × 0.25 (divide by 4) | 1 | 3 | 3 |
+| **Total** | **16** | — | **~26 cycles** |
+
+Four parallel O(1) SMA streams. ~26 cycles per bar at steady state.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Rolling sums × 4 | Yes | Prefix-sum subtract-lag pattern, VADDPD/VSUBPD |
+| Average of four SMAs | Yes | VADDPD + VMULPD (×0.25) |
+
+Fully SIMD-vectorizable. AVX2 achieves ~4× throughput for large arrays.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact SMA arithmetic on four independent windows |
+| **Timeliness** | 5/10 | Dominated by 24-bar longest SMA window |
+| **Smoothness** | 8/10 | Average of four SMAs suppresses single-window noise |
+| **Noise Rejection** | 7/10 | Multi-period averaging reduces outlier sensitivity |
 
 ## Resources
 

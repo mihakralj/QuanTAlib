@@ -66,6 +66,20 @@ $$G_2 = \frac{(n-1)}{(n-2)(n-3)} \left[ (n+1) \cdot g_2 + 6 \right]$$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Kurtosis uses running sums of powers 1–4 over the sliding window for O(1) update (excess kurtosis formula).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update 4 power sums (x, x^2, x^3, x^4) | 4 | 3 cy | ~12 cy |
+| Compute excess kurtosis formula | 1 | 8 cy | ~8 cy |
+| NaN guard + N >= 4 guard | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~25 cy** |
+
+O(1) per update using 4th-moment running sums. Numerically sensitive — periodic resync every 1000+ bars prevents power-sum drift.
+
 | Operation | Complexity | Notes |
 |---|---|---|
 | `Update(TValue)` | O(1) | Running sums, no iteration |

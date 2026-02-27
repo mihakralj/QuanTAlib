@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("DeMarker Oscillator (DEM)", "DEM", overlay=false)
+
+//@function Calculates DEM (DeMarker Oscillator)
+//@param period SMA lookback period (default 14)
+//@returns DEM value in [0, 1] range; 0.3=oversold, 0.7=overbought
+//@optimized Uses 2 circular buffers for O(1) per-bar SMA computation
+dem(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
+
+    float prevHigh = nz(high[1], high)
+    float prevLow  = nz(low[1],  low)
+
+    float deMax = math.max(high - prevHigh, 0.0)
+    float deMin = math.max(prevLow - low,  0.0)
+
+    var array<float> deMaxBuf = array.new_float(period, 0.0)
+    var array<float> deMinBuf = array.new_float(period, 0.0)
+    var int idx = 0
+    var float deMaxSum = 0.0
+    var float deMinSum = 0.0
+
+    deMaxSum -= array.get(deMaxBuf, idx)
+    deMinSum -= array.get(deMinBuf, idx)
+
+    array.set(deMaxBuf, idx, deMax)
+    array.set(deMinBuf, idx, deMin)
+
+    deMaxSum += deMax
+    deMinSum += deMin
+
+    idx := (idx + 1) % period
+
+    float denom = deMaxSum + deMinSum
+    float result = denom != 0.0 ? deMaxSum / denom : 0.5
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, maxval=5000, tooltip="SMA smoothing period (traditional: 14)")
+
+// Calculation
+dem_value = dem(i_period)
+
+// Plot
+plot(dem_value, "DEM", color.new(color.yellow, 0), 2)
+hline(0.7, "Overbought",  color=color.red,   linestyle=hline.style_dotted)
+hline(0.5, "Midline",     color=color.gray,  linestyle=hline.style_dotted)
+hline(0.3, "Oversold",    color=color.green, linestyle=hline.style_dotted)

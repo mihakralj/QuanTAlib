@@ -1,4 +1,4 @@
-# BK: Baxter-King Band-Pass Filter
+﻿# BK: Baxter-King Band-Pass Filter
 
 > "The business cycle is whatever remains after you strip away the trend and the noise. Baxter and King figured out the stripping."
 
@@ -90,6 +90,27 @@ With $w[n] = w[2K - n]$ (Type I linear-phase FIR).
 The NBER-standard defaults (6, 32) target business cycle frequencies for quarterly data. For daily trading bars, typical choices are `pLow=6..10`, `pHigh=20..40`, `K=8..16`.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Baxter-King is a symmetric FIR band-pass filter; the full symmetric window covers 2K+1 points (K leads + K lags + center). The streaming implementation stores history and updates with a dot product.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer update | 1 | ~3 cy | ~3 cy |
+| Dot product over 2K+1 weights (FMA) | 2K+1 | ~5 cy | ~305 cy (K=30) |
+| **Total (K=30)** | **62** | — | **~308 cycles** |
+
+O(K) per bar. Precomputed symmetric weights; full-window convolution each bar. ~308 cycles for K=30.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Dot-product convolution | Yes | `Vector<double>` 4x speedup; weights symmetric (reduce by 2x) |
+| History window | Partial | Contiguous RingBuffer layout required for SIMD reads |
+
+AVX2 dot product: ~80 cy for K=30 (4x better than scalar).
 
 | Metric | Impact | Notes |
 | :--- | :--- | :--- |

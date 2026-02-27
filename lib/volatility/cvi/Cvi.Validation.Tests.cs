@@ -1,5 +1,14 @@
+// OoplesFinance: CalculateChandeVolatilityIndexDynamicAverageIndicator exists but implements
+// a different algorithm (Chande Volatility Index Dynamic Average / VIDA) rather than the
+// Chaikin Volatility Index (EMA of High-Low range, then ROC). The two share the "CVI"
+// abbreviation but are mathematically distinct. Numeric equality is not expected.
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using Tulip;
+
 namespace QuanTAlib.Test;
 
+using QuanTAlib.Tests;
 using Xunit;
 
 /// <summary>
@@ -502,6 +511,103 @@ public class CviValidationTests
 
         Assert.NotEqual(afterNew, afterCorrection);
         Assert.Equal(afterNew, afterRestore, 10);
+    }
+
+    // === Tulip Cross-Validation ===
+
+    /// <summary>
+    /// Structural validation against Tulip <c>cvi</c> indicator.
+    /// Algorithm variant: Tulip <c>cvi</c> uses a single <c>period</c> for both the EMA
+    /// smoothing window and the ROC lookback, while QuanTAlib uses separate
+    /// <c>rocLength</c> and <c>smoothLength</c> parameters.
+    /// Direct numeric equality is not asserted; test documents the difference and
+    /// verifies both implementations produce finite, bounded output on the same data.
+    /// </summary>
+    [Fact]
+    public void Cvi_Tulip_StructuralVariant_BothFinite()
+    {
+        const int period = 10;
+        var bars = GenerateTestData(200);
+        double[] highData = new double[bars.Count];
+        double[] lowData = new double[bars.Count];
+        for (int i = 0; i < bars.Count; i++)
+        {
+            highData[i] = bars[i].High;
+            lowData[i] = bars[i].Low;
+        }
+
+        // QuanTAlib CVI — rocLength=period, smoothLength=period (closest equivalent)
+        _ = Cvi.Batch(bars, rocLength: period, smoothLength: period);
+
+        // Tulip cvi — single period covers both EMA smoothing and ROC lookback
+        var tulipIndicator = Tulip.Indicators.cvi;
+        double[][] inputs = { highData, lowData };
+        double[] options = { period };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[highData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        // Structural check: both produce finite output (algorithm variants differ in seeding)
+        Assert.True(tResult.Length > 0, "Tulip cvi must produce output");
+        foreach (double v in tResult)
+        {
+            Assert.True(double.IsFinite(v), $"Tulip cvi produced non-finite value: {v}");
+        }
+
+        // QuanTAlib IsHot lives on the indicator, not on TValue
+        var cviIndicator = new Cvi(rocLength: period, smoothLength: period);
+        foreach (var bar in bars) { cviIndicator.Update(bar); }
+        Assert.True(cviIndicator.IsHot, "QuanTAlib Cvi must be hot after sufficient bars");
+    }
+
+    // ── Cross-library: OoplesFinance ────────────────────────────────────
+
+    /// <summary>
+    /// Structural validation against Ooples <c>CalculateChandeVolatilityIndexDynamicAverageIndicator</c>.
+    /// NOTE: Ooples "CVI" is the Chande Volatility Index Dynamic Average (VIDA) — an adaptive
+    /// moving average that uses CVI as its volatility measure. QuanTAlib CVI is Chaikin's
+    /// Volatility Index: EMA(High-Low range) rate-of-change over rocLength bars. These are
+    /// different algorithms sharing the "CVI" abbreviation. Numeric equality is not expected.
+    /// Both must produce finite output on the same OHLCV data.
+    /// </summary>
+    [Fact]
+    public void Cvi_OoplesStructuralVariant_BothFinite()
+    {
+        const int length = 10;
+        var bars = GenerateTestData(200);
+
+        var ooplesData = new List<TickerData>();
+        foreach (var bar in bars)
+        {
+            ooplesData.Add(new TickerData
+            {
+                Date = new DateTime(bar.Time, DateTimeKind.Utc),
+                Open = bar.Open,
+                High = bar.High,
+                Low = bar.Low,
+                Close = bar.Close,
+                Volume = bar.Volume
+            });
+        }
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateChandeVolatilityIndexDynamicAverageIndicator(length: length);
+        var oValues = oResult.OutputValues.Values.First();
+
+        var cvi = new Cvi(rocLength: length, smoothLength: length);
+        foreach (var bar in bars) { cvi.Update(bar); }
+
+        int finiteCount = 0;
+        int warmup = length * 2;
+        for (int i = warmup; i < Math.Min(oValues.Count, bars.Count); i++)
+        {
+            if (double.IsFinite(oValues[i])) { finiteCount++; }
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples CVI (VIDA) must produce output");
+        Assert.True(finiteCount > 50, $"Expected >50 finite Ooples CVI values, got {finiteCount}");
+        Assert.True(cvi.IsHot, "QuanTAlib CVI must be hot after 200 bars");
     }
 
     // === Helper Methods ===

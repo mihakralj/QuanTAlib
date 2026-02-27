@@ -1,4 +1,4 @@
-# SPBF: Ehlers Super Passband Filter
+﻿# SPBF: Ehlers Super Passband Filter
 
 > "Two EMAs walk into a frequency domain. The difference between them is the only thing worth trading."
 
@@ -78,6 +78,27 @@ $$d_2 = -\delta_1 \delta_2$$
 | `rmsPeriod` | 50 | RMS averaging window for trigger envelope. |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Spectral Band-Pass FIR: FIR filter designed in the frequency domain. Coefficient generation is O(N log N) once at construction; per-bar streaming is O(N) dot product.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer write | 1 | ~2 cy | ~2 cy |
+| Dot product FMA (N taps) | N | ~5 cy | ~250 cy (N=50) |
+| **Total (N=50)** | **N+1** | — | **~252 cycles** |
+
+O(N) per bar. FIR coefficient table precomputed from spectral specification. ~252 cycles for N=50.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR dot product | Yes | `Vector<double>` 4x speedup |
+| Spectral coefficient table | N/A | Precomputed once |
+
+AVX2 batch: ~65 cy for N=50.
 
 | Metric | Impact | Notes |
 | :--- | :--- | :--- |

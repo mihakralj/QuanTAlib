@@ -86,6 +86,33 @@ NORMDIST(source, period, mu, sigma):
     return 0.5 * (1 + erf)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Normal distribution CDF uses an erfc() rational approximation (Abramowitz & Stegun) — O(1) closed form.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| z = (x - mu) / sigma | 1 | 4 cy | ~4 cy |
+| erfc(z / sqrt(2)) rational approx | 1 | 15 cy | ~15 cy |
+| Scale by 0.5 | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~22 cy** |
+
+O(1) per evaluation. The rational polynomial erfc approximation has 7-term expansion, accurate to 1e-7. Division by sigma precomputed as multiplication by 1/sigma.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| z = (x - mu) / sigma | Yes | Vector<double> FMA |
+| erfc() rational polynomial | Partial | Polynomial evaluable via Horner + Vector |
+| Final scale | Yes | Vector multiply |
+
+The Horner polynomial evaluation in erfc() is SIMD-vectorizable. Expected 3× batch speedup over scalar using Vector<double> for the polynomial terms.
+
 ## Resources
 
 - Gauss, C.F. "Theoria Motus Corporum Coelestium." 1809.

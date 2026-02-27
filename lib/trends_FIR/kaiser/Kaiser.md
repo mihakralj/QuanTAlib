@@ -1,4 +1,4 @@
-# KAISER: Kaiser Window Moving Average
+﻿# KAISER: Kaiser Window Moving Average
 
 > "James Kaiser gave signal processing a knob. Turn beta up, sidelobes go down, transition band widens. Turn it down, you get an SMA. One parameter to rule them all."
 
@@ -92,3 +92,28 @@ return Σ buffer[j] * w[j]
 - Kaiser, J.F. & Schafer, R.W. (1980). "On the Use of the I0-Sinh Window for Spectrum Analysis." *IEEE Trans. Acoust., Speech, Signal Process.*, ASSP-28(1), 105-107.
 - Oppenheim, A.V. & Schafer, R.W. (2009). *Discrete-Time Signal Processing*, 3rd ed. Prentice Hall. Section 7.4.
 - Slepian, D. (1964). "Prolate Spheroidal Wave Functions, Fourier Analysis and Uncertainty." *Bell System Technical Journal*, 43(6), 3009-3057.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+KAISER(N, β) is a direct FIR convolution using precomputed Kaiser-Bessel window weights (computed once in the constructor via a 25-term modified Bessel function series). Each `Update()` call is a pure length-N dot product — identical in structure to any other windowed FIR.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA (weight × value + acc) | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 14: ~59 cycles. Weight computation at construction: O(N × 25) for I₀ series — acceptable one-time cost. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR convolution | Yes | AVX2 `VFMADD231PD`; weight array loaded once into registers |
+| Weight array | Yes | Precomputed; no runtime transcendental cost |
+| Symmetric weight exploitation | Yes | Kaiser weights are symmetric: w[i] = w[N-1-i]; SIMD can fuse pairs |
+| Cross-bar independence | Yes | Each bar fully independent; outer-loop SIMD viable |
+
+Due to symmetric weights (w[i] = w[N-1-i]), the FIR can be folded: each pair (oldest + newest) shares the same weight, halving the multiply count to N/2 FMA. AVX2 batch throughput: approximately N/8 cycles per bar — for N = 14, ~1.75 cycles/bar at peak.

@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using TALib;
 using Xunit.Abstractions;
@@ -133,5 +135,44 @@ public class TrimaValidationTests
             ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("TRIMA Span validated successfully against TA-Lib");
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Trima_MatchesOoples_Structural()
+    {
+        const int period = 14;
+        var ooplesData = _testData.SkenderQuotes.Select(static q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateTriangularMovingAverage(length: period);
+        var oValues = oResult.OutputValues.Values.First();
+
+        var trima = new global::QuanTAlib.Trima(period);
+        var qValues = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            qValues.Add(trima.Update(item).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples Trima must produce output");
+        int finiteCount = 0;
+        for (int i = period; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite Trima pairs, got {finiteCount}");
+        _output.WriteLine($"Trima Ooples structural: {finiteCount} finite pairs verified.");
     }
 }

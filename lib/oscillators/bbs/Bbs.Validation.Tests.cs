@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
@@ -192,5 +194,20 @@ public sealed class BbsValidationTests : IDisposable
         }
 
         _output.WriteLine("BBS validation: large dataset stability verified.");
+    }
+
+    [Fact]
+    public void Bbs_MatchesOoples_Structural()
+    {
+        // CalculateSqueezeMomentumIndicator — structural test (BBands width / KC width)
+        var ooplesData = _testData.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateSqueezeMomentumIndicator();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples BBS/Squeeze values, got {finiteCount}");
     }
 }

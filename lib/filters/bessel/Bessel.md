@@ -1,4 +1,4 @@
-# BESSEL: Bessel Filter
+﻿# BESSEL: Bessel Filter
 
 > When you care more about *when* the market turns than how aggressively you can torture the noise, you reach for a Bessel.
 
@@ -83,6 +83,28 @@ For robustness:
 * The recursive update always runs on a finite input.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Bessel implements a maximally flat group-delay 2nd-order IIR biquad. Five coefficients applied per bar via the standard difference equation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input state shift | 2 | ~1 cy | ~2 cy |
+| Feedforward FMA (b0*x + b1*x1 + b2*x2) | 3 | ~4 cy | ~12 cy |
+| Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **9** | — | **~24 cycles** |
+
+O(1) per bar. Coefficients precomputed from the period parameter. ~24 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential: y[n] = f(y[n-1], y[n-2]) |
+
+Recursive IIR baseline: ~24 cy/bar scalar.
 
 BESSEL is designed for **zero allocations** on the hot path and efficient batch processing for analysis and backtests.
 

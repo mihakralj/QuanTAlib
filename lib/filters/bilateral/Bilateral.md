@@ -1,4 +1,4 @@
-# Bilateral Filter
+﻿# Bilateral Filter
 
 > "Smoothing without blurring edges? It's not magic, it's just math."
 
@@ -46,6 +46,30 @@ Parameters:
 * $\sigma_r = \max(\text{StDev}(P, L) \cdot \text{mult}, 10^{-10})$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Bilateral filter applies a 2D Gaussian kernel in both spatial (time index) and range (value distance) dimensions over an N-bar window. O(N) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Spatial kernel weight (exp of index^2) | N | ~15 cy | ~450 cy (N=30) |
+| Range kernel weight (exp of value^2) | N | ~15 cy | ~450 cy |
+| Combined weight x value FMA | N | ~4 cy | ~120 cy |
+| Normalization | 1 | ~3 cy | ~3 cy |
+| **Total (N=30)** | **3N+1** | — | **~1023 cycles** |
+
+O(N) per bar. The two exp() calls per element dominate. Precomputing the spatial kernel (time-invariant) halves the exp() count. ~1023 cycles/bar for N=30 without optimization.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Spatial kernel (precomputed) | Yes | One-time; vectorized lookup |
+| Range kernel (exp of diff^2) | Partial | exp not directly SIMD; use polynomial approx for 4x speedup |
+| Weighted sum FMA | Yes | `Vector<double>` dot product |
+
+SIMD approximations for exp can reduce to ~250 cy for N=30.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

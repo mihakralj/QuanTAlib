@@ -1,4 +1,4 @@
-# Kalman Filter (KALMAN)
+﻿# Kalman Filter (KALMAN)
 
 > "Prediction is very difficult, especially if it's about the future." — Niels Bohr. The Kalman Filter doesn't just predict; it optimally estimates the present by balancing what it thinks should happen with what actually happened.
 
@@ -59,6 +59,30 @@ Where:
 | **r** | `double` | 0.1 | Measurement Noise Covariance. Controls smoothing. Higher = Smoother/Laggier. |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+1D Kalman filter: scalar predict-update cycle. Two phases: predict (extrapolate state + grow variance) and update (apply gain, update state and variance). O(1) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Predict: state extrapolation | 1 | ~2 cy | ~2 cy |
+| Predict: covariance growth | 1 | ~2 cy | ~2 cy |
+| Update: Kalman gain = P/(P+R) | 1 | ~10 cy | ~10 cy |
+| Update: state = state + K*(z-state) | 1 | ~4 cy | ~4 cy |
+| Update: covariance shrink | 1 | ~3 cy | ~3 cy |
+| **Total** | **5** | — | **~21 cycles** |
+
+O(1) per bar. Division for gain computation dominates. ~21 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| State recursion | No | Sequential: state[n] = f(state[n-1]) |
+| Gain computation | No | Depends on running covariance |
+
+Batch throughput: ~21 cy/bar scalar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

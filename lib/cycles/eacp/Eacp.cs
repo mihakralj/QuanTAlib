@@ -195,7 +195,8 @@ public sealed class Eacp : AbstractBase
         // Super-smoother filter: removes high-frequency noise
         double filt2 = s.Filt1;
         double filt1 = s.Filt0;
-        double filt0 = _c1 * (hp0 + hp1) * 0.5 + _c2 * filt1 + _c3 * filt2;
+        double filt0 = Math.FusedMultiplyAdd(_c1, (hp0 + hp1) * 0.5,
+                           Math.FusedMultiplyAdd(_c2, filt1, _c3 * filt2));
 
         // Add filtered value to history buffer
         _filtHistory.Add(filt0);

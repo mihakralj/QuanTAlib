@@ -1,4 +1,4 @@
-# RAIN: Rainbow Moving Average
+﻿# RAIN: Rainbow Moving Average
 
 > "Mel Widner applied SMA ten times recursively, then weighted the layers like a rainbow: brightest at the top, fading toward the base. Ten colors of smoothing, one composite average that sees both fast and slow structure simultaneously."
 
@@ -90,3 +90,31 @@ return (5*MA[1] + 4*MA[2] + 3*MA[3] + 2*MA[4] + MA[5] + MA[6] + MA[7] + MA[8] + 
 - Widner, M. (1998). "Rainbow Charts." *Technical Analysis of Stocks & Commodities*.
 - thinkorswim / TD Ameritrade. "RainbowAverage" study documentation.
 - Schoenberg, I.J. (1946). "Contributions to the Problem of Approximation of Equidistant Data by Analytic Functions." *Quarterly of Applied Mathematics*, 4(1), 45-99. (B-spline theory underlying recursive SMA.)
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+RAIN(N) composes 10 independent SMA(N) instances in parallel. Each SMA uses O(1) running-sum via its ring buffer. The composite output is a weighted sum of the 10 SMA results — all computed from the same input value.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Per-layer ring buffer push × 10 | 10 | 3 | ~30 |
+| Per-layer running sum update × 10 (add new, subtract evicted) | 20 | 1 | ~20 |
+| Per-layer SMA divide × 10 | 10 | 8 | ~80 |
+| Weighted composite (10 FMA with weights 5,4,3,2,1,1,1,1,1,1) | 10 | 4 | ~40 |
+| Final divide by 20 | 1 | 8 | ~8 |
+| **Total** | **51** | — | **~178 cycles** |
+
+O(1) per bar. Each of the 10 SMA layers is O(1); the composite sum is 10 FMA operations. WarmupPeriod = period × 10 (all layers must reach steady state).
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| 10 independent SMA running sums | Yes | All 10 sums independent per bar; `VADDPD` on 10-channel register set |
+| 10 SMA divides | Yes | 10 `VDIVPD` ops; can be vectorized as 10-wide FP array |
+| Weighted composite | Yes | 10-element dot product; fits in 2–3 AVX2 registers |
+| Cross-bar independence | Yes | Outer loop fully vectorizable: 4 output bars per pass |
+
+Because all 10 SMA layers are independent, the entire computation can be vectorized across layers AND across bars simultaneously. AVX2 can process 4 bars per pass, each bar updating all 10 layers via 10-register prefix sums. Estimated batch speedup for large series: ~6× over scalar.

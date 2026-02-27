@@ -1,4 +1,4 @@
-# ALLIGATOR: Williams Alligator
+﻿# ALLIGATOR: Williams Alligator
 
 The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display offsets to visualize market phases. The Jaw (13-period, offset 8), Teeth (8-period, offset 5), and Lips (5-period, offset 3) create a layered structure where intertwined lines indicate consolidation ("sleeping") and separated, aligned lines indicate trending conditions ("eating"). The metaphor maps directly to position management: stay out when the alligator sleeps, ride when it eats. Each line uses Wilder's smoothing ($\alpha = 1/N$), which is heavier than standard EMA, providing superior noise rejection at the cost of additional lag.
 
@@ -105,6 +105,43 @@ On each bar (high, low, close, isNew):
 - **Separation width:** Proportional to trend strength
 - **Line ordering:** Determines trend direction
 - **Intertwining:** Signals consolidation — the highest-probability losing zone for trend followers
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+The Alligator runs three SMMA (Wilder RMA) instances with different periods and bar shifts.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Median price (H+L)/2 | 2 | 1 | 2 |
+| FMA × 3 (SMMA jaw, teeth, lips updates) | 3 | 4 | 12 |
+| RingBuffer writes × 3 (shift lag storage) | 3 | 1 | 3 |
+| RingBuffer reads × 3 (shifted output) | 3 | 1 | 3 |
+| **Total** | **11** | — | **~20 cycles** |
+
+Three independent SMMA streams run in parallel with look-ahead shift buffers. For default periods (13/8/5) with shifts (8/5/3): warmup is 13+8 = 21 bars. Steady state: ~20 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Median price computation | Yes | VADDPD + VMULPD (×0.5) |
+| SMMA (Wilder RMA) | **No** | Recursive IIR — sequential per stream |
+| Shifted output reads | Yes | Array offset reads, no dependencies |
+
+Three independent recursive streams. No cross-stream dependencies, but each stream is itself sequential. Cannot batch-vectorize across bars, but the three streams can run on separate cores.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | FMA-precise RMA; independent streams eliminate cross-contamination |
+| **Timeliness** | 4/10 | Longest jaw (21 bars warmup + 8-bar shift = 29 bars before output) |
+| **Smoothness** | 9/10 | Wilder smoothing on all three lines; Williams designed for low noise |
+| **Noise Rejection** | 8/10 | Triple staggered RMAs with shifts effectively filter market noise |
 
 ## Resources
 

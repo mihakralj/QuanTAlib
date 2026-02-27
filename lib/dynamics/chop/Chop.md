@@ -1,4 +1,4 @@
-# CHOP: Choppiness Index
+﻿# CHOP: Choppiness Index
 
 The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways. It compares total price movement (sum of True Range) to net price movement (high-low channel width) using a logarithmic ratio, producing a bounded value where high readings indicate choppy/consolidating conditions and low readings indicate trending conditions. CHOP does not indicate direction — only whether directional strategies are likely to succeed. The logarithmic scaling normalizes the output to approximately 0-100 regardless of price level or volatility magnitude.
 
@@ -100,6 +100,48 @@ On each bar (high, low, close, isNew):
 ### Non-Directional Property
 
 CHOP is completely direction-agnostic. A strong uptrend and a strong downtrend produce identical low CHOP readings. Direction must be determined by a separate indicator (AMAT, ADX directional components, or simple price comparison).
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CHOP needs True Range sum over N bars (running sum from RingBuffer) and ATR-N (highest high minus lowest low over N bars).
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| TR computation (SUB×3, ABS×2, MAX×2) | 7 | 1 | 7 |
+| RingBuffer write + oldest sub (TR sum) | 2 | 1 | 2 |
+| Deque update × 2 (high/low window extrema) | 4 | 1 | 4 |
+| SUB (highest_high − lowest_low = range) | 1 | 1 | 1 |
+| DIV (TR_sum / range) | 1 | 15 | 15 |
+| LOG10 (normalize to period) | 1 | 20 | 20 |
+| DIV (scale by log10(N)) | 1 | 15 | 15 |
+| MUL (scale to 100) | 1 | 3 | 3 |
+| **Total** | **18** | — | **~67 cycles** |
+
+For default $N=14$: ~67 cycles per bar. The LOG10 call is the dominant cost.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| TR computation | Yes | VSUBPD + VABSPD + VMAXPD per bar |
+| Prefix-sum TR | Partial | Inclusive prefix sum with SIMD subtract-lag |
+| Sliding high/low extrema | Partial | Lemire deque or sparse table; ArgMax/ArgMin scan |
+| LOG10 + scaling | Yes | SVML vlog10 or Taylor approx; scalar fallback |
+
+With AVX2 and Intel SVML for vectorized log, batch mode achieves ~3× throughput for large datasets.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | LOG10 precision sufficient; FMA could be applied to TR computation |
+| **Timeliness** | 6/10 | N-bar lookback; instantaneous response to volatility regime changes |
+| **Smoothness** | 5/10 | Raw ratio is noisy; often used with EMA smoothing externally |
+| **Noise Rejection** | 6/10 | Logarithmic scaling reduces extreme value sensitivity |
 
 ## Resources
 

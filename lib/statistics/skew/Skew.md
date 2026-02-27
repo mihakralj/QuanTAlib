@@ -44,6 +44,20 @@ $$ G_1 = \frac{\sqrt{n(n-1)}}{n-2} \cdot g_1 $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Skewness uses running sums of powers 1–3 over the sliding window for O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update 3 power sums (x, x^2, x^3) | 3 | 3 cy | ~9 cy |
+| Compute skewness formula | 1 | 8 cy | ~8 cy |
+| NaN guard + N >= 3 guard | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~22 cy** |
+
+O(1) per update using 3rd-moment running sums. The sample skewness correction factor N/((N-1)(N-2)) is precomputed in the constructor.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 8 ns/bar | O(1) update using running sums. |

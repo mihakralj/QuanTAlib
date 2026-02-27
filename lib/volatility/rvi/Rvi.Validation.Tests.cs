@@ -1,3 +1,6 @@
+// OoplesFinance does not have a Relative Volatility Index (RVI) implementation.
+// CalculateRelativeVolatility is not present in OoplesFinance.StockIndicators v1.1.1.
+
 namespace QuanTAlib.Test;
 
 using Xunit;
@@ -612,4 +615,5 @@ public class RviValidationTests
         double mean = values.Average();
         return values.Average(v => Math.Pow(v - mean, 2));
     }
+
 }

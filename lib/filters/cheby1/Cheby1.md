@@ -1,4 +1,4 @@
-# CHEBY1: Chebyshev Type I Lowpass Filter
+﻿# CHEBY1: Chebyshev Type I Lowpass Filter
 
 The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with ripples in the passband. This type of filter has a steeper rolloff and more passband ripple (type I) or stopband ripple (type II) than Butterworth filters.
 
@@ -60,6 +60,33 @@ var result = filter.Update(new TValue(DateTime.UtcNow, 100.0));
 
 // result.Value contains the filtered value
 ```
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CHEBY1 implements a 2nd-order IIR biquad: y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]. Five multiply-add operations per bar; no recursion beyond depth 2.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input load + state shift | 3 | ~1 cy | ~3 cy |
+| Feedforward FMA (b0*x + b1*x1 + b2*x2) | 3 | ~4 cy | ~12 cy |
+| Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
+| Output store + state update | 2 | ~1 cy | ~2 cy |
+| **Total** | **10** | — | **~25 cycles** |
+
+O(1) per bar. Coefficients precomputed at construction from period and ripple parameters. ~25 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential dependency: y[n] depends on y[n-1] |
+| Coefficient computation | N/A | One-time at construction; not on hot path |
+| Scalar batch loop | Partial | Loop overhead vectorizable; AR recursion is not |
+
+IIR filters cannot be vectorized across the time axis due to their recursive structure. Throughput is bounded by the biquad latency chain (~25 cy/bar).
 
 ## References
 

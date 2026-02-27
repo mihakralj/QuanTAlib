@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Accumulation Swing Index (ASI)", "ASI", overlay=false)
+
+//@function Computes Wilder's Swing Index for a single bar.
+//@param high     Current bar high price
+//@param low      Current bar low price
+//@param close    Current bar close price
+//@param open     Current bar open price
+//@param prevHigh Previous bar high price
+//@param prevLow  Previous bar low price (unused in SI formula but kept for completeness)
+//@param prevClose Previous bar close price
+//@param prevOpen  Previous bar open price
+//@param limitMove Maximum daily limit move value (T parameter)
+//@returns Single-bar Swing Index value
+//@optimized O(1) per bar — no buffer allocation, pure arithmetic
+
+asi(float high, float low, float close, float open, float prevClose, float prevOpen, float limitMove) =>
+    float K = math.max(math.abs(high - prevClose), math.abs(low - prevClose))
+    float absHC = math.abs(high - prevClose)
+    float absLC = math.abs(low - prevClose)
+    float absHL = math.abs(high - low)
+    float absC1O1 = math.abs(prevClose - prevOpen)
+    float R = absHC >= absLC and absHC >= absHL ?
+        absHC - 0.5 * absLC + 0.25 * absC1O1 :
+        absLC >= absHC and absLC >= absHL ?
+        absLC - 0.5 * absHC + 0.25 * absC1O1 :
+        absHL + 0.25 * absC1O1
+    float SI = R != 0.0 ? 50.0 * ((close - prevClose) + 0.5 * (close - open) + 0.25 * (prevClose - prevOpen)) / R * (K / limitMove) : 0.0
+    SI
+
+//@param i_limitMove Limit move value T — the maximum daily price movement (must be > 0)
+i_limitMove = input.float(3.0, title="Limit Move", minval=0.001, tooltip="Maximum daily price change (T). Use 3.0 for stocks, adjust for futures/forex.")
+
+// ---------- Main loop ----------
+
+var float asi_val = 0.0
+float prevClose = nz(close[1], close)
+float prevOpen = nz(open[1], open)
+float prevHigh = nz(high[1], high)
+float prevLow = nz(low[1], low)
+
+float si = bar_index == 0 ? 0.0 : asi(high, low, close, open, prevClose, prevOpen, i_limitMove)
+asi_val := nz(asi_val[1], 0.0) + si
+
+hline(0, "Zero Line", color=color.new(color.gray, 60), linestyle=hline.style_dashed)
+plot(asi_val, title="ASI", color=color.yellow, linewidth=2)

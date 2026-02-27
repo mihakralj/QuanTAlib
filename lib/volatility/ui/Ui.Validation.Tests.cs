@@ -1,3 +1,6 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+
 namespace QuanTAlib.Test;
 
 using Xunit;
@@ -669,4 +672,28 @@ public class UiValidationTests
     //   QuanTAlib: highestClose = max(closes over the entire rolling period window)
     //   Both are valid implementations of the Ulcer Index concept, but produce different values.
     //   No external validation test is added for UI due to this algorithmic difference.
+
+    [Fact]
+    public void Ui_MatchesOoples_Structural()
+    {
+        // CalculateUlcerIndex — structural test (different highest-close window variant)
+        var gbm = new GBM(seed: 42);
+        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        var ooplesData = bars.Select(b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open,
+            High = b.High,
+            Low = b.Low,
+            Close = b.Close,
+            Volume = b.Volume
+        }).ToList();
+
+        var result = new StockData(ooplesData).CalculateUlcerIndex();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples UI values, got {finiteCount}");
+    }
 }

@@ -44,6 +44,21 @@ $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+ADL computes Money Flow Multiplier (MFM) from bar data, multiplies by volume, and accumulates cumulatively — O(1).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MFM = ((C-L)-(H-C)) / (H-L) | 1 | 5 cy | ~5 cy |
+| MFV = MFM * Volume | 1 | 3 cy | ~3 cy |
+| ADL += MFV (cumulative sum) | 1 | 1 cy | ~1 cy |
+| Zero guard on H-L | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~13 cy** |
+
+O(1) cumulative indicator — no window, no buffer. Throughput ~4 ns/bar. Division is the critical path (H-L guard prevents divide-by-zero on doji bars).
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 10 | High; O(1) calculation with simple arithmetic. |

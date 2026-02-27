@@ -63,6 +63,20 @@ Relationship to Percentile: $Q(q) = P(100q)$ where $P$ is the percentile functio
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Quantile uses the same sorted-buffer approach as Percentile, with fraction [0,1] mapped to sorted indices.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer evict oldest | 1 | 3 cy | ~3 cy |
+| Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
+| Rank interpolation (linear) | 1 | 3 cy | ~3 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20)** | **O(N)** | — | **~28 cy** |
+
+O(N) per update. Linear interpolation between adjacent order statistics matches the standard R-7 quantile method used by NumPy and R by default.
+
 | Operation | Cost | Notes |
 |-----------|------|-------|
 | BinarySearch | O(log N) | `Array.BinarySearch` for insert/remove position |

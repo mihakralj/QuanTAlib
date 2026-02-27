@@ -1,4 +1,4 @@
-# Gauss: Gaussian Filter
+﻿# Gauss: Gaussian Filter
 
 > "SMA smears data like cheap paint. Gaussian filtering respects the signal's soul."
 
@@ -47,6 +47,28 @@ The filtered value $y_t$ at time $t$ is the convolution of input $x$ and normali
 $$ y_t = \sum_{i=0}^{N-1} x_{t-i} \cdot W(i) $$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Gaussian filter is a truncated FIR: N = 2*ceil(3*sigma)+1 weights. Per bar: O(N) dot product over RingBuffer with precomputed normalized weights.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer write | 1 | ~2 cy | ~2 cy |
+| Weighted sum FMA (N taps) | N | ~5 cy | ~35 cy (N=7, sigma=1) |
+| Sum normalization | 1 | ~3 cy | ~3 cy |
+| **Total (sigma=1, N=7)** | **N+2** | — | **~40 cycles** |
+
+O(N) per bar. Weights precomputed at construction. Linear scaling with sigma: sigma=2 => N=13 => ~75 cy.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR dot product | Yes | `Vector<double>` 4x speedup on N-length convolution |
+| Weight table | N/A | Precomputed; no per-bar allocation |
+
+AVX2 batch: ~10 cy/bar for sigma=1, ~20 cy for sigma=2.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

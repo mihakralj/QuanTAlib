@@ -1,4 +1,4 @@
-# TTM_TREND: TTM Trend
+﻿# TTM_TREND: TTM Trend
 
 > "The simplest trend indicator is the one you actually follow."
 
@@ -92,6 +92,44 @@ TTM_TREND(bar, period=6):
 ### Period Selection
 
 The default period of 6 makes TTM Trend extremely fast-reacting. The EMA half-life is approximately $\ln(2) / \ln(1 + 2/N) \approx 2.4$ bars for $N = 6$. This means the indicator responds within 2-3 bars of a price shift. Longer periods (12, 20) reduce whipsaws but delay detection. Carter's design intent was maximum responsiveness, with noise filtering delegated to companion indicators (Squeeze, Wave).
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+TTM Trend colors bars based on whether close is above/below a short SMA, with momentum confirmation from a histogram.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer add + oldest sub (running sum) | 2 | 1 | 2 |
+| MUL × 1/N (SMA) | 1 | 3 | 3 |
+| CMP (close vs SMA) | 1 | 1 | 1 |
+| Histogram momentum (FMA EMA update) | 1 | 4 | 4 |
+| Color encoding (ternary +1/0/−1) | 1 | 1 | 1 |
+| **Total** | **6** | — | **~11 cycles** |
+
+Very cheap: ~11 cycles per bar at steady state.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| SMA (rolling sum) | Yes | VADDPD + prefix-sum subtract-lag |
+| EMA histogram | **No** | Recursive IIR |
+| Bar color comparison | Yes | VCMPPD |
+
+The EMA histogram is the only sequential step. SMA and comparison are fully vectorizable.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | SMA exact arithmetic; EMA FMA-precise |
+| **Timeliness** | 8/10 | Short SMA period dominates; near-instantaneous response |
+| **Smoothness** | 10/10 | Ternary output — maximally smooth |
+| **Noise Rejection** | 6/10 | Short SMA period makes it sensitive to noise in choppy markets |
 
 ## Resources
 

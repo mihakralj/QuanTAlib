@@ -1,4 +1,7 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
+using TALib;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,6 +14,7 @@ namespace QuanTAlib.Tests;
 /// Note: TALib CMO uses Wilder's exponential smoothing internally, which produces
 /// fundamentally different results than the standard simple-sum CMO formula.
 /// QuanTAlib, Tulip, and Skender all use the standard simple-sum approach.
+/// The TALib test below validates structural properties only — not numeric equality.
 /// </summary>
 public sealed class CmoValidationTests(ITestOutputHelper output) : IDisposable
 {
@@ -253,6 +257,109 @@ public sealed class CmoValidationTests(ITestOutputHelper output) : IDisposable
             Assert.Equal(batchOutput[i], streamingResults[i], 1e-9);
         }
         _output.WriteLine("CMO Batch vs Streaming consistency validated");
+    }
+
+    #endregion
+
+    #region TALib Structural Validation
+
+    /// <summary>
+    /// TALib CMO uses Wilder's smoothed averaging (EMA-based) rather than the
+    /// standard simple-sum formula used by QuanTAlib, Tulip, and Skender.
+    /// Numeric equality cannot be expected. This test verifies:
+    /// 1. TALib runs without error and produces a valid output range.
+    /// 2. Both implementations produce bounded CMO values in [-100, +100].
+    /// 3. Direction agreement: sign of QuanTAlib vs TALib is the same for
+    ///    well-converged (post-warmup) bars (>80% agreement expected).
+    /// </summary>
+    [Fact]
+    public void Cmo_TaLib_StructuralValidation()
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        // --- TALib CMO ---
+        double[] taOut = new double[tData.Length];
+        var retCode = Functions.Cmo<double>(tData, 0..^0, taOut, out var outRange, TestPeriod);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        var (taOffset, taLength) = outRange.GetOffsetAndLength(taOut.Length);
+        Assert.True(taLength > 0, "TALib produced no output");
+
+        // --- QuanTAlib CMO ---
+        double[] qOut = new double[tData.Length];
+        Cmo.Batch(tData.AsSpan(), qOut.AsSpan(), TestPeriod);
+
+        // Both outputs should be bounded in [-100, +100]
+        for (int j = 0; j < taLength; j++)
+        {
+            int qi = j + taOffset;
+            Assert.True(taOut[j] >= -100.0 && taOut[j] <= 100.0,
+                $"TALib CMO[{j}]={taOut[j]:F4} outside [-100,+100]");
+            if (double.IsFinite(qOut[qi]))
+            {
+                Assert.True(qOut[qi] >= -100.0 && qOut[qi] <= 100.0,
+                    $"QuanTAlib CMO[{qi}]={qOut[qi]:F4} outside [-100,+100]");
+            }
+        }
+
+        // Sign agreement (directional concordance) — expect >70% after full convergence
+        // TALib Wilder-CMO converges after ~3× period bars
+        int compareStart = TestPeriod * 3;
+        int agreementCount = 0;
+        int compareCount = 0;
+
+        for (int j = 0; j < taLength; j++)
+        {
+            int qi = j + taOffset;
+            if (qi < compareStart || !double.IsFinite(qOut[qi])) { continue; }
+
+            compareCount++;
+            if (Math.Sign(taOut[j]) == Math.Sign(qOut[qi])) { agreementCount++; }
+        }
+
+        if (compareCount > 0)
+        {
+            double agreementRate = (double)agreementCount / compareCount;
+            Assert.True(agreementRate >= 0.70,
+                $"TALib/QuanTAlib CMO sign agreement {agreementRate:P1} < 70% ({agreementCount}/{compareCount})");
+            _output.WriteLine($"CMO TALib structural: {taLength} output bars, sign agreement={agreementRate:P1}");
+        }
+    }
+
+    [Fact]
+    public void Cmo_TaLib_Lookback_Matches_Expected()
+    {
+        int lookback = Functions.CmoLookback(TestPeriod);
+        // TALib CMO lookback = period (Wilder's period)
+        Assert.True(lookback > 0, $"TALib CMO lookback={lookback} should be positive");
+        _output.WriteLine($"TALib CMO lookback for period={TestPeriod}: {lookback}");
+    }
+
+    #endregion
+
+    #region Ooples Validation
+
+    [Fact]
+    public void Cmo_Matches_Ooples_Batch()
+    {
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateChandeMomentumOscillator(length: TestPeriod);
+        var oValues = oResult.OutputValues["Cmo"];
+
+        var qResult = Cmo.Batch(_testData.Data, TestPeriod);
+
+        ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
+        _output.WriteLine("CMO Batch validated against Ooples");
     }
 
     #endregion

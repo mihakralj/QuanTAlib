@@ -1,4 +1,4 @@
-# SGF: Savitzky-Golay Filter
+﻿# SGF: Savitzky-Golay Filter
 
 > "SMA smoothes. Savitzky-Golay understands."
 
@@ -48,6 +48,27 @@ $$ y_t = \sum_{k=-m}^{m} W_k \cdot x_{t+k} $$
 Note: In a causal (real-time) implementation, the kernel is shifted to operate on past data points ($t-N+1$ to $t$).
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Savitzky-Golay filter: polynomial-fitted FIR with precomputed convolution coefficients. Per bar: O(N) dot product over RingBuffer.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer write | 1 | ~2 cy | ~2 cy |
+| Dot product FMA (N taps) | N | ~5 cy | ~200 cy (N=41) |
+| **Total (N=41)** | **N+1** | — | **~202 cycles** |
+
+O(N) per bar. SG coefficients precomputed via normal equations at construction. Same dot-product profile as other FIR filters.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR dot product | Yes | `Vector<double>` 4x speedup |
+| Coefficient table | N/A | Precomputed once |
+
+AVX2 batch: ~52 cy for N=41.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

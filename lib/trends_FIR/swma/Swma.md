@@ -1,4 +1,4 @@
-# SWMA: Symmetric Weighted Moving Average
+﻿# SWMA: Symmetric Weighted Moving Average
 
 > "Take the SMA of an SMA and you get a triangular filter. It is the simplest possible smoothing kernel that has zero phase distortion and no frequency-domain discontinuities. Sometimes simple is exactly what you need."
 
@@ -86,3 +86,27 @@ return sumWV / sumW
 - Macaulay, F.R. (1931). *The Smoothing of Time Series.* National Bureau of Economic Research. Chapter 3: Moving Averages and Their Properties.
 - Oppenheim, A.V. & Schafer, R.W. (2009). *Discrete-Time Signal Processing*, 3rd ed. Prentice Hall. Section 5.6: The Bartlett (Triangular) Window.
 - Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance. Chapter 9: Moving Averages.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+SWMA(N) is an O(N) FIR convolution using symmetric triangular weights (ascending then descending). Weights are precomputed at construction and normalized to sum = 1. The triangular shape gives the center bar the highest weight.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 14: ~59 cycles. Triangular weights are strictly positive — numerically clean. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR convolution | Yes | `VFMADD231PD`; all-positive weights |
+| Symmetric triangular window | Yes | Fold: only ⌈N/2⌉ unique weights; halves FMA count |
+| Cross-bar independence | Yes | 4 output bars per AVX2 pass |
+
+Symmetric folding reduces the effective FMA count to ⌈N/2⌉. For N = 14: 7 FMAs per bar. AVX2 batch throughput: ~N/8 cycles per bar. Among the windowed FIR filters, SWMA has the fewest effective operations due to its simple triangular shape.

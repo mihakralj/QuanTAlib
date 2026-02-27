@@ -154,12 +154,16 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**BBS**](../lib/oscillators/bbs/Bbs.md) | Bollinger Band Squeeze | BB inside KC squeeze detection |
 | [**CFO**](../lib/oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Forecast error percentage |
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
+| [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs/lows; DeMarker's demand pressure |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
+| [**DYMOI**](../lib/oscillators/dymoi/Dymoi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period; shorter in volatile markets, longer in quiet |
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
 | [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms (upper/lower) |
 | [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
+| [**LRSI**](../lib/oscillators/lrsi/Lrsi.md) | Ehlers Laguerre RSI | Laguerre filter-based RSI; single γ parameter trades lag vs smoothness; output [0,1] |
+| [**MARKETFI**](../lib/oscillators/marketfi/Marketfi.md) | Market Facilitation Index | Bill Williams' price-range-per-unit-of-volume efficiency; no period; volume-required |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
 | [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
 | [**REVERSEEMA**](../lib/oscillators/reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion oscillator |
@@ -208,6 +212,7 @@ Rate of change and velocity measurements. First derivatives of price.
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**ASI**](../lib/momentum/asi/Asi.md) | Accumulation Swing Index | Wilder's cumulative swing index; breakout confirmation via limit-adjusted bar values |
 | [**BIAS**](../lib/momentum/bias/Bias.md) | Bias / Disparity Index | Percentage deviation from SMA |
 | [**BOP**](../lib/momentum/bop/Bop.md) | Balance of Power | Close position in range |
 | [**CCI**](../lib/momentum/cci/Cci.md) | Commodity Channel Index | Mean deviation normalized |
@@ -357,6 +362,8 @@ Mathematical and statistical computations on price series.
 | [**SUM**](../lib/statistics/sum/Sum.md) | Rolling Sum | Windowed sum |
 | [**THEIL**](../lib/statistics/theil/Theil.md) | Theil T Index | Information-theoretic inequality |
 | [**VARIANCE**](../lib/statistics/variance/Variance.md) | Variance | Squared deviation |
+| [**MEANDEV**](../lib/statistics/meandev/MeanDev.md) | Mean Absolute Deviation | Outlier-robust dispersion, CCI core |
+| [**STDERR**](../lib/statistics/stderr/Stderr.md) | Standard Error of Regression | OLS residual scatter over rolling window |
 | [**ZSCORE**](../lib/statistics/zscore/Zscore.md) | Z-Score | Standard deviations from rolling mean |
 | [**ZTEST**](../lib/statistics/ztest/Ztest.md) | Z-Test | One-sample t-statistic |
 

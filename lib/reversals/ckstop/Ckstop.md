@@ -82,6 +82,21 @@ The indicator requires $p$ bars to establish ATR and rolling extremes, then $x$ 
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Chande Kroll Stop chains ATR -> first stop -> second stop computations — O(1) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ATR (Wilder EMA of TR) | 1 | 6 cy | ~6 cy |
+| First stop: highest/lowest(high/low - mult*ATR) | 2 | 5 cy | ~10 cy |
+| Second stop: highest/lowest of first stop | 2 | 5 cy | ~10 cy |
+| Signal select (long/short) | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~30 cy** |
+
+O(1) per bar. Two chained RingBuffer max/min operations (first stop period p, second stop q). No batch SIMD benefit due to sequential chaining.
+
 ### Implementation Design
 
 The implementation uses four monotonic deques for O(1) amortized rolling max/min operations (highest high, lowest low, highest first-high-stop, lowest first-low-stop) and four corresponding circular buffers. An internal RMA instance handles ATR computation.

@@ -35,7 +35,8 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [VARIANCE](variance/Variance.md) | Variance | Average squared deviation from mean. Units are squared. |
 | [ZSCORE](zscore/Zscore.md) | Z-Score | Standard deviations from mean. Normalizes different scales. |
 | [ZTEST](ztest/Ztest.md) | Z-Test | One-sample t-test statistic against hypothesized mean. |
-| MEANDEV | Mean Absolute Deviation | Robust dispersion measure. |
+| [MEANDEV](meandev/MeanDev.md) | Mean Absolute Deviation | Outlier-robust dispersion. Core of CCI. MD ≈ 0.7979σ for normal data. |
+| [STDERR](stderr/Stderr.md) | Standard Error of Regression | OLS residual scatter over rolling window. Quantifies trend fit quality. |
 | POLYFIT | Polynomial Fitting | Least-squares polynomial regression. |
 | TRIM | Trimmed Mean MA | Mean after discarding extreme percentiles. |
 | WAVG | Weighted Average | Generic weighted mean. |

@@ -1,4 +1,4 @@
-# QQE: Quantitative Qualitative Estimation
+﻿# QQE: Quantitative Qualitative Estimation
 
 Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands around the smoothed result. The output is a dual-line system: the QQE line (smoothed RSI) and a trailing level that follows price directionally, similar to Parabolic SAR logic. Crossovers between the QQE line and its trailing level signal momentum shifts, while crossovers of the QQE line above and below 50 indicate trend direction. The trailing level adapts to volatility through a double-EMA of RSI absolute changes, making band width contract in quiet markets and expand during volatile conditions.
 
@@ -57,6 +57,46 @@ else:
 ```
 
 **Default parameters:** rsiPeriod = 14, smoothFactor = 5, qqeFactor = 4.236.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+QQE applies a Wilder RSI, then smooths the RSI with two layers of EMA, and computes an ATR-derived trailing stop band.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RSI Wilder EMA × 2 (AvgU, AvgD) | 2 | 4 | 8 |
+| RSI division + scaling | 2 | 16 | 32 |
+| EMA of RSI (smoothing pass 1) | 1 | 4 | 4 |
+| EMA of EMA-RSI (smoothing pass 2) | 1 | 4 | 4 |
+| ABS (RSI delta) | 1 | 1 | 1 |
+| EMA of ABS-delta (ATR proxy) | 1 | 4 | 4 |
+| MUL (factor × ATR proxy = QQE band) | 1 | 3 | 3 |
+| Trailing stop ratchet (MAX/MIN + CMP) | 4 | 1 | 4 |
+| **Total** | **13** | — | **~60 cycles** |
+
+Six EMA instances + one ratchet. ~60 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| All EMA/RMA passes × 6 | **No** | Recursive IIR — sequential |
+| RSI division | Yes | VDIVPD after EMA pass |
+| Band arithmetic | Yes | VMULPD + VADDPD/VSUBPD |
+| Ratchet state | **No** | State-dependent MAX/MIN |
+
+Recursive EMA chains and ratchet state block vectorization. Band arithmetic is vectorizable post-EMA.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Triple EMA filtering produces stable output |
+| **Timeliness** | 4/10 | Three sequential smoothing passes add significant lag |
+| **Smoothness** | 9/10 | Triple-smoothed RSI is one of the smoothest oscillators |
+| **Noise Rejection** | 9/10 | ATR-derived adaptive band suppresses whipsaws effectively |
 
 ## Resources
 

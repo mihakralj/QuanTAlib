@@ -32,6 +32,20 @@ $$ \text{Median} = \frac{X_{N/2} + X_{(N/2)+1}}{2} $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Median maintains a sorted buffer; each bar requires a binary-search insert plus array shift.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer evict oldest | 1 | 3 cy | ~3 cy |
+| Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
+| Extract middle element(s) | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=14)** | **O(N)** | — | **~20 cy** |
+
+O(N) per update. For large N, a dual-heap (min-heap + max-heap) O(log N) structure would be faster, but for typical periods (≤200) the sorted-array approach is cache-friendly.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | High | $O(N \log N)$ is fast for small $N$. |

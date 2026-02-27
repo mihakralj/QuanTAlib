@@ -1,4 +1,4 @@
-# Log-Cosh: Logarithm of Hyperbolic Cosine Loss
+﻿# Log-Cosh: Logarithm of Hyperbolic Cosine Loss
 
 > "The smooth operator that acts like L2 for small errors and L1 for large ones."
 
@@ -88,6 +88,32 @@ LogCosh.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 | **WarmupPeriod** | int | Number of periods before valid output |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+LogCosh: L = log(cosh(e)) = log((exp(e)+exp(-e))/2). Numerically stabilized as |e| + log(1+exp(-2|e|)) - log(2).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Residual e = actual - forecast | 1 | ~2 cy | ~2 cy |
+| Absolute value + two exp() calls | 2 | ~15 cy | ~30 cy |
+| log() call | 1 | ~15 cy | ~15 cy |
+| Arithmetic combination | 3 | ~3 cy | ~9 cy |
+| Running accumulator update | 1 | ~4 cy | ~4 cy |
+| **Total** | **~8** | — | **~60 cycles** |
+
+O(1) per bar. LogCosh is dominated by transcendental function costs (exp, log). ~60 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Residual computation | Yes | Element-wise |
+| exp() calls | Partial | Polynomial SIMD approximation gives 4x speedup |
+| log() call | Partial | Same polynomial approximation |
+| Accumulation | Yes | Parallel reduction |
+
+Batch SIMD with polynomial exp/log: ~15-20 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

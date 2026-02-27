@@ -1,4 +1,4 @@
-# ILRS: Integral of Linear Regression Slope
+﻿# ILRS: Integral of Linear Regression Slope
 
 > "John Ehlers took the slope of a regression line, integrated it, and got a smoother trend follower. Differentiate to find direction, integrate to find position. Calculus: still useful after 300 years."
 
@@ -97,3 +97,30 @@ return integral
 - Ehlers, J.F. (2001). *Rocket Science for Traders: Digital Signal Processing Applications*. John Wiley & Sons.
 - Ehlers, J.F. (2004). *Cybernetic Analysis for Stocks and Futures*. John Wiley & Sons.
 - Kendall, M.G. & Stuart, A. (1979). *The Advanced Theory of Statistics*, Vol. 2. Griffin. Chapter 29: Regression.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ILRS(N) uses an incremental linear regression that maintains `SumY` and `SumXY` as O(1) running sums (subtract evicted, add new). The slope is derived in O(1) from these sums using the precomputed `sumX` and `denominator`. The integral accumulation is a single addition.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| SumY update (add new, subtract evicted) | 2 | 1 | ~2 |
+| SumXY update (add new × x, subtract evicted × x_old) | 2 | 3 | ~6 |
+| Slope: (N×SumXY − SumX×SumY) / denominator | 3 | 8 | ~24 |
+| Integral accumulation: ILRS += slope | 1 | 1 | ~1 |
+| **Total** | **9** | — | **~36 cycles** |
+
+O(1) per bar after warmup (the incremental sum pattern removes the N-scan). For N = 14 default: ~36 cycles. Resync every 1000 bars prevents drift. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Running sum updates (SumY, SumXY) | Partial | Prefix-sum pattern enables vectorization with log₂N overhead |
+| Slope formula | Yes | `VFNMADD`, `VDIVPD` once prefix sums are built |
+| Integral (prefix sum of slopes) | Partial | Sequential scan; parallel prefix available but overhead > benefit for N < 1000 |
+
+Batch mode can precompute prefix sums vectorially then compute all slopes in parallel. The integral sum remains a sequential dependency. Net speedup for large series: ~2× over scalar.

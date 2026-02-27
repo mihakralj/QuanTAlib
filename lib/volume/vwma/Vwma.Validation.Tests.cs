@@ -1,4 +1,5 @@
 using Skender.Stock.Indicators;
+using Tulip;
 
 namespace QuanTAlib.Tests;
 
@@ -124,10 +125,52 @@ public class VwmaValidationTests
     }
 
     [Fact]
-    public void Vwma_NotAvailable_Tulip()
+    public void Vwma_Matches_Tulip_Batch()
     {
-        // Tulip has VWMA but named differently - verify manually
-        Assert.True(true, "VWMA validation requires manual verification for Tulip");
+        int period = 20;
+
+        // QuanTAlib batch
+        var qResult = Vwma.Batch(_data.Bars, period);
+
+        // Tulip vwma: inputs = {close[], volume[]}, options = {period}
+        double[] closeData = _data.ClosePrices.ToArray();
+        double[] volumeData = _data.VolumeData.ToArray();
+        var tulipIndicator = Tulip.Indicators.vwma;
+        double[][] inputs = { closeData, volumeData };
+        double[] options = { period };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[closeData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        ValidationHelper.VerifyData(qResult, tResult, lookback);
+    }
+
+    [Fact]
+    public void Vwma_Matches_Tulip_Streaming()
+    {
+        int period = 20;
+
+        // QuanTAlib streaming
+        var vwma = new Vwma(period);
+        var qResults = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            qResults.Add(vwma.Update(bar).Value);
+        }
+
+        // Tulip vwma
+        double[] closeData = _data.ClosePrices.ToArray();
+        double[] volumeData = _data.VolumeData.ToArray();
+        var tulipIndicator = Tulip.Indicators.vwma;
+        double[][] inputs = { closeData, volumeData };
+        double[] options = { period };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[closeData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        ValidationHelper.VerifyData(qResults, tResult, lookback);
     }
 
     [Fact]

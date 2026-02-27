@@ -90,6 +90,19 @@ double typical = bar.HLC3;
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+TBar is a 48-byte struct (DateTime + 5 doubles). Field access and construction are stack/register operations.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Struct construction (6 fields) | 6 | 1 cy | ~6 cy |
+| Field read (O/H/L/C/V) | 1 | 0 cy | ~0 cy |
+| TypicalPrice = (H+L+C)/3 | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~8 cy** |
+
+48-byte struct spans 3 cache lines but is typically stack-allocated. JIT may promote to registers for short-lived locals. No heap allocation.
+
 * **Memory**: 48 bytes per instance.
 * **Allocation**: 0 bytes (Stack allocated).
 * **Access**: Direct field access (no property overhead).

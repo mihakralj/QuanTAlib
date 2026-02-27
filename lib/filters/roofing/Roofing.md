@@ -1,4 +1,4 @@
-# ROOFING: Ehlers Roofing Filter
+﻿# ROOFING: Ehlers Roofing Filter
 
 > "The trend is your friend until it overwhelms the signal. The noise is your enemy until you mistake it for alpha."
 
@@ -65,6 +65,29 @@ $$G_{ss} = 1 - C_{2,ss} - C_{3,ss}$$
 | `ssLength` | 10 | Super Smoother cutoff. Removes cycles shorter than 10 bars (noise). |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Roofing filter: Ehlers 2-stage cascade — first a high-pass filter removes low-frequency drift, then a super-smooth filter removes high-frequency noise. Two O(1) IIR stages in series.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| HP stage: IIR high-pass (3 FMA) | 3 | ~4 cy | ~12 cy |
+| HP state update | 1 | ~1 cy | ~1 cy |
+| SuperSmooth stage: 2-pole IIR (3 FMA) | 3 | ~4 cy | ~12 cy |
+| SS state update | 2 | ~1 cy | ~2 cy |
+| **Total** | **9** | — | **~27 cycles** |
+
+O(1) per bar. Two cascaded IIR stages with precomputed coefficients. ~27 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| HP stage recursion | No | Sequential IIR |
+| SuperSmooth recursion | No | Depends on HP output |
+
+Batch throughput: ~27 cy/bar.
 
 | Metric | Impact | Notes |
 | :--- | :--- | :--- |

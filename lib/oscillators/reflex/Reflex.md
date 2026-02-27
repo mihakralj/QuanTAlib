@@ -1,4 +1,4 @@
-# REFLEX: Ehlers Reflex Indicator
+﻿# REFLEX: Ehlers Reflex Indicator
 
 > "John Ehlers measured how much a filtered price deviates from its own linear extrapolation. The result is a zero-lag oscillator that catches reversals before they happen, because the deviation is largest precisely when the trend is bending."
 
@@ -96,6 +96,42 @@ sum /= N
 ms = 0.04 * sum² + 0.96 * ms[1]
 return ms > 0 ? sum / sqrt(ms) : 0
 ```
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Reflex (Ehlers) uses a Super Smoother and a slope sum to detect cycles.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SSF update × 2 (FMA coefficients) | 2 | 4 | 8 |
+| Running slope sum (add new + subtract oldest) | 2 | 1 | 2 |
+| RMS normalization (variance accumulation) | 4 | 3 | 12 |
+| SQRT (RMS divisor) | 1 | 20 | 20 |
+| DIV (normalize) | 1 | 15 | 15 |
+| **Total** | **10** | — | **~57 cycles** |
+
+SQRT dominates. ~57 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| SSF IIR passes × 2 | **No** | Recursive 2-pole IIR — sequential |
+| Slope sum | Partial | Prefix-sum assist after SSF computed |
+| RMS computation | Yes | VFMADD for variance; VSQRTPD |
+
+IIR dependencies block bar-parallel SIMD; RMS computation in batch is vectorizable.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | RMS normalization keeps scale consistent |
+| **Timeliness** | 6/10 | SSF half-period lag + slope window |
+| **Smoothness** | 9/10 | Super Smoother base + normalized output |
+| **Noise Rejection** | 9/10 | SSF rejects frequencies above cutoff; RMS stabilizes amplitude |
 
 ## Resources
 

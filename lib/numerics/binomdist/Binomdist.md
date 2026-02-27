@@ -36,6 +36,34 @@ $$P(X \leq k) = \sum_{i=0}^{k} \exp\!\left[\ln\binom{n}{i} + i\ln(p) + (n-i)\ln(
 
 **Default parameters:** period = 50, trials = 20, threshold = 10 (symmetric: $k = n/2$).
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Binomial distribution PMF/CDF uses log-gamma for large n; direct factorial for small n.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (n, k integers; p in [0,1]) | 3 | 2 cy | ~6 cy |
+| Log-binomial coefficient via log-Gamma | 2 | 25 cy | ~50 cy |
+| k * log(p) + (n-k) * log(1-p) | 2 | 8 cy | ~16 cy |
+| exp() for PMF | 1 | 20 cy | ~20 cy |
+| CDF sum over k terms (optional) | k | 90 cy | ~90k cy |
+| **Total (PMF only)** | **O(1)** | — | **~92 cy** |
+
+PMF is O(1); CDF requires summing k+1 PMF values — O(k) where k = successes. For large cumulative queries, use regularized incomplete beta instead.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Log-Gamma computation | No | Transcendental; scalar |
+| exp() for PMF | Partial | _mm256_exp_pd with SVML |
+| CDF accumulation | No | Sequential sum dependency |
+
+PMF batch can use SVML exp vectorization. CDF must remain scalar.
+
 ## Resources
 
 - Bernoulli, J. (1713). *Ars Conjectandi*

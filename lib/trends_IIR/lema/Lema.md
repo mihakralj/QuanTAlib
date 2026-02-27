@@ -1,4 +1,4 @@
-# LEMA: Leader Exponential Moving Average
+﻿# LEMA: Leader Exponential Moving Average
 
 > "George Siligardos asked a simple question: what if you smoothed the EMA's own error and added it back? The answer is a moving average that leads price changes instead of lagging behind them. The error becomes the signal."
 
@@ -101,3 +101,32 @@ return comp_ema1 + comp_ema2
 
 - Siligardos, G.E. (2008). "Leader of the MACD." *Technical Analysis of Stocks & Commodities*, 26(7), 30-37.
 - Mulloy, P.G. (1994). "Smoothing Data with Faster Moving Averages." *Technical Analysis of Stocks & Commodities*, 12(1). (DEMA, the algebraic equivalent.)
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+LEMA(N) runs two EMA stages with bias compensation. Stage 1 tracks source. Stage 2 tracks the tracking error `(src − EMA₁)`. Output = EMA₁ + EMA₂.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| EMA₁: FMA(α, src, decay×ema1) | 1 | 4 | ~4 |
+| Bias E₁ update | 1 | 3 | ~3 |
+| Error: src − EMA₁ | 1 | 1 | ~1 |
+| EMA₂: FMA(α, error, decay×ema2) | 1 | 4 | ~4 |
+| Bias E₂ update | 1 | 3 | ~3 |
+| Output: EMA₁ + EMA₂ | 1 | 1 | ~1 |
+| **Total** | **6** | — | **~16 cycles** |
+
+O(1) per bar. The error-tracking EMA (stage 2) reacts faster than it would as a standard cascade because it processes `src − EMA₁` directly — the residual signal. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| EMA₁ pass | No | Recursive IIR |
+| Error series (src − EMA₁) | Yes | `VSUBPD` once EMA₁ series computed |
+| EMA₂ pass (on error series) | No | Recursive IIR on error series |
+| Final addition | Yes | `VADDPD` once both EMA series computed |
+
+EMA₁ must complete before the error series can be computed, and EMA₂ must complete before the final addition. Single-pass vectorization is impossible. Batch speedup: error subtraction and final addition are vectorizable but represent <10% of total cost.

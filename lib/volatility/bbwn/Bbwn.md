@@ -68,6 +68,39 @@ The result is clamped to $[0, 1]$ to ensure bounds.
 - **Zero Division Protection**: Handles constant price sequences
 - **Numerical Stability**: Uses epsilon checks for floating-point comparisons
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+BBWN chains BBW computation (SMA + StdDev of N bars) with min/max normalization over a lookback window — O(1) amortized.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Running sum_x, sum_x2 (StdDev O(1)) | 2 | 2 cy | ~4 cy |
+| sqrt(variance) for StdDev | 1 | 14 cy | ~14 cy |
+| BBW = 2*k*StdDev / SMA | 1 | 5 cy | ~5 cy |
+| RingBuffer min update (lookback) | 1 | 4 cy | ~4 cy |
+| RingBuffer max update (lookback) | 1 | 4 cy | ~4 cy |
+| BBWN = (BBW - min) / (max - min) | 1 | 5 cy | ~5 cy |
+| Zero-range guard (constant series) | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~40 cy** |
+
+O(1) per bar. Two chained O(1) computations: BBW (running variance) + min/max normalization (RingBuffer monotonic deque). sqrt() is the dominant latency.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Running sum_x, sum_x2 | Yes | Vector<double> accumulation |
+| sqrt(variance) | Yes | Vector<double>.Sqrt() or Avx.Sqrt |
+| BBW from StdDev/SMA | Yes | Vector divide |
+| Min/max tracking | Partial | Sequential dependency for running extremes |
+| Normalization division | Yes | Vector divide with zero-guard |
+
+Batch path can vectorize the BBW computation phase (4 bars per AVX2 cycle). Min/max phase is partially sequential. Overall ~2-3× batch speedup over scalar.
+
 ## Usage Examples
 
 ### Basic Setup

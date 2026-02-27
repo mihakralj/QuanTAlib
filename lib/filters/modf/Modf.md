@@ -1,4 +1,4 @@
-# MODF: Modular Filter
+﻿# MODF: Modular Filter
 
 > "alexgrover designed a filter with two paths — one tracks uptrends, one tracks downtrends — and a state machine that picks between them. Add a beta knob for aggression and an optional feedback loop, and you get one of the most versatile adaptive filters on TradingView."
 
@@ -107,6 +107,36 @@ upper = beta*b + (1-beta)*c
 lower = beta*c + (1-beta)*b
 ts = os*upper + (1-os)*lower
 ```
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+MODF maintains two conditional EMA bands (upper b, lower c) with snap-to-price logic, a binary state machine (os), beta-blend, and optional feedback. All per-bar work is O(1).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Upper band conditional snap + FMA | 1 | ~5 cy | ~5 cy |
+| Lower band conditional snap + FMA | 1 | ~5 cy | ~5 cy |
+| State machine update (os) | 1 | ~2 cy | ~2 cy |
+| Beta-weighted blend (2x FMA) | 2 | ~4 cy | ~8 cy |
+| Output select (os-conditional) | 1 | ~2 cy | ~2 cy |
+| Feedback blend (optional, 1 FMA) | 1 | ~4 cy | ~4 cy |
+| **Total** | **~7** | — | **~26 cycles** |
+
+O(1) per bar. The conditional snap (max/min vs EMA) is a branchless `Math.Max`/`Math.Min` call. ~26 cycles/bar with feedback disabled; ~30 with feedback.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Upper/lower EMA recursion | No | Each band is a recursive IIR — sequential dependency |
+| Snap-to-price conditionals | No | max(x, ema) depends on current ema which depends on prior bar |
+| State machine | No | Binary state update is data-dependent |
+| Beta blend | Yes | Scalar multiply-add on 2 values; negligible savings |
+
+Fully recursive — no SIMD path available. Batch throughput: ~26-30 cy/bar scalar.
 
 ## Resources
 

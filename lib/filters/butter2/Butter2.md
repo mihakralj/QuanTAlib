@@ -1,4 +1,4 @@
-# BUTTER2: Ehlers 2-Pole Butterworth Filter
+﻿# BUTTER2: Ehlers 2-Pole Butterworth Filter
 
 > "Maximally flat frequency response in the passband."
 
@@ -32,6 +32,28 @@ $$ b_1 = 1 - \cos(\omega) $$
 $$ b_2 = \frac{1 - \cos(\omega)}{2} $$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Butterworth 2nd-order LPF: maximally flat magnitude response. Implemented as a direct-form II transposed biquad with 5 coefficients.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input state shift | 2 | ~1 cy | ~2 cy |
+| Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
+| Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **9** | — | **~24 cycles** |
+
+O(1) per bar. Coefficients computed from Butterworth poles at construction. ~24 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential pole-zero feedback |
+
+Batch throughput: ~24 cy/bar scalar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

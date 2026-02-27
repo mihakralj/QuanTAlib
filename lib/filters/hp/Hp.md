@@ -1,4 +1,4 @@
-# HP - Hodrick-Prescott Filter
+﻿# HP - Hodrick-Prescott Filter
 
 > "Trends are not lines; they are curves that we simplify for our sanity, often at the cost of reality."
 
@@ -39,6 +39,27 @@ Where:
 - $\lambda$: Smoothing parameter (default 1600)
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Hodrick-Prescott filter: minimizes the sum of squared deviations plus a penalty on second differences. Streaming approximation via an IIR; O(1) per bar in approximation mode.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| HP IIR approximation (3 FMA, 3-point recursion) | 3 | ~4 cy | ~12 cy |
+| State update (prev 2 outputs) | 2 | ~1 cy | ~2 cy |
+| **Total** | **5** | — | **~14 cycles** |
+
+O(1) per bar in the IIR approximation mode. True HP requires O(N) matrix solve at each bar, making it unsuitable for streaming. ~14 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR approximation recursion | No | Sequential dependency |
+| Full HP matrix solve (batch only) | Partial | Banded matrix system; parallelizable with LAPACK |
+
+Streaming approximation: ~14 cy/bar scalar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

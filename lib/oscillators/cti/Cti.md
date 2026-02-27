@@ -1,4 +1,4 @@
-# CTI: Correlation Trend Indicator
+﻿# CTI: Correlation Trend Indicator
 
 The Correlation Trend Indicator computes the Pearson correlation coefficient between the price series and a linear time index over a rolling window, producing a bounded oscillator in the range $[-1, +1]$. Values near $+1$ indicate a strong linear uptrend, values near $-1$ indicate a strong linear downtrend, and values near zero indicate no linear trend relationship. The implementation achieves O(1) complexity per bar through incremental running sums that avoid recomputing the full correlation on each update.
 
@@ -52,6 +52,41 @@ CTI = clamp(r, -1, +1)
 ```
 
 **Default parameters:** period = 20.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CTI (Correlation Trend Indicator) computes the Pearson r between price and a linear regression line over N bars using a running-sum Welford-style computation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer update (price window) | 2 | 1 | 2 |
+| Running sum updates (ΣX, ΣY, ΣXY, ΣX², ΣY²) | 10 | 1 | 10 |
+| Correlation numerator: N×ΣXY − ΣX×ΣY | 3 | 3 | 9 |
+| Denominator: SQRT((N×ΣX²−ΣX²)(N×ΣY²−ΣY²)) | 6 | 20 | 120 |
+| DIV (r = num/denom) | 1 | 15 | 15 |
+| **Total** | **22** | — | **~156 cycles** |
+
+The two SQRTs in the denominator dominate cost. ~156 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Prefix sums (ΣX, ΣY, ΣXY, ΣX², ΣY²) | Yes | VADDPD scan; windowed via subtract-lag |
+| Correlation formula | Yes | VFMADD + VSQRTPD + VDIVPD |
+
+Fully vectorizable in batch mode. Prefix-sum trick converts O(N²) naive to O(N) with O(1) per-bar computation, and SIMD accelerates each prefix step.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Pearson r exact; SQRT precision adequate |
+| **Timeliness** | 6/10 | N-bar window; trend changes detected with N/2 average lag |
+| **Smoothness** | 8/10 | Correlation coefficient is inherently bounded [−1,1] |
+| **Noise Rejection** | 7/10 | Linear fit suppresses non-linear noise components |
 
 ## Resources
 

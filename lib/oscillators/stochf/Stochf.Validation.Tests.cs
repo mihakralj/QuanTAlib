@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit;
 
@@ -297,5 +299,43 @@ public sealed class StochfValidationTests : IDisposable
         Assert.True(indicator.IsHot);
         Assert.True(double.IsFinite(indicator.K.Value));
         Assert.True(double.IsFinite(indicator.D.Value));
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Stochf_MatchesOoples_Structural()
+    {
+        const int kLength = 5;
+        var ooplesData = _data.Bars.Select(static b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open,
+            High = b.High,
+            Low = b.Low,
+            Close = b.Close,
+            Volume = b.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateStochasticFastOscillator();
+        var oValues = oResult.OutputValues.Values.First();
+
+        var stochf = new Stochf(kLength, 3);
+        var qValues = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            qValues.Add(stochf.Update(bar).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples StochF must produce output");
+        int finiteCount = 0;
+        for (int i = kLength; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite StochF pairs, got {finiteCount}");
     }
 }

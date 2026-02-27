@@ -1,4 +1,4 @@
-# ADXR: Average Directional Movement Rating
+﻿# ADXR: Average Directional Movement Rating
 
 The Average Directional Movement Rating is a smoothed version of ADX that dampens short-term fluctuations in trend strength by averaging the current ADX with a historical ADX value. This creates a doubly-lagged metric that sacrifices all timing utility in exchange for stable regime classification. ADXR answers one question: does the current market environment reward trend-following strategies? If ADXR is high, deploy momentum logic. If low, deploy mean-reversion. It is a strategic filter, not a tactical signal.
 
@@ -86,6 +86,42 @@ For the default period of 14, ADXR carries roughly 41 bars of effective lag. Thi
 | < 20 | Sustained range-bound; favor mean-reversion |
 | 20–25 | Ambiguous regime; reduce position sizing |
 | > 25 | Sustained trending; favor momentum strategies |
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ADXR is ADX averaged with its value N bars ago — it wraps ADX with a RingBuffer for the lag.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADX Update (full pipeline) | 1 | ~79 | 79 |
+| RingBuffer write + oldest read | 2 | 1 | 2 |
+| ADD + MUL×0.5 (average: (ADX + ADX[N]) / 2) | 2 | 3 | 6 |
+| CMP (IsHot guard) | 1 | 1 | 1 |
+| **Total** | **6+ADX** | — | **~88 cycles** |
+
+ADXR requires 3N bars of warmup: N for ADX initialization, N for ADX smoothing, N for the lookback buffer. For default $N=14$: ~88 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| ADX calculation | Partial | See ADX analysis — recursive RMA blocks |
+| Lag-N average | Yes | VADDPD + multiply by 0.5 once ADX array is known |
+
+The final averaging step is trivially vectorizable once the ADX time series is materialized. The bottleneck remains the ADX RMA recursion.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Exact arithmetic; double-smoothing from underlying ADX |
+| **Timeliness** | 3/10 | 3N warmup + half-period average adds significant lag |
+| **Smoothness** | 9/10 | Averaging two ADX instances makes it the smoothest directional indicator |
+| **Noise Rejection** | 9/10 | Triple smoothing (2× RMA in ADX + final average) is highly noise-resistant |
 
 ## Resources
 

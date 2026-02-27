@@ -1,4 +1,4 @@
-# ALAGUERRE: Ehlers Adaptive Laguerre Filter
+﻿# ALAGUERRE: Ehlers Adaptive Laguerre Filter
 
 > "The best filter is one that knows when to listen closely and when to smooth aggressively." -- John F. Ehlers (paraphrased)
 
@@ -90,6 +90,27 @@ Shorter length makes alpha more responsive to recent tracking error changes. Lon
 The filter requires $\max(4, N)$ bars before producing reliable output. The first bar initializes all Laguerre elements to the input price.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Laguerre filter uses 4 cascaded Laguerre stages L0..L3, each an O(1) gamma-parameterized FMA, plus a final weighted combination.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Laguerre state update x4 (each: 2 FMA) | 8 | ~4 cy | ~32 cy |
+| Weighted output combination (3 adds) | 3 | ~2 cy | ~6 cy |
+| **Total** | **11** | — | **~38 cycles** |
+
+O(1) per bar. Four recursive stages with precomputed gamma constant. ~38 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Laguerre stage recursion | No | Each stage L[k][n] depends on L[k-1][n] and L[k][n-1] |
+| Weighted combination | No | Only 4 terms; SIMD overhead not worthwhile |
+
+Cascaded IIR stages cannot be vectorized. Batch throughput: ~38 cy/bar.
 
 | Metric | Value | Notes |
 |--------|-------|-------|

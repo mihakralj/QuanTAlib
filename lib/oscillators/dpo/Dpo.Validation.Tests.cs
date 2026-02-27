@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -189,6 +191,25 @@ public sealed class DpoValidationTests(ITestOutputHelper output) : IDisposable
         }
 
         _output.WriteLine("DPO event-based matches streaming.");
+    }
+
+    #endregion
+
+    #region Ooples Cross-Validation
+
+    [Fact]
+    public void Dpo_MatchesOoples_Structural()
+    {
+        // CalculateDetrendedPriceOscillator — structural test (different centering convention)
+        var ooplesData = _testData.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateDetrendedPriceOscillator();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples DPO values, got {finiteCount}");
     }
 
     #endregion

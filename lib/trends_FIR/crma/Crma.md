@@ -1,4 +1,4 @@
-# CRMA: Cubic Regression Moving Average
+﻿# CRMA: Cubic Regression Moving Average
 
 > "Linear regression tells you where the trend is going. Quadratic regression tells you it's curving. Cubic regression tells you the curve is changing its mind."
 
@@ -88,3 +88,31 @@ return a[0]  // fitted value at x=0 (newest bar)
 - Gauss, C.F. (1809). *Theoria motus corporum coelestium*. Perthes et Besser.
 - Savitzky, A. & Golay, M.J.E. (1964). "Smoothing and Differentiation of Data by Simplified Least Squares Procedures." *Analytical Chemistry*, 36(8), 1627-1639.
 - Press, W.H. et al. (2007). *Numerical Recipes*, 3rd ed. Cambridge University Press. Chapter 15: Modeling of Data.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CRMA(N) fits a degree-3 polynomial via least squares. The O(N) cost is in accumulating seven Faulhaber power sums plus four cross-products over the ring buffer each bar. The 4×4 Gaussian elimination is O(1) (fixed 64 operations regardless of N).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| Power sum updates S0..S6 (7 sums × 2 ops) | ~2N | 1 | ~2N |
+| Cross-product updates (4 × dot products) | ~4N | 2 | ~8N |
+| 4×4 Gaussian elimination (fixed) | ~64 | 3 | ~192 |
+| Polynomial evaluation at newest point | 4 | 3 | ~12 |
+| **Total** | **~(6N + 64)** | — | **~(10N + 207) cycles** |
+
+O(N) per bar. For default N = 14: ~347 cycles. Resync re-computes sums every 1000 ticks to prevent floating-point drift.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Power sum accumulation (S0..S6) | Yes | Independent sums; `VADDPD` per term, 4 bars/lane |
+| Cross-product dot products (ΣxᵏY) | Yes | `VFMADD231PD` across window; stride-1 pattern |
+| 4×4 Gaussian elimination | No | Fixed scalar 64-op system; not worth SIMD setup |
+| Polynomial evaluation | No | 4-term Horner; scalar is fastest for degree 3 |
+
+Batch throughput for the sum and cross-product phases: AVX2 achieves ~4× scalar. Gaussian elimination and Horner evaluation remain scalar. Net batch speedup for N = 14, large series: approximately 2.5× over fully scalar.

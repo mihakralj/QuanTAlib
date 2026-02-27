@@ -1,0 +1,13 @@
+//@version=6
+indicator("MARKETFI: Market Facilitation Index", shorttitle="MARKETFI", overlay=false)
+
+// Bill Williams' Market Facilitation Index (BW MFI)
+// Measures price movement efficiency per unit of volume.
+// High MFI + rising volume = strong trend (green)
+// Low MFI + falling volume = squat / accumulation (brown)
+// Guard: volume == 0 produces 0.0 (no market activity = no MFI)
+
+mfi = volume != 0 ? (high - low) / volume : 0.0
+
+plot(mfi, title="MARKETFI", color=color.blue, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dashed)

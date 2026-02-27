@@ -57,6 +57,21 @@ The `LinReg` value at the current bar (offset 0) is simply the intercept $b$ (si
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+LinReg uses online running sums (Sx, Sy, Sxx, Sxy) for exact O(1) linear regression update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update 4 running sums | 4 | 2 cy | ~8 cy |
+| Solve slope + intercept (2x2 system) | 1 | 6 cy | ~6 cy |
+| Project endpoint value via FMA | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~20 cy** |
+
+O(1) per update. The fastest OLS variant because time index is deterministic; Sx and Sxx have closed-form expressions in terms of N.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | High | O(1) updates ensure minimal latency. |

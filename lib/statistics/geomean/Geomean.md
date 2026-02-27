@@ -63,6 +63,20 @@ This bounds the accumulated error to $O(\varepsilon)$ rather than $O(n\varepsilo
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Geometric Mean uses a running log-sum over the sliding window for O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| log(new) - log(evict) on running sum | 2 | 8 cy | ~16 cy |
+| exp(sum / N) for geometric mean | 1 | 20 cy | ~20 cy |
+| NaN guard (non-positive values) | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~41 cy** |
+
+O(1) per update via log-sum trick. exp() is the dominant cost (~20 cy). Guard against log(0) by substituting last-valid when input <= 0.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | ~5ns/bar | O(1) log-add/subtract per update. |

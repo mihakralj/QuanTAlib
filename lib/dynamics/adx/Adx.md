@@ -1,4 +1,4 @@
-# ADX: Average Directional Index
+﻿# ADX: Average Directional Index
 
 The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price expansion. Wilder's pipeline decomposes range into directional movement (+DM, -DM), normalizes against True Range to produce directional indicators (+DI, -DI), derives a directional index (DX) from their ratio, then smooths DX with a final RMA pass. The double-smoothed architecture creates significant lag but exceptional noise rejection, making ADX a regime filter rather than a timing tool. Output is unbounded above 0, with readings above 25 conventionally indicating trending conditions and below 20 indicating choppy markets.
 
@@ -120,6 +120,50 @@ Because ADX relies on recursive RMA at multiple stages, convergence is slow. Per
 | > 75 | Extremely strong (rare) |
 
 ADX peaks *after* the trend has exhausted — it is a lagging indicator of trend strength, not a leading indicator of reversal.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+ADX has a two-phase pipeline: first N bars accumulate TR/+DM/−DM sums, then RMA smoothing takes over.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB × 5 (TR: hl, hpc, lpc, upMove, downMove) | 5 | 1 | 5 |
+| ABS × 2 (hpc, lpc) | 2 | 1 | 2 |
+| MAX × 2 (TR = max(hl, max(hpc,lpc))) | 2 | 1 | 2 |
+| CMP × 2 (upMove/downMove guards) | 2 | 1 | 2 |
+| FMA × 3 (RMA smooth TR, +DM, −DM) | 3 | 4 | 12 |
+| DIV × 2 (+DI = +DM/TR, −DI = −DM/TR) | 2 | 15 | 30 |
+| MUL × 2 (scale to 100) | 2 | 3 | 6 |
+| ABS + DIV (DX = abs(+DI − −DI) / (+DI + −DI)) | 2 | 16 | 16 |
+| FMA × 1 (RMA smooth ADX) | 1 | 4 | 4 |
+| **Total** | **21** | — | **~79 cycles** |
+
+ADX requires a 2N warmup period (N for TR/DM smoothing initialization, N for ADX SMA seed). For default $N=14$: ~79 cycles per bar at steady state.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| TR, +DM, −DM computation | Yes | Independent differences + VSUBPD, VABSPD, VMAXPD |
+| RMA smoothing (TR, +DM, −DM) | **No** | Recursive IIR — each value depends on prior; sequential only |
+| DI computation (+DI, −DI) | Yes | VDIVPD after RMA pass |
+| DX computation | Yes | VABSPD + VDIVPD |
+| ADX smoothing (RMA of DX) | **No** | Recursive IIR — sequential only |
+
+The recursive RMA passes block SIMD across bars. The TR/DM initial computation (N×3 differences) is vectorizable as a pre-pass. Full batch acceleration requires a prefix-sum or parallel-prefix RMA approximation, which trades exact equivalence for ~4× throughput on large datasets.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | FMA-precise RMA smoothing; 2N warmup ensures fully converged output |
+| **Timeliness** | 5/10 | 2N lag (28 default) before first valid ADX; responds slowly to regime shifts |
+| **Smoothness** | 8/10 | Double RMA smoothing yields very smooth output; rarely whipsaws |
+| **Noise Rejection** | 8/10 | Two layers of Wilder smoothing suppress bar-to-bar noise effectively |
 
 ## Resources
 

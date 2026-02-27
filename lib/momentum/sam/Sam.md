@@ -1,4 +1,4 @@
-# SAM: Smoothed Adaptive Momentum
+﻿# SAM: Smoothed Adaptive Momentum
 
 The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length, then smooths the result with a 2-pole Super Smoother filter. Unlike fixed-period momentum indicators (ROC, TRIX) that use an arbitrary lookback, SAM measures the dominant cycle via Ehlers' Homodyne Discriminator and uses that cycle length as the momentum window, ensuring that the momentum measurement always spans exactly one full cycle. This eliminates the half-cycle phase distortion that plagues fixed-period momentum, producing a zero-lag momentum oscillator that naturally adapts to changing market rhythm.
 
@@ -94,3 +94,40 @@ SAM(source, alpha, cutoff):
 - Ehlers, J.F. "Rocket Science for Traders." Wiley, 2001. Chapters on Hilbert Transform and cycle measurement.
 - Ehlers, J.F. "MESA and Trading Market Cycles." 2nd edition, Wiley, 2002.
 - Oppenheim, A.V. & Schafer, R.W. "Discrete-Time Signal Processing." 3rd edition, Pearson, 2010. Chapter on Hilbert Transform.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+SAM runs a 5-stage pipeline fully O(1) per bar. All state is scalar; the `RingBuffer` provides O(1) indexed read for the adaptive momentum lookback. The dominant cost is the Hilbert Transform stage (7-tap FIR ×4 channels) and the homodyne phasor multiplications.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| 4-bar FIR smoother (3 FMA) | 3 | 4 | ~12 |
+| Hilbert detrender (7-tap FIR ×2) | 14 | 4 | ~56 |
+| Phase advance (7-tap FIR ×2 on I1/Q1) | 14 | 4 | ~56 |
+| Phasor products I2/Q2 (4 MUL + 2 ADD/SUB) | 6 | 3 | ~18 |
+| EMA smooth I2/Q2 (2 FMA) | 2 | 4 | ~8 |
+| Homodyne products Re/Im (4 FMA) | 4 | 4 | ~16 |
+| EMA smooth Re/Im (2 FMA) | 2 | 4 | ~8 |
+| Period: ATAN2 + divide + clamp | 3 | 25 | ~75 |
+| InstPeriod + DcPeriod EMA (2 FMA) | 2 | 4 | ~8 |
+| Adaptive momentum: ring buffer read + SUB | 2 | 3 | ~6 |
+| Super Smoother (2 FMA) | 2 | 4 | ~8 |
+| **Total** | **56** | — | **~271 cycles** |
+
+O(1) per bar. The `ATAN2` call dominates (~25 cycles on modern x86). WarmupPeriod ≈ 40 bars for stable cycle detection. All 56 operations are scalar — the `record struct State` with 36 fields is promoted to registers by the JIT using the local-copy pattern.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| 4-bar FIR smoother | Partial | Coefficients are fixed; overlapping windows need careful striding |
+| Hilbert FIR (7-tap ×4 channels) | No | State history per channel creates sequential dependency |
+| Phasor products | No | Current bar depends on previous I2/Q2 via EMA smoothing |
+| Homodyne Re/Im | No | Recursive EMA on running products |
+| ATAN2 / period estimation | No | Transcendental function; no AVX2 intrinsic; libm `vatan2` via SVML possible |
+| Super Smoother | No | 2-pole IIR; z-transform has poles inside unit circle, inherently serial |
+| Adaptive indexing (ring buffer) | No | Index depends on computed dcPeriod |
+
+SAM cannot be meaningfully vectorized — every stage except the FIR smoother has a data dependency that threads through the recursive EMA states. The dominant SIMD opportunity is the batch computation of candidate FIR outputs using strided AVX2 loads, but the downstream homodyne feedback loop negates it. Batch mode runs the same scalar kernel as streaming.

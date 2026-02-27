@@ -1,4 +1,4 @@
-# AGC: Ehlers Automatic Gain Control
+﻿# AGC: Ehlers Automatic Gain Control
 
 > "The purpose of the AGC is to normalize the amplitude of any indicator to unity." — John F. Ehlers, TASC January 2015
 
@@ -66,6 +66,29 @@ since peak ratchets to $A$ at each cycle peak and the decay $\delta^{P/4}$ (quar
 Peak initializes to $10^{-10}$ (tiny positive) to avoid division by zero on the first bar. After one bar with a finite input, peak ratchets to $|\text{input}|$ and normal operation begins.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+AGC (Adaptive Gain Control) applies a slow EMA to estimate signal level, then scales the signal by the inverse of that level. O(1) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Level EMA (FMA) | 1 | ~4 cy | ~4 cy |
+| Gain = 1 / level (division) | 1 | ~10 cy | ~10 cy |
+| Output multiply | 1 | ~3 cy | ~3 cy |
+| **Total** | **3** | — | **~17 cycles** |
+
+O(1) per bar. The division dominates; precomputing gain incrementally saves it but adds state. ~17 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Level EMA recursion | No | Sequential IIR dependency |
+| Gain division | No | Depends on current EMA |
+| Output multiply | N/A | Single scalar multiply |
+
+Fully recursive. Batch throughput: ~17 cy/bar.
 
 | Metric | Value |
 |---|---|

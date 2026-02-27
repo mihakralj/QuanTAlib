@@ -1,4 +1,4 @@
-# SSF2: Ehlers 2-Pole Super Smoother Filter
+﻿# SSF2: Ehlers 2-Pole Super Smoother Filter
 
 > "Noise is the enemy of the trend follower. The Super Smooth Filter is the silencer."
 
@@ -41,6 +41,27 @@ Where:
 > **Note:** This implementation uses high-precision constants (`Math.Sqrt(2)` and `Math.PI`) rather than the approximations (`1.414` and `3.14159`) found in some reference implementations.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Two-pole Super Smooth Filter (SSF2): Ehlers 2nd-order IIR low-pass smoother. Three FMA operations per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input combination | 1 | ~2 cy | ~2 cy |
+| FMA output: c1*(x+x1) + c2*y1 + c3*y2 | 3 | ~4 cy | ~12 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **6** | — | **~16 cycles** |
+
+O(1) per bar. Coefficients derived from period parameter; precomputed. ~16 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| SSF2 recursion | No | y[n] depends on y[n-1] and y[n-2] |
+
+Batch throughput: ~16 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

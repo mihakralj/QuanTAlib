@@ -1,4 +1,4 @@
-# QRMA: Quadratic Regression Moving Average
+﻿# QRMA: Quadratic Regression Moving Average
 
 > "Linear regression assumes the world is a straight line. Quadratic regression admits it might curve. For parabolic price moves, that admission turns out to be worth 40% less endpoint error."
 
@@ -96,3 +96,31 @@ return a + b*(N-1) + c*(N-1)²
 - Savitzky, A. & Golay, M.J.E. (1964). "Smoothing and Differentiation of Data by Simplified Least Squares Procedures." *Analytical Chemistry*, 36(8), 1627-1639.
 - Schafer, R.W. (2011). "What Is a Savitzky-Golay Filter?" *IEEE Signal Processing Magazine*, 28(4), 111-117.
 - Press, W.H. et al. (2007). *Numerical Recipes*, 3rd ed. Cambridge University Press. Section 3.5: Least-Squares Fitting.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+QRMA(N) fits a degree-2 polynomial via OLS. Power sums S0..S4 and three cross-products are maintained as O(1) running sums (via ring buffer subtract/add). Cramer's rule for the 3×3 system is O(1) fixed arithmetic (18 multiplications, ~12 additions).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| Power sum updates S0..S4 (5 × 2 ops) | ~2N | 1 | ~2N |
+| Cross-product updates (3 × dot) | ~3N | 2 | ~6N |
+| Cramer 3×3 solution (fixed ~30 ops) | ~30 | 3 | ~90 |
+| Polynomial evaluation at newest point | 3 | 3 | ~9 |
+| **Total** | **~(5N + 30)** | — | **~(8N + 102) cycles** |
+
+O(N) per bar from power sum accumulation. For default N = 14: ~214 cycles. Compared to CRMA (cubic): 2 fewer power sums, simpler solve — approximately 40% faster.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Power sum accumulation (S0..S4) | Yes | `VADDPD`; 5 independent running sums |
+| Cross-product dot products | Yes | `VFMADD231PD`; stride-1, 4 bars/AVX2 lane |
+| Cramer 3×3 solve | No | Fixed 30-op scalar system; SIMD setup overhead exceeds benefit |
+| Quadratic evaluation (Horner) | No | 2 FMAs; scalar fastest at degree 2 |
+
+Batch speedup for the sum accumulation phases: ~3× with AVX2. Solve and evaluation phases remain scalar. Net batch speedup for large series: approximately 2× over fully scalar.

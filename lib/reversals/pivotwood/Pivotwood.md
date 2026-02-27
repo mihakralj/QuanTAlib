@@ -81,6 +81,38 @@ Pivotwood.BatchAll(high, low, close, ppOut, r1Out, s1Out, r2Out, s2Out, r3Out, s
 | **PIVOTEXT** (Extended) | (H+L+C)/3 | Arithmetic extended | 11 | 1x-4x range |
 | **PIVOTDEM** (DeMark) | Conditional X/4 | X/2 based | 3 | Direction-based |
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Pivot Woodie uses a distinctive formula weighting Close *2 in the pivot — O(1) arithmetic on previous bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Store prev bar OHLC | 4 | 1 cy | ~4 cy |
+| PP = (H + L + 2*C) / 4 (FMA) | 1 | 1 cy | ~1 cy |
+| R1 = 2*PP - L | 1 | 2 cy | ~2 cy |
+| S1 = 2*PP - H | 1 | 2 cy | ~2 cy |
+| R2 = PP + (H - L) | 1 | 2 cy | ~2 cy |
+| S2 = PP - (H - L) | 1 | 2 cy | ~2 cy |
+| R3/S3 additional levels | 2 | 2 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~19 cy** |
+
+O(1) per bar. Woodie pivot uses `(H + L + 2×Close) / 4` instead of `(H + L + C) / 3`, giving close price double weight. FMA-friendly.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| PP with FMA (2*C+H+L)/4 | Yes | Vector<double> FMA with broadcast constant |
+| R1/S1 subtraction | Yes | Vector arithmetic, no dependencies |
+| R2/S2 range-based | Yes | Vector<double> subtract and add |
+| All output spans | Yes | Full SIMD pass across all bars |
+
+Full vectorization possible. All output levels computed from previous-bar constants — no streaming dependency between bars in batch mode.
+
 ## Implementation Details
 
 - **WarmupPeriod**: 2 bars (need previous bar's HLC)

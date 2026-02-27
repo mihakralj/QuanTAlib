@@ -74,6 +74,23 @@ The indicator requires $N$ bars to establish ATR and rolling extremes. With defa
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Chandelier Exit uses rolling ATR + highest high / lowest low tracking — O(1) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| True range computation (3 comparisons) | 3 | 2 cy | ~6 cy |
+| EMA-smoothed ATR update (Wilder) | 1 | 3 cy | ~3 cy |
+| RingBuffer highest-high update | 1 | 4 cy | ~4 cy |
+| RingBuffer lowest-low update | 1 | 4 cy | ~4 cy |
+| Long stop = highest - mult*ATR | 1 | 2 cy | ~2 cy |
+| Short stop = lowest + mult*ATR | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~23 cy** |
+
+O(1) per bar. ATR uses Wilder smoothing (RMA). Highest/lowest tracked via O(1) RingBuffer max/min monotonic deque.
+
 ### Implementation Design
 
 The implementation uses two monotonic deques for O(1) amortized rolling max/min operations (highest high, lowest low) with corresponding circular buffers. ATR is computed inline using SMA-seeded Wilder's smoothing with FMA optimization, eliminating the need for a child RMA indicator.

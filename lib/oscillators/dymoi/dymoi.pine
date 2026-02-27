@@ -1,0 +1,126 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Dynamic Momentum Index (DYMOI)", "DYMOI", overlay=false)
+
+//@description Dynamic Momentum Index by Tushar Chande and Stanley Kroll (1994).
+// A three-stage pipeline that produces a volatility-adaptive RSI:
+// Stage 1: Dual circular-buffer StdDev → volatility ratio V = σ_short / σ_long
+// Stage 2: dynamic_period = clamp(round(basePeriod / V), minPeriod, maxPeriod)
+// Stage 3: Wilder RMA RSI with adaptive alpha = 1 / dynamic_period
+// When price volatility is high V > 1, the period shortens → faster response.
+// When volatility is low V < 1, the period lengthens → smoother output.
+
+//@function Calculates StdDev over a circular buffer of given period
+//@param source Price series
+//@param period Window size
+//@returns Population standard deviation of the window
+stddev_circ(series float source, simple int period) =>
+    var array<float> buf = array.new_float(period, na)
+    var int head = 0
+    var int count = 0
+    var float sumV = 0.0
+    var float sumSq = 0.0
+
+    float oldest = array.get(buf, head)
+    if not na(oldest)
+        sumV  -= oldest
+        sumSq -= oldest * oldest
+
+    float val = na(source) ? 0.0 : source
+    array.set(buf, head, val)
+    sumV  += val
+    sumSq += val * val
+    head := (head + 1) % period
+    if count < period
+        count += 1
+
+    float mean = sumV / count
+    float variance = sumSq / count - mean * mean
+    float sd = variance > 0.0 ? math.sqrt(variance) : 0.0
+    sd
+
+//@function Calculates Wilder's RMA RSI with warmup compensation and adaptive alpha
+//@param source Close price series
+//@param dynPeriod Dynamic period (integer, already clamped)
+//@returns RSI value in [0, 100]
+rsi_wilder(series float source, series int dynPeriod) =>
+    var float prevVal  = na
+    var float avgGain  = 0.0
+    var float avgLoss  = 0.0
+    var float e        = 1.0
+    var bool  warmup   = true
+
+    float result = 50.0
+
+    if not na(source)
+        if na(prevVal)
+            prevVal := source
+        else
+            float alpha  = 1.0 / dynPeriod
+            float beta   = 1.0 - alpha
+            float change = source - prevVal
+            float gain   = change > 0.0 ? change : 0.0
+            float loss   = change < 0.0 ? -change : 0.0
+            prevVal := source
+
+            avgGain := alpha * gain + beta * avgGain
+            avgLoss := alpha * loss + beta * avgLoss
+
+            if warmup
+                e *= beta
+                float c    = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+                float aG   = avgGain * c
+                float aL   = avgLoss * c
+                float total = aG + aL
+                result := total != 0.0 ? 100.0 * aG / total : 50.0
+                if e <= 1e-10
+                    warmup := false
+            else
+                float total = avgGain + avgLoss
+                result := total != 0.0 ? 100.0 * avgGain / total : 50.0
+
+    result
+
+//@function Calculates Dynamic Momentum Index
+//@param source Close price series
+//@param basePeriod Base RSI period (default 14)
+//@param shortPeriod Short StdDev window (default 5)
+//@param longPeriod Long StdDev window (default 10)
+//@param minPeriod Minimum dynamic period (default 3)
+//@param maxPeriod Maximum dynamic period (default 30)
+//@returns DYMOI value in [0, 100]
+//@optimized Uses circular buffers for O(1) StdDev; adaptive Wilder RMA for RSI
+dymoi(series float source, simple int basePeriod, simple int shortPeriod, simple int longPeriod, simple int minPeriod, simple int maxPeriod) =>
+    if basePeriod < 2 or shortPeriod < 2 or longPeriod <= shortPeriod or minPeriod < 2 or maxPeriod < minPeriod
+        runtime.error("Invalid DYMOI parameters")
+
+    // Stage 1: dual StdDev volatility ratio
+    float sdShort = stddev_circ(source, shortPeriod)
+    float sdLong  = stddev_circ(source, longPeriod)
+
+    float v = sdLong > 1e-10 ? sdShort / sdLong : 1.0
+
+    // Stage 2: dynamic period
+    int rawPeriod  = v > 1e-10 ? math.round(basePeriod / v) : maxPeriod
+    int dynPeriod  = math.max(minPeriod, math.min(maxPeriod, rawPeriod))
+
+    // Stage 3: adaptive Wilder RSI
+    float result = rsi_wilder(source, dynPeriod)
+    math.max(0.0, math.min(100.0, result))
+
+// ---------- Main loop ----------
+
+i_basePeriod  = input.int(14, "Base RSI Period",   minval=2,  maxval=500)
+i_shortPeriod = input.int(5,  "Short StdDev Period", minval=2,  maxval=500)
+i_longPeriod  = input.int(10, "Long StdDev Period",  minval=2,  maxval=500)
+i_minPeriod   = input.int(3,  "Min Period",          minval=2,  maxval=500)
+i_maxPeriod   = input.int(30, "Max Period",          minval=2,  maxval=500)
+i_source      = input.source(close, "Source")
+
+dymoi_val = dymoi(i_source, i_basePeriod, i_shortPeriod, i_longPeriod, i_minPeriod, i_maxPeriod)
+
+plot(dymoi_val, "DYMOI", color=color.yellow, linewidth=2)
+hline(70, "Overbought", color=color.gray, linestyle=hline.style_dotted)
+hline(50, "Midline",    color=color.gray, linestyle=hline.style_dotted)
+hline(30, "Oversold",   color=color.gray, linestyle=hline.style_dotted)

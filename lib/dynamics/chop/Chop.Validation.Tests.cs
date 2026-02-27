@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit;
 
@@ -124,5 +126,43 @@ public sealed class ChopValidationTests : IDisposable
                     $"CHOP produced non-finite value after warmup: {chop.Last.Value}");
             }
         }
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Chop_MatchesOoples_Structural()
+    {
+        const int period = 14;
+        var ooplesData = _data.Bars.Select(static b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open,
+            High = b.High,
+            Low = b.Low,
+            Close = b.Close,
+            Volume = b.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateChoppinessIndex(length: period);
+        var oValues = oResult.OutputValues.Values.First();
+
+        var chop = new Chop(period);
+        var qValues = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            qValues.Add(chop.Update(bar).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples Chop must produce output");
+        int finiteCount = 0;
+        for (int i = period; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite Chop pairs, got {finiteCount}");
     }
 }

@@ -1,4 +1,4 @@
-# SUPER: SuperTrend
+﻿# SUPER: SuperTrend
 
 > "It's not an indicator; it's a trailing stop with a marketing budget."
 
@@ -106,6 +106,47 @@ SUPERTREND(bar, atrPeriod=10, multiplier=3.0):
 | Bearish | Upper (resistance) | Can only fall | Close > Upper |
 
 The step-like output results from the ratchet constraint: the band remains flat until a new extremum pushes it in the trend direction. Whipsaws occur in ranging markets where close repeatedly crosses both bands.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Supertrend uses ATR-based bands with a state-machine ratchet: upper/lower bands only move in their respective directions, and the trend flips when price crosses the active band.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| TR computation (SUB×3, ABS×2, MAX×2) | 7 | 1 | 7 |
+| FMA (RMA ATR update) | 1 | 4 | 4 |
+| MUL (ATR × multiplier) | 1 | 3 | 3 |
+| ADD + SUB (upper/lower basic bands) | 2 | 1 | 2 |
+| MAX/MIN (ratchet: clamp to prev band) | 2 | 1 | 2 |
+| CMP × 2 (trend flip conditions) | 2 | 1 | 2 |
+| CMP × 2 (final band selection) | 2 | 1 | 2 |
+| **Total** | **19** | — | **~22 cycles** |
+
+The ratchet logic adds branch overhead (~3 cycles average from the CMPs), but overall ~22 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| TR + ATR (RMA) | **No** | Recursive RMA — sequential |
+| Band arithmetic | Yes | VADDPD + VSUBPD + VMULPD after ATR pass |
+| Ratchet clamp | **No** | State-dependent MAX/MIN — depends on prior band value |
+| Trend flip state machine | **No** | Branch-heavy flip logic depends on prior trend state |
+
+The ratchet and trend-flip logic create strong sequential dependencies. The ATR and band arithmetic sub-steps are vectorizable as intermediate passes.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | FMA ATR; ratchet logic exact |
+| **Timeliness** | 7/10 | ATR period warmup; ratchet responds immediately to band crosses |
+| **Smoothness** | 9/10 | One-way ratchet eliminates oscillation; clean directional band |
+| **Noise Rejection** | 8/10 | ATR-scaled bands self-adjust to volatility regime |
 
 ## Resources
 

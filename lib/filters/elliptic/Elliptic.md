@@ -1,4 +1,4 @@
-# ELLIPTIC: 2nd Order Elliptic Lowpass Filter
+﻿# ELLIPTIC: 2nd Order Elliptic Lowpass Filter
 
 > "If you want a vertical cliff, you have to accept a few bumps on the plateau."
 
@@ -33,6 +33,28 @@ $$ W_c = \tan\left(\frac{\pi}{Period}\right) $$
 These coefficients are then normalized to ensure Unity Gain at DC, preventing the filter from drifting off the price trend.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Elliptic (Cauer) filter: equiripple in both passband and stopband. Implemented as a 2nd-order IIR biquad. Coefficient derivation is complex but precomputed; per-bar cost is identical to other biquad filters.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input state shift | 2 | ~1 cy | ~2 cy |
+| Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
+| Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **9** | — | **~24 cycles** |
+
+O(1) per bar. Same biquad structure as Butterworth/Chebyshev; only coefficients differ. ~24 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential feedback |
+
+Batch throughput: ~24 cy/bar scalar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

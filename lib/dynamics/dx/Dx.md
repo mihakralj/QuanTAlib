@@ -1,4 +1,4 @@
-# DX: Directional Movement Index
+﻿# DX: Directional Movement Index
 
 The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance — making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.
 
@@ -119,6 +119,47 @@ On each bar (high, low, close, isNew):
 | 75-100 | Extreme (rare, usually transient) |
 
 DX measures trend *strength*, not direction. Direction is determined by comparing +DI vs -DI: if $+DI > -DI$, the trend is up; if $-DI > +DI$, the trend is down. DI crossovers signal potential trend reversals.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+DX is an intermediate step in the ADX calculation: it computes the directional movement index without the final ADX smoothing pass.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB × 5 (TR, DM moves) | 5 | 1 | 5 |
+| ABS × 2 (TR components) | 2 | 1 | 2 |
+| MAX × 2 (TR) | 2 | 1 | 2 |
+| CMP × 2 (DM guards) | 2 | 1 | 2 |
+| FMA × 3 (RMA TR, +DM, −DM) | 3 | 4 | 12 |
+| DIV × 2 (+DI, −DI) | 2 | 15 | 30 |
+| MUL × 2 (×100) | 2 | 3 | 6 |
+| ABS + ADD + DIV (DX formula) | 3 | 16 | 16 |
+| **Total** | **23** | — | **~75 cycles** |
+
+DX requires N bars warmup (vs 2N for ADX). ~75 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| TR/DM initial computation | Yes | VSUBPD + VABSPD + VMAXPD |
+| RMA smoothing × 3 | **No** | Recursive IIR |
+| DX formula | Yes | VABSPD + VADDPD + VDIVPD post-RMA |
+
+Same RMA bottleneck as ADX. The DX formula itself is fully vectorizable.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | FMA smoothing; exact TR computation |
+| **Timeliness** | 7/10 | N-bar warmup; more responsive than ADX |
+| **Smoothness** | 6/10 | Raw DX is noisier than ADX; typically used as input to ADX |
+| **Noise Rejection** | 6/10 | Single RMA layer; moderate noise suppression |
 
 ## Resources
 

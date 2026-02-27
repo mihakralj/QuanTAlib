@@ -1,4 +1,4 @@
-# IMPULSE: Elder Impulse System
+﻿# IMPULSE: Elder Impulse System
 
 > "The Impulse System identifies inflection points where a trend speeds up or slows down." -- Alexander Elder, *Come Into My Trading Room*
 
@@ -102,6 +102,44 @@ The system combines two derivatives:
 - **Second derivative** (histogram slope): Is the rate of MACD convergence/divergence accelerating or decelerating?
 
 Both must confirm for a directional signal. This dual-confirmation suppresses false signals during transitions but introduces lag at inflection points.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Impulse System combines an EMA (or JMA) of close with a MACD histogram to produce a ternary directional signal.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA × 1 (EMA close update) | 1 | 4 | 4 |
+| MACD pipeline (2 EMA + signal EMA) | 3 | 4 | 12 |
+| SUB (MACD histogram = MACD − signal) | 1 | 1 | 1 |
+| CMP × 2 (EMA up/down, histogram up/down) | 2 | 1 | 2 |
+| Ternary encoding (+1/0/−1) | 1 | 1 | 1 |
+| **Total** | **8** | — | **~20 cycles** |
+
+Four independent EMA streams. ~20 cycles per bar at steady state.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| All EMA passes × 4 | **No** | Recursive IIR — sequential |
+| Histogram subtraction | Yes | VSUBPD after EMA arrays complete |
+| Signal comparison | Yes | VCMPPD |
+
+Same EMA constraint across all impulse components.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Three independent EMA streams; precise FMA arithmetic |
+| **Timeliness** | 6/10 | MACD slow-MA period dominates warmup lag |
+| **Smoothness** | 10/10 | Ternary output eliminates all intermediate noise |
+| **Noise Rejection** | 8/10 | Dual confirmation (trend + momentum) reduces false signals |
 
 ## Resources
 

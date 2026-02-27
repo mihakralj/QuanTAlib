@@ -1,4 +1,5 @@
 using Skender.Stock.Indicators;
+using TALib;
 using Xunit;
 
 namespace QuanTAlib.Tests;
@@ -252,5 +253,58 @@ public sealed class StochValidationTests : IDisposable
         Assert.True(indicator.IsHot);
         Assert.True(double.IsFinite(indicator.K.Value));
         Assert.True(double.IsFinite(indicator.D.Value));
+    }
+
+    // --- I) TALib cross-validation ---
+
+    /// <summary>
+    /// TALib Stoch(fastKPeriod=14, slowKPeriod=1, slowKMAType=SMA, slowDPeriod=3, slowDMAType=SMA)
+    /// with slowKPeriod=1 (no K smoothing) produces raw %K == our K output.
+    /// slowD with SMA(3) matches our D output.
+    /// Note: TALib Stoch uses SMA for both K and D smoothing (MAType=SMA).
+    /// QuanTAlib Stoch also uses SMA. With slowKPeriod=1 (identity) the K lines match directly.
+    /// </summary>
+    [Fact]
+    public void TALib_Stoch_K_And_D_Match()
+    {
+        const int kLength = 14;
+        const int dPeriod = 3;
+
+        var hData = _data.HighPrices.Span;
+        var lData = _data.LowPrices.Span;
+        var cData = _data.ClosePrices.Span;
+
+        double[] taK = new double[hData.Length];
+        double[] taD = new double[hData.Length];
+
+        // positional: fastKPeriod=14, slowKPeriod=1 (no smoothing), SMA, slowDPeriod=3, SMA
+        var retCode = TALib.Functions.Stoch(hData, lData, cData, 0..^0,
+            taK, taD, out var outRange,
+            kLength, 1, TALib.Core.MAType.Sma, dPeriod, TALib.Core.MAType.Sma);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        (int offset, int length) = outRange.GetOffsetAndLength(taK.Length);
+
+        var (qK, qD) = Stoch.Batch(_data.Bars, kLength, dPeriod);
+
+        int mismatches = 0;
+        for (int j = 0; j < length; j++)
+        {
+            int qi = j + offset;
+            double errK = Math.Abs(qK.Values[qi] - taK[j]);
+            double errD = Math.Abs(qD.Values[qi] - taD[j]);
+            if (errK > 1e-6 || errD > 1e-6) { mismatches++; }
+        }
+
+        double mismatchRate = (double)mismatches / length;
+        Assert.True(mismatchRate < 0.05,
+            $"TALib Stoch mismatch rate {mismatchRate:P2} > 5% ({mismatches}/{length})");
+    }
+
+    [Fact]
+    public void TALib_Stoch_Lookback_Is_Positive()
+    {
+        int lookback = TALib.Functions.StochLookback(14, 1, TALib.Core.MAType.Sma, 3, TALib.Core.MAType.Sma);
+        Assert.True(lookback > 0, $"TALib Stoch lookback={lookback}");
     }
 }

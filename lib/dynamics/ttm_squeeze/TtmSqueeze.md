@@ -1,4 +1,4 @@
-# TTM_SQUEEZE: TTM Squeeze
+﻿# TTM_SQUEEZE: TTM Squeeze
 
 > "Volatility compression is the market holding its breath before screaming."
 
@@ -111,6 +111,48 @@ The critical trading signal occurs on the transition bar:
 $$\text{SqueezeFired}_t = \text{SqueezeOn}_{t-1} \text{ and } \neg\text{SqueezeOn}_t$$
 
 Combined with momentum direction, this yields entry signals: long when squeeze fires with positive rising momentum, short when squeeze fires with negative falling momentum.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+TTM Squeeze detects when Bollinger Bands are inside Keltner Channels (the "squeeze"), and fires momentum via a linear-regression oscillator.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SMA update (BB middle) + variance (O(N)) | N+5 | 1 | N+5 |
+| SQRT (BB StdDev) | 1 | 20 | 20 |
+| ATR update (FMA RMA) | 1 | 4 | 4 |
+| BB upper/lower (ADD/SUB × 2) | 2 | 1 | 2 |
+| KC upper/lower (EMA + ATR × mul, ADD/SUB × 2) | 4 | 4 | 16 |
+| CMP × 2 (BB inside KC?) | 2 | 1 | 2 |
+| Linear regression oscillator (O(N)) | ~3N | 3 | ~3N |
+| **Total** | **~4N+35** | — | **~4N+49** |
+
+For default $N=20$: ~129 cycles per bar. The O(N) variance + O(N) linear regression scan dominate.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| BB computation (prefix sum variance) | Yes | VADDPD + VMULPD for rolling variance |
+| ATR (RMA) | **No** | Recursive IIR |
+| Keltner EMA | **No** | Recursive IIR |
+| Linear regression | Yes | Prefix sums of x×y and x² enable O(1) window regression |
+| Squeeze detection | Yes | VCMPPD after bands computed |
+
+Regression can be recast as prefix-sum dot products for SIMD acceleration; ATR/EMA chains remain sequential.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | SQRT precision adequate; linear regression high fidelity |
+| **Timeliness** | 5/10 | N-bar windows on all components; squeeze detection has inherent N/2 lag |
+| **Smoothness** | 7/10 | Linear regression oscillator is smooth by construction |
+| **Noise Rejection** | 7/10 | Dual-channel squeeze reduces false momentum triggers |
 
 ## Resources
 

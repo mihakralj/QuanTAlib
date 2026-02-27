@@ -1,4 +1,7 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using System.Runtime.CompilerServices;
+using Tulip;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -186,6 +189,49 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
         _output.WriteLine("Fisher streaming/batch/span agreement verified.");
     }
 
+    #endregion
+
+    #region Tulip Cross-Validation
+
+    /// <summary>
+    /// Structural validation against Tulip <c>fisher</c> indicator.
+    /// Algorithm variant: Tulip fisher uses two inputs (high[], low[]) and computes the
+    /// Fisher Transform from the high-low price range midpoint normalized over a rolling window.
+    /// QuanTAlib Fisher uses a single price series with EMA-based normalization via alpha parameter.
+    /// Direct numeric equality is not asserted; both must produce finite output on the same data.
+    /// </summary>
+    [Fact]
+    public void Fisher_Tulip_StructuralVariant_BothFinite()
+    {
+        const int period = 10;
+        double[] highData = _testData.HighPrices.ToArray();
+        double[] lowData = _testData.LowPrices.ToArray();
+
+        // Tulip fisher — uses high/low range normalization
+        var tulipIndicator = Tulip.Indicators.fisher;
+        double[][] inputs = { highData, lowData };
+        double[] options = { period };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[highData.Length - lookback], new double[highData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        // QuanTAlib Fisher — single price series (close)
+        var fisher = new Fisher(TestPeriod);
+        foreach (var item in _testData.Data) { fisher.Update(item); }
+
+        // Structural: Tulip must produce finite output
+        Assert.True(tResult.Length > 0, "Tulip fisher must produce output");
+        foreach (double v in tResult)
+        {
+            Assert.True(double.IsFinite(v), $"Tulip fisher produced non-finite value: {v}");
+        }
+
+        // QuanTAlib must also be hot and finite
+        Assert.True(fisher.IsHot, "QuanTAlib Fisher must be hot after sufficient bars");
+        Assert.True(double.IsFinite(fisher.Last.Value), "QuanTAlib Fisher last value must be finite");
+    }
+
     [Fact]
     [SkipLocalsInit]
     public void Validate_Event_Matches_Streaming()
@@ -214,6 +260,53 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
         }
 
         _output.WriteLine("Fisher event-based matches streaming.");
+    }
+
+    #endregion
+
+    #region Ooples Validation
+
+    /// <summary>
+    /// Structural validation against Ooples <c>CalculateEhlersFisherTransform</c>.
+    /// Ooples uses the Ehlers variant: HL2 (high-low midpoint) normalized over rolling period,
+    /// then arctanh transformed. QuanTAlib Fisher uses a single price series with EMA-based
+    /// normalization via alpha parameter. Input types differ (OHLCV vs close-only); numeric
+    /// equality not asserted. Both must produce finite output on the same underlying data.
+    /// </summary>
+    [Fact]
+    public void Fisher_Ooples_StructuralVariant_BothFinite()
+    {
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateEhlersFisherTransform(length: TestPeriod);
+        var oValues = oResult.OutputValues.Values.First();
+
+        // QuanTAlib Fisher — single price series (close)
+        var fisher = new Fisher(TestPeriod);
+        foreach (var item in _testData.Data) { fisher.Update(item); }
+
+        // Structural: Ooples must produce finite output
+        Assert.True(oValues.Count > 0, "Ooples Fisher must produce output");
+        int finiteCount = 0;
+        for (int i = TestPeriod; i < oValues.Count; i++)
+        {
+            if (double.IsFinite(oValues[i])) { finiteCount++; }
+        }
+
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples values, got {finiteCount}");
+        Assert.True(fisher.IsHot, "QuanTAlib Fisher must be hot after sufficient bars");
+        Assert.True(double.IsFinite(fisher.Last.Value), "QuanTAlib Fisher last value must be finite");
+
+        _output.WriteLine($"Fisher Ooples structural: {finiteCount} finite Ooples values, QuanTAlib last={fisher.Last.Value:F6}");
     }
 
     #endregion

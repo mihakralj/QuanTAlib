@@ -1,4 +1,4 @@
-# QEMA: Quad Exponential Moving Average
+﻿# QEMA: Quad Exponential Moving Average
 
 > "Four EMAs walk into a bar. The first one's slow and thoughtful. The fourth one's practically twitching. Together, they somehow produce a signal that's both smooth and responsive. The bartender asks, 'How did you achieve zero lag?' They reply, 'Constrained quadratic optimization.' The bartender pours them a free drink."
 
@@ -229,6 +229,34 @@ The negative weights on stages 3 and 4 enable lag cancellation through extrapola
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+QEMA(N) runs 4 EMA stages with progressively increasing alphas (α₁ < α₂ < α₃ < α₄) and bias compensation for each stage. The 4-coefficient combination `w₁·EMA₁ + w₂·EMA₂ + w₃·EMA₃ + w₄·EMA₄` uses precomputed weights.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| EMA stage 1: FMA(α₁, src, decay₁×ema1) | 1 | 4 | ~4 |
+| Bias E₁ update | 1 | 3 | ~3 |
+| EMA stage 2: FMA(α₂, src, decay₂×ema2) | 1 | 4 | ~4 |
+| Bias E₂ update | 1 | 3 | ~3 |
+| EMA stage 3: FMA(α₃, src, decay₃×ema3) | 1 | 4 | ~4 |
+| Bias E₃ update | 1 | 3 | ~3 |
+| EMA stage 4: FMA(α₄, src, decay₄×ema4) | 1 | 4 | ~4 |
+| Bias E₄ update | 1 | 3 | ~3 |
+| Weighted combination (4 FMA) | 4 | 4 | ~16 |
+| **Total** | **12** | — | **~44 cycles** |
+
+O(1) per bar. All four EMA stages operate independently on the same source input (not cascaded like DEMA/TEMA) — hence progressive alphas rather than identical ones. WarmupPeriod determined by slowest EMA (stage 1, α₁ = 2/(N+1)).
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| 4 EMA passes (independent α values) | No | Each is a recursive IIR; sequential per stage |
+| EMA stages independent (same source) | Partial | 4 EMA passes can run in sequence independently — no cascade dependency |
+| Weighted combination | Yes | `VFMADD231PD` across 4 EMA series once complete |
+
+Because QEMA's 4 EMA stages take the same source input (not cascade), they can each be run independently in separate passes. A SIMD implementation could interleave all 4 EMA states in a single vector register (4 doubles in AVX2), processing all 4 stages simultaneously. This gives ~4× speedup for the EMA phase. Weighted combination is also vectorizable.
 Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
 
 | Metric | Value | Notes |

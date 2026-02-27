@@ -1,4 +1,4 @@
-# BPF (Bandpass Filter)
+﻿# BPF (Bandpass Filter)
 
 > "Most market data is noise. A sliver is signal. The rest is just detailed evidence of human panic."
 
@@ -53,6 +53,28 @@ $$ \text{Gain}_{lp} = 1 - C_{2,lp} - C_{3,lp} $$
 $$ BPF[t] = \text{Gain}_{lp}HP[t] + C_{2,lp}BPF[t-1] + C_{3,lp}BPF[t-2] $$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Band-Pass Filter (BPF) is a 2nd-order IIR band-pass: two poles selected by center frequency and bandwidth. Standard biquad difference equation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input state shift | 2 | ~1 cy | ~2 cy |
+| Feedforward FMA (b0*x - b2*x2) | 2 | ~4 cy | ~8 cy |
+| Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **8** | — | **~20 cycles** |
+
+O(1) per bar. ~20 cycles/bar. BPF biquad has one fewer feedforward coefficient than typical LP/HP biquads.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential dependency on y[n-1], y[n-2] |
+
+Batch throughput: ~20 cy/bar.
 
 | Metric | Impact | Notes |
 | :--- | :--- | :--- |

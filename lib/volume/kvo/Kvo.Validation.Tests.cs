@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
@@ -376,5 +378,20 @@ public sealed class KvoValidationTests : IDisposable
         }
 
         Assert.False(allEqual, "Different periods should produce different results");
+    }
+
+    [Fact]
+    public void Kvo_MatchesOoples_Structural()
+    {
+        // CalculateKlingerVolumeOscillator — structural test (different VF normalization)
+        var ooplesData = _data.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateKlingerVolumeOscillator();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples KVO values, got {finiteCount}");
     }
 }

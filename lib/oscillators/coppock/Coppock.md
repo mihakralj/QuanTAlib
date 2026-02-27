@@ -1,4 +1,4 @@
-# COPPOCK: Coppock Curve
+﻿# COPPOCK: Coppock Curve
 
 The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at different lookback periods. Originally designed for monthly charts to identify major market bottoms, it produces a single oscillating line where zero-line crossovers from below signal long-term buying opportunities. The dual-ROC architecture captures both intermediate and longer-term momentum dynamics in a single smoothed output.
 
@@ -51,6 +51,41 @@ On new value R entering buffer (oldest R_old exits):
 ```
 
 **Default parameters:** longRoc = 14, shortRoc = 11, wmaPeriod = 10 (original monthly values).
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Coppock Curve = WMA of (ROC(11) + ROC(14)). Both ROC values need ring buffers of depth 14; then weighted average of N WMA taps.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ROC × 2 (close[0]/close[N]−1 × 100) | 2 | 16 | 32 |
+| ADD (ROC11 + ROC14) | 1 | 1 | 1 |
+| WMA accumulation (N=10 weighted taps) | 10 | 3 | 30 |
+| DIV (divide by weight sum) | 1 | 15 | 15 |
+| **Total (N=10 WMA)** | **14** | — | **~78 cycles** |
+
+For default parameters (ROC 11+14, WMA 10): ~78 cycles per bar. WMA taps dominate.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| ROC computation | Yes | VDIVPD on lag-offset arrays |
+| Sum of ROCs | Yes | VADDPD |
+| WMA (convolution) | Yes | FIR convolution — VDPPS or manual dot product |
+
+Both ROC and WMA are non-recursive and fully vectorizable. AVX2 dot-product acceleration applies to the WMA convolution.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | WMA exact; ROC division uses hardware FP |
+| **Timeliness** | 3/10 | 14+10 = 24 bar minimum warmup before first valid value |
+| **Smoothness** | 8/10 | WMA of ROC sum produces smooth momentum curve |
+| **Noise Rejection** | 7/10 | Long ROC periods filter short-term noise; WMA further smooths |
 
 ## Resources
 

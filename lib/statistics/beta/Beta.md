@@ -41,6 +41,21 @@ This formula is mathematically equivalent to the covariance/variance definition 
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Beta uses running sums of returns (Welford-style) for O(1) covariance/variance update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict (2 inputs) | 2 | 3 cy | ~6 cy |
+| Compute asset + market returns | 2 | 3 cy | ~6 cy |
+| Update 4 running sums (Ra, Rm, Ra*Rm, Rm^2) | 4 | 2 cy | ~8 cy |
+| Compute covariance / variance | 2 | 5 cy | ~10 cy |
+| NaN guard (zero variance) | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~32 cy** |
+
+O(1) per update. Dual-input constraint prevents SIMD batch optimization; sequential return computation enforces ordering.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 15 ns/bar | Single-pass O(1) calculation. |

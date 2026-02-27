@@ -1,4 +1,5 @@
 using Skender.Stock.Indicators;
+using TALib;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -696,6 +697,90 @@ public sealed class CorrelationValidationTests : IDisposable
 
         double mean = values.Average();
         return values.Sum(v => (v - mean) * (v - mean)) / (values.Count - 1);
+    }
+
+    #endregion
+
+    #region External Library Validation — TALib
+
+    [Fact]
+    public void Validate_Talib_Correlation_Batch()
+    {
+        // TALib Correl computes Pearson correlation coefficient between two price series.
+        // Uses Close prices (series A) vs Open prices (series B), matching the Skender tests.
+        // TALib and QuanTAlib use identical Pearson formulas → expect exact numeric match (1e-9).
+
+        const int period = 20;
+
+        var closePrices = _data.ClosePrices.Span;
+        var openPrices = _data.OpenPrices.Span;
+
+        double[] closeArr = closePrices.ToArray();
+        double[] openArr = openPrices.ToArray();
+        double[] taOut = new double[_data.Count];
+
+        var retCode = Functions.Correl<double>(closeArr, openArr, 0..^0, taOut, out var outRange, period);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
+        Assert.True(length > 100, $"TALib Correl produced only {length} values");
+
+        // QuanTAlib streaming
+        var corr = new Correlation(period);
+        var qlValues = new double[_data.Count];
+        for (int i = 0; i < _data.Count; i++)
+        {
+            qlValues[i] = corr.Update(closePrices[i], openPrices[i]).Value;
+        }
+
+        // Compare outputs — offset aligns TALib to the full series
+        int mismatches = 0;
+        for (int j = 0; j < length; j++)
+        {
+            int qi = j + offset;
+            double diff = Math.Abs(qlValues[qi] - taOut[j]);
+            if (diff > ValidationHelper.SkenderTolerance)
+            {
+                mismatches++;
+                Assert.Fail($"Correl mismatch at index [{qi}]: QuanTAlib={qlValues[qi]:G17}, TALib={taOut[j]:G17}, diff={diff:E3}");
+            }
+        }
+
+        _output.WriteLine($"Correlation validated against TALib Correl ({length} values matched within tolerance {ValidationHelper.SkenderTolerance:E1})");
+    }
+
+    [Fact]
+    public void Validate_Talib_Correlation_MultiplePeriods()
+    {
+        // Verify match across periods 10, 20, 50 using High vs Low series.
+        var highArr = _data.HighPrices.Span.ToArray();
+        var lowArr = _data.LowPrices.Span.ToArray();
+
+        foreach (int period in new[] { 10, 20, 50 })
+        {
+            double[] taOut = new double[_data.Count];
+            var retCode = Functions.Correl<double>(highArr, lowArr, 0..^0, taOut, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
+
+            var corr = new Correlation(period);
+            var qlValues = new double[_data.Count];
+            for (int i = 0; i < _data.Count; i++)
+            {
+                qlValues[i] = corr.Update(_data.HighPrices.Span[i], _data.LowPrices.Span[i]).Value;
+            }
+
+            for (int j = 0; j < length; j++)
+            {
+                int qi = j + offset;
+                double diff = Math.Abs(qlValues[qi] - taOut[j]);
+                Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                    $"Period={period}, [{qi}]: Q={qlValues[qi]:G17}, TALib={taOut[j]:G17}, diff={diff:E3}");
+            }
+
+            _output.WriteLine($"  Period {period}: {length} values matched against TALib");
+        }
     }
 
     #endregion

@@ -1,4 +1,4 @@
-# QSTICK: Qstick Indicator
+﻿# QSTICK: Qstick Indicator
 
 > "The average candlestick body reveals the market's true conviction."
 
@@ -85,6 +85,42 @@ QSTICK(bar, period=14, useEma=false):
 ### Scale Dependence
 
 Qstick values are in absolute price units, not normalized. Cross-instrument comparison requires normalization (e.g., divide by ATR or price level). Short periods (5-8) suit trading signals; longer periods (20+) suit trend identification.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+QStick is an SMA (or EMA) of (Close − Open), tracking average body momentum over N bars.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (Close − Open) | 1 | 1 | 1 |
+| RingBuffer ADD + oldest SUB (running sum) | 2 | 1 | 2 |
+| MUL × 1/N (average) | 1 | 3 | 3 |
+| **Total** | **4** | — | **~6 cycles** |
+
+One of the fastest dynamics indicators: a single subtraction plus an O(1) running sum. ~6 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Close − Open differences | Yes | VSUBPD — fully independent |
+| Prefix sum | Partial | Sum scan; SIMD prefix-sum pattern |
+| Windowed average | Yes | VSUBPD on prefix + VMULPD (×1/N) |
+
+Fully SIMD-vectorizable in batch mode. AVX2 achieves ~4× throughput on large arrays.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact arithmetic; trivial SMA of differences |
+| **Timeliness** | 8/10 | SMA period only; no secondary smoothing lag |
+| **Smoothness** | 7/10 | N-period averaging removes single-bar outliers |
+| **Noise Rejection** | 6/10 | No adaptive bandwidth; outlier body candles shift the average |
 
 ## Resources
 

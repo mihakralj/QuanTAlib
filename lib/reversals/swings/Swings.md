@@ -94,6 +94,20 @@ In random walk data with GBM dynamics ($\mu = 0.05$, $\sigma = 0.20$), empirical
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Swing High/Low detection compares centered bar against N neighbors on each side — O(1) with fixed lookback.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer update (high + low) | 2 | 3 cy | ~6 cy |
+| Compare center vs N left + N right neighbors | 2*N*2 | 2 cy | ~4N cy |
+| Signal assignment (swing high/low) | 2 | 1 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=5)** | **O(N)** | — | **~44 cy** |
+
+O(N) per bar where N = lookback on each side. Signal delayed N bars. For N=5 the 10 comparisons are branchless SIMD-comparable.
+
 ### Implementation Design
 
 The implementation uses two circular buffers with modular index arithmetic. Pattern evaluation checks $2L$ comparisons per direction (all neighbors against center), with early termination when both swing high and swing low are ruled out.

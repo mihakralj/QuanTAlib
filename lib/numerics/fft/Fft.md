@@ -85,6 +85,35 @@ FFT(source, windowSize, minPeriod, maxPeriod):
     return clamp(dominantPeriod, minPeriod, maxPeriod)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+FFT (DFT dominant cycle detector) evaluates B frequency bins, each requiring N multiply-accumulates — O(N*B) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Hanning window multiply | N | 2 cy | ~2N cy |
+| DFT inner loop (B bins * N samples) | B*N | 4 cy | ~4*N*B cy |
+| cos/sin evaluation (precomputed table) | 2*B*N | 0 cy | ~0 cy |
+| Magnitude comparison + peak track | B | 2 cy | ~2B cy |
+| Parabolic interpolation (3 points) | 1 | 5 cy | ~5 cy |
+| **Total (N=64, B=10)** | **O(N*B)** | — | **~2617 cy** |
+
+O(N*B) per bar where B = active frequency bins. Precomputed sin/cos tables eliminate transcendental cost. Suitable for 1-minute+ timeframes; not tick-data hot paths.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Hanning window application | Yes | Vector multiply with precomputed weights |
+| DFT inner dot product | Yes | FMA with sin/cos table lookup |
+| Magnitude squared | Yes | Vector FMA (re^2 + im^2) |
+| Peak search | Partial | Max reduction; SIMD-friendly |
+
+Strong batch SIMD: inner dot products are FMA-vectorizable. AVX2 processes 4 complex outputs per 2 cycles. Expected 3-4× speedup for N=64.
+
 ## Resources
 
 - Cooley, J.W. & Tukey, J.W. "An Algorithm for the Machine Calculation of Complex Fourier Series." Mathematics of Computation, 1965.

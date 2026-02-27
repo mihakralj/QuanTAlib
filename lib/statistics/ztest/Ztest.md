@@ -72,6 +72,19 @@ The indicators answer different questions:
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Z-Test computes a rolling mean and standard deviation for O(1) hypothesis testing per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| O(1) StdDev computation | 1 | 28 cy | ~28 cy |
+| Compute Z = (x - mu) / (sigma / sqrt(N)) | 1 | 5 cy | ~5 cy |
+| NaN guard (sigma = 0 guard) | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~35 cy** |
+
+O(1) per update. Z-statistic is a trivial transformation of the running mean and standard deviation already computed by StdDev.
+
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|
 | Update (streaming) | $O(n)$ | Full window scan for sum/sumSq |

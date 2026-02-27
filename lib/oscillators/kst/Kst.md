@@ -1,4 +1,4 @@
-# KST: Know Sure Thing Oscillator
+﻿# KST: Know Sure Thing Oscillator
 
 The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smooths each with an independent SMA, then combines them using linearly increasing weights (1, 2, 3, 4) to produce a single composite momentum line. A signal line (SMA of the KST) provides crossover triggers. The weighted summation ensures longer-term momentum dominates the output while shorter-term components contribute responsiveness, creating a momentum indicator that reflects multiple cycle lengths simultaneously.
 
@@ -51,6 +51,44 @@ $$KST(t) = 1 \cdot SM_1(t) + 2 \cdot SM_2(t) + 3 \cdot SM_3(t) + 4 \cdot SM_4(t)
 $$Signal(t) = \frac{1}{p_s} \sum_{i=0}^{p_s-1} KST(t-i)$$
 
 **Default parameters:** $r = (10, 15, 20, 30)$, $s = (10, 10, 10, 15)$, $p_s = 9$.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+KST sums four weighted ROC values, each smoothed by an SMA. Four SMA instances + four ROC lookback buffers.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ROC × 4 (price/price[N]−1) with 4 ring buffers | 4 | 16 | 64 |
+| SMA running sum × 4 (add + oldest sub) | 8 | 1 | 8 |
+| MUL × 4 (1/N_sma for each SMA) | 4 | 3 | 12 |
+| MUL × 4 (weight each RCMA) | 4 | 3 | 12 |
+| ADD × 3 (sum four weighted RCMA) | 3 | 1 | 3 |
+| Signal SMA update (add + oldest sub + 1/N) | 3 | 3 | 9 |
+| **Total** | **26** | — | **~108 cycles** |
+
+For default parameters (RCM1-4, signal SMA 9): ~108 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| ROC × 4 (lag-offset division) | Yes | VDIVPD on shifted arrays |
+| SMA × 4 (prefix-sum windows) | Yes | VADDPD + VSUBPD subtract-lag |
+| Weighted sum | Yes | VFMADD across 4 terms |
+| Signal SMA | Yes | Same prefix-sum pattern |
+
+Fully vectorizable in batch mode — no recursive dependencies. AVX2 achieves ~4× throughput.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Multiple period averaging reduces single-period bias |
+| **Timeliness** | 4/10 | Longest ROC (30) + SMA (15) = 45 bars before full convergence |
+| **Smoothness** | 8/10 | Quad-SMA smoothing produces very clean output |
+| **Noise Rejection** | 8/10 | Four-period averaging with different weights is robust to outliers |
 
 ## Resources
 

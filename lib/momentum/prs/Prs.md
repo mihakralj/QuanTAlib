@@ -1,4 +1,4 @@
-# PRS: Price Relative Strength
+﻿# PRS: Price Relative Strength
 
 **Category:** Momentum  
 **Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio
@@ -67,6 +67,34 @@ Smoothed = compensation × EMA_biased
 - **PRS crossover above prior high:** Breakout in relative strength
 - **PRS crossover below prior low:** Breakdown in relative strength
 - **Divergence:** Price makes new high, PRS does not = warning
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+PRS with smoothing is three scalar operations: one division for the raw ratio, one FMA for the EMA update, and one divide for the bias compensation factor. Without smoothing (smoothPeriod = 1), the bias step is skipped entirely.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (IsFinite checks) | 2 | 1 | ~2 |
+| Raw ratio: base / comparison | 1 | 8 | ~8 |
+| EMA update (FMA: α×ratio + decay×prev) | 1 | 4 | ~4 |
+| Bias factor update (1 − (1−α)^n) | 1 | 5 | ~5 |
+| Compensated output (ema / bias) | 1 | 8 | ~8 |
+| **Total** | **6** | — | **~27 cycles** |
+
+O(1) per bar. The dominant cost is the two floating-point divisions (ratio + bias correction). With smoothPeriod = 1, reduces to ~10 cycles (just the ratio division). WarmupPeriod = smoothPeriod.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Raw ratio (base / comp element-wise) | Yes | `VDIVPD` across full span |
+| EMA smoothing pass | No | Recursive IIR dependency; each EMA value depends on previous |
+| Bias compensation | Partial | Bias factor is a scalar per-bar sequence; precomputable for batch |
+| NaN guard (division by zero) | Yes | `VCMPPD` mask + `VBLENDVPD` for zero-denominator replacement |
+
+The SIMD bottleneck is the recursive EMA. A batch-mode implementation can precompute the raw ratio span via vectorized division (`VDIVPD` at 4 doubles/cycle on AVX2), then apply a scalar EMA sweep for the smoothing pass. This hybrid approach achieves roughly 2× throughput versus fully scalar for large series.
 
 ## Limitations and Considerations
 

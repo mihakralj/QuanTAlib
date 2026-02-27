@@ -90,6 +90,20 @@ series.Pub += (item) => Console.WriteLine($"New value: {item}");
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+TSeries stores timestamps and values as parallel List<long> + List<double> (SoA). Pub/Sub event-driven streaming.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Add TValue (2 List.Add calls) | 2 | 3 cy | ~6 cy |
+| isNew check + rollback | 1 | 2 cy | ~2 cy |
+| Pub event fire | 1 | 5 cy | ~5 cy |
+| AsSpan (CollectionsMarshal) | 1 | 2 cy | ~2 cy |
+| **Total per bar** | **O(1)** | — | **~15 cy** |
+
+The Pub/Sub dispatch dominates practical throughput when multiple subscribers are chained. Solo update without subscribers: ~8 cy.
+
 * **Memory Layout**: SoA (Structure of Arrays).
 * **Access Speed**: O(1) for random access.
 * **Iteration**: Cache-friendly linear scan.

@@ -1,4 +1,4 @@
-# AROONOSC: Aroon Oscillator
+﻿# AROONOSC: Aroon Oscillator
 
 The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$. This distills the temporal battle between fresh highs and fresh lows into a bounded $[-100, +100]$ metric where positive values indicate bullish recency dominance and negative values indicate bearish. Unlike recursive indicators that accumulate floating-point drift, the Aroon Oscillator is purely windowed — its value depends only on data within the lookback period, making it stateless in the long term and immune to initialization poisoning. The step-function output reflects discrete events (new extremes appearing or aging out) rather than smooth price trajectories.
 
@@ -87,6 +87,40 @@ Unlike EMA-based oscillators that accumulate rounding errors across thousands of
 ### Flatlining Behavior
 
 In strong trends, the oscillator can hold +100 or -100 for sustained periods. This indicates a continuously refreshing extreme — the market is making a new high (or low) on virtually every bar. This is not saturation; it is the temporal signature of a parabolic move.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+AroonOsc = Aroon Up − Aroon Down, computed via the same deque-based window extremum tracking.
+
+**Post-warmup steady state (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Aroon Up + Down computation | 1 | ~26 | 26 |
+| SUB (AroonUp − AroonDown) | 1 | 1 | 1 |
+| **Total** | **Aroon+1** | — | **~27 cycles** |
+
+AroonOsc is essentially free on top of Aroon. ~27 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Aroon pipeline | Partial | See Aroon profile |
+| Subtraction | Yes | VSUBPD once both Aroon arrays exist |
+
+Trivially parallelizable subtraction step after Aroon computation.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact arithmetic; integer positions |
+| **Timeliness** | 8/10 | Crossover signals arrive with N/2 average lag |
+| **Smoothness** | 5/10 | Oscillator can swing sharply as extremes roll through the window |
+| **Noise Rejection** | 5/10 | No smoothing; single-bar outliers shift the signal |
 
 ## Resources
 

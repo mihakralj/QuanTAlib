@@ -1,4 +1,4 @@
-# LANCZOS: Lanczos (Sinc) Window Moving Average
+﻿# LANCZOS: Lanczos (Sinc) Window Moving Average
 
 > "Cornelius Lanczos used the sinc function to reconstruct band-limited signals from discrete samples. Apply it to price data and you get a moving average that respects the Nyquist limit while your competitors are still using SMAs."
 
@@ -80,3 +80,28 @@ return Σ buffer[j] * w[j]
 - Duchon, C.E. (1979). "Lanczos Filtering in One and Two Dimensions." *Journal of Applied Meteorology*, 18(8), 1016-1022.
 - Oppenheim, A.V. & Schafer, R.W. (2009). *Discrete-Time Signal Processing*, 3rd ed. Prentice Hall. Section 7.2: Properties of Commonly Used Windows.
 - Turkowski, K. (1990). "Filters for Common Resampling Tasks." In *Graphics Gems I*, Academic Press. pp. 147-165.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+LANCZOS(N) is a direct FIR convolution using precomputed sinc weights. The sinc function produces both positive and positive-then-negative lobes; weights are sign-preserving and normalized. Each `Update()` is a pure N-tap dot product.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 14: ~59 cycles. Sinc weights are computed once at construction (involves `Math.Sin`/division per weight — one-time O(N) cost). WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR convolution | Yes | `VFMADD231PD`; negative-sidelobe weights handled naturally |
+| Sinc symmetry | Yes | sinc(x) is symmetric; fold the dot product for N/2 FMAs |
+| Cross-bar independence | Yes | Batch outer loop: process 4 output bars per AVX2 iteration |
+| Negative weight handling | Yes | Signed FMA; no branch needed |
+
+AVX2 batch throughput with symmetric folding: ~N/8 cycles per output bar. For N = 14 over 1000-bar batch: ~1750 cycles vs ~59000 cycles scalar (~34× speedup at peak, memory-limited at larger N).

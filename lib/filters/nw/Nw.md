@@ -1,4 +1,4 @@
-# NW: Nadaraya-Watson Kernel Regression
+﻿# NW: Nadaraya-Watson Kernel Regression
 
 > "Nadaraya and Watson independently discovered the same thing in 1964: weight each observation by how close it is, normalize, and average. Fifty years later, it became one of the most popular nonparametric smoothers on TradingView. The math did not change; only our ability to compute it in real time."
 
@@ -77,6 +77,34 @@ for i = 0 to min(bar_count, period) - 1:
 
 return den > 0 ? num/den : source
 ```
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+NW computes a Gaussian-weighted sum over N historical bars. The kernel weights K(i/h) = exp(-(i/h)^2/2) can be precomputed for fixed h, leaving O(N) dot-product work per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Kernel weight lookup (precomputed table) | N | ~2 cy | ~400 cy (N=200) |
+| Weighted sum FMA | N | ~4 cy | ~800 cy |
+| Sum normalization | 1 | ~3 cy | ~3 cy |
+| RingBuffer update | 1 | ~2 cy | ~2 cy |
+| **Total (N=200)** | **2N+2** | — | **~1205 cycles** |
+
+O(N) per bar. Dominant cost is the N-length dot product over the RingBuffer. Larger bandwidth h requires larger effective N for accurate coverage.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Kernel weight table (exp) | Yes | Precomputed once; vectorized multiply |
+| Dot-product convolution | Yes | `Vector<double>` gives 4x-8x speedup |
+| Sum normalization | No | Single scalar division |
+| RingBuffer history scan | Partial | Sequential layout; memory access pattern vectorizable |
+
+AVX2 dot product on contiguous double array: ~200-250 cy for N=200 vs ~1200 scalar. Weight table precomputed at construction.
 
 ## Resources
 

@@ -1,3 +1,6 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+
 namespace QuanTAlib.Tests;
 
 public class PvoValidationTests
@@ -226,5 +229,20 @@ public class PvoValidationTests
         ValidationHelper.VerifyData(mode1Values.ToArray(), mode2Values.ToArray(), 0, 100, 1e-9);
         ValidationHelper.VerifyData(mode1Values.ToArray(), mode3Values, 0, 100, 1e-9);
         ValidationHelper.VerifyData(mode1Values.ToArray(), mode4Values, 0, 100, 1e-9);
+    }
+
+    [Fact]
+    public void Pvo_MatchesOoples_Structural()
+    {
+        // CalculatePercentageVolumeOscillator — structural test
+        var ooplesData = _data.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculatePercentageVolumeOscillator();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples PVO values, got {finiteCount}");
     }
 }

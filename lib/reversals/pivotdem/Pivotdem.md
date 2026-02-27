@@ -96,6 +96,21 @@ This means R1 and S1 are always equidistant from PP, separated by one-quarter of
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+DeMark Pivot uses a conditional pivot formula based on whether Open == Close vs C vs O > C — O(1).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Store prev OHLC | 4 | 1 cy | ~4 cy |
+| Conditional X formula (3-way branch) | 1 | 4 cy | ~4 cy |
+| PP = X / 4 | 1 | 2 cy | ~2 cy |
+| R1 = X/2 - L, S1 = X/2 - H | 2 | 2 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~16 cy** |
+
+O(1) arithmetic with one 3-way conditional on price relationship. Branch predictor will learn the dominant market regime quickly.
+
 ### Implementation Design
 
 Pure arithmetic with no loops, no buffers, no auxiliary data structures. Each `Update` call performs one conditional branch, 3 multiplications, 3 additions/subtractions, and 4 comparisons for NaN validation.

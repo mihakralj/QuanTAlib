@@ -75,6 +75,34 @@ TRIM(source, period, trimPct):
     return sum / keepCount
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Trim collects the window, sorts it, discards the tail values, then averages the inner values.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer collect | N | 1 cy | ~N cy |
+| Array sort (introsort) | N log N | 2 cy | ~2N log N cy |
+| Sum inner values (N - 2k) | N - 2k | 2 cy | ~2(N-2k) cy |
+| Divide for mean | 1 | 4 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20, k=2)** | **O(N log N)** | — | **~220 cy** |
+
+O(N log N) per update due to sort. For small periods (N ≤ 64), the sort cost is dominated by cache effects; practical throughput is ~15 ns/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Window collection | Yes | Gather from ring buffer with SIMD copy |
+| Sort | No | Comparison sort is sequential |
+| Inner-range sum | Yes | Contiguous range sum with Vector<double> |
+
+No whole-path SIMD; sort blocks vectorization. Batch is a loop of independent sorts — no cross-bar dependency, so outer loop parallelizable with PLINQ for large datasets.
+
 ## Resources
 
 - Dixon, W.J. "Simplified Estimation from Censored Normal Samples." Annals of Mathematical Statistics, 1960.

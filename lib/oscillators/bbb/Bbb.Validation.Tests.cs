@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
@@ -87,5 +89,20 @@ public sealed class BbbValidationTests : IDisposable
         }
 
         _output.WriteLine("BBB validated successfully against Skender PercentB.");
+    }
+
+    [Fact]
+    public void Bbb_MatchesOoples_Structural()
+    {
+        // CalculateBollingerBandsPercentB — structural test
+        var ooplesData = _testData.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateBollingerBandsPercentB();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples BBB values, got {finiteCount}");
     }
 }

@@ -1,4 +1,4 @@
-# PARZEN: Parzen (de la Vallée-Poussin) Window Moving Average
+﻿# PARZEN: Parzen (de la Vallée-Poussin) Window Moving Average
 
 > "Emanuel Parzen convolved two triangular windows and got a piecewise cubic with zero sidelobe discontinuity. When your window function is its own proof of smoothness, the spectral leakage has nowhere to hide."
 
@@ -91,3 +91,27 @@ return Σ buffer[j] * w[j]
 - Parzen, E. (1961). "Mathematical Considerations in the Estimation of Spectra." *Technometrics*, 3(2), 167-190.
 - Harris, F.J. (1978). "On the Use of Windows for Harmonic Analysis with the Discrete Fourier Transform." *Proceedings of the IEEE*, 66(1), 51-83.
 - Nuttall, A.H. (1981). "Some Windows with Very Good Sidelobe Behavior." *IEEE Trans. Acoust., Speech, Signal Process.*, 29(1), 84-91.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+PARZEN(N) is a direct FIR convolution using precomputed Parzen (de la Vallée Poussin) window weights. The Parzen window is piecewise cubic — always non-negative, infinite differentiability at endpoints — with zero negative sidelobes. Each `Update()` is a pure N-tap FMA dot product.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 14: ~59 cycles. No negative weights — normalization is a simple sum. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR convolution | Yes | AVX2 `VFMADD231PD`; all weights non-negative |
+| Parzen symmetry | Yes | Symmetric window: w[i] = w[N-1-i]; fold for N/2 FMAs |
+| Cross-bar independence | Yes | Full outer-loop SIMD viable |
+
+Symmetric folding halves the multiply count. AVX2 batch throughput: ~N/8 cycles per output bar. Non-negative weights avoid any masking overhead, giving slightly cleaner codegen than sinc-based filters.

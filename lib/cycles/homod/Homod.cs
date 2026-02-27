@@ -222,17 +222,17 @@ public sealed class Homod : AbstractBase
         double i2Raw = i1 - jq;
         double q2Raw = q1 + ji;
 
-        // EMA smooth I2 and Q2 (alpha = 0.2)
-        double i2 = 0.2 * i2Raw + 0.8 * s.I2;
-        double q2 = 0.2 * q2Raw + 0.8 * s.Q2;
+        // EMA smooth I2 and Q2 (alpha = 0.2): FMA(0.2, x, 0.8*y)
+        double i2 = Math.FusedMultiplyAdd(0.2, i2Raw, 0.8 * s.I2);
+        double q2 = Math.FusedMultiplyAdd(0.2, q2Raw, 0.8 * s.Q2);
 
         // Homodyne discriminator: multiply with previous values
-        double reRaw = i2 * s.I2 + q2 * s.Q2;
-        double imRaw = i2 * s.Q2 - q2 * s.I2;
+        double reRaw = Math.FusedMultiplyAdd(i2, s.I2, q2 * s.Q2);
+        double imRaw = Math.FusedMultiplyAdd(i2, s.Q2, -(q2 * s.I2));
 
-        // EMA smooth Re and Im (alpha = 0.2)
-        double re = 0.2 * reRaw + 0.8 * s.Re;
-        double im = 0.2 * imRaw + 0.8 * s.Im;
+        // EMA smooth Re and Im (alpha = 0.2): FMA(0.2, x, 0.8*y)
+        double re = Math.FusedMultiplyAdd(0.2, reRaw, 0.8 * s.Re);
+        double im = Math.FusedMultiplyAdd(0.2, imRaw, 0.8 * s.Im);
 
         // Calculate period from angle
         double period = s.Period;
@@ -245,13 +245,13 @@ public sealed class Homod : AbstractBase
             {
                 double candidate = TwoPi / angle;
                 double clamped = Math.Clamp(Math.Abs(candidate), _minPeriod, _maxPeriod);
-                period = 0.2 * clamped + 0.8 * period;
+                period = Math.FusedMultiplyAdd(0.2, clamped, 0.8 * period);
             }
         }
 
-        // Smooth the period (alpha = 0.33)
+        // Smooth the period (alpha = 0.33): FMA(alpha, delta, prevSmooth)
         const double alpha = 0.33;
-        double smoothPeriod = s.SmoothPeriod + alpha * (period - s.SmoothPeriod);
+        double smoothPeriod = Math.FusedMultiplyAdd(alpha, period - s.SmoothPeriod, s.SmoothPeriod);
 
         // Exponential warmup compensation
         double result = smoothPeriod;

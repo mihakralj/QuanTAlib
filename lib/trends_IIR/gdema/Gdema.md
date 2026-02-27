@@ -1,4 +1,4 @@
-# GDEMA: Generalized Double Exponential Moving Average
+﻿# GDEMA: Generalized Double Exponential Moving Average
 
 > "Patrick Mulloy created DEMA to cancel first-order lag. GDEMA adds a volume knob: turn it past 1 and you cancel more lag than Mulloy thought possible. Turn it to 0 and you are back to a plain EMA. The generalization is the point."
 
@@ -88,3 +88,30 @@ return (1 + v) * ema1 - v * ema2
 - Mulloy, P.G. (1994). "Smoothing Data with Faster Moving Averages." *Technical Analysis of Stocks & Commodities*, 12(1), 11-19.
 - Tillson, T. (1998). "Smoothing Techniques for More Accurate Signals." *Technical Analysis of Stocks & Commodities*, 16(1).
 - Ehlers, J.F. (2001). *Rocket Science for Traders*. Wiley. Chapter 3: Smoothing Filters.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+GDEMA(N, v) runs two cascaded EMA stages. The output is `(1+v)×EMA₁ - v×EMA₂` — a linear combination with precomputed coefficient `_onePlusV`. Both EMAs use bias-compensated warmup (E factor).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| EMA₁: FMA(α, src, decay×ema1) | 1 | 4 | ~4 |
+| Bias factor update E₁ | 1 | 3 | ~3 |
+| EMA₂: FMA(α, ema1, decay×ema2) | 1 | 4 | ~4 |
+| Bias factor update E₂ | 1 | 3 | ~3 |
+| Output: FMA(onePlusV, ema1, −v×ema2) | 1 | 4 | ~4 |
+| **Total** | **5** | — | **~18 cycles** |
+
+O(1) per bar. Two FMAs for EMA stages, one FMA for the combination. Fastest of the multi-stage EMA indicators. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| EMA₁ pass | No | Recursive IIR |
+| EMA₂ pass (depends on EMA₁ output) | No | Sequential dependency on EMA₁ series |
+| Output combination (1+v)×E1 − v×E2 | Yes | `VFNMADD231PD` across bar series once EMA passes complete |
+
+Both EMA passes are recursive IIR. The final linear combination is vectorizable after the two EMA sweeps. Net batch speedup: minimal (~1.1×) since combination is only 3 of 18 cycles.

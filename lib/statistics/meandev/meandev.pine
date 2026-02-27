@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Mean Deviation (MEANDEV)", "MEANDEV", overlay=false, precision=8)
+
+//@function Calculates the mean absolute deviation from the mean over the specified period.
+//@param src {series float} Source series.
+//@param len {int} Lookback length. `len` > 0.
+//@returns {series float} Mean deviation of `src` for `len` bars back. Returns 0 if not enough data.
+meandev(series float src, int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, len)
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0, var int count = 0
+    var float sum = 0.0
+
+    // Update circular buffer and running sum
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        count -= 1
+    float val = nz(src)
+    sum += val
+    count += 1
+    array.set(buffer, head, val)
+    head := (head + 1) % p
+
+    if count < 1
+        0.0
+    else
+        // Calculate mean
+        float mean = sum / count
+
+        // Calculate mean absolute deviation
+        float devSum = 0.0
+        int start = count < p ? 0 : head
+        for i = 0 to count - 1
+            int idx = (start + i) % p
+            float v = array.get(buffer, idx)
+            if not na(v)
+                devSum += math.abs(v - mean)
+
+        devSum / count
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+meandev_value = meandev(i_source, i_period)
+
+// Plot
+plot(meandev_value, "MeanDev", color=color.yellow, linewidth=2)

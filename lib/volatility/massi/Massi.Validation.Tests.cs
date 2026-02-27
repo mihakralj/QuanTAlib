@@ -3,9 +3,14 @@
 // differences (EMA compensation, continuous vs discrete sum) make direct comparison
 // unreliable. Validation uses mathematical property testing instead.
 
+using Tulip;
+
 namespace QuanTAlib.Tests;
 
 using Xunit;
+
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 
 public class MassiValidationTests
 {
@@ -204,5 +209,70 @@ public class MassiValidationTests
         double afterCorrection = massi.Last.Value;
 
         Assert.Equal(afterNew, afterCorrection, precision: 10);
+    }
+
+    // === Tulip Cross-Validation ===
+
+    /// <summary>
+    /// Structural validation against Tulip <c>mass</c> indicator.
+    /// Algorithm variant: Tulip <c>mass</c> uses a single <c>period</c> for both the EMA
+    /// smoothing window and the summation window (25 bars hardcoded in some builds).
+    /// QuanTAlib uses separate <c>emaLength</c> and <c>sumLength</c> parameters.
+    /// Direct numeric equality is not asserted; test documents the difference and
+    /// verifies both implementations produce finite, positive output on the same data.
+    /// </summary>
+    [Fact]
+    public void Massi_Tulip_StructuralVariant_BothFinite()
+    {
+        const int period = 9;
+        var bars = new GBM(sigma: 0.3, seed: 42).Fetch(300, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        double[] highData = new double[bars.Count];
+        double[] lowData = new double[bars.Count];
+        for (int i = 0; i < bars.Count; i++)
+        {
+            highData[i] = bars[i].High;
+            lowData[i] = bars[i].Low;
+        }
+
+        // Tulip mass — single period (covers both EMA pass and sum window)
+        var tulipIndicator = Tulip.Indicators.mass;
+        double[][] inputs = { highData, lowData };
+        double[] options = { period };
+        int lookback = tulipIndicator.Start(options);
+        double[][] outputs = { new double[highData.Length - lookback] };
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        // QuanTAlib Massi — separate emaLength / sumLength
+        var massi = new Massi(emaLength: period, sumLength: DefaultSumLength);
+        foreach (var bar in bars) { massi.Update(bar); }
+
+        // Structural: Tulip must produce finite, positive output
+        Assert.True(tResult.Length > 0, "Tulip mass must produce output");
+        foreach (double v in tResult)
+        {
+            Assert.True(double.IsFinite(v), $"Tulip mass produced non-finite value: {v}");
+            Assert.True(v > 0, $"Mass Index must be positive, got {v}");
+        }
+
+        Assert.True(massi.IsHot, "QuanTAlib Massi must be hot after sufficient bars");
+        Assert.True(massi.Last.Value > 0, "QuanTAlib Massi last value must be positive");
+    }
+
+    [Fact]
+    public void Massi_MatchesOoples_Structural()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: 42);
+        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var ooplesData = bars.Select(b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open, High = b.High, Low = b.Low,
+            Close = b.Close, Volume = b.Volume
+        }).ToList();
+        var result = new StockData(ooplesData).CalculateMassIndex();
+        var values = result.CustomValuesList;
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
     }
 }

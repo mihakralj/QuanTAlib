@@ -178,7 +178,8 @@ public sealed class Ebsw : AbstractBase
         // Super-smoother filter: filt = c1 * (hp + hp[1]) / 2 + c2 * filt[1] + c3 * filt[2]
         double filt2 = s.Filt1;
         double filt1 = s.Filt0;
-        double filt0 = _c1 * (hp0 + hp1) * 0.5 + _c2 * filt1 + _c3 * filt2;
+        double filt0 = Math.FusedMultiplyAdd(_c1, (hp0 + hp1) * 0.5,
+                           Math.FusedMultiplyAdd(_c2, filt1, _c3 * filt2));
 
         // Wave component: 3-bar average of filtered values
         double wave = (filt0 + filt1 + filt2) / 3.0;
@@ -318,7 +319,8 @@ public sealed class Ebsw : AbstractBase
             hp0 = Math.FusedMultiplyAdd(hpCoef, src0 - src1, alpha1 * hp1);
 
             // Super-smoother filter
-            filt0 = c1 * (hp0 + hp1) * 0.5 + c2 * filt1 + c3 * filt2;
+            filt0 = Math.FusedMultiplyAdd(c1, (hp0 + hp1) * 0.5,
+                        Math.FusedMultiplyAdd(c2, filt1, c3 * filt2));
 
             // Wave component
             double wave = (filt0 + filt1 + filt2) / 3.0;

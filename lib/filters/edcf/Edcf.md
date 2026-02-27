@@ -1,4 +1,4 @@
-# EDCF: Ehlers Distance Coefficient Filter
+﻿# EDCF: Ehlers Distance Coefficient Filter
 
 ## Overview
 
@@ -111,6 +111,32 @@ AbstractBase (ITValuePublisher, IDisposable)
 - [Wiener Filter](../wiener/Wiener.md) — adaptive noise-reduction filter
 - [Laguerre Filter](../laguerre/Laguerre.md) — Ehlers IIR filter with gamma damping
 - [LMS Filter](../lms/Lms.md) — Least Mean Squares adaptive filter
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+EDCF computes a pairwise squared-distance sum for each of the N window positions: for position i, it sums (P[i] - P[i+k])^2 for k=1..N-1. This is O(N^2) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Distance-squared computation (inner loop) | N(N-1)/2 | ~5 cy | ~120 cy (N=7) |
+| Weight accumulation | N | ~3 cy | ~21 cy |
+| Weighted sum + normalization | N+1 | ~4 cy | ~32 cy |
+| **Total (N=7)** | **~50** | — | **~173 cycles** |
+
+For larger N this grows quadratically: N=14 => ~600 cy, N=20 => ~1200 cy. Avoid N > 20 in real-time tick processing.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Outer distance loop | Partial | Each row of the N x N distance matrix is independent |
+| Inner dot product for each row | Yes | `Vector<double>` over N-length difference array |
+| Normalization | No | Scalar reduction |
+
+SIMD reduces the inner loop throughput by 4x-8x but does not change the O(N^2) complexity. For N <= 16, AVX2 vectorization of the inner loop gives ~3x speedup on the dot-product component.
 
 ## References
 

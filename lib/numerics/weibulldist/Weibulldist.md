@@ -77,6 +77,35 @@ WEIBULLDIST(source, period, shape, scale):
     return 1.0 - exp(-raised)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Weibull CDF = 1 - exp(-(x/lambda)^k) — closed form with one pow() + one exp().
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (k, lambda > 0; x >= 0) | 3 | 2 cy | ~6 cy |
+| (x / lambda)^k via exp(k * log(x/lambda)) | 1 | 30 cy | ~30 cy |
+| exp(negated power) | 1 | 20 cy | ~20 cy |
+| 1 - exp result | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~59 cy** |
+
+O(1) closed-form evaluation. pow() via exp(k*log(x)) is the dominant cost (~30 cy). When k is an integer, integer pow() reduces to repeated multiply (~5 cy).
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| log(x/lambda) | Partial | _mm256_log_pd with SVML |
+| k * log result | Yes | Vector multiply with broadcast k |
+| exp() | Partial | _mm256_exp_pd with SVML |
+| 1 - exp | Yes | Vector subtract |
+
+With SVML: nearly full vectorization. Without SVML: scalar loop but trivially parallelizable. Expected 3× batch speedup with SVML.
+
 ## Resources
 
 - Weibull, W. "A Statistical Distribution Function of Wide Applicability." Journal of Applied Mechanics, 1951.

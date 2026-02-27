@@ -80,6 +80,36 @@ WINS(source, period, winPct):
     return mean(vals)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Winsorized mean collects the window, sorts it, replaces the tails with boundary values, then computes the mean of all N values.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer collect | N | 1 cy | ~N cy |
+| Array sort (introsort) | N log N | 2 cy | ~2N log N cy |
+| Tail clamping (2k assignments) | 2k | 1 cy | ~2k cy |
+| Sum all N values | N | 2 cy | ~2N cy |
+| Divide for mean | 1 | 4 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20, k=2)** | **O(N log N)** | — | **~230 cy** |
+
+O(N log N) per update due to sort. Slightly higher total cost than TRIM because the sum includes all N values (not N-2k), but both are dominated by the sort.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Window collection | Yes | Gather from ring buffer with SIMD copy |
+| Sort | No | Comparison sort is sequential |
+| Clamping tail values | Yes | Vector conditional-select possible post-sort |
+| Full-window sum | Yes | Vector<double> sum over N values |
+
+Sort blocks SIMD on the main path. The sum phase can use Vector<double> for modest gains. Outer loop (across M bars) has no cross-bar dependency — suitable for parallel batch.
+
 ## Resources
 
 - Tukey, J.W. "The Future of Data Analysis." Annals of Mathematical Statistics, 1962.

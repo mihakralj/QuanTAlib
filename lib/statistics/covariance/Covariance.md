@@ -28,6 +28,20 @@ $$ Cov(X, Y) = \frac{\sum xy - \frac{(\sum x)(\sum y)}{n}}{n} \quad \text{(or } 
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Covariance uses a dual-input sliding window with running cross-product sums for O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict (2 inputs) | 2 | 3 cy | ~6 cy |
+| Update 3 running sums (Sx, Sy, Sxy) | 3 | 2 cy | ~6 cy |
+| Compute covariance formula | 1 | 5 cy | ~5 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~19 cy** |
+
+O(1) per update using online running sums. Periodic resync every 1000 bars prevents floating-point drift accumulation.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | High | $O(1)$ updates using running sums. |

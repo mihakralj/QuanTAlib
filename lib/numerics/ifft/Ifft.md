@@ -81,6 +81,33 @@ IFFT(source, windowSize, numHarmonics):
     return result
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+IFFT (Inverse DFT reconstruction) sums B frequency components back into the time domain — O(N*B) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Complex multiply-accumulate (N * B) | N*B | 4 cy | ~4*N*B cy |
+| cos/sin table lookup (precomputed) | 2*N*B | 0 cy | ~0 cy |
+| Division by N for normalization | N | 1 cy | ~N cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=64, B=10)** | **O(N*B)** | — | **~2626 cy** |
+
+Same complexity as forward FFT. Precomputed trig tables allow the inner loop to reduce to 4 FMAs per bin. Paired with FFT for frequency-domain filtering.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Complex MAC (re*cos - im*sin) | Yes | FMA with precomputed table |
+| Normalization | Yes | Vector divide by N |
+| Output time-domain signal | Yes | Full SIMD reconstruction |
+
+Same SIMD profile as FFT forward pass. 3-4× batch speedup expected over scalar using Vector<double> FMA.
+
 ## Resources
 
 - Fourier, J.B.J. "Theorie Analytique de la Chaleur." Firmin Didot, 1822.

@@ -82,6 +82,34 @@ POLYFIT(source, period, degree):
     return sum(r[j] for j = 0 to d)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Polyfit uses a running-sum approach via Vandermonde normal equations for degree-1 (linear) regression, updated O(1) per bar with a sliding window ring buffer.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update running sums (Sx, Sy, Sxx, Sxy) | 4 | 2 cy | ~8 cy |
+| Solve 2x2 normal system | 1 | 6 cy | ~6 cy |
+| FMA for slope/intercept | 2 | 1 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~21 cy** |
+
+O(1) per update for linear (degree-1) fit using online normal equations. Higher-degree fits require O(degree^2) matrix solve per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Running sum accumulation | Yes | Vector<double> reduces 4 sums in parallel |
+| Normal equation solve | Partial | 2×2 system trivially unrolled |
+| Output projection | Yes | FMA for y = a*x + b across output span |
+
+Batch span path can vectorize sum accumulation and output projection. Inner loop SIMD-friendly for degree-1 case.
+
 ## Resources
 
 - Legendre, A.M. "Nouvelles methodes pour la determination des orbites des cometes." 1805.

@@ -99,6 +99,19 @@ bars.Add(updatedBar, isNew: false); // Updates the last bar in place
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+TBarSeries stores OHLCV as separate List<T> fields (SoA layout) for cache-friendly sequential access.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Add new TBar (5 List.Add calls) | 5 | 3 cy | ~15 cy |
+| Access span for SIMD | 1 | 2 cy | ~2 cy |
+| Pub event fire | 1 | 5 cy | ~5 cy |
+| **Total per bar** | **O(1)** | — | **~22 cy** |
+
+SoA layout enables SIMD processing: each field array is contiguous in memory. CollectionsMarshal.AsSpan avoids copying.
+
 * **Memory Layout**: SoA (Structure of Arrays).
 * **Component Access**: Zero-copy `TSeries` views.
 * **Iteration**: Cache-friendly for single-component analysis.

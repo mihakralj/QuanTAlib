@@ -1,4 +1,4 @@
-# RMED: Ehlers Recursive Median Filter
+﻿# RMED: Ehlers Recursive Median Filter
 
 > "John Ehlers combined two tools that rarely meet: the median (nonlinear, spike-resistant) and the EMA (smooth, recursive). The median kills the spikes, the EMA smooths the survivors. Together they produce a filter that is both resistant and smooth."
 
@@ -84,6 +84,33 @@ med5 = sorted[2]
 // Recursive EMA of median
 rm = alpha * med5 + (1-alpha) * rm
 ```
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+RMED computes the median of 5 stored values (optimal 5-element sorting network: 9 compare-and-swap) then applies one EMA. O(1) per bar with fixed small constant.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| RingBuffer update (shift 5-bar window) | 1 | ~3 cy | ~3 cy |
+| 5-element median (9 compare-swap ops) | 9 | ~3 cy | ~27 cy |
+| Alpha derivation (cos/sin of 2*pi/P) | 2 | ~10 cy | ~20 cy |
+| EMA FMA (alpha * median + (1-alpha) * prev) | 1 | ~4 cy | ~4 cy |
+| **Total** | **~13** | — | **~54 cycles** |
+
+O(1) per bar. The alpha is period-dependent and precomputed at construction; per-bar cost is the 9-comparison sorting network (~27 cy) plus EMA (~4 cy). ~54 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| 5-element median (sorting network) | No | Branchy compare-swap; data-dependent ordering |
+| EMA recursion | No | Sequential IIR dependency |
+| History window management | Partial | ShiftRight of 5 doubles is vectorizable but trivial |
+
+Nonlinear median + recursive EMA blocks all meaningful SIMD. Batch throughput: ~54 cy/bar scalar.
 
 ## Resources
 

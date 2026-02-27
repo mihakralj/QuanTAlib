@@ -111,6 +111,21 @@ All levels use `Math.FusedMultiplyAdd` for the `close + range * constant` comput
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Camarilla Pivot uses a fixed multiplier series (1.1/12, 1.1/6, ...) applied to previous-bar range — O(1).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Store prev OHLC | 4 | 1 cy | ~4 cy |
+| Range = H - L | 1 | 1 cy | ~1 cy |
+| R1..R4 via FMA (C + k*range) | 4 | 1 cy | ~4 cy |
+| S1..S4 via FMA (C - k*range) | 4 | 1 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~15 cy** |
+
+O(1) pure arithmetic. Precomputed Camarilla multipliers [1.1/12, 1.1/6, 1.1/4, 1.1/2] applied via FMA(C, 1, k*range).
+
 ### Implementation Design
 
 Pure arithmetic with no loops, no buffers, no auxiliary data structures. Each `Update` call performs 1 division (PP), 8 FMA operations, and 3 comparisons for NaN validation.

@@ -1,4 +1,4 @@
-# USF: Ehlers Ultimate Smoother Filter
+﻿# USF: Ehlers Ultimate Smoother Filter
 
 > "The Ultimate Smoother achieves superior smoothing by subtracting high-frequency components using a high-pass filter, resulting in zero lag in the passband."
 
@@ -41,6 +41,28 @@ Where:
 * $period$ is the smoothing period.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Universal Smooth Filter: adaptive-weight FIR that adjusts taps based on signal characteristics. O(N) per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Adaptive weight derivation | N | ~8 cy | ~240 cy (N=30) |
+| Weighted sum FMA | N | ~5 cy | ~150 cy |
+| Normalization | 1 | ~3 cy | ~3 cy |
+| **Total (N=30)** | **2N+1** | — | **~393 cycles** |
+
+O(N) per bar. Adaptive weights computed per bar (no precomputation) because they depend on current signal level. ~393 cycles for N=30.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Adaptive weight computation | Partial | Independent per element; vectorizable if no data dependency |
+| Weighted sum FMA | Yes | Standard dot product |
+
+SIMD potential: ~100 cy for N=30 if adaptive weights vectorized.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

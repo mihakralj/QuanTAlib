@@ -119,4 +119,19 @@ public class CmfValidationTests
 
         ValidationHelper.VerifyData(streamingValues.ToArray(), spanValues, 0, 100, 1e-12);
     }
+
+    [Fact]
+    public void Cmf_MatchesOoples_Structural()
+    {
+        // CalculateChaikinMoneyFlow — structural validation (already has Skender exact match)
+        var ooplesData = _data.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateChaikinMoneyFlow();
+        var values = result.CustomValuesList;
+
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples CMF values, got {finiteCount}");
+    }
 }

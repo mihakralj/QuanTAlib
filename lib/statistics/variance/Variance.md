@@ -52,6 +52,20 @@ Where:
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Variance uses Welford-style running sums of x and x^2 for exact O(1) update (no sqrt needed).
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| Update sum_x and sum_x2 | 2 | 2 cy | ~4 cy |
+| Compute variance via shortcut formula | 1 | 5 cy | ~5 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~14 cy** |
+
+O(1) per update. Slightly faster than StdDev (no sqrt). Periodic resync prevents floating-point drift in long series where sum_x2 >> (sum_x)^2/N.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 5 ns/bar | O(1) complexity using running sums. |

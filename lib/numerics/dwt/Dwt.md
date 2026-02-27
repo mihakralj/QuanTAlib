@@ -60,6 +60,33 @@ DWT(source, levels, output):
     else:           return d[output]    // detail at selected level
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+DWT (Discrete Wavelet Transform) applies a 2-band filter bank recursively — O(N) per bar for a single decomposition level.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer update | 1 | 3 cy | ~3 cy |
+| Low-pass filter convolution (N/2 outputs) | N/2 * L | 2 cy | ~N*L cy |
+| High-pass filter convolution (N/2 outputs) | N/2 * L | 2 cy | ~N*L cy |
+| Downsampling (stride-2 access) | N | 0 cy | ~0 cy |
+| **Total (N=32, L=4 Haar/D4)** | **O(N*L)** | — | **~256 cy** |
+
+O(N*L) per bar where L = filter length. Haar wavelet (L=2) is cheapest; Daubechies D4 (L=4) doubles cost. Single decomposition level.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| LP/HP convolution | Yes | FMA inner loop; no feedback dependency |
+| Downsampling | Yes | Gather with stride-2 mask |
+| Multi-level recursion | Partial | Each level halves data size |
+
+First decomposition level fully SIMD. Deeper levels become too small for effective vectorization. Expect 3× batch speedup for L1 decomposition.
+
 ## Resources
 
 - Mallat, S. "A Theory for Multiresolution Signal Decomposition: The Wavelet Representation." IEEE Trans. PAMI, 1989.

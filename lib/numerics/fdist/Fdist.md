@@ -64,6 +64,33 @@ FDIST(source, period, d1, d2):
     return betaReg(t, d1/2, d2/2)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+F-distribution CDF uses regularized incomplete beta function — same cost structure as BetaDist.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (d1, d2 > 0; x >= 0) | 3 | 2 cy | ~6 cy |
+| Transform x to beta variable | 1 | 3 cy | ~3 cy |
+| Regularized incomplete beta (Lentz CF, ~20 iter) | ~20 | 15 cy | ~300 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~311 cy** |
+
+O(1) per evaluation. Dominated by the continued fraction solver, same as Beta/T distributions. Degrees-of-freedom parameters affect convergence speed slightly.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| x transformation | Yes | Vector arithmetic |
+| Continued fraction | No | Sequential convergence |
+| Output assignment | Yes | Trivial |
+
+No SIMD benefit for the core evaluation. Outer loop across observations parallelizable with PLINQ for bulk p-value computation.
+
 ## Resources
 
 - Fisher, R.A. "On a Distribution Yielding the Error Functions of Several Well Known Statistics." Proc. International Mathematical Congress, Toronto, 1924.

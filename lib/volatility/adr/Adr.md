@@ -80,6 +80,21 @@ $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+ADR (Average Daily Range) uses a RingBuffer of daily ranges with a running sum for O(1) update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Daily range = High - Low | 1 | 1 cy | ~1 cy |
+| RingBuffer add/evict | 1 | 3 cy | ~3 cy |
+| running_sum += new - evict | 2 | 1 cy | ~2 cy |
+| ADR = running_sum / N | 1 | 4 cy | ~4 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~12 cy** |
+
+O(1) sliding mean of daily ranges. Same running-sum pattern as SMA but applied to H-L. Throughput ~4 ns/bar.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 10 | High; O(1) via EMA, O(N) initial for SMA/WMA. |

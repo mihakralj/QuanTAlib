@@ -60,6 +60,20 @@ $$Q(p) = \text{FMA}(g, x_{j+1} - x_j, x_j)$$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Percentile maintains a sorted buffer for O(log N) insert and O(1) lookup of the target rank.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer evict oldest | 1 | 3 cy | ~3 cy |
+| Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
+| Index computation for rank | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=20)** | **O(N)** | — | **~27 cy** |
+
+O(N) per update due to sorted-array shift. A skip-list or order-statistics tree would achieve O(log N), but for periods ≤500 the sorted array is faster in practice due to cache locality.
+
 | Operation | Cost | Notes |
 |-----------|------|-------|
 | BinarySearch | O(log N) | `Array.BinarySearch` for insert/remove position |

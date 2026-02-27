@@ -105,6 +105,20 @@ All R/S level computations use `Math.FusedMultiplyAdd` for the `multiplier * off
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Extended Pivot Points adds R4/S4 levels beyond Classic — O(1) with 4 support/resistance pairs.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Store prev HLC | 3 | 1 cy | ~3 cy |
+| PP = (H + L + C) / 3 | 1 | 2 cy | ~2 cy |
+| R1..R4 arithmetic + S1..S4 | 8 | 2 cy | ~16 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~23 cy** |
+
+O(1) pure arithmetic. Extended variant generates 4 pairs vs Classic 3 pairs, adding ~4 cy. All levels SIMD-parallel in batch mode.
+
 ### Implementation Design
 
 Pure arithmetic with no loops, no buffers, no auxiliary data structures. Each `Update` call performs 1 division (PP), 1 subtraction (range), 2 subtractions (ppMinusL, hMinusPP), 2 additions (R2, S2), and 8 FMA operations (R1, S1, R3-R5, S3-S5), plus 3 comparisons for NaN validation.

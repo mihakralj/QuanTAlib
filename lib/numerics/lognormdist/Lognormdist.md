@@ -66,6 +66,34 @@ LOGNORMDIST(source, period, mu, sigma):
     return normalCdf(z)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Log-Normal CDF = Normal CDF of (ln(x) - mu) / sigma — one log() plus an erfc() evaluation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (x > 0; sigma > 0) | 2 | 2 cy | ~4 cy |
+| log(x) | 1 | 8 cy | ~8 cy |
+| z = (log(x) - mu) / sigma | 1 | 4 cy | ~4 cy |
+| Normal CDF via erfc (rational approximation) | 1 | 15 cy | ~15 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~33 cy** |
+
+O(1) — reduces to Normal CDF after log transform. erfc() rational approximation dominates; log() is secondary cost.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| log(x) | Partial | _mm256_log_pd with SVML |
+| z normalization | Yes | Vector FMA |
+| erfc() | No | Rational polynomial; scalar |
+
+Limited vectorization — erfc blocks full SIMD. With SVML log: partial vectorization for the transform step.
+
 ## Resources
 
 - Galton, F. "The Geometric Mean, in Vital and Social Statistics." Proc. Royal Society, 1879.

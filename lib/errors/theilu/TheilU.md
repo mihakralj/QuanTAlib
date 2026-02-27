@@ -1,4 +1,4 @@
-# Theil's U: Theil's U Statistic
+﻿# Theil's U: Theil's U Statistic
 
 > "The forecast that matters is the one that beats a naive guess."
 
@@ -85,6 +85,28 @@ TheilU.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 | **WarmupPeriod** | int | Number of periods before valid output |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Theil's U statistic: U = sqrt(MSE_forecast) / sqrt(MSE_naive). Requires two running mean-squared-error accumulators.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Forecast MSE update (e^2 + EMA) | 2 | ~5 cy | ~10 cy |
+| Naive MSE update (naive_e^2 + EMA) | 2 | ~5 cy | ~10 cy |
+| U = sqrt(MSE_f) / sqrt(MSE_n) | 2 | ~15 cy | ~30 cy |
+| **Total** | **~6** | — | **~50 cycles** |
+
+O(1) per bar. Two parallel EMA accumulators + ratio with sqrt. ~50 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Squared error accumulation | Yes | Element-wise squares + reduction |
+| sqrt ratio | No | Single scalar at end |
+
+Batch MSE accumulation vectorizable; final ratio is scalar. ~8 cy/bar for squared-error accumulation.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

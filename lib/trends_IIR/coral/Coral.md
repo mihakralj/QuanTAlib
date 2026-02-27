@@ -1,4 +1,4 @@
-# CORAL — Coral Trend Filter
+﻿# CORAL — Coral Trend Filter
 
 ## Overview
 
@@ -139,6 +139,34 @@ Coral is most similar to T3 in structure (6 cascaded EMAs), but uses a different
 2. **Whipsaw in ranging markets**: Frequent crossovers during consolidation can produce false signals.
 3. **cd range**: cd must be in [0, 1]. Values outside this range produce invalid coefficients.
 4. **Warmup**: The 6-cascade structure means Coral needs more bars than a single EMA to fully stabilize, despite the warmup period being set to `period`.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CORAL(N, cd) runs 6 cascaded EMA stages with a shared alpha. The polynomial combination (bfr = −cd³·I6 + c3·I5 + c4·I4 + c5·I3) uses 4 precomputed coefficients computed at construction — so runtime is just 4 FMAs.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| EMA stage 1: FMA(α, src, decay×I1) | 1 | 4 | ~4 |
+| EMA stage 2: FMA(α, I1, decay×I2) | 1 | 4 | ~4 |
+| EMA stage 3: FMA(α, I2, decay×I3) | 1 | 4 | ~4 |
+| EMA stage 4: FMA(α, I3, decay×I4) | 1 | 4 | ~4 |
+| EMA stage 5: FMA(α, I4, decay×I5) | 1 | 4 | ~4 |
+| EMA stage 6: FMA(α, I5, decay×I6) | 1 | 4 | ~4 |
+| Polynomial combination (4 FMA) | 4 | 4 | ~16 |
+| **Total** | **10** | — | **~40 cycles** |
+
+O(1) per bar. Six scalar FMAs for the cascade and 4 FMAs for the polynomial combination. WarmupPeriod = N. The shared alpha `di = (N-1)/2 + 1` slightly lengthens the effective period relative to standard EMA.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| 6 cascaded EMA passes | No | Each stage is a recursive IIR depending on previous output |
+| Polynomial combination | Yes | 4 FMAs with constant coefficients; vectorizable across bars once EMA stages are computed |
+
+All 6 EMA stages are recursive IIR — inherently sequential. The polynomial combination is the only vectorizable phase, but it contributes only 4 of the 40 total cycles. Batch mode coefficient: no meaningful SIMD speedup over scalar.
 
 ## References
 

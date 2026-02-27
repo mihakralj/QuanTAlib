@@ -1,4 +1,4 @@
-# OneEuro — One Euro Filter
+﻿# OneEuro — One Euro Filter
 
 The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness. It uses an adaptive cutoff frequency: at low signal speed, a low cutoff stabilizes the signal by reducing jitter; as speed increases, the cutoff rises to reduce lag.
 
@@ -48,6 +48,34 @@ Start with `beta = 0`, decrease `minCutoff` until jitter is acceptable, then inc
 | Causal | Yes |
 | Zero-phase | No |
 | Look-ahead | None |
+
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+OneEuro is a speed-adaptive first-order IIR: compute derivative EMA, derive adaptive cutoff, update output EMA. Five scalar operations total.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Raw derivative (dx = x - x_prev) | 1 | ~2 cy | ~2 cy |
+| Derivative EMA (1 FMA) | 1 | ~4 cy | ~4 cy |
+| Adaptive cutoff (fc = fmin + beta * \|dx\|) | 1 | ~5 cy | ~5 cy |
+| Alpha from cutoff (r = 2*pi*fc; alpha = r/(r+1)) | 1 | ~10 cy | ~10 cy |
+| Output EMA (1 FMA) | 1 | ~4 cy | ~4 cy |
+| **Total** | **5** | — | **~25 cycles** |
+
+O(1) per bar. The adaptive alpha computation dominates (division + 2*pi multiply). ~25 cycles/bar with no branches.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Derivative EMA recursion | No | Sequential IIR dependency |
+| Adaptive cutoff + alpha | No | Depends on current derivative EMA output |
+| Output EMA recursion | No | Sequential IIR dependency |
+
+Fully recursive, adaptive feedback. No SIMD path available. All three loops form a single dependency chain. Batch throughput: ~25 cy/bar.
 
 ## Usage
 

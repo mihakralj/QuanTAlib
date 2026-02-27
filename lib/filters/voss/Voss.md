@@ -1,4 +1,4 @@
-# VOSS: Ehlers Voss Predictive Filter
+﻿# VOSS: Ehlers Voss Predictive Filter
 
 > "The best filter is one that tells you what is about to happen, not what already did." — paraphrasing Ehlers
 
@@ -65,6 +65,28 @@ The Voss predictor stage is an IIR filter with `Order` feedback taps, each weigh
 | Bandwidth | 0.25 | (0, 1) | Selectivity; lower = narrower passband |
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Voss-McCartney 1/f noise filter: octave-cascade of N random sources, each updated probabilistically. O(N) per bar worst-case, O(1) amortized.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Bit-scan (which octave to update) | 1 | ~3 cy | ~3 cy |
+| RNG sample + accumulate | 1 | ~8 cy | ~8 cy |
+| Running sum update | 1 | ~2 cy | ~2 cy |
+| **Total (amortized)** | **3** | — | **~13 cycles** |
+
+O(1) amortized per bar. Each bar updates exactly 1 octave source on average. ~13 cycles/bar amortized.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Octave update scheduling | No | Bit-count branching; data-dependent |
+| RNG generation | Partial | SIMD RNG (e.g., xoshiro SIMD) available but niche |
+
+Amortized O(1) makes SIMD gains minimal. Batch throughput: ~13 cy/bar.
 
 | Metric | Value |
 |--------|-------|

@@ -76,6 +76,20 @@ Spearman is more sensitive to large rank differences; Kendall weights all discor
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Spearman rank correlation requires ranking both series each bar — O(N log N) per update.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict (2 series) | 2 | 3 cy | ~6 cy |
+| Sort + assign ranks (2 series) | 2 * N log N | 2 cy | ~4N log N cy |
+| Pearson r on rank vectors | N | 3 cy | ~3N cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total (N=14)** | **O(N log N)** | — | **~213 cy** |
+
+O(N log N) per update. Sorting two arrays per bar is the dominant cost. Tied-rank correction adds negligible overhead for typical financial data (few exact ties).
+
 | Operation | Complexity | Notes |
 |-----------|------------|-------|
 | Ranking (per series) | O(n²) | Pairwise comparison for each element |

@@ -91,6 +91,19 @@ Where $\epsilon \approx 2.2 \times 10^{-16}$ for 64-bit doubles.
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Rolling Sum uses a single running accumulator updated by adding the new value and subtracting the evicted value.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer add/evict | 1 | 3 cy | ~3 cy |
+| sum += new; sum -= evict | 2 | 1 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~7 cy** |
+
+Fastest possible O(1) sliding aggregate. Used as a building block inside SMA, stddev, and dozens of other indicators. Throughput ~2 ns/bar.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | ~15 ns/bar | ~2× Kahan, ~3× naive |

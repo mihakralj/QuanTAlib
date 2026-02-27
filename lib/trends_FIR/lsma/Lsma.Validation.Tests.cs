@@ -1,6 +1,9 @@
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+
 namespace QuanTAlib.Tests;
 
 public class LsmaValidationTests
@@ -76,5 +79,22 @@ public class LsmaValidationTests
             ValidationHelper.VerifyData(qOutput, sResult, x => x.Epma, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("LSMA Span validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Lsma_MatchesOoples_Structural()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: 42);
+        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var ooplesData = bars.Select(b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open, High = b.High, Low = b.Low,
+            Close = b.Close, Volume = b.Volume
+        }).ToList();
+        var result = new StockData(ooplesData).CalculateAdaptiveLeastSquares();
+        var values = result.CustomValuesList;
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
     }
 }

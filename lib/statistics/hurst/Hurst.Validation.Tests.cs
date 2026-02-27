@@ -1,3 +1,6 @@
+
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 // HURST Validation Tests - Hurst Exponent via Rescaled Range (R/S) Analysis
 // Validated against self-consistency and known mathematical properties
 // No external library provides a direct R/S-based Hurst exponent equivalent
@@ -178,5 +181,25 @@ public sealed class HurstValidationTests
         }
 
         Assert.Equal(h1.Last.Value, h2.Last.Value, 1e-15);
+    }
+
+    [Fact(Skip = "CalculateEhlersHurstCoefficient produces 0 finite values on 500-bar dataset — requires an extremely long warmup (1000+ bars). Not comparable with synthetic GBM input.")]
+    public void Hurst_MatchesOoples_Structural()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: 42);
+        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var ooplesData = bars.Select(b => new TickerData
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = b.Open,
+            High = b.High,
+            Low = b.Low,
+            Close = b.Close,
+            Volume = b.Volume
+        }).ToList();
+        var result = new StockData(ooplesData).CalculateEhlersHurstCoefficient();
+        var values = result.OutputValues.Values.First();
+        int finiteCount = values.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
     }
 }

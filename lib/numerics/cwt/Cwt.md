@@ -48,6 +48,33 @@ $$P \approx \frac{2\pi s}{\omega_0}$$
 
 **Default parameters:** scale = 10.0, omega = 6.0 (corresponding to period $\approx 10.5$ bars).
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+CWT (Continuous Wavelet Transform) computes inner products of the signal against scaled/shifted wavelets — O(N*S) per bar where S = scale count.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer update | 1 | 3 cy | ~3 cy |
+| Wavelet coefficient computation (N*S inner products) | N*S | 3 cy | ~3*N*S cy |
+| Scale normalization (1/sqrt(scale)) | S | 14 cy | ~14S cy |
+| Peak scale identification | S | 2 cy | ~2S cy |
+| **Total (N=64, S=16)** | **O(N*S)** | — | **~3128 cy** |
+
+O(N*S) per bar — expensive. Suitable for batch analysis, not tick-by-tick hot paths. Precomputed wavelet tables reduce the inner loop to multiply-accumulate only.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Inner product (dot product) per scale | Yes | Vector<double> FMA — dominant operation |
+| Scale normalization | Yes | Vector divide by precomputed sqrt table |
+| All scales independent | Yes | Outer scale loop parallelizable |
+
+Strong SIMD candidate for batch: inner products are FMA-vectorizable. AVX2 processes 4 doubles per cycle; expected 3-4× speedup over scalar for N>=64.
+
 ## Resources
 
 - Morlet, J. et al. (1982). "Wave propagation and sampling theory." *Geophysics*, 47(2): 203-236

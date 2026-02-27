@@ -64,6 +64,22 @@ $$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+ATRN normalizes ATR to [0,1] using min/max over a lookback window — O(1) chained computation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ATR (Wilder EMA of TR) | 1 | 8 cy | ~8 cy |
+| RingBuffer min-ATR update (lookback) | 1 | 4 cy | ~4 cy |
+| RingBuffer max-ATR update (lookback) | 1 | 4 cy | ~4 cy |
+| ATRN = (ATR - min) / (max - min) | 1 | 5 cy | ~5 cy |
+| Zero-range guard | 1 | 2 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~25 cy** |
+
+O(1) chained ATR + normalization. Two separate warmup phases: ATR needs period bars, then ATRN needs lookback bars for valid min/max range.
+
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
 | **Throughput** | 9 | High; O(W) for min-max scan per bar. |

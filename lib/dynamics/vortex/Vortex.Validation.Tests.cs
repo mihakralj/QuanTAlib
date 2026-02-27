@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using QuanTAlib.Tests;
 
@@ -165,5 +167,21 @@ public sealed class VortexValidationTests : IDisposable
             Assert.Equal(results1Plus[i], results2Plus[i], 1e-10);
             Assert.Equal(results1Minus[i], results2Minus[i], 1e-10);
         }
+    }
+
+    [Fact]
+    public void Vortex_MatchesOoples_Structural()
+    {
+        // CalculateVortexIndicator — structural test; outputs stored in OutputValues (ViPlus/ViMinus)
+        var ooplesData = _data.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateVortexIndicator();
+        // Ooples multi-output indicators store results in OutputValues, not CustomValuesList
+        var allValues = result.OutputValues.Values.SelectMany(v => v).ToList();
+
+        int finiteCount = allValues.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples Vortex values, got {finiteCount}");
     }
 }

@@ -1,4 +1,4 @@
-# TUKEY_W: Tukey (Tapered Cosine) Window Moving Average
+﻿# TUKEY_W: Tukey (Tapered Cosine) Window Moving Average
 
 > "John Tukey designed a window with a knob that goes from 'do nothing' to 'full Hann' in one parameter. Set alpha to 0.5 and you get the pragmatist's compromise: flat where it matters, tapered where it would otherwise ring."
 
@@ -94,3 +94,27 @@ return sumWV / sumW
 - Tukey, J.W. (1967). "An Introduction to the Calculations of Numerical Spectrum Analysis." In *Spectral Analysis of Time Series*, ed. B. Harris. Wiley. pp. 25-46.
 - Blackman, R.B. & Tukey, J.W. (1958). *The Measurement of Power Spectra from the Point of View of Communications Engineering*. Dover.
 - Harris, F.J. (1978). "On the Use of Windows for Harmonic Analysis with the Discrete Fourier Transform." *Proceedings of the IEEE*, 66(1), 51-83.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+TUKEY_W(N) is a direct FIR convolution using precomputed Tukey biweight window weights: w(k) = (1 − (2k/(N−1) − 1)²)² for |u| ≤ 1, 0 otherwise. The biweight is always non-negative, with a smooth quartic rolloff to zero at the edges.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 14: ~59 cycles. Non-negative quartic weights; no special sign handling. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR convolution | Yes | `VFMADD231PD`; all weights non-negative |
+| Tukey symmetric window | Yes | Symmetric: fold to ⌈N/2⌉ unique weights |
+| Cross-bar independence | Yes | 4 output bars per AVX2 pass |
+
+Tukey biweight shares the same symmetric FIR structure as Kaiser and Parzen. Symmetric folding halves FMA count to ⌈N/2⌉. AVX2 batch throughput: ~N/8 cycles per bar.

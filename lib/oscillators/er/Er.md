@@ -1,24 +1,22 @@
 # ER: Efficiency Ratio
 
-> "The best trades move in a straight line. The worst ones wander. ER tells you which kind you're looking at." -- Perry Kaufman
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                       |
+| **Inputs**       | Source (close)                   |
+| **Parameters**   | `period` (default 10)            |
+| **Outputs**      | Single series (Efficiency Ratio) |
+| **Output range** | $0$ to $1$                       |
+| **Warmup**       | `period + 1` bars                |
+### TL;DR
 
-| Property | Value |
-|----------|-------|
-| **Category** | Oscillator |
-| **Inputs** | Source (close) |
-| **Parameters** | `period` (default 10) |
-| **Outputs** | Single series (Efficiency Ratio) |
-| **Output range** | $0$ to $1$ |
-| **Warmup** | `period + 1` bars |
-
-### Key takeaways
-
-- Measures the signal-to-noise ratio of price movement: net directional change divided by total path length.
-- Output of $1.0$ means price moved in a perfectly straight line (pure trend). Output of $0.0$ means all movement cancelled out (pure noise).
-- Core component of Kaufman's Adaptive Moving Average (KAMA), where ER dynamically adjusts the smoothing constant.
-- Uses dual circular buffers with a running noise sum for O(1) per-bar updates.
+- ER measures the signal-to-noise ratio of price movement: net directional change divided by total path length.
 - Clamped to $[0, 1]$; division by zero (zero noise) returns $0$.
+- Output of $1.0$ means price moved in a perfectly straight line (pure trend). Output of $0.0$ means all movement cancelled out (pure noise).
+- It is core component of KAMA (Kaufman's Adaptive Moving Average), where ER dynamically adjusts the smoothing constant.
+- Not available and therefore not validated against any other TA library
 
+> "The best trades move in a straight line. The worst ones wander. ER tells you which kind you're looking at." -- Perry Kaufman
 ## Historical Context
 
 Perry Kaufman introduced the Efficiency Ratio in *Trading Systems and Methods* (1995) as part of his Adaptive Moving Average (KAMA) framework. The idea was straightforward: an ideal trend indicator should react quickly in trending markets and slowly in choppy ones. ER provides the adaptive signal that tells KAMA how to behave.

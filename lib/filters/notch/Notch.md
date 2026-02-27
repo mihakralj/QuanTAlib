@@ -1,4 +1,4 @@
-# Notch Filter
+﻿# Notch Filter
 
 > Sometimes the best way to improved signal clarity isn't amplification, but rather the surgical removal of a specific annoyance.
 
@@ -42,6 +42,28 @@ The filter is applied using the recurrence:
 $$ y[n] = b_0 x[n] + b_1 x[n-1] + b_2 x[n-2] - a_1 y[n-1] - a_2 y[n-2] $$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Notch filter: 2nd-order IIR that attenuates a narrow frequency band. Standard biquad structure with passband at all frequencies except the notch center.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input state shift | 2 | ~1 cy | ~2 cy |
+| Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
+| Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **9** | — | **~24 cycles** |
+
+O(1) per bar. Notch coefficient set computed at construction from center frequency and Q-factor. ~24 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| IIR biquad recursion | No | Sequential dependency |
+
+Batch throughput: ~24 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

@@ -76,6 +76,21 @@ Williams Fractals is equivalent to `Swings(period=2)` where the pivot bar must e
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+Williams Fractals compare bar[i] high/low against 2 neighbors on each side — O(1) fixed 5-bar lookback.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer update (high + low) | 2 | 3 cy | ~6 cy |
+| Compare center high against 4 neighbors | 4 | 2 cy | ~8 cy |
+| Compare center low against 4 neighbors | 4 | 2 cy | ~8 cy |
+| Output fractal up/down signals | 2 | 1 cy | ~2 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~26 cy** |
+
+O(1) constant-width 5-bar window. Signal is delayed 2 bars (confirmed only when later bars are available). No warm-up needed beyond 5 bars.
+
 ### Implementation Design
 
 The implementation uses two five-element circular buffers (highs and lows) with index arithmetic. No sorting, no searching, no auxiliary data structures. The pattern check is four comparisons per fractal direction, evaluated only when the buffer is full.

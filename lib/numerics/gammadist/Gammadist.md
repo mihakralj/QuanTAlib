@@ -69,6 +69,33 @@ GAMMADIST(source, period, shape, rate):
         return 1.0 - gammaCF(shape, scaled)   // continued fraction
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Gamma distribution CDF uses regularized incomplete gamma function via series or continued fraction.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (alpha, beta > 0; x >= 0) | 3 | 2 cy | ~6 cy |
+| Log-Gamma normalization (lgamma) | 1 | 25 cy | ~25 cy |
+| Regularized incomplete gamma (series, ~20 iter) | ~20 | 12 cy | ~240 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~273 cy** |
+
+O(1) per evaluation. Switches between series expansion (x <= alpha+1) and continued fraction (x > alpha+1) for numerical stability. lgamma() is the setup cost.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| lgamma() | No | Transcendental; scalar |
+| Series/CF iteration | No | Sequential convergence |
+| Output assignment | Yes | Trivial |
+
+No practical SIMD benefit. Parallelism via PLINQ on the outer observation loop.
+
 ## Resources
 
 - Pearson, K. "Contributions to the Mathematical Theory of Evolution." Phil. Trans. Royal Society, 1893.

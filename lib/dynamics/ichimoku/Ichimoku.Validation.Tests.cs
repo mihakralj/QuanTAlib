@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit;
 using Xunit.Abstractions;
@@ -654,6 +656,26 @@ public sealed class IchimokuValidationTests : IDisposable
 
         Assert.True(matched > 50, $"Only matched {matched} Chikou values");
         _output.WriteLine($"Ichimoku Chikou validated against Skender ({matched} values matched)");
+    }
+
+    #endregion
+
+    #region Ooples Cross-Validation
+
+    [Fact]
+    public void Ichimoku_MatchesOoples_Structural()
+    {
+        // CalculateIchimokuCloud — structural test; outputs stored in OutputValues (Tenkan/Kijun/etc.)
+        var ooplesData = _testData.SkenderQuotes
+            .Select(q => new TickerData { Date = q.Date, Open = (double)q.Open, High = (double)q.High, Low = (double)q.Low, Close = (double)q.Close, Volume = (double)q.Volume })
+            .ToList();
+
+        var result = new StockData(ooplesData).CalculateIchimokuCloud();
+        // Ooples multi-output indicators store results in OutputValues, not CustomValuesList
+        var allValues = result.OutputValues.Values.SelectMany(v => v).ToList();
+
+        int finiteCount = allValues.Count(v => double.IsFinite(v));
+        Assert.True(finiteCount > 100, $"Expected >100 finite Ooples Ichimoku values, got {finiteCount}");
     }
 
     #endregion

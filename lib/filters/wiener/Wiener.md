@@ -1,4 +1,4 @@
-# Wiener Filter
+﻿# Wiener Filter
 
 > "The signal is the truth. The noise is just an opinion."
 
@@ -48,6 +48,30 @@ It dynamically calculates a gain factor $k$:
     $$ y_t = \mu + k \cdot (x_t - \mu) $$
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Wiener (Optimal Scalar Filter): estimates signal from noisy observations by minimizing mean squared error. Adaptive version: O(N) per bar for ratio of variance components.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Local mean (SMA, N-point) | N | ~3 cy | ~90 cy (N=30) |
+| Local variance estimate | N | ~5 cy | ~150 cy |
+| Gain = signal_var / (signal_var + noise_var) | 1 | ~10 cy | ~10 cy |
+| Output = mean + gain*(input - mean) | 1 | ~4 cy | ~4 cy |
+| **Total (N=30)** | **2N+2** | — | **~254 cycles** |
+
+O(N) per bar. Local mean and variance are computable O(1) with running sums, reducing to ~20 cycles/bar if running accumulators maintained.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Local mean / variance (running) | No | Running IIR — sequential |
+| Local mean / variance (batch scan) | Yes | Sliding window: vectorizable with O(N) pass |
+| Gain computation | No | Scalar division |
+
+With running-sum optimization: ~20 cy/bar streaming.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

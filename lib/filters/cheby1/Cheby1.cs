@@ -70,7 +70,7 @@ public sealed class Cheby1 : AbstractBase
         double coshMu = Math.Cosh(mu);
         double sigma = -sinhMu * Wc;
         double omegaD = coshMu * Wc;
-        double K = sigma * sigma + omegaD * omegaD;
+        double K = Math.FusedMultiplyAdd(sigma, sigma, omegaD * omegaD);
 
         double a0z = 1.0 - 2.0 * sigma + K;
         double a1z = 2.0 * K - 2.0;

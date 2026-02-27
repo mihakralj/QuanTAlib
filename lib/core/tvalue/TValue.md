@@ -76,6 +76,19 @@ Console.WriteLine(tv); // Output: "[2024-01-01 12:00:00, 42.00]"
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+TValue is a 16-byte struct (DateTime + double). Construction and field access are register operations.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Struct construction (2 fields) | 2 | 1 cy | ~2 cy |
+| Field read (Tm or Val) | 1 | 0 cy | ~0 cy |
+| IsNaN check on Val | 1 | 1 cy | ~1 cy |
+| **Total** | **O(1)** | — | **~3 cy** |
+
+16-byte struct fits in a single XMM register. Zero heap allocation. All operations are register-bound when JIT-promoted.
+
 * **Memory**: 16 bytes per instance.
 * **Allocation**: 0 bytes (Stack allocated).
 * **Copying**: Cheap (fits in two 64-bit registers).

@@ -17,10 +17,10 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | CRSI | Connors RSI | Composite of RSI, streak RSI, and percentile rank. Mean-reversion. |
 | CTI | Correlation Trend Indicator | Linear regression correlation coefficient as trend strength. |
 | [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
-| DEM | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
+| [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | DOSC | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
-| DYMOI | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
+| [DYMOI](dymoi/Dymoi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
 | [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
 | [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
 | [FISHER](fisher/Fisher.md) | Ehlers Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
@@ -30,7 +30,8 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [KDJ](kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic. J = 3K - 2D provides leading signal. |
 | [KRI](kri/Kri.md) | Kairi Relative Index | Percentage deviation of price from SMA. Overbought/oversold. |
 | KST | KST Oscillator | Summed weighted ROCs across 4 timeframes. Martin Pring. |
-| LRSI | Ehlers Laguerre RSI | RSI computed over Laguerre filter stages. Faster response. |
+| [LRSI](lrsi/Lrsi.md) | Ehlers Laguerre RSI | RSI computed over Laguerre filter stages. Single γ trades lag vs smoothness. Output [0,1]. |
+| [MARKETFI](marketfi/Marketfi.md) | Market Facilitation Index | Bill Williams' price-range-per-unit-of-volume efficiency measure. O(1), no period. |
 | MSTOCH | Ehlers MESA Stochastic | Hilbert Transform cycle-tuned Stochastic. Adaptive period. |
 | [PGO](pgo/Pgo.md) | Pretty Good Oscillator | Distance from SMA normalized by ATR. Units: ATR multiples. |
 | [PSL](psl/Psl.md) | Psychological Line | Ratio of up periods to total periods. Crowd sentiment gauge. |

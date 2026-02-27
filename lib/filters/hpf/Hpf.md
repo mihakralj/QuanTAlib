@@ -1,4 +1,4 @@
-# HPF: Ehlers Highpass Filter
+﻿# HPF: Ehlers Highpass Filter
 
 > "Noise is just signal you haven't figured out how to filter yet. Or maybe, it's the only signal that matters."
 
@@ -48,6 +48,28 @@ Where:
 - $L$: Length (cutoff period)
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+High-Pass Filter (HPF): 2nd-order IIR; output = input minus the low-pass component. Detrending architecture requires only one IIR recursion.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| LP IIR update (2 FMA) | 2 | ~4 cy | ~8 cy |
+| HP output = input - LP | 1 | ~2 cy | ~2 cy |
+| State update | 2 | ~1 cy | ~2 cy |
+| **Total** | **5** | — | **~12 cycles** |
+
+O(1) per bar. Subtract-from-LP architecture means only one IIR recursion needed. ~12 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| LP recursion | No | Sequential IIR |
+| Subtraction | Yes | Element-wise; trivial vectorization |
+
+Batch throughput: ~12 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

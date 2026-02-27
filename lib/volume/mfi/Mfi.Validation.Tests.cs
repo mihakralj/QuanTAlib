@@ -1,6 +1,7 @@
 using Skender.Stock.Indicators;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
+using TALib;
 
 namespace QuanTAlib.Tests;
 
@@ -35,9 +36,43 @@ public class MfiValidationTests
     [Fact]
     public void Mfi_Matches_Talib()
     {
-        // TA-Lib has MFI but uses different API pattern
-        // Skip direct comparison - formula is the same
-        Assert.True(true, "TA-Lib MFI uses different API pattern; formula matches standard MFI");
+        // TALib MFI = Money Flow Index with the same standard formula as QuanTAlib.
+        // Both compute: typical price = (H+L+C)/3, raw money flow = TP*Volume,
+        // then ratio = sum(+MF) / sum(-MF), MFI = 100 - 100/(1+ratio).
+        // Exact numeric match expected to 1e-9.
+
+        const int period = DefaultPeriod;
+
+        double[] highData = _data.Bars.High.Values.ToArray();
+        double[] lowData = _data.Bars.Low.Values.ToArray();
+        double[] closeData = _data.Bars.Close.Values.ToArray();
+        double[] volumeData = _data.Bars.Volume.Values.ToArray();
+        double[] taOut = new double[_data.Bars.Count];
+
+        var retCode = Functions.Mfi<double>(
+            highData, lowData, closeData, volumeData,
+            0..^0, taOut, out var outRange, period);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
+        Assert.True(length > 100, $"TALib MFI produced only {length} values");
+
+        // QuanTAlib streaming
+        var mfi = new Mfi(period);
+        var qlValues = new double[_data.Bars.Count];
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            qlValues[i] = mfi.Update(_data.Bars[i]).Value;
+        }
+
+        // Compare
+        for (int j = 0; j < length; j++)
+        {
+            int qi = j + offset;
+            double diff = Math.Abs(qlValues[qi] - taOut[j]);
+            Assert.True(diff <= 1e-9,
+                $"MFI mismatch at [{qi}]: QuanTAlib={qlValues[qi]:G17}, TALib={taOut[j]:G17}, diff={diff:E3}");
+        }
     }
 
     [Fact]

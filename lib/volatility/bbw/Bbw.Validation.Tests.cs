@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
@@ -224,5 +226,45 @@ public sealed class BbwValidationTests : IDisposable
             Assert.Equal(spanOutput[i], batchResult[i].Value, 1e-10);
         }
         _output.WriteLine("BBW span/batch parity validated successfully");
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Bbw_MatchesOoples_Structural()
+    {
+        const int period = 20;
+        const double multiplier = 2.0;
+        var ooplesData = _testData.SkenderQuotes.Select(static q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateBollingerBandsWidth(length: period);
+        var oValues = oResult.OutputValues.Values.First();
+
+        var bbw = new global::QuanTAlib.Bbw(period, multiplier);
+        var qValues = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            qValues.Add(bbw.Update(item).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples BBW must produce output");
+        int finiteCount = 0;
+        for (int i = period; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite BBW pairs, got {finiteCount}");
+        _output.WriteLine($"BBW Ooples structural: {finiteCount} finite pairs verified.");
     }
 }

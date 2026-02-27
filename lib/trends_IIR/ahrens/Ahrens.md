@@ -1,4 +1,4 @@
-# AHRENS: Ahrens Moving Average
+﻿# AHRENS: Ahrens Moving Average
 
 > "Richard Ahrens looked at the EMA and thought: what if the correction term accounted for where the average was, not just where it is? The result is a self-referencing IIR filter that uses its own history as a stabilizer."
 
@@ -78,3 +78,31 @@ head = (head + 1) % period
 
 - Ahrens, R.D. (2013). "Build A Better Moving Average." *Technical Analysis of Stocks & Commodities*, 31(11).
 - Ehlers, J.F. (2001). *Rocket Science for Traders*. Wiley. Chapter 4: Finite and Infinite Impulse Response Filters.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+AHRENS(N) requires a ring buffer of its own past output values (length N). The formula `AHRENS[t] = AHRENS[t-1] + (src − (AHRENS[t-1] + AHRENS[t-N]) / 2) / N` is O(1): one ring buffer read (indexed access at the tail), no scan.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push (AHRENS output) | 1 | 3 | ~3 |
+| AHRENS[t-N] ring buffer read | 1 | 3 | ~3 |
+| Mid-average: (prev + lagged) / 2 | 2 | 3 | ~6 |
+| Error: src − mid | 1 | 1 | ~1 |
+| Correction: error / N | 1 | 8 | ~8 |
+| AHRENS update: prev + correction | 1 | 1 | ~1 |
+| **Total** | **7** | — | **~22 cycles** |
+
+O(1) per bar. The ring buffer stores past output values, not input values — a self-referential IIR. The division is the dominant cost. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Error computation (src − mid) | No | Mid depends on AHRENS[t-N] which depends on prior outputs |
+| Self-referential IIR update | No | AHRENS[t] depends on AHRENS[t-1] and AHRENS[t-N]; both are computed values |
+| Correction divide | No | Alpha depends on computed error; scalar only |
+
+AHRENS is strictly sequential — the output at bar t depends on the output at bar t-1 (direct feedback) AND the output at bar t-N (delayed feedback). No vectorization is possible. Batch mode runs the same scalar kernel as streaming.

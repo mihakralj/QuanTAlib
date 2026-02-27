@@ -94,6 +94,34 @@ Mode.Batch(sourceSpan, outputSpan, 14);
 4. **NaN inputs**: NaN values are stored in the buffer. If a window contains NaN duplicates, NaN could become the mode — this matches the PineScript behavior.
 5. **Performance**: O(N) per update due to sorted buffer maintenance. For very large periods (>1000), consider if mode is the right tool.
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Mode uses a sorted insertion buffer; each bar requires a binary search plus array shift to maintain sort order, then a linear scan to find the longest run.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer evict oldest | 1 | 3 cy | ~3 cy |
+| Binary search insert position | log2(N) | 2 cy | ~14 cy (N=128) |
+| Array.Copy shift | N/2 avg | 1 cy | ~64 cy (N=128) |
+| Linear scan for mode | N | 2 cy | ~256 cy (N=128) |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(N)** | — | **~340 cy (N=128)** |
+
+O(N) per update due to sorted buffer maintenance. Not suitable for periods >1000 in tick-streamed hot paths; use a hash-counted alternative for large windows.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Sort per window | No | Comparison sort; not SIMD-friendly |
+| Linear run scan | Partial | Branchless equality check possible |
+| Outer loop over M bars | No | Each bar re-sorts; sequential dependency |
+
+No SIMD benefit — sorting and frequency counting are inherently sequential for exact-match mode. Batch complexity O(M·N log N) where M = data length, N = period.
+
 ## Validation
 
 Self-consistency validation only — no external library provides rolling mode.

@@ -1,4 +1,4 @@
-# SQUEEZE: Squeeze Momentum
+﻿# SQUEEZE: Squeeze Momentum
 
 Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultaneously measuring directional momentum via linear regression of a detrended price series. The dual output consists of a momentum histogram and a binary squeeze state indicator. When Bollinger Bands contract inside the Keltner Channel, the market is in a squeeze (coiling volatility); when the squeeze releases, the momentum histogram direction signals the likely breakout direction. The implementation combines five distinct computational stages, each using O(1) streaming techniques.
 
@@ -55,6 +55,47 @@ $$m = \frac{n \cdot \Sigma_{xy} - \Sigma_x \cdot \Sigma_y}{n \cdot \Sigma_{x^2} 
 $$Momentum_t = m \cdot (t_{\text{last}}) + b$$
 
 **Default parameters:** period = 20, bbMult = 2.0, kcMult = 1.5.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Squeeze Momentum Indicator uses Bollinger Bands, Keltner Channels, and a momentum oscillator based on linear regression delta.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| TR + RMA ATR | 8 | 4 | 32 |
+| EMA (KC middle) | 1 | 4 | 4 |
+| KC bands (EMA ± ATR×multiplier) | 4 | 3 | 12 |
+| SMA variance (O(N) scan) | N+2 | 1 | N+2 |
+| SQRT (BB stddev) | 1 | 20 | 20 |
+| BB bands (SMA ± k×stddev) | 4 | 3 | 12 |
+| CMP × 2 (BB inside KC?) | 2 | 1 | 2 |
+| LR oscillator (O(N) scan) | ~3N | 3 | ~3N |
+| **Total** | **~4N+22** | — | **~4N+84** |
+
+For default $N=20$: ~164 cycles per bar. O(N) variance + O(N) regression dominate.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| ATR (RMA) | **No** | Recursive IIR |
+| BB computation | Yes | Prefix-sum variance; VADDPD/VMULPD/VSQRTPD |
+| KC (EMA) | **No** | Recursive IIR |
+| LR momentum | Yes | Prefix-sum regression trick; VFMADD |
+| Squeeze detection | Yes | VCMPPD |
+
+Mixed: the two IIR passes are sequential; everything else is vectorizable.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | LR oscillator is high-fidelity momentum measure |
+| **Timeliness** | 5/10 | N-bar windows on all components add inherent lag |
+| **Smoothness** | 8/10 | LR oscillator + squeeze binary filter produces clean output |
+| **Noise Rejection** | 8/10 | Dual-channel squeeze gate prevents false momentum signals |
 
 ## Resources
 

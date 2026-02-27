@@ -1,4 +1,4 @@
-# HEND: Henderson Moving Average
+﻿# HEND: Henderson Moving Average
 
 > "Robert Henderson designed a filter so good that the Australian Bureau of Statistics still uses it a century later. When your smoothing algorithm outlasts empires, you did something right."
 
@@ -76,3 +76,28 @@ return result
 - Shiskin, J., Young, A.H., & Musgrave, J.C. (1967). "The X-11 Variant of the Census Method II Seasonal Adjustment Program." Technical Paper 15, U.S. Bureau of the Census.
 - Hyndman, R.J. (2011). "Moving Averages." In *International Encyclopedia of Statistical Science*. Springer.
 - Kenny, P.B. & Durbin, J. (1982). "Local Trend Estimation and Seasonal Adjustment of Economic and Social Time Series." *JRSS Series A*, 145(1), 1-41.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+HEND(N) is a direct FIR convolution using precomputed Henderson weights (computed once at construction). Each `Update()` call pushes one value into the ring buffer and executes a length-N dot product against the weight array. Henderson weights can be negative at edges, so no shortcut reduces the scan.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Ring buffer push | 1 | 3 | ~3 |
+| FIR dot product: N FMA (weight × value + acc) | N | 4 | ~4N |
+| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+
+O(N) per bar. For default N = 7 (5-term odd period): ~31 cycles. For N = 23 (common seasonal use): ~95 cycles. WarmupPeriod = N.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| FIR dot product per bar | Yes | `VFMADD231PD` with weight array; 4 doubles/cycle |
+| Weight array (precomputed, static) | Yes | Loaded once into registers |
+| Negative-weight handling | Yes | No special treatment needed; signed FMA handles negatives |
+| Cross-bar independence | Yes | Each bar's output is independent; full outer-loop vectorization |
+
+With AVX2, 4 bars can be processed simultaneously (each is an N-tap dot product). Total batch throughput: ~N/4 cycles per bar for large series. For N = 23 and 1000-bar batch: ~5750 cycles vs ~95000 scalar — approximately 16.5× speedup (memory-bound at larger N).

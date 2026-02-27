@@ -1,0 +1,35 @@
+//@version=6
+// LRSI: Laguerre RSI
+// John Ehlers, "Cybernetic Analysis for Stocks and Futures" (2004)
+// A modified RSI that uses a 4-element Laguerre filter as its core moving average.
+// The gamma parameter controls the damping of the filter stages, trading
+// responsiveness against smoothness. Output is dimensionless [0, 1].
+
+indicator("LRSI: Laguerre RSI", shorttitle="LRSI", overlay=false)
+
+gamma = input.float(0.5, "Gamma", minval=0.0, maxval=1.0, step=0.01,
+    tooltip="Damping factor [0,1]. Lower = more responsive; higher = smoother.")
+
+var float L0 = 0.0
+var float L1 = 0.0
+var float L2 = 0.0
+var float L3 = 0.0
+
+// Four cascaded Laguerre filter stages
+// Each stage is a first-order all-pass element with coefficient gamma
+L0 := (1 - gamma) * close + gamma * nz(L0[1])
+L1 := -gamma * L0 + nz(L0[1]) + gamma * nz(L1[1])
+L2 := -gamma * L1 + nz(L1[1]) + gamma * nz(L2[1])
+L3 := -gamma * L2 + nz(L2[1]) + gamma * nz(L3[1])
+
+// RSI numerator/denominator computed over stage differences
+cu = (L0 > L1 ? L0 - L1 : 0) + (L1 > L2 ? L1 - L2 : 0) + (L2 > L3 ? L2 - L3 : 0)
+cd = (L0 < L1 ? L1 - L0 : 0) + (L1 < L2 ? L2 - L1 : 0) + (L2 < L3 ? L3 - L2 : 0)
+
+// cu + cd == 0 only when all stages are identical (flat market); default 0.5
+lrsi = cu + cd != 0 ? cu / (cu + cd) : 0.5
+
+plot(lrsi, "LRSI", color=color.yellow, linewidth=2)
+hline(0.8, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(0.5, "Midline",    color=color.gray, linestyle=hline.style_dotted)
+hline(0.2, "Oversold",   color=color.green, linestyle=hline.style_dashed)

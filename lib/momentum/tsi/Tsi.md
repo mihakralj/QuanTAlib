@@ -1,4 +1,4 @@
-# TSI: True Strength Index
+﻿# TSI: True Strength Index
 
 The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price momentum to reduce noise and identify trend strength and direction.
 
@@ -79,29 +79,38 @@ $$Signal = EMA(TSI, signalPeriod)$$
 - Commonly used levels: +25/-25 or +30/-30
 - Extreme readings suggest potential reversal
 
-## Performance Characteristics
+## Performance Profile
 
 ### Operation Count (Streaming Mode)
 
-| Operation | Count |
-|-----------|-------|
-| Subtractions | 1 |
-| Absolute value | 1 |
-| EMA updates | 5 |
-| Division | 1 |
-| Multiplication | 1 |
+TSI(long, short, signal) maintains 5 EMA states: two first-pass EMA smoothers (mom + |mom| on `longPeriod`), two second-pass EMA smoothers (output of first pass on `shortPeriod`), and one signal EMA. All are scalar FMA operations.
 
-### Complexity
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Price delta (SUB) | 1 | 1 | ~1 |
+| ABS of delta | 1 | 1 | ~1 |
+| EMA1 mom (FMA: α_long × delta + decay × prev) | 1 | 4 | ~4 |
+| EMA1 abs (FMA: α_long × |delta| + decay × prev) | 1 | 4 | ~4 |
+| EMA2 mom (FMA: α_short × EMA1_mom + decay × prev) | 1 | 4 | ~4 |
+| EMA2 abs (FMA: α_short × EMA1_abs + decay × prev) | 1 | 4 | ~4 |
+| TSI ratio (× 100 + DIV) | 2 | 9 | ~18 |
+| Signal EMA (FMA: α_sig × TSI + decay × prev) | 1 | 4 | ~4 |
+| **Total** | **9** | — | **~40 cycles** |
 
-- Time: O(1) per bar (streaming)
-- Space: O(1) - only EMA states maintained
+O(1) per bar. Default WarmupPeriod = longPeriod + shortPeriod + signalPeriod = 51 bars. The division is the dominant cost; Wilder-smoothed variants can replace all EMAs with RMA (same FMA count, slower convergence).
 
-### Warmup Period
+### Batch Mode (SIMD Analysis)
 
-warmupPeriod = longPeriod + shortPeriod + signalPeriod
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Price delta series | Yes | `VSUBPD` across full input span |
+| ABS series | Yes | `VABSPD` — single instruction |
+| First EMA pass (long period) | No | Recursive IIR; each value depends on previous |
+| Second EMA pass (short period) | No | Recursive IIR on output of first pass |
+| TSI ratio | Yes | `VMULPD` + `VDIVPD` once both EMA series are computed |
+| Signal EMA | No | Recursive IIR |
 
-Default: 25 + 13 + 13 = 51 bars
-
+All three EMA passes are recursive IIR filters — inherently serial. A batch implementation can vectorize the delta and ABS computation (4 bars/cycle on AVX2) before the scalar EMA sweeps. The ratio and optional signal computation can be vectorized after the EMA passes complete. Net batch speedup for long series (~1000 bars): approximately 1.3–1.5× over fully scalar.
 ## Validation
 
 Cross-validated against:

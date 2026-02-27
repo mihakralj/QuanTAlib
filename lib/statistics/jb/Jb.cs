@@ -346,11 +346,11 @@ public sealed class Jb : AbstractBase
         }
 
         // m₃ = (Σx³ - 3·mean·Σx² + 2·n·mean³) / n
-        double m3Numerator = sumCu - 3 * mean * sumSq + 2 * n * meanSq * mean;
+        double m3Numerator = Math.FusedMultiplyAdd(-3 * mean, sumSq, Math.FusedMultiplyAdd(2 * n * meanSq, mean, sumCu));
         double m3 = m3Numerator / n;
 
         // m₄ = (Σx⁴ - 4·mean·Σx³ + 6·mean²·Σx² - 3·n·mean⁴) / n
-        double m4Numerator = sumQu - 4 * mean * sumCu + 6 * meanSq * sumSq - 3 * n * meanSq * meanSq;
+        double m4Numerator = Math.FusedMultiplyAdd(-4 * mean, sumCu, Math.FusedMultiplyAdd(6 * meanSq, sumSq, Math.FusedMultiplyAdd(-3 * n * meanSq, meanSq, sumQu)));
         double m4 = m4Numerator / n;
 
         // Skewness = m₃ / m₂^(3/2)

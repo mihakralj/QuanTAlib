@@ -63,6 +63,34 @@ EXPDIST(source, period, lambda):
     return 1.0 - exp(-lambda * x)
 ```
 
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Exponential distribution CDF = 1 - exp(-lambda * x) — a trivially cheap closed-form evaluation.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Input validation (lambda > 0; x >= 0) | 2 | 2 cy | ~4 cy |
+| lambda * x multiply | 1 | 3 cy | ~3 cy |
+| exp(-lambda*x) | 1 | 20 cy | ~20 cy |
+| 1 - exp result | 1 | 1 cy | ~1 cy |
+| NaN guard + state update | 1 | 2 cy | ~2 cy |
+| **Total** | **O(1)** | — | **~30 cy** |
+
+Cheapest distribution implementation — single exp() call dominates. No series expansion, no iterative solver.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| lambda * x | Yes | Vector<double> multiply |
+| exp() | Partial | _mm256_exp_pd with SVML; or scalar loop |
+| 1 - result | Yes | Vector subtract |
+
+With SVML exp: 4 outputs per AVX2 cycle. Without SVML: scalar loop but still O(1) per output. Batch is trivially parallelizable.
+
 ## Resources
 
 - Erlang, A.K. "The Theory of Probabilities and Telephone Conversations." Nyt Tidsskrift for Matematik B, 1909.

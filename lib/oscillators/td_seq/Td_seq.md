@@ -1,4 +1,4 @@
-# TD_SEQ: TD Sequential
+﻿# TD_SEQ: TD Sequential
 
 TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that detects overextended trends, and a 13-count Countdown phase that pinpoints probable reversal timing. Unlike oscillators that measure momentum magnitude, TD Sequential counts consecutive qualifying bars, producing integer outputs (Setup: $\pm 1$ to $\pm 9$; Countdown: $\pm 1$ to $\pm 13$) that represent the progression toward exhaustion. A completed 9-count Setup followed by a completed 13-count Countdown signals high-probability trend exhaustion. All state is maintained in O(1) scalar variables with no buffers required.
 
@@ -51,6 +51,42 @@ $$\text{if } |CD_t| \geq 13 \Rightarrow CD_t = \text{sign}(dir) \times 13, \text
 $$\text{if dir} = +1 \text{ and } S_t = -9, \text{ or dir} = -1 \text{ and } S_t = +9 \Rightarrow \text{reset CD, new dir}$$
 
 **Default parameters:** comparePeriod = 4.
+
+## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+TD Sequential counts sequential close comparisons (Setup: 9 bars; Countdown: 13 bars). Pure comparison arithmetic, no floating-point math.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP (close[0] > close[4]) setup count | 1 | 1 | 1 |
+| CMP (close[2] ≤ close[0]) countdown | 1 | 1 | 1 |
+| Counter increment/reset | 2 | 1 | 2 |
+| RingBuffer reads × 2 (lag 2 and lag 4) | 2 | 1 | 2 |
+| State encode (setup bar, countdown bar) | 2 | 1 | 2 |
+| **Total** | **8** | — | **~8 cycles** |
+
+The cheapest oscillator in the library: purely integer comparisons and counters. ~8 cycles per bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Lag-4 comparison (Setup) | Yes | VCMPPD on offset arrays |
+| Lag-2 comparison (Countdown) | Yes | VCMPPD on offset arrays |
+| Sequential counter | **No** | State-dependent — each bar depends on prior count |
+
+The counter state is inherently sequential. The individual comparisons are vectorizable in a pre-pass, but the sequential counting dependency prevents full SIMD acceleration.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact binary comparisons; no floating-point |
+| **Timeliness** | 9/10 | 9-bar setup window is short; immediate signal |
+| **Smoothness** | 3/10 | Discrete count output jumps at signal events |
+| **Noise Rejection** | 5/10 | Sequential counting requires exact pattern; no noise tolerance |
 
 ## Resources
 

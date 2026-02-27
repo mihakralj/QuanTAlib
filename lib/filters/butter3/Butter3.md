@@ -1,4 +1,4 @@
-# BUTTER3: Ehlers 3-Pole Butterworth Filter
+﻿# BUTTER3: Ehlers 3-Pole Butterworth Filter
 
 > "Steeper rolloff demands a third pole."
 
@@ -35,6 +35,29 @@ $$y[n] = \text{coef}_1 \cdot (x[n] + 3\,x[n\!-\!1] + 3\,x[n\!-\!2] + x[n\!-\!3])
 The feedforward weights (1, 3, 3, 1) are binomial coefficients for 3rd order, matching row 3 of Pascal's triangle.
 
 ## Performance Profile
+
+### Operation Count (Streaming Mode)
+
+Butterworth 3rd-order LPF: implemented as two cascaded sections (one 2nd-order + one 1st-order). Two sequential IIR passes per bar.
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Stage 1: 2nd-order biquad (5 ops) | 5 | ~4 cy | ~20 cy |
+| State update stage 1 | 2 | ~1 cy | ~2 cy |
+| Stage 2: 1st-order section (3 ops) | 3 | ~4 cy | ~12 cy |
+| State update stage 2 | 1 | ~1 cy | ~1 cy |
+| **Total** | **11** | — | **~35 cycles** |
+
+O(1) per bar. Two cascaded recursive sections. ~35 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+| Operation | Vectorizable? | Notes |
+| :--- | :---: | :--- |
+| Stage 1 recursion | No | Sequential IIR |
+| Stage 2 recursion | No | Sequential IIR; depends on stage 1 output |
+
+Cascade blocks all SIMD. Batch throughput: ~35 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

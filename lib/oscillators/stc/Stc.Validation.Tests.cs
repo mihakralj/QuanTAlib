@@ -1,3 +1,5 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using System;
 using System.Linq;
 using Skender.Stock.Indicators;
@@ -73,5 +75,43 @@ public sealed class StcValidationTests : IDisposable
             Assert.True(double.IsFinite(qResult[i].Value));
             Assert.InRange(qResult[i].Value, 0, 100);
         }
+    }
+
+    // ── Cross-library: OoplesFinance ──────────────────────────────────────────
+    [Fact]
+    public void Stc_MatchesOoples_Structural()
+    {
+        var ooplesData = _testData.SkenderQuotes.Select(static q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateSchaffTrendCycle();
+        var oValues = oResult.OutputValues.Values.First();
+
+        var stc = new Stc(kPeriod: 10, dPeriod: 3, fastLength: 23, slowLength: 50, smoothing: StcSmoothing.Ema);
+        var qValues = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            qValues.Add(stc.Update(item).Value);
+        }
+
+        Assert.True(oValues.Count > 0, "Ooples STC must produce output");
+        int finiteCount = 0;
+        for (int i = 50; i < Math.Min(oValues.Count, qValues.Count); i++)
+        {
+            if (double.IsFinite(oValues[i]) && double.IsFinite(qValues[i]))
+            {
+                finiteCount++;
+            }
+        }
+        Assert.True(finiteCount > 100, $"Expected >100 finite STC pairs, got {finiteCount}");
+        _output.WriteLine($"STC Ooples structural: {finiteCount} finite pairs verified.");
     }
 }
