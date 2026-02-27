@@ -130,7 +130,7 @@ public sealed class BetaValidationTests : IDisposable
         var retCode = Functions.Beta<double>(
             assetPrices.AsSpan(), marketPrices.AsSpan(),
             0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
 

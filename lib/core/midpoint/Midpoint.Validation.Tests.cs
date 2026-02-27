@@ -51,7 +51,7 @@ public sealed class MidpointValidationTests : IDisposable
 
             // Calculate TA-Lib MIDPOINT
             var retCode = TALib.Functions.MidPoint<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MidPointLookback(period);
 
@@ -81,7 +81,7 @@ public sealed class MidpointValidationTests : IDisposable
 
             // Calculate TA-Lib MIDPOINT
             var retCode = TALib.Functions.MidPoint<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MidPointLookback(period);
 
@@ -107,7 +107,7 @@ public sealed class MidpointValidationTests : IDisposable
 
             // Calculate TA-Lib MIDPOINT
             var retCode = TALib.Functions.MidPoint<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MidPointLookback(period);
 

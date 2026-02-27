@@ -102,7 +102,7 @@ public sealed class AtrValidationTests : IDisposable
 
             // Calculate TA-Lib ATR
             var retCode = TALib.Functions.Atr(hData, lData, cData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.AtrLookback(period);
 
@@ -135,7 +135,7 @@ public sealed class AtrValidationTests : IDisposable
 
             // Calculate TA-Lib ATR
             var retCode = TALib.Functions.Atr(hData, lData, cData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.AtrLookback(period);
 

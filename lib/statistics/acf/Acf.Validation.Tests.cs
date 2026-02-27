@@ -114,11 +114,13 @@ public class AcfValidationTests
         // For white noise, ACF at any lag > 0 should be close to zero
         var acf = new Acf(100, 5);
 
-        // Generate pseudo-random values with zero mean via GBM log-returns
-        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
-        for (int i = 0; i < 500; i++)
+        // Generate incremental bar-to-bar log-returns: log(close_i / close_{i-1})
+        // These are approximately i.i.d. N(0, σ²·dt) — genuine white noise
+        var gbm = new GBM(startPrice: 100.0, sigma: 0.2, seed: 42);
+        var bars = gbm.Fetch(501, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        for (int i = 1; i < 501; i++)
         {
-            double val = Math.Log(random.Next().Close / 100.0); // ~N(0, vol²*dt) centered near 0
+            double val = Math.Log(bars[i].Close / bars[i - 1].Close); // incremental log-return
             acf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
@@ -215,12 +217,15 @@ public class AcfValidationTests
 
         double[] ar1Data = new double[n];
         ar1Data[0] = 0;
-        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
+
+        // Use incremental bar-to-bar log-returns as i.i.d. noise: log(close_i / close_{i-1})
+        var gbm = new GBM(startPrice: 100.0, sigma: 0.2, seed: 42);
+        var bars = gbm.Fetch(n, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Generate AR(1) process
         for (int i = 1; i < n; i++)
         {
-            double epsilon = Math.Log(random.Next().Close / 100.0) * 0.1; // Small noise
+            double epsilon = Math.Log(bars[i].Close / bars[i - 1].Close) * 0.5; // incremental log-return scaled as noise
             ar1Data[i] = phi * ar1Data[i - 1] + epsilon;
         }
 

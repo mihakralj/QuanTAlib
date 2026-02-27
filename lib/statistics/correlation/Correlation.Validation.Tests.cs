@@ -609,14 +609,20 @@ public sealed class CorrelationValidationTests : IDisposable
     [Fact]
     public void Correlation_WeakCorrelation_DetectedCorrectly()
     {
-        // Create two series with weak correlation (lots of noise)
+        // Create two series with weak correlation: pure independent noise, no shared trend.
+        // Use two independent GBMs (different seeds) and feed their incremental log-returns directly.
+        // With period=20 and fully independent noise sequences, correlation should be near zero.
         var indicator = new Correlation(20);
-        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 43);
+        var gbmX = new GBM(startPrice: 100.0, sigma: 0.2, seed: 43);
+        var gbmY = new GBM(startPrice: 100.0, sigma: 0.2, seed: 9871);
+        var barsX = gbmX.Fetch(101, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var barsY = gbmY.Fetch(101, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 1; i <= 100; i++)
         {
-            double x = 100.0 + i + Math.Log(random.Next().Close / 100.0) * 50;
-            double y = 100.0 + 0.1 * i + Math.Log(random.Next().Close / 100.0) * 50; // Weak relationship
+            // Pure independent white noise — no shared linear component
+            double x = Math.Log(barsX[i].Close / barsX[i - 1].Close);
+            double y = Math.Log(barsY[i].Close / barsY[i - 1].Close);
             indicator.Update(x, y);
         }
 
@@ -720,7 +726,7 @@ public sealed class CorrelationValidationTests : IDisposable
         double[] taOut = new double[_data.Count];
 
         var retCode = Functions.Correl<double>(closeArr, openArr, 0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
         Assert.True(length > 100, $"TALib Correl produced only {length} values");
@@ -760,7 +766,7 @@ public sealed class CorrelationValidationTests : IDisposable
         {
             double[] taOut = new double[_data.Count];
             var retCode = Functions.Correl<double>(highArr, lowArr, 0..^0, taOut, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
 

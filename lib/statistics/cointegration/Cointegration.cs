@@ -45,8 +45,7 @@ public sealed class Cointegration : AbstractBase
     // ADF regression running sums (period-1 window)
     private readonly RingBuffer _deltaResiduals;
     private readonly RingBuffer _laggedResiduals;
-    private double _sumDelta, _sumLagged;
-    private double _sumDeltaLagged, _sumLagged2;
+    private double _sumDeltaLagged, _sumLagged2, _sumDelta2;
 
     // Last valid values for NaN handling
     private double _lastValidA, _lastValidB;
@@ -113,7 +112,7 @@ public sealed class Cointegration : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesA, double seriesB, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesA), new TValue(DateTime.UtcNow, seriesB), isNew);
+        return Update(new TValue(DateTime.MinValue, seriesA), new TValue(DateTime.MinValue, seriesB), isNew);
     }
 
     /// <inheritdoc/>
@@ -195,19 +194,17 @@ public sealed class Cointegration : AbstractBase
             {
                 double oldDelta = _deltaResiduals.Oldest;
                 double oldLagged = _laggedResiduals.Oldest;
-                _sumDelta -= oldDelta;
-                _sumLagged -= oldLagged;
                 _sumDeltaLagged = FusedMultiplyAdd(-oldDelta, oldLagged, _sumDeltaLagged);
                 _sumLagged2 = FusedMultiplyAdd(-oldLagged, oldLagged, _sumLagged2);
+                _sumDelta2 = FusedMultiplyAdd(-oldDelta, oldDelta, _sumDelta2);
             }
 
             _deltaResiduals.Add(delta);
             _laggedResiduals.Add(lagged);
 
-            _sumDelta += delta;
-            _sumLagged += lagged;
             _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
             _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
+            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
         }
 
         _prevResidual = residual;
@@ -230,30 +227,23 @@ public sealed class Cointegration : AbstractBase
         _hasPrevResidual = _p_hasPrevResidual;
 
         // Update newest values in main buffers
-        if (_bufferA.Count > 0)
+        if (_bufferA.Count == 0)
         {
-            double oldA = _bufferA.Newest;
-            double oldB = _bufferB.Newest;
-
-            _sumA = FusedMultiplyAdd(1.0, a, FusedMultiplyAdd(-1.0, oldA, _sumA));
-            _sumB = FusedMultiplyAdd(1.0, b, FusedMultiplyAdd(-1.0, oldB, _sumB));
-            _sumA2 = FusedMultiplyAdd(a, a, FusedMultiplyAdd(-oldA, oldA, _sumA2));
-            _sumB2 = FusedMultiplyAdd(b, b, FusedMultiplyAdd(-oldB, oldB, _sumB2));
-            _sumAB = FusedMultiplyAdd(a, b, FusedMultiplyAdd(-oldA, oldB, _sumAB));
-
-            _bufferA.UpdateNewest(a);
-            _bufferB.UpdateNewest(b);
+            // Nothing to correct yet; no current bar exists
+            return;
         }
-        else
-        {
-            _bufferA.Add(a);
-            _bufferB.Add(b);
-            _sumA = a;
-            _sumB = b;
-            _sumA2 = a * a;
-            _sumB2 = b * b;
-            _sumAB = a * b;
-        }
+
+        double oldA = _bufferA.Newest;
+        double oldB = _bufferB.Newest;
+
+        _sumA += a - oldA;
+        _sumB += b - oldB;
+        _sumA2 = FusedMultiplyAdd(a, a, FusedMultiplyAdd(-oldA, oldA, _sumA2));
+        _sumB2 = FusedMultiplyAdd(b, b, FusedMultiplyAdd(-oldB, oldB, _sumB2));
+        _sumAB = FusedMultiplyAdd(a, b, FusedMultiplyAdd(-oldA, oldB, _sumAB));
+
+        _bufferA.UpdateNewest(a);
+        _bufferB.UpdateNewest(b);
 
         // Calculate current residual
         double residual = CalculateResidual(a, b);
@@ -264,28 +254,21 @@ public sealed class Cointegration : AbstractBase
             double delta = residual - _prevResidual;
             double lagged = _prevResidual;
 
-            if (_deltaResiduals.Count > 0)
+            if (_deltaResiduals.Count == 0)
             {
-                double oldDelta = _deltaResiduals.Newest;
-                double oldLagged = _laggedResiduals.Newest;
-
-                _sumDelta = FusedMultiplyAdd(1.0, delta, FusedMultiplyAdd(-1.0, oldDelta, _sumDelta));
-                _sumLagged = FusedMultiplyAdd(1.0, lagged, FusedMultiplyAdd(-1.0, oldLagged, _sumLagged));
-                _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, FusedMultiplyAdd(-oldDelta, oldLagged, _sumDeltaLagged));
-                _sumLagged2 = FusedMultiplyAdd(lagged, lagged, FusedMultiplyAdd(-oldLagged, oldLagged, _sumLagged2));
-
-                _deltaResiduals.UpdateNewest(delta);
-                _laggedResiduals.UpdateNewest(lagged);
+                // Nothing to correct yet in ADF buffers; no current entry exists
+                return;
             }
-            else
-            {
-                _deltaResiduals.Add(delta);
-                _laggedResiduals.Add(lagged);
-                _sumDelta = delta;
-                _sumLagged = lagged;
-                _sumDeltaLagged = delta * lagged;
-                _sumLagged2 = lagged * lagged;
-            }
+
+            double oldDelta = _deltaResiduals.Newest;
+            double oldLagged = _laggedResiduals.Newest;
+
+            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, FusedMultiplyAdd(-oldDelta, oldLagged, _sumDeltaLagged));
+            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, FusedMultiplyAdd(-oldLagged, oldLagged, _sumLagged2));
+            _sumDelta2 = FusedMultiplyAdd(delta, delta, FusedMultiplyAdd(-oldDelta, oldDelta, _sumDelta2));
+
+            _deltaResiduals.UpdateNewest(delta);
+            _laggedResiduals.UpdateNewest(lagged);
         }
 
         _prevResidual = residual;
@@ -305,28 +288,15 @@ public sealed class Cointegration : AbstractBase
         double meanA = _sumA / n;
         double meanB = _sumB / n;
 
-        // Calculate variances and covariance
-        double varA = Max(0.0, (_sumA2 / n) - (meanA * meanA));
+        // Calculate variance of B and covariance
         double varB = Max(0.0, (_sumB2 / n) - (meanB * meanB));
         double cov = (_sumAB / n) - (meanA * meanB);
 
-        // Calculate standard deviations
-        double stdA = Sqrt(varA);
-        double stdB = Sqrt(varB);
-
-        // Calculate correlation
-        double correlation = 0.0;
-        double denom = stdA * stdB;
-        if (Abs(denom) > Epsilon)
-        {
-            correlation = cov / denom;
-        }
-
         // Calculate beta and alpha
         double beta = 0.0;
-        if (Abs(stdB) > Epsilon)
+        if (varB > Epsilon)
         {
-            beta = correlation * (stdA / stdB);
+            beta = cov / varB;
         }
         double alpha = meanA - (beta * meanB);
 
@@ -343,42 +313,23 @@ public sealed class Cointegration : AbstractBase
             return double.NaN;
         }
 
-        // Calculate gamma (coefficient in ADF regression)
-        // Δε_t = γ × ε_{t-1} + u_t
-        // γ = Cov(Δε, ε_{t-1}) / Var(ε_{t-1})
-
-        double meanDelta = _sumDelta / n;
-        double meanLagged = _sumLagged / n;
-
-        // Variance of lagged residuals
-        double varLagged = (_sumLagged2 / n) - (meanLagged * meanLagged);
-        if (Abs(varLagged) < Epsilon)
+        if (_sumLagged2 < Epsilon)
         {
             return double.NaN;
         }
 
-        // Covariance of delta and lagged
-        double covDeltaLagged = (_sumDeltaLagged / n) - (meanDelta * meanLagged);
+        // No-intercept ADF regression: Δε_t = γ × ε_{t-1} + u_t
+        double gamma = _sumDeltaLagged / _sumLagged2;
 
-        // Gamma coefficient
-        double gamma = covDeltaLagged / varLagged;
+        // Calculate sum of squared regression errors in O(1)
+        // Sum((Δε_t - γ ε_{t-1})^2) = Sum(Δε_t^2) - 2γ Sum(Δε_t ε_{t-1}) + γ^2 Sum(ε_{t-1}^2)
+        double sumErrorSq = _sumDelta2 - (2.0 * gamma * _sumDeltaLagged) + (gamma * gamma * _sumLagged2);
 
-        // Calculate standard error of gamma
-        // SE(γ) = sqrt(Var(u) / (n × Var(ε_{t-1})))
-        // where u_t = Δε_t - γ × ε_{t-1}
+        // Ensure non-negative due to floating point errors
+        sumErrorSq = Max(0.0, sumErrorSq);
 
-        // Calculate sum of squared regression errors
-        double sumErrorSq = 0.0;
-        for (int i = 0; i < n; i++)
-        {
-            double delta = _deltaResiduals[i];
-            double lagged = _laggedResiduals[i];
-            double error = delta - (gamma * lagged);
-            sumErrorSq = FusedMultiplyAdd(error, error, sumErrorSq);
-        }
-
-        double varError = sumErrorSq / n;
-        double seGammaSq = varError / (n * varLagged);
+        double varError = sumErrorSq / (n - 1);
+        double seGammaSq = varError / _sumLagged2;
 
         if (seGammaSq <= 0 || !double.IsFinite(seGammaSq))
         {
@@ -386,7 +337,7 @@ public sealed class Cointegration : AbstractBase
         }
 
         double seGamma = Sqrt(seGammaSq);
-        if (Abs(seGamma) < Epsilon)
+        if (seGamma < Epsilon)
         {
             return double.NaN;
         }
@@ -396,17 +347,20 @@ public sealed class Cointegration : AbstractBase
 
     private void Resync()
     {
-        // Resync main buffer sums
+        // Resync main buffer sums using span access to avoid per-element modulo in indexer.
+        // Both buffers are always updated together so their sequenced spans align element-by-element.
         _sumA = 0;
         _sumB = 0;
         _sumA2 = 0;
         _sumB2 = 0;
         _sumAB = 0;
 
-        for (int i = 0; i < _bufferA.Count; i++)
+        _bufferA.GetSequencedSpans(out var aFirst, out var aSecond);
+        _bufferB.GetSequencedSpans(out var bFirst, out var bSecond);
+
+        for (int i = 0; i < aFirst.Length; i++)
         {
-            double a = _bufferA[i];
-            double b = _bufferB[i];
+            double a = aFirst[i], b = bFirst[i];
             _sumA += a;
             _sumB += b;
             _sumA2 = FusedMultiplyAdd(a, a, _sumA2);
@@ -414,20 +368,38 @@ public sealed class Cointegration : AbstractBase
             _sumAB = FusedMultiplyAdd(a, b, _sumAB);
         }
 
-        // Resync ADF regression sums
-        _sumDelta = 0;
-        _sumLagged = 0;
+        for (int i = 0; i < aSecond.Length; i++)
+        {
+            double a = aSecond[i], b = bSecond[i];
+            _sumA += a;
+            _sumB += b;
+            _sumA2 = FusedMultiplyAdd(a, a, _sumA2);
+            _sumB2 = FusedMultiplyAdd(b, b, _sumB2);
+            _sumAB = FusedMultiplyAdd(a, b, _sumAB);
+        }
+
+        // Resync ADF regression sums (delta/lagged buffers also always updated together).
         _sumDeltaLagged = 0;
         _sumLagged2 = 0;
+        _sumDelta2 = 0;
 
-        for (int i = 0; i < _deltaResiduals.Count; i++)
+        _deltaResiduals.GetSequencedSpans(out var dFirst, out var dSecond);
+        _laggedResiduals.GetSequencedSpans(out var lFirst, out var lSecond);
+
+        for (int i = 0; i < dFirst.Length; i++)
         {
-            double delta = _deltaResiduals[i];
-            double lagged = _laggedResiduals[i];
-            _sumDelta += delta;
-            _sumLagged += lagged;
+            double delta = dFirst[i], lagged = lFirst[i];
             _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
             _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
+            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
+        }
+
+        for (int i = 0; i < dSecond.Length; i++)
+        {
+            double delta = dSecond[i], lagged = lSecond[i];
+            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
+            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
+            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
         }
     }
 
@@ -450,10 +422,9 @@ public sealed class Cointegration : AbstractBase
         _sumB2 = 0;
         _sumAB = 0;
 
-        _sumDelta = 0;
-        _sumLagged = 0;
         _sumDeltaLagged = 0;
         _sumLagged2 = 0;
+        _sumDelta2 = 0;
 
         _prevResidual = 0;
         _p_prevResidual = 0;
@@ -473,28 +444,7 @@ public sealed class Cointegration : AbstractBase
     /// Calculates cointegration for two time series.
     /// </summary>
     public static TSeries Batch(TSeries seriesA, TSeries seriesB, int period = 20)
-    {
-        if (seriesA.Count != seriesB.Count)
-        {
-            throw new ArgumentException("Series must have the same length", nameof(seriesB));
-        }
-
-        var indicator = new Cointegration(period);
-        var result = new TSeries(seriesA.Count);
-
-        var timesA = seriesA.Times;
-        var valuesA = seriesA.Values;
-        var valuesB = seriesB.Values;
-
-        for (int i = 0; i < seriesA.Count; i++)
-        {
-            var tvalA = new TValue(timesA[i], valuesA[i]);
-            var tvalB = new TValue(timesA[i], valuesB[i]);
-            result.Add(indicator.Update(tvalA, tvalB, isNew: true));
-        }
-
-        return result;
-    }
+        => Calculate(seriesA, seriesB, period).Results;
 
     /// <summary>
     /// Static batch calculation for span-based processing.
@@ -531,9 +481,24 @@ public sealed class Cointegration : AbstractBase
 
     public static (TSeries Results, Cointegration Indicator) Calculate(TSeries seriesA, TSeries seriesB, int period = 20)
     {
+        if (seriesA.Count != seriesB.Count)
+        {
+            throw new ArgumentException("Series must have the same length", nameof(seriesB));
+        }
+
         var indicator = new Cointegration(period);
-        TSeries results = Batch(seriesA, seriesB, period);
-        return (results, indicator);
+        var result = new TSeries(seriesA.Count);
+
+        var timesA = seriesA.Times;
+        var valuesA = seriesA.Values;
+        var valuesB = seriesB.Values;
+
+        for (int i = 0; i < seriesA.Count; i++)
+        {
+            result.Add(indicator.Update(new TValue(timesA[i], valuesA[i]), new TValue(timesA[i], valuesB[i]), isNew: true));
+        }
+
+        return (result, indicator);
     }
 
 }

@@ -15,7 +15,7 @@
 - Parameterized by `period`, `lag` (default 1).
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Validated against mathematical properties and Durbin-Levinson recursion expectations.
 
 > "Strip away the intermediaries, and you'll see the true direct relationship."
 

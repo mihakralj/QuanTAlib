@@ -52,7 +52,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
         // TALib RocP (returns decimal fraction)
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.RocPLookback(TestPeriod);
 
@@ -93,7 +93,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
         // TALib RocP
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.RocPLookback(TestPeriod);
 
@@ -137,7 +137,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
         // TALib RocP
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.RocPLookback(TestPeriod);
 
@@ -179,7 +179,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
 
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.RocPLookback(period);
         var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);

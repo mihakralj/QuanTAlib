@@ -3,9 +3,9 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Two series (X, Y)                       |
 | **Parameters**   | `period` (default 20)                      |
-| **Outputs**      | Single series (Correlation)                       |
+| **Outputs**      | Single series (Pearson r)               |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
 
@@ -15,7 +15,7 @@
 - Parameterized by `period` (default 20).
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Validated against TradingView reference behavior and mathematical invariants.
 
 > "Correlation is not causation, but it sure is a hint. The market doesn't care why two instruments move together—only that they do, and whether that relationship will persist long enough for you to profit from it."
 
@@ -219,7 +219,7 @@ double[] pricesA = new double[1000];
 double[] pricesB = new double[1000];
 double[] output = new double[1000];
 // ... populate inputs ...
-Correlation.Calculate(pricesA.AsSpan(), pricesB.AsSpan(), output.AsSpan(), period: 20);
+Correlation.Batch(pricesA.AsSpan(), pricesB.AsSpan(), output.AsSpan(), period: 20);
 ```
 
 ### Bar Correction Support

@@ -91,25 +91,51 @@ public sealed class RingBuffer : IEnumerable<double>
     }
 
     /// <summary>
-    /// Recalculates the sum by iterating over all elements.
+    /// Recalculates the sum by iterating over all elements using SIMD acceleration.
     /// Useful for correcting floating-point drift after many updates.
     /// Uses GetSequencedSpans to avoid allocation when buffer wraps.
     /// </summary>
     public double RecalculateSum()
     {
-        double sum = 0;
         GetSequencedSpans(out var first, out var second);
+        _sum = SumSpanSimd(first) + SumSpanSimd(second);
+        return _sum;
+    }
 
-        for (int i = 0; i < first.Length; i++)
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double SumSpanSimd(ReadOnlySpan<double> span)
+    {
+        if (span.IsEmpty)
         {
-            sum += first[i];
-        }
-        for (int i = 0; i < second.Length; i++)
-        {
-            sum += second[i];
+            return 0.0;
         }
 
-        _sum = sum;
+        int vectorSize = Vector<double>.Count;
+        var acc = Vector<double>.Zero;
+        int i = 0;
+
+        if (span.Length >= vectorSize)
+        {
+            ref double spanRef = ref MemoryMarshal.GetReference(span);
+            for (; i <= span.Length - vectorSize; i += vectorSize)
+            {
+                acc += Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref spanRef, i));
+            }
+        }
+
+        // Horizontal sum of SIMD accumulator
+        double sum = 0.0;
+        for (int j = 0; j < vectorSize; j++)
+        {
+            sum += acc[j];
+        }
+
+        // Scalar tail
+        for (; i < span.Length; i++)
+        {
+            sum += span[i];
+        }
+
         return sum;
     }
 

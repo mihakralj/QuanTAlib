@@ -48,7 +48,7 @@ public sealed class MomValidationTests(ITestOutputHelper output) : IDisposable
         // TALib Mom
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.Mom<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.MomLookback(TestPeriod);
 
@@ -81,7 +81,7 @@ public sealed class MomValidationTests(ITestOutputHelper output) : IDisposable
         // TALib Mom
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.Mom<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.MomLookback(TestPeriod);
 
@@ -106,7 +106,7 @@ public sealed class MomValidationTests(ITestOutputHelper output) : IDisposable
         // TALib Mom
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.Mom<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.MomLookback(TestPeriod);
 
@@ -129,7 +129,7 @@ public sealed class MomValidationTests(ITestOutputHelper output) : IDisposable
 
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.Mom<double>(tData, 0..^0, tOutput, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.MomLookback(period);
 

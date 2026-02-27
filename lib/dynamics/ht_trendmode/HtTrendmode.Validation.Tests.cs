@@ -162,7 +162,7 @@ public sealed class HtTrendmodeValidationTests : IDisposable
         int[] outInteger = new int[inReal.Length];
 
         var retCode = Functions.HtTrendMode(inReal, 0..^0, outInteger, out var outRange);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         // Compare after warmup
         int lookback = Functions.HtTrendModeLookback();

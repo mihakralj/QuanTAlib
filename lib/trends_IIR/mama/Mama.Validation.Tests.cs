@@ -156,7 +156,7 @@ public class MamaValidationTests
             taMama, taFama,
             out var outRange,
             fastLimit, slowLimit);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         (int offset, int length) = outRange.GetOffsetAndLength(taMama.Length);
         Assert.True(length > 50, $"TALib MAMA produced only {length} values");

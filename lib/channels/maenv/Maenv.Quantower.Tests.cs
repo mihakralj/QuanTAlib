@@ -12,7 +12,7 @@ public class MaenvIndicatorTests
 
         Assert.Equal(20, ind.Period);
         Assert.Equal(1.0, ind.Percentage);
-        Assert.Equal(MaenvType.EMA, ind.MaType);
+        Assert.Equal(MaenvType.EMA, ind.maType);
         Assert.Equal(PriceType.Close, ind.SourceType);
         Assert.True(ind.ShowColdValues);
         Assert.Equal("Maenv - Moving Average Envelope", ind.Name);
@@ -30,7 +30,7 @@ public class MaenvIndicatorTests
     [Fact]
     public void ShortName_ReflectsParameters()
     {
-        var ind = new MaenvIndicator { Period = 12, Percentage = 2.5, MaType = MaenvType.SMA };
+        var ind = new MaenvIndicator { Period = 12, Percentage = 2.5, maType = MaenvType.SMA };
         Assert.Contains("12", ind.ShortName, StringComparison.Ordinal);
         Assert.Contains("2.5", ind.ShortName, StringComparison.Ordinal);
         Assert.Contains("SMA", ind.ShortName, StringComparison.Ordinal);
@@ -209,11 +209,11 @@ public class MaenvIndicatorTests
     }
 
     [Fact]
-    public void AllMaTypes_ProduceFiniteResults()
+    public void AllmaTypes_ProduceFiniteResults()
     {
         foreach (MaenvType maType in Enum.GetValues<MaenvType>())
         {
-            var ind = new MaenvIndicator { Period = 10, Percentage = 2.0, MaType = maType };
+            var ind = new MaenvIndicator { Period = 10, Percentage = 2.0, maType = maType };
             ind.Initialize();
 
             var now = DateTime.UtcNow;

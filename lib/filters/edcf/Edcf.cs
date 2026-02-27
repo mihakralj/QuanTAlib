@@ -33,6 +33,9 @@ public sealed class Edcf : AbstractBase
     private State _s;
     private State _ps;
 
+    /// <summary>
+    /// Initializes an Ehlers Distance Coefficient Filter.
+    /// </summary>
     /// <param name="length">Filter window length (≥ 2). Default: 15.</param>
     public Edcf(int length = 15)
     {
@@ -51,6 +54,9 @@ public sealed class Edcf : AbstractBase
         Name = $"Edcf({_length})";
     }
 
+    /// <summary>
+    /// Initializes an EDCF indicator and subscribes it to a source publisher.
+    /// </summary>
     /// <param name="source">Input data source for event-based chaining.</param>
     /// <param name="length">Filter window length (≥ 2). Default: 15.</param>
     public Edcf(ITValuePublisher source, int length = 15) : this(length)

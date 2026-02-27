@@ -347,7 +347,7 @@ public class MaenvTests
     }
 
     [Fact]
-    public void Maenv_AllMaTypes_ProduceFiniteResults()
+    public void Maenv_AllmaTypes_ProduceFiniteResults()
     {
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: 42);
 

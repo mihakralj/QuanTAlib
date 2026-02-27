@@ -55,7 +55,7 @@ public class TemaValidationTests
 
             // Calculate TA-Lib TEMA
             var retCode = TALib.Functions.Tema<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.TemaLookback(period);
 
@@ -110,7 +110,7 @@ public class TemaValidationTests
 
             // Calculate TA-Lib TEMA
             var retCode = TALib.Functions.Tema<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.TemaLookback(period);
 

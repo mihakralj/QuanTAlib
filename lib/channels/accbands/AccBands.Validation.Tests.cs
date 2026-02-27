@@ -387,7 +387,7 @@ public sealed class AccBandsValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.AccbandsLookback(period);
 
@@ -432,7 +432,7 @@ public sealed class AccBandsValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.AccbandsLookback(period);
 
@@ -466,7 +466,7 @@ public sealed class AccBandsValidationTests : IDisposable
             out var outRange,
             period);
 
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         var (qMiddle, qUpper, qLower) = AccBands.Batch(_testData.Bars, period, 4.0);
 

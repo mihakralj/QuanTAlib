@@ -210,7 +210,7 @@ public sealed class PsarValidationTests
             highData, lowData,
             0..^0, taOut, out var outRange,
             afStep, afMax);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
         Assert.True(length > 100, $"TALib SAR produced only {length} values");

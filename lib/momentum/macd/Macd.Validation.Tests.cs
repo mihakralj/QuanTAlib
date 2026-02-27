@@ -127,7 +127,7 @@ public sealed class MacdValidationTests : IDisposable
 
         // Calculate TA-Lib MACD
         var retCode = TALib.Functions.Macd<double>(tData, 0..^0, outMacd, outSignal, outHist, out var outRange, fastPeriod, slowPeriod, signalPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.MacdLookback(fastPeriod, slowPeriod, signalPeriod);
 

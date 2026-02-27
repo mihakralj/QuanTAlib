@@ -440,7 +440,7 @@ public sealed class MaenvValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_MaTypesDifferent()
+    public void Validate_maTypesDifferent()
     {
         // Different MA types should produce different results (except for first bar)
         var indSma = new Maenv(10, 2.0, MaenvType.SMA);

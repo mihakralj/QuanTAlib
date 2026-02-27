@@ -43,7 +43,7 @@ public sealed class HtitValidationTests : IDisposable
         var output = new double[input.Length];
         var retCode = TALib.Functions.HtTrendline(input, 0..^0, output, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         // Calculate QuanTAlib HTIT
         var htit = new Htit();

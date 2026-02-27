@@ -55,7 +55,7 @@ public class T3ValidationTests
 
             // Calculate TA-Lib T3
             var retCode = TALib.Functions.T3<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period, vFactor);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.T3Lookback(period);
 
@@ -86,7 +86,7 @@ public class T3ValidationTests
 
             // Calculate TA-Lib T3
             var retCode = TALib.Functions.T3<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period, vFactor);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.T3Lookback(period);
 
@@ -113,7 +113,7 @@ public class T3ValidationTests
 
             // Calculate TA-Lib T3
             var retCode = TALib.Functions.T3<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period, vFactor);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.T3Lookback(period);
 

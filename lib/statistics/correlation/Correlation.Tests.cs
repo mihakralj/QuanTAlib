@@ -119,31 +119,33 @@ public class CorrelationTests
     [Fact]
     public void Update_IterativeCorrections_Restore()
     {
-        var indicator = new Correlation(5);
+        var corrected = new Correlation(5);
+        var direct = new Correlation(5);
 
-        // Feed initial data
+        // Feed identical initial state
         for (int i = 0; i < 8; i++)
         {
             double x = 100.0 + i;
             double y = 200.0 + (i * 2);
-            indicator.Update(x, y, true);
+            corrected.Update(x, y, true);
+            direct.Update(x, y, true);
         }
 
-        // Add new bar
-        indicator.Update(108.0, 216.0, true);
+        // Target final value for the current bar
+        const double finalX = 108.0;
+        const double finalY = 216.0;
 
-        // Make multiple corrections
-        for (int j = 0; j < 5; j++)
-        {
-            double x = 108.0 + (j * 0.1);
-            double y = 216.0 + (j * 0.2);
-            _ = indicator.Update(x, y, false);
-        }
+        // Correction path: new bar, several rewrites, final rewrite back to target
+        corrected.Update(finalX, finalY, true);
+        corrected.Update(finalX + 1.0, finalY + 2.0, false);
+        corrected.Update(finalX - 0.5, finalY - 1.0, false);
+        corrected.Update(finalX + 0.25, finalY + 0.5, false);
+        corrected.Update(finalX, finalY, false);
 
-        // Final correction back to original values
-        indicator.Update(108.0, 216.0, false);
+        // Direct path: same initial state + one new bar with final value
+        direct.Update(finalX, finalY, true);
 
-        Assert.True(double.IsFinite(indicator.Last.Value));
+        Assert.Equal(direct.Last.Value, corrected.Last.Value, 1e-12);
     }
 
     [Fact]
@@ -159,9 +161,9 @@ public class CorrelationTests
 
         _ = indicator.Last.Value;
 
-        // Add NaN - should use last valid value
+        // Add NaN - should use last valid value, result must be finite
         var result = indicator.Update(double.NaN, double.NaN, true);
-        Assert.True(double.IsFinite(result.Value) || double.IsNaN(result.Value));
+        Assert.True(double.IsFinite(result.Value));
     }
 
     [Fact]
@@ -175,9 +177,9 @@ public class CorrelationTests
             indicator.Update(100.0 + i, 200.0 + i, true);
         }
 
-        // Add Infinity - should use last valid value
+        // Add Infinity - should use last valid value, result must be finite
         var result = indicator.Update(double.PositiveInfinity, double.NegativeInfinity, true);
-        Assert.True(double.IsFinite(result.Value) || double.IsNaN(result.Value));
+        Assert.True(double.IsFinite(result.Value));
     }
 
     [Fact]
@@ -189,11 +191,13 @@ public class CorrelationTests
     }
 
     [Fact]
-    public void IsHot_AtLeastTwoValues_ReturnsTrue()
+    public void IsHot_AtPeriod_ReturnsTrue()
     {
         var indicator = new Correlation(10);
-        indicator.Update(100.0, 200.0, true);
-        indicator.Update(101.0, 201.0, true);
+        for (int i = 0; i < 10; i++)
+        {
+            indicator.Update(100.0 + i, 200.0 + i, true);
+        }
         Assert.True(indicator.IsHot);
     }
 

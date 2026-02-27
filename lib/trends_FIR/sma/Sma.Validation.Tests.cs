@@ -122,7 +122,7 @@ public sealed class SmaValidationTests : IDisposable
 
             // Calculate TA-Lib SMA
             var retCode = TALib.Functions.Sma<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.SmaLookback(period);
 
@@ -153,7 +153,7 @@ public sealed class SmaValidationTests : IDisposable
 
             // Calculate TA-Lib SMA
             var retCode = TALib.Functions.Sma<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.SmaLookback(period);
 
@@ -180,7 +180,7 @@ public sealed class SmaValidationTests : IDisposable
 
             // Calculate TA-Lib SMA
             var retCode = TALib.Functions.Sma<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.SmaLookback(period);
 

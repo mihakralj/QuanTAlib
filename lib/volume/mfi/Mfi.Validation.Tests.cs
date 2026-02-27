@@ -52,7 +52,7 @@ public class MfiValidationTests
         var retCode = Functions.Mfi<double>(
             highData, lowData, closeData, volumeData,
             0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         (int offset, int length) = outRange.GetOffsetAndLength(taOut.Length);
         Assert.True(length > 100, $"TALib MFI produced only {length} values");

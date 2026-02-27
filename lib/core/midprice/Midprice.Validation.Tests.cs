@@ -47,7 +47,7 @@ public sealed class MidpriceValidationTests : IDisposable
         // TA-Lib MidPrice
         var taOut = new double[high.Length];
         var retCode = Functions.MidPrice(high.AsSpan(), low.AsSpan(), 0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
         var (offset, length) = outRange.GetOffsetAndLength(taOut.Length);
 
         // QuanTAlib batch span
@@ -76,7 +76,7 @@ public sealed class MidpriceValidationTests : IDisposable
 
         var taOut = new double[high.Length];
         var retCode = Functions.MidPrice(high.AsSpan(), low.AsSpan(), 0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
         var (offset, length) = outRange.GetOffsetAndLength(taOut.Length);
 
         var qlOut = new double[high.Length];

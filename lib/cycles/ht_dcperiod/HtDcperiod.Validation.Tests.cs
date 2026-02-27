@@ -42,7 +42,7 @@ public sealed class HtDcperiodValidationTests : IDisposable
         var outPeriod = new double[input.Length];
         var rc = TALib.Functions.HtDcPeriod(input, 0..^0, outPeriod, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, rc);
+        Assert.Equal(TALib.Core.RetCode.Success, rc);
 
         var q = new HtDcperiod();
         var qSeries = q.Update(_data.Data);
@@ -65,7 +65,7 @@ public sealed class HtDcperiodValidationTests : IDisposable
         var outPeriod = new double[input.Length];
         var rc = TALib.Functions.HtDcPeriod(input, 0..^0, outPeriod, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, rc);
+        Assert.Equal(TALib.Core.RetCode.Success, rc);
 
         var streaming = new List<double>(_data.Data.Count);
         var q = new HtDcperiod();

@@ -29,13 +29,16 @@ public sealed class Ztest : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly TValuePublishedHandler _handler;
     private double _lastValidValue;
-
-    [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LastValidTStat, double LastValidValue);
-    private State _s, _ps;
+    private double _sumSq;
+    private double _p_sumSq;
+    private int _updateCount;
+    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.Count >= _period;
 
+    /// <summary>
+    /// Initializes a rolling one-sample t-test indicator.
+    /// </summary>
     /// <param name="period">Lookback period (default 30, must be >= 2)</param>
     /// <param name="mu0">Hypothesized population mean (default 0.0)</param>
     public Ztest(int period = 30, double mu0 = 0.0)
@@ -50,11 +53,14 @@ public sealed class Ztest : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"Ztest({period},{mu0:G})";
         WarmupPeriod = period;
-        _s = new State(0.0, 0.0);
-        _ps = _s;
+        _sumSq = 0.0;
+        _p_sumSq = 0.0;
         _handler = Handle;
     }
 
+    /// <summary>
+    /// Initializes a rolling one-sample t-test indicator and subscribes it to a source publisher.
+    /// </summary>
     /// <param name="source">Source indicator for event-based chaining</param>
     /// <param name="period">Lookback period (default 30)</param>
     /// <param name="mu0">Hypothesized population mean (default 0.0)</param>
@@ -66,16 +72,6 @@ public sealed class Ztest : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew)
-        {
-            _ps = _s;
-        }
-        else
-        {
-            _s = _ps;
-            _lastValidValue = _s.LastValidValue;
-        }
-
         double value = input.Value;
 
         if (!double.IsFinite(value))
@@ -87,11 +83,37 @@ public sealed class Ztest : AbstractBase
             _lastValidValue = value;
         }
 
-        _buffer.Add(value, isNew);
+        if (isNew)
+        {
+            _p_sumSq = _sumSq;
+            _buffer.Snapshot();
+        }
+        else
+        {
+            _sumSq = _p_sumSq;
+            _buffer.Restore();
+        }
+
+        if (_buffer.IsFull)
+        {
+            double oldVal = _buffer.Oldest;
+            _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+        }
+
+        _buffer.Add(value);
+        _sumSq = Math.FusedMultiplyAdd(value, value, _sumSq);
+
+        if (isNew)
+        {
+            _updateCount++;
+            if (_updateCount % ResyncInterval == 0)
+            {
+                Resync();
+            }
+        }
 
         double result;
-        ReadOnlySpan<double> data = _buffer.GetSpan();
-        int n = data.Length;
+        int n = _buffer.Count;
 
         if (n < 2)
         {
@@ -99,27 +121,19 @@ public sealed class Ztest : AbstractBase
         }
         else
         {
-            double sum = 0.0;
-            double sumSq = 0.0;
-
-            for (int i = 0; i < n; i++)
-            {
-                double v = data[i];
-                sum += v;
-                sumSq += v * v;
-            }
-
+            double sum = _buffer.Sum;
             double mean = sum / n;
-            // Population variance first: E[X²] - (E[X])²
-            double popVariance = (sumSq / n) - (mean * mean);
 
-            if (popVariance < 0.0)
+            double numerator = _sumSq - (sum * sum) / n;
+            if (numerator < 0)
             {
-                popVariance = 0.0;
+                numerator = 0;
             }
 
             // Bessel correction: sample variance = popVariance * n / (n - 1)
-            double sampleStdDev = Math.Sqrt(popVariance * n / (n - 1));
+            // which is numerator / (n - 1)
+            double sampleVariance = numerator / (n - 1);
+            double sampleStdDev = Math.Sqrt(sampleVariance);
             double standardError = sampleStdDev / Math.Sqrt(n);
 
             if (standardError > 1e-10)
@@ -132,7 +146,6 @@ public sealed class Ztest : AbstractBase
             }
         }
 
-        _s = new State(result, _lastValidValue);
         Last = new TValue(input.Time, result);
         PubEvent(Last, isNew);
         return Last;
@@ -140,17 +153,30 @@ public sealed class Ztest : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        var result = new TSeries(source.Count);
-        ReadOnlySpan<double> values = source.Values;
-        ReadOnlySpan<long> times = source.Times;
-
-        for (int i = 0; i < source.Count; i++)
+        if (source.Count == 0)
         {
-            var tv = Update(new TValue(new DateTime(times[i], DateTimeKind.Utc), values[i]), true);
-            result.Add(tv, true);
+            return new TSeries();
         }
 
-        return result;
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+
+        Batch(source.Values, vSpan, _buffer.Capacity, _mu0);
+        source.Times.CopyTo(tSpan);
+
+        int primeStart = Math.Max(0, len - _buffer.Capacity);
+        for (int i = primeStart; i < len; i++)
+        {
+            Update(source[i]);
+        }
+
+        return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -160,9 +186,22 @@ public sealed class Ztest : AbstractBase
     {
         _buffer.Clear();
         _lastValidValue = 0;
-        _s = new State(0.0, 0.0);
-        _ps = _s;
+        _sumSq = 0.0;
+        _p_sumSq = 0.0;
+        _updateCount = 0;
         Last = default;
+    }
+
+    private void Resync()
+    {
+        var span = _buffer.GetSpan();
+        double sumSq = 0;
+        for (int i = 0; i < span.Length; i++)
+        {
+            sumSq += span[i] * span[i];
+        }
+        _sumSq = sumSq;
+        _buffer.RecalculateSum();
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -221,6 +260,8 @@ public sealed class Ztest : AbstractBase
             int head = 0;
             int count = 0;
             double lastValid = 0.0;
+            double sum = 0.0;
+            double sumSq = 0.0;
 
             for (int i = 0; i < source.Length; i++)
             {
@@ -235,17 +276,36 @@ public sealed class Ztest : AbstractBase
                     lastValid = val;
                 }
 
-                if (count < ringSize)
+                if (count == ringSize)
                 {
-                    ring[count] = val;
-                    count++;
+                    double oldVal = ring[head];
+                    sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + val);
+                    sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
                 }
                 else
                 {
-                    ring[head] = val;
+                    count++;
+                    sum += val;
                 }
 
+                ring[head] = val;
+                sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
+
                 head = (head + 1) % ringSize;
+
+                if ((i + 1) % 1000 == 0 && count == ringSize)
+                {
+                    double resyncSum = 0;
+                    double resyncSumSq = 0;
+                    for (int j = 0; j < ringSize; j++)
+                    {
+                        double v = ring[j];
+                        resyncSum += v;
+                        resyncSumSq += v * v;
+                    }
+                    sum = resyncSum;
+                    sumSq = resyncSumSq;
+                }
 
                 if (count < 2)
                 {
@@ -253,27 +313,18 @@ public sealed class Ztest : AbstractBase
                     continue;
                 }
 
-                double sum = 0.0;
-                double sumSq = 0.0;
                 int n = count;
-
-                for (int j = 0; j < n; j++)
-                {
-                    double v = ring[j];
-                    sum += v;
-                    sumSq += v * v;
-                }
-
                 double mean = sum / n;
-                double popVariance = (sumSq / n) - (mean * mean);
 
-                if (popVariance < 0.0)
+                double numerator = sumSq - (sum * sum) / n;
+                if (numerator < 0)
                 {
-                    popVariance = 0.0;
+                    numerator = 0;
                 }
 
                 // Bessel correction: sample variance = popVariance * n / (n - 1)
-                double sampleStdDev = Math.Sqrt(popVariance * n / (n - 1));
+                double sampleVariance = numerator / (n - 1);
+                double sampleStdDev = Math.Sqrt(sampleVariance);
                 double standardError = sampleStdDev / Math.Sqrt(n);
 
                 if (standardError > 1e-10)

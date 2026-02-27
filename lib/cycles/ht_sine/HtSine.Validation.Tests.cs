@@ -42,7 +42,7 @@ public sealed class HtSineValidationTests : IDisposable
         var outLeadSine = new double[input.Length];
         var retCode = TALib.Functions.HtSine(input, 0..^0, outSine, outLeadSine, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         // Calculate QuanTAlib HtSine
         var htSine = new HtSine();
@@ -83,7 +83,7 @@ public sealed class HtSineValidationTests : IDisposable
         var outLeadSine = new double[input.Length];
         var retCode = TALib.Functions.HtSine(input, 0..^0, outSine, outLeadSine, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         // Calculate QuanTAlib HtSine Streaming
         var htSine = new HtSine();

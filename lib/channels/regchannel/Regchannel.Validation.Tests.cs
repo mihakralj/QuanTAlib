@@ -559,7 +559,7 @@ public sealed class RegchannelValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.LinearRegLookback(period);
 
@@ -593,7 +593,7 @@ public sealed class RegchannelValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.LinearRegSlopeLookback(period);
 

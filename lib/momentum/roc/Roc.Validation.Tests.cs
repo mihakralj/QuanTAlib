@@ -309,7 +309,7 @@ public sealed class RocValidationTests(ITestOutputHelper output) : IDisposable
         // TALib MOM (absolute momentum = price - prevPrice)
         double[] taOut = new double[tData.Length];
         var retCode = Functions.Mom<double>(tData, 0..^0, taOut, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = Functions.MomLookback(TestPeriod);
         ValidationHelper.VerifyData(qOutput, taOut, outRange, lookback);
@@ -333,7 +333,7 @@ public sealed class RocValidationTests(ITestOutputHelper output) : IDisposable
         // TALib MOM
         double[] taOut = new double[tData.Length];
         var retCode = Functions.Mom<double>(tData, 0..^0, taOut, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = Functions.MomLookback(TestPeriod);
         ValidationHelper.VerifyData(qResults, taOut, outRange, lookback);
@@ -355,7 +355,7 @@ public sealed class RocValidationTests(ITestOutputHelper output) : IDisposable
 
         double[] taOut = new double[tData.Length];
         var retCode = Functions.Mom<double>(tData, 0..^0, taOut, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = Functions.MomLookback(period);
         ValidationHelper.VerifyData(qOutput, taOut, outRange, lookback);

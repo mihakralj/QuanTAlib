@@ -43,8 +43,8 @@ public sealed class ApoValidationTests : IDisposable
         double[] input = _testData.Data.Values.ToArray();
         double[] output = new double[input.Length];
 
-        // TA-Lib APO: double[] inReal, int optInFastPeriod, int optInSlowPeriod, int optInMAType
-        // MAType 1 = EMA
+        // TA-Lib APO: double[] inReal, int optInFastPeriod, int optInSlowPeriod, int optInTALib.Core.MAType
+        // TALib.Core.MAType 1 = EMA
         var retCode = TALib.Functions.Apo<double>(input, 0..^0, output, out var outRange, fastPeriod, slowPeriod, TALib.Core.MAType.Ema);
         Assert.Equal(TALib.Core.RetCode.Success, retCode);
 

@@ -39,12 +39,13 @@ public sealed class Correlation : AbstractBase
 
     // Last valid values for NaN handling
     private double _lastValidX, _lastValidY;
+    private double _p_lastValidX, _p_lastValidY;
 
     private int _updateCount;
     private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
-    public override bool IsHot => _bufferX.Count >= 2;
+    public override bool IsHot => _bufferX.Count >= WarmupPeriod;
 
     /// <summary>
     /// Creates a new Correlation indicator.
@@ -74,6 +75,17 @@ public sealed class Correlation : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue seriesX, TValue seriesY, bool isNew = true)
     {
+        if (isNew)
+        {
+            _p_lastValidX = _lastValidX;
+            _p_lastValidY = _lastValidY;
+        }
+        else
+        {
+            _lastValidX = _p_lastValidX;
+            _lastValidY = _p_lastValidY;
+        }
+
         double x = SanitizeX(seriesX.Value);
         double y = SanitizeY(seriesY.Value);
 
@@ -99,7 +111,7 @@ public sealed class Correlation : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesX, double seriesY, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesX), new TValue(DateTime.UtcNow, seriesY), isNew);
+        return Update(new TValue(DateTime.MinValue, seriesX), new TValue(DateTime.MinValue, seriesY), isNew);
     }
 
     /// <inheritdoc/>
@@ -175,14 +187,7 @@ public sealed class Correlation : AbstractBase
     {
         if (_bufferX.Count == 0)
         {
-            // No data yet, just add
-            _bufferX.Add(x);
-            _bufferY.Add(y);
-            _sumX = x;
-            _sumY = y;
-            _sumX2 = x * x;
-            _sumY2 = y * y;
-            _sumXY = x * y;
+            // Nothing to correct yet; no current bar exists
             return;
         }
 
@@ -190,12 +195,12 @@ public sealed class Correlation : AbstractBase
         double oldX = _bufferX.Newest;
         double oldY = _bufferY.Newest;
 
-        // Update the running sums: remove old, add new
+        // Update the running sums: remove old, add new (using FMA for consistency with ProcessNewBar)
         _sumX = _sumX - oldX + x;
         _sumY = _sumY - oldY + y;
-        _sumX2 = _sumX2 - (oldX * oldX) + (x * x);
-        _sumY2 = _sumY2 - (oldY * oldY) + (y * y);
-        _sumXY = _sumXY - (oldX * oldY) + (x * y);
+        _sumX2 = FusedMultiplyAdd(x, x, FusedMultiplyAdd(-oldX, oldX, _sumX2));
+        _sumY2 = FusedMultiplyAdd(y, y, FusedMultiplyAdd(-oldY, oldY, _sumY2));
+        _sumXY = FusedMultiplyAdd(x, y, FusedMultiplyAdd(-oldX, oldY, _sumXY));
 
         // Update the buffer values
         _bufferX.UpdateNewest(x);
@@ -278,6 +283,8 @@ public sealed class Correlation : AbstractBase
 
         _lastValidX = 0;
         _lastValidY = 0;
+        _p_lastValidX = 0;
+        _p_lastValidY = 0;
 
         _updateCount = 0;
         Last = default;
@@ -287,28 +294,7 @@ public sealed class Correlation : AbstractBase
     /// Calculates correlation for two time series.
     /// </summary>
     public static TSeries Batch(TSeries seriesX, TSeries seriesY, int period = 20)
-    {
-        if (seriesX.Count != seriesY.Count)
-        {
-            throw new ArgumentException("Series must have the same length", nameof(seriesY));
-        }
-
-        var indicator = new Correlation(period);
-        var result = new TSeries(seriesX.Count);
-
-        var timesX = seriesX.Times;
-        var valuesX = seriesX.Values;
-        var valuesY = seriesY.Values;
-
-        for (int i = 0; i < seriesX.Count; i++)
-        {
-            var tvalX = new TValue(timesX[i], valuesX[i]);
-            var tvalY = new TValue(timesX[i], valuesY[i]);
-            result.Add(indicator.Update(tvalX, tvalY, isNew: true));
-        }
-
-        return result;
-    }
+        => Calculate(seriesX, seriesY, period).Results;
 
     /// <summary>
     /// Static batch calculation for span-based processing.
@@ -345,9 +331,24 @@ public sealed class Correlation : AbstractBase
 
     public static (TSeries Results, Correlation Indicator) Calculate(TSeries seriesX, TSeries seriesY, int period = 20)
     {
+        if (seriesX.Count != seriesY.Count)
+        {
+            throw new ArgumentException("Series must have the same length", nameof(seriesY));
+        }
+
         var indicator = new Correlation(period);
-        TSeries results = Batch(seriesX, seriesY, period);
-        return (results, indicator);
+        var result = new TSeries(seriesX.Count);
+
+        var timesX = seriesX.Times;
+        var valuesX = seriesX.Values;
+        var valuesY = seriesY.Values;
+
+        for (int i = 0; i < seriesX.Count; i++)
+        {
+            result.Add(indicator.Update(new TValue(timesX[i], valuesX[i]), new TValue(timesX[i], valuesY[i]), isNew: true));
+        }
+
+        return (result, indicator);
     }
 
 }

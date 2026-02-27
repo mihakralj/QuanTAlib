@@ -11,11 +11,11 @@
 
 ### TL;DR
 
-- ````markdown
+- `Stderr` computes the standard error of an OLS regression fit over a rolling window.
 - Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Output range: non-negative real values (or 0 during insufficient/degenerate windows).
+- Requires `period` bars of warmup before first stable output (`IsHot = true`).
+- Validated against an internal brute-force OLS reference implementation.
 
 > "How confident are you in your line of best fit?"
 
@@ -58,16 +58,16 @@ $$ b = \frac{\sum y - m \sum x}{N} $$
 
 ### Operation Count (Streaming Mode)
 
-Standard Error = StdDev / sqrt(N), computed atop the O(1) StdDev computation.
+`Stderr` keeps regression sums in O(1), then performs an O(N) residual pass to compute SSR.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| O(1) StdDev computation | 1 | 28 cy | ~28 cy |
-| Divide by sqrt(N) (precomputed) | 1 | 4 cy | ~4 cy |
-| NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~34 cy** |
+| Running-sum updates | O(1) | — | small |
+| Residual SSR scan | O(N) | dominant | dominant |
+| Final sqrt/divide | O(1) | — | small |
+| **Total** | **O(N)** | — | period-dependent |
 
-O(1) per update. sqrt(N) is precomputed in the constructor. Negligible additional cost over StdDev.
+Per-update complexity is O(N) because residuals must be re-evaluated for the current window.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
@@ -80,8 +80,9 @@ O(1) per update. sqrt(N) is precomputed in the constructor. Negligible additiona
 
 | Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TA-Lib** | ✅ | Matches `STDERR` output. |
-| **TradingView** | ✅ | Matches Pine Script `ta.stdev` of residuals. |
+| **TA-Lib** | ⚠️ | Formula differs (`stderr` in Tulip/other libs often means standard error of mean). |
+| **TradingView** | ✅ | Matches Pine-style OLS residual standard error behavior for this implementation. |
+| **Reference OLS** | ✅ | Cross-validated against brute-force OLS residual calculation. |
 
 ## Usage
 
@@ -101,5 +102,4 @@ double value = stderr.Last.Value;
 ## See Also
 
 * **LinReg** — Linear Regression Curve (the trend line itself).
-* **StdDev** — Standard Deviation (dispersion from the mean, not from a regression line).
-````
+- **StdDev** — Standard Deviation (dispersion from the mean, not from a regression line).

@@ -258,10 +258,10 @@ public sealed class StochValidationTests : IDisposable
     // --- I) TALib cross-validation ---
 
     /// <summary>
-    /// TALib Stoch(fastKPeriod=14, slowKPeriod=1, slowKMAType=SMA, slowDPeriod=3, slowDMAType=SMA)
+    /// TALib Stoch(fastKPeriod=14, slowKPeriod=1, slowKTALib.Core.MAType=SMA, slowDPeriod=3, slowDTALib.Core.MAType=SMA)
     /// with slowKPeriod=1 (no K smoothing) produces raw %K == our K output.
     /// slowD with SMA(3) matches our D output.
-    /// Note: TALib Stoch uses SMA for both K and D smoothing (MAType=SMA).
+    /// Note: TALib Stoch uses SMA for both K and D smoothing (TALib.Core.MAType=SMA).
     /// QuanTAlib Stoch also uses SMA. With slowKPeriod=1 (identity) the K lines match directly.
     /// </summary>
     [Fact]

@@ -126,11 +126,11 @@ public sealed class PpoValidationTests(ITestOutputHelper output) : IDisposable
             qPpo.Add(ppo.Last.Value);
         }
 
-        // TA-Lib PPO (must specify MAType.Ema — default is SMA which differs from our EMA-based PPO)
-        var retCode = TALib.Functions.Ppo<double>(tData, 0..^0, outPpo, out var outRange, fastPeriod, slowPeriod, Core.MAType.Ema);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        // TA-Lib PPO (must specify TALib.Core.MAType.Ema — default is SMA which differs from our EMA-based PPO)
+        var retCode = TALib.Functions.Ppo<double>(tData, 0..^0, outPpo, out var outRange, fastPeriod, slowPeriod, TALib.Core.MAType.Ema);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
-        int lookback = TALib.Functions.PpoLookback(fastPeriod, slowPeriod, Core.MAType.Ema);
+        int lookback = TALib.Functions.PpoLookback(fastPeriod, slowPeriod, TALib.Core.MAType.Ema);
 
         // Compare
         ValidationHelper.VerifyData(qPpo, outPpo, outRange, lookback);

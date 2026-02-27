@@ -19,15 +19,21 @@ public delegate void BiInputBatchDelegate(
     int period);
 
 /// <summary>
-/// Abstract base class for bi-input indicators (indicators that require two inputs like error metrics).
+/// Abstract base class for error-metric indicators that compare two input series (actual vs predicted).
 /// Provides common infrastructure for RingBuffer-based sliding window calculations with O(1) updates.
 /// </summary>
 /// <remarks>
-/// This base class eliminates code duplication across error indicators (MAE, MSE, RMSE, MAPE, etc.)
-/// by providing:
-/// - Common state management with bar correction (isNew semantics)
-/// - RingBuffer-based sliding window with running sum
-/// - Periodic resync for floating-point drift correction
+/// This base class is designed specifically for error metrics (MAE, MSE, RMSE, MAPE, SMAPE, etc.)
+/// where each bar contributes a single scalar error value to a running mean.
+///
+/// It is NOT intended for statistical bi-input indicators (Correlation, Cointegration) which
+/// maintain multiple running sums (Σx, Σy, Σx², Σy², Σxy) and have different state-restoration
+/// semantics — those indicators manage their own state directly.
+///
+/// Infrastructure provided:
+/// - _p_state / _buffer.Snapshot() / _buffer.Restore() for bar correction (isNew semantics)
+/// - RingBuffer-based sliding window with a single running sum
+/// - Periodic resync every 1000 updates for floating-point drift correction
 /// - NaN/Infinity handling with last-valid-value substitution
 /// - Template Method pattern: subclasses only implement ComputeError and optionally PostProcess
 /// </remarks>

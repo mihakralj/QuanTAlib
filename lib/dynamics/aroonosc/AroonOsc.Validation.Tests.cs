@@ -54,7 +54,7 @@ public sealed class AroonOscValidationTests : IDisposable
 
         // TA-Lib AroonOsc
         var retCodeOsc = TALib.Functions.AroonOsc(hData, lData, 0..^0, outAroonOsc, out var outRangeOsc, 14);
-        Assert.Equal(Core.RetCode.Success, retCodeOsc);
+        Assert.Equal(TALib.Core.RetCode.Success, retCodeOsc);
 
         int lookback = TALib.Functions.AroonLookback(14);
 

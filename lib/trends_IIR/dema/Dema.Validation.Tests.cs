@@ -73,7 +73,7 @@ public sealed class DemaValidationTests : IDisposable
 
             // Calculate TA-Lib DEMA
             var retCode = TALib.Functions.Dema<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.DemaLookback(period);
 
@@ -144,7 +144,7 @@ public sealed class DemaValidationTests : IDisposable
 
             // Calculate TA-Lib DEMA
             var retCode = TALib.Functions.Dema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.DemaLookback(period);
 

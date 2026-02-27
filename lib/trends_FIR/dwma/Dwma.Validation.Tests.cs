@@ -163,7 +163,7 @@ public sealed class DwmaValidationTests : IDisposable
             // TA-Lib WMA 1
             double[] wma1Output = new double[_testData.RawData.Length];
             var retCode1 = TALib.Functions.Wma(_testData.RawData.Span, 0..^0, wma1Output, out var outRange1, period);
-            Assert.Equal(Core.RetCode.Success, retCode1);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode1);
 
             // Prepare input for WMA 2 (only valid data from WMA 1)
             int count1 = outRange1.End.Value - outRange1.Start.Value;
@@ -173,7 +173,7 @@ public sealed class DwmaValidationTests : IDisposable
             // TA-Lib WMA 2
             double[] dwmaOutput = new double[wma1Valid.Length];
             var retCode2 = TALib.Functions.Wma(wma1Valid, 0..^0, dwmaOutput, out _, period);
-            Assert.Equal(Core.RetCode.Success, retCode2);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode2);
 
             int totalLookback = (period - 1) * 2;
             ValidationHelper.VerifyData(qResult, dwmaOutput, totalLookback, tolerance: ValidationHelper.TalibTolerance);

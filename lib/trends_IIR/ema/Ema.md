@@ -1,25 +1,56 @@
 # EMA: Exponential Moving Average
 
+> "The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?"
+
+## Quick Reference
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `period`                      |
-| **Outputs**      | Single series (Ema)                       |
-| **Output range** | Tracks input                     |
-| **Warmup**       | `period` bars                          |
+| **Parameters**   | `period` (int > 0)               |
+| **Outputs**      | Single series (Ema)                    |
+| **Output range** | Tracks input                            |
+| **Warmup**       | `period` bars                         |
 
-### TL;DR
+## Key Takeaways
 
-- The Exponential Moving Average is the reference standard for trend-following indicators.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- **Lag Reduction**: Cuts SMA lag by ~50% through exponential weighting
+- **Smooth Response**: Reacts faster to price changes than SMA
+- **No Drop-off Effect**: Eliminates window boundary discontinuities
+- **Bias Compensation**: Mathematically correct warmup (unlike most libraries)
+- **Computational Efficiency**: O(1) per update with FMA optimization
+- **Universal Standard**: Foundation for MACD, RSI, and countless other indicators
 
-> "The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?"
+## What It Measures and Why It Matters
 
-The Exponential Moving Average is the reference standard for trend-following indicators. Unlike the SMA, which treats data from 10 days ago with the same reverence as data from 10 seconds ago (a touching but mathematically questionable form of loyalty), the EMA applies exponentially decaying weights to older prices. The result: faster reaction to new information without the "drop-off effect" that makes SMA users twitch nervously around window boundaries. Simple, well-understood, computationally cheap. The indicator equivalent of a reliable sedan: not glamorous, but it starts every morning.
+The EMA measures the exponentially weighted average trend of price action, giving more importance to recent data while never completely discarding historical information. It matters because traditional simple moving averages suffer from the "drop-off effect"—sudden jumps when old data expires from the calculation window. The EMA's infinite impulse response eliminates this discontinuity, providing smoother, more reliable trend signals. This makes it the gold standard for trend-following systems, serving as the computational backbone for most technical analysis tools.
+
+## Interpretation and Signals
+
+### Trend Direction
+
+- **Above Price**: Potential uptrend (EMA as support)
+- **Below Price**: Potential downtrend (EMA as resistance)
+- **Slope Analysis**: Positive slope = bullish momentum, negative slope = bearish
+
+### Crossover Signals
+
+- **Price crosses above EMA**: Bullish momentum signal
+- **Price crosses below EMA**: Bearish momentum signal
+- **Multiple EMAs**: Fast EMA over slow EMA = bullish trend
+
+### Divergence Analysis
+
+- **Bullish Divergence**: Price makes lower low, EMA makes higher low
+- **Bearish Divergence**: Price makes higher high, EMA makes lower high
+- **Hidden Divergence**: Price makes higher low, EMA makes lower low (continuation)
+
+### Signal Quality Factors
+
+- **Trend Strength**: Distance between price and EMA
+- **Slope Steepness**: Rate of EMA angle change
+- **Volume Confirmation**: Higher volume validates EMA breakouts
 
 ## Historical Context
 
@@ -164,6 +195,45 @@ QuanTAlib matches C-based libraries (Tulip, TA-Lib) in throughput while providin
 | **Timeliness** | 7/10 | Lag of ~N/2 bars |
 | **Overshoot** | 8/10 | Minimal on reversals |
 | **Smoothness** | 7/10 | Good noise rejection |
+
+## Related Indicators
+
+- **SMA**: Simple moving average (equal weights, maximum lag)
+- **DEMA**: Double exponential (less lag, more overshoot)
+- **TEMA**: Triple exponential (minimum lag, maximum overshoot)
+- **WMA**: Weighted moving average (linear decay, FIR)
+- **KAMA**: Adaptive smoothing based on volatility
+- **VIDYA**: Variable index dynamic average
+- **HMA**: Hull moving average (triple smoothing)
+
+## Reference Calculation Table
+
+| Period | Price Sequence | α | EMA Values | Notes |
+|--------|----------------|---|------------|-------|
+| 5 | 10 | 0.333 | 10.00 | Initial value |
+| 5 | 10, 20 | 0.333 | 10.00, 13.33 | First calculation |
+| 5 | 10, 20, 30 | 0.333 | 10.00, 13.33, 18.52 | Trend acceleration |
+| 5 | 10, 20, 30, 40 | 0.333 | 10.00, 13.33, 18.52, 24.69 | Convergence |
+| 5 | 10, 20, 30, 40, 50 | 0.333 | 10.00, 13.33, 18.52, 24.69, 31.13 | Full convergence |
+
+*α = 2/(5+1) = 0.333, Decay = 1-α = 0.667*
+
+## FAQ
+
+**Q: How does EMA differ from SMA?**
+A: EMA gives exponentially decreasing weights to older data, eliminating the "drop-off effect" where SMA jumps when old data expires. EMA responds faster and smoother.
+
+**Q: Why does QuanTAlib's EMA differ from other libraries initially?**
+A: QuanTAlib uses mathematical bias compensation for accurate warmup values. Other libraries approximate. Results converge after ~3×period bars.
+
+**Q: What's the optimal EMA period?**
+A: No universal optimum. Shorter periods (<10) for scalping, longer periods (>50) for trend following. Match to your timeframe and strategy horizon.
+
+**Q: Can EMA be used for mean reversion?**
+A: Poorly. EMA follows trends. For mean reversion, consider Bollinger Bands or RSI around EMA levels.
+
+**Q: How does bar correction work?**
+A: Use `isNew=false` when updating the same bar with revised prices. QuanTAlib maintains previous state for atomic rollback.
 
 ## Validation
 

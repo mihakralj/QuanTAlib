@@ -672,7 +672,7 @@ public class TrValidationTests
         double[] output = new double[high.Length];
 
         var retCode = Functions.TRange<double>(high, low, close, 0..^0, output, out var outRange);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = Functions.TRangeLookback();
 

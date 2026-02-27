@@ -122,7 +122,7 @@ public sealed class EmaValidationTests : IDisposable
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.EmaLookback(period);
 
@@ -153,7 +153,7 @@ public sealed class EmaValidationTests : IDisposable
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.EmaLookback(period);
 
@@ -180,7 +180,7 @@ public sealed class EmaValidationTests : IDisposable
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.EmaLookback(period);
 

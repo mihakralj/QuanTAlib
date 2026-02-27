@@ -48,7 +48,7 @@ public sealed class TyppriceValidationTests : IDisposable
         var taOut = new double[high.Length];
         var retCode = Functions.TypPrice(high.AsSpan(), low.AsSpan(), close.AsSpan(),
             0..^0, taOut, out var outRange);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
         var (offset, length) = outRange.GetOffsetAndLength(taOut.Length);
 
         // QuanTAlib batch span

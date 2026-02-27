@@ -280,7 +280,7 @@ public sealed class CmoValidationTests(ITestOutputHelper output) : IDisposable
         // --- TALib CMO ---
         double[] taOut = new double[tData.Length];
         var retCode = Functions.Cmo<double>(tData, 0..^0, taOut, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         var (taOffset, taLength) = outRange.GetOffsetAndLength(taOut.Length);
         Assert.True(taLength > 0, "TALib produced no output");

@@ -140,9 +140,9 @@ public sealed class BbandsValidationTests : IDisposable
                 period,
                 multiplier,
                 multiplier,
-                Core.MAType.Sma);
+                TALib.Core.MAType.Sma);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.BbandsLookback(period);
 
@@ -185,9 +185,9 @@ public sealed class BbandsValidationTests : IDisposable
                 period,
                 multiplier,
                 multiplier,
-                Core.MAType.Sma);
+                TALib.Core.MAType.Sma);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.BbandsLookback(period);
 
@@ -228,9 +228,9 @@ public sealed class BbandsValidationTests : IDisposable
                 period,
                 multiplier,
                 multiplier,
-                Core.MAType.Sma);
+                TALib.Core.MAType.Sma);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.BbandsLookback(period);
 

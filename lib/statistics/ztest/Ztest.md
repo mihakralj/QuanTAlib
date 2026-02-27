@@ -15,7 +15,7 @@
 - Parameterized by `period` (default 30), `mu0` (default 0.0).
 - Output range: Unbounded.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Validated against manual computation, PineScript parity, and testable statistical properties.
 
 > "The purpose of hypothesis testing is not to prove what we believe, but to measure what we observe." — Adapted from R.A. Fisher
 
@@ -91,21 +91,12 @@ The indicators answer different questions:
 
 ### Operation Count (Streaming Mode)
 
-Z-Test computes a rolling mean and standard deviation for O(1) hypothesis testing per bar.
-
-| Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| O(1) StdDev computation | 1 | 28 cy | ~28 cy |
-| Compute Z = (x - mu) / (sigma / sqrt(N)) | 1 | 5 cy | ~5 cy |
-| NaN guard (sigma = 0 guard) | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~35 cy** |
-
-O(1) per update. Z-statistic is a trivial transformation of the running mean and standard deviation already computed by StdDev.
+ZTEST uses a rolling window with running sums and periodic resynchronization.
 
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|
-| Update (streaming) | $O(n)$ | Full window scan for sum/sumSq |
-| Batch (span) | $O(N \cdot p)$ | N data points, p period |
+| Update (streaming) | $O(1)$ amortized | Running sum/sumSq maintenance; periodic full resync every 1000 updates |
+| Batch (span) | $O(N)$ | Single pass over source with O(1) ring maintenance per element |
 | Memory | $O(p)$ | RingBuffer + scalar state |
 | Allocations per update | 0 | Zero-allocation hot path |
 

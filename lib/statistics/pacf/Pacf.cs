@@ -294,9 +294,10 @@ public sealed class Pacf : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        Reset();
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(DateTime.MinValue, value));
         }
     }
 

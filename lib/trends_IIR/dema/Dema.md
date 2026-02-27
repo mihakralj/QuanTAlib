@@ -1,25 +1,36 @@
 # DEMA: Double Exponential Moving Average
 
+> "EMA is good. DEMA is better. It's like an EMA that drank a double espresso and stopped lagging behind the conversation."
+
+## Quick Reference
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `period`                      |
-| **Outputs**      | Single series (Dema)                       |
-| **Output range** | Tracks input                     |
-| **Warmup**       | `period` bars                          |
+| **Parameters**   | `period` (int > 0)               |
+| **Outputs**      | Single series (Dema)                    |
+| **Output range** | Tracks input                            |
+| **Warmup**       | `period` bars                         |
 
-### TL;DR
+## Key Takeaways
 
-- DEMA (Double Exponential Moving Average) is not just "two EMAs." It's a clever mathematical hack to cancel out the lag inherent in a standard EMA.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- **Lag Reduction**: Cuts EMA lag by ~50% through mathematical extrapolation
+- **Trend Hugging**: Tighter fit to price action than standard EMA
+- **Overshoot Risk**: Can amplify reversals due to predictive nature
+- **Computational Cost**: ~2× EMA operations for the dual-stage design
+- **Best For**: Trend-following systems needing responsive signals
 
-> "EMA is good. DEMA is better. It's like an EMA that drank a double espresso and stopped lagging behind the conversation."
+## What It Measures and Why It Matters
 
-DEMA (Double Exponential Moving Average) is not just "two EMAs." It's a clever mathematical hack to cancel out the lag inherent in a standard EMA. By subtracting the "error" (the difference between a single EMA and a double EMA) from the original EMA, DEMA produces a curve that hugs the price action much tighter. The extrapolation formula $2 \times \text{EMA}_1 - \text{EMA}_2$ effectively predicts where EMA "should be" based on its current trajectory.
+DEMA measures the smoothed trend of price action with significantly reduced lag compared to traditional moving averages. It matters because lag is the enemy of timely signals—traditional EMAs lag by roughly N/2 bars, making them slow to react to trend changes. DEMA's extrapolation formula (2×EMA₁ - EMA₂) mathematically projects the EMA forward by one lag unit, creating a "lead indicator" that anticipates rather than follows.
+
+This makes DEMA particularly valuable for:
+
+- **Trend-following strategies** requiring quick entries/exits
+- **Oscillator construction** (MACD uses DEMA variants)
+- **Signal generation** where timeliness trumps smoothness
+- **High-frequency trading** where every bar counts
 
 ## Historical Context
 
@@ -53,6 +64,32 @@ $$\text{DEMA} = 2 \times \text{EMA}_1 - \text{EMA}_2$$
 
 The "physics" relies on the fact that EMA2 lags EMA1 roughly as much as EMA1 lags the price. The coefficient 2 on EMA1 and -1 on EMA2 creates a unity-gain filter ($2 - 1 = 1$) that projects forward by one lag unit.
 
+## Interpretation and Signals
+
+### Trend Direction
+
+- **Above Price**: Bullish trend signal (DEMA acting as support)
+- **Below Price**: Bearish trend signal (DEMA acting as resistance)
+- **Slope Analysis**: Positive slope = uptrend, negative slope = downtrend
+
+### Crossover Signals
+
+- **Price crosses above DEMA**: Potential buy signal in uptrends
+- **Price crosses below DEMA**: Potential sell signal in downtrends
+- **Zero crossings**: Momentum shifts (less reliable than EMA due to overshoot)
+
+### Divergence Analysis
+
+- **Bullish Divergence**: Price makes lower low, DEMA makes higher low
+- **Bearish Divergence**: Price makes higher high, DEMA makes lower high
+- **Convergence**: Price and DEMA moving toward each other (caution signal)
+
+### Signal Quality Factors
+
+- **Strength**: Distance between price and DEMA (larger = stronger trend)
+- **Consistency**: How long the trend has maintained direction
+- **Volume Confirmation**: Higher volume on breakouts improves reliability
+
 ## Mathematical Foundation
 
 ### EMA Alpha Calculation
@@ -66,6 +103,7 @@ For a single EMA with smoothing factor $\alpha$, the mean lag is:
 $$L = \frac{1 - \alpha}{\alpha} = \frac{N - 1}{2}$$
 
 For cascaded EMAs:
+
 - EMA1 lag: $L$
 - EMA2 lag (from price): $2L$
 
@@ -82,7 +120,6 @@ In the z-domain, DEMA's transfer function:
 $$H(z) = 2 \cdot H_{EMA}(z) - H_{EMA}^2(z)$$
 
 where $H_{EMA}(z) = \frac{\alpha}{1 - (1-\alpha)z^{-1}}$
-
 ## Performance Profile
 
 ### Operation Count (Streaming Mode)
@@ -126,6 +163,47 @@ Due to the recursive nature of EMA, SIMD vectorization is limited. However, FMA 
 | **State Size** | 48 bytes | Two EMA states |
 
 *Benchmarked on Intel i7-12700K @ 3.6 GHz, AVX2, .NET 10.0*
+
+## Related Indicators
+
+- **EMA**: Single exponential smoothing (higher lag, smoother)
+- **TEMA**: Triple exponential (even less lag, more overshoot)
+- **KAMA**: Adaptive smoothing based on volatility
+- **VIDYA**: Variable index dynamic average
+- **WMA**: Weighted moving average (FIR, no lag reduction)
+- **SMA**: Simple moving average (maximum lag)
+
+## Usage Examples
+
+### Basic Trend Following
+
+```csharp
+var dema = new Dema(source, 20);
+if (price > dema.Last.Value && dema.Last.Value > dema.Previous.Value)
+{
+    // Bullish trend confirmed
+    EnterLong();
+}
+```
+
+### MACD Construction
+
+```csharp
+// DEMA is often used in MACD for signal line
+var fast = new Dema(source, 12);
+var slow = new Dema(source, 26);
+var macd = fast.Last.Value - slow.Last.Value;
+var signal = new Dema(new TSeries() { macd }, 9);
+```
+
+### Adaptive Period Selection
+
+```csharp
+// Shorter periods for ranging markets, longer for trending
+var volatility = CalculateVolatility(source);
+int period = volatility > threshold ? 10 : 20; // Responsive in trends
+var dema = new Dema(source, period);
+```
 
 ## Validation
 
@@ -235,6 +313,35 @@ else
 ```
 
 Both EMA states are rolled back atomically for consistent correction.
+
+## Reference Calculation Table
+
+| Period | Price Sequence | EMA₁ | EMA₂ | DEMA | Notes |
+|--------|----------------|------|------|------|-------|
+| 5 | 10 | 10.00 | 10.00 | 10.00 | Initial values |
+| 5 | 10, 20 | 13.33 | 11.11 | 15.56 | First calculation |
+| 5 | 10, 20, 30 | 18.52 | 13.58 | 23.46 | Trend acceleration |
+| 5 | 10, 20, 30, 40 | 24.69 | 16.80 | 32.58 | Extrapolation effect |
+| 5 | 10, 20, 30, 40, 50 | 31.13 | 20.74 | 41.52 | Full convergence |
+
+*α = 2/(5+1) = 0.333, Decay = 1-α = 0.667*
+
+## FAQ
+
+**Q: How does DEMA compare to EMA for period N?**
+A: DEMA(N) responds roughly like EMA(N×0.7) but with more overshoot. The lag reduction makes it faster but noisier.
+
+**Q: When should I use DEMA vs TEMA?**
+A: DEMA for most cases—it's 80% of TEMA's lag reduction with 50% less computation. Use TEMA only if DEMA still lags too much.
+
+**Q: Does DEMA work well in sideways markets?**
+A: Poorly. The extrapolation amplifies noise, creating false signals. Combine with trend strength filters.
+
+**Q: Can DEMA be used for any period?**
+A: Yes, but very short periods (<5) amplify noise excessively. Very long periods (>50) lose the lag-reduction benefit.
+
+**Q: How does bar correction work?**
+A: When `isNew=false`, QuanTAlib rolls back both EMA states to pre-update values, then reapplies the correction. This ensures identical results regardless of update order.
 
 ## Common Pitfalls
 

@@ -47,7 +47,7 @@ public sealed class CciValidationTests(ITestOutputHelper output) : IDisposable
         // TALib CCI
         double[] tOutput = new double[high.Length];
         var retCode = TALib.Functions.Cci<double>(high, low, close, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.CciLookback(TestPeriod);
 
@@ -86,7 +86,7 @@ public sealed class CciValidationTests(ITestOutputHelper output) : IDisposable
         // TALib CCI
         double[] tOutput = new double[high.Length];
         var retCode = TALib.Functions.Cci<double>(high, low, close, 0..^0, tOutput, out var outRange, TestPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.CciLookback(TestPeriod);
 
@@ -123,7 +123,7 @@ public sealed class CciValidationTests(ITestOutputHelper output) : IDisposable
 
         double[] tOutput = new double[high.Length];
         var retCode = TALib.Functions.Cci<double>(high, low, close, 0..^0, tOutput, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.CciLookback(period);
 

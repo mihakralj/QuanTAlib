@@ -51,7 +51,7 @@ public sealed class HighestValidationTests : IDisposable
 
             // Calculate TA-Lib MAX
             var retCode = TALib.Functions.Max<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MaxLookback(period);
 
@@ -81,7 +81,7 @@ public sealed class HighestValidationTests : IDisposable
 
             // Calculate TA-Lib MAX
             var retCode = TALib.Functions.Max<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MaxLookback(period);
 
@@ -107,7 +107,7 @@ public sealed class HighestValidationTests : IDisposable
 
             // Calculate TA-Lib MAX
             var retCode = TALib.Functions.Max<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.MaxLookback(period);
 

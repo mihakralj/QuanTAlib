@@ -39,7 +39,7 @@ public sealed class BopValidationTests : IDisposable
         var talibResult = new double[_data.Bars.Count];
         var retCode = TALib.Functions.Bop(open, high, low, close, 0..^0, talibResult, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         var quanTAlibResult = Bop.Batch(_data.Bars);
 

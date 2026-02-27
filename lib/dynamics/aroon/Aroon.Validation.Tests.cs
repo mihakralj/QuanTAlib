@@ -70,11 +70,11 @@ public sealed class AroonValidationTests : IDisposable
 
         // TA-Lib Aroon (Up/Down)
         var retCode = TALib.Functions.Aroon(hData, lData, 0..^0, outAroonDown, outAroonUp, out var outRange, 14);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         // TA-Lib AroonOsc
         var retCodeOsc = TALib.Functions.AroonOsc(hData, lData, 0..^0, outAroonOsc, out var outRangeOsc, 14);
-        Assert.Equal(Core.RetCode.Success, retCodeOsc);
+        Assert.Equal(TALib.Core.RetCode.Success, retCodeOsc);
 
         int lookback = TALib.Functions.AroonLookback(14);
 

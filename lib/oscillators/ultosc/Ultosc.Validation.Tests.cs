@@ -243,7 +243,7 @@ public sealed class UltoscValidationTests : IDisposable
             var qResult = ultosc.Update(_data.Bars);
 
             var retCode = TALib.Functions.UltOsc(hData, lData, cData, 0..^0, output, out var outRange, p1, p2, p3);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.UltOscLookback(p1, p2, p3);
 
@@ -279,7 +279,7 @@ public sealed class UltoscValidationTests : IDisposable
             }
 
             var retCode = TALib.Functions.UltOsc(hData, lData, cData, 0..^0, output, out var outRange, p1, p2, p3);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.UltOscLookback(p1, p2, p3);
 

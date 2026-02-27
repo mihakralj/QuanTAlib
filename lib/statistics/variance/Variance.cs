@@ -162,9 +162,10 @@ public sealed class Variance : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        Reset();
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(DateTime.MinValue, value));
         }
     }
 

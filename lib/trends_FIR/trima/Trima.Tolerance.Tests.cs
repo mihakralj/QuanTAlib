@@ -25,7 +25,7 @@ public sealed class TrimaToleranceTests : IDisposable
 
         double[] output = new double[_testData.RawData.Length];
         var retCode = TALib.Functions.Trima<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.TrimaLookback(period);
 

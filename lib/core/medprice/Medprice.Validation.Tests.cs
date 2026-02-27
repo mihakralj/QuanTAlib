@@ -46,7 +46,7 @@ public sealed class MedpriceValidationTests : IDisposable
         // TA-Lib MedPrice
         var taOut = new double[high.Length];
         var retCode = Functions.MedPrice(high.AsSpan(), low.AsSpan(), 0..^0, taOut, out var outRange);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
         var (offset, length) = outRange.GetOffsetAndLength(taOut.Length);
 
         // QuanTAlib batch via TBarSeries

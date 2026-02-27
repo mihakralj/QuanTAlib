@@ -109,7 +109,7 @@ public sealed class WmaValidationTests : IDisposable
 
             var retCode = TALib.Functions.Wma<double>(
                 tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.WmaLookback(period);
 

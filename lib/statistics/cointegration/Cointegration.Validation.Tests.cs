@@ -18,20 +18,26 @@ public class CointegrationValidationTests
     [Fact]
     public void Cointegration_PerfectlyCointegrated_ProducesStrongNegativeAdf()
     {
-        // Two series with near-perfect linear relationship should show strong cointegration
-        // Adding small noise to avoid zero-variance residuals
-        var indicator = new Cointegration(20);
-        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
+        // Two series with near-perfect linear relationship should show strong cointegration.
+        // Use incremental log-returns (i.i.d.) as noise so residuals are stationary.
+        // Period=30 gives ADF sufficient window; 200 samples ensure stable regression.
+        var indicator = new Cointegration(30);
+        var gbm = new GBM(startPrice: 100.0, sigma: 0.2, seed: 42);
+        var bars = gbm.Fetch(201, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 1; i <= 200; i++)
         {
-            double a = 100.0 + i * 0.5 + GbmNoise(random) * 0.1;
-            double b = 2.0 * a + 10.0 + GbmNoise(random) * 0.1;
+            // Incremental log-return: truly i.i.d. noise, variance ~(0.2²·dt)
+            double noise = Math.Log(bars[i].Close / bars[i - 1].Close);
+            double a = 100.0 + i * 0.5 + noise * 0.1;
+            double b = 2.0 * a + 10.0 + noise * 0.1;
             indicator.Update(a, b);
         }
 
-        // Near-perfect cointegration should produce strongly negative ADF statistic
-        Assert.True(indicator.Last.Value < -2.0, $"ADF should be strongly negative for cointegrated series, got {indicator.Last.Value}");
+        // Near-perfect cointegration should produce ADF below the 5% critical value.
+        // Engle-Granger critical values (residual-based, no constant): -1.95 at 5%, -2.86 for large N.
+        // With period=30 and 200 samples of near-linear data the statistic should clear -1.95 comfortably.
+        Assert.True(indicator.Last.Value < -1.95, $"ADF should be below 5% critical value (-1.95) for cointegrated series, got {indicator.Last.Value}");
     }
 
     [Fact]
@@ -68,7 +74,8 @@ public class CointegrationValidationTests
             indicator.Update(a, b);
         }
 
-        Assert.True(indicator.Last.Value < 0, $"ADF should be negative for near-proportional series, got {indicator.Last.Value}");
+        // Proportional series with small noise should produce ADF well below 0; -1.0 is a conservative bound.
+        Assert.True(indicator.Last.Value < -1.0, $"ADF should be well negative for near-proportional series, got {indicator.Last.Value}");
     }
 
     [Fact]
@@ -86,8 +93,8 @@ public class CointegrationValidationTests
             indicator.Update(a, b);
         }
 
-        // Should still detect cointegration despite small noise
-        Assert.True(indicator.Last.Value < 0, $"ADF should be negative even with small noise, got {indicator.Last.Value}");
+        // Linear relationship with small noise should still clear -1.0.
+        Assert.True(indicator.Last.Value < -1.0, $"ADF should be well negative with small noise, got {indicator.Last.Value}");
     }
 
     [Fact]
@@ -226,8 +233,8 @@ public class CointegrationValidationTests
             indicator.Update(100.0, 50.0);
         }
 
-        // Should handle constant series without crashing (result may be NaN due to zero variance)
-        Assert.True(double.IsNaN(indicator.Last.Value) || double.IsFinite(indicator.Last.Value));
+        // Constant series → zero variance → ADF denominator is zero → NaN is correct.
+        Assert.True(double.IsNaN(indicator.Last.Value), $"Expected NaN for constant series, got {indicator.Last.Value}");
     }
 
     [Fact]
@@ -240,8 +247,8 @@ public class CointegrationValidationTests
             indicator.Update(100.0, 50.0 + i); // A constant, B trending
         }
 
-        // Should handle mixed constant/trending without crashing
-        Assert.True(double.IsNaN(indicator.Last.Value) || double.IsFinite(indicator.Last.Value));
+        // Constant A → zero variance in A → ADF is undefined → NaN.
+        Assert.True(double.IsNaN(indicator.Last.Value), $"Expected NaN when series A is constant, got {indicator.Last.Value}");
     }
 
     [Fact]

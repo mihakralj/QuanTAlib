@@ -41,36 +41,28 @@ jobs:
             **/*.sln
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.2.0
+        uses: gittools/actions/gitversion/setup@d0139503a9321f76b4a417dfdc8aebcec24decdd  # v4.2.0
         with:
           versionSpec: "6.x"
           includePrerelease: true
 
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v4.2.0
+        uses: gittools/actions/gitversion/execute@d0139503a9321f76b4a417dfdc8aebcec24decdd  # v4.2.0
         with:
           updateAssemblyInfo: false
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: |
-          dotnet build ./lib/quantalib.csproj --configuration Release --no-restore --nologo
-          dotnet build ./quantower/Channels.csproj --configuration Release --nologo
-          dotnet build ./quantower/Cycles.csproj --configuration Release --nologo
-          dotnet build ./quantower/Dynamics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Filters.csproj --configuration Release --nologo
-          dotnet build ./quantower/Forecasts.csproj --configuration Release --nologo
-          dotnet build ./quantower/Momentum.csproj --configuration Release --nologo
-          dotnet build ./quantower/Oscillators.csproj --configuration Release --nologo
-          dotnet build ./quantower/Reversals.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Trends_FIR.csproj --configuration Release --nologo
-          dotnet build ./quantower/Trends_IIR.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volume.csproj --configuration Release --nologo
+      - name: Build (warnings as errors)
+        run: dotnet build ./QuanTAlib.slnx --configuration Release --no-restore --nologo /warnaserror
+
+      - name: Test (core)
+        run: dotnet test ./lib/QuanTAlib.Tests.csproj --configuration Release --no-build --nologo
+
+      - name: Test (quantower)
+        run: dotnet test ./quantower/Quantower.Tests.csproj --configuration Release --no-build --nologo
 
       - name: Pack NuGet
         run: |

@@ -51,7 +51,7 @@ public sealed class SumValidationTests : IDisposable
             var qResult = sum.Update(_testData.Data);
 
             var retCode = Functions.Sum<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.SumLookback(period);
 
@@ -77,7 +77,7 @@ public sealed class SumValidationTests : IDisposable
             }
 
             var retCode = Functions.Sum<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.SumLookback(period);
 
@@ -99,7 +99,7 @@ public sealed class SumValidationTests : IDisposable
             Sum.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             var retCode = Functions.Sum<double>(sourceData, 0..^0, tOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.SumLookback(period);
 

@@ -15,6 +15,13 @@ namespace QuanTAlib;
 /// AO = SMA(Median Price, fastPeriod) - SMA(Median Price, slowPeriod)
 /// AC = AO - SMA(AO, acPeriod)
 ///
+/// Design note: Ac implements <see cref="ITValuePublisher"/> directly rather than inheriting
+/// from AbstractBase. This is intentional: Ac is an OHLC-based indicator whose primary input
+/// is a <see cref="TBar"/> (requiring High and Low), not a single <see cref="TValue"/>.
+/// AbstractBase's contract (Update(TValue), Prime(ReadOnlySpan&lt;double&gt;)) does not fit
+/// OHLC indicators. The practical entry points are Update(TBar) and Prime(TBarSeries).
+/// If a future TBarIndicatorBase is introduced, Ac would be a candidate to migrate.
+///
 /// Sources:
 /// https://www.investopedia.com/terms/a/accelerationdeceleration-indicator.asp
 /// https://www.tradingview.com/support/solutions/43000501837-accelerator-oscillator-ac/

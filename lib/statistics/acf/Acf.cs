@@ -42,12 +42,10 @@ public sealed class Acf : AbstractBase
     // Running sums for O(1) updates
     private double _sum;
     private double _sumSq;
-    private double _sumLagged;
 
     // Snapshot state for bar correction
     private double _p_sum;
     private double _p_sumSq;
-    private double _p_sumLagged;
 
     private int _updateCount;
     private const int ResyncInterval = 1000;
@@ -110,7 +108,6 @@ public sealed class Acf : AbstractBase
             // Snapshot state for rollback
             _p_sum = _sum;
             _p_sumSq = _sumSq;
-            _p_sumLagged = _sumLagged;
             _buffer.Snapshot();
         }
         else
@@ -118,7 +115,6 @@ public sealed class Acf : AbstractBase
             // Restore state from snapshot
             _sum = _p_sum;
             _sumSq = _p_sumSq;
-            _sumLagged = _p_sumLagged;
             _buffer.Restore();
         }
 
@@ -129,26 +125,12 @@ public sealed class Acf : AbstractBase
             _sum -= oldVal;
             _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
 
-            // Remove contribution to lagged sum
-            if (_buffer.Count > _lag)
-            {
-                double oldLaggedVal = _buffer[_lag]; // value that was _lag positions from oldest
-                _sumLagged -= oldVal * oldLaggedVal;
-            }
         }
 
         // Add new value
         _buffer.Add(value);
         _sum += value;
         _sumSq = Math.FusedMultiplyAdd(value, value, _sumSq);
-
-        // Update lagged sum: add product of new value and value at lag positions before
-        if (_buffer.Count > _lag)
-        {
-            int lagIndex = _buffer.Count - 1 - _lag;
-            double laggedVal = _buffer[lagIndex];
-            _sumLagged += value * laggedVal;
-        }
 
         if (isNew)
         {
@@ -257,18 +239,11 @@ public sealed class Acf : AbstractBase
         int n = _buffer.Count;
         _sum = 0;
         _sumSq = 0;
-        _sumLagged = 0;
-
         for (int i = 0; i < n; i++)
         {
             double val = _buffer[i];
             _sum += val;
             _sumSq += val * val;
-
-            if (i >= _lag)
-            {
-                _sumLagged += val * _buffer[i - _lag];
-            }
         }
     }
 
@@ -277,19 +252,18 @@ public sealed class Acf : AbstractBase
         _buffer.Clear();
         _sum = 0;
         _sumSq = 0;
-        _sumLagged = 0;
         _p_sum = 0;
         _p_sumSq = 0;
-        _p_sumLagged = 0;
         _updateCount = 0;
         Last = default;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        Reset();
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(DateTime.MinValue, value));
         }
     }
 

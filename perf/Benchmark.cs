@@ -48,6 +48,7 @@ public class IndicatorBenchmarks
     private const int Period = 220;
 
     private double[] _closeValues = null!;
+    private double[] _openValues = null!;
     private TSeries _closeTseries = null!;
     private List<Quote> _quotes = null!;
     private List<TickerData> _ooplesData = null!;
@@ -90,6 +91,7 @@ public class IndicatorBenchmarks
 
         _bars = bars;
         _closeValues = bars.Close.Values.ToArray();
+        _openValues = bars.Open.Values.ToArray();
         _highValues = bars.High.Values.ToArray();
         _lowValues = bars.Low.Values.ToArray();
         _volumeValues = bars.Volume.Values.ToArray();
@@ -383,6 +385,30 @@ public class IndicatorBenchmarks
     [BenchmarkCategory("HMA")]
     [Benchmark(Description = "Ooples HMA")]
     public object Ooples_Hma() => new StockData(_ooplesData).CalculateHullMovingAverage(MovingAvgType.WeightedMovingAverage, Period);
+
+    // ==================== CORRELATION ====================
+    [BenchmarkCategory("CORRELATION")]
+    [Benchmark(Description = "QuanTAlib Correlation (Span)")]
+    public void QuanTAlib_Correlation_Span() => Correlation.Batch(_closeValues.AsSpan(), _openValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+
+    [BenchmarkCategory("CORRELATION")]
+    [Benchmark(Description = "QuanTAlib Correlation (Streaming)")]
+    public void QuanTAlib_Correlation_Streaming()
+    {
+        var corr = new Correlation(Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            _quantalibOutput[i] = corr.Update(_closeValues[i], _openValues[i]).Value;
+        }
+    }
+
+    [BenchmarkCategory("CORRELATION")]
+    [Benchmark(Description = "TALib Correlation")]
+    public Core.RetCode TALib_Correlation() => TALib.Functions.Correl<double>(_closeValues, _openValues, 0..^0, _talibOutput, out _, Period);
+
+    [BenchmarkCategory("CORRELATION")]
+    [Benchmark(Description = "Skender Correlation")]
+    public object Skender_Correlation() => _quotes.GetCorrelation(_quotes, Period);
 
     // ==================== SKEW ====================
     [BenchmarkCategory("SKEW")]

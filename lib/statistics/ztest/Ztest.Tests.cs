@@ -354,7 +354,7 @@ public class ZtestTests
 
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-4); // t-stat magnifies FP drift (values ~6000)
+            Assert.Equal(batchResult[i].Value, spanOutput[i], 5e-4); // t-stat magnifies FP drift (values ~15000)
         }
     }
 

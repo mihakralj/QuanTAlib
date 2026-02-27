@@ -16,6 +16,13 @@ namespace QuanTAlib;
 /// Median Price = (High + Low) / 2
 /// AO = SMA(Median Price, 5) - SMA(Median Price, 34)
 ///
+/// Design note: Ao implements <see cref="ITValuePublisher"/> directly rather than inheriting
+/// from AbstractBase. This is intentional: Ao is an OHLC-based indicator whose primary input
+/// is a <see cref="TBar"/> (requiring High and Low), not a single <see cref="TValue"/>.
+/// AbstractBase's contract (Update(TValue), Prime(ReadOnlySpan&lt;double&gt;)) does not fit
+/// OHLC indicators. The practical entry points are Update(TBar) and Prime(TBarSeries).
+/// If a future TBarIndicatorBase is introduced, Ao would be a candidate to migrate.
+///
 /// Sources:
 /// https://www.investopedia.com/terms/a/awesomeoscillator.asp
 /// https://www.tradingview.com/support/solutions/43000501826-awesome-oscillator-ao/

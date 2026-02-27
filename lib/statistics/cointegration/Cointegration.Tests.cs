@@ -154,27 +154,34 @@ public class CointegrationTests
     [Fact]
     public void Update_WithIsNewFalse_DoesNotAdvanceState()
     {
-        var indicator = new Cointegration(5);
+        var corrected = new Cointegration(5);
+        var direct = new Cointegration(5);
+
         var gbmA = new GBM(startPrice: 100.0, mu: 0.0, sigma: 0.1, seed: 12345);
         var gbmB = new GBM(startPrice: 100.0, mu: 0.0, sigma: 0.1, seed: 54321);
 
-        // Build up some state
+        // Build identical state
         for (int i = 0; i < 10; i++)
         {
-            indicator.Update(gbmA.Next().Close, gbmB.Next().Close, isNew: true);
+            double a = gbmA.Next().Close;
+            double b = gbmB.Next().Close;
+            corrected.Update(a, b, isNew: true);
+            direct.Update(a, b, isNew: true);
         }
 
-        // Update with same values and isNew=false
-        indicator.Update(gbmA.Next().Close, gbmB.Next().Close, isNew: false);
-        var valueAfterFirst = indicator.Last.Value;
+        const double finalA = 105.0;
+        const double finalB = 55.0;
 
-        // Another correction
-        indicator.Update(gbmA.Next().Close, gbmB.Next().Close, isNew: false);
-        var valueAfterSecond = indicator.Last.Value;
+        // Correction path: add + multiple rewrites + final rewrite to target value
+        corrected.Update(finalA, finalB, isNew: true);
+        corrected.Update(finalA + 10.0, finalB + 10.0, isNew: false);
+        corrected.Update(finalA - 3.0, finalB - 3.0, isNew: false);
+        corrected.Update(finalA, finalB, isNew: false);
 
-        // All corrections replace the same bar, state should be consistent
-        Assert.True(double.IsFinite(valueAfterFirst) || double.IsNaN(valueAfterFirst));
-        Assert.True(double.IsFinite(valueAfterSecond) || double.IsNaN(valueAfterSecond));
+        // Direct path: only final new bar
+        direct.Update(finalA, finalB, isNew: true);
+
+        Assert.Equal(direct.Last.Value, corrected.Last.Value, Tolerance);
     }
 
     [Fact]

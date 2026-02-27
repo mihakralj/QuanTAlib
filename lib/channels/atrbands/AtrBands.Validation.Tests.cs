@@ -180,7 +180,7 @@ public sealed class AtrBandsValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.SmaLookback(period);
 
@@ -215,7 +215,7 @@ public sealed class AtrBandsValidationTests : IDisposable
                 out var outRange,
                 period);
 
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = Functions.AtrLookback(period);
             var (offset, _) = outRange.GetOffsetAndLength(atrOutput.Length);

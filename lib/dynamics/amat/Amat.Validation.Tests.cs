@@ -126,7 +126,7 @@ public sealed class AmatValidationTests : IDisposable
 
         // Calculate TA-Lib EMA (fast period)
         var retCode = TALib.Functions.Ema<double>(tData, 0..^0, outEma, out var outRange, fastPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.EmaLookback(fastPeriod);
 
@@ -161,7 +161,7 @@ public sealed class AmatValidationTests : IDisposable
 
         // Calculate TA-Lib EMA (slow period)
         var retCode = TALib.Functions.Ema<double>(tData, 0..^0, outEma, out var outRange, slowPeriod);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.EmaLookback(slowPeriod);
 

@@ -105,7 +105,7 @@ public sealed class TrixValidationTests(ITestOutputHelper output) : IDisposable
 
             double[] tOutput = new double[tData.Length];
             var retCode = TALib.Functions.Trix<double>(tData, 0..^0, tOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.TrixLookback(period);
 
@@ -132,7 +132,7 @@ public sealed class TrixValidationTests(ITestOutputHelper output) : IDisposable
             }
 
             var retCode = TALib.Functions.Trix<double>(tData, 0..^0, tOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.TrixLookback(period);
 

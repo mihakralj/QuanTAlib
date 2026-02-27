@@ -3,9 +3,9 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Two series (A, B)                       |
 | **Parameters**   | `period` (default 20)                      |
-| **Outputs**      | Single series (Cointegration)                       |
+| **Outputs**      | Single series (ADF statistic)           |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
 
@@ -15,7 +15,7 @@
 - Parameterized by `period` (default 20).
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Validated against TradingView PineScript reference and statistical property tests.
 
 > "Correlation tells you they move together. Cointegration tells you they're bound together. Two stocks can be uncorrelated yet cointegrated, or perfectly correlated yet destined to drift apart forever. The difference between 'similar direction' and 'shared destiny' is the difference between a tourist attraction and a gravitational orbit."
 
@@ -235,7 +235,7 @@ double[] pricesA = new double[1000];
 double[] pricesB = new double[1000];
 double[] output = new double[1000];
 // ... populate inputs ...
-Cointegration.Calculate(pricesA.AsSpan(), pricesB.AsSpan(), output.AsSpan(), period: 20);
+Cointegration.Batch(pricesA.AsSpan(), pricesB.AsSpan(), output.AsSpan(), period: 20);
 ```
 
 ### Bar Correction Support

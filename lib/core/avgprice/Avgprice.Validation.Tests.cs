@@ -49,7 +49,7 @@ public sealed class AvgpriceValidationTests : IDisposable
         var taOut = new double[open.Length];
         var retCode = Functions.AvgPrice(open.AsSpan(), high.AsSpan(), low.AsSpan(), close.AsSpan(),
             0..^0, taOut, out var outRange);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
         var (offset, length) = outRange.GetOffsetAndLength(taOut.Length);
 
         // QuanTAlib batch span

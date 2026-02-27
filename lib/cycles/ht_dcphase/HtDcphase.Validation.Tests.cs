@@ -42,7 +42,7 @@ public sealed class HtDcphaseValidationTests : IDisposable
         var outPhase = new double[input.Length];
         var rc = TALib.Functions.HtDcPhase(input, 0..^0, outPhase, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, rc);
+        Assert.Equal(TALib.Core.RetCode.Success, rc);
 
         var q = new HtDcphase();
         var qSeries = q.Update(_data.Data);
@@ -65,7 +65,7 @@ public sealed class HtDcphaseValidationTests : IDisposable
         var outPhase = new double[input.Length];
         var rc = TALib.Functions.HtDcPhase(input, 0..^0, outPhase, out var outRange);
 
-        Assert.Equal(Core.RetCode.Success, rc);
+        Assert.Equal(TALib.Core.RetCode.Success, rc);
 
         var streaming = new List<double>(_data.Data.Count);
         var q = new HtDcphase();
