@@ -1,5 +1,22 @@
 # STARCHANNEL: Stoller Average Range Channel
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20), `multiplier` (default 2.0), `atrPeriod` (default 0)                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(period, effectiveAtrPeriod)` bars                          |
+
+### TL;DR
+
+- Stoller Average Range Channel creates a volatility-adaptive price envelope using Average True Range (ATR) to determine band width around a simple m...
+- Parameterized by `period` (default 20), `multiplier` (default 2.0), `atrperiod` (default 0).
+- Output range: Tracks input.
+- Requires `Math.Max(period, effectiveAtrPeriod)` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Stoller Average Range Channel creates a volatility-adaptive price envelope using Average True Range (ATR) to determine band width around a simple moving average centerline. The bands automatically expand during volatile periods and contract during calmer markets. The implementation uses a circular buffer for the SMA running sum and Wilder's RMA with a warmup compensator for ATR, achieving O(1) streaming updates per bar.
 
 ## Historical Context

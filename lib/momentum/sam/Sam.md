@@ -1,4 +1,21 @@
-﻿# SAM: Smoothed Adaptive Momentum
+# SAM: Smoothed Adaptive Momentum
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `alpha` (default 0.07), `cutoff` (default 8)                      |
+| **Outputs**      | Single series (Sam)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `MaxCyclePeriod * 2` bars                          |
+
+### TL;DR
+
+- The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length,...
+- Parameterized by `alpha` (default 0.07), `cutoff` (default 8).
+- Output range: Varies (see docs).
+- Requires `MaxCyclePeriod * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length, then smooths the result with a 2-pole Super Smoother filter. Unlike fixed-period momentum indicators (ROC, TRIX) that use an arbitrary lookback, SAM measures the dominant cycle via Ehlers' Homodyne Discriminator and uses that cycle length as the momentum window, ensuring that the momentum measurement always spans exactly one full cycle. This eliminates the half-cycle phase distortion that plagues fixed-period momentum, producing a zero-lag momentum oscillator that naturally adapts to changing market rhythm.
 

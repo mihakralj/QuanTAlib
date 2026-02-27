@@ -1,4 +1,21 @@
-﻿# BUTTER3: Ehlers 3-Pole Butterworth Filter
+# BUTTER3: Ehlers 3-Pole Butterworth Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Butter3)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `6 * period` bars                          |
+
+### TL;DR
+
+- The 3-Pole Butterworth Filter (BUTTER3) extends the classic Butterworth design to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `6 * period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Steeper rolloff demands a third pole."
 

@@ -1,4 +1,21 @@
-﻿# ADX: Average Directional Index
+# ADX: Average Directional Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Multiple series (DiPlus, DiMinus)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period * 2` bars                          |
+
+### TL;DR
+
+- The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price exp...
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price expansion. Wilder's pipeline decomposes range into directional movement (+DM, -DM), normalizes against True Range to produce directional indicators (+DI, -DI), derives a directional index (DX) from their ratio, then smooths DX with a final RMA pass. The double-smoothed architecture creates significant lag but exceptional noise rejection, making ADX a regime filter rather than a timing tool. Output is unbounded above 0, with readings above 25 conventionally indicating trending conditions and below 20 indicating choppy markets.
 

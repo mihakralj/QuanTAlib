@@ -1,5 +1,22 @@
 # ENTROPY: Shannon Entropy
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Entropy)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Shannon Entropy measures the unpredictability or randomness of a time series over a sliding window.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Information is the resolution of uncertainty." — Claude Shannon
 
 Shannon Entropy measures the unpredictability or randomness of a time series over a sliding window. A low entropy value indicates the series is highly predictable (clustered values), while a high entropy value indicates the data is spread uniformly across its range — maximum randomness.

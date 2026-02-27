@@ -1,4 +1,21 @@
-﻿# SUPER: SuperTrend
+# SUPER: SuperTrend
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 10), `multiplier` (default 3.0)                      |
+| **Outputs**      | Multiple series (UpperBand, LowerBand)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `> period + 1` bars                          |
+
+### TL;DR
+
+- SuperTrend is a trend-following overlay that uses ATR-scaled bands around the HL2 midpoint, switching between upper and lower bands based on close ...
+- Parameterized by `period` (default 10), `multiplier` (default 3.0).
+- Output range: Varies (see docs).
+- Requires `> period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "It's not an indicator; it's a trailing stop with a marketing budget."
 

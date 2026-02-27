@@ -1,5 +1,22 @@
 # SPEARMAN: Spearman Rank Correlation Coefficient
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20)                      |
+| **Outputs**      | Single series (Spearman)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Spearman's ρ (rho) measures the strength and direction of monotonic association between two variables.
+- Parameterized by `period` (default 20).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The person who asks whether rank correlation exists is not asking a wholly foolish question." — Maurice Kendall (1970)
 
 Spearman's ρ (rho) measures the strength and direction of monotonic association between two variables. Unlike Pearson's correlation, which measures linear relationship, Spearman captures any monotonic relationship. A portfolio of stocks whose returns move monotonically together has different risk than one whose components merely share a linear trend. Spearman detects both.

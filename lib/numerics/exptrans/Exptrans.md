@@ -1,5 +1,22 @@
 # EXPTRANS: Exponential Function
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (EXPTRANS)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- The Exponential (EXP) transformer applies the natural exponential function $e^x$ to each value in a time series.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The exponential function is the only function that is its own derivative—a mathematical curiosity that makes it indispensable for modeling growth, decay, and everything compounding."
 
 The Exponential (EXP) transformer applies the natural exponential function $e^x$ to each value in a time series. As the inverse of the natural logarithm, it converts additive relationships back to multiplicative ones, making it essential for reconstructing price levels from log-returns and implementing models that assume log-normal distributions.

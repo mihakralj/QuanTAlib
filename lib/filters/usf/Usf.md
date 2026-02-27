@@ -1,4 +1,21 @@
-﻿# USF: Ehlers Ultimate Smoother Filter
+# USF: Ehlers Ultimate Smoother Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Usf)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Ultimate Smoother Filter (USF) is a zero-lag smoothing filter introduced by John Ehlers in the April 2024 issue of *Technical Analysis of Stock...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The Ultimate Smoother achieves superior smoothing by subtracting high-frequency components using a high-pass filter, resulting in zero lag in the passband."
 

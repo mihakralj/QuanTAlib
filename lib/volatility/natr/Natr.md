@@ -1,5 +1,22 @@
 # NATR: Normalized Average True Range
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Natr)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- NATR normalizes the Average True Range (ATR) as a percentage of the closing price.
+- Parameterized by `period` (default 14).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The same volatility reads different on different price scales. NATR speaks the universal language of percentages."
 
 NATR normalizes the Average True Range (ATR) as a percentage of the closing price. This is mathematically identical to ATRP (Average True Range Percent)—both compute `(ATR / Close) × 100`. The difference is purely nomenclature: NATR is the term used in TA-Lib and many charting platforms.

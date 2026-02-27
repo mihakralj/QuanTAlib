@@ -1,4 +1,21 @@
-﻿# OneEuro — One Euro Filter
+# OneEuro — One Euro Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `minCutoff` (default 1.0), `beta` (default 0.007), `dCutoff` (default 1.0)                      |
+| **Outputs**      | Single series (OneEuro)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness.
+- Parameterized by `mincutoff` (default 1.0), `beta` (default 0.007), `dcutoff` (default 1.0).
+- Output range: Tracks input.
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness. It uses an adaptive cutoff frequency: at low signal speed, a low cutoff stabilizes the signal by reducing jitter; as speed increases, the cutoff rises to reduce lag.
 

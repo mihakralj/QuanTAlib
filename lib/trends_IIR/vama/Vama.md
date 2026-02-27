@@ -1,5 +1,22 @@
 # VAMA: Volatility Adjusted Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `baseLength` (default 20), `shortAtrPeriod` (default 10), `longAtrPeriod` (default 50), `minLength` (default 5), `maxLength` (default 100)                      |
+| **Outputs**      | Single series (Vama)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Most moving averages use a fixed lookback period.
+- Parameterized by `baselength` (default 20), `shortatrperiod` (default 10), `longatrperiod` (default 50), `minlength` (default 5), `maxlength` (default 100).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The market doesn't care about your moving average period. VAMA returns the favor by not caring about a fixed period either."
 
 ## The Core Insight

@@ -1,4 +1,21 @@
-﻿# AHRENS: Ahrens Moving Average
+# AHRENS: Ahrens Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 9)                      |
+| **Outputs**      | Single series (Ahrens)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- AHRENS is a recursive IIR filter that adjusts toward the source price minus the midpoint of its current and lagged (by one period) states.
+- Parameterized by `period` (default 9).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Richard Ahrens looked at the EMA and thought: what if the correction term accounted for where the average was, not just where it is? The result is a self-referencing IIR filter that uses its own history as a stabilizer."
 

@@ -1,5 +1,22 @@
 # DCHANNEL: Donchian Channels
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset ...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset has traded. Unlike volatility-based bands that compute statistical dispersion, Donchian Channels represent actual historical extremes — the literal "price box." The implementation uses monotonic deques for $O(1)$ amortized sliding-window max/min, ensuring that computing a 500-period channel costs no more than a 20-period one. The midpoint of the upper and lower bands serves as a simple trend bias indicator.
 
 ## Historical Context

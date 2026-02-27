@@ -1,5 +1,22 @@
 # JERK: Third Derivative
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (JERK)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `4` bars                          |
+
+### TL;DR
+
+- JERK measures the rate of change of acceleration—called "jerk" in physics.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `4` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Acceleration tells you the trend is changing. Jerk tells you that change is itself changing—the earliest possible warning."
 
 JERK measures the rate of change of acceleration—called "jerk" in physics. As the third derivative, it detects changes in momentum dynamics before they appear in acceleration, velocity, or price. A positive jerk means acceleration is increasing; negative means acceleration is decreasing. This O(1) streaming implementation uses dual FMA optimization and SIMD batch processing for four-point calculations.

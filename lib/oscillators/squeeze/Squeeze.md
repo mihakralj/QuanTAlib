@@ -1,4 +1,21 @@
-﻿# SQUEEZE: Squeeze Momentum
+# SQUEEZE: Squeeze Momentum
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20), `bbMult` (default 2.0), `kcMult` (default 1.5)                      |
+| **Outputs**      | Single series (Squeeze)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultan...
+- Parameterized by `period` (default 20), `bbmult` (default 2.0), `kcmult` (default 1.5).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultaneously measuring directional momentum via linear regression of a detrended price series. The dual output consists of a momentum histogram and a binary squeeze state indicator. When Bollinger Bands contract inside the Keltner Channel, the market is in a squeeze (coiling volatility); when the squeeze releases, the momentum histogram direction signals the likely breakout direction. The implementation combines five distinct computational stages, each using O(1) streaming techniques.
 

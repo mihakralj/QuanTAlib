@@ -1,5 +1,22 @@
 # SGMA: Savitzky-Golay Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 9), `degree` (default 2)                      |
+| **Outputs**      | Single series (Sgma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inf...
+- Parameterized by `period` (default 9), `degree` (default 2).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Least-squares polynomial fitting has been solving signal processing problems since 1964. That most traders still use medieval averaging techniques says more about the industry than the math."
 
 SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inflection points). Unlike the Simple Moving Average (which flattens everything) or the Exponential Moving Average (which introduces phase lag), SGMA uses polynomial weighting to maintain the original signal's shape characteristics.

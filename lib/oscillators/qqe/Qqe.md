@@ -1,4 +1,21 @@
-﻿# QQE: Quantitative Qualitative Estimation
+# QQE: Quantitative Qualitative Estimation
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `rsiPeriod` (default DefaultRsiPeriod), `smoothFactor` (default DefaultSmoothFactor), `qqeFactor` (default DefaultQqeFactor)                      |
+| **Outputs**      | Single series (Qqe)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `rsiPeriod + smoothFactor + darPeriod * 2` bars                          |
+
+### TL;DR
+
+- Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands aro...
+- Parameterized by `rsiperiod` (default defaultrsiperiod), `smoothfactor` (default defaultsmoothfactor), `qqefactor` (default defaultqqefactor).
+- Output range: Varies (see docs).
+- Requires `rsiPeriod + smoothFactor + darPeriod * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands around the smoothed result. The output is a dual-line system: the QQE line (smoothed RSI) and a trailing level that follows price directionally, similar to Parabolic SAR logic. Crossovers between the QQE line and its trailing level signal momentum shifts, while crossovers of the QQE line above and below 50 indicate trend direction. The trailing level adapts to volatility through a double-EMA of RSI absolute changes, making band width contract in quiet markets and expand during volatile conditions.
 

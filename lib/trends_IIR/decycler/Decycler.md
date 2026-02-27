@@ -1,5 +1,22 @@
 # DECYCLER: Ehlers Decycler
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 60)                      |
+| **Outputs**      | Single series (Decycler)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Ehlers Decycler extracts the trend component from a price series by subtracting a 2-pole Butterworth high-pass filter from the source signal.
+- Parameterized by `period` (default 60).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The trend is what remains when you stop looking for cycles."
 
 The Ehlers Decycler extracts the trend component from a price series by subtracting a 2-pole Butterworth high-pass filter from the source signal. Where most moving averages blur the boundary between trend and cycle, the Decycler defines it with a frequency-domain cutoff: cycles shorter than the specified period are removed, everything longer stays. The result is an overlay that hugs price with near-zero lag during trends and rejects short-term oscillations without the smoothing artifacts of convolution-based averages.

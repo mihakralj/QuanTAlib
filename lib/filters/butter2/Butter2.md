@@ -1,4 +1,21 @@
-﻿# BUTTER2: Ehlers 2-Pole Butterworth Filter
+# BUTTER2: Ehlers 2-Pole Butterworth Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Butter2)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `4 * period` bars                          |
+
+### TL;DR
+
+- The 2-Pole Butterworth Filter (BUTTER2) is a signal processing tool designed to provide maximally flat frequency response in the passband.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `4 * period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Maximally flat frequency response in the passband."
 

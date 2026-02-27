@@ -10,6 +10,9 @@ public class CointegrationValidationTests
 {
     private const double Tolerance = 1e-6;
 
+    // GBM-based noise helper: log-return from seeded GBM price stream as centered noise.
+    private static double GbmNoise(GBM gbm) => Math.Log(gbm.Next().Close / 100.0);
+
     #region Statistical Property Validation
 
     [Fact]
@@ -18,12 +21,12 @@ public class CointegrationValidationTests
         // Two series with near-perfect linear relationship should show strong cointegration
         // Adding small noise to avoid zero-variance residuals
         var indicator = new Cointegration(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         for (int i = 0; i < 100; i++)
         {
-            double a = 100.0 + i * 0.5 + (random.NextDouble() - 0.5) * 0.1;
-            double b = 2.0 * a + 10.0 + (random.NextDouble() - 0.5) * 0.1;
+            double a = 100.0 + i * 0.5 + GbmNoise(random) * 0.1;
+            double b = 2.0 * a + 10.0 + GbmNoise(random) * 0.1;
             indicator.Update(a, b);
         }
 
@@ -55,12 +58,12 @@ public class CointegrationValidationTests
     {
         // B = k * A + small noise (near-proportional relationship)
         var indicator = new Cointegration(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 43);
 
         for (int i = 0; i < 100; i++)
         {
             double a = 50.0 + i * 0.3 + Math.Sin(i * 0.2) * 5.0;
-            double noise = (random.NextDouble() - 0.5) * 0.5;
+            double noise = GbmNoise(random) * 0.5;
             double b = 1.5 * a + noise;
             indicator.Update(a, b);
         }
@@ -73,12 +76,12 @@ public class CointegrationValidationTests
     {
         // B = α + β*A + small_noise
         var indicator = new Cointegration(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 44);
 
         for (int i = 0; i < 100; i++)
         {
             double a = 100.0 + i * 0.2;
-            double noise = (random.NextDouble() - 0.5) * 0.5; // Small noise
+            double noise = GbmNoise(random) * 0.5; // Small noise
             double b = 25.0 + 0.8 * a + noise;
             indicator.Update(a, b);
         }
@@ -245,12 +248,12 @@ public class CointegrationValidationTests
     public void Cointegration_SmallPeriod_WorksCorrectly()
     {
         var indicator = new Cointegration(3); // Minimum practical period
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 45);
 
         for (int i = 0; i < 20; i++)
         {
-            double a = 100.0 + i + (random.NextDouble() - 0.5) * 0.1;
-            double b = 50.0 + 0.5 * a + (random.NextDouble() - 0.5) * 0.1;
+            double a = 100.0 + i + GbmNoise(random) * 0.1;
+            double b = 50.0 + 0.5 * a + GbmNoise(random) * 0.1;
             indicator.Update(a, b);
         }
 
@@ -263,12 +266,12 @@ public class CointegrationValidationTests
     public void Cointegration_LargePeriod_WorksCorrectly()
     {
         var indicator = new Cointegration(100);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 46);
 
         for (int i = 0; i < 150; i++)
         {
-            double a = 100.0 + i * 0.1 + (random.NextDouble() - 0.5) * 0.1;
-            double b = 30.0 + 0.8 * a + (random.NextDouble() - 0.5) * 0.1;
+            double a = 100.0 + i * 0.1 + GbmNoise(random) * 0.1;
+            double b = 30.0 + 0.8 * a + GbmNoise(random) * 0.1;
             indicator.Update(a, b);
         }
 

@@ -1,5 +1,22 @@
 # TSeries: Time Series Data Container
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (TSeries)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `TSeries` is a high-performance, memory-efficient container for time-series data.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 ## What It Does
 
 `TSeries` is a high-performance, memory-efficient container for time-series data. Unlike standard collections (like `List<TValue>`), it uses a **Structure of Arrays (SoA)** layout internally. This means it stores timestamps and values in separate contiguous arrays, optimizing memory access patterns for numerical processing and SIMD vectorization.

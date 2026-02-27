@@ -1,4 +1,21 @@
-﻿# LEMA: Leader Exponential Moving Average
+# LEMA: Leader Exponential Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Lema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- LEMA (Leader EMA) adds a smoothed error correction to the standard EMA, creating a moving average that anticipates price movement.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "George Siligardos asked a simple question: what if you smoothed the EMA's own error and added it back? The answer is a moving average that leads price changes instead of lagging behind them. The error becomes the signal."
 

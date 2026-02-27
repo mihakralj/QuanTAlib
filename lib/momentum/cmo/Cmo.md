@@ -1,4 +1,21 @@
-﻿# CMO (Chande Momentum Oscillator)
+# CMO (Chande Momentum Oscillator)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default DefaultPeriod)                      |
+| **Outputs**      | Single series (Cmo)                       |
+| **Output range** | $-100$ to $+100$                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- The Chande Momentum Oscillator (CMO) is a momentum indicator developed by Tushar Chande.
+- Parameterized by `period` (default defaultperiod).
+- Output range: $-100$ to $+100$.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chande Momentum Oscillator (CMO) is a momentum indicator developed by Tushar Chande. Unlike RSI which uses smoothed averages of gains and losses, CMO uses raw sums of up and down movements, making it more responsive to price changes. The indicator oscillates between -100 and +100.
 

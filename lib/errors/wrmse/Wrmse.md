@@ -1,5 +1,22 @@
 # WRMSE: Weighted Root Mean Squared Error
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Wrmse)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- WRMSE extends the classic RMSE by incorporating weights for each observation, enabling analysts to emphasize critical data points such as recent ob...
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Not all errors are created equal—WRMSE lets you decide which ones matter most."
 
 WRMSE extends the classic RMSE by incorporating weights for each observation, enabling analysts to emphasize critical data points such as recent observations, high-volume periods, or specific market regimes. When all weights are equal, WRMSE reduces exactly to RMSE, making it a strict generalization. This implementation uses dual RingBuffers for O(1) streaming updates with periodic resync to manage floating-point drift.

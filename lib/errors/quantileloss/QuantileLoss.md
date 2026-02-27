@@ -1,4 +1,21 @@
-﻿# Quantile Loss: Pinball Loss Function
+# Quantile Loss: Pinball Loss Function
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `quantile` (default 0.5)                      |
+| **Outputs**      | Single series (Quantile)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Quantile Loss (also called Pinball Loss) measures prediction accuracy with asymmetric penalties for over-prediction versus under-prediction.
+- Parameterized by `period`, `quantile` (default 0.5).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When over-prediction and under-prediction carry different costs, quantiles find the balance."
 

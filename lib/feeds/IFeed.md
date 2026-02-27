@@ -1,5 +1,22 @@
 # IFeed Interface
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Feed                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (IFeed)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `IFeed` defines the standard contract for all data feeds in QuanTAlib, ensuring consistent behavior across different data sources (synthetic, file-...
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 `IFeed` defines the standard contract for all data feeds in QuanTAlib, ensuring consistent behavior across different data sources (synthetic, file-based, or live API).
 
 ## Key Concepts

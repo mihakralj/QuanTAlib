@@ -1,5 +1,22 @@
 # EXPDIST: Exponential Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 50), `lambda` (default 3.0)                      |
+| **Outputs**      | Single series (Expdist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Exponential Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the exponential distribution, p...
+- Parameterized by `period` (default 50), `lambda` (default 3.0).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Exponential Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the exponential distribution, producing an output in $[0, 1]$. The exponential distribution models memoryless waiting times: the probability that a normalized value falls below a threshold depends only on the rate parameter $\lambda$, not on any history. Higher $\lambda$ values compress the CDF curve toward zero, making the indicator more sensitive to small normalized deviations. With $O(N)$ normalization and $O(1)$ CDF evaluation, EXPDIST provides a nonlinear percentile ranking that emphasizes the lower end of the price range while compressing the upper end.
 
 ## Historical Context

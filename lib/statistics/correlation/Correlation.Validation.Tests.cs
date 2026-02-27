@@ -594,12 +594,12 @@ public sealed class CorrelationValidationTests : IDisposable
     {
         // Create two series with negative correlation
         var indicator = new Correlation(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         for (int i = 0; i < 100; i++)
         {
-            double x = 100.0 + i + (random.NextDouble() - 0.5) * 2;
-            double y = 200.0 - 0.8 * i + (random.NextDouble() - 0.5) * 2; // Negative relationship
+            double x = 100.0 + i + Math.Log(random.Next().Close / 100.0) * 2;
+            double y = 200.0 - 0.8 * i + Math.Log(random.Next().Close / 100.0) * 2; // Negative relationship
             indicator.Update(x, y);
         }
 
@@ -611,12 +611,12 @@ public sealed class CorrelationValidationTests : IDisposable
     {
         // Create two series with weak correlation (lots of noise)
         var indicator = new Correlation(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 43);
 
         for (int i = 0; i < 100; i++)
         {
-            double x = 100.0 + i + (random.NextDouble() - 0.5) * 50;
-            double y = 100.0 + 0.1 * i + (random.NextDouble() - 0.5) * 50; // Weak relationship
+            double x = 100.0 + i + Math.Log(random.Next().Close / 100.0) * 50;
+            double y = 100.0 + 0.1 * i + Math.Log(random.Next().Close / 100.0) * 50; // Weak relationship
             indicator.Update(x, y);
         }
 

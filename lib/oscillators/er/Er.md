@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Efficiency Ratio) |
 | **Output range** | $0$ to $1$                       |
 | **Warmup**       | `period + 1` bars                |
+
 ### TL;DR
 
 - ER measures the signal-to-noise ratio of price movement: net directional change divided by total path length.
@@ -17,6 +18,7 @@
 - Not available and therefore not validated against any other TA library
 
 > "The best trades move in a straight line. The worst ones wander. ER tells you which kind you're looking at." -- Perry Kaufman
+
 ## Historical Context
 
 Perry Kaufman introduced the Efficiency Ratio in *Trading Systems and Methods* (1995) as part of his Adaptive Moving Average (KAMA) framework. The idea was straightforward: an ideal trend indicator should react quickly in trending markets and slowly in choppy ones. ER provides the adaptive signal that tells KAMA how to behave.

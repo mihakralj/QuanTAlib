@@ -1,4 +1,21 @@
-﻿# HOLT: Holt Exponential Moving Average
+# HOLT: Holt Exponential Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `gamma` (default 0)                      |
+| **Outputs**      | Single series (HOLT)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Holt's exponential smoothing extends simple exponential smoothing (EMA) by adding a second equation that explicitly tracks the local trend.
+- Parameterized by `period`, `gamma` (default 0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Single smoothing tracks level. Double smoothing tracks trend. The elegance is not in complexity but in the admission that yesterday's direction matters." — Charles C. Holt (1957)
 

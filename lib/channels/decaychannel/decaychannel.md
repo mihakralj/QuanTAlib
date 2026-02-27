@@ -1,5 +1,22 @@
 # DECAYCHANNEL: Decay Min-Max Channel
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that exp...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that expands instantly on new volatility but contracts smoothly during consolidation. While Donchian Channels hold their width until an extreme exits the lookback window, Decay Channel allows the bands to "forget" old extremes over time using a half-life model. The period parameter serves as the half-life: after that many bars without a new extreme, the band has decayed 50% of the distance back toward center. The decayed values are always clamped within Donchian bounds, ensuring they never extrapolate beyond actual price history.
 
 ## Historical Context

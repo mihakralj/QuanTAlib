@@ -1,4 +1,21 @@
-﻿# DX: Directional Movement Index
+# DX: Directional Movement Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Multiple series (DiPlus, DiMinus)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system.
+- Parameterized by `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance — making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.
 

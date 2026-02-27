@@ -1,5 +1,22 @@
 # KCHANNEL: Keltner Channel
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20), `multiplier` (default 2.0)                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period * 2` bars                          |
+
+### TL;DR
+
+- Keltner Channel constructs a volatility-adaptive envelope by projecting Average True Range above and below an Exponential Moving Average center line.
+- Parameterized by `period` (default 20), `multiplier` (default 2.0).
+- Output range: Tracks input.
+- Requires `period * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Keltner Channel constructs a volatility-adaptive envelope by projecting Average True Range above and below an Exponential Moving Average center line. The channel differs from ATR Bands solely in the center line: Keltner uses EMA (faster, more responsive) while ATR Bands use SMA (more stable, more lag). The EMA center combined with ATR width creates a channel that both tracks trend and adapts to volatility, making it one of the most widely used channel indicators for trend-following and mean-reversion strategies. The implementation uses EMA with warmup compensation for accurate early values and Wilder's smoothing (RMA) for ATR.
 
 ## Historical Context

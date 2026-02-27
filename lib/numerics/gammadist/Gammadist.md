@@ -1,5 +1,22 @@
 # GAMMADIST: Gamma Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `alpha` (default 2.0), `beta` (default 1.0), `period` (default 14)                      |
+| **Outputs**      | Single series (Gammadist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Gamma Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the gamma distribution, producing an ...
+- Parameterized by `alpha` (default 2.0), `beta` (default 1.0), `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Gamma Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the gamma distribution, producing an output in $[0, 1]$. The gamma distribution generalizes the exponential distribution by adding a shape parameter $\alpha$ that controls whether the PDF is monotonically decreasing ($\alpha < 1$), exponential ($\alpha = 1$), or bell-shaped with a right skew ($\alpha > 1$). Combined with a rate parameter $\beta$ that scales the normalized input, GAMMADIST provides a flexible nonlinear mapping with controllable asymmetry. The CDF is computed via the regularized lower incomplete gamma function using series expansion or Lentz continued fraction, selecting the faster-converging method based on the argument relative to the shape parameter.
 
 ## Historical Context

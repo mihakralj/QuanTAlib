@@ -1,5 +1,22 @@
 # WAVG: Weighted Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Wavg)                       |
+| **Output range** | $0$ to $1$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Weighted Average computes a rolling linearly-weighted mean where the most recent observation receives weight $N$ and the oldest receives weight...
+- Parameterized by `period`.
+- Output range: $0$ to $1$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Weighted Average computes a rolling linearly-weighted mean where the most recent observation receives weight $N$ and the oldest receives weight 1, making it mathematically identical to the Weighted Moving Average (WMA) but categorized as a statistical measure. The implementation uses a circular buffer with an $O(1)$ incremental update scheme: rather than recomputing the full weighted sum each bar, it maintains running sums and adjusts them through add/subtract operations as values enter and exit the window. This makes WAVG one of the most efficient weighted estimators available, with constant per-bar cost regardless of the lookback period.
 
 ## Historical Context

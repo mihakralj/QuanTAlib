@@ -1,4 +1,21 @@
-﻿# ELLIPTIC: 2nd Order Elliptic Lowpass Filter
+# ELLIPTIC: 2nd Order Elliptic Lowpass Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Elliptic)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Elliptic filter (or Cauer filter for the history buffs) is the uncompromising extremist of linear filtering.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "If you want a vertical cliff, you have to accept a few bumps on the plateau."
 

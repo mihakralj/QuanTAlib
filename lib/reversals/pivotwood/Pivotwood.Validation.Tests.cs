@@ -5,9 +5,6 @@
 
 using System.Runtime.InteropServices;
 
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Models;
-
 namespace QuanTAlib.Tests;
 
 public sealed class PivotwoodValidationTests
@@ -257,23 +254,4 @@ public sealed class PivotwoodValidationTests
         }
     }
 
-    [Fact(Skip = "Ooples pivot indicators group by calendar day — 500×1-min bars yields ~3 daily pivots. Requires daily OHLCV input; not comparable with intraday GBM data.")]
-    public void Pivotwood_MatchesOoples_Structural()
-    {
-        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.15, seed: 42);
-        var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var ooplesData = bars.Select(b => new TickerData
-        {
-            Date = new DateTime(b.Time, DateTimeKind.Utc),
-            Open = b.Open,
-            High = b.High,
-            Low = b.Low,
-            Close = b.Close,
-            Volume = b.Volume
-        }).ToList();
-        var result = new StockData(ooplesData).CalculateWoodiePivotPoints();
-        var values = result.OutputValues.Values.First();
-        int finiteCount = values.Count(v => double.IsFinite(v));
-        Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
-    }
 }

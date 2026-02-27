@@ -1,4 +1,21 @@
-﻿# PARZEN: Parzen (de la Vallée-Poussin) Window Moving Average
+# PARZEN: Parzen (de la Vallée-Poussin) Window Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Parzen)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppre...
+- Parameterized by `period` (default 14).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Emanuel Parzen convolved two triangular windows and got a piecewise cubic with zero sidelobe discontinuity. When your window function is its own proof of smoothness, the spectral leakage has nowhere to hide."
 

@@ -1,4 +1,21 @@
-﻿# VORTEX: Vortex Indicator
+# VORTEX: Vortex Indicator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Multiple series (ViPlus, ViMinus)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Vortex Indicator measures upward and downward trend momentum by computing the ratio of positive and negative vortex movements to true range ove...
+- Parameterized by `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When bulls and bears clash, the Vortex measures the violence."
 

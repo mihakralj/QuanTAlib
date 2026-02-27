@@ -1,5 +1,22 @@
 # VHF: Vertical Horizontal Filter
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 28)                      |
+| **Outputs**      | Single series (Vhf)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- VHF (Vertical Horizontal Filter) measures trend strength by dividing the price range over $N$ periods by the total absolute bar-to-bar path distanc...
+- Parameterized by `period` (default 28).
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Before you ask which way the market is going, ask whether it is going anywhere at all. VHF answers the second question with a ratio and a ruler."
 
 VHF (Vertical Horizontal Filter) measures trend strength by dividing the price range over $N$ periods by the total absolute bar-to-bar path distance over the same window. Created by Adam White and published in the August 1991 issue of *Futures* magazine, VHF produces a single positive value where higher readings indicate trending conditions and lower readings indicate choppy, range-bound markets. With the default period of 28, the indicator requires 29 close values for the first valid output. The core computation in streaming mode is O(1) per bar when implemented with deque-based min/max tracking and a running sum of absolute changes. No square roots, no exponentials, no recursion. VHF is one of the simplest and cheapest trend-strength classifiers available, requiring approximately 12 operations per bar at steady state.

@@ -1,4 +1,21 @@
-﻿# BBI: Bulls Bears Index
+# BBI: Bulls Bears Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `p1` (default DefaultP1), `p2` (default DefaultP2), `p3` (default DefaultP3), `p4` (default DefaultP4)                      |
+| **Outputs**      | Single series (Bbi)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `Math.Max(Math.Max(p1, p2), Math.Max(p3, p4))` bars                          |
+
+### TL;DR
+
+- BBI (Bulls Bears Index) computes the arithmetic mean of four Simple Moving Averages with geometrically spaced periods (3, 6, 12, 24 by default).
+- Parameterized by `p1` (default defaultp1), `p2` (default defaultp2), `p3` (default defaultp3), `p4` (default defaultp4).
+- Output range: Varies (see docs).
+- Requires `Math.Max(Math.Max(p1, p2), Math.Max(p3, p4))` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Average four moving averages of doubling periods and you get a single line that votes on whether bulls or bears own the tape. It is a committee of trends, each watching a different time horizon, forced to agree on one number."
 

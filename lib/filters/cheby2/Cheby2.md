@@ -1,4 +1,21 @@
-﻿# CHEBY2 (Chebyshev Type II / Inverse Chebyshev)
+# CHEBY2 (Chebyshev Type II / Inverse Chebyshev)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `attenuation` (default 5.0)                      |
+| **Outputs**      | Single series (Cheby2)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- A Chebyshev Type II filter (also known as Inverse Chebyshev) with O(1) complexity.
+- Parameterized by `period`, `attenuation` (default 5.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 A Chebyshev Type II filter (also known as Inverse Chebyshev) with O(1) complexity. Unlike the Type I filter, Type II is maximally flat in the passband (like Butterworth) but has equiripple in the stopband.
 

@@ -1,4 +1,21 @@
-﻿# LMS: Least Mean Squares Adaptive Filter
+# LMS: Least Mean Squares Adaptive Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `order` (default 16), `mu` (default 0.5)                      |
+| **Outputs**      | Single series (LMS)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `order + 1` bars                          |
+
+### TL;DR
+
+- The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm i...
+- Parameterized by `order` (default 16), `mu` (default 0.5).
+- Output range: Tracks input.
+- Requires `order + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The filter that learns from its mistakes, one gradient step at a time."
 

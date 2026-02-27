@@ -1,5 +1,22 @@
 # BIAS: Price Deviation from Moving Average (also known as Disparity Index)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Bias)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Bias indicator measures the percentage difference between the current price and its Simple Moving Average (SMA).
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "When traders ask 'how overbought is it?', they're really asking how far price has strayed from its anchor. Bias answers that question in percentage terms, telling you whether the current price is 5% above or 10% below its moving average. It's the market's stretch marks made visible."
 
 The Bias indicator measures the percentage difference between the current price and its Simple Moving Average (SMA). A positive bias indicates price is above the average (potentially overbought), while negative bias suggests price is below average (potentially oversold). This is one of the simplest yet most effective tools for identifying mean-reversion opportunities.

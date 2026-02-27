@@ -1,5 +1,22 @@
 # FCB: Fractal Chaos Bands
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20)                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period + 2` bars                          |
+
+### TL;DR
+
+- Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest ...
+- Parameterized by `period` (default 20).
+- Output range: Tracks input.
+- Requires `period + 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest confirmed fractal low over a lookback period. Unlike Donchian Channels which use every bar's high and low, FCB uses only structurally significant turning points — bars where the middle element of a 3-bar pattern is a local extremum. The result is a "cleaner" channel that ignores transient spikes and focuses on confirmed support and resistance levels. The bands tend to remain flat during trends and step discretely when new structural pivots form, making them useful for identifying genuine breakouts versus noise.
 
 ## Historical Context

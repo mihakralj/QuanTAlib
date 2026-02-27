@@ -1,4 +1,21 @@
-﻿# MdAPE: Median Absolute Percentage Error
+# MdAPE: Median Absolute Percentage Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Mdape)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Median Absolute Percentage Error (MdAPE) combines the scale-independence of percentage errors with the robustness of median statistics.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When you need relative errors but can't trust the outliers."
 

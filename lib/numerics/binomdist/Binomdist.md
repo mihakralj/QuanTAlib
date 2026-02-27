@@ -1,5 +1,22 @@
 # BINOMDIST: Binomial Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 50), `trials` (default 20), `threshold` (default 10)                      |
+| **Outputs**      | Single series (Binomdist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- BINOMDIST computes the cumulative distribution function of the Binomial distribution, mapping a min-max normalized price to a success probability $...
+- Parameterized by `period` (default 50), `trials` (default 20), `threshold` (default 10).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 BINOMDIST computes the cumulative distribution function of the Binomial distribution, mapping a min-max normalized price to a success probability $p$ and evaluating $P(X \leq k)$ for $X \sim \text{Binomial}(n, p)$. The normalized price position within its lookback range determines the probability of success per trial, while the trial count $n$ and threshold $k$ control the shape of the CDF response. The output is a $[0, 1]$ bounded oscillator where values near 0 indicate the price-derived probability makes $k$ or fewer successes very unlikely (bullish pressure), and values near 1 indicate $k$ successes are very likely (established range).
 
 ## Historical Context

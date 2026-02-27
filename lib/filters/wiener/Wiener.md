@@ -1,4 +1,21 @@
-﻿# Wiener Filter
+# Wiener Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `smoothPeriod` (default 10)                      |
+| **Outputs**      | Single series (Wiener)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(period, smoothPeriod)` bars                          |
+
+### TL;DR
+
+- The Wiener Filter is an optimal linear filter that attempts to minimize the mean square error between the estimated random process and the desired ...
+- Parameterized by `period`, `smoothperiod` (default 10).
+- Output range: Tracks input.
+- Requires `Math.Max(period, smoothPeriod)` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The signal is the truth. The noise is just an opinion."
 

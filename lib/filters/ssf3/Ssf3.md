@@ -1,4 +1,21 @@
-﻿# SSF3: Ehlers 3-Pole Super Smoother Filter
+# SSF3: Ehlers 3-Pole Super Smoother Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Ssf3)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `6 * period` bars                          |
+
+### TL;DR
+
+- The 3-Pole Super Smoother Filter (SSF3) extends Ehlers' Super Smoother concept to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `6 * period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Three poles, one sample. Maximum smoothing, minimum ceremony."
 

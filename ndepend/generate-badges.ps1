@@ -28,7 +28,7 @@ if (-not (Test-Path $NDBadgePath)) {
 
 if (-not (Test-Path $XmlPath)) {
     Write-Error "NDepend trend data XML not found at: $XmlPath"
-    Write-Host "Please run ndepend.ps1 first to generate analysis data" -ForegroundColor Yellow
+    Write-Information "Please run ndepend.ps1 first to generate analysis data"
     exit 1
 }
 
@@ -40,54 +40,53 @@ if (-not (Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 }
 
-Write-Host "=== Generating QuanTAlib Quality Badges ===" -ForegroundColor Cyan
-Write-Host "Output directory: $OutputDir`n" -ForegroundColor Gray
+Write-Information "=== Generating QuanTAlib Quality Badges ==="
+Write-Information "Output directory: $OutputDir`n"
 
 # Selected badges for QuanTAlib README
-Write-Host "Generating QuanTAlib badges..." -ForegroundColor Green
+Write-Information "Generating QuanTAlib badges..."
 
 $HighValueBadges = @(
     @{
-        Metric = "# Lines of Code"
-        Output = "loc.svg"
+        Metric      = "# Lines of Code"
+        Output      = "loc.svg"
         Description = "Total lines of code"
     },
     @{
-        Metric = "# Source Files"
-        Output = "files.svg"
+        Metric      = "# Source Files"
+        Output      = "files.svg"
         Description = "Source files"
     },
     @{
-        Metric = "# Classes"
-        Output = "classes.svg"
+        Metric      = "# Classes"
+        Output      = "classes.svg"
         Description = "Classes"
     },
     @{
-        Metric = "# Methods"
-        Output = "methods.svg"
+        Metric      = "# Methods"
+        Output      = "methods.svg"
         Description = "Methods"
     },
     @{
-        Metric = "# Public Types"
-        Output = "public-api.svg"
+        Metric      = "# Public Types"
+        Output      = "public-api.svg"
         Description = "Public API surface"
     },
     @{
-        Metric = "Percentage of Comments"
-        Output = "comments.svg"
+        Metric      = "Percentage of Comments"
+        Output      = "comments.svg"
         Description = "Comment percentage"
     },
     @{
-        Metric = "Average Cyclomatic Complexity for Methods"
-        Output = "complexity.svg"
+        Metric      = "Average Cyclomatic Complexity for Methods"
+        Output      = "complexity.svg"
         Description = "Average complexity"
     }
 )
 
 foreach ($badge in $HighValueBadges) {
     $outputPath = Join-Path $OutputDir $badge.Output
-    Write-Host "  [$($badge.Output)]" -ForegroundColor Cyan -NoNewline
-    Write-Host " $($badge.Description)" -ForegroundColor Gray
+    Write-Information "  [$($badge.Output)] $($badge.Description)"
     
     & $NDBadgePath --xml $XmlPath --metric $badge.Metric --output $outputPath
     
@@ -98,17 +97,17 @@ foreach ($badge in $HighValueBadges) {
 
 
 # Generate summary
-Write-Host "`n=== Badge Generation Complete ===" -ForegroundColor Green
+Write-Information "`n=== Badge Generation Complete ==="
 $generatedBadges = Get-ChildItem -Path $OutputDir -Filter "*.svg"
-Write-Host "Generated $($generatedBadges.Count) badges in: $OutputDir"
+Write-Information "Generated $($generatedBadges.Count) badges in: $OutputDir"
 
-Write-Host "`nGenerated badges:" -ForegroundColor Green
+Write-Information "`nGenerated badges:"
 $HighValueBadges | ForEach-Object {
-    Write-Host "  - $($_.Output.PadRight(20)) : $($_.Description)" -ForegroundColor Gray
+    Write-Information "  - $($_.Output.PadRight(20)) : $($_.Description)"
 }
 
-Write-Host "`nMarkdown snippet for README.md:" -ForegroundColor Cyan
-Write-Host @"
+Write-Information "`nMarkdown snippet for README.md:"
+Write-Information @"
 
 ## Quality Metrics
 
@@ -120,4 +119,4 @@ Write-Host @"
 [![Comments](ndepend/badges/comments.svg)]()
 [![Complexity](ndepend/badges/complexity.svg)]()
 
-"@ -ForegroundColor Gray
+"@

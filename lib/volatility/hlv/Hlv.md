@@ -1,8 +1,26 @@
 # HLV: High-Low Volatility (Parkinson)
 
-*Also known as: PV (Parkinson Volatility)*
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20), `annualize` (default true), `annualPeriods` (default 252)                      |
+| **Outputs**      | Single series (Hlv)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- *Also known as: PV (Parkinson Volatility)*
+- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The simplest solution is often the most elegant. When you only need the peaks and valleys, why ask for the whole journey?"
+
+*Also known as: PV (Parkinson Volatility)*
+
 
 High-Low Volatility (HLV), also known as the Parkinson estimator, is a range-based volatility measure that uses only the high and low prices of each period. Developed by Michael Parkinson in 1980, this estimator achieves approximately 5x better efficiency than close-to-close methods by exploiting the information content in the trading range. The implementation includes RMA (Wilder's) smoothing with bias correction and optional annualization.
 

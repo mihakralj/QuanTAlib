@@ -1,5 +1,22 @@
 # RSX: Relative Strength Quality Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Rsx)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Mark Jurik's RSX represents the pinnacle of bounded momentum oscillator design.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "RSX is to RSI what a Tesla is to a horse-drawn carriage: same basic concept, vastly superior engineering."
 
 Mark Jurik's RSX represents the pinnacle of bounded momentum oscillator design. Standard RSI suffers from a fundamental paradox: raw RSI produces jagged noise triggering false signals at overbought/oversold boundaries, but smoothing introduces unacceptable lag that delays turning points. RSX solves this through cascaded IIR filter topology that eliminates high-frequency noise while preserving linear phase response. The result: output so smooth it resembles a sine wave, yet turns precisely at market extrema with zero effective lag.

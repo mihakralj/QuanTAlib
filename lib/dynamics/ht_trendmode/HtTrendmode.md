@@ -1,4 +1,21 @@
-﻿# HT_TRENDMODE: Hilbert Transform Trend vs Cycle Mode
+# HT_TRENDMODE: Hilbert Transform Trend vs Cycle Mode
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (HT_TRENDMODE)                       |
+| **Output range** | $0$ to $1$                     |
+| **Warmup**       | `LOOKBACK` bars                          |
+
+### TL;DR
+
+- The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (ou...
+- No configurable parameters; computation is stateless per bar.
+- Output range: $0$ to $1$.
+- Requires `LOOKBACK` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (output = 1) or cyclical/mean-reverting behavior (output = 0). It uses the full Ehlers Hilbert Transform pipeline — 4-bar WMA smoothing, Hilbert FIR filters, homodyne discriminator for period estimation, DC phase extraction, and SineWave indicators — then applies four decision criteria to classify the current regime. The implementation follows TA-Lib's Ehlers-faithful algorithm from the February 2002 publication. Output is discrete {0, 1}, making it a direct strategy selector: deploy trend-following logic when mode = 1, and mean-reversion logic when mode = 0.
 

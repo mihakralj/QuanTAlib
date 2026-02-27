@@ -1,5 +1,22 @@
 # KAMA: Kaufman's Adaptive Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 10), `fastPeriod` (default 2), `slowPeriod` (default 30)                      |
+| **Outputs**      | Single series (Kama)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- KAMA (Kaufman's Adaptive Moving Average) is an intelligent moving average that adjusts its smoothing speed based on market noise.
+- Parameterized by `period` (default 10), `fastperiod` (default 2), `slowperiod` (default 30).
+- Output range: Tracks input.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Perry Kaufman asked a simple question: 'Why should I use the same smoothing in a trending market as in a chopping market?' KAMA is the answer."
 
 KAMA (Kaufman's Adaptive Moving Average) is an intelligent moving average that adjusts its smoothing speed based on market noise. When the price is moving steadily (high signal-to-noise ratio), KAMA speeds up to capture the trend. When the price is chopping sideways (low signal-to-noise ratio), KAMA slows down to filter out the noise.

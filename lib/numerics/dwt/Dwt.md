@@ -1,5 +1,22 @@
 # DWT: Discrete Wavelet Transform
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `levels` (default 4), `output` (default 0)                      |
+| **Outputs**      | Single series (Dwt)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `bufferSize` bars                          |
+
+### TL;DR
+
+- The Discrete Wavelet Transform decomposes a price series into multi-resolution frequency components using the a trous (with holes) stationary Haar ...
+- Parameterized by `levels` (default 4), `output` (default 0).
+- Output range: Varies (see docs).
+- Requires `bufferSize` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Discrete Wavelet Transform decomposes a price series into multi-resolution frequency components using the a trous (with holes) stationary Haar wavelet. Unlike decimated DWT, the stationary variant preserves time alignment at every scale, producing an approximation (trend) and detail coefficients (noise/cycles) at each decomposition level. Each level doubles the effective receptive field: level $L$ captures structure at $2^L$ bars. With 1-8 levels and $O(L)$ per-bar cost, DWT provides a complete multi-scale decomposition that cleanly separates trend from noise without the phase distortion inherent in moving-average cascades.
 
 ## Historical Context

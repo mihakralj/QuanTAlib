@@ -1,5 +1,22 @@
 # WCLPRICE: Weighted Close Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (WCLPRICE)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- WCLPRICE computes a Close-biased average of High, Low, and Close by double-weighting the closing price: $(H + L + 2C) \times 0.25$.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 WCLPRICE computes a Close-biased average of High, Low, and Close by double-weighting the closing price: $(H + L + 2C) \times 0.25$. This gives Close 50% of the total weight versus 25% each for High and Low, reflecting the widely held belief that the closing price is the most important price of the bar because it represents the final consensus of buyers and sellers. The calculation is stateless, costs a single FMA instruction per bar, and is TA-Lib compatible (`TA_WCLPRICE`).
 
 ## Historical Context

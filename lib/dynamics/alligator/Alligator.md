@@ -1,4 +1,21 @@
-﻿# ALLIGATOR: Williams Alligator
+# ALLIGATOR: Williams Alligator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `jawPeriod`, `jawOffset`, `teethPeriod`, `teethOffset`, `lipsPeriod`, `lipsOffset`                      |
+| **Outputs**      | Multiple series (Jaw, Teeth, Lips)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `Math.Max(Math.Max(jawPeriod, teethPeriod), lipsPeriod)` bars                          |
+
+### TL;DR
+
+- The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display o...
+- Parameterized by `jawperiod`, `jawoffset`, `teethperiod`, `teethoffset`, `lipsperiod`, `lipsoffset`.
+- Output range: Varies (see docs).
+- Requires `Math.Max(Math.Max(jawPeriod, teethPeriod), lipsPeriod)` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display offsets to visualize market phases. The Jaw (13-period, offset 8), Teeth (8-period, offset 5), and Lips (5-period, offset 3) create a layered structure where intertwined lines indicate consolidation ("sleeping") and separated, aligned lines indicate trending conditions ("eating"). The metaphor maps directly to position management: stay out when the alligator sleeps, ride when it eats. Each line uses Wilder's smoothing ($\alpha = 1/N$), which is heavier than standard EMA, providing superior noise rejection at the cost of additional lag.
 

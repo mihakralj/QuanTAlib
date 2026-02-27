@@ -1,5 +1,22 @@
 # MGDI: McGinley Dynamic Indicator
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14), `k` (default 0.6)                      |
+| **Outputs**      | Single series (Mgdi)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle.
+- Parameterized by `period` (default 14), `k` (default 0.6).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "John McGinley saw moving averages failing in fast markets and said, 'It's not the market's fault, it's the math's fault.' MGDI is the apology."
 
 MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle. Rather than using a fixed smoothing factor, it dynamically adjusts based on the ratio between price and the indicator's current value. The result is a filter that accelerates to catch breakouts while decelerating to avoid overshooting reversals—a behavior that fixed-alpha filters cannot achieve.

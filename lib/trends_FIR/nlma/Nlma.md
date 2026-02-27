@@ -1,4 +1,21 @@
-﻿# NLMA: Non-Lag Moving Average
+# NLMA: Non-Lag Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Nlma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- NLMA uses a two-phase damped cosine kernel with $5P - 1$ taps (where $P$ is the user period).
+- Parameterized by `period` (default 14).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Igorad at TrendLaboratory built a two-phase FIR kernel that uses five times more taps than the period parameter suggests. The extra taps carry negative weights that actively cancel group delay. Most 'non-lag' indicators are marketing. This one is signal processing."
 

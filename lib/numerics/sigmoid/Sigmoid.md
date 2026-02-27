@@ -1,5 +1,22 @@
 # SIGMOID: Logistic Function
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `k` (default 1.0), `x0` (default 0.0)                      |
+| **Outputs**      | Single series (Sigmoid)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- The Sigmoid (Logistic) transformer maps any real-valued input to the bounded range (0, 1) using the standard logistic function.
+- Parameterized by `k` (default 1.0), `x0` (default 0.0).
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The sigmoid function is the S-curve that turns messy reality into neat probabilities—a mathematical diplomat that insists every answer must be between 0 and 1."
 
 The Sigmoid (Logistic) transformer maps any real-valued input to the bounded range (0, 1) using the standard logistic function. Its characteristic S-shaped curve makes it indispensable for probability estimation, neural network activations, and any scenario requiring bounded outputs from unbounded inputs.

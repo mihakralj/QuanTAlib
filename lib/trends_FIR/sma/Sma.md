@@ -1,5 +1,22 @@
 # SMA: Simple Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Sma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Simple Moving Average (SMA) is the unweighted arithmetic mean of the last $N$ data points.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The vanilla ice cream of technical analysis. Boring, ubiquitous, and the only thing your grandfather and your high-frequency trading bot agree on."
 
 The Simple Moving Average (SMA) is the unweighted arithmetic mean of the last $N$ data points. It acts as a low-pass filter, smoothing out high-frequency noise to reveal the underlying trend. While conceptually simple, efficient implementation on modern hardware requires careful attention to memory access patterns and vectorization.

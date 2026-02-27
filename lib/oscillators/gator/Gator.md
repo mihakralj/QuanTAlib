@@ -1,5 +1,22 @@
 # GATOR: Williams Gator Oscillator
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `jawPeriod` (default 13), `jawShift` (default 8), `teethPeriod` (default 8), `teethShift` (default 5), `lipsPeriod` (default 5), `lipsShift` (default 3)                      |
+| **Outputs**      | Single series (Gator)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `Math.Max(jawPeriod + jawShift, Math.Max(teethPeriod + teethShift, lipsPeriod + lipsShift))` bars                          |
+
+### TL;DR
+
+- The Williams Gator Oscillator is a dual-histogram visualization of the Alligator indicator's convergence and divergence.
+- Parameterized by `jawperiod` (default 13), `jawshift` (default 8), `teethperiod` (default 8), `teethshift` (default 5), `lipsperiod` (default 5), `lipsshift` (default 3).
+- Output range: Varies (see docs).
+- Requires `Math.Max(jawPeriod + jawShift, Math.Max(teethPeriod + teethShift, lipsPeriod + lipsShift))` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The alligator tells you the trend exists. The gator tells you whether the alligator is hungry or full."
 
 The Williams Gator Oscillator is a dual-histogram visualization of the Alligator indicator's convergence and divergence. It strips the Alligator's three SMMA lines down to two absolute differences: upper (Jaw minus Teeth) and lower (negative of Teeth minus Lips). The result is a zero-centered oscillator where expanding bars signal trend acceleration and contracting bars signal trend exhaustion. Because it operates on pre-computed SMMA values, the Gator adds zero computational overhead beyond two subtractions, two absolute values, and one sign flip per bar.

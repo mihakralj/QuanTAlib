@@ -1,4 +1,21 @@
-﻿# PRS: Price Relative Strength
+# PRS: Price Relative Strength
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `smoothPeriod` (default 1)                      |
+| **Outputs**      | Single series (PRS)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `smoothPeriod` bars                          |
+
+### TL;DR
+
+- **Category:** Momentum **Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio
+- Parameterized by `smoothperiod` (default 1).
+- Output range: Varies (see docs).
+- Requires `smoothPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 **Category:** Momentum  
 **Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio

@@ -1,5 +1,22 @@
 # CG: Ehlers Center of Gravity
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 10)                      |
+| **Outputs**      | Single series (Cg)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window.
+- Parameterized by `period` (default 10).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window. Developed by John Ehlers, the oscillator measures where the "weight" of prices is concentrated within a lookback period, producing a leading indicator that oscillates around zero with minimal lag compared to traditional moving average crossover systems.
 
 ## Historical Context

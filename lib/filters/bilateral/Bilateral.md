@@ -1,4 +1,21 @@
-﻿# Bilateral Filter
+# Bilateral Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `sigmaSRatio` (default 0.5), `sigmaRMult` (default 1.0)                      |
+| **Outputs**      | Single series (Bilateral)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Bilateral Filter is a non-linear, edge-preserving, and noise-reducing smoothing filter.
+- Parameterized by `period`, `sigmasratio` (default 0.5), `sigmarmult` (default 1.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Smoothing without blurring edges? It's not magic, it's just math."
 

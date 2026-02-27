@@ -1,5 +1,22 @@
 # NMA: Natural Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Nma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- NMA is an adaptive IIR filter whose smoothing ratio is derived from a volatility-weighted square-root kernel analysis of log-price movements over a...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Jim Sloman looked at how volatility distributes across a window and asked: if the most volatile bars are recent, should the filter not respond faster? NMA derives its smoothing constant from the volatility profile itself, weighted by a square-root kernel that emphasizes recent action."
 
 NMA is an adaptive IIR filter whose smoothing ratio is derived from a volatility-weighted square-root kernel analysis of log-price movements over a lookback window. When volatility concentrates in recent bars, the ratio approaches 1.0 (fast tracking). When volatility is spread uniformly, the ratio approaches $1/\sqrt{N}$ (heavy smoothing). The square-root kernel $(\sqrt{i+1} - \sqrt{i})$ gives a concave-down weighting that gently emphasizes recency, while the log-price transformation normalizes for price level, making the adaptation scale-invariant.

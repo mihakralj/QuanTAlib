@@ -1,8 +1,26 @@
 # ZLDEMA: Zero-Lag Double Exponential Moving Average
 
-## DEMA with lag compensation via a zero-lag signal
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Zldema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+
+### TL;DR
+
+- ZLDEMA takes a standard DEMA and feeds it a **zero-lag signal**: current price minus a lagged price.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "ZLDEMA combines the speed of zero-lag prediction with the smoothness of double exponential averaging. You get faster response than ZLEMA, with better trend-following than DEMA."
+
+## DEMA with lag compensation via a zero-lag signal
+
 
 ZLDEMA takes a standard DEMA and feeds it a **zero-lag signal**: current price minus a lagged price. This produces a smoother that responds faster than DEMA without going fully raw. The dual EMA cascade provides additional noise rejection while the zero-lag preprocessing maintains responsiveness.
 

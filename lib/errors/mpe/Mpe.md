@@ -1,4 +1,21 @@
-﻿# MPE: Mean Percentage Error
+# MPE: Mean Percentage Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (MPE)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "MAPE tells you how wrong you are; MPE tells you which direction you're wrong in."
 

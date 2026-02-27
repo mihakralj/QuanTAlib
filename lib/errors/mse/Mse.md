@@ -1,4 +1,21 @@
-﻿# MSE: Mean Squared Error
+# MSE: Mean Squared Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (MSE)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Mean Squared Error (MSE) measures the average of the squares of the errors between actual and predicted values.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The metric that makes outliers pay dearly for their transgressions."
 

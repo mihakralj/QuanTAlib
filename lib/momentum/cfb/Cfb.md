@@ -1,5 +1,22 @@
 # CFB: Jurik Composite Fractal Behavior
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | int[]? lengths = null                      |
+| **Outputs**      | Single series (CFB)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars...
+- Parameterized by int[]? lengths = null.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Mark Jurik's CFB is not a momentum indicator. It is a stopwatch for chaos."
 
 The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars by default). Rather than asking "how strong is the trend," CFB asks "how long has the market been moving efficiently." The answer: a single integer representing the dominant trending timeframe. Use CFB to dynamically tune other indicators: instead of RSI(14), use RSI(CFB).

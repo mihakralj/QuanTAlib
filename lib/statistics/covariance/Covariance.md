@@ -1,5 +1,22 @@
 # Covariance: Covariance
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `isPopulation` (default false)                      |
+| **Outputs**      | Single series (Cov)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Covariance measures the joint variability of two random variables.
+- Parameterized by `period`, `ispopulation` (default false).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Correlation is just covariance normalized by standard deviation. But sometimes you want the raw, unadulterated relationship."
 
 Covariance measures the joint variability of two random variables. It indicates the direction of the linear relationship between variables.

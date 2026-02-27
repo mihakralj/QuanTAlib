@@ -1,5 +1,22 @@
 # APCHANNEL: Adaptive Price Channel
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (Apchannel)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes wh...
+- No configurable parameters; computation is stateless per bar.
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes while gradually fading their influence over time. Unlike rigid Donchian channels that drop price extremes abruptly when they exit the lookback window (the "cliff effect"), APCHANNEL decays them smoothly through leaky integration. The result is a channel with continuously sloping boundaries that responds to volatility without the discontinuous jumps that plague fixed-window approaches. The algorithm is $O(1)$ per bar with only two state variables and no buffers.
 
 ## Historical Context

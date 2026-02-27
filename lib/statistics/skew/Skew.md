@@ -1,5 +1,22 @@
 # SKEW: Skewness
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `isPopulation` (default false)                      |
+| **Outputs**      | Single series (Skew)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean.
+- Parameterized by `period`, `ispopulation` (default false).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "In the land of the blind, the one-eyed man is king. In the land of the normal distribution, the skewed man is profitable."
 
 Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean. It tells you where the "tail" of the distribution is.

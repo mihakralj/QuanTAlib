@@ -1,4 +1,21 @@
-﻿# DYMOI: Dynamic Momentum Index
+# DYMOI: Dynamic Momentum Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `basePeriod` (default 14), `shortPeriod` (default 5), `longPeriod` (default 10), `minPeriod` (default 3), `maxPeriod` (default 30)                      |
+| **Outputs**      | Single series (Dymoi)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- DYMOI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator be...
+- Parameterized by `baseperiod` (default 14), `shortperiod` (default 5), `longperiod` (default 10), `minperiod` (default 3), `maxperiod` (default 30).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The market is not a fixed-frequency oscillator. Why would you analyze it with one?" — Tushar Chande & Stanley Kroll, *The New Technical Trader*, 1994
 

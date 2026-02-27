@@ -1,4 +1,21 @@
-﻿# QSTICK: Qstick Indicator
+# QSTICK: Qstick Indicator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default DefaultPeriod), `useEma` (default DefaultUseEma)                      |
+| **Outputs**      | Single series (QSTICK)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying ...
+- Parameterized by `period` (default defaultperiod), `useema` (default defaultuseema).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The average candlestick body reveals the market's true conviction."
 

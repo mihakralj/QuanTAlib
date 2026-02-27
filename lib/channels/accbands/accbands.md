@@ -1,5 +1,22 @@
 # ACCBANDS: Acceleration Bands
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`, `factor` (default 4.0)                      |
+| **Outputs**      | Multiple series (Upper, Lower)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating chann...
+- Parameterized by `period`, `factor` (default 4.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating channels that accommodate the full price excursion of the underlying asset. Each bar's contribution to band width is normalized by price level ($w = (H-L)/(H+L)$), making the bands scale-invariant across instruments. Three independent Simple Moving Averages of the adjusted high, adjusted low, and close prices form the upper, lower, and middle bands respectively. Headley's original breakout rule declares a trend when price closes outside the bands for two consecutive bars.
 
 ## Historical Context

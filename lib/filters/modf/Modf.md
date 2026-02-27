@@ -1,4 +1,21 @@
-﻿# MODF: Modular Filter
+# MODF: Modular Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `beta` (default 0.8), `feedback` (default false), `fbWeight` (default 0.5)                      |
+| **Outputs**      | Single series (MODF)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- MODF is a dual-path adaptive filter that maintains separate upper and lower EMA bands with conditional state selection.
+- Parameterized by `period`, `beta` (default 0.8), `feedback` (default false), `fbweight` (default 0.5).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "alexgrover designed a filter with two paths — one tracks uptrends, one tracks downtrends — and a state machine that picks between them. Add a beta knob for aggression and an optional feedback loop, and you get one of the most versatile adaptive filters on TradingView."
 

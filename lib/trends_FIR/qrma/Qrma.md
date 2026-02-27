@@ -1,4 +1,21 @@
-﻿# QRMA: Quadratic Regression Moving Average
+# QRMA: Quadratic Regression Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Qrma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at t...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Linear regression assumes the world is a straight line. Quadratic regression admits it might curve. For parabolic price moves, that admission turns out to be worth 40% less endpoint error."
 

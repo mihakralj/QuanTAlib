@@ -1,5 +1,22 @@
 # VWAPBANDS: VWAP with Dual Standard Deviation Bands
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `multiplier` (default DefaultMultiplier)                      |
+| **Outputs**      | Multiple series (Upper1, Lower1, Upper2, Lower2, Vwap, StdDev, Width)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `2` bars                          |
+
+### TL;DR
+
+- VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-l...
+- Parameterized by `multiplier` (default defaultmultiplier).
+- Output range: Tracks input.
+- Requires `2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-line channel system anchored to volume-weighted fair value. Three running sums (cumulative price×volume, cumulative volume, cumulative price²×volume) enable O(1) streaming updates per bar. A session reset mechanism clears accumulations at configurable intervals, keeping the indicator anchored to current market structure.
 
 ## Historical Context

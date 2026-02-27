@@ -1,4 +1,25 @@
-﻿# KST: Know Sure Thing Oscillator
+# KST: Know Sure Thing Oscillator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `r1` (default DefaultR1), `r2` (default DefaultR2), `r3` (default DefaultR3), `r4` (default DefaultR4), `s1` (default DefaultS1), `s2` (default DefaultS2), `s3` (default DefaultS3), `s4` (default DefaultS4), `sigPeriod` (default DefaultSigPeriod)                      |
+| **Outputs**      | Multiple series (KstValue, Signal)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `Math.Max(Math.Max(r1, r2), Math.Max(r3, r4))
+                     + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))
+                     + sigPeriod - 2` bars                          |
+
+### TL;DR
+
+- The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smo...
+- Parameterized by `r1` (default defaultr1), `r2` (default defaultr2), `r3` (default defaultr3), `r4` (default defaultr4), `s1` (default defaults1), `s2` (default defaults2), `s3` (default defaults3), `s4` (default defaults4), `sigperiod` (default defaultsigperiod).
+- Output range: Varies (see docs).
+- Requires `Math.Max(Math.Max(r1, r2), Math.Max(r3, r4))
+                     + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))
+                     + sigPeriod - 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smooths each with an independent SMA, then combines them using linearly increasing weights (1, 2, 3, 4) to produce a single composite momentum line. A signal line (SMA of the KST) provides crossover triggers. The weighted summation ensures longer-term momentum dominates the output while shorter-term components contribute responsiveness, creating a momentum indicator that reflects multiple cycle lengths simultaneously.
 

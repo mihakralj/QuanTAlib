@@ -1,8 +1,26 @@
 # HEMA: Hull Exponential Moving Average
 
-## An EMA-domain analog of HMA with WMA-lag-matched alphas
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Hema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `EstimateWarmupPeriod()` bars                          |
+
+### TL;DR
+
+- HEMA is a Hull-style moving average built entirely from **exponential smoothers**.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `EstimateWarmupPeriod()` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "HMA is a topology. HEMA keeps the topology and swaps the physics: windows to decay, with identical lag."
+
+## An EMA-domain analog of HMA with WMA-lag-matched alphas
+
 
 HEMA is a Hull-style moving average built entirely from **exponential smoothers**. It preserves the classic HMA pipeline (fast minus slow, then smooth) but replaces WMA sub-filters with EMAs whose alphas are tuned to produce **identical lag** to the WMA stages they replace. At period $N$: HEMA($N$) and HMA($N$) have the same theoretical group delay, but HEMA has infinite memory and smoother transient behavior.
 

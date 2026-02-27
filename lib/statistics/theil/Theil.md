@@ -1,5 +1,22 @@
 # THEIL: Theil's T Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Theil)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Theil T Index is an information-theoretic measure of inequality (or concentration) within a distribution of positive values.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The only useful measure of inequality is one that tells you how much redistribution would make everyone equally well off." — Henri Theil
 
 ## Introduction

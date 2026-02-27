@@ -1,5 +1,22 @@
 # TRENDFLEX: Ehlers Trendflex Indicator
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Trendflex)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Trendflex indicator combines a 2-pole Butterworth low-pass pre-filter (Super Smoother) with an O(1) cumulative slope measurement and exponentia...
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The trend is your friend until it bends." — Ed Seykota, but Ehlers actually measures the bending.
 
 ## Introduction

@@ -1,4 +1,21 @@
-﻿# PMA: Predictive Moving Average
+# PMA: Predictive Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Pma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `(period * 2) - 1` bars                          |
+
+### TL;DR
+
+- PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predi...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `(period * 2) - 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been."
 

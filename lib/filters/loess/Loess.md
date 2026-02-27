@@ -1,4 +1,21 @@
-﻿# Loess: Locally Estimated Scatterplot Smoothing
+# Loess: Locally Estimated Scatterplot Smoothing
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Loess)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Period` bars                          |
+
+### TL;DR
+
+- Locally Estimated Scatterplot Smoothing (LOESS) applies a weighted linear regression over a localized window of nearest neighbors.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `Period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When global models fail, act locally. LOESS fits the data by ignoring the noise and embracing the neighborhood."
 

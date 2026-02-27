@@ -1,5 +1,22 @@
 # EACP: Ehlers Autocorrelation Periodogram
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `minPeriod` (default 8), `maxPeriod` (default 48), `avgLength` (default 3), `enhance` (default true)                      |
+| **Outputs**      | Single series (Eacp)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `maxPeriod * 2` bars                          |
+
+### TL;DR
+
+- EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result i...
+- Parameterized by `minperiod` (default 8), `maxperiod` (default 48), `avglength` (default 3), `enhance` (default true).
+- Output range: Varies (see docs).
+- Requires `maxPeriod * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem. The output is a continuously updating cycle period measurement (in bars) that can adaptively tune other indicators to the market's current rhythm, making fixed-period assumptions unnecessary.
 
 ## Historical Context

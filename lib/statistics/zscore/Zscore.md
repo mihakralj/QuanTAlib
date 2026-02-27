@@ -1,5 +1,22 @@
 # ZSCORE: Z-Score (Population Standard Score, also known as STANDARDIZE)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Zscore)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Z-Score measures how many population standard deviations a value lies from the rolling mean over a lookback window.
+- Parameterized by `period` (default 14).
+- Output range: Unbounded.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "How far from normal is this?" — Every risk manager, every day.
 
 ## Introduction

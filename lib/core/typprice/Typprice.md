@@ -1,5 +1,22 @@
 # TYPPRICE: Typical Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (TYPPRICE)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- TYPPRICE computes the equal-weighted average of High, Low, and Close: $(H + L + C) \times \frac{1}{3}$.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 TYPPRICE computes the equal-weighted average of High, Low, and Close: $(H + L + C) \times \frac{1}{3}$. This three-component mean is the most widely used "representative price" in technical analysis, serving as the default input for CCI, MFI, and many other indicators. By including Close but excluding Open, Typical Price captures both the range extremes and the settlement point, giving slightly more weight to closing action than AVGPRICE does. The calculation is stateless and costs a single FMA instruction per bar.
 
 ## Historical Context

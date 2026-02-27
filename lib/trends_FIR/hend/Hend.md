@@ -1,4 +1,21 @@
-﻿# HEND: Henderson Moving Average
+# HEND: Henderson Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 7)                      |
+| **Outputs**      | Single series (Hend)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without disto...
+- Parameterized by `period` (default 7).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Robert Henderson designed a filter so good that the Australian Bureau of Statistics still uses it a century later. When your smoothing algorithm outlasts empires, you did something right."
 

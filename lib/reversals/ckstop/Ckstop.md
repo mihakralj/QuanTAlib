@@ -1,5 +1,22 @@
 # CKSTOP: Chande Kroll Stop
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Reversal                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `atrPeriod` (default DefaultAtrPeriod), `multiplier` (default DefaultMultiplier), `stopPeriod` (default DefaultStopPeriod)                      |
+| **Outputs**      | Single series (Ckstop)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `atrPeriod + stopPeriod` bars                          |
+
+### TL;DR
+
+- The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes.
+- Parameterized by `atrperiod` (default defaultatrperiod), `multiplier` (default defaultmultiplier), `stopperiod` (default defaultstopperiod).
+- Output range: Varies (see docs).
+- Requires `atrPeriod + stopPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The best stop-loss is the one that knows where volatility ends and trend begins."
 
 The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes. It produces two lines: StopLong (support) and StopShort (resistance). When price trades above both stops, the trend is bullish. When below both, bearish. Crossovers between the two stops signal potential reversals.

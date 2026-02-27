@@ -196,18 +196,9 @@ public class StderrValidationTests
         }
     }
 
-    // ── Tulip Structural Note ─────────────────────────────────────────────────
-    //
-    // Tulip `stderr` is NOT the standard error of linear regression.
+    // Note: Tulip `stderr` is NOT the standard error of linear regression.
     // Tulip formula: stddev(x, n) / sqrt(n) = standard error of the mean.
     // QuanTAlib Stderr: sqrt(SSR / (n-2)) = standard error of OLS regression.
     // These are different statistics — no cross-validation is possible.
     // QuanTAlib is validated against its own brute-force OLS reference above.
-
-    [Fact(Skip = "Tulip stderr = StdDev/sqrt(n) (SE of mean); QuanTAlib Stderr = sqrt(SSR/(n-2)) (SE of OLS regression). Different statistics — intentional divergence.")]
-    public void Stderr_Structural_Note_TulipFormulaDiffers()
-    {
-        // Intentionally empty: test is always skipped via [Fact(Skip=...)].
-        // The Skip message documents the formula incompatibility with Tulip.
-    }
 }

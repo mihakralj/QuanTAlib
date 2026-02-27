@@ -1,4 +1,21 @@
-﻿# TTM_TREND: TTM Trend
+# TTM_TREND: TTM Trend
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default DefaultPeriod)                      |
+| **Outputs**      | Single series (TTM_TREND)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `> 2` bars                          |
+
+### TL;DR
+
+- John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign.
+- Parameterized by `period` (default defaultperiod).
+- Output range: Varies (see docs).
+- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The simplest trend indicator is the one you actually follow."
 

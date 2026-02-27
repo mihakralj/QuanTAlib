@@ -1,5 +1,22 @@
 # ACF: Autocorrelation Function
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `lag` (default 1)                      |
+| **Outputs**      | Single series (Acf)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself.
+- Parameterized by `period`, `lag` (default 1).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The past doesn't predict the future, but it whispers patterns to those who listen."
 
 The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself. It is fundamental for identifying repeating patterns, seasonal effects, and determining the order of time series models like ARMA/ARIMA.

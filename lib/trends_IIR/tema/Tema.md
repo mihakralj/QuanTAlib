@@ -1,5 +1,22 @@
 # TEMA: Triple Exponential Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Tema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period * 3` bars                          |
+
+### TL;DR
+
+- The Triple Exponential Moving Average (TEMA) is a lag-reducing filter that combines a single, double, and triple EMA.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period * 3` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Patrick Mulloy looked at the lag of an EMA and took it personally. TEMA is what happens when you apply algebra to impatience."
 
 The Triple Exponential Moving Average (TEMA) is a lag-reducing filter that combines a single, double, and triple EMA. Unlike a simple triple smoothing (which would be incredibly slow), TEMA uses a weighted combination of the three to cancel out the lag, resulting in an indicator that hugs price action tighter than a spandex cycling short.

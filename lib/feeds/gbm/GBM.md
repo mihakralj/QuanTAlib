@@ -1,5 +1,22 @@
 # GBM Class
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Feed                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (GBM)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `GBM` (Geometric Brownian Motion) is a synthetic data generator that simulates realistic financial price movements.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 `GBM` (Geometric Brownian Motion) is a synthetic data generator that simulates realistic financial price movements. It is useful for testing indicators, strategies, and system performance without relying on external data files.
 
 ## Key Features

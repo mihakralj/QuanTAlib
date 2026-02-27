@@ -1,5 +1,22 @@
 # BBWP: Bollinger Band Width Percentile
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `multiplier` (default 2.0), `lookback` (default 252)                      |
+| **Outputs**      | Single series (Bbwp)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period + lookback` bars                          |
+
+### TL;DR
+
+- BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the res...
+- Parameterized by `period`, `multiplier` (default 2.0), `lookback` (default 252).
+- Output range: $\geq 0$.
+- Requires `period + lookback` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Where does current volatility rank in the historical distribution? BBWP answers with a percentile."
 
 BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the result as a percentile rank between 0 and 1. Unlike BBWN which normalizes using min/max values, BBWP uses percentile ranking which is more robust to outliers.

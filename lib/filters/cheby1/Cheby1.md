@@ -1,4 +1,21 @@
-﻿# CHEBY1: Chebyshev Type I Lowpass Filter
+# CHEBY1: Chebyshev Type I Lowpass Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `ripple` (default 1.0)                      |
+| **Outputs**      | Single series (Cheby1)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with...
+- Parameterized by `period`, `ripple` (default 1.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with ripples in the passband. This type of filter has a steeper rolloff and more passband ripple (type I) or stopband ripple (type II) than Butterworth filters.
 

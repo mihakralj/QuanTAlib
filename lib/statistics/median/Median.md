@@ -1,5 +1,22 @@
 # MEDIAN: Rolling Median
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Median)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Rolling Median is a robust statistic that represents the middle value of a dataset within a moving window.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The average is easily influenced by outliers; the median stands its ground."
 
 The Rolling Median is a robust statistic that represents the middle value of a dataset within a moving window. Unlike the Simple Moving Average (SMA), which can be skewed by extreme values, the Median provides a more stable measure of central tendency, making it particularly useful for filtering noise in volatile markets.

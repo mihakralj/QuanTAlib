@@ -1,5 +1,22 @@
 # HT_PHASOR: Ehlers Hilbert Transform Phasor Components
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (HT_PHASOR)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `LOOKBACK` bars                          |
+
+### TL;DR
+
+- HT_PHASOR decomposes the price signal into two orthogonal components, InPhase ($I$) and Quadrature ($Q$), using the Hilbert Transform.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `LOOKBACK` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 HT_PHASOR decomposes the price signal into two orthogonal components, InPhase ($I$) and Quadrature ($Q$), using the Hilbert Transform. Together these form a complex phasor $Z = I + jQ$ that describes the instantaneous amplitude and phase of the dominant market cycle. Compatible with TA-Lib's `HT_PHASOR` function, this dual-output indicator provides the fundamental building blocks for cycle analysis, phasor crossover timing, and instantaneous amplitude measurement.
 
 ## Historical Context

@@ -1,5 +1,22 @@
 # PWMA: Parabolic Weighted Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Pwma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Linear weighting is for people who think the world is flat. PWMA squares the weights, because recent data isn't just more important—it's exponentially more important."
 
 PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window. This assigns massive importance to the most recent data points while still technically including the older data. It's like a WMA on steroids.

@@ -1,4 +1,21 @@
-﻿# Huber: Huber Loss
+# Huber: Huber Loss
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `delta` (default 1.345)                      |
+| **Outputs**      | Single series (Huber)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE).
+- Parameterized by `period`, `delta` (default 1.345).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The Goldilocks of loss functions: not too sensitive, not too robust, just right."
 

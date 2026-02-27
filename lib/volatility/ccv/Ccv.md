@@ -1,5 +1,22 @@
 # CCV: Close-to-Close Volatility
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `method` (default 1)                      |
+| **Outputs**      | Single series (Ccv)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- Close-to-Close Volatility (CCV) calculates the annualized standard deviation of logarithmic returns using only closing prices.
+- Parameterized by `period`, `method` (default 1).
+- Output range: $\geq 0$.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The simplest volatility measure is often the most robust—when all you have is closing prices, make the most of them."
 
 Close-to-Close Volatility (CCV) calculates the annualized standard deviation of logarithmic returns using only closing prices. This is the foundational volatility measure in quantitative finance, serving as a benchmark against which more sophisticated estimators are compared. The implementation supports three smoothing methods (SMA, EMA, WMA) and annualizes using the standard √252 factor for daily data.

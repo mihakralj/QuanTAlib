@@ -1,5 +1,22 @@
 # EOM: Ease of Movement
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14), `volumeScale` (default 10000)                      |
+| **Outputs**      | Single series (Eom)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- Ease of Movement (EOM) quantifies how easily price moves relative to volume.
+- Parameterized by `period` (default 14), `volumescale` (default 10000).
+- Output range: Unbounded.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Ease of Movement reveals when price advances effortlessly versus when it struggles against resistance. It's the market's accelerometer." — Richard W. Arms Jr.
 
 Ease of Movement (EOM) quantifies how easily price moves relative to volume. High positive values indicate price is advancing with little resistance (low volume relative to price range), while high negative values reveal price declining easily. Values near zero suggest price is meeting resistance, requiring substantial volume to produce movement.

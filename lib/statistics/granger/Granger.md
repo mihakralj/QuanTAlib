@@ -1,5 +1,22 @@
 # GRANGER: Granger Causality F-Statistic
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20)                      |
+| **Outputs**      | Single series (Granger)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- The Granger Causality test asks a precise, falsifiable question: does knowing the history of series X improve your ability to predict series Y, bey...
+- Parameterized by `period` (default 20).
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Correlation is not causation, but Granger causality is not causation either. It is prediction." -- Clive Granger
 
 ## Introduction

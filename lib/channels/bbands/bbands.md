@@ -1,5 +1,22 @@
 # BBANDS: Bollinger Bands
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default DefaultPeriod), `multiplier` (default DefaultMultiplier)                      |
+| **Outputs**      | Multiple series (Middle, Upper, Lower, Width, PercentB)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Bollinger Bands construct a volatility-adaptive envelope around a Simple Moving Average using population standard deviation as the width measure.
+- Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Bollinger Bands construct a volatility-adaptive envelope around a Simple Moving Average using population standard deviation as the width measure. The bands expand during high-volatility periods and contract during consolidation, dynamically adapting to changing market conditions. Under Gaussian assumptions, $\pm 2\sigma$ contains approximately 95.4% of price action, but financial returns exhibit fat tails and volatility clustering, so the bands function more as a volatility-normalized reference frame than a strict probability envelope. The derived metrics %B (price position as a fraction of band width) and BandWidth (normalized band spread) extend the raw bands into a complete analytical toolkit.
 
 ## Historical Context

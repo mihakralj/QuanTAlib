@@ -1,8 +1,26 @@
 # ZLTEMA: Zero-Lag Triple Exponential Moving Average
 
-## TEMA with lag compensation via a zero-lag signal
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Zltema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+
+### TL;DR
+
+- ZLTEMA takes a standard TEMA and feeds it a **zero-lag signal**: current price minus a lagged price.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "ZLTEMA combines the speed of zero-lag prediction with the smoothness of triple exponential averaging. You get the fastest response in the zero-lag family, with the best noise rejection from the TEMA cascade."
+
+## TEMA with lag compensation via a zero-lag signal
+
 
 ZLTEMA takes a standard TEMA and feeds it a **zero-lag signal**: current price minus a lagged price. This produces a smoother that responds faster than TEMA without going fully raw. The triple EMA cascade provides maximum noise rejection in the exponential family while the zero-lag preprocessing maintains responsiveness.
 

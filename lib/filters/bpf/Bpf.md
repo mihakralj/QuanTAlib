@@ -1,4 +1,21 @@
-﻿# BPF (Bandpass Filter)
+# BPF (Bandpass Filter)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `lowerPeriod`, `upperPeriod`                      |
+| **Outputs**      | Single series (BPF)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(lowerPeriod, upperPeriod)` bars                          |
+
+### TL;DR
+
+- The **BPF** (BandPass Filter) is a second-order IIR architecture designed to surgically excise specific frequency components from a time series.
+- Parameterized by `lowerperiod`, `upperperiod`.
+- Output range: Tracks input.
+- Requires `Math.Max(lowerPeriod, upperPeriod)` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Most market data is noise. A sliver is signal. The rest is just detailed evidence of human panic."
 

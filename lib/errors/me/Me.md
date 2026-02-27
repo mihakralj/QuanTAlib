@@ -1,4 +1,21 @@
-﻿# ME: Mean Error (Mean Bias Error)
+# ME: Mean Error (Mean Bias Error)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (ME)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Mean Error (ME), also known as Mean Bias Error, measures the average error between actual and predicted values while preserving the sign.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Sometimes you need to know not just how wrong you are, but which direction you're wrong in."
 

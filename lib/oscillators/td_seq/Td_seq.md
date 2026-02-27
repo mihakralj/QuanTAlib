@@ -1,4 +1,21 @@
-﻿# TD_SEQ: TD Sequential
+# TD_SEQ: TD Sequential
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (TdSeq)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `comparePeriod + 1` bars                          |
+
+### TL;DR
+
+- TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that d...
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `comparePeriod + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that detects overextended trends, and a 13-count Countdown phase that pinpoints probable reversal timing. Unlike oscillators that measure momentum magnitude, TD Sequential counts consecutive qualifying bars, producing integer outputs (Setup: $\pm 1$ to $\pm 9$; Countdown: $\pm 1$ to $\pm 13$) that represent the progression toward exhaustion. A completed 9-count Setup followed by a completed 13-count Countdown signals high-probability trend exhaustion. All state is maintained in O(1) scalar variables with no buffers required.
 

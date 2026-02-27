@@ -1,5 +1,22 @@
 # TBarSeries: OHLCV Data Container
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Multiple series (Open, High, Low, Close, Volume)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `TBarSeries` is a high-performance collection of OHLCV bars.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 ## What It Does
 
 `TBarSeries` is a high-performance collection of OHLCV bars. It is the primary data structure for managing historical and real-time market data in QuanTAlib. It uses a **Structure of Arrays (SoA)** layout to optimize memory access and enable efficient SIMD operations across individual price components.

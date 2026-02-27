@@ -1,5 +1,22 @@
 # LOGNORMDIST: Log-Normal Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `mu` (default 0.0), `sigma` (default 1.0), `period` (default 14)                      |
+| **Outputs**      | Single series (Lognormdist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Log-Normal Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the log-normal distribution, pro...
+- Parameterized by `mu` (default 0.0), `sigma` (default 1.0), `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Log-Normal Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the log-normal distribution, producing an output in $[0, 1]$. A random variable $X$ is log-normally distributed when $\ln(X)$ follows a normal distribution. This makes the log-normal CDF natural for financial data, where multiplicative returns (log-returns) are approximately normally distributed. The indicator min-max normalizes the source to $(0, 1]$, takes the natural logarithm, standardizes by parameters $\mu$ and $\sigma$, then evaluates the standard normal CDF. The result emphasizes values near the bottom of the recent range (where the logarithm diverges) and compresses values near the top.
 
 ## Historical Context

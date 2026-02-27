@@ -1,5 +1,22 @@
 # RV: Realized Volatility
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 5), `smoothingPeriod` (default 20), `annualize` (default true), `annualPeriods` (default 252)                      |
+| **Outputs**      | Single series (Rv)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing ...
+- Parameterized by `period` (default 5), `smoothingperiod` (default 20), `annualize` (default true), `annualperiods` (default 252).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The sum of squared returns—a direct measure of how much the market actually moved, free from the assumptions embedded in standard deviation."
 
 Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing for stability. Unlike traditional Historical Volatility (HV) which calculates standard deviation of returns, RV directly accumulates squared returns—the raw building blocks of variance—providing a more direct measure of realized price variation.

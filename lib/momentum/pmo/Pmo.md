@@ -1,5 +1,22 @@
 # PMO: Price Momentum Oscillator
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `timePeriods` (default DefaultTimePeriods), `smoothPeriods` (default DefaultSmoothPeriods), `signalPeriods` (default DefaultSignalPeriods)                      |
+| **Outputs**      | Single series (Pmo)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `timePeriods + smoothPeriods` bars                          |
+
+### TL;DR
+
+- PMO (Price Momentum Oscillator), developed by Carl Swenlin at DecisionPoint, is a double-smoothed 1-bar rate of change.
+- Parameterized by `timeperiods` (default defaulttimeperiods), `smoothperiods` (default defaultsmoothperiods), `signalperiods` (default defaultsignalperiods).
+- Output range: Varies (see docs).
+- Requires `timePeriods + smoothPeriods` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Double-smooth the rate of change and you get something that actually tells you where momentum is headed, not where it was five bars ago."
 
 PMO (Price Momentum Oscillator), developed by Carl Swenlin at DecisionPoint, is a double-smoothed 1-bar rate of change. It applies two custom EMA passes to a percentage ROC, producing a momentum oscillator that is smoother than raw ROC yet more responsive than triple-smoothed alternatives like TRIX. The custom EMA uses $\alpha = 2/N$ rather than the standard $2/(N+1)$, and seeds with the SMA of the first N values. PMO oscillates around zero: positive values indicate upward momentum, negative values indicate downward momentum.

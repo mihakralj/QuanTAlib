@@ -1,4 +1,21 @@
-﻿# EDCF: Ehlers Distance Coefficient Filter
+# EDCF: Ehlers Distance Coefficient Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `length` (default 15)                      |
+| **Outputs**      | Single series (Edcf)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The **Ehlers Distance Coefficient Filter (EDCF)** is a nonlinear adaptive FIR filter created by John F.
+- Parameterized by `length` (default 15).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview
 

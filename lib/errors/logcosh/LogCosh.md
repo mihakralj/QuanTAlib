@@ -1,4 +1,21 @@
-﻿# Log-Cosh: Logarithm of Hyperbolic Cosine Loss
+# Log-Cosh: Logarithm of Hyperbolic Cosine Loss
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (UNKNOWN)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Log-Cosh Loss combines the best properties of L1 (absolute) and L2 (squared) error metrics through the logarithm of the hyperbolic cosine function.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The smooth operator that acts like L2 for small errors and L1 for large ones."
 

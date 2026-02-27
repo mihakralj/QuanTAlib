@@ -7,13 +7,17 @@ namespace QuanTAlib.Tests;
 /// </summary>
 public class GrangerValidationTests
 {
+    // GBM-based noise helper: extracts log-return from a seeded GBM price stream as centered noise.
+    // Using sigma=1.0 gives log-returns ~N(0, vol²*dt); scale to required magnitude.
+    private static double GbmNoise(GBM gbm) => Math.Log(gbm.Next().Close / 100.0);
+
     [Fact]
     public void Granger_CausalRelationship_ProducesHighFStatistic()
     {
         // X causes Y: Y_t = 0.5*Y_{t-1} + 0.3*X_{t-1} + noise
         // Adding X_lag should significantly improve prediction
         var indicator = new Granger(20);
-        var rng = new Random(42);
+        var rng = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         double y = 100.0;
         double x = 100.0;
@@ -22,8 +26,8 @@ public class GrangerValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + (rng.NextDouble() - 0.5) * 2.0;
-            y = 50.0 + 0.5 * prevY + 0.3 * prevX + (rng.NextDouble() - 0.5) * 0.5;
+            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + GbmNoise(rng) * 2.0;
+            y = 50.0 + 0.5 * prevY + 0.3 * prevX + GbmNoise(rng) * 0.5;
 
             indicator.Update(y, x, isNew: true);
 
@@ -68,7 +72,7 @@ public class GrangerValidationTests
         // Compare strong causal vs weak causal relationship
         var strongIndicator = new Granger(20);
         var weakIndicator = new Granger(20);
-        var rng = new Random(42);
+        var rng = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         double yStrong = 100.0, yWeak = 100.0;
         double x = 100.0;
@@ -76,12 +80,12 @@ public class GrangerValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + (rng.NextDouble() - 0.5) * 2.0;
+            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + GbmNoise(rng) * 2.0;
 
             // Strong: Y depends heavily on X_lag
-            yStrong = 50.0 + 0.3 * prevYStrong + 0.6 * prevX + (rng.NextDouble() - 0.5) * 0.5;
+            yStrong = 50.0 + 0.3 * prevYStrong + 0.6 * prevX + GbmNoise(rng) * 0.5;
             // Weak: Y barely depends on X_lag
-            yWeak = 50.0 + 0.8 * prevYWeak + 0.05 * prevX + (rng.NextDouble() - 0.5) * 5.0;
+            yWeak = 50.0 + 0.8 * prevYWeak + 0.05 * prevX + GbmNoise(rng) * 5.0;
 
             strongIndicator.Update(yStrong, x, isNew: true);
             weakIndicator.Update(yWeak, x, isNew: true);
@@ -199,7 +203,7 @@ public class GrangerValidationTests
         // when causality is asymmetric
         var indicatorYX = new Granger(15);
         var indicatorXY = new Granger(15);
-        var rng = new Random(42);
+        var rng = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         double y = 100.0, x = 100.0;
         double prevY = y, prevX = x;
@@ -207,9 +211,9 @@ public class GrangerValidationTests
         for (int i = 0; i < 200; i++)
         {
             // X is exogenous (just random walk with drift)
-            x = prevX + (rng.NextDouble() - 0.5) * 2.0;
+            x = prevX + GbmNoise(rng) * 2.0;
             // Y depends on X_lag (X Granger-causes Y, but Y does NOT Granger-cause X)
-            y = 50.0 + 0.3 * prevY + 0.4 * prevX + (rng.NextDouble() - 0.5) * 0.5;
+            y = 50.0 + 0.3 * prevY + 0.4 * prevX + GbmNoise(rng) * 0.5;
 
             indicatorYX.Update(y, x, isNew: true); // Testing: does X cause Y?
             indicatorXY.Update(x, y, isNew: true); // Testing: does Y cause X?

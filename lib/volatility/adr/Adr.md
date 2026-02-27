@@ -1,5 +1,22 @@
 # ADR: Average Daily Range
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`, `method` (default AdrMethod.Sma)                      |
+| **Outputs**      | Single series (Adr)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `ma.WarmupPeriod` bars                          |
+
+### TL;DR
+
+- The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period.
+- Parameterized by `period`, `method` (default adrmethod.sma).
+- Output range: $\geq 0$.
+- Requires `ma.WarmupPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The simplest measure is often the most useful. Why complicate what doesn't need complicating?"
 
 The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period. Unlike its cousin ATR, ADR ignores gaps entirely. It answers a straightforward question: "How much does this asset typically move within a single bar?"

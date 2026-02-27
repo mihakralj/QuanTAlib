@@ -1,5 +1,22 @@
 # WAVELET: Denoising Wavelet Filter
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `levels` (default 4), `threshMult` (default 1.0)                      |
+| **Outputs**      | Single series (Wavelet)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Wavelet Denoising Filter applies an *à trous* (with holes) Haar wavelet decomposition with soft thresholding to remove high-frequency noise fro...
+- Parameterized by `levels` (default 4), `threshmult` (default 1.0).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The wavelet transform is to the Fourier transform what a microscope is to a telescope: same math, different scale."
 
 ## Introduction

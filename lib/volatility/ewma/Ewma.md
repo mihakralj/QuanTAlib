@@ -1,5 +1,22 @@
 # EWMA: Exponentially Weighted Moving Average Volatility
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20), `annualize` (default true), `annualPeriods` (default 252)                      |
+| **Outputs**      | Single series (EWMA)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- EWMA Volatility calculates market volatility using an exponentially weighted moving average of squared log returns with bias correction.
+- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The past doesn't repeat itself, but it does rhyme—and EWMA captures the rhythm of volatility with exponential memory."
 
 EWMA Volatility calculates market volatility using an exponentially weighted moving average of squared log returns with bias correction. Unlike simple historical volatility that weights all observations equally, EWMA gives more weight to recent observations while still considering historical data, making it more responsive to current market conditions.

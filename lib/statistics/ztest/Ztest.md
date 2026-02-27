@@ -1,5 +1,22 @@
 # ZTEST: One-Sample t-Test Statistic
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 30), `mu0` (default 0.0)                      |
+| **Outputs**      | Single series (Ztest)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- ZTEST computes the **one-sample t-statistic**, measuring how many standard errors the rolling sample mean deviates from a hypothesized population m...
+- Parameterized by `period` (default 30), `mu0` (default 0.0).
+- Output range: Unbounded.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The purpose of hypothesis testing is not to prove what we believe, but to measure what we observe." — Adapted from R.A. Fisher
 
 ## Introduction

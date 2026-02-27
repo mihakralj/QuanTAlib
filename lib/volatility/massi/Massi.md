@@ -1,5 +1,22 @@
 # MASSI: Mass Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `emaLength` (default 9), `sumLength` (default 25)                      |
+| **Outputs**      | Single series (Massi)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue of *Technical Analysis of Stocks & Commodities*, identifies potent...
+- Parameterized by `emalength` (default 9), `sumlength` (default 25).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The Mass Index doesn't predict direction—it predicts the moment of maximum uncertainty before clarity emerges."
 
 The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue of *Technical Analysis of Stocks & Commodities*, identifies potential trend reversals by measuring the narrowing and widening of the range between high and low prices. Unlike directional indicators, MASSI focuses on the *pattern* of range expansion and contraction, particularly the characteristic "reversal bulge" that often precedes significant market turns.

@@ -1,5 +1,22 @@
 # PVD: Price Volume Divergence
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `pricePeriod` (default 14), `volumePeriod` (default 14), `smoothingPeriod` (default 3)                      |
+| **Outputs**      | Single series (Pvd)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum.
+- Parameterized by `priceperiod` (default 14), `volumeperiod` (default 14), `smoothingperiod` (default 3).
+- Output range: Unbounded.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "When price and volume disagree, one of them is lying."
 
 Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum. The indicator identifies situations where price movement lacks volume confirmation—a classic warning signal that the current trend may be weakening or about to reverse.

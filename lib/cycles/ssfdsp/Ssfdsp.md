@@ -1,5 +1,22 @@
 # SSFDSP: Ehlers SSF Detrended Synthetic Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 40)                      |
+| **Outputs**      | Single series (SsfDsp)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `slowPeriod * 2` bars                          |
+
+### TL;DR
+
+- SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscill...
+- Parameterized by `period` (default 40).
+- Output range: Varies (see docs).
+- Requires `slowPeriod * 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscillator with superior noise rejection compared to the EMA-based DSP. The 2-pole Butterworth characteristic of the Super-Smoother filter provides zero phase lag at the cutoff frequency and sharper rolloff than exponential smoothing, making SSFDSP the preferred variant for cycle-aware trading when the approximate dominant period is known.
 
 ## Historical Context

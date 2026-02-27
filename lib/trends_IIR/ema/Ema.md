@@ -1,5 +1,22 @@
 # EMA: Exponential Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Ema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Exponential Moving Average is the reference standard for trend-following indicators.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?"
 
 The Exponential Moving Average is the reference standard for trend-following indicators. Unlike the SMA, which treats data from 10 days ago with the same reverence as data from 10 seconds ago (a touching but mathematically questionable form of loyalty), the EMA applies exponentially decaying weights to older prices. The result: faster reaction to new information without the "drop-off effect" that makes SMA users twitch nervously around window boundaries. Simple, well-understood, computationally cheap. The indicator equivalent of a reliable sedan: not glamorous, but it starts every morning.

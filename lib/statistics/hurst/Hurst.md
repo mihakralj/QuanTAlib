@@ -1,5 +1,22 @@
 # HURST: Hurst Exponent
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Hurst)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- The Hurst Exponent ($H$) quantifies long-range dependence in a time series through Rescaled Range (R/S) analysis.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The past is not dead. In fact, it's not even past." — William Faulkner, and also every mean-reverting time series that refuses to forget.
 
 ## Introduction

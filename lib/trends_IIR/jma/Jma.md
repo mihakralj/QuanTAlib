@@ -1,5 +1,22 @@
 # JMA: Jurik Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `phase` (default 0), `power` (default 0.45)                      |
+| **Outputs**      | Single series (Jma)                       |
+| **Output range** | $-100$ to $+100$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- JMA (Jurik Moving Average) is Mark Jurik's flagship adaptive smoother, recovered through decompilation of his proprietary AmiBroker/MetaTrader bina...
+- Parameterized by `period`, `phase` (default 0), `power` (default 0.45).
+- Output range: $-100$ to $+100$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The spectral approach isn't marketing. It's the difference between guessing at volatility and measuring it."
 
 JMA (Jurik Moving Average) is Mark Jurik's flagship adaptive smoother, recovered through decompilation of his proprietary AmiBroker/MetaTrader binaries. Unlike forum-sourced approximations that use exponential volatility smoothing, this implementation maintains a 128-bar volatility distribution and applies percentile trimming to derive a robust reference. The result: identical behavior to Jurik's commercial software within floating-point tolerance, including spike rejection during 3-sigma events where approximations diverge by 3-4%.

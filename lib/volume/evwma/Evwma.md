@@ -1,5 +1,22 @@
 # EVWMA: Elastic Volume Weighted Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20)                      |
+| **Outputs**      | Single series (EVWMA)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `> period` bars                          |
+
+### TL;DR
+
+- EVWMA (Elastic Volume Weighted Moving Average) is a volume-adaptive moving average that weights each bar's contribution to the average by its volum...
+- Parameterized by `period` (default 20).
+- Output range: Unbounded.
+- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volume is the one technical indicator that never lies." — Joe Granville
 
 ## Introduction

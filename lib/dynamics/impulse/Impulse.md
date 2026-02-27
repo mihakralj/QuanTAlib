@@ -1,4 +1,21 @@
-﻿# IMPULSE: Elder Impulse System
+# IMPULSE: Elder Impulse System
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `emaPeriod` (default 13), `macdFast` (default 12), `macdSlow` (default 26), `macdSignal` (default 9)                      |
+| **Outputs**      | Single series (Impulse)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Elder Impulse System combines a 13-period EMA (trend inertia) with the MACD(12,26,9) histogram (momentum acceleration) to classify each bar as ...
+- Parameterized by `emaperiod` (default 13), `macdfast` (default 12), `macdslow` (default 26), `macdsignal` (default 9).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The Impulse System identifies inflection points where a trend speeds up or slows down." -- Alexander Elder, *Come Into My Trading Room*
 

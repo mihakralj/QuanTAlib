@@ -1,5 +1,22 @@
 # ALMA: Arnaud Legoux Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `offset` (default 0.85), `sigma` (default 6.0)                      |
+| **Outputs**      | Single series (Alma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- ALMA is a Finite Impulse Response (FIR) filter that applies a Gaussian window to price data.
+- Parameterized by `period`, `offset` (default 0.85), `sigma` (default 6.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Gaussian distributions govern everything from particle diffusion to the distribution of shoe sizes. Applying them to price action isn't 'technical analysis'; it's just physics with a profit motive."
 
 ALMA is a Finite Impulse Response (FIR) filter that applies a Gaussian window to price data. Unlike the Simple Moving Average (which treats 10-minute-old data with the same reverence as 1-minute-old data) or the Exponential Moving Average (which holds onto history like a hoarder), ALMA allows you to shape the weight distribution precisely. It lets you define the trade-off between smoothness and lag using standard deviation ($\sigma$) and offset, rather than arbitrary periods.

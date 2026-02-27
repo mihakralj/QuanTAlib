@@ -1,5 +1,22 @@
 # LINEARTRANS: Linear Scaling Transformer
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `slope` (default 1.0), `intercept` (default 0.0)                      |
+| **Outputs**      | Single series (Lineartrans)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series.
+- Parameterized by `slope` (default 1.0), `intercept` (default 0.0).
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The simplest transformations are often the most powerful—linear scaling is the mathematical equivalent of adjusting the volume and tuning the dial."
 
 The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series. This fundamental operation enables scaling, offsetting, unit conversion, and normalization—the building blocks for preparing data for analysis or combining signals from different sources.

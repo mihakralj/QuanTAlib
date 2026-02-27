@@ -1,4 +1,21 @@
-﻿# ILRS: Integral of Linear Regression Slope
+# ILRS: Integral of Linear Regression Slope
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Ilrs)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smooth...
+- Parameterized by `period` (default 14).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "John Ehlers took the slope of a regression line, integrated it, and got a smoother trend follower. Differentiate to find direction, integrate to find position. Calculus: still useful after 300 years."
 

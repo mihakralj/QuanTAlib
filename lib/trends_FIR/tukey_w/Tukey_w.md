@@ -1,4 +1,21 @@
-﻿# TUKEY_W: Tukey (Tapered Cosine) Window Moving Average
+# TUKEY_W: Tukey (Tapered Cosine) Window Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20), `alpha` (default 0.5)                      |
+| **Outputs**      | Single series (Tukey_w)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- TUKEY_W applies the Tukey (tapered cosine) window as FIR filter weights, offering a single parameter $\alpha$ that controls the fraction of the win...
+- Parameterized by `period` (default 20), `alpha` (default 0.5).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "John Tukey designed a window with a knob that goes from 'do nothing' to 'full Hann' in one parameter. Set alpha to 0.5 and you get the pragmatist's compromise: flat where it matters, tapered where it would otherwise ring."
 

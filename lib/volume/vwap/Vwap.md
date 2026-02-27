@@ -1,5 +1,22 @@
 # VWAP: Volume Weighted Average Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 0)                      |
+| **Outputs**      | Single series (VWAP)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `> 1` bars                          |
+
+### TL;DR
+
+- VWAP (Volume Weighted Average Price) calculates the cumulative average price weighted by trading volume, typically reset at session boundaries.
+- Parameterized by `period` (default 0).
+- Output range: Unbounded.
+- Requires `> 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "VWAP doesn't predict where price will go—it reveals where institutional money has already committed."
 
 VWAP (Volume Weighted Average Price) calculates the cumulative average price weighted by trading volume, typically reset at session boundaries. It represents the true average price at which a security has traded throughout the period, giving more weight to prices where higher volume occurred. This implementation supports flexible period-based resets rather than traditional session-based anchoring.

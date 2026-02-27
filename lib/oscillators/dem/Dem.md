@@ -1,4 +1,21 @@
-﻿# DEM: DeMarker Oscillator
+# DEM: DeMarker Oscillator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Dem)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures sequential demand pressure by comparing each bar's high and low aga...
+- Parameterized by `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The trend is your friend — right up until DeMark starts counting against it."
 

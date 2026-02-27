@@ -1,5 +1,22 @@
 # RLS: Recursive Least Squares Adaptive Filter
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `order` (default 16), `lambda` (default 0.99)                      |
+| **Outputs**      | Single series (RLS)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `order + 1` bars                          |
+
+### TL;DR
+
+- The Recursive Least Squares (RLS) adaptive filter is the Rolls-Royce of adaptive FIR filters.
+- Parameterized by `order` (default 16), `lambda` (default 0.99).
+- Output range: Tracks input.
+- Requires `order + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The man who has no patience has no wisdom." — but waiting is not the same as convergence. RLS converges where LMS merely approaches.
 
 ## Introduction

@@ -1,4 +1,21 @@
-﻿# SGF: Savitzky-Golay Filter
+# SGF: Savitzky-Golay Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `polyOrder` (default 2)                      |
+| **Outputs**      | Single series (Sgf)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- SGF (Savitzky-Golay Filter) is a digital signal processing technique that smoothes data by fitting successive sub-sets of adjacent data points with...
+- Parameterized by `period`, `polyorder` (default 2).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "SMA smoothes. Savitzky-Golay understands."
 

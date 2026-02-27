@@ -1,5 +1,22 @@
 # HA: Heikin-Ashi
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (HA)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- HA transforms standard OHLC bars into smoothed Heikin-Ashi candles by averaging each component with its predecessor.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The trend is your friend — but only if the noise doesn't make you abandon it at the first bump." — Every trader, eventually
 
 HA transforms standard OHLC bars into smoothed Heikin-Ashi candles by averaging each component with its predecessor. The Close is the bar's four-price mean $(O+H+L+C)/4$, the Open is a recursive midpoint of the prior HA Open and HA Close, and High/Low are clamped extremes that guarantee the HA body always fits inside the HA wick. Unlike most indicators that reduce a bar to a single scalar, HA outputs a complete `TBar` — four smoothed prices per bar — making it a bar-to-bar transform rather than a bar-to-value reduction. The recursive Open gives HA an IIR character: each bar carries a decaying memory of the entire price history, which is what flattens trend noise but also why HA prices do not match any actual traded price.

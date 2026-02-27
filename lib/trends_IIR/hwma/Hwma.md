@@ -1,5 +1,22 @@
 # HWMA: Holt-Winters Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 10)                      |
+| **Outputs**      | Single series (Hwma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- HWMA is an Infinite Impulse Response (IIR) filter that applies triple exponential smoothing with level (F), velocity (V), and acceleration (A) comp...
+- Parameterized by `period` (default 10).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Triple exponential smoothing: because sometimes tracking level, velocity, and acceleration is exactly what a price series needs—and sometimes it's overkill. Holt and Winters figured this out for inventory forecasting in the 1950s. Traders rediscovered it decades later."
 
 HWMA is an Infinite Impulse Response (IIR) filter that applies triple exponential smoothing with level (F), velocity (V), and acceleration (A) components. Unlike simple exponential smoothing which only tracks the current level, HWMA anticipates future values by extrapolating trend and trend changes.

@@ -1,5 +1,22 @@
 # IFFT: Inverse Fast Fourier Transform (Spectral Filter)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `windowSize` (default 64), `numHarmonics` (default 5)                      |
+| **Outputs**      | Single series (Ifft)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Inverse FFT indicator reconstructs a smoothed version of the price series by performing a forward DFT, retaining only the lowest-frequency harm...
+- Parameterized by `windowsize` (default 64), `numharmonics` (default 5).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Inverse FFT indicator reconstructs a smoothed version of the price series by performing a forward DFT, retaining only the lowest-frequency harmonics, and synthesizing the output via inverse transform. The result is a spectral low-pass filter that preserves the dominant cyclical components while discarding high-frequency noise. By controlling the number of retained harmonics $H$, the user adjusts the smoothness/responsiveness trade-off: $H = 1$ yields a near-sinusoidal trend, while $H = N/2$ reproduces the original (windowed) signal. The indicator overlays on price and provides a frequency-domain alternative to conventional moving averages.
 
 ## Historical Context

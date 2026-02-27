@@ -1,4 +1,21 @@
-﻿# R²: Coefficient of Determination
+# R²: Coefficient of Determination
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (R)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Coefficient of Determination (R²) measures the proportion of variance in the actual values that is predictable from the predicted values.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "R² tells you how much of the variance in actual values is explained by your predictions. It's the statistician's favorite metric for good reason."
 

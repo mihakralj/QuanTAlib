@@ -1,4 +1,21 @@
-﻿# KAISER: Kaiser Window Moving Average
+# KAISER: Kaiser Window Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 14), `beta` (default 3.0)                      |
+| **Outputs**      | Single series (Kaiser)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade...
+- Parameterized by `period` (default 14), `beta` (default 3.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "James Kaiser gave signal processing a knob. Turn beta up, sidelobes go down, transition band widens. Turn it down, you get an SMA. One parameter to rule them all."
 

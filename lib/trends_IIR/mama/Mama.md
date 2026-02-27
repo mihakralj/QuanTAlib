@@ -1,5 +1,22 @@
 # MAMA: Ehlers MESA Adaptive Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `fastLimit` (default 0.5), `slowLimit` (default 0.05)                      |
+| **Outputs**      | Single series (Mama)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `50` bars                          |
+
+### TL;DR
+
+- MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of th...
+- Parameterized by `fastlimit` (default 0.5), `slowlimit` (default 0.05).
+- Output range: Tracks input.
+- Requires `50` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility—it adapts to the phase of the market cycle. It's like having a GPS for your trend."
 
 MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of the market cycle. It produces two outputs: MAMA (the adaptive average) and FAMA (Following Adaptive Moving Average), which acts as a slower, confirming signal.

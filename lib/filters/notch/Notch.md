@@ -1,4 +1,21 @@
-﻿# Notch Filter
+# Notch Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `q` (default 1.0)                      |
+| **Outputs**      | Single series (Notch)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Notch Filter is a band-stop filter with a narrow bandwidth.
+- Parameterized by `period`, `q` (default 1.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > Sometimes the best way to improved signal clarity isn't amplification, but rather the surgical removal of a specific annoyance.
 

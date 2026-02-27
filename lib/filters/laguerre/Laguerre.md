@@ -1,5 +1,22 @@
 # LAGUERRE: Ehlers Laguerre Filter
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `gamma` (default 0.8)                      |
+| **Outputs**      | Single series (Laguerre)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `WarmupBars` bars                          |
+
+### TL;DR
+
+- The Laguerre Filter is a four-element IIR (Infinite Impulse Response) filter designed by John F.
+- Parameterized by `gamma` (default 0.8).
+- Output range: Tracks input.
+- Requires `WarmupBars` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The problem with conventional filters is that they use unit delays. All-pass filters replace unit delays with frequency-dependent delays, and that changes everything." — John F. Ehlers
 
 ## Introduction

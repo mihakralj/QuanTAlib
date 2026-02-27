@@ -1,4 +1,21 @@
-﻿# MAPE: Mean Absolute Percentage Error
+# MAPE: Mean Absolute Percentage Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (MAPE)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Mean Absolute Percentage Error (MAPE) measures the average absolute percentage difference between actual and predicted values.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The metric that lets you compare apples to oranges, as long as you don't have any zeros."
 

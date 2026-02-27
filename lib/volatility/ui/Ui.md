@@ -1,5 +1,22 @@
 # UI: Ulcer Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Ui)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs.
+- Parameterized by `period` (default 14).
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The ulcer-inducing anxiety of watching your portfolio decline—now quantified."
 
 Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs. Developed by Peter G. Martin in 1987, UI captures what most volatility measures miss: the pain of being underwater. Unlike standard deviation or ATR that treat upside and downside moves equally, UI measures only the decline from peaks—the psychological stress that keeps investors awake at night.

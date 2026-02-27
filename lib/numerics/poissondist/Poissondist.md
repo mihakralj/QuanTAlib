@@ -1,5 +1,22 @@
 # POISSONDIST: Poisson Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `lambda` (default 1.0), `period` (default 14), `threshold` (default 5)                      |
+| **Outputs**      | Single series (Poissondist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Poisson Distribution CDF computes the probability $P(X \le k)$ for a Poisson random variable whose rate parameter $\lambda$ is derived from the...
+- Parameterized by `lambda` (default 1.0), `period` (default 14), `threshold` (default 5).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Poisson Distribution CDF computes the probability $P(X \le k)$ for a Poisson random variable whose rate parameter $\lambda$ is derived from the min-max normalized price. The Poisson distribution models the number of events in a fixed interval given a constant average rate, making it natural for count-based financial metrics (trade arrivals, tick counts, order flow). The implementation maps normalized price to $\lambda$ via a scale factor, then evaluates the CDF using the identity $P(X \le k) = 1 - P(k+1, \lambda)$ where $P(a, x)$ is the regularized lower incomplete gamma function. This reuses the same Lanczos log-gamma and series/continued-fraction infrastructure as GAMMADIST.
 
 ## Historical Context

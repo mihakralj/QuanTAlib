@@ -1,5 +1,22 @@
 # PIVOTFIB: Fibonacci Pivot Points
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Reversal                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (PIVOTFIB)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `2` bars                          |
+
+### TL;DR
+
+- Fibonacci Pivot Points apply Fibonacci retracement ratios (38.2%, 61.8%, 100%) to the standard pivot point formula.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 ## Overview
 Fibonacci Pivot Points apply Fibonacci retracement ratios (38.2%, 61.8%, 100%) to the standard pivot point formula. The central pivot (PP) uses the classic HLC/3 calculation, while support and resistance levels are derived by adding or subtracting Fibonacci proportions of the previous bar's trading range.
 

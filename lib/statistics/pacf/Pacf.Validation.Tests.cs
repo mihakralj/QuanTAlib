@@ -105,13 +105,13 @@ public class PacfValidationTests
         // For AR(1) process: x_t = φ*x_{t-1} + ε_t
         // PACF should be significant at lag 1 and cut off (near zero) after
         double phi = 0.7; // AR(1) coefficient
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
         var arProcess = new List<double> { 100.0 };
 
         // Generate AR(1) process
         for (int i = 1; i < 500; i++)
         {
-            double noise = random.NextDouble() * 2 - 1; // Small noise
+            double noise = Math.Log(random.Next().Close / 100.0); // ~N(0, vol²*dt) noise
             double newValue = phi * arProcess[^1] + noise;
             arProcess.Add(newValue);
         }

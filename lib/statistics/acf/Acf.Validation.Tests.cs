@@ -114,11 +114,11 @@ public class AcfValidationTests
         // For white noise, ACF at any lag > 0 should be close to zero
         var acf = new Acf(100, 5);
 
-        // Generate pseudo-random values with zero mean
-        var random = new Random(42);
+        // Generate pseudo-random values with zero mean via GBM log-returns
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
         for (int i = 0; i < 500; i++)
         {
-            double val = random.NextDouble() * 2 - 1; // Uniform [-1, 1]
+            double val = Math.Log(random.Next().Close / 100.0); // ~N(0, vol²*dt) centered near 0
             acf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
@@ -215,12 +215,12 @@ public class AcfValidationTests
 
         double[] ar1Data = new double[n];
         ar1Data[0] = 0;
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         // Generate AR(1) process
         for (int i = 1; i < n; i++)
         {
-            double epsilon = (random.NextDouble() * 2 - 1) * 0.1; // Small noise
+            double epsilon = Math.Log(random.Next().Close / 100.0) * 0.1; // Small noise
             ar1Data[i] = phi * ar1Data[i - 1] + epsilon;
         }
 

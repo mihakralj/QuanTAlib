@@ -1,5 +1,22 @@
 # TBar: OHLCV Bar Struct
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Multiple series (O, H, L, C, V)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `TBar` is a lightweight, immutable struct representing a single OHLCV (Open, High, Low, Close, Volume) bar.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 ## What It Does
 
 `TBar` is a lightweight, immutable struct representing a single OHLCV (Open, High, Low, Close, Volume) bar. It serves as the fundamental unit for price data in QuanTAlib, designed to hold market data with minimal memory overhead while providing convenient accessors for common price derivations.

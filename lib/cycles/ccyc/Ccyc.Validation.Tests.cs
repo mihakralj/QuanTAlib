@@ -161,12 +161,12 @@ public class CcycValidationTests
         var ccycNoise = new Ccyc(0.07);
         var ccycSine = new Ccyc(0.07);
 
-        var rng = new Random(42);
+        var rng = new GBM(startPrice: 100.0, sigma: 0.1, seed: 42);
         double sineEnergy = 0;
 
         for (int i = 0; i < 300; i++)
         {
-            double noiseVal = 100 + rng.NextDouble() * 10;
+            double noiseVal = rng.Next().Close;
             ccycNoise.Update(new TValue(DateTime.UtcNow.AddMinutes(i), noiseVal), true);
 
             double sineVal = 100 + 10 * Math.Sin(2 * Math.PI * i / 20.0);

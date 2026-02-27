@@ -1,5 +1,22 @@
 # PIVOTEXT: Extended Traditional Pivot Points
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Reversal                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (PIVOTEXT)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `2` bars                          |
+
+### TL;DR
+
+- Extended Traditional Pivot Points calculate eleven horizontal support and resistance levels from the previous bar's high, low, and close.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Classic pivots tell you where the crowd expects the market to pause. Extended pivots tell you where the crowd starts to panic."
 
 Extended Traditional Pivot Points calculate eleven horizontal support and resistance levels from the previous bar's high, low, and close. The core levels (PP, R1-R3, S1-S3) are identical to classic floor trader pivots. The extension adds R4/R5 and S4/S5 levels that project further beyond the prior bar's range, covering extreme move scenarios such as gap opens, news-driven spikes, and trend continuation through multiple prior-range increments. The formula is pure arithmetic with zero parameters.

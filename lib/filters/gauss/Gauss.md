@@ -1,4 +1,21 @@
-﻿# Gauss: Gaussian Filter
+# Gauss: Gaussian Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `sigma` (default 1.0)                      |
+| **Outputs**      | Single series (Gauss)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Gauss (Gaussian Filter) is a smoothing filter that applies a Gaussian kernel to time series data.
+- Parameterized by `sigma` (default 1.0).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "SMA smears data like cheap paint. Gaussian filtering respects the signal's soul."
 

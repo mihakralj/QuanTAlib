@@ -1,5 +1,22 @@
 # HT_SINE: Ehlers Hilbert Transform SineWave (also known as SINE)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (HT_SINE)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `LOOKBACK` bars                          |
+
+### TL;DR
+
+- HT_SINE extracts the dominant market cycle phase and outputs both Sine and LeadSine (45° phase advance) for cycle timing.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `LOOKBACK` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 HT_SINE extracts the dominant market cycle phase and outputs both Sine and LeadSine (45° phase advance) for cycle timing. The crossover of these two waves identifies turning points in ranging markets up to one-eighth of a cycle early. Compatible with TA-Lib's `HT_SINE` function, the indicator builds on the full Hilbert Transform cascade (phasor extraction, homodyne period estimation, DFT phase accumulation) to produce dual bounded $[-1, +1]$ oscillators that track cycle position rather than price amplitude.
 
 ## Historical Context

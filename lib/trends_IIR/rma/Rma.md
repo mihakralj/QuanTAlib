@@ -1,5 +1,22 @@
 # RMA: Running Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Rma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `ema.WarmupPeriod` bars                          |
+
+### TL;DR
+
+- The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Wilder's Moving Average, is the backbone of J.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `ema.WarmupPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Wilder didn't like standard EMA weighting. He wanted history to decay slower. So he invented RMA, which is just EMA with a different alpha, confusing traders for 40 years."
 
 The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Wilder's Moving Average, is the backbone of J. Welles Wilder's most famous indicators: RSI, ATR, and ADX. It is functionally identical to an Exponential Moving Average (EMA), but with a smoothing factor ($\alpha$) of $1/N$ instead of $2/(N+1)$. This results in a longer "memory" and slower decay than a standard EMA of the same period.

@@ -1,5 +1,22 @@
 # QUANTILE: Rolling Quantile
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `quantileLevel` (default 0.25)                      |
+| **Outputs**      | Single series (Quantile)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Rolling Quantile computes the value below which a given fraction of observations fall within a sliding window.
+- Parameterized by `period`, `quantilelevel` (default 0.25).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The quantile function is the inverse of the distribution function." — Every probability textbook ever written, and yet somehow it still surprises people.
 
 ## Introduction

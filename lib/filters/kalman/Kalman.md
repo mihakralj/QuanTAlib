@@ -1,4 +1,21 @@
-﻿# Kalman Filter (KALMAN)
+# Kalman Filter (KALMAN)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `q` (default 0.01), `r` (default 0.1)                      |
+| **Outputs**      | Single series (Kalman)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `10` bars                          |
+
+### TL;DR
+
+- The **Kalman Filter** is a recursive algorithm that estimates the state of a dynamic system from a series of incomplete and noisy measurements.
+- Parameterized by `q` (default 0.01), `r` (default 0.1).
+- Output range: Tracks input.
+- Requires `10` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Prediction is very difficult, especially if it's about the future." — Niels Bohr. The Kalman Filter doesn't just predict; it optimally estimates the present by balancing what it thinks should happen with what actually happened.
 

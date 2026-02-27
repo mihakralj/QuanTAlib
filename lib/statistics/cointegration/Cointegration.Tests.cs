@@ -581,12 +581,12 @@ public class CointegrationTests
     {
         // Create two cointegrated series: B = A + noise
         var indicator = new Cointegration(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         for (int i = 0; i < 100; i++)
         {
             double a = 100.0 + i * 0.1;
-            double b = a + random.NextDouble() * 0.1 - 0.05; // Highly correlated
+            double b = a + Math.Log(random.Next().Close / 100.0) * 0.1; // Highly correlated
 
             indicator.Update(a, b);
         }
@@ -601,7 +601,7 @@ public class CointegrationTests
         // Create two non-cointegrated series (random walks)
         var indicatorCointegrated = new Cointegration(20);
         var indicatorRandom = new Cointegration(20);
-        var random = new Random(42);
+        var random = new GBM(startPrice: 100.0, sigma: 1.0, seed: 42);
 
         double walkA = 100.0;
         double walkB = 100.0;
@@ -610,12 +610,13 @@ public class CointegrationTests
         {
             // Cointegrated pair
             double a1 = 100.0 + i * 0.1;
-            double b1 = a1 + random.NextDouble() * 0.1;
+            double noise1 = Math.Log(random.Next().Close / 100.0);
+            double b1 = a1 + noise1 * 0.1;
             indicatorCointegrated.Update(a1, b1);
 
             // Random walks
-            walkA += random.NextDouble() - 0.5;
-            walkB += random.NextDouble() - 0.5;
+            walkA += Math.Log(random.Next().Close / 100.0);
+            walkB += Math.Log(random.Next().Close / 100.0);
             indicatorRandom.Update(walkA, walkB);
         }
 

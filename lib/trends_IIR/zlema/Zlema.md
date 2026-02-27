@@ -1,8 +1,26 @@
 # ZLEMA: Zero-Lag Exponential Moving Average
 
-## EMA with lag compensation via a zero-lag signal
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Zlema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+
+### TL;DR
+
+- ZLEMA takes a standard EMA and feeds it a **zero-lag signal**: current price minus a lagged price.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "ZLEMA does not erase lag. It predicts just enough to act early, then pays the price in overshoot."
+
+## EMA with lag compensation via a zero-lag signal
+
 
 ZLEMA takes a standard EMA and feeds it a **zero-lag signal**: current price minus a lagged price. This produces a smoother that responds faster than EMA without going fully raw. It is not magic. It shifts some lag into controlled overshoot.
 

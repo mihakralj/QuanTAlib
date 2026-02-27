@@ -1,4 +1,21 @@
-﻿# RSE: Relative Squared Error
+# RSE: Relative Squared Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Rse)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Relative Squared Error (RSE) measures the total squared error of predictions relative to the total squared error of a simple baseline predictor tha...
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The squared error version of RAE. RSE and R² are two sides of the same coin: R² = 1 - RSE."
 

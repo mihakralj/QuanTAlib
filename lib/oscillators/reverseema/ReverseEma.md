@@ -1,5 +1,22 @@
 # REVERSEEMA: Ehlers Reverse EMA
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (ReverseEma)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Reverse EMA applies an 8-stage cascaded Z-transform inversion to a compensated EMA, progressively extracting and subtracting the accumulated la...
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The best way to remove lag is to understand where it comes from." — John F. Ehlers
 
 ## Introduction

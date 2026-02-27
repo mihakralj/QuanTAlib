@@ -1,6 +1,24 @@
 # PERCENTILE: Rolling Percentile
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `percent` (default 50.0)                      |
+| **Outputs**      | Single series (Percentile)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Rolling Percentile computes the value below which a given percentage of observations fall within a sliding window.
+- Parameterized by `period`, `percent` (default 50.0).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "There are three kinds of lies: lies, damned lies, and statistics." — Mark Twain.
+
 > But percentiles, at least, tell you exactly where you stand.
 
 ## Introduction

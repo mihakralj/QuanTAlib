@@ -1,4 +1,21 @@
-﻿# CFITZ: Christiano-Fitzgerald Band-Pass Filter
+# CFITZ: Christiano-Fitzgerald Band-Pass Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `pLow` (default 6), `pHigh` (default 32)                      |
+| **Outputs**      | Single series (Cfitz)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `2` bars                          |
+
+### TL;DR
+
+- The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-var...
+- Parameterized by `plow` (default 6), `phigh` (default 32).
+- Output range: Tracks input.
+- Requires `2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview
 

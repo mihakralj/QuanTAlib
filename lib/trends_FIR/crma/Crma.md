@@ -1,4 +1,21 @@
-﻿# CRMA: Cubic Regression Moving Average
+# CRMA: Cubic Regression Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Crma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitt...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Linear regression tells you where the trend is going. Quadratic regression tells you it's curving. Cubic regression tells you the curve is changing its mind."
 

@@ -1,5 +1,22 @@
 # YZVAMA: Yang-Zhang Volatility Adjusted Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `yzvShortPeriod` (default 3), `yzvLongPeriod` (default 50), `percentileLookback` (default 100), `minLength` (default 5), `maxLength` (default 100)                      |
+| **Outputs**      | Single series (Yzvama)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Most adaptive moving averages measure volatility using close-to-close changes (standard deviation) or high-low ranges (ATR).
+- Parameterized by `yzvshortperiod` (default 3), `yzvlongperiod` (default 50), `percentilelookback` (default 100), `minlength` (default 5), `maxlength` (default 100).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "ATR tells you how much the market moved. Yang-Zhang tells you how much it *should* have moved given the gaps and intrabar action. YZVAMA uses that distinction to know when the market is lying about its volatility."
 
 ## The Core Insight

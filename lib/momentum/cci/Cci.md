@@ -1,4 +1,21 @@
-﻿# CCI - Commodity Channel Index
+# CCI - Commodity Channel Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default DefaultPeriod)                      |
+| **Outputs**      | Single series (CCI)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `> period` bars                          |
+
+### TL;DR
+
+- The Commodity Channel Index (CCI) is a versatile momentum-based oscillator developed by Donald Lambert in 1980.
+- Parameterized by `period` (default defaultperiod).
+- Output range: Varies (see docs).
+- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview
 

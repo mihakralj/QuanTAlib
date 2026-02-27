@@ -1,4 +1,21 @@
-﻿# MASE: Mean Absolute Scaled Error
+# MASE: Mean Absolute Scaled Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Mase)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- Mean Absolute Scaled Error (MASE) normalizes forecast errors by the average error of a naive "random walk" forecast (using the previous value as th...
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "A good forecast is one that's better than guessing. MASE tells you exactly how much better."
 

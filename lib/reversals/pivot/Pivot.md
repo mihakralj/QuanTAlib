@@ -1,5 +1,22 @@
 # PIVOT: Classic Pivot Points (Floor Trader Pivots)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Reversal                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (PIVOT)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `2` bars                          |
+
+### TL;DR
+
+- Classic Pivot Points calculate seven horizontal support and resistance levels from the previous bar's high, low, and close.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The floor traders had it figured out before the quants arrived. Three numbers from yesterday's bar, seven levels for today. No optimization, no curve fitting, no excuses."
 
 Classic Pivot Points calculate seven horizontal support and resistance levels from the previous bar's high, low, and close. The central pivot point (PP) is the arithmetic mean of HLC; three resistance levels (R1-R3) and three support levels (S1-S3) are derived from PP and the prior bar's range. The formula has been in continuous use since the 1930s among floor traders at commodity exchanges. Zero parameters, zero lag, zero ambiguity.

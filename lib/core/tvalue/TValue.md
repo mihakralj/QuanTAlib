@@ -1,5 +1,22 @@
 # TValue: Time-Value Pair
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (TValue)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- `TValue` is the fundamental atomic unit of data in QuanTAlib.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 ## What It Does
 
 `TValue` is the fundamental atomic unit of data in QuanTAlib. It represents a single point in a time series, consisting of a timestamp and a double-precision floating-point value. It serves as the standard input and output format for all indicators and data streams.

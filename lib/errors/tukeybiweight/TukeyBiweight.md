@@ -1,4 +1,21 @@
-﻿# Tukey's Biweight: Robust Loss Function
+# Tukey's Biweight: Robust Loss Function
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `c` (default DefaultC)                      |
+| **Outputs**      | Single series (UNKNOWN)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold.
+- Parameterized by `period`, `c` (default defaultc).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When outliers need to be silenced, not just quieted."
 

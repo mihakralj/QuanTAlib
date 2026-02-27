@@ -1,5 +1,22 @@
 # MOM: Momentum (Absolute Price Change)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 10)                      |
+| **Outputs**      | Single series (Mom)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago.
+- Parameterized by `period` (default 10).
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The market's simplest question answered: how much has price moved in N bars? No ratios, no percentages. Just the raw delta."
 
 MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago. It is the purest expression of directional price movement, returning a signed value in the same units as the input. Positive MOM indicates rising prices; negative indicates falling. This is functionally identical to ROC but with a configurable lookback period (default 10 vs ROC's convention), and maps directly to TA-Lib's `MOM` function.

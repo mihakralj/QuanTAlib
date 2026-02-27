@@ -1,5 +1,22 @@
 # AFIRMA: Autoregressive FIR Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Forecast                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `window` (default WindowType.BlackmanHarris), `leastSquares` (default false)                      |
+| **Outputs**      | Single series (Afirma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- AFIRMA is a Windowed Weighted Moving Average that replaces standard linear weighting with weights derived from signal processing window functions (...
+- Parameterized by `period`, `window` (default windowtype.blackmanharris), `leastsquares` (default false).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Standard Moving Averages assume linear or exponential weights. AFIRMA asks: what if we used signal processing window functions instead?"
 
 AFIRMA is a Windowed Weighted Moving Average that replaces standard linear weighting with weights derived from signal processing window functions (Hanning, Hamming, Blackman, Blackman-Harris). This approach achieves specific frequency response characteristics tailored to noise reduction.

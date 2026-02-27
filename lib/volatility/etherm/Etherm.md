@@ -1,5 +1,22 @@
 # ETHERM: Elder's Thermometer
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 22)                      |
+| **Outputs**      | Single series (Etherm)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Elder's Thermometer (ETHERM) measures how far today's price bar extends beyond yesterday's range, capturing the maximum absolute expansion in eithe...
+- Parameterized by `period` (default 22).
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Markets run a fever before they crash. The thermometer tells you when to reach for the aspirin."
 
 Elder's Thermometer (ETHERM) measures how far today's price bar extends beyond yesterday's range, capturing the maximum absolute expansion in either direction. Developed by Dr. Alexander Elder and described in *Come Into My Trading Room* (2002, p.162), the indicator distinguishes between sleepy, quiet periods and hot episodes when market crowds become excited. The raw thermometer reading is smoothed with an EMA to produce a signal line; when temperature spikes to triple the signal, it flags an explosive move worth fading. At 5 operations per bar for the raw value and O(1) EMA update, ETHERM is among the cheapest volatility measures to compute.

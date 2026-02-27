@@ -1,5 +1,22 @@
 # NVI: Negative Volume Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `startValue` (default 100.0)                      |
+| **Outputs**      | Single series (Nvi)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `> 2` bars                          |
+
+### TL;DR
+
+- The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day.
+- Parameterized by `startvalue` (default 100.0).
+- Output range: Unbounded.
+- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Low volume suggests smart money is at work; high volume days are for the crowd." — Norman Fosback
 
 The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day. The underlying theory: institutional investors—the "smart money"—prefer to accumulate or distribute positions during quiet, low-volume periods, while retail traders drive high-volume days with more emotional, less informed decisions.

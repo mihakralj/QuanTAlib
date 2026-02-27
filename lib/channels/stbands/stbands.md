@@ -1,5 +1,22 @@
 # STBANDS: Super Trend Bands
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Channel                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default DefaultPeriod), `multiplier` (default DefaultMultiplier)                      |
+| **Outputs**      | Multiple series (Upper, Lower, Trend, Width)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Super Trend Bands provide ATR-based dynamic support and resistance levels with asymmetric ratchet logic: the upper band only tightens downward duri...
+- Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 Super Trend Bands provide ATR-based dynamic support and resistance levels with asymmetric ratchet logic: the upper band only tightens downward during downtrends, and the lower band only tightens upward during uptrends. This creates natural trailing stop-loss levels that respect market momentum. A trend direction signal ($+1$ or $-1$) flips when price breaches the opposite band. The ATR is computed as a simple moving average of True Range via a ring buffer with running sum, providing O(1) streaming updates.
 
 ## Historical Context

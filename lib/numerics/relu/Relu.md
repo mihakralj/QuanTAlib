@@ -1,5 +1,22 @@
 # RELU: Rectified Linear Unit
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (RELU)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- The Rectified Linear Unit (ReLU) activation function applies `max(0, x)` to each value, passing positive inputs unchanged while zeroing negative ones.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The simplest non-linearity that works—ReLU's computational efficiency and gradient-friendly properties made deep learning practical."
 
 The Rectified Linear Unit (ReLU) activation function applies `max(0, x)` to each value, passing positive inputs unchanged while zeroing negative ones. Its simplicity belies its importance: ReLU enabled the training of deep neural networks by mitigating vanishing gradients, and its computational efficiency makes it the default activation for most architectures.

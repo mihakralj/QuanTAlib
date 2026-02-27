@@ -1,4 +1,21 @@
-﻿# ASI: Accumulation Swing Index
+# ASI: Accumulation Swing Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `limitMove` (default 3.0)                      |
+| **Outputs**      | Single series (Asi)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `> 2` bars                          |
+
+### TL;DR
+
+- The Accumulation Swing Index is Wilder's method for separating genuine breakouts from whipsaw noise.
+- Parameterized by `limitmove` (default 3.0).
+- Output range: Varies (see docs).
+- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Price tells us what is happening. The Accumulation Swing Index tells us whether to believe it." — J. Welles Wilder Jr.
 

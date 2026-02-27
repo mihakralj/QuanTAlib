@@ -1,5 +1,22 @@
 # LOGTRANS: Natural Logarithm Transformer
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (LOGTRANS)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- The LOG transformer applies the natural logarithm function $\ln(x)$ to input values.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The logarithm is one of the most useful mathematical functions, turning multiplicative relationships into additive ones—a property that makes many financial calculations tractable."
 
 The LOG transformer applies the natural logarithm function $\ln(x)$ to input values. This point-wise transformation compresses large values and expands small ones, making it essential for analyzing multiplicative processes like compounded returns.

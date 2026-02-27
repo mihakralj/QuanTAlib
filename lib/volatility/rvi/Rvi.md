@@ -1,5 +1,22 @@
 # RVI: Relative Volatility Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `stdevLength` (default 10), `rmaLength` (default 14)                      |
+| **Outputs**      | Single series (Rvi)                       |
+| **Output range** | $0$ to $100$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility.
+- Parameterized by `stdevlength` (default 10), `rmalength` (default 14).
+- Output range: $0$ to $100$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Not all volatility is created equal—upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure."
 
 The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility. Originally developed by Donald Dorsey in 1993, RVI measures the standard deviation of closing prices and categorizes this volatility based on whether prices are rising or falling. The result is an oscillator bounded between 0 and 100, where values above 50 indicate upward volatility dominance and values below 50 indicate downward volatility dominance.

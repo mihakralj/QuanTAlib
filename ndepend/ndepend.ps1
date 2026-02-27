@@ -46,7 +46,7 @@ if (-not (Test-Path $SolutionFile)) {
 # Helper function for section headers
 function Write-Section {
     param([string]$Message)
-    Write-Host "`n=== $Message ===" -ForegroundColor Cyan
+    Write-Information "`n=== $Message ==="
 }
 
 # Track analysis failure
@@ -58,25 +58,25 @@ try {
     if (-not (Test-Path $SarifDir)) {
         New-Item -ItemType Directory -Path $SarifDir -Force | Out-Null
     }
-    Write-Host "SARIF directory: $SarifDir"
+    Write-Information "SARIF directory: $SarifDir"
 
     # Restore, clean, and build
     Write-Section "Cleaning and building solution (generates SARIF files)"
     
-    Write-Host "Restoring packages..." -ForegroundColor Gray
+    Write-Information "Restoring packages..."
     dotnet restore $SolutionFile -v q
     if ($LASTEXITCODE -ne 0) { throw "Restore failed with exit code $LASTEXITCODE" }
 
-    Write-Host "Cleaning solution..." -ForegroundColor Gray
+    Write-Information "Cleaning solution..."
     dotnet clean $SolutionFile -v q
     if ($LASTEXITCODE -ne 0) { throw "Clean failed with exit code $LASTEXITCODE" }
 
-    Write-Host "Removing old coverage data..." -ForegroundColor Gray
+    Write-Information "Removing old coverage data..."
     if (Test-Path $CoverageDir) {
         Remove-Item -Path $CoverageDir -Recurse -Force
     }
 
-    Write-Host "Building solution..." -ForegroundColor Gray
+    Write-Information "Building solution..."
     dotnet build $SolutionFile -c Debug --no-incremental
     if ($LASTEXITCODE -ne 0) { throw "Build failed with exit code $LASTEXITCODE" }
 
@@ -103,15 +103,16 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Tests failed for Quantower.Tests with exit code $LASTEXITCODE" }
 
     # Find coverage files
-    Write-Host "`nSearching for coverage files..." -ForegroundColor Gray
+    Write-Information "`nSearching for coverage files..."
     $CoverageFiles = Get-ChildItem -Path $CoverageDir -Filter "coverage.opencover.xml" -Recurse -File | 
-        Select-Object -ExpandProperty FullName
+    Select-Object -ExpandProperty FullName
 
     if (-not $CoverageFiles) {
         Write-Warning "No coverage files found in $CoverageDir"
-    } else {
+    }
+    else {
         $CoverageFiles | ForEach-Object {
-            Write-Host "Coverage file: $_" -ForegroundColor Green
+            Write-Information "Coverage file: $_"
         }
     }
 
@@ -120,16 +121,18 @@ try {
     $InspectCodeOutput = Join-Path $SarifDir "resharper.sarif.json"
     $jbPath = Get-Command "jb" -ErrorAction SilentlyContinue
     if ($jbPath) {
-        Write-Host "Running InspectCode analysis..." -ForegroundColor Gray
+        Write-Information "Running InspectCode analysis..."
         jb inspectcode $SolutionFile --output=$InspectCodeOutput --format=Sarif --no-build
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "InspectCode completed with exit code $LASTEXITCODE"
-        } else {
-            Write-Host "InspectCode SARIF saved to: $InspectCodeOutput" -ForegroundColor Green
         }
-    } else {
+        else {
+            Write-Information "InspectCode SARIF saved to: $InspectCodeOutput"
+        }
+    }
+    else {
         Write-Warning "JetBrains CLI (jb) not found. Skipping InspectCode analysis."
-        Write-Host "  Install with: dotnet tool install -g JetBrains.ReSharper.GlobalTools" -ForegroundColor Gray
+        Write-Information "  Install with: dotnet tool install -g JetBrains.ReSharper.GlobalTools"
     }
 
     # List SARIF files
@@ -137,10 +140,11 @@ try {
     $SarifFiles = Get-ChildItem -Path $SarifDir -Filter "*.json" -ErrorAction SilentlyContinue
     if ($SarifFiles) {
         $SarifFiles | ForEach-Object {
-            Write-Host "  $($_.Name) ($([math]::Round($_.Length / 1KB, 2)) KB)" -ForegroundColor Gray
+            Write-Information "  $($_.Name) ($([math]::Round($_.Length / 1KB, 2)) KB)"
         }
-    } else {
-        Write-Host "No SARIF files found" -ForegroundColor Yellow
+    }
+    else {
+        Write-Information "No SARIF files found"
     }
 
     # Activate NDepend license
@@ -148,7 +152,8 @@ try {
     if (-not [string]::IsNullOrWhiteSpace($NdependLicense)) {
         dotnet $NdependDll --RegLic $NdependLicense
         if ($LASTEXITCODE -ne 0) { Write-Warning "License activation returned exit code $LASTEXITCODE" }
-    } else {
+    }
+    else {
         Write-Warning "Skipping license activation (no license provided)"
     }
 
@@ -168,17 +173,20 @@ try {
         $AnalysisFailed = $true
     }
 
-} catch {
+}
+catch {
     Write-Error "Script failed: $_"
     $AnalysisFailed = $true
-} finally {
+}
+finally {
     # Always deactivate license
     Write-Section "Deactivating NDepend license"
     if (-not [string]::IsNullOrWhiteSpace($NdependLicense)) {
         dotnet $NdependDll --UnregLic
         if ($LASTEXITCODE -ne 0) { Write-Warning "License deactivation returned exit code $LASTEXITCODE" }
-    } else {
-        Write-Host "Skipping license deactivation (no license provided)" -ForegroundColor Gray
+    }
+    else {
+        Write-Information "Skipping license deactivation (no license provided)"
     }
 
     # Generate badges from NDepend trend data
@@ -188,9 +196,10 @@ try {
     $TrendMetricsDir = Join-Path $ScriptDir "NDependOut\TrendMetrics"
     $TrendXml = if (Test-Path $TrendMetricsDir) {
         Get-ChildItem -Path $TrendMetricsDir -Filter "NDependTrendData*.xml" -File |
-            Sort-Object Name -Descending |
-            Select-Object -First 1 -ExpandProperty FullName
-    } else { $null }
+        Sort-Object Name -Descending |
+        Select-Object -First 1 -ExpandProperty FullName
+    }
+    else { $null }
     $BadgeDir = Join-Path $ScriptDir "badges"
 
     if ((Test-Path $NDBadgePath) -and $TrendXml -and (Test-Path $TrendXml)) {
@@ -212,18 +221,19 @@ try {
             $outputPath = Join-Path $BadgeDir $badge.Output
             & $NDBadgePath --xml $TrendXml --metric $badge.Metric --output $outputPath 2>$null
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "  Generated: $($badge.Output)" -ForegroundColor Gray
+                Write-Information "  Generated: $($badge.Output)"
             }
         }
-        Write-Host "Badges saved to: $BadgeDir" -ForegroundColor Green
-    } else {
-        Write-Host "Skipping badge generation (NDBadge.exe or trend data not found)" -ForegroundColor Yellow
+        Write-Information "Badges saved to: $BadgeDir"
+    }
+    else {
+        Write-Information "Skipping badge generation (NDBadge.exe or trend data not found)"
     }
 
     Write-Section "Done"
     
     if ($AnalysisFailed) {
-        Write-Host "Note: Analysis completed with quality gate failures" -ForegroundColor Yellow
+        Write-Information "Note: Analysis completed with quality gate failures"
         exit 1
     }
 }

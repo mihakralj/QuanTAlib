@@ -1,4 +1,21 @@
-﻿# SSF2: Ehlers 2-Pole Super Smoother Filter
+# SSF2: Ehlers 2-Pole Super Smoother Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Ssf2)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The 2-Pole Super Smooth Filter (SSF2) is a 2-pole Butterworth filter designed by John Ehlers.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Noise is the enemy of the trend follower. The Super Smooth Filter is the silencer."
 

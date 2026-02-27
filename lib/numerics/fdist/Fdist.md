@@ -1,5 +1,22 @@
 # FDIST: F-Distribution CDF
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `d1` (default 1), `d2` (default 1), `period` (default 14)                      |
+| **Outputs**      | Single series (Fdist)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The F-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the F-distribution (Fisher-Snedecor distr...
+- Parameterized by `d1` (default 1), `d2` (default 1), `period` (default 14).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The F-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the F-distribution (Fisher-Snedecor distribution), producing an output in $[0, 1]$. The F-distribution arises as the ratio of two chi-squared random variables divided by their respective degrees of freedom, making it the natural distribution for variance ratio tests. By mapping normalized price through the regularized incomplete beta function with parameters tied to degrees of freedom $d_1$ and $d_2$, FDIST provides a probabilistic ranking that is asymmetric: the CDF shape changes qualitatively depending on whether $d_1 < d_2$, $d_1 = d_2$, or $d_1 > d_2$, giving traders control over the nonlinear response curve.
 
 ## Historical Context

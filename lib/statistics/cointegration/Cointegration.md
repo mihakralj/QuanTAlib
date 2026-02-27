@@ -1,5 +1,22 @@
 # Cointegration: Engle-Granger Two-Step Cointegration Test
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20)                      |
+| **Outputs**      | Single series (Cointegration)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an...
+- Parameterized by `period` (default 20).
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Correlation tells you they move together. Cointegration tells you they're bound together. Two stocks can be uncorrelated yet cointegrated, or perfectly correlated yet destined to drift apart forever. The difference between 'similar direction' and 'shared destiny' is the difference between a tourist attraction and a gravitational orbit."
 
 The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an Augmented Dickey-Fuller (ADF) test. Unlike correlation, which measures short-term co-movement, cointegration tests whether two non-stationary series share a common stochastic trend—meaning they may diverge temporarily but are statistically bound to revert to their equilibrium relationship.

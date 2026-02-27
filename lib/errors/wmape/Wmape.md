@@ -1,4 +1,21 @@
-﻿# WMAPE: Weighted Mean Absolute Percentage Error
+# WMAPE: Weighted Mean Absolute Percentage Error
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Wmape)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Weighted Mean Absolute Percentage Error (WMAPE) adjusts MAPE by weighting each error by the magnitude of the actual value.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When not all errors are created equal, weight them by what matters."
 

@@ -1,4 +1,21 @@
-﻿# DMX: Directional Movement Index (Jurik)
+# DMX: Directional Movement Index (Jurik)
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Dmx)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Ave...
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Average (JMA) to achieve faster trend detection with superior noise rejection. The core directional movement logic (+DM, -DM, True Range) is preserved faithfully from Wilder, but the three parallel smoothing passes use JMA's adaptive bandwidth instead of RMA's fixed $\alpha = 1/N$. The result is a directional indicator that reacts 3-5 bars earlier to trend changes than standard DMI while filtering out more noise during consolidation. Output is the difference between smoothed directional indicators: $DMX = DI^+ - DI^-$, positive for uptrends and negative for downtrends.
 

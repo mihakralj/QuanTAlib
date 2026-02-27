@@ -1,5 +1,22 @@
 # VEL: Jurik Velocity
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Momentum                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Vel)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Jurik Velocity (VEL) measures price rate-of-change through the differential between two weighted moving averages with distinct inertia profiles.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Momentum is easy. Smooth momentum without lag is hard. Jurik Velocity is the answer."
 
 Jurik Velocity (VEL) measures price rate-of-change through the differential between two weighted moving averages with distinct inertia profiles. Standard momentum ($P_t - P_{t-n}$) amplifies noise: single outlier bars create false signals. VEL exploits the different convergence speeds of Parabolic Weighted Moving Average (PWMA) and linear Weighted Moving Average (WMA) to isolate clean velocity information. The quadratic weighting of PWMA responds faster than linear WMA; their difference captures acceleration without bar-to-bar noise.

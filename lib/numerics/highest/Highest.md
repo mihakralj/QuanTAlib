@@ -1,5 +1,22 @@
 # HIGHEST: Rolling Maximum
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Highest)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- HIGHEST calculates the maximum value over a rolling lookback window.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "What's the peak? The answer to that question defines support, resistance, and breakout levels."
 
 HIGHEST calculates the maximum value over a rolling lookback window. This O(1) amortized streaming implementation uses a monotonic deque algorithm, enabling real-time updates without re-scanning the entire window. Validated against TA-Lib MAX and Tulip max functions.

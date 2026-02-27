@@ -1,5 +1,22 @@
 # Beta: Beta Coefficient
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Beta)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- Beta measures the volatility of an asset in relation to the overall market.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volatility is not risk. It's the price of admission."
 
 Beta measures the volatility of an asset in relation to the overall market. It's the slope of the regression line between the asset's returns and the market's returns. A beta of 1.0 means the asset moves in lockstep with the market. A beta of 2.0 means the asset is twice as volatile as the market.

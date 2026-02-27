@@ -1,5 +1,22 @@
 # GEOMEAN: Geometric Mean
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Geomean)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Geometric Mean computes the nth root of the product of n positive values over a sliding window.
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The geometric mean is never greater than the arithmetic mean." - Mathematical inequality since antiquity
 
 The Geometric Mean computes the nth root of the product of n positive values over a sliding window. Unlike the arithmetic mean, it captures multiplicative relationships and is the correct average for growth rates, ratios, and log-normally distributed data. For financial time series, this means it properly accounts for compounding.

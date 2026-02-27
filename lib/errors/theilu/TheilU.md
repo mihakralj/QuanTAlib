@@ -1,4 +1,21 @@
-﻿# Theil's U: Theil's U Statistic
+# Theil's U: Theil's U Statistic
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Error Metric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (TheilU)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Theil's U Statistic measures forecast accuracy relative to a naive no-change forecast.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The forecast that matters is the one that beats a naive guess."
 

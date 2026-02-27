@@ -1,5 +1,22 @@
 # MARKETFI: Market Facilitation Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (MARKETFI)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `> 1` bars                          |
+
+### TL;DR
+
+- The Market Facilitation Index answers a single question with arithmetic directness: how much price moved per unit of volume traded?
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `> 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Price moves in an empty room; volume tells you how many people showed up."
 
 The Market Facilitation Index answers a single question with arithmetic directness: how much price moved per unit of volume traded? One division. No lookback period. No smoothing. No parameter to debate. What you get is raw market efficiency — the price range a market delivers for each unit of liquidity consumed.

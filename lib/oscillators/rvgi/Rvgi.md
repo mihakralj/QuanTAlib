@@ -1,4 +1,21 @@
-﻿# RVGI: Relative Vigor Index
+# RVGI: Relative Vigor Index
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 10)                      |
+| **Outputs**      | Single series (Rvgi)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Relative Vigor Index measures the conviction of a price move by comparing closing strength (close minus open) to the total intrabar range (high...
+- Parameterized by `period` (default 10).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Relative Vigor Index measures the conviction of a price move by comparing closing strength (close minus open) to the total intrabar range (high minus low), smoothed through a symmetrically weighted moving average and then averaged over a lookback period. The premise is that in bullish markets, closes tend to occur near highs and opens near lows, producing positive RVGI values, while bearish markets show the opposite pattern. A 4-bar SWMA signal line provides crossover triggers. The indicator oscillates around zero with no fixed bounds.
 

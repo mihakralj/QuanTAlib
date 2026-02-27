@@ -1,5 +1,22 @@
 # LUNAR: Lunar Phase Indicator
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Cycle                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (LUNAR)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `0` bars                          |
+
+### TL;DR
+
+- LUNAR calculates the Moon's illumination fraction using precise orbital mechanics from Jean Meeus' *Astronomical Algorithms*.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `0` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 LUNAR calculates the Moon's illumination fraction using precise orbital mechanics from Jean Meeus' *Astronomical Algorithms*. Output ranges from 0.0 (New Moon) through 0.5 (Quarter) to 1.0 (Full Moon), providing a continuous astronomical cycle for research into potential lunar-correlated market behavior. The indicator is purely time-based, requires no price data, and has zero warmup since the calculation is deterministic from any timestamp.
 
 ## Historical Context

@@ -1,4 +1,21 @@
-﻿# ALAGUERRE: Ehlers Adaptive Laguerre Filter
+# ALAGUERRE: Ehlers Adaptive Laguerre Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `length` (default 20), `medianLength` (default 5)                      |
+| **Outputs**      | Single series (ALaguerre)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Adaptive Laguerre Filter extends Ehlers' four-element all-pass cascade by replacing the fixed damping factor with a per-bar adaptive alpha deri...
+- Parameterized by `length` (default 20), `medianlength` (default 5).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The best filter is one that knows when to listen closely and when to smooth aggressively." -- John F. Ehlers (paraphrased)
 
@@ -107,7 +124,7 @@ O(1) per bar. Four recursive stages with precomputed gamma constant. ~38 cycles/
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Laguerre stage recursion | No | Each stage L[k][n] depends on L[k-1][n] and L[k][n-1] |
+| Laguerre stage recursion | No | Each stage `L[k][n]` depends on `L[k-1][n]` and `L[k][n-1]` |
 | Weighted combination | No | Only 4 terms; SIMD overhead not worthwhile |
 
 Cascaded IIR stages cannot be vectorized. Batch throughput: ~38 cy/bar.

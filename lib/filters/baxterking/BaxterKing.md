@@ -1,4 +1,21 @@
-﻿# BK: Baxter-King Band-Pass Filter
+# BK: Baxter-King Band-Pass Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `pLow` (default 6), `pHigh` (default 32), `k` (default 12)                      |
+| **Outputs**      | Single series (BaxterKing)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncati...
+- Parameterized by `plow` (default 6), `phigh` (default 32), `k` (default 12).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The business cycle is whatever remains after you strip away the trend and the noise. Baxter and King figured out the stripping."
 

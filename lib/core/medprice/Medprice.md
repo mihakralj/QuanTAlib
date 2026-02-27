@@ -1,5 +1,22 @@
 # MEDPRICE: Median Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Core                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (MEDPRICE)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- MEDPRICE computes the midpoint of a bar's High and Low: $(H + L) \times 0.5$.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 MEDPRICE computes the midpoint of a bar's High and Low: $(H + L) \times 0.5$. This is the simplest possible estimate of a bar's "fair value," splitting the difference between the session's extremes while ignoring both the opening gap and closing settlement. The result represents the geometric center of the bar's vertical range. Because it excludes Open and Close, MEDPRICE responds purely to the supply/demand boundaries that the market tested, making it a useful input for range-based indicators like CCI or as a detrending reference. Stateless, zero-warmup, one addition and one multiply per bar.
 
 ## Historical Context

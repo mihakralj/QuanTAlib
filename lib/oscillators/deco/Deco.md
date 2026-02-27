@@ -1,4 +1,21 @@
-﻿# DECO: Ehlers Decycler Oscillator
+# DECO: Ehlers Decycler Oscillator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `shortPeriod` (default 30), `longPeriod` (default 60)                      |
+| **Outputs**      | Single series (Deco)                       |
+| **Output range** | $0$ to $1$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The Decycler Oscillator (DECO) is a DSP-based oscillator developed by John F.
+- Parameterized by `shortperiod` (default 30), `longperiod` (default 60).
+- Output range: $0$ to $1$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview
 

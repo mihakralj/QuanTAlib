@@ -1,5 +1,22 @@
 # LinReg: Linear Regression Curve
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `offset` (default 0)                      |
+| **Outputs**      | Single series (LinReg)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Linear Regression Curve plots the end point of the linear regression line for each bar.
+- Parameterized by `period`, `offset` (default 0).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The trend is your friend, until it bends."
 
 The Linear Regression Curve plots the end point of the linear regression line for each bar. It fits a straight line $y = mx + b$ to the data points using the least squares method, providing a smoothed representation of the price trend that is more responsive than a Simple Moving Average (SMA).

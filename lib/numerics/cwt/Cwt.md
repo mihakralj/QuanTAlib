@@ -1,5 +1,22 @@
 # CWT: Continuous Wavelet Transform
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `scale` (default 10.0), `omega0` (default 6.0)                      |
+| **Outputs**      | Single series (Cwt)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- CWT computes the magnitude of the Continuous Wavelet Transform at a specified scale using the Morlet wavelet, providing a time-frequency decomposit...
+- Parameterized by `scale` (default 10.0), `omega0` (default 6.0).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 CWT computes the magnitude of the Continuous Wavelet Transform at a specified scale using the Morlet wavelet, providing a time-frequency decomposition that measures the energy content of a specific frequency band at each point in time. Unlike Fourier analysis which loses time localization, the wavelet transform maintains both time and frequency information simultaneously. The output is a non-negative magnitude series where peaks indicate strong presence of the target frequency (determined by the scale parameter) and troughs indicate absence of that frequency component.
 
 ## Historical Context

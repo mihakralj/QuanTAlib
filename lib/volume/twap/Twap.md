@@ -1,5 +1,22 @@
 # TWAP: Time Weighted Average Price
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default DefaultPeriod)                      |
+| **Outputs**      | Single series (TWAP)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | `> 1` bars                          |
+
+### TL;DR
+
+- Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume.
+- Parameterized by `period` (default defaultperiod).
+- Output range: Unbounded.
+- Requires `> 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Equal time, equal weight—the simplest benchmark refuses to let any single moment dominate the conversation." — Anonymous Quant
 
 Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume. Unlike VWAP which emphasizes high-volume periods, TWAP treats every moment as equally important. This makes it a pure temporal benchmark—ideal for evaluating execution quality when volume patterns could bias the analysis.

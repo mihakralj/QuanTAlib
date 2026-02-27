@@ -1,4 +1,21 @@
-﻿# ROOFING: Ehlers Roofing Filter
+# ROOFING: Ehlers Roofing Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `hpLength` (default 48), `ssLength` (default 10)                      |
+| **Outputs**      | Single series (ROOFING)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The **Roofing Filter** is John Ehlers' bandpass architecture designed specifically for oscillator construction.
+- Parameterized by `hplength` (default 48), `sslength` (default 10).
+- Output range: Tracks input.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The trend is your friend until it overwhelms the signal. The noise is your enemy until you mistake it for alpha."
 

@@ -1,4 +1,21 @@
-﻿# VOSS: Ehlers Voss Predictive Filter
+# VOSS: Ehlers Voss Predictive Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 20), `predict` (default 3), `bandwidth` (default 0.25)                      |
+| **Outputs**      | Single series (VOSS)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Voss Predictive Filter is a two-stage signal processing pipeline that extracts a dominant cycle from noisy price data and then predicts its fut...
+- Parameterized by `period` (default 20), `predict` (default 3), `bandwidth` (default 0.25).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The best filter is one that tells you what is about to happen, not what already did." — paraphrasing Ehlers
 

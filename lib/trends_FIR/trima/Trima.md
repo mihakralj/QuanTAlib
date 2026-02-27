@@ -1,5 +1,22 @@
 # TRIMA: Triangular Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Trima)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `p1 + p2 - 1` bars                          |
+
+### TL;DR
+
+- The Triangular Moving Average (TRIMA) places the majority of its weight on the middle of the data window, tapering off linearly towards the ends.
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `p1 + p2 - 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The weighted blanket of moving averages. It doesn't care where the price is going right now; it cares where the price feels most comfortable."
 
 The Triangular Moving Average (TRIMA) places the majority of its weight on the middle of the data window, tapering off linearly towards the ends. This creates a triangular weight distribution (hence the name). It is mathematically equivalent to a double-smoothed SMA.

@@ -1,4 +1,21 @@
-﻿# RWMA: Range Weighted Moving Average
+# RWMA: Range Weighted Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 14)                      |
+| **Outputs**      | Single series (Rwma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `> period` bars                          |
+
+### TL;DR
+
+- RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narr...
+- Parameterized by `period` (default 14).
+- Output range: Tracks input.
+- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Most averages weight by position: recent bars matter more. RWMA weights by volatility: volatile bars matter more. The market spoke loudest when the range was widest, so listen to those bars."
 

@@ -1,5 +1,22 @@
 # MMA: Modified Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Mma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the ...
+- Parameterized by `period`.
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "MMA is a compromise: less lag than SMA, less overshoot than fully weighted filters. It's what you get when an SMA and a WMA have a carefully engineered offspring."
 
 MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the buffer. The weighting tilts toward newer bars without fully discarding older ones, creating a filter that sits between SMA (equal weights) and WMA (linear weights) in both lag and smoothness characteristics.

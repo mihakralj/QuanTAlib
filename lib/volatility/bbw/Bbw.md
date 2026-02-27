@@ -1,5 +1,22 @@
 # BBW: Bollinger Band Width
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `multiplier` (default 2.0)                      |
+| **Outputs**      | Single series (Bbw)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band.
+- Parameterized by `period`, `multiplier` (default 2.0).
+- Output range: $\geq 0$.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volatility breeds opportunity. The squeeze precedes the explosion."
 
 Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band. When BBW is low, the bands are squeezing together, signaling compressed volatility and impending breakout. When BBW is high, the market is in an expanded volatility state. BBW transforms Bollinger Bands from a visual channel indicator into a quantifiable volatility oscillator, enabling algorithmic detection of "squeeze" conditions that often precede significant price moves.

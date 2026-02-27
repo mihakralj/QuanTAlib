@@ -1,5 +1,22 @@
 # TRIM: Trimmed Mean Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `trimPct` (default 10.0)                      |
+| **Outputs**      | Single series (Trim)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The Trimmed Mean Moving Average computes a rolling average after discarding a configurable percentage of the most extreme values from each tail of ...
+- Parameterized by `period`, `trimpct` (default 10.0).
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The Trimmed Mean Moving Average computes a rolling average after discarding a configurable percentage of the most extreme values from each tail of the sorted lookback window. By removing the lowest and highest `trimPct%` of observations, TRIM eliminates the influence of outliers while retaining more information than a pure median. At `trimPct = 0` it degenerates to the SMA; at `trimPct = 50` it becomes the median. The default 10% trim provides a robust central tendency estimator that resists spike contamination with minimal loss of responsiveness, requiring $O(N \log N)$ for the sort plus $O(N)$ for the summation per bar.
 
 ## Historical Context

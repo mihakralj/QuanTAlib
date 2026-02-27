@@ -1,5 +1,22 @@
 # RAVI: Chande Range Action Verification Index
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `shortPeriod` (default 7), `longPeriod` (default 65)                      |
+| **Outputs**      | Single series (Ravi)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a lon...
+- Parameterized by `shortperiod` (default 7), `longperiod` (default 65).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The simplest question in technical analysis is also the most important: is this market trending or not? RAVI answers it with two moving averages and a division."
 
 RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a long-period SMA. Created by Tushar Chande and published in *Beyond Technical Analysis* (Wiley, 2001), the indicator classifies markets into trending (RAVI > 3%) and ranging (RAVI < 3%) regimes using a single threshold. With default parameters (short=7, long=65), RAVI requires 65 bars of warmup for the first valid reading. The core computation is three operations per bar in streaming mode: two running-sum updates and one division. No square roots, no exponentials, no recursion. The entire indicator reduces to normalized SMA spread, making it one of the cheapest dynamics classifiers available.

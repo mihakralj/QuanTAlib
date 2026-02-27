@@ -1,5 +1,22 @@
 # REMA: Regularized Exponential Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `lambda` (default 0.5)                      |
+| **Outputs**      | Single series (Rema)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous...
+- Parameterized by `period`, `lambda` (default 0.5).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Someone looked at the EMA and thought: 'What if we punished it for changing its mind?' The result is REMA—an EMA with a conscience that remembers where it was going and resists the temptation to chase every price wiggle."
 
 REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous trend direction. The result is a filter that responds to genuine price movements while suppressing noise-induced oscillations. Think of it as an EMA with momentum awareness: it knows where it was heading and applies a penalty for sudden course corrections.

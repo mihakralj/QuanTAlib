@@ -1,5 +1,22 @@
 # WAD: Williams Accumulation/Distribution
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volume                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (WAD)                       |
+| **Output range** | Unbounded                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Williams Accumulation/Distribution (WAD) is Larry Williams' contribution to the volume analysis toolkit.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Unbounded.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volume is the fuel that drives price." — Larry Williams
 
 Williams Accumulation/Distribution (WAD) is Larry Williams' contribution to the volume analysis toolkit. Unlike the standard Accumulation/Distribution Line that uses the close's position within the day's range, WAD incorporates **True Range** concepts. This gives it a different perspective on buying and selling pressure.

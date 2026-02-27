@@ -1,5 +1,22 @@
 # FFT: Fast Fourier Transform (Dominant Cycle Detector)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `windowSize` (default 64), `minPeriod` (default 4), `maxPeriod` (default 32)                      |
+| **Outputs**      | Single series (Fft)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- The FFT indicator computes the dominant cycle period in a price series using a Discrete Fourier Transform with a Hanning window.
+- Parameterized by `windowsize` (default 64), `minperiod` (default 4), `maxperiod` (default 32).
+- Output range: Varies (see docs).
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 The FFT indicator computes the dominant cycle period in a price series using a Discrete Fourier Transform with a Hanning window. Rather than outputting frequency-domain magnitudes, it returns the estimated dominant cycle period in bars, making it directly usable as an adaptive period input for other indicators. The implementation uses a brute-force DFT over a constrained frequency band (not a radix-2 FFT), with parabolic interpolation on the magnitude spectrum to achieve sub-bin frequency resolution. With window sizes of 32, 64, or 128 and $O(N \cdot N/2)$ complexity per bar, the indicator trades computational cost for precise cycle detection within user-specified period bounds.
 
 ## Historical Context

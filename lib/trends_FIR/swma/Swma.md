@@ -1,4 +1,21 @@
-﻿# SWMA: Symmetric Weighted Moving Average
+# SWMA: Symmetric Weighted Moving Average
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (FIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 4)                      |
+| **Outputs**      | Single series (Swma)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- SWMA applies triangular (symmetric) weights that peak at the center of the window and taper linearly to the edges.
+- Parameterized by `period` (default 4).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Take the SMA of an SMA and you get a triangular filter. It is the simplest possible smoothing kernel that has zero phase distortion and no frequency-domain discontinuities. Sometimes simple is exactly what you need."
 

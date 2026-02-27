@@ -1,5 +1,22 @@
 # HV: Historical Volatility (Close-to-Close)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period` (default 20), `annualize` (default true), `annualPeriods` (default 252)                      |
+| **Outputs**      | Single series (Hv)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `period + 1` bars                          |
+
+### TL;DR
+
+- Historical Volatility (HV), also known as close-to-close volatility or realized volatility, is the classical measure of price volatility using the ...
+- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
+- Output range: $\geq 0$.
+- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The foundation of all volatility measures—simple, intuitive, and yet surprisingly informative when you understand what it's actually measuring."
 
 Historical Volatility (HV), also known as close-to-close volatility or realized volatility, is the classical measure of price volatility using the standard deviation of logarithmic returns. First formalized in the early 20th century and central to the Black-Scholes option pricing model, HV remains the benchmark against which all other volatility estimators are compared. This implementation uses population standard deviation with a rolling window and optional annualization.

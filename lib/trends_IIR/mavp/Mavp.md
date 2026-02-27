@@ -1,5 +1,22 @@
 # MAVP: Moving Average Variable Period
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `minPeriod` (default 2), `maxPeriod` (default 30)                      |
+| **Outputs**      | Single series (Mavp)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `maxPeriod` bars                          |
+
+### TL;DR
+
+- MAVP applies an EMA-style exponential smoothing where the period -- and therefore the smoothing constant alpha -- changes on every bar.
+- Parameterized by `minperiod` (default 2), `maxperiod` (default 30).
+- Output range: Tracks input.
+- Requires `maxPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "You can't fix your moving average period because the market doesn't run at a fixed frequency. MAVP stops pretending it does."
 
 ## Introduction

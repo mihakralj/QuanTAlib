@@ -1,5 +1,22 @@
 # CVI: Chaikin's Volatility
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `rocLength` (default 10), `smoothLength` (default 10)                      |
+| **Outputs**      | Single series (Cvi)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | 1 bar                          |
+
+### TL;DR
+
+- Chaikin's Volatility (CVI) measures the rate of change of the EMA-smoothed high-low trading range.
+- Parameterized by `roclength` (default 10), `smoothlength` (default 10).
+- Output range: $\geq 0$.
+- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volatility expansion precedes major moves—when the trading range starts widening, pay attention."
 
 Chaikin's Volatility (CVI) measures the rate of change of the EMA-smoothed high-low trading range. Unlike traditional volatility measures that focus on returns, CVI directly tracks the expansion and contraction of price ranges over time. A positive CVI indicates expanding volatility (wider trading ranges), while a negative CVI signals contracting volatility (narrower ranges). This makes CVI particularly useful for identifying breakout conditions and market transitions.

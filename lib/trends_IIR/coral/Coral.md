@@ -1,4 +1,21 @@
-﻿# CORAL — Coral Trend Filter
+# CORAL — Coral Trend Filter
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Trend (IIR MA)                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`, `cd` (default 0.4)                      |
+| **Outputs**      | Single series (Coral)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- The **Coral** filter is a smooth, low-lag trend indicator that chains six cascaded EMA passes and combines stages 3–6 using polynomial coefficients...
+- Parameterized by `period`, `cd` (default 0.4).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview
 

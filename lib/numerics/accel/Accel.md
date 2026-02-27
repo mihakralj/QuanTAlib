@@ -1,5 +1,22 @@
 # ACCEL: Second Derivative (Acceleration)
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Numeric                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | None                      |
+| **Outputs**      | Single series (ACCEL)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `3` bars                          |
+
+### TL;DR
+
+- ACCEL measures the rate of change of velocity—the acceleration of a time series.
+- No configurable parameters; computation is stateless per bar.
+- Output range: Varies (see docs).
+- Requires `3` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Velocity tells you where you're going. Acceleration tells you if you're getting there faster or slower."
 
 ACCEL measures the rate of change of velocity—the acceleration of a time series. As the second derivative, it reveals momentum shifts before they manifest in price direction. Positive acceleration means velocity is increasing (trend strengthening); negative means velocity is decreasing (trend weakening). This O(1) streaming implementation uses FMA optimization and SIMD batch processing.

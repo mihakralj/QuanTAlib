@@ -1,5 +1,22 @@
 # CMA: Cumulative Moving Average
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Statistic                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `source`                      |
+| **Outputs**      | Single series (CMA)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- The Cumulative Moving Average (CMA) calculates the arithmetic mean of ALL data points seen so far, not just a fixed window.
+- Parameterized by `source`.
+- Output range: Varies (see docs).
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "The running average that never forgets. Every single tick you've ever fed it? Still in there, affecting the result. It's like the elephant of technical indicators."
 
 The Cumulative Moving Average (CMA) calculates the arithmetic mean of ALL data points seen so far, not just a fixed window. Unlike SMA or EMA which use a sliding window, CMA treats every historical value with equal weight. As the sample size grows, each new value has diminishing impact on the average.

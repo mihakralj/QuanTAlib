@@ -1,4 +1,21 @@
-﻿# AGC: Ehlers Automatic Gain Control
+# AGC: Ehlers Automatic Gain Control
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `decay` (default 0.991)                      |
+| **Outputs**      | Single series (AGC)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `1` bars                          |
+
+### TL;DR
+
+- The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking.
+- Parameterized by `decay` (default 0.991).
+- Output range: Tracks input.
+- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The purpose of the AGC is to normalize the amplitude of any indicator to unity." — John F. Ehlers, TASC January 2015
 

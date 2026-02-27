@@ -1,4 +1,21 @@
-﻿# NW: Nadaraya-Watson Kernel Regression
+# NW: Nadaraya-Watson Kernel Regression
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period` (default 64), `bandwidth` (default 8.0)                      |
+| **Outputs**      | Single series (Nw)                       |
+| **Output range** | Tracks input                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- NW computes the Nadaraya-Watson kernel regression estimator with a Gaussian kernel, producing a nonparametric smooth of the price series.
+- Parameterized by `period` (default 64), `bandwidth` (default 8.0).
+- Output range: Tracks input.
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Nadaraya and Watson independently discovered the same thing in 1964: weight each observation by how close it is, normalize, and average. Fifty years later, it became one of the most popular nonparametric smoothers on TradingView. The math did not change; only our ability to compute it in real time."
 

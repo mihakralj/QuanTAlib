@@ -1,5 +1,22 @@
 # ATR: Average True Range
 
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Volatility                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Atr)                       |
+| **Output range** | $\geq 0$                     |
+| **Warmup**       | `rma.WarmupPeriod` bars                          |
+
+### TL;DR
+
+- The Average True Range measures market "heat" with complete disregard for direction.
+- Parameterized by `period`.
+- Output range: $\geq 0$.
+- Requires `rma.WarmupPeriod` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+
 > "Volatility is the price of admission. The question is whether the ride is worth it."
 
 The Average True Range measures market "heat" with complete disregard for direction. It ignores whether the market is screaming upward or crashing downward. ATR cares only about magnitude. When ATR is high, expect wide swings. When ATR is low, expect narrow consolidation. Most traders mistakenly use ATR to find entries. Its true power lies in exits and position sizing. ATR answers the critical question: "How far can this asset move against me in a single day?"

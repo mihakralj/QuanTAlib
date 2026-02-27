@@ -1,4 +1,21 @@
-﻿# TTM_SQUEEZE: TTM Squeeze
+# TTM_SQUEEZE: TTM Squeeze
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Dynamic                        |
+| **Inputs**       | OHLCV bar (TBar)                          |
+| **Parameters**   | `bbPeriod` (default 20), `bbMult` (default 2.0), `kcPeriod` (default 20), `kcMult` (default 1.5), `momPeriod` (default 20)                      |
+| **Outputs**      | Single series (TtmSqueeze)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `Math.Max(Math.Max(bbPeriod, kcPeriod), momPeriod)` bars                          |
+
+### TL;DR
+
+- John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside K...
+- Parameterized by `bbperiod` (default 20), `bbmult` (default 2.0), `kcperiod` (default 20), `kcmult` (default 1.5), `momperiod` (default 20).
+- Output range: Varies (see docs).
+- Requires `Math.Max(Math.Max(bbPeriod, kcPeriod), momPeriod)` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Volatility compression is the market holding its breath before screaming."
 

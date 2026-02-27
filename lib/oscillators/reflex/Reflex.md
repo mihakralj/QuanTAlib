@@ -1,4 +1,21 @@
-﻿# REFLEX: Ehlers Reflex Indicator
+# REFLEX: Ehlers Reflex Indicator
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                        |
+| **Inputs**       | Source (close)                          |
+| **Parameters**   | `period`                      |
+| **Outputs**      | Single series (Reflex)                       |
+| **Output range** | Varies (see docs)                     |
+| **Warmup**       | `period` bars                          |
+
+### TL;DR
+
+- REFLEX is a zero-lag oscillator that measures the reversal tendency of price by comparing a Super-Smoother-filtered price against a linear extrapol...
+- Parameterized by `period`.
+- Output range: Varies (see docs).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
+- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "John Ehlers measured how much a filtered price deviates from its own linear extrapolation. The result is a zero-lag oscillator that catches reversals before they happen, because the deviation is largest precisely when the trend is bending."
 
