@@ -51,31 +51,27 @@ public class IndicatorPropertiesTests
     [Fact]
     public void Indicator_ShouldRecoverFromNaN_WhenReset()
     {
-        var ema = new Ema(period: 10);
-        
-        // Feed valid value
-        ema.Update(new TValue(DateTime.Today.AddDays(1), 100));
-        
-        // Feed NaN, which should corrupt state
-        ema.Update(new TValue(DateTime.Today.AddDays(2), double.NaN));
+        var sma = new Sma(period: 10);
 
-        // Let's actually ensure it is corrupted depending on implementation
-        // Some robust implementations might discard NaN internally, so we don't assert it strictly
-        // We just ensure it recovers properly.
+        // Feed valid value
+        sma.Update(new TValue(DateTime.Today.AddDays(1), 100));
+
+        // Feed NaN, which should corrupt state
+        sma.Update(new TValue(DateTime.Today.AddDays(2), double.NaN));
 
         // Reset should clear the corrupted state
-        ema.Reset();
-        
+        sma.Reset();
+
         // Feed valid value again
-        ema.Update(new TValue(DateTime.Today.AddDays(3), 100));
-        
+        sma.Update(new TValue(DateTime.Today.AddDays(3), 100));
+
         // Wait for Warmup
-        for (int i = 4; i < 3 + ema.WarmupPeriod; i++) {
-             ema.Update(new TValue(DateTime.Today.AddDays(i), 100));
+        for (int i = 4; i < 3 + sma.WarmupPeriod; i++) {
+             sma.Update(new TValue(DateTime.Today.AddDays(i), 100));
         }
-        
+
         // Verify recovery after warmup
-        Assert.False(double.IsNaN(ema.Last.Value));
-        Assert.Equal(100, Math.Round(ema.Last.Value, 5));
+        Assert.False(double.IsNaN(sma.Last.Value));
+        Assert.Equal(100, Math.Round(sma.Last.Value, 5));
     }
 }
