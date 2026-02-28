@@ -31,7 +31,7 @@ beautifulsoup4==4.13.5
     #   yfinance
 bleach==6.2.0
     # via nbconvert
-bokeh==3.7.3
+bokeh==3.8.2
 certifi==2025.8.3
     # via
     #   curl-cffi
