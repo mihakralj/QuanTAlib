@@ -221,7 +221,7 @@ peewee==3.18.2
     # via yfinance
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
-pillow==11.3.0
+pillow==12.1.1
     # via
     #   bokeh
     #   matplotlib
