@@ -10,7 +10,7 @@ public sealed class HtSineValidationTests : IDisposable
 
     public HtSineValidationTests()
     {
-        _data = new ValidationTestData(5000);
+        _data = new ValidationTestData(10000);
     }
 
     public void Dispose()

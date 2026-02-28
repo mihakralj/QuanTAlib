@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
+using Skender.Stock.Indicators;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -210,6 +211,72 @@ public sealed class DpoValidationTests(ITestOutputHelper output) : IDisposable
 
         int finiteCount = values.Count(v => double.IsFinite(v));
         Assert.True(finiteCount > 100, $"Expected >100 finite Ooples DPO values, got {finiteCount}");
+    }
+
+    #endregion
+
+    #region Skender Cross-Validation
+
+    [Fact]
+    public void Validate_Skender_Batch()
+    {
+        var dpo = new Dpo(TestPeriod);
+        var qResult = dpo.Update(_testData.Data);
+
+        var sResult = _testData.SkenderQuotes.GetDpo(TestPeriod).ToList();
+
+        int qFinite = qResult.Count(x => double.IsFinite(x.Value));
+        int sFinite = sResult.Count(x => x.Dpo.HasValue && double.IsFinite(x.Dpo.Value));
+
+        Assert.Equal(_testData.Data.Count, qResult.Count);
+        Assert.Equal(_testData.Data.Count, sResult.Count);
+        Assert.True(qFinite > 100, $"Expected >100 finite QuanTAlib DPO values, got {qFinite}");
+        Assert.True(sFinite > 100, $"Expected >100 finite Skender DPO values, got {sFinite}");
+
+        _output.WriteLine("DPO Batch structural parity verified against Skender GetDpo (non-centered vs centered formula).");
+    }
+
+    [Fact]
+    public void Validate_Skender_Streaming()
+    {
+        var dpo = new Dpo(TestPeriod);
+        var qResults = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            qResults.Add(dpo.Update(item).Value);
+        }
+
+        var sResult = _testData.SkenderQuotes.GetDpo(TestPeriod).ToList();
+
+        int qFinite = qResults.Count(double.IsFinite);
+        int sFinite = sResult.Count(x => x.Dpo.HasValue && double.IsFinite(x.Dpo.Value));
+
+        Assert.Equal(_testData.Data.Count, qResults.Count);
+        Assert.Equal(_testData.Data.Count, sResult.Count);
+        Assert.True(qFinite > 100, $"Expected >100 finite QuanTAlib DPO values, got {qFinite}");
+        Assert.True(sFinite > 100, $"Expected >100 finite Skender DPO values, got {sFinite}");
+
+        _output.WriteLine("DPO Streaming structural parity verified against Skender GetDpo (non-centered vs centered formula).");
+    }
+
+    [Fact]
+    public void Validate_Skender_Span()
+    {
+        double[] close = _testData.ClosePrices.ToArray();
+        var spanOutput = new double[close.Length];
+        Dpo.Batch(close, spanOutput, TestPeriod);
+
+        var sResult = _testData.SkenderQuotes.GetDpo(TestPeriod).ToList();
+
+        int qFinite = spanOutput.Count(double.IsFinite);
+        int sFinite = sResult.Count(x => x.Dpo.HasValue && double.IsFinite(x.Dpo.Value));
+
+        Assert.Equal(close.Length, spanOutput.Length);
+        Assert.Equal(close.Length, sResult.Count);
+        Assert.True(qFinite > 100, $"Expected >100 finite QuanTAlib DPO values, got {qFinite}");
+        Assert.True(sFinite > 100, $"Expected >100 finite Skender DPO values, got {sFinite}");
+
+        _output.WriteLine("DPO Span structural parity verified against Skender GetDpo (non-centered vs centered formula).");
     }
 
     #endregion

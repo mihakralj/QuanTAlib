@@ -6,7 +6,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 
 | Category | What It Measures | Representative Indicators | When to Reach for It |
 | :------- | :--------------- | :------------------------ | :------------------- |
-| [**Core**](../lib/core/_index.md) | Price transforms and fundamental building blocks | AVGPRICE, MEDPRICE, MIDPRICE, TYPPRICE, WCLPRICE, MIDPOINT | Derived prices from OHLCV bars. Inputs to higher-order indicators. |
+| [**Core**](../lib/core/_index.md) | Price transforms and fundamental building blocks | AVGPRICE, MEDPRICE, MIDPRICE, MIDBODY, TYPPRICE, WCLPRICE, MIDPOINT | Derived prices from OHLCV bars. Inputs to higher-order indicators. |
 | [**Trends (FIR)**](../lib/trends_FIR/_index.md) | Trend direction via finite impulse response filters | SMA, WMA, ALMA, HMA, LSMA | Trend identification with predictable lag and finite memory. Output depends only on a fixed window of past prices. |
 | [**Trends (IIR)**](../lib/trends_IIR/_index.md) | Trend direction via infinite impulse response filters | EMA, DEMA, TEMA, JMA, KAMA, MAMA | Trend identification with recursive calculation and theoretically infinite memory. More responsive per unit of smoothness. |
 | [**Filters**](../lib/filters/_index.md) | Signal processing filters for noise reduction | Bessel, Butterworth, Super Smoother | Removing noise while preserving trend structure. Designed by engineers, borrowed by traders. |
@@ -158,6 +158,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
 | [**DYMOI**](../lib/oscillators/dymoi/Dymoi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period; shorter in volatile markets, longer in quiet |
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
+| [**FISHER04**](../lib/oscillators/fisher04/Fisher04.md) | Ehlers Fisher Transform (2004) | Cybernetic Analysis variant with gentler arctanh scaling |
 | [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms (upper/lower) |
 | [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
@@ -305,7 +306,7 @@ Price envelope and boundary indicators for breakout and mean-reversion strategie
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
-| [**ABBER**](../lib/channels/abber/abber.md) | Aberration Bands | Statistical deviation bands |
+| [**ABERR**](../lib/channels/aberr/aberr.md) | Aberration Bands | Statistical deviation bands |
 | [**ACCBANDS**](../lib/channels/accbands/accbands.md) | Acceleration Bands | Volatility-adjusted envelope |
 | [**APCHANNEL**](../lib/channels/apchannel/apchannel.md) | Andrews' Pitchfork | Three-line channel from pivot points |
 | [**APZ**](../lib/channels/apz/apz.md) | Adaptive Price Zone | EMA-based volatility zone |
@@ -406,6 +407,7 @@ Price transforms and fundamental building blocks. These indicators compute deriv
 | [**MEDPRICE**](../lib/core/medprice/Medprice.md) | Median Price | (H+L) * 0.5 |
 | [**MIDPOINT**](../lib/core/midpoint/Midpoint.md) | Rolling Midpoint | (Max+Min) * 0.5 over lookback window |
 | [**MIDPRICE**](../lib/core/midprice/Midprice.md) | Mid Price | (Highest High + Lowest Low) * 0.5 |
+| [**MIDBODY**](../lib/core/midbody/Midbody.md) | Open-Close Average | (O+C) * 0.5 |
 | [**TYPPRICE**](../lib/core/typprice/Typprice.md) | Typical Price | (H+L+C) * OneThird via FMA |
 | [**WCLPRICE**](../lib/core/wclprice/Wclprice.md) | Weighted Close Price | (H+L+2C) * 0.25 via FMA |
 
@@ -492,3 +494,5 @@ Reversal indicators identify potential turning points, compute adaptive stop lev
 | [**PSAR**](../lib/reversals/psar/Psar.md) | Parabolic Stop And Reverse | Accelerating trailing stop; SAR dots flip on reversal; Welles Wilder (1978) |
 | [**SWINGS**](../lib/reversals/swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector; dual SwingHigh/SwingLow with persistent levels |
 | [**TTM_SCALPER**](../lib/reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries; John Carter |
+
+

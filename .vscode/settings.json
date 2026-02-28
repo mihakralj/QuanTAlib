@@ -157,6 +157,12 @@
   "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   "dotnet.server.useOmnisharp": false,
 
+  // Python test discovery (pytest)
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "python"
+  ],
   "sonarlint.connectedMode.project": {
     "connectionId": "mihakralj-quantalib",
     "projectKey": "mihakralj_QuanTAlib"

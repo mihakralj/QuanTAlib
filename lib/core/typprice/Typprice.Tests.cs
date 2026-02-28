@@ -44,23 +44,23 @@ public class TyppriceTests
     #region Basic Calculation Tests
 
     [Fact]
-    public void Update_Bar_ReturnsHLC3()
+    public void Update_Bar_ReturnsOHL3()
     {
         var indicator = new Typprice();
         var bar = new TBar(DateTime.UtcNow, 100, 110, 90, 105, 1000);
         var result = indicator.Update(bar);
-        // (110 + 90 + 105) * (1/3) = 101.666...
-        double expected = (110.0 + 90.0 + 105.0) * (1.0 / 3.0);
+        // (100 + 110 + 90) * (1/3) = 100.0
+        double expected = (100.0 + 110.0 + 90.0) * (1.0 / 3.0);
         Assert.Equal(expected, result.Value, Tolerance);
     }
 
     [Fact]
-    public void Update_Bar_MatchesTBarHLC3()
+    public void Update_Bar_MatchesTBarOHL3()
     {
         var indicator = new Typprice();
         var bar = new TBar(DateTime.UtcNow, 50, 60, 40, 55, 500);
         var result = indicator.Update(bar);
-        Assert.Equal(bar.HLC3, result.Value, Tolerance);
+        Assert.Equal(bar.OHL3, result.Value, Tolerance);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class TyppriceTests
         indicator.Update(new TBar(time.AddMinutes(1), 105, 115, 95, 110, 1000), isNew: true);
 
         var corrected = indicator.Update(new TBar(time.AddMinutes(1), 106, 120, 80, 111, 1000), isNew: false);
-        double expected = (120.0 + 80.0 + 111.0) * (1.0 / 3.0);
+        double expected = (106.0 + 120.0 + 80.0) * (1.0 / 3.0);
         Assert.Equal(expected, corrected.Value, Tolerance);
     }
 
@@ -168,7 +168,7 @@ public class TyppriceTests
 
         // Mode 3: Span batch
         double[] spanOutput = new double[bars.Count];
-        Typprice.Batch(bars.HighValues, bars.LowValues, bars.CloseValues, spanOutput);
+        Typprice.Batch(bars.OpenValues, bars.HighValues, bars.LowValues, spanOutput);
 
         for (int i = 0; i < bars.Count; i++)
         {
@@ -178,7 +178,7 @@ public class TyppriceTests
     }
 
     [Fact]
-    public void AllBars_MatchTBarHLC3()
+    public void AllBars_MatchTBarOHL3()
     {
         var bars = GenerateBars(50);
         var indicator = new Typprice();
@@ -186,7 +186,7 @@ public class TyppriceTests
         for (int i = 0; i < bars.Count; i++)
         {
             var result = indicator.Update(bars[i], isNew: true);
-            Assert.Equal(bars[i].HLC3, result.Value, Tolerance);
+            Assert.Equal(bars[i].OHL3, result.Value, Tolerance);
         }
     }
 
@@ -197,24 +197,24 @@ public class TyppriceTests
     [Fact]
     public void Batch_MismatchedLengths_ThrowsArgumentException()
     {
-        double[] high = new double[10];
-        double[] low = new double[5]; // mismatched
-        double[] close = new double[10];
+        double[] open = new double[10];
+        double[] high = new double[5]; // mismatched
+        double[] low = new double[10];
         double[] output = new double[10];
 
-        var ex = Assert.Throws<ArgumentException>(() => Typprice.Batch(high, low, close, output));
-        Assert.Equal("low", ex.ParamName);
+        var ex = Assert.Throws<ArgumentException>(() => Typprice.Batch(open, high, low, output));
+        Assert.Equal("high", ex.ParamName);
     }
 
     [Fact]
     public void Batch_OutputTooShort_ThrowsArgumentException()
     {
+        double[] open = new double[10];
         double[] high = new double[10];
         double[] low = new double[10];
-        double[] close = new double[10];
         double[] output = new double[5]; // too short
 
-        var ex = Assert.Throws<ArgumentException>(() => Typprice.Batch(high, low, close, output));
+        var ex = Assert.Throws<ArgumentException>(() => Typprice.Batch(open, high, low, output));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -231,7 +231,7 @@ public class TyppriceTests
     {
         var bars = GenerateBars(10_000);
         double[] output = new double[bars.Count];
-        Typprice.Batch(bars.HighValues, bars.LowValues, bars.CloseValues, output);
+        Typprice.Batch(bars.OpenValues, bars.HighValues, bars.LowValues, output);
         Assert.True(double.IsFinite(output[^1]));
     }
 

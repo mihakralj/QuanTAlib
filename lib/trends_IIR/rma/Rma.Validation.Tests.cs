@@ -11,7 +11,7 @@ public sealed class RmaValidationTests : IDisposable
 
     public RmaValidationTests()
     {
-        _testData = new ValidationTestData(count: 1000, seed: 123);
+        _testData = new ValidationTestData(count: 10000, seed: 123);
     }
 
     public void Dispose()

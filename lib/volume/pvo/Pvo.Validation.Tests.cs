@@ -1,5 +1,6 @@
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
+using Skender.Stock.Indicators;
 
 namespace QuanTAlib.Tests;
 
@@ -16,10 +17,59 @@ public class PvoValidationTests
     }
 
     [Fact]
-    public void Pvo_Matches_Skender()
+    public void Validate_Skender_Pvo_Streaming()
     {
-        // Skender does not have PVO implementation (has PPO which is similar but for price)
-        Assert.True(true, "Skender does not have a Percentage Volume Oscillator implementation");
+        // QuanTAlib PVO (streaming)
+        var pvo = new Pvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var qResults = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            qResults.Add(pvo.Update(bar).Value);
+        }
+
+        // Skender PVO
+        var sResult = _data.SkenderQuotes.GetPvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod).ToList();
+
+        // Cross-validate PVO line
+        ValidationHelper.VerifyData(qResults, sResult, s => s.Pvo, tolerance: ValidationHelper.SkenderTolerance);
+    }
+
+    [Fact]
+    public void Validate_Skender_Pvo_Signal()
+    {
+        // QuanTAlib PVO signal (streaming)
+        var pvo = new Pvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var qSignal = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            pvo.Update(bar);
+            qSignal.Add(pvo.Signal.Value);
+        }
+
+        // Skender PVO
+        var sResult = _data.SkenderQuotes.GetPvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod).ToList();
+
+        // Cross-validate signal line
+        ValidationHelper.VerifyData(qSignal, sResult, s => s.Signal, tolerance: ValidationHelper.SkenderTolerance);
+    }
+
+    [Fact]
+    public void Validate_Skender_Pvo_Histogram()
+    {
+        // QuanTAlib PVO histogram (streaming)
+        var pvo = new Pvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod);
+        var qHistogram = new List<double>();
+        foreach (var bar in _data.Bars)
+        {
+            pvo.Update(bar);
+            qHistogram.Add(pvo.Histogram.Value);
+        }
+
+        // Skender PVO
+        var sResult = _data.SkenderQuotes.GetPvo(DefaultFastPeriod, DefaultSlowPeriod, DefaultSignalPeriod).ToList();
+
+        // Cross-validate histogram
+        ValidationHelper.VerifyData(qHistogram, sResult, s => s.Histogram, tolerance: ValidationHelper.SkenderTolerance);
     }
 
     [Fact]

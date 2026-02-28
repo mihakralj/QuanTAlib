@@ -713,5 +713,54 @@ public class RsvTests
         Assert.True(double.IsFinite(rsv.Last.Value));
     }
 
+    [Fact]
+    public void Batch_TSeries_MatchesInstanceUpdate()
+    {
+        var bars = GenerateTestData(120);
+        var variances = new TSeries();
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            // Pre-compute same RS variance formula used by RSV
+            double o = Math.Max(bars[i].Open, 1e-10);
+            double h = Math.Max(bars[i].High, 1e-10);
+            double l = Math.Max(bars[i].Low, 1e-10);
+            double c = Math.Max(bars[i].Close, 1e-10);
+            double term1 = Math.Log(h / o);
+            double term2 = Math.Log(h / c);
+            double term3 = Math.Log(l / o);
+            double term4 = Math.Log(l / c);
+            variances.Add(bars[i].Time, Math.FusedMultiplyAdd(term1, term2, term3 * term4));
+        }
+
+        var batch = Rsv.Batch(variances, period: 10, annualize: false);
+        var instance = new Rsv(period: 10, annualize: false);
+        var stream = instance.Update(variances);
+
+        Assert.Equal(batch.Count, stream.Count);
+        for (int i = 0; i < batch.Count; i++)
+        {
+            Assert.Equal(stream[i].Value, batch[i].Value, Tolerance);
+        }
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        var bars = GenerateTestData(150);
+
+        var (results, indicator) = Rsv.Calculate(bars, period: 14, annualize: true, annualPeriods: 252);
+        var batch = Rsv.Batch(bars, period: 14, annualize: true, annualPeriods: 252);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(14, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < batch.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, Tolerance);
+        }
+    }
+
     #endregion
 }

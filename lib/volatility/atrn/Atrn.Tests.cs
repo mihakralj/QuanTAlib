@@ -355,6 +355,34 @@ public class AtrnTests
         }
     }
 
+    [Fact]
+    public void Update_EmptyTSeries_ReturnsEmpty()
+    {
+        var atrn = new Atrn(DefaultPeriod);
+        var result = atrn.Update(new TSeries());
+
+        Assert.Empty(result);
+        Assert.Equal(0, atrn.Last.Value);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        var bars = _gbm.Fetch(300, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        var (results, indicator) = Atrn.Calculate(bars, DefaultPeriod);
+        var batch = Atrn.Batch(bars, DefaultPeriod);
+
+        Assert.NotNull(indicator);
+        Assert.True(indicator.WarmupPeriod >= DefaultPeriod + 10 * DefaultPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, Tolerance);
+        }
+    }
+
     #endregion
 
     #region Chainability Tests

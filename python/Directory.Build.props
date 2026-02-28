@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <GitVersionSkip>true</GitVersionSkip>
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    <RunAnalyzers>false</RunAnalyzers>
+    <ErrorReport>none</ErrorReport>
+
+    <!-- Override root Directory.Build.props settings that break NativeAOT -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+
+    <!-- Disable SARIF output — interferes with ILC -->
+    <ErrorLog></ErrorLog>
+
+    <!-- NativeAOT trimming: do NOT use aggressive 'link' mode from root props.
+         'partial' preserves rooted assemblies fully while still trimming unused framework code. -->
+    <TrimMode>partial</TrimMode>
+
+    <!-- Suppress ILC warnings about types it can't fully analyze -->
+    <NoWarn>$(NoWarn);IL2026;IL2057;IL2058;IL2059;IL2060;IL2070;IL2072;IL2075;IL2104;IL3050;IL3051</NoWarn>
+  </PropertyGroup>
+</Project>

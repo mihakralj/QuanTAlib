@@ -27,11 +27,14 @@ fisher(series float source, simple int period) =>
     float alpha = 0.33
     value := alpha * normalized + (1.0 - alpha) * value
 
-    value := math.max(-0.999, math.min(0.999, value))
+    // Ehlers/Skender: snap to ±0.999 when |Value1| > 0.99
+    value := value > 0.99 ? 0.999 : value < -0.99 ? -0.999 : value
 
-    fisher := 0.5 * math.log((1.0 + value) / (1.0 - value))
+    // Ehlers 2002: Fish = arctanh(Value1) + 0.5 * Fish[1]  (IIR feedback)
+    fisher := 0.5 * math.log((1.0 + value) / (1.0 - value)) + 0.5 * fisher
 
-    signal := alpha * fisher + (1.0 - alpha) * signal
+    // Signal = Fish[1] (previous bar's Fisher)
+    signal := fisher[1]
 
     [fisher, signal]
 

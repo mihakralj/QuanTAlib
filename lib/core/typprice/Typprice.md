@@ -11,31 +11,29 @@
 
 ### TL;DR
 
-- TYPPRICE computes the equal-weighted average of High, Low, and Close: $(H + L + C) \times \frac{1}{3}$.
+- TYPPRICE computes the equal-weighted average of Open, High, and Low: $(O + H + L) \times \frac{1}{3}$.
 - No configurable parameters; computation is stateless per bar.
 - Output range: Varies (see docs).
 - Requires `1` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Equivalent to `TBar.OHL3` computed property.
 
-TYPPRICE computes the equal-weighted average of High, Low, and Close: $(H + L + C) \times \frac{1}{3}$. This three-component mean is the most widely used "representative price" in technical analysis, serving as the default input for CCI, MFI, and many other indicators. By including Close but excluding Open, Typical Price captures both the range extremes and the settlement point, giving slightly more weight to closing action than AVGPRICE does. The calculation is stateless and costs a single FMA instruction per bar.
+TYPPRICE computes the equal-weighted average of Open, High, and Low: $(O + H + L) \times \frac{1}{3}$. This three-component mean captures the opening price and the full intra-bar range without including the settlement (Close). By excluding Close, Typical Price isolates the session's initial positioning and range extremes, making it useful as an input where you want a price representative that is independent of closing action. The calculation is stateless and costs a single FMA instruction per bar.
 
 ## Historical Context
 
-Typical Price became the standard price transform through its adoption by Donald Lambert in his 1980 Commodity Channel Index (CCI), which explicitly requires $(H+L+C)/3$ as its input. Gene Quong and Avrum Soudack used it in the Money Flow Index (MFI) in 1989. The TA-Lib function `TA_TYPPRICE` codified it as a standalone operation. TradingView exposes it as the `hlc3` built-in source selector.
+The OHL3 variant of Typical Price represents the average of the bar's opening level and its range extremes. Unlike the more common HLC3 formulation (which TA-Lib implements as `TA_TYPPRICE`), OHL3 excludes the closing price entirely. This makes it suitable for analysis where the settlement price should not influence the representative price, for example when studying intra-session price discovery or when the closing price is already used as a separate signal component.
 
-The choice of three components rather than four is not arbitrary. Excluding Open removes the overnight gap component, which reflects news-driven repositioning rather than intra-session supply and demand. For intraday analysis, this makes Typical Price a purer measure of within-session fair value than AVGPRICE. For daily bars on instruments with significant gaps (equities, futures at session boundaries), the distinction matters; for 24-hour markets (forex, crypto), it is negligible.
-
-In QuanTAlib, `TBar.HLC3` provides the same value as a zero-cost computed property. The `Typprice` indicator class wraps this in the streaming `ITValuePublisher` interface with bar correction, NaN safety, and event chaining.
+In QuanTAlib, `TBar.OHL3` provides the same value as a zero-cost computed property. The `Typprice` indicator class wraps this in the streaming `ITValuePublisher` interface with bar correction, NaN safety, and event chaining.
 
 ## Architecture & Physics
 
 ### 1. Core Formula
 
-$$\text{TypPrice}_t = (H_t + L_t + C_t) \times \tfrac{1}{3}$$
+$$\text{TypPrice}_t = (O_t + H_t + L_t) \times \tfrac{1}{3}$$
 
 Implemented as FMA with a precomputed reciprocal constant:
 
-$$\text{TypPrice}_t = \text{FMA}\!\left(H_t,\; \tfrac{1}{3},\; (L_t + C_t) \times \tfrac{1}{3}\right)$$
+$$\text{TypPrice}_t = \text{FMA}\!\left(O_t,\; \tfrac{1}{3},\; (H_t + L_t) \times \tfrac{1}{3}\right)$$
 
 The constant $\frac{1}{3}$ is stored as `private const double OneThird = 1.0 / 3.0`, evaluated at compile time. No runtime division occurs.
 
@@ -43,7 +41,7 @@ The constant $\frac{1}{3}$ is stored as `private const double OneThird = 1.0 / 3
 
 Stateless per bar. State exists only for:
 
-- **Last-valid substitution**: Non-finite H, L, or C values are replaced with the last known finite value for that component.
+- **Last-valid substitution**: Non-finite O, H, or L values are replaced with the last known finite value for that component.
 - **Bar correction**: `isNew=false` rolls back to previous state for same-timestamp rewrites.
 
 ### 3. Complexity
@@ -64,18 +62,18 @@ Division by a non-power-of-two constant is 4-5x more expensive than multiplicati
 
 ### Pseudo-code
 
-```
+```text
 function TYPPRICE(bar):
     const OneThird ← 1.0 / 3.0   // compile-time constant
 
-    h, l, c ← bar.High, bar.Low, bar.Close
+    o, h, l ← bar.Open, bar.High, bar.Low
 
     // Substitute last-valid for non-finite inputs
+    if !finite(o): o ← lastValidOpen
     if !finite(h): h ← lastValidHigh
     if !finite(l): l ← lastValidLow
-    if !finite(c): c ← lastValidClose
 
-    result ← FMA(h, OneThird, (l + c) × OneThird)
+    result ← FMA(o, OneThird, (h + l) × OneThird)
     return result
 ```
 
@@ -83,10 +81,10 @@ function TYPPRICE(bar):
 
 | Context | Meaning |
 |---------|---------|
-| Close > TYPPRICE | Close above session's HLC center (bullish settlement) |
-| Close < TYPPRICE | Close below session's HLC center (bearish settlement) |
-| TYPPRICE trending up | Both range and settlement are rising |
-| TYPPRICE as CCI input | Standard; CCI = (Price - SMA(Price)) / (0.015 × MeanDeviation) |
+| Close > TYPPRICE | Close above session's OHL center (bullish settlement relative to range) |
+| Close < TYPPRICE | Close below session's OHL center (bearish settlement relative to range) |
+| TYPPRICE trending up | Opening levels and range are rising |
+| TYPPRICE as input | Useful where Close independence is desired |
 
 ## Performance Profile
 
@@ -94,9 +92,9 @@ function TYPPRICE(bar):
 
 | Operation | Count | Cost (cycles) | Subtotal |
 |-----------|:-----:|:-------------:|:--------:|
-| ADD (L+C) | 1 | 1 | 1 |
-| MUL ((L+C) × OneThird) | 1 | 3 | 3 |
-| FMA (H × OneThird + prev) | 1 | 4 | 4 |
+| ADD (H+L) | 1 | 1 | 1 |
+| MUL ((H+L) × OneThird) | 1 | 3 | 3 |
+| FMA (O × OneThird + prev) | 1 | 4 | 4 |
 | **Total (hot)** | **3** | | **~8 cycles** |
 
 ### Batch Mode (SIMD Analysis)
@@ -104,12 +102,10 @@ function TYPPRICE(bar):
 | Aspect | Assessment |
 |--------|------------|
 | SIMD vectorizable | Yes: element-wise arithmetic, no inter-bar dependency |
-| Optimal strategy | `Vector<double>` over H/L/C spans with broadcast OneThird |
+| Optimal strategy | `Vector<double>` over O/H/L spans with broadcast OneThird |
 | Memory | $O(1)$ streaming; $O(n)$ batch output span |
 | Throughput | Near memory-bandwidth bound for large series |
 
 ## Resources
 
-- **Lambert, D.R.** "Commodity Channel Index: Tools for Trading Cyclical Trends." *Technical Analysis of Stocks & Commodities*, 1980.
-- **Quong, G. & Soudack, A.** "Volume-Weighted RSI: Money Flow." *Technical Analysis of Stocks & Commodities*, 1989.
-- **TA-Lib** `TA_TYPPRICE` function reference.
+- **QuanTAlib** `TBar.OHL3` computed property reference.

@@ -556,4 +556,39 @@ public class AdrTests
         // Negative range should be treated as 0
         Assert.Equal(0.0, result.Value, 1e-10);
     }
+
+    [Fact]
+    public void Update_EmptyTSeries_ReturnsEmpty()
+    {
+        var adr = new Adr(10);
+        var result = adr.Update(new TSeries());
+
+        Assert.Empty(result);
+        Assert.Equal(0, adr.Last.Value);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        var bars = new TBarSeries();
+        var now = DateTime.UtcNow;
+
+        for (int i = 0; i < 40; i++)
+        {
+            double basePrice = 100 + i;
+            bars.Add(new TBar(now.AddDays(i), basePrice, basePrice + 8, basePrice - 5, basePrice + 1, 1000));
+        }
+
+        var (results, indicator) = Adr.Calculate(bars, 10, AdrMethod.Ema);
+        var batch = Adr.Batch(bars, 10, AdrMethod.Ema);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(10, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, 1e-10);
+        }
+    }
 }

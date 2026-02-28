@@ -1,0 +1,72 @@
+[project]
+name = "pandas-ta"
+version = "0.4.71b"
+description = "A Comprehensive Python 3 Technical Analysis Library with Pandas Dataframe Extension for Quantitative Researchers, Traders, and Investors."
+authors = [{ name = "Pandas TA Support", email = "support@pandas-ta.dev" }]
+requires-python = ">=3.12"
+dependencies = [
+    "numba==0.61.2",
+    "numpy>=2.2.6",
+    "pandas>=2.3.2",
+    "tqdm>=4.67.1",
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+license-files = ["LICENSE"]
+keywords = [
+    "library",
+    "technical analysis",
+    "ta",
+    "indicators",
+    "pandas",
+    "dataframe extension",
+    "finance",
+    "trading",
+    "machine learning",
+    "ai",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+[project.urls]
+Homepage = "https://www.pandas-ta.dev"
+Documentation = "https://www.pandas-ta.dev/api"
+Repository = "https://github.com/twopirllc/pandas-ta"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "bokeh>=3.7.3",
+    "cryptography>=45.0.6",
+    "ipython>=9.4.0",
+    "jupyterlab>=4.4.6",
+    "matplotlib>=3.10.5",
+    "pytest>=8.4.1",
+    "requests>=2.32.5",
+    "ta-lib==0.6.4",
+    "yfinance>=0.2.65",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-include-markdown-plugin>=7.1.6",
+    "mkdocs-macros-plugin>=1.3.9",
+    "mkdocs-material>=9.6.18",
+    "mkdocs-minify-plugin>=0.8.0",
+    "mkdocs-plotly-plugin>=0.1.3",
+    "mkdocs-redirects>=1.2.2",
+    "mkdocstrings-python>=1.17.0",
+    "ruff>=0.12.10",
+]

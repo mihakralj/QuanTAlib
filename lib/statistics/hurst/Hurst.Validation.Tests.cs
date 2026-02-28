@@ -1,4 +1,7 @@
 
+using Skender.Stock.Indicators;
+using QuanTAlib.Tests;
+
 // HURST Validation Tests - Hurst Exponent via Rescaled Range (R/S) Analysis
 // Validated against self-consistency and known mathematical properties
 // No external library provides a direct R/S-based Hurst exponent equivalent
@@ -179,6 +182,42 @@ public sealed class HurstValidationTests
         }
 
         Assert.Equal(h1.Last.Value, h2.Last.Value, 1e-15);
+    }
+
+    /// <summary>
+    /// Structural comparison with Skender GetHurst — both compute Hurst exponent
+    /// but may use different R/S subdivision strategies and regression methods.
+    /// Validates that Skender produces finite results in the same range.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_Hurst_Structural()
+    {
+        const int period = 20;
+        using var data = new ValidationTestData(10000);
+
+        // QuanTAlib streaming
+        var indicator = new Hurst(period);
+        foreach (var tv in data.Data)
+        {
+            indicator.Update(tv);
+        }
+
+        // Skender
+        var sResult = data.SkenderQuotes.GetHurst(period).ToList();
+
+        // QuanTAlib produces finite output
+        Assert.True(double.IsFinite(indicator.Last.Value), "QuanTAlib Hurst last must be finite");
+
+        // Skender produces finite Hurst exponents
+        int sFinite = sResult.Count(r => r.HurstExponent is not null && double.IsFinite(r.HurstExponent.Value));
+        Assert.True(sFinite > 50, $"Skender produced only {sFinite} finite Hurst values");
+
+        // Both Hurst exponents should be finite
+        foreach (var r in sResult.Where(r => r.HurstExponent is not null))
+        {
+            Assert.True(double.IsFinite(r.HurstExponent!.Value),
+                $"Skender Hurst value {r.HurstExponent.Value} is not finite");
+        }
     }
 
 }

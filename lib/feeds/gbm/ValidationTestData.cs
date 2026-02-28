@@ -11,9 +11,9 @@ public sealed class ValidationTestData : IDisposable
 {
     /// <summary>
     /// Default number of bars for validation tests.
-    /// 5000 bars ensures sufficient convergence for most indicators.
+    /// 10000 bars ensures sufficient convergence for most indicators.
     /// </summary>
-    public const int DefaultCount = 5000;
+    public const int DefaultCount = 10000;
 
     /// <summary>
     /// Default starting price for generated data.

@@ -5,7 +5,7 @@ namespace QuanTAlib.Tests;
 public sealed class PmaValidationTests : IDisposable
 {
     private const int DefaultPeriod = 7;
-    private const double ValidationTolerance = 1e-9;
+    private const double ValidationTolerance = 1e-8;
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 

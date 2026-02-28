@@ -107,12 +107,12 @@ public class TyppriceIndicatorTests
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
-        // H=110, L=90, C=105 → (110+90+105)/3 = 101.666...
+        // O=100, H=110, L=90, C=105 → (100+110+90)/3 = 100.0
         indicator.HistoricalData.AddBar(now, 100, 110, 90, 105, 1000);
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
         double val = indicator.LinesSeries[0].GetValue(0);
-        Assert.Equal(305.0 * (1.0 / 3.0), val, 10);
+        Assert.Equal(300.0 * (1.0 / 3.0), val, 10);
     }
 
     [Fact]

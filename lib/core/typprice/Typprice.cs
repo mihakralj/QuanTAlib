@@ -5,21 +5,20 @@ namespace QuanTAlib;
 
 /// <summary>
 /// TYPPRICE: Typical Price
-/// Calculates the average of High, Low, and Close prices.
-/// Equivalent to TBar.HLC3 but as a proper streaming indicator with bar correction.
+/// Calculates the average of Open, High, and Low prices.
+/// Equivalent to TBar.OHL3 but as a proper streaming indicator with bar correction.
 /// </summary>
 /// <remarks>
 /// <b>Calculation:</b>
 /// <list type="number">
-/// <item>TypPrice = (High + Low + Close) / 3</item>
+/// <item>TypPrice = (Open + High + Low) / 3</item>
 /// </list>
 ///
 /// <b>Key characteristics:</b>
 /// <list type="bullet">
 /// <item>Stateless bar-by-bar calculation (no lookback period)</item>
-/// <item>TA-Lib compatible (TYPPRICE function)</item>
 /// <item>Always hot after first bar</item>
-/// <item>Widely used as the default price input for many indicators (e.g., CCI)</item>
+/// <item>Uses Open, High, and Low to represent typical price action</item>
 /// </list>
 /// </remarks>
 [SkipLocalsInit]
@@ -29,9 +28,9 @@ public sealed class Typprice : AbstractBase
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
+        double LastValidOpen,
         double LastValidHigh,
         double LastValidLow,
-        double LastValidClose,
         double LastResult,
         int Count
     );
@@ -66,17 +65,17 @@ public sealed class Typprice : AbstractBase
     public override bool IsHot => _s.Count >= WarmupPeriod;
 
     /// <summary>
-    /// Computes the typical price from HLC values.
+    /// Computes the typical price from OHL values.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double ComputeTypicalPrice(double high, double low, double close)
+    private static double ComputeTypicalPrice(double open, double high, double low)
     {
-        return Math.FusedMultiplyAdd(high, OneThird, (low + close) * OneThird);
+        return Math.FusedMultiplyAdd(open, OneThird, (high + low) * OneThird);
     }
 
     /// <summary>
     /// Updates the indicator with a TValue input.
-    /// For TValue input, treats the value as H, L, and C (result = value).
+    /// For TValue input, treats the value as O, H, and L (result = value).
     /// Prefer Update(TBar) for standard OHLC data.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,7 +93,7 @@ public sealed class Typprice : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar bar, bool isNew = true)
     {
-        return UpdateCore(bar.Time, bar.High, bar.Low, bar.Close, isNew);
+        return UpdateCore(bar.Time, bar.Open, bar.High, bar.Low, isNew);
     }
 
     /// <summary>
@@ -118,7 +117,7 @@ public sealed class Typprice : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Batch(source.HighValues, source.LowValues, source.CloseValues, vSpan);
+        Batch(source.OpenValues, source.HighValues, source.LowValues, vSpan);
 
         for (int i = 0; i < len; i++)
         {
@@ -164,7 +163,7 @@ public sealed class Typprice : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TValue UpdateCore(long timeTicks, double high, double low, double close, bool isNew)
+    private TValue UpdateCore(long timeTicks, double open, double high, double low, bool isNew)
     {
         if (isNew)
         {
@@ -178,11 +177,11 @@ public sealed class Typprice : AbstractBase
         var s = _s;
 
         // Handle non-finite values — use last valid values
+        if (!double.IsFinite(open)) { open = s.LastValidOpen; } else { s.LastValidOpen = open; }
         if (!double.IsFinite(high)) { high = s.LastValidHigh; } else { s.LastValidHigh = high; }
         if (!double.IsFinite(low)) { low = s.LastValidLow; } else { s.LastValidLow = low; }
-        if (!double.IsFinite(close)) { close = s.LastValidClose; } else { s.LastValidClose = close; }
 
-        double result = ComputeTypicalPrice(high, low, close);
+        double result = ComputeTypicalPrice(open, high, low);
 
         if (!double.IsFinite(result))
         {
@@ -229,18 +228,18 @@ public sealed class Typprice : AbstractBase
     }
 
     /// <summary>
-    /// Batch calculation using spans for HLC data.
+    /// Batch calculation using spans for OHL data.
     /// </summary>
     public static void Batch(
+        ReadOnlySpan<double> open,
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
-        ReadOnlySpan<double> close,
         Span<double> output)
     {
-        int len = high.Length;
-        if (low.Length != len || close.Length != len)
+        int len = open.Length;
+        if (high.Length != len || low.Length != len)
         {
-            throw new ArgumentException("All input spans must have the same length", nameof(low));
+            throw new ArgumentException("All input spans must have the same length", nameof(high));
         }
         if (output.Length < len)
         {
@@ -249,7 +248,7 @@ public sealed class Typprice : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            output[i] = ComputeTypicalPrice(high[i], low[i], close[i]);
+            output[i] = ComputeTypicalPrice(open[i], high[i], low[i]);
         }
     }
 
@@ -269,7 +268,7 @@ public sealed class Typprice : AbstractBase
             return;
         }
 
-        Batch(source.HighValues, source.LowValues, source.CloseValues, output);
+        Batch(source.OpenValues, source.HighValues, source.LowValues, output);
     }
 
     public static (TSeries Results, Typprice Indicator) Calculate(TBarSeries source)

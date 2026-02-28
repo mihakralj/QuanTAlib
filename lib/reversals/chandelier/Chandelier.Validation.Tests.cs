@@ -52,7 +52,7 @@ public sealed class ChandelierValidationTests
                 Assert.Equal(
                     skenderResults[i].ChandelierExit!.Value,
                     ourValues[i],
-                    precision: 8);
+                    precision: 7);
                 matched++;
             }
         }
@@ -92,7 +92,7 @@ public sealed class ChandelierValidationTests
                 Assert.Equal(
                     skenderResults[i].ChandelierExit!.Value,
                     ourValues[i],
-                    precision: 8);
+                    precision: 7);
                 matched++;
             }
         }

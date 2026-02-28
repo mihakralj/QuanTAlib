@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <PublishAot>true</PublishAot>
+    <AssemblyName>quantalib_native</AssemblyName>
+    <PackageId>QuanTAlib.Python.Native</PackageId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\lib\quantalib.csproj" />
+  </ItemGroup>
+
+  <!-- Prevent NativeAOT trimmer from stripping QuanTAlib types.
+       The ILC linker must keep ALL types in the referenced assembly
+       because [UnmanagedCallersOnly] exports call static Batch methods
+       on ~120 different indicator types via try/catch wrappers. -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="QuanTAlib" />
+  </ItemGroup>
+
+  <Target Name="ValidateExportsCoverage" BeforeTargets="Build;Publish">
+    <Exec Command="python tools/validate_exports.py --repo-root $(MSBuildThisFileDirectory).." WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
+</Project>

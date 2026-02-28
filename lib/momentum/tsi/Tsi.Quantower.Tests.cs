@@ -104,4 +104,30 @@ public class TsiIndicatorTests
             Assert.True(core.Signal >= -100.0 && core.Signal <= 100.0);
         }
     }
+
+    [Fact]
+    public void Indicator_ConstructorMetadata_IsSet()
+    {
+        var indicator = new TsiIndicator();
+
+        Assert.True(indicator.SeparateWindow);
+        Assert.True(indicator.OnBackGround);
+        Assert.Contains("double-smoothed EMA", indicator.Description, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Indicator_MinHistoryDepths_MatchesWatchlistInterface()
+    {
+        var indicator = new TsiIndicator();
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+    }
+
+    [Fact]
+    public void Indicator_SourceCodeLink_AndShortName_AreDeterministic()
+    {
+        var indicator = new TsiIndicator();
+
+        Assert.Equal("https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/tsi/Tsi.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("TSI(25,13,13):Close", indicator.ShortName, StringComparison.Ordinal);
+    }
 }

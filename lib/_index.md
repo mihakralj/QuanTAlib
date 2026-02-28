@@ -2,31 +2,31 @@
 
 ## Categories
 
-| Category | Count | Description |
-| :--- | :---: | :--- |
-| [Core](core/_index.md) | 7 | Price transforms and fundamental building blocks |
-| [Trends (FIR)](trends_FIR/_index.md) | 33 | Finite Impulse Response moving averages |
-| [Trends (IIR)](trends_IIR/_index.md) | 36 | Infinite Impulse Response moving averages |
-| [Filters](filters/_index.md) | 37 | Signal processing filters |
-| [Oscillators](oscillators/_index.md) | 47 | Indicators that fluctuate around a center line |
-| [Dynamics](dynamics/_index.md) | 21 | Trend strength and direction indicators |
-| [Momentum](momentum/_index.md) | 19 | Momentum-based indicators |
-| [Volatility](volatility/_index.md) | 26 | Volatility estimators and indicators |
-| [Volume](volume/_index.md) | 27 | Volume-based indicators |
-| [Statistics](statistics/_index.md) | 35 | Statistical measures and tests |
-| [Channels](channels/_index.md) | 23 | Price channels and bands |
-| [Cycles](cycles/_index.md) | 14 | Cycle analysis and signal processing |
-| [Reversals](reversals/_index.md) | 12 | Pattern recognition and reversal detection |
-| [Forecasts](forecasts/_index.md) | 1 | Predictive indicators |
-| [Errors](errors/_index.md) | 26 | Error metrics and loss functions |
-| [Numerics](numerics/_index.md) | 27 | Mathematical transformations |
-| **Total** | **395** | |
+| Category                             |  Count  | Description                                      |
+| :----------------------------------- | :-----: | :----------------------------------------------- |
+| [Core](core/_index.md)               |    7    | Price transforms and fundamental building blocks |
+| [Trends (FIR)](trends_FIR/_index.md) |   33    | Finite Impulse Response moving averages          |
+| [Trends (IIR)](trends_IIR/_index.md) |   36    | Infinite Impulse Response moving averages        |
+| [Filters](filters/_index.md)         |   37    | Signal processing filters                        |
+| [Oscillators](oscillators/_index.md) |   47    | Indicators that fluctuate around a center line   |
+| [Dynamics](dynamics/_index.md)       |   21    | Trend strength and direction indicators          |
+| [Momentum](momentum/_index.md)       |   19    | Momentum-based indicators                        |
+| [Volatility](volatility/_index.md)   |   26    | Volatility estimators and indicators             |
+| [Volume](volume/_index.md)           |   27    | Volume-based indicators                          |
+| [Statistics](statistics/_index.md)   |   35    | Statistical measures and tests                   |
+| [Channels](channels/_index.md)       |   23    | Price channels and bands                         |
+| [Cycles](cycles/_index.md)           |   14    | Cycle analysis and signal processing             |
+| [Reversals](reversals/_index.md)     |   12    | Pattern recognition and reversal detection       |
+| [Forecasts](forecasts/_index.md)     |    1    | Predictive indicators                            |
+| [Errors](errors/_index.md)           |   26    | Error metrics and loss functions                 |
+| [Numerics](numerics/_index.md)       |   27    | Mathematical transformations                     |
+| **Total**                            | **395** |                                                  |
 
 ## All Indicators
 
 | Indicator                                                  | Full Name                                                                 | Category     |
 | :--------------------------------------------------------- | :------------------------------------------------------------------------ | :----------- |
-| [ABBER](channels/abber/Abber.md)                           | Aberration Bands                                                          | Channels     |
+| [ABERR](channels/aberr/Aberr.md)                           | Aberration Bands                                                          | Channels     |
 | [AC](oscillators/ac/Ac.md)                                 | Acceleration Oscillator                                                   | Oscillators  |
 | [ACCBANDS](channels/accbands/Accbands.md)                  | Acceleration Bands                                                        | Channels     |
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
@@ -141,6 +141,7 @@
 | [FFT](numerics/fft/Fft.md)                                 | Fast Fourier Transform                                                    | Numerics     |
 | [FI](oscillators/fi/Fi.md)                                 | Force Index                                                               | Oscillators  |
 | [FISHER](oscillators/fisher/Fisher.md)                     | Ehlers Fisher Transform                                                   | Oscillators  |
+| [FISHER04](oscillators/fisher04/Fisher04.md)               | Ehlers Fisher Transform (2004)                                            | Oscillators  |
 | [FRACTALS](reversals/fractals/Fractals.md)                 | Williams Fractals                                                         | Reversals    |
 | [FRAMA](trends_IIR/frama/Frama.md)                         | Ehlers Fractal Adaptive MA                                                | Trends (IIR) |
 | [FWMA](trends_FIR/fwma/Fwma.md)                            | Fibonacci Weighted MA                                                     | Trends (FIR) |
@@ -167,7 +168,7 @@
 | [HOMOD](cycles/homod/Homod.md)                             | Ehlers Homodyne Discriminator                                             | Cycles       |
 | [HP](filters/hp/Hp.md)                                     | Hodrick-Prescott                                                          | Filters      |
 | [HPF](filters/hpf/Hpf.md)                                  | Ehlers Highpass Filter                                                    | Filters      |
-| [HTIT](trends_IIR/htit/Htit.md)                            | Ehlers Hilbert Transform Instantaneous Trend (also known as HT_TRENDLINE) | Trends (IIR) |
+| [HTIT](trends_IIR/htit/Htit.md)                            | Ehlers Hilbert Transform Instantaneous Trend (aka HT_TRENDLINE) | Trends (IIR) |
 | [HT_DCPERIOD](cycles/ht_dcperiod/Htdcperiod.md)           | Ehlers HT Dominant Cycle Period                                           | Cycles       |
 | [HT_DCPHASE](cycles/ht_dcphase/Htdcphase.md)              | Ehlers HT Dominant Cycle Phase                                            | Cycles       |
 | [HT_PHASOR](cycles/ht_phasor/Htphasor.md)                 | Ehlers HT Phasor Components                                               | Cycles       |

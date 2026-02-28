@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit;
 
 namespace QuanTAlib.Tests;
@@ -501,6 +502,50 @@ public class PrsValidationTests
 
         Assert.Equal("Prs", prsNoSmooth.Name);
         Assert.Equal("Prs(14)", prsSmooth.Name);
+    }
+
+    #endregion
+
+    #region Skender Cross-Validation
+
+    /// <summary>
+    /// Structural validation against Skender <c>GetPrs</c>.
+    /// Skender PRS computes price ratio between two quote series.
+    /// QuanTAlib PRS also computes base/comparison ratio with optional smoothing.
+    /// With period=1 (no smoothing), raw ratios should match exactly.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_Prs_Streaming()
+    {
+        using var evalData = new ValidationTestData();
+        // Create a second quote series for comparison (different seed)
+        var baseGbm = new GBM(startPrice: 100, mu: 0.02, sigma: 0.12, seed: 999);
+        var baseBars = baseGbm.Fetch(evalData.Bars.Count, evalData.Bars[0].Time, TimeSpan.FromMinutes(1));
+        var baseQuotes = baseBars.Select(b => new Quote
+        {
+            Date = new DateTime(b.Time, DateTimeKind.Utc),
+            Open = (decimal)b.Open,
+            High = (decimal)b.High,
+            Low = (decimal)b.Low,
+            Close = (decimal)b.Close,
+            Volume = (decimal)b.Volume
+        }).ToList();
+
+        // QuanTAlib PRS (streaming, no smoothing)
+        var prs = new Prs(1);
+        var qResults = new List<double>();
+        for (int i = 0; i < evalData.Bars.Count; i++)
+        {
+            double evalClose = evalData.Bars[i].Close;
+            double baseClose = baseBars[i].Close;
+            qResults.Add(prs.Update(evalClose, baseClose, true).Value);
+        }
+
+        // Skender PRS: quotesEval.GetPrs(quotesBase)
+        var sResult = evalData.SkenderQuotes.GetPrs(baseQuotes).ToList();
+
+        // Cross-validate: raw PRS ratio (no smoothing)
+        ValidationHelper.VerifyData(qResults, sResult, s => s.Prs, tolerance: ValidationHelper.SkenderTolerance);
     }
 
     #endregion

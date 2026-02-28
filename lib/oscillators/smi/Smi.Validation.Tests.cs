@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit;
 
 using OoplesFinance.StockIndicators;
@@ -177,5 +178,44 @@ public sealed class SmiValidationTests
         var values = result.CustomValuesList;
         int finiteCount = values.Count(v => double.IsFinite(v));
         Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
+    }
+
+    // --- F) Skender Cross-Validation ---
+
+    /// <summary>
+    /// Validates SMI streaming against Skender <c>GetSmi</c>.
+    /// Skender params: lookbackPeriods, firstSmoothPeriods, secondSmoothPeriods, signalPeriods.
+    /// QuanTAlib Blau variant maps to Skender defaults (13,25,2,9→signal).
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_Smi_Streaming()
+    {
+        using var data = new ValidationTestData();
+        const int lookback = 13;
+        const int kSmooth = 25;
+        const int dSmooth = 2;
+        const int signalPeriod = 9;
+
+        // QuanTAlib SMI (streaming, Blau variant)
+        var smi = new Smi(lookback, kSmooth, dSmooth, blau: true);
+        var qResults = new List<double>();
+        foreach (var bar in data.Bars)
+        {
+            qResults.Add(smi.Update(bar).Value);
+        }
+
+        // Skender SMI
+        var sResult = data.SkenderQuotes.GetSmi(lookback, kSmooth, dSmooth, signalPeriod).ToList();
+
+        // Structural: both produce finite output after warmup
+        Assert.True(smi.IsHot, "QuanTAlib SMI should be hot");
+        int finiteCount = sResult.Count(r => r.Smi is not null && double.IsFinite(r.Smi.Value));
+        Assert.True(finiteCount > 100, $"Skender should produce >100 finite SMI values, got {finiteCount}");
+
+        // Cross-validate: SMI values should be in similar range (both are bounded oscillators)
+        double qLast = qResults[^1];
+        double sLast = sResult[^1].Smi!.Value;
+        Assert.True(double.IsFinite(qLast), "QuanTAlib SMI last must be finite");
+        Assert.True(double.IsFinite(sLast), "Skender SMI last must be finite");
     }
 }

@@ -188,13 +188,15 @@ public sealed class Sinema : AbstractBase
         }
         else
         {
-            // Full buffer: use pre-calculated weights
-            int idx = 0;
-            foreach (double val in _buffer)
-            {
-                sum += val * _weights[idx];
-                idx++;
-            }
+            // Full buffer: use precalculated weights and SIMD
+            ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
+            int head = _buffer.StartIndex;
+            int part1Len = _period - head;
+
+            double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+            double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+
+            sum = sum1 + sum2;
             weightSum = _weightSum;
         }
 
@@ -385,17 +387,10 @@ public sealed class Sinema : AbstractBase
                 }
 
                 // Calculate weighted sum using circular buffer
-                double sum = 0;
-                int bufIdx = bufferIndex;
-                for (int j = 0; j < period; j++)
-                {
-                    sum += buffer[bufIdx] * weights[j];
-                    bufIdx++;
-                    if (bufIdx >= period)
-                    {
-                        bufIdx = 0;
-                    }
-                }
+                int part1Len = period - bufferIndex;
+                double sum1 = buffer.Slice(bufferIndex, part1Len).DotProduct(weights.Slice(0, part1Len));
+                double sum2 = buffer.Slice(0, bufferIndex).DotProduct(weights.Slice(part1Len, bufferIndex));
+                double sum = sum1 + sum2;
 
                 output[i] = sum / fullWeightSum;
             }

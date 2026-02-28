@@ -717,4 +717,44 @@ public class VarianceTests
         Assert.Equal(0, output[0]); // N=1
         Assert.Equal(50, output[1]); // Var([10,20]) = 50
     }
+
+    [Fact]
+    public void Batch_AllNonFinite_UsesScalarFallbackAndReturnsFinite()
+    {
+        double[] source = [double.NaN, double.PositiveInfinity, double.NegativeInfinity, double.NaN];
+        double[] output = new double[source.Length];
+
+        Variance.Batch(source.AsSpan(), output.AsSpan(), 2);
+
+        foreach (double value in output)
+        {
+            Assert.True(double.IsFinite(value));
+            Assert.True(value >= 0);
+        }
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        const int period = 5;
+        var source = new TSeries();
+        var now = DateTime.UtcNow;
+
+        for (int i = 0; i < 25; i++)
+        {
+            source.Add(now.AddSeconds(i), 100 + i);
+        }
+
+        var (results, indicator) = Variance.Calculate(source, period, isPopulation: true);
+        var batch = Variance.Batch(source, period, isPopulation: true);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(period, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, 10);
+        }
+    }
 }

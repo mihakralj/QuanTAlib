@@ -8,7 +8,7 @@ Channels define dynamic support and resistance. Upper band shows where price ten
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [ABBER](abber/Abber.md) | Aberration Bands | Absolute deviation-based volatility bands. More robust than standard deviation. |
+| [ABERR](aberr/Aberr.md) | Aberration Bands | Absolute deviation-based volatility bands. More robust than standard deviation. |
 | [ACCBANDS](accbands/Accbands.md) | Acceleration Bands | Volatility-based adaptive channel by Price Headley. Width adapts to momentum. |
 | [APCHANNEL](apchannel/Apchannel.md) | Adaptive Price Channel | Channel based on adaptive moving average with volatility bands. |
 | [APZ](apz/Apz.md) | Adaptive Price Zone | Double-smoothed EMA volatility channel by Lee Leibfarth. Adapts to recent volatility. |

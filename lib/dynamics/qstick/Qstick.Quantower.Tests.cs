@@ -52,10 +52,10 @@ public class QstickIndicatorTests
     }
 
     [Fact]
-    public void DefaultTALib.Core.MAType_IsSMA()
+    public void DefaultMaType_IsSMA()
     {
         var indicator = new QstickIndicator();
-        Assert.Equal("SMA", indicator.TALib.Core.MAType);
+        Assert.Equal("SMA", indicator.MaType);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class QstickIndicatorTests
     // ── ShortName ───────────────────────────────────────────────────────
 
     [Fact]
-    public void ShortName_DefaultParameters_IncludesPeriodAndTALib.Core.MAType()
+    public void ShortName_DefaultParameters_IncludesPeriodAndMaType()
     {
         var indicator = new QstickIndicator();
         Assert.Equal("QSTICK(14,SMA)", indicator.ShortName);
@@ -84,7 +84,7 @@ public class QstickIndicatorTests
     [Fact]
     public void ShortName_EmaMode_IncludesEMA()
     {
-        var indicator = new QstickIndicator { Period = 20, TALib.Core.MAType = "EMA" };
+        var indicator = new QstickIndicator { Period = 20, MaType = "EMA" };
         Assert.Equal("QSTICK(20,EMA)", indicator.ShortName);
     }
 
@@ -109,7 +109,7 @@ public class QstickIndicatorTests
     [Fact]
     public void Initialize_SmaMode_CreatesInternalIndicator()
     {
-        var indicator = new QstickIndicator { TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { MaType = "SMA" };
         indicator.Initialize();
 
         Assert.NotNull(indicator);
@@ -118,7 +118,7 @@ public class QstickIndicatorTests
     [Fact]
     public void Initialize_EmaMode_CreatesInternalIndicator()
     {
-        var indicator = new QstickIndicator { TALib.Core.MAType = "EMA" };
+        var indicator = new QstickIndicator { MaType = "EMA" };
         indicator.Initialize();
 
         Assert.NotNull(indicator);
@@ -139,7 +139,7 @@ public class QstickIndicatorTests
     [Fact]
     public void ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 3, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -156,7 +156,7 @@ public class QstickIndicatorTests
     [Fact]
     public void ProcessUpdate_HistoricalBar_BullishBars_PositiveValue()
     {
-        var indicator = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 3, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -175,7 +175,7 @@ public class QstickIndicatorTests
     [Fact]
     public void ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 3, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -193,7 +193,7 @@ public class QstickIndicatorTests
     [Fact]
     public void ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 3, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -214,7 +214,7 @@ public class QstickIndicatorTests
     [Fact]
     public void SmaMode_BearishBars_ProducesNegativeQstick()
     {
-        var indicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 5, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -231,7 +231,7 @@ public class QstickIndicatorTests
     [Fact]
     public void SmaMode_DojiBars_ProducesZeroQstick()
     {
-        var indicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 5, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -247,7 +247,7 @@ public class QstickIndicatorTests
     [Fact]
     public void EmaMode_BullishBars_ProducesPositiveQstick()
     {
-        var indicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "EMA" };
+        var indicator = new QstickIndicator { Period = 5, MaType = "EMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -663,8 +663,8 @@ public class QstickIndicatorTests
     [Fact]
     public void DifferentPeriods_ProduceDifferentResults()
     {
-        var indicator1 = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
-        var indicator2 = new QstickIndicator { Period = 10, TALib.Core.MAType = "SMA" };
+        var indicator1 = new QstickIndicator { Period = 3, MaType = "SMA" };
+        var indicator2 = new QstickIndicator { Period = 10, MaType = "SMA" };
         indicator1.Initialize();
         indicator2.Initialize();
 
@@ -687,8 +687,8 @@ public class QstickIndicatorTests
     [Fact]
     public void SmaVsEma_SameData_ProduceDifferentResults()
     {
-        var smaIndicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "SMA" };
-        var emaIndicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "EMA" };
+        var smaIndicator = new QstickIndicator { Period = 5, MaType = "SMA" };
+        var emaIndicator = new QstickIndicator { Period = 5, MaType = "EMA" };
         smaIndicator.Initialize();
         emaIndicator.Initialize();
 
@@ -715,7 +715,7 @@ public class QstickIndicatorTests
     [Fact]
     public void Reinitialize_WithDifferentParameters_ResetsState()
     {
-        var indicator = new QstickIndicator { Period = 5, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 5, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -726,7 +726,7 @@ public class QstickIndicatorTests
         }
 
         indicator.Period = 10;
-        indicator.TALib.Core.MAType = "EMA";
+        indicator.MaType = "EMA";
         indicator.Initialize();
 
         Assert.Equal("QSTICK(10,EMA)", indicator.ShortName);
@@ -762,7 +762,7 @@ public class QstickIndicatorTests
     [Fact]
     public void MultipleBars_ThroughAdapter_ProducesExpectedValues()
     {
-        var indicator = new QstickIndicator { Period = 3, TALib.Core.MAType = "SMA" };
+        var indicator = new QstickIndicator { Period = 3, MaType = "SMA" };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -795,12 +795,12 @@ public class QstickIndicatorTests
     }
 
     [Fact]
-    public void TALib.Core.MAType_CanBeChanged()
+    public void MaType_CanBeChanged()
     {
         var indicator = new QstickIndicator();
-        Assert.Equal("SMA", indicator.TALib.Core.MAType);
+        Assert.Equal("SMA", indicator.MaType);
 
-        indicator.TALib.Core.MAType = "EMA";
-        Assert.Equal("EMA", indicator.TALib.Core.MAType);
+        indicator.MaType = "EMA";
+        Assert.Equal("EMA", indicator.MaType);
     }
 }

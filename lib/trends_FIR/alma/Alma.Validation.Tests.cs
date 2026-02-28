@@ -17,7 +17,7 @@ public sealed class AlmaValidationTests : IDisposable
     public AlmaValidationTests(ITestOutputHelper output)
     {
         _output = output;
-        _testData = new ValidationTestData(count: 1000, seed: 42);
+        _testData = new ValidationTestData(count: 10000, seed: 42);
     }
 
     public void Dispose()

@@ -456,4 +456,39 @@ public class AtrTests
         // ATR should be 0 for flat bars
         Assert.Equal(0.0, atr.Last.Value, 1e-10);
     }
+
+    [Fact]
+    public void Update_EmptyTSeries_ReturnsEmpty()
+    {
+        var atr = new Atr(14);
+        var result = atr.Update(new TSeries());
+
+        Assert.Empty(result);
+        Assert.Equal(0, atr.Last.Value);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        var bars = new TBarSeries();
+        var now = DateTime.UtcNow;
+
+        for (int i = 0; i < 40; i++)
+        {
+            double open = 100 + i;
+            bars.Add(new TBar(now.AddMinutes(i), open, open + 6, open - 4, open + 1, 1000));
+        }
+
+        var (results, indicator) = Atr.Calculate(bars, 10);
+        var batch = Atr.Batch(bars, 10);
+
+        Assert.NotNull(indicator);
+        Assert.True(indicator.WarmupPeriod >= 10);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, 1e-10);
+        }
+    }
 }

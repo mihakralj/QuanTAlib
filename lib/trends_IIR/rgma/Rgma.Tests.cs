@@ -126,6 +126,53 @@ public class RgmaTests
         }
     }
 
+    [Fact]
+    public void Rgma_BatchSpan_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4];
+        double[] output = new double[4];
+        double[] shortOutput = new double[3];
+
+        Assert.Throws<ArgumentException>(() => Rgma.Batch(source.AsSpan(), output.AsSpan(), 0, 3));
+        Assert.Throws<ArgumentException>(() => Rgma.Batch(source.AsSpan(), output.AsSpan(), 10, 0));
+        Assert.Throws<ArgumentException>(() => Rgma.Batch(source.AsSpan(), shortOutput.AsSpan(), 10, 3));
+    }
+
+    [Fact]
+    public void Rgma_BatchSpan_AllNonFinite_ReturnsNaNSeries()
+    {
+        double[] source = [double.NaN, double.PositiveInfinity, double.NegativeInfinity, double.NaN];
+        double[] output = new double[source.Length];
+
+        Rgma.Batch(source.AsSpan(), output.AsSpan(), period: 5, passes: 3);
+
+        for (int i = 0; i < output.Length; i++)
+        {
+            Assert.True(double.IsNaN(output[i]));
+        }
+    }
+
+    [Fact]
+    public void Rgma_Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        const int period = 12;
+        const int passes = 4;
+        TSeries source = BuildSeries(120, seed: 33);
+
+        var (results, indicator) = Rgma.Calculate(source, period, passes);
+        TSeries batch = Rgma.Batch(source, period, passes);
+
+        Assert.NotNull(indicator);
+        Assert.Equal($"Rgma({period},{passes})", indicator.Name);
+        Assert.Equal(period, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, precision: 10);
+        }
+    }
+
     private static TSeries BuildSeries(int count, int seed)
     {
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: seed);

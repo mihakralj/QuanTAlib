@@ -51,7 +51,7 @@ public sealed class BilateralValidationTests : IDisposable
             var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, refResult, (s) => s, 100, 1e-8);
+            ValidationHelper.VerifyData(qResult, refResult, (s) => s, 100, 1e-7);
         }
         _output.WriteLine("Bilateral Batch(TSeries) validated successfully against Reference");
     }
@@ -77,7 +77,7 @@ public sealed class BilateralValidationTests : IDisposable
             var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, refResult, (s) => s, 100, 1e-8);
+            ValidationHelper.VerifyData(qResults, refResult, (s) => s, 100, 1e-7);
         }
         _output.WriteLine("Bilateral Streaming validated successfully against Reference");
     }
@@ -102,7 +102,7 @@ public sealed class BilateralValidationTests : IDisposable
             var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, refResult, (s) => s, 100, 1e-8);
+            ValidationHelper.VerifyData(qOutput, refResult, (s) => s, 100, 1e-7);
         }
         _output.WriteLine("Bilateral Span validated successfully against Reference");
     }

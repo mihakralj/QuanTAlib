@@ -108,7 +108,7 @@ public class LoessIndicatorTests
             SourceType.Close,
             SourceType.HL2,
             SourceType.HLC3,
-            SourceType.OC2,
+            SourceType.Midbody,
             SourceType.OHL3,
             SourceType.OHLC4,
         };
@@ -127,3 +127,4 @@ public class LoessIndicatorTests
         }
     }
 }
+

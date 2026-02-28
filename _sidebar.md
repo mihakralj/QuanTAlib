@@ -16,6 +16,7 @@
   * [MEDPRICE - Median Price](/lib/core/medprice/Medprice.md)
   * [MIDPOINT - Rolling Range Midpoint](/lib/core/midpoint/Midpoint.md)
   * [MIDPRICE - Midpoint Price](/lib/core/midprice/Midprice.md)
+  * [MIDBODY - Open-Close Average](/lib/core/midbody/Midbody.md)
   * [TYPPRICE - Typical Price](/lib/core/typprice/Typprice.md)
   * [WCLPRICE - Weighted Close Price](/lib/core/wclprice/Wclprice.md)
 
@@ -156,6 +157,7 @@
   * [ERI - Elder Ray Index](/lib/oscillators/eri/Eri.md)
   * [FI - Force Index](/lib/oscillators/fi/Fi.md)
   * [FISHER - Ehlers Fisher Transform](/lib/oscillators/fisher/Fisher.md)
+  * [FISHER04 - Ehlers Fisher Transform (2004)](/lib/oscillators/fisher04/Fisher04.md)
   * [GATOR - Williams Gator Oscillator](/lib/oscillators/gator/Gator.md)
   * [IMI - Intraday Momentum Index](/lib/oscillators/imi/Imi.md)
   * [INERTIA - Inertia](/lib/oscillators/inertia/Inertia.md)
@@ -291,7 +293,7 @@
 
 * **Channels**
   * [Overview](/lib/channels/_index.md)
-  * [ABBER - Aberration Bands](/lib/channels/abber/abber.md)
+  * [ABERR - Aberration Bands](/lib/channels/aberr/aberr.md)
   * [ACCBANDS - Acceleration Bands](/lib/channels/accbands/accbands.md)
   * [APCHANNEL - Andrews' Pitchfork](/lib/channels/apchannel/Apchannel.md)
   * [APZ - Adaptive Price Zone](/lib/channels/apz/apz.md)
@@ -447,3 +449,4 @@
   * [PSAR - Parabolic Stop And Reverse](/lib/reversals/psar/Psar.md)
   * [SWINGS - Swing High/Low Detection](/lib/reversals/swings/Swings.md)
   * [TTM_SCALPER - TTM Scalper Alert](/lib/reversals/ttm_scalper/TtmScalper.md)
+

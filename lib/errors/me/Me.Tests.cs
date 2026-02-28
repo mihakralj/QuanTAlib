@@ -389,4 +389,73 @@ public class MeTests
         // After resync, result should still be correct
         Assert.Equal(10.0, me.Last.Value, 10);
     }
+
+    [Fact]
+    public void BatchSpan_EmptyInput_ReturnsWithoutChanges()
+    {
+        double[] actual = [];
+        double[] predicted = [];
+        double[] output = [];
+
+        Me.Batch(actual.AsSpan(), predicted.AsSpan(), output.AsSpan(), 3);
+
+        Assert.Empty(output);
+    }
+
+    [Fact]
+    public void BatchSpan_LargeInput_MatchesStreaming()
+    {
+        const int period = 9;
+        const int count = 300; // exceeds stack-alloc threshold branch
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 321);
+        var me = new Me(period);
+
+        double[] actual = new double[count];
+        double[] predicted = new double[count];
+        double[] streaming = new double[count];
+        double[] batch = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            var bar = gbm.Next();
+            actual[i] = bar.Close;
+            predicted[i] = bar.Close * (1 + (i % 2 == 0 ? 0.01 : -0.015));
+            streaming[i] = me.Update(actual[i], predicted[i]).Value;
+        }
+
+        Me.Batch(actual.AsSpan(), predicted.AsSpan(), batch.AsSpan(), period);
+
+        for (int i = 0; i < count; i++)
+        {
+            Assert.Equal(streaming[i], batch[i], 9);
+        }
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        const int period = 6;
+        var actual = new TSeries();
+        var predicted = new TSeries();
+        var now = DateTime.UtcNow;
+
+        for (int i = 0; i < 40; i++)
+        {
+            actual.Add(now.AddSeconds(i), 100 + i);
+            predicted.Add(now.AddSeconds(i), 101 + i);
+        }
+
+        var (results, indicator) = Me.Calculate(actual, predicted, period);
+        var batch = Me.Batch(actual, predicted, period);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(period, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, 10);
+        }
+    }
 }

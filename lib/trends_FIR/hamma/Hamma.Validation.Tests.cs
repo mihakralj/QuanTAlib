@@ -12,7 +12,7 @@ public sealed class HammaValidationTests : IDisposable
 
     public HammaValidationTests()
     {
-        _testData = new ValidationTestData(count: 1000, seed: 42);
+        _testData = new ValidationTestData(count: 10000, seed: 42);
     }
 
     public void Dispose()

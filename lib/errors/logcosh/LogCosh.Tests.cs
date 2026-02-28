@@ -402,4 +402,73 @@ public class LogCoshTests
             Assert.True(logCosh.Last.Value >= 0, $"LogCosh should be non-negative, got {logCosh.Last.Value}");
         }
     }
+
+    [Fact]
+    public void SpanBatch_EmptyInput_ReturnsWithoutChanges()
+    {
+        double[] actual = [];
+        double[] predicted = [];
+        double[] output = [];
+
+        LogCosh.Batch(actual.AsSpan(), predicted.AsSpan(), output.AsSpan(), 3);
+
+        Assert.Empty(output);
+    }
+
+    [Fact]
+    public void SpanBatch_LargeInput_MatchesIterative()
+    {
+        const int period = 10;
+        const int count = 300; // exceeds stack-alloc threshold branch
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 7);
+        var iterative = new LogCosh(period);
+
+        double[] actual = new double[count];
+        double[] predicted = new double[count];
+        double[] output = new double[count];
+        double[] expected = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            actual[i] = bar.Close;
+            predicted[i] = bar.Close * (1 + (i % 2 == 0 ? 0.015 : -0.012));
+            expected[i] = iterative.Update(actual[i], predicted[i]).Value;
+        }
+
+        LogCosh.Batch(actual.AsSpan(), predicted.AsSpan(), output.AsSpan(), period);
+
+        for (int i = 0; i < count; i++)
+        {
+            Assert.Equal(expected[i], output[i], Precision);
+        }
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        const int period = 7;
+        var actual = new TSeries();
+        var predicted = new TSeries();
+
+        for (int i = 0; i < 30; i++)
+        {
+            long time = DateTime.UtcNow.Ticks + i;
+            double value = 100 + i;
+            actual.Add(time, value);
+            predicted.Add(time, value * 0.99);
+        }
+
+        var (results, indicator) = LogCosh.Calculate(actual, predicted, period);
+        var batch = LogCosh.Batch(actual, predicted, period);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(period, indicator.WarmupPeriod);
+        Assert.Equal(batch.Count, results.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, Precision);
+        }
+    }
 }

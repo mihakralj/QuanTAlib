@@ -1,7 +1,9 @@
+using Skender.Stock.Indicators;
 using TALib;
 
 namespace QuanTAlib.Test;
 
+using QuanTAlib.Tests;
 using Xunit;
 
 /// <summary>
@@ -712,5 +714,50 @@ public class TrValidationTests
                 Math.Abs(qOutput[qIdx] - outputs[0][i]) <= 1e-7,
                 $"TR mismatch at {qIdx}: QuanTAlib={qOutput[qIdx]:G17}, Tulip={outputs[0][i]:G17}");
         }
+    }
+
+    // === Skender Validation ===
+
+    [Fact]
+    public void Validate_Skender_Batch()
+    {
+        var data = new ValidationTestData();
+        var tr = new global::QuanTAlib.Tr();
+        var qResult = tr.Update(data.Bars);
+
+        var sResult = data.SkenderQuotes.GetTr().ToList();
+
+        ValidationHelper.VerifyData(qResult, sResult, s => s.Tr, tolerance: ValidationHelper.SkenderTolerance);
+    }
+
+    [Fact]
+    public void Validate_Skender_Streaming()
+    {
+        var data = new ValidationTestData();
+        var tr = new global::QuanTAlib.Tr();
+        var qResults = new List<double>();
+        foreach (var bar in data.Bars)
+        {
+            qResults.Add(tr.Update(bar).Value);
+        }
+
+        var sResult = data.SkenderQuotes.GetTr().ToList();
+
+        ValidationHelper.VerifyData(qResults, sResult, s => s.Tr, tolerance: ValidationHelper.SkenderTolerance);
+    }
+
+    [Fact]
+    public void Validate_Skender_Span()
+    {
+        var data = new ValidationTestData();
+        double[] high = data.HighPrices.ToArray();
+        double[] low = data.LowPrices.ToArray();
+        double[] close = data.ClosePrices.ToArray();
+        var output = new double[high.Length];
+        global::QuanTAlib.Tr.Batch(high, low, close, output);
+
+        var sResult = data.SkenderQuotes.GetTr().ToList();
+
+        ValidationHelper.VerifyData(output, sResult, s => s.Tr, tolerance: ValidationHelper.SkenderTolerance);
     }
 }

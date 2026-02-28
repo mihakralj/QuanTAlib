@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>preview</LangVersion>
-    <NoWarn>$(NoWarn);NU1903;NU5104;NETSDK1057</NoWarn>
+    <NoWarn>$(NoWarn);NU1903;NU5104</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>

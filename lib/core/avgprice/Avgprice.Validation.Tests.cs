@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Skender.Stock.Indicators;
 using TALib;
 using Xunit;
 using Xunit.Abstractions;
@@ -7,8 +8,7 @@ namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Validation for Avgprice (Average Price) = (O+H+L+C)/4.
-/// Cross-validated against TA-Lib AVGPRICE (exact match expected).
-/// Skender, Tulip, and Ooples do not implement AVGPRICE as a standalone function.
+/// Cross-validated against TA-Lib AVGPRICE and Skender CandlePart.OHLC4.
 /// </summary>
 public sealed class AvgpriceValidationTests : IDisposable
 {
@@ -128,5 +128,105 @@ public sealed class AvgpriceValidationTests : IDisposable
         var r2 = Avgprice.Batch(_data.Bars);
         for (int i = 0; i < r1.Count; i++) { Assert.Equal(r1.Values[i], r2.Values[i], 15); }
         _output.WriteLine("AVGPRICE determinism: PASSED");
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Skender.Stock.Indicators Validation — CandlePart.OHLC4
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── F) Skender OHLC4 batch validation ─────────────────────────────────────
+    [Fact]
+    public void Validate_Against_Skender_OHLC4_Batch()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.OHLC4)
+            .ToList();
+
+        var qlResult = Avgprice.Batch(_data.Bars);
+
+        Assert.Equal(qlResult.Count, skenderResults.Count);
+
+        int count = qlResult.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = qlResult.Values[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}, Diff={Math.Abs(qlVal - skVal):G17}");
+        }
+
+        _output.WriteLine($"AVGPRICE vs Skender OHLC4 batch: {count} bars, last {count - start} verified within {ValidationHelper.SkenderTolerance}: PASSED");
+    }
+
+    // ── G) Skender OHLC4 streaming validation ─────────────────────────────────
+    [Fact]
+    public void Validate_Against_Skender_OHLC4_Streaming()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.OHLC4)
+            .ToList();
+
+        var ind = new Avgprice();
+        int count = _data.Bars.Count;
+        double[] streamValues = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            var result = ind.Update(_data.Bars[i], isNew: true);
+            streamValues[i] = result.Value;
+        }
+
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = streamValues[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}");
+        }
+
+        _output.WriteLine($"AVGPRICE streaming vs Skender OHLC4: {count} bars, last {count - start} verified: PASSED");
+    }
+
+    // ── H) Skender OHLC4 span validation ──────────────────────────────────────
+    [Fact]
+    [SkipLocalsInit]
+    public void Validate_Against_Skender_OHLC4_Span()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.OHLC4)
+            .ToList();
+
+        int count = _data.Bars.Count;
+        double[] o = new double[count], h = new double[count], l = new double[count], c = new double[count];
+        for (int i = 0; i < count; i++)
+        {
+            o[i] = _data.Bars[i].Open;
+            h[i] = _data.Bars[i].High;
+            l[i] = _data.Bars[i].Low;
+            c[i] = _data.Bars[i].Close;
+        }
+
+        var qlOut = new double[count];
+        Avgprice.Batch(o.AsSpan(), h.AsSpan(), l.AsSpan(), c.AsSpan(), qlOut.AsSpan());
+
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = qlOut[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Span mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}");
+        }
+
+        _output.WriteLine($"AVGPRICE span vs Skender OHLC4: {count} bars, last {count - start} verified: PASSED");
     }
 }

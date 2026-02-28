@@ -1,4 +1,5 @@
 using QuanTAlib.Tests;
+using Skender.Stock.Indicators;
 
 namespace QuanTAlib.Validation;
 
@@ -152,5 +153,45 @@ public sealed class RsquaredValidationTests : IDisposable
 
         Assert.Throws<ArgumentException>(() => Rsquared.Batch(actual, predicted, output, 0));
         Assert.Throws<ArgumentException>(() => Rsquared.Batch(actual, predicted, output, -1));
+    }
+
+    /// <summary>
+    /// Structural validation against Skender <c>GetSlope().RSquared</c>.
+    /// Skender R² measures goodness-of-fit of linear regression on price data.
+    /// QuanTAlib Rsquared compares actual vs predicted values (different concept).
+    /// Both must produce finite output bounded ≤ 1.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_RSquared_Structural()
+    {
+        const int period = 20;
+
+        // Skender R² from linear regression slope
+        var sResult = _data.SkenderQuotes.GetSlope(period).ToList();
+
+        int finiteCount = sResult.Count(r => r.RSquared is not null && double.IsFinite(r.RSquared.Value));
+        Assert.True(finiteCount > 100, $"Skender should produce >100 finite R² values, got {finiteCount}");
+
+        // All Skender R² values should be in [0, 1] for linear regression
+        foreach (var r in sResult.Where(r => r.RSquared is not null))
+        {
+            Assert.True(r.RSquared!.Value >= -0.01 && r.RSquared.Value <= 1.01,
+                $"Skender R² = {r.RSquared.Value} out of expected [0, 1] range");
+        }
+
+        // QuanTAlib R² (using close as actual, EMA as predicted — same as existing test)
+        var rsq = new Rsquared(period);
+        var ema = new Ema(5);
+        var quotes = _data.SkenderQuotes.ToList();
+
+        for (int i = 0; i < quotes.Count; i++)
+        {
+            double actual = (double)quotes[i].Close;
+            double predicted = ema.Update(new TValue(quotes[i].Date, actual)).Value;
+            rsq.Update(actual, predicted);
+        }
+
+        Assert.True(double.IsFinite(rsq.Last.Value), "QuanTAlib R² last must be finite");
+        Assert.True(rsq.Last.Value <= 1.0 + 1e-9, $"QuanTAlib R² should be ≤ 1, got {rsq.Last.Value}");
     }
 }

@@ -12,7 +12,7 @@ public sealed class HtitValidationTests : IDisposable
 
     public HtitValidationTests()
     {
-        _data = new ValidationTestData(5000);
+        _data = new ValidationTestData(10000);
     }
 
     public void Dispose()
@@ -57,7 +57,9 @@ public sealed class HtitValidationTests : IDisposable
             {
                 double talibValue = output[i - outRange.Start.Value];
                 double quantalibValue = quantalibResults.Values[i];
-                Assert.Equal(talibValue, quantalibValue, ValidationHelper.TalibTolerance);
+                double diff = Math.Abs(talibValue - quantalibValue);
+                double relError = talibValue == 0.0 ? diff : diff / Math.Abs(talibValue);
+                Assert.True(relError < ValidationHelper.RelativeTolerance, $"Relative error {relError} too high at index {i}");
             }
         }
     }

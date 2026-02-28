@@ -12,7 +12,7 @@ public sealed class ReflexValidationTests : IDisposable
     public ReflexValidationTests(ITestOutputHelper output)
     {
         _output = output;
-        _testData = new ValidationTestData(5000);
+        _testData = new ValidationTestData(10000);
     }
 
     public void Dispose()

@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Tulip;
 
 namespace QuanTAlib.Test;
@@ -656,7 +657,113 @@ public class HvValidationTests
         ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: 1e-5);
     }
 
+    // === Skender Cross-Validation ===
+
+    /// <summary>
+    /// Validates HV against Skender <c>GetStdDev</c> on log returns.
+    /// Skender returns sample standard deviation, so values are converted to
+    /// population standard deviation by multiplying with √((n-1)/n).
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_LogReturnsStdDev_NonAnnualized()
+    {
+        using var data = new ValidationTestData();
+        const int period = 14;
+
+        var qResult = Hv.Batch(data.Data, period, annualize: false);
+        var logReturnQuotes = BuildLogReturnQuotes(data.SkenderQuotes);
+        var sResult = logReturnQuotes.GetStdDev(period).ToList();
+
+        int compared = 0;
+
+        for (int priceIdx = period; priceIdx < qResult.Count; priceIdx++)
+        {
+            double qValue = qResult[priceIdx].Value;
+            double? sPop = sResult[priceIdx - 1].StdDev;
+
+            if (!sPop.HasValue || !double.IsFinite(sPop.Value) || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double expected = sPop.Value;
+            double diff = Math.Abs(qValue - expected);
+
+            Assert.True(
+                diff <= 1e-10,
+                $"Mismatch at priceIdx={priceIdx}: QuanTAlib={qValue:G17}, Skender(pop)={sPop.Value:G17}, Expected(pop)={expected:G17}, Diff={diff:G17}");
+
+            compared++;
+        }
+
+        Assert.True(compared > 100, $"Expected >100 comparisons, got {compared}");
+    }
+
+    /// <summary>
+    /// Validates annualized HV against Skender log-returns StdDev with matching
+    /// population conversion and annualization factor (√252).
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_LogReturnsStdDev_Annualized()
+    {
+        using var data = new ValidationTestData();
+        const int period = 14;
+        const int annualPeriods = 252;
+
+        var qResult = Hv.Batch(data.Data, period, annualize: true, annualPeriods: annualPeriods);
+        var logReturnQuotes = BuildLogReturnQuotes(data.SkenderQuotes);
+        var sResult = logReturnQuotes.GetStdDev(period).ToList();
+
+        double annualFactor = Math.Sqrt(annualPeriods);
+        int compared = 0;
+
+        for (int priceIdx = period; priceIdx < qResult.Count; priceIdx++)
+        {
+            double qValue = qResult[priceIdx].Value;
+            double? sPop = sResult[priceIdx - 1].StdDev;
+
+            if (!sPop.HasValue || !double.IsFinite(sPop.Value) || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double expected = sPop.Value * annualFactor;
+            double diff = Math.Abs(qValue - expected);
+
+            Assert.True(
+                diff <= 1e-9,
+                $"Mismatch at priceIdx={priceIdx}: QuanTAlib={qValue:G17}, Skender(pop)={sPop.Value:G17}, Expected(annualized pop)={expected:G17}, Diff={diff:G17}");
+
+            compared++;
+        }
+
+        Assert.True(compared > 100, $"Expected >100 comparisons, got {compared}");
+    }
+
     // === Helper Methods ===
+
+    private static List<Quote> BuildLogReturnQuotes(IReadOnlyList<Quote> quotes)
+    {
+        var returns = new List<Quote>(Math.Max(0, quotes.Count - 1));
+        for (int i = 1; i < quotes.Count; i++)
+        {
+            double prev = (double)quotes[i - 1].Close;
+            double cur = (double)quotes[i].Close;
+            double logReturn = Math.Log(cur / prev);
+
+            returns.Add(new Quote
+            {
+                Date = quotes[i].Date,
+                Open = (decimal)logReturn,
+                High = (decimal)logReturn,
+                Low = (decimal)logReturn,
+                Close = (decimal)logReturn,
+                Volume = 0m
+            });
+        }
+
+        return returns;
+    }
 
     private static double Variance(List<double> values)
     {

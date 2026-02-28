@@ -304,4 +304,43 @@ public class JerkTests
             Assert.Equal(jerkResults[i], chainResults[i], precision: 9);
         }
     }
+
+    [Fact]
+    public void Batch_AllNonFinite_FallsBackToZero()
+    {
+        double[] source = [double.NaN, double.PositiveInfinity, double.NegativeInfinity, double.NaN, double.NaN];
+        double[] output = new double[source.Length];
+
+        Jerk.Batch(source.AsSpan(), output.AsSpan());
+
+        Assert.Equal(0.0, output[0], 12);
+        Assert.Equal(0.0, output[1], 12);
+        Assert.Equal(0.0, output[2], 12);
+        Assert.Equal(0.0, output[3], 12);
+        Assert.Equal(0.0, output[4], 12);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsConfiguredIndicatorAndMatchingResults()
+    {
+        var source = new TSeries();
+        var now = DateTime.UtcNow;
+
+        for (int i = 0; i < 30; i++)
+        {
+            source.Add(now.AddSeconds(i), 100 + i * 0.5);
+        }
+
+        var (results, indicator) = Jerk.Calculate(source);
+        var batch = Jerk.Batch(source);
+
+        Assert.NotNull(indicator);
+        Assert.Equal(4, indicator.WarmupPeriod);
+        Assert.Equal(results.Count, batch.Count);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(batch[i].Value, results[i].Value, 10);
+        }
+    }
 }

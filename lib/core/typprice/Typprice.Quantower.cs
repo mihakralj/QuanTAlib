@@ -24,7 +24,7 @@ public sealed class TyppriceIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = false;
         Name = "TYPPRICE - Typical Price";
-        Description = "Average of High, Low, and Close prices: (H+L+C)/3.";
+        Description = "Average of Open, High, and Low prices: (O+H+L)/3.";
 
         _series = new LineSeries(name: "TYPPRICE", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);

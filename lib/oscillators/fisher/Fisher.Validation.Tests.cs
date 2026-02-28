@@ -1,5 +1,6 @@
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
+using Skender.Stock.Indicators;
 using System.Runtime.CompilerServices;
 using Tulip;
 using Xunit;
@@ -8,8 +9,8 @@ using Xunit.Abstractions;
 namespace QuanTAlib.Tests;
 
 /// <summary>
-/// Validates Fisher Transform against Tulip NETCore and manual computation.
-/// Tulip's fisher indicator uses the same normalization + arctanh approach.
+/// Validates Fisher Transform against Skender, Tulip, Ooples, and manual computation.
+/// Primary reference: Skender (Ehlers 2002 IIR algorithm with HL2 input).
 /// </summary>
 public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposable
 {
@@ -65,9 +66,10 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
             double[] batchOutput = new double[values.Length];
             Fisher.Batch(values.AsSpan(), batchOutput.AsSpan(), period);
 
-            // Manual computation
+            // Manual computation — Ehlers 2002 TASC algorithm
             double[] manualOutput = new double[values.Length];
             double emaValue = 0.0;
+            double fisherValue = 0.0;
             var buffer = new double[period];
             int bufCount = 0;
             int bufIdx = 0;
@@ -104,14 +106,30 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
                 }
 
                 double range = highest - lowest;
-                double normalized = range > 0.0
-                    ? 2.0 * ((val - lowest) / range) - 1.0
-                    : 0.0;
+                if (range != 0.0)
+                {
+                    emaValue = (0.66 * (((val - lowest) / range) - 0.5))
+                        + (0.67 * emaValue);
+                }
+                else
+                {
+                    emaValue = 0.0;  // Skender: xv[i] = 0 when range=0
+                }
 
-                emaValue = 0.33 * normalized + 0.67 * emaValue;
+                // Ehlers/Skender: snap to ±0.999 when |Value1| > 0.99
+                // Clamped value stored back — Skender stores array2[i] clamped
+                if (emaValue > 0.99)
+                {
+                    emaValue = 0.999;
+                }
+                else if (emaValue < -0.99)
+                {
+                    emaValue = -0.999;
+                }
 
-                double clamped = Math.Clamp(emaValue, -0.999, 0.999);
-                manualOutput[i] = 0.5 * Math.Log((1.0 + clamped) / (1.0 - clamped));
+                // Ehlers 2002: Fish = arctanh(Value1) + 0.5 * Fish[1]  (IIR feedback)
+                fisherValue = 0.5 * Math.Log((1.0 + emaValue) / (1.0 - emaValue)) + 0.5 * fisherValue;
+                manualOutput[i] = fisherValue;
             }
 
             int validCount = 0;
@@ -307,6 +325,111 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
         Assert.True(double.IsFinite(fisher.Last.Value), "QuanTAlib Fisher last value must be finite");
 
         _output.WriteLine($"Fisher Ooples structural: {finiteCount} finite Ooples values, QuanTAlib last={fisher.Last.Value:F6}");
+    }
+
+    #endregion
+
+    #region Skender Cross-Validation
+
+    /// <summary>
+    /// Numeric validation against Skender <c>GetFisherTransform</c>.
+    /// Both use Ehlers 2002 IIR algorithm: <c>Fish = arctanh(Value1) + 0.5 * Fish[1]</c>.
+    /// Skender uses HL2 input with expanding window during warmup.
+    /// QuanTAlib uses same HL2 input via RingBuffer (expanding window when not full).
+    /// Both should converge; tolerance allows warmup-phase divergence.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_FisherTransform_Numeric()
+    {
+        const int period = 10;
+        var sResult = _testData.SkenderQuotes.GetFisherTransform(period).ToList();
+
+        // Feed HL2 to QuanTAlib (same input as Skender)
+        var quotes = _testData.SkenderQuotes.ToList();
+        var fisher = new Fisher(period);
+        var qtFisher = new double[quotes.Count];
+        var qtSignal = new double[quotes.Count];
+        for (int i = 0; i < quotes.Count; i++)
+        {
+            // Match Skender's HL2 computation: decimal arithmetic then convert
+            double hl2 = (double)((quotes[i].High + quotes[i].Low) / 2m);
+            fisher.Update(new TValue(quotes[i].Date, hl2));
+            qtFisher[i] = fisher.FisherValue;
+            qtSignal[i] = fisher.Signal;
+        }
+
+        // Numeric comparison — skip warmup (first 2*period bars)
+        int startIdx = period * 2;
+        int validCount = 0;
+        for (int i = startIdx; i < sResult.Count; i++)
+        {
+            if (sResult[i].Fisher is null) { continue; }
+            double sFisher = sResult[i].Fisher!.Value;
+
+            Assert.True(Math.Abs(sFisher - qtFisher[i]) < 1e-9,
+                $"Fisher mismatch at i={i}: Skender={sFisher:F9}, QuanTAlib={qtFisher[i]:F9}");
+            validCount++;
+        }
+
+        Assert.True(validCount > 100, $"Expected >100 valid comparisons, got {validCount}");
+        _output.WriteLine($"Fisher Skender numeric: validated {validCount} points at 1e-9 tolerance.");
+    }
+
+    /// <summary>
+    /// Validates signal line (Trigger = Fish[1]) matches Skender's Trigger output.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_Signal_Numeric()
+    {
+        const int period = 10;
+        var sResult = _testData.SkenderQuotes.GetFisherTransform(period).ToList();
+
+        // Feed HL2 to QuanTAlib
+        var quotes = _testData.SkenderQuotes.ToList();
+        var fisher = new Fisher(period);
+        var qtSignal = new double[quotes.Count];
+        for (int i = 0; i < quotes.Count; i++)
+        {
+            double hl2 = (double)((quotes[i].High + quotes[i].Low) / 2m);
+            fisher.Update(new TValue(quotes[i].Date, hl2));
+            qtSignal[i] = fisher.Signal;
+        }
+
+        // Signal comparison — skip warmup
+        int startIdx = period * 2;
+        int validCount = 0;
+        for (int i = startIdx; i < sResult.Count; i++)
+        {
+            if (sResult[i].Trigger is null) { continue; }
+            double sTrigger = sResult[i].Trigger!.Value;
+
+            Assert.True(Math.Abs(sTrigger - qtSignal[i]) < 1e-9,
+                $"Signal mismatch at i={i}: Skender={sTrigger:F9}, QuanTAlib={qtSignal[i]:F9}");
+            validCount++;
+        }
+
+        Assert.True(validCount > 100, $"Expected >100 valid signal comparisons, got {validCount}");
+        _output.WriteLine($"Fisher Signal Skender numeric: validated {validCount} points at 1e-9 tolerance.");
+    }
+
+    /// <summary>
+    /// Structural validation: both Skender and QuanTAlib produce finite output.
+    /// </summary>
+    [Fact]
+    public void Validate_Skender_FisherTransform_Structural()
+    {
+        var sResult = _testData.SkenderQuotes.GetFisherTransform(TestPeriod).ToList();
+
+        var fisher = new Fisher(TestPeriod);
+        foreach (var item in _testData.Data) { fisher.Update(item); }
+
+        int finiteCount = sResult.Count(r => r.Fisher is not null && double.IsFinite(r.Fisher.Value));
+        Assert.True(finiteCount > 100, $"Skender should produce >100 finite Fisher values, got {finiteCount}");
+        Assert.True(fisher.IsHot, "QuanTAlib Fisher must be hot");
+        Assert.True(double.IsFinite(fisher.Last.Value), "QuanTAlib Fisher last must be finite");
+
+        _output.WriteLine($"Fisher Skender structural: {finiteCount} finite Skender values, " +
+                          $"QuanTAlib last={fisher.Last.Value:F6}, Skender last={sResult[^1].Fisher:F6}");
     }
 
     #endregion

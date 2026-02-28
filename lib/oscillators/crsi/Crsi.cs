@@ -181,35 +181,35 @@ public sealed class Crsi : AbstractBase
             roc = (value - s.PrevClose) / s.PrevClose * 100.0;
         }
 
-        // Circular buffer: slot at RocHead holds the current (overwritten) ROC
-        // PrevRocSlot saved the old value at RocHead before this bar wrote it (on isNew=true path)
+        // Circular buffer: slot at RocHead holds the oldest ROC (to be overwritten)
         int head = s.RocHead;
         int count = s.RocCount;
-        bool slotWasEmpty = (count < _rankPeriod);
 
         // Save old slot content (used by next rollback)
         s.PrevRocSlot = _rocBuf[head];
 
+        // Percent rank: count how many HISTORICAL entries in buffer are strictly < current roc
+        // BEFORE writing current roc to buffer (Connors/Alvarez: "percentage of values the current return is greater than")
+        int lessCount = 0;
+        for (int i = 0; i < count; i++)
+        {
+            if (_rocBuf[i] < roc)
+            {
+                lessCount++;
+            }
+        }
+
+        double pctRank = count > 0 ? (double)lessCount / count * 100.0 : 50.0;
+
+        // Now store current ROC into circular buffer (after rank scan)
         _rocBuf[head] = roc;
         s.RocHead = (head + 1) % _rankPeriod;
-        if (slotWasEmpty)
+        if (count < _rankPeriod)
         {
             count++;
         }
 
         s.RocCount = count;
-
-        // Percent rank: count how many entries in buffer are <= current roc
-        int lessOrEqual = 0;
-        for (int i = 0; i < count; i++)
-        {
-            if (_rocBuf[i] <= roc)
-            {
-                lessOrEqual++;
-            }
-        }
-
-        double pctRank = count > 0 ? (double)lessOrEqual / count * 100.0 : 50.0;
 
         // Update prev close and streak in state
         s.PrevClose = value;
@@ -417,24 +417,25 @@ public sealed class Crsi : AbstractBase
 
                 prevClose = v;
 
-                bool wasEmpty = rocCount < rankPeriod;
-                rocBuf[rocHead] = roc;
-                rocHead = (rocHead + 1) % rankPeriod;
-                if (wasEmpty)
-                {
-                    rocCount++;
-                }
-
-                int lessOrEqual = 0;
+                // Scan BEFORE writing current roc to buffer (compare against historical values)
+                int lessCount = 0;
                 for (int j = 0; j < rocCount; j++)
                 {
-                    if (rocBuf[j] <= roc)
+                    if (rocBuf[j] < roc)
                     {
-                        lessOrEqual++;
+                        lessCount++;
                     }
                 }
 
-                double pctRank = rocCount > 0 ? (double)lessOrEqual / rocCount * 100.0 : 50.0;
+                double pctRank = rocCount > 0 ? (double)lessCount / rocCount * 100.0 : 50.0;
+
+                // Now store current ROC into circular buffer (after rank scan)
+                rocBuf[rocHead] = roc;
+                rocHead = (rocHead + 1) % rankPeriod;
+                if (rocCount < rankPeriod)
+                {
+                    rocCount++;
+                }
                 double crsi = (priceRsiOut[i] + streakRsiOut[i] + pctRank) / 3.0;
                 output[i] = Math.Max(0.0, Math.Min(100.0, crsi));
             }

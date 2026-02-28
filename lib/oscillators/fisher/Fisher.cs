@@ -8,12 +8,12 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Converts price into a Gaussian normal distribution via the inverse
-/// hyperbolic tangent, producing sharp turning points for reversal detection:
-/// <c>Fisher = 0.5 × ln((1 + v) / (1 − v))</c>
+/// hyperbolic tangent with IIR feedback, producing sharp turning points:
+/// <c>Fisher = atanh(v) + 0.5 × Fish[1]</c>
 /// where <c>v</c> is the EMA-smoothed normalized price clamped to (−0.999, 0.999).
 ///
 /// Normalization maps price to [−1, 1] using highest/lowest over <c>period</c> bars.
-/// Signal line is an EMA of <c>Fisher</c> with the same smoothing factor (α = 0.33).
+/// Signal line (Trigger) is the previous bar's Fisher value: <c>Fish[1]</c>.
 ///
 /// References:
 ///   John Ehlers, "Using The Fisher Transform", 2002
@@ -24,7 +24,6 @@ public sealed class Fisher : AbstractBase
 {
     private readonly int _period;
     private readonly double _alpha;
-    private readonly double _decay;
     private readonly RingBuffer _buffer;
 
     [StructLayout(LayoutKind.Auto)]
@@ -56,7 +55,6 @@ public sealed class Fisher : AbstractBase
 
         _period = period;
         _alpha = alpha;
-        _decay = 1.0 - alpha;
         _buffer = new RingBuffer(period);
         Name = $"Fisher({period})";
         WarmupPeriod = period;
@@ -138,24 +136,37 @@ public sealed class Fisher : AbstractBase
             }
         }
 
-        // Normalize to [-1, 1]
+        // Ehlers/Skender normalization
         double range = highest - lowest;
-        double normalized = range > 0.0
-            ? 2.0 * ((value - lowest) / range) - 1.0
-            : 0.0;
+        if (range != 0.0)
+        {
+            _state.Value = (0.66 * (((value - lowest) / range) - 0.5))
+                + (0.67 * _state.Value);
+        }
+        else
+        {
+            _state.Value = 0.0;  // Skender: xv[i] = 0 when range=0
+        }
 
-        // EMA smooth the normalized value
-        _state.Value = Math.FusedMultiplyAdd(_state.Value, _decay, _alpha * normalized);
+        // Ehlers/Skender: snap to ±0.999 when |Value1| > 0.99
+        // Clamped value MUST be stored back — Skender stores array2[i] clamped,
+        // so next iteration's IIR feedback (0.67 * xv[i-1]) uses the clamped value.
+        if (_state.Value > 0.99)
+        {
+            _state.Value = 0.999;
+        }
+        else if (_state.Value < -0.99)
+        {
+            _state.Value = -0.999;
+        }
 
-        // Clamp to (-0.999, 0.999) — domain protection for arctanh
-        double clamped = Math.Clamp(_state.Value, -0.999, 0.999);
+        // Ehlers 2002: Fish = arctanh(Value1) + 0.5 * Fish[1]  (IIR feedback)
+        double fisher = (0.5 * Math.Log((1.0 + _state.Value) / (1.0 - _state.Value)))
+            + (0.5 * _state.FisherValue);
 
-        // Fisher Transform: arctanh(x) = 0.5 * ln((1+x)/(1-x))
-        double fisher = 0.5 * Math.Log((1.0 + clamped) / (1.0 - clamped));
+        // Signal line: previous bar's Fisher value (Fish[1])
+        _state.Signal = _state.FisherValue;
         _state.FisherValue = fisher;
-
-        // Signal line: EMA of Fisher
-        _state.Signal = Math.FusedMultiplyAdd(_state.Signal, _decay, _alpha * fisher);
 
         Last = new TValue(input.Time, fisher);
         PubEvent(Last, isNew);
@@ -252,7 +263,6 @@ public sealed class Fisher : AbstractBase
             return;
         }
 
-        double decay = 1.0 - alpha;
         var buffer = new RingBuffer(period);
         double emaValue = 0.0;
         double fisherValue = 0.0;
@@ -290,18 +300,33 @@ public sealed class Fisher : AbstractBase
                 }
             }
 
-            // Normalize
+            // Ehlers/Skender normalization
             double range = highest - lowest;
-            double normalized = range > 0.0
-                ? 2.0 * ((val - lowest) / range) - 1.0
-                : 0.0;
+            if (range != 0.0)
+            {
+                emaValue = (0.66 * (((val - lowest) / range) - 0.5))
+                    + (0.67 * emaValue);
+            }
+            else
+            {
+                emaValue = 0.0;  // Skender: xv[i] = 0 when range=0
+            }
 
-            // EMA smooth
-            emaValue = Math.FusedMultiplyAdd(emaValue, decay, alpha * normalized);
+            // Ehlers/Skender: snap to ±0.999 when |Value1| > 0.99
+            // Clamped value stored back — Skender stores array2[i] clamped,
+            // so next iteration's IIR feedback (0.67 * xv[i-1]) uses the clamped value.
+            if (emaValue > 0.99)
+            {
+                emaValue = 0.999;
+            }
+            else if (emaValue < -0.99)
+            {
+                emaValue = -0.999;
+            }
 
-            // Clamp and transform
-            double clamped = Math.Clamp(emaValue, -0.999, 0.999);
-            fisherValue = 0.5 * Math.Log((1.0 + clamped) / (1.0 - clamped));
+            // Ehlers 2002: Fish = arctanh(Value1) + 0.5 * Fish[1]  (IIR feedback)
+            fisherValue = (0.5 * Math.Log((1.0 + emaValue) / (1.0 - emaValue)))
+                + (0.5 * fisherValue);
 
             output[i] = fisherValue;
         }

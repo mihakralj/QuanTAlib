@@ -11,7 +11,7 @@ namespace QuanTAlib;
 
 public enum SourceType
 {
-    Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4,
+    Open, High, Low, Close, HL2, Midbody, OHL3, HLC3, OHLC4, HLCC4,
 }
 
 public static class IndicatorExtensions
@@ -35,7 +35,7 @@ public static class IndicatorExtensions
                 "Low", SourceType.Low,
                 "Close", SourceType.Close,
                 "HL/2 (Median)", SourceType.HL2,
-                "OC/2 (Midpoint)", SourceType.OC2,
+                "Midbody (O+C)/2", SourceType.Midbody,
                 "OHL/3 (Mean)", SourceType.OHL3,
                 "HLC/3 (Typical)", SourceType.HLC3,
                 "OHLC/4 (Average)", SourceType.OHLC4,
@@ -66,7 +66,7 @@ public static class IndicatorExtensions
             SourceType.Low => item => item[PriceType.Low],
             SourceType.Close => item => item[PriceType.Close],
             SourceType.HL2 => item => (item[PriceType.High] + item[PriceType.Low]) * 0.5,
-            SourceType.OC2 => item => (item[PriceType.Open] + item[PriceType.Close]) * 0.5,
+            SourceType.Midbody => item => (item[PriceType.Open] + item[PriceType.Close]) * 0.5,
             SourceType.OHL3 => item => (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low]) * 0.333333333333333333,
             SourceType.HLC3 => item => (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.333333333333333333,
             SourceType.OHLC4 => item => (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.25,
@@ -232,3 +232,6 @@ public static class IndicatorExtensions
         };
     }
 }
+
+
+

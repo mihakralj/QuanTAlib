@@ -126,7 +126,14 @@ The arctanh function diverges at ±1. [`Math.Clamp`](lib/oscillators/fisher/Fish
 
 ## Validation
 
-No standard TA-Lib implementation matches this exact formulation (Ehlers' EMA-smoothed variant with configurable alpha). Validation is performed against manual arctanh computation and cross-mode consistency.
+| Library | Status | Tolerance | Notes |
+|---------|--------|-----------|-------|
+| Skender | ✅ Numeric | `1e-9` | `GetFisherTransform(period)` Fisher + Trigger validated after 2× period warmup, HL2 input |
+| Tulip | ✅ Structural | -- | Two-input (high[], low[]) variant; both produce finite output on same data |
+| Ooples | ✅ Structural | -- | `CalculateEhlersFisherTransform`; OHLCV input differs from single-price; finite output verified |
+| TA-Lib | -- | -- | No TA-Lib Fisher Transform implementation |
+
+### Internal Consistency
 
 | Check | Status | Notes |
 |-------|--------|-------|
@@ -135,6 +142,8 @@ No standard TA-Lib implementation matches this exact formulation (Ehlers' EMA-sm
 | Multiple periods (5, 10, 20, 50) | ✅ | All outputs finite across all periods |
 | Streaming vs Batch vs Span | ✅ | All three modes agree within 1e-9 |
 | Event-based vs Streaming | ✅ | Identical within 1e-12 |
+
+Skender uses the same Ehlers 2002 IIR algorithm (`Fish = arctanh(Value1) + 0.5 × Fish[1]`) with HL2 input. QuanTAlib matches Skender numerically at `1e-9` tolerance after warmup convergence. The signal line (`Trigger = Fish[1]`) also matches at `1e-9`. Tulip and Ooples use different input conventions (high/low arrays vs OHLCV), so only structural validation (finite output, correct sign direction) is asserted.
 
 ## Performance Profile
 

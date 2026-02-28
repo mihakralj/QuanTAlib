@@ -13,6 +13,9 @@ public class RocpIndicatorTests
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
         Assert.Equal("ROCP - Rate of Change Percentage", indicator.Name);
+        Assert.Contains("100 × (current - past) / past", indicator.Description, StringComparison.Ordinal);
+        Assert.True(indicator.SeparateWindow);
+        Assert.False(indicator.OnBackGround);
     }
 
     [Fact]
@@ -27,6 +30,13 @@ public class RocpIndicatorTests
     {
         var indicator = new RocpIndicator { Period = 9 };
         Assert.Equal(10, indicator.MinHistoryDepths);
+    }
+
+    [Fact]
+    public void MinHistoryDepths_MatchesWatchlistInterface()
+    {
+        var indicator = new RocpIndicator { Period = 17 };
+        Assert.Equal(18, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]

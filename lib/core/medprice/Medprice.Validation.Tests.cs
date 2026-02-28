@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Skender.Stock.Indicators;
 using TALib;
 using Xunit;
 using Xunit.Abstractions;
@@ -7,8 +8,7 @@ namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Validation for Medprice (Median Price) = (H+L)/2.
-/// Cross-validated against TA-Lib MEDPRICE (exact match expected).
-/// Skender, Tulip, and Ooples do not implement MEDPRICE as a standalone function.
+/// Cross-validated against TA-Lib MEDPRICE and Skender CandlePart.HL2.
 /// </summary>
 public sealed class MedpriceValidationTests : IDisposable
 {
@@ -136,5 +136,103 @@ public sealed class MedpriceValidationTests : IDisposable
         var r2 = Medprice.Batch(_data.Bars);
         for (int i = 0; i < r1.Count; i++) { Assert.Equal(r1.Values[i], r2.Values[i], 15); }
         _output.WriteLine("MEDPRICE determinism: PASSED");
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Skender.Stock.Indicators Validation — CandlePart.HL2
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── G) Skender HL2 batch validation ───────────────────────────────────────
+    [Fact]
+    public void Validate_Against_Skender_HL2_Batch()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.HL2)
+            .ToList();
+
+        var qlResult = Medprice.Batch(_data.Bars);
+
+        Assert.Equal(qlResult.Count, skenderResults.Count);
+
+        int count = qlResult.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = qlResult.Values[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}, Diff={Math.Abs(qlVal - skVal):G17}");
+        }
+
+        _output.WriteLine($"MEDPRICE vs Skender HL2 batch: {count} bars, last {count - start} verified within {ValidationHelper.SkenderTolerance}: PASSED");
+    }
+
+    // ── H) Skender HL2 streaming validation ───────────────────────────────────
+    [Fact]
+    public void Validate_Against_Skender_HL2_Streaming()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.HL2)
+            .ToList();
+
+        var ind = new Medprice();
+        int count = _data.Bars.Count;
+        double[] streamValues = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            var result = ind.Update(_data.Bars[i], isNew: true);
+            streamValues[i] = result.Value;
+        }
+
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = streamValues[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}");
+        }
+
+        _output.WriteLine($"MEDPRICE streaming vs Skender HL2: {count} bars, last {count - start} verified: PASSED");
+    }
+
+    // ── I) Skender HL2 span validation ────────────────────────────────────────
+    [Fact]
+    [SkipLocalsInit]
+    public void Validate_Against_Skender_HL2_Span()
+    {
+        var skenderResults = _data.SkenderQuotes
+            .GetBaseQuote(CandlePart.HL2)
+            .ToList();
+
+        int count = _data.Bars.Count;
+        double[] h = new double[count], l = new double[count];
+        for (int i = 0; i < count; i++)
+        {
+            h[i] = _data.Bars[i].High;
+            l[i] = _data.Bars[i].Low;
+        }
+
+        var qlOut = new double[count];
+        Medprice.Batch(h.AsSpan(), l.AsSpan(), qlOut.AsSpan());
+
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
+        {
+            double qlVal = qlOut[i];
+            double skVal = skenderResults[i].Value;
+
+            Assert.True(
+                Math.Abs(qlVal - skVal) <= ValidationHelper.SkenderTolerance,
+                $"Span mismatch at index {i}: QuanTAlib={qlVal:G17}, Skender={skVal:G17}");
+        }
+
+        _output.WriteLine($"MEDPRICE span vs Skender HL2: {count} bars, last {count - start} verified: PASSED");
     }
 }
