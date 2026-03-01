@@ -227,3 +227,193 @@ All temporary files, generated scripts, and intermediate artifacts must be store
 ---
 
 **Remember:** You are autonomous. Use all tools at your disposal. Query qdrant FIRST, store results LAST. Validate everything. Ship nothing unoptimized.
+
+## Writing Style Guide: Technical Architecture with Kind Persuasion
+
+### Core Mission
+Write for technical architects who need to evaluate TA library architecture. Convince through clarity, evidence, and gentle humor—not by dismissing alternatives. Be uncompromising about technical correctness while remaining kind about how constraints shaped decisions.
+
+### Audience Profile
+Primary reader: technical architects evaluating TA solutions.
+
+- Understands systems architecture and performance trade-offs
+- Makes decisions based on evidence, not marketing claims
+- Respects technical depth and practical implementation
+- Appreciates candor without condescension
+
+### Persuasive Framework
+
+#### Vision Through Architecture
+Present architecture as a reasoned choice, not superiority theater.
+
+- Avoid: "Most TA libraries use guess-work disguised as math"
+- Prefer: "TA libraries face a fundamental choice: accept approximations for simplicity, or enforce mathematical rigor at every step. We chose rigor."
+
+#### Evidence as Primary Argument
+Benchmarks and implementation details carry the argument.
+
+- Strong: "SIMD vectorization delivers 8x throughput on AVX2 hardware"
+- Weak: "Incredibly powerful optimizations provide amazing performance"
+
+#### Respect the Reader’s Intelligence
+Acknowledge trade-offs directly.
+
+Example:
+"O(1) streaming comes at a cost—we maintain more state per indicator. The memory overhead is 40-60 bytes per instance, acceptable for real-time analysis but worth considering for historical batch processing of millions of symbols."
+
+### Voice: Bryson-Executive Hybrid
+
+- Bryson warmth: light humor that includes the reader
+- Executive credibility: precise language backed by measurable claims
+- Technical depth: specifics without showing off
+- Architectural clarity: complex ideas explained cleanly
+
+### Sentence Architecture
+Use deliberate rhythm: short declarative → medium elaboration → short conclusion.
+
+Example:
+"Indicators fail during initialization. The first 14 bars of an RSI lack sufficient data to calculate correctly. We handle this by marking validity explicitly rather than pretending the numbers mean something."
+
+### Language Principles
+
+#### Precision Without Pretension
+Use:
+- Exact numbers ("3.2ms latency")
+- Specific comparisons ("40% faster than TA-Lib")
+- Concrete contexts ("processing ES futures tick data")
+- Measured verbs ("reduces", "improves")
+
+Avoid:
+- Corporate vagueness ("solution," "platform," "ecosystem")
+- Empty intensifiers ("very," "extremely," "incredibly")
+- Superlatives without proof ("best-in-class")
+- Hedging chains ("may potentially perhaps")
+
+#### Forbidden Corporate-Speak
+Never use:
+- transformative
+- foster / fostering
+- tapestry (unless discussing textiles)
+- "is all about" / "this is about"
+- "think of X as" / "it’s like" (except rare genuine clarification)
+- "not only X but also X"
+
+#### Technical Honesty
+State limits and initialization costs clearly.
+
+Example:
+"The Jurik Moving Average requires solving nonlinear equations iteratively. We precompute coefficient tables for common parameters, achieving O(1) per-bar performance after a one-time initialization cost of ~50ms. For custom parameters, expect 2-3ms initialization."
+
+### Architectural Argumentation
+
+#### Presenting Decisions
+Use this structure consistently:
+Decision → Rationale → Evidence → Implication
+
+Example:
+"We implement every indicator as a streaming algorithm maintaining O(1) computational complexity per new data point. Real-time analysis requires predictable latency regardless of lookback period. Testing with 14-period RSI versus 200-period RSI shows identical 0.4μs processing time per bar on current hardware. Capacity scales linearly with symbol count rather than collapsing under cumulative lookback periods."
+
+#### Comparing Approaches
+Compare architectural approaches, not competitors.
+
+- Avoid: "Other libraries use lazy approximations"
+- Prefer: "Traditional batch-calculation approaches optimize for historical analysis but introduce variable latency in streaming contexts. We chose streaming-first architecture, accepting higher memory overhead for predictable real-time performance."
+
+#### Addressing Trade-offs
+Name the cost and why it is justified.
+
+Example:
+"SIMD vectorization requires careful attention to data alignment and padding. We handle this automatically, but it adds code complexity that scalar implementations avoid. The 8x performance gain justifies this complexity for production systems processing thousands of indicators simultaneously."
+
+### Evidence Hierarchy
+Order every claim as:
+
+1. Architectural principle (why)
+2. Implementation detail (how)
+3. Measurable outcome (proof)
+4. Practical implication (so what)
+
+### Humor Rules (The Bryson Touch)
+
+Use humor for:
+- complexity acknowledgment
+- historical context
+- universal engineering truths
+
+Do not use humor for:
+- correctness
+- security
+- performance claims
+- risk and trade-off disclosure
+
+### Structural Guidelines
+
+#### Opening
+Start with the architectural problem, not the product.
+
+Example:
+"Real-time technical analysis faces a timing problem. Calculate too slowly and you miss opportunities. Calculate incorrectly and you take bad trades. Traditional approaches optimize for one or the other. We needed both."
+
+#### Middle
+Build evidence in this order:
+- challenge
+- alternatives and limitations
+- chosen architecture
+- measurable validation
+- practical implications
+
+#### Closing
+End with verifiable next actions.
+
+Example:
+"The code is on GitHub. Run the benchmarks. Check test coverage. Compare initialization behavior against TA-Lib using sparse data. The architecture speaks for itself."
+
+### Formatting for Technical Architects
+
+- Use lists only for distinct enumerations (principles, metrics, compatibility matrices, coverage families)
+- Keep prose for architectural reasoning
+- Include code examples freely; architects trust code over adjectives
+- Present performance claims with environment, sample size, baseline, and significance when applicable
+
+### Guards Against AI Writing Patterns
+
+#### Absolutely Forbidden Phrases
+- delve into
+- it's important to note that
+- in today’s fast-paced world/landscape
+- at the end of the day
+- leverage (except mechanical context)
+- robust / holistic / synergy
+- however, it's worth noting that
+- sentence starts with: indeed, notably, significantly
+
+#### Structural Patterns to Avoid
+- formulaic lists of exactly 3 or 5 items by default
+- "on one hand / on the other hand"
+- dictionary-definition openings
+- perfectly balanced pros/cons symmetry
+- "as we embark on this journey"
+- "imagine a world where"
+
+#### Human-Writing Checks
+Prefer:
+- concrete product names (NinjaTrader, QuantConnect, Quantower)
+- specific contexts (ES futures, sparse data feeds)
+- irregular sentence rhythm
+- occasional natural asides
+- direct and testable opinions
+
+### Verification Filters (Per Section)
+
+- Proof test: every claim is backed by specifics
+- Respect test: expert architect would accept the rigor
+- Honesty test: limitations are clearly stated
+- Actionable test: reader can verify independently
+- Human test: sentence sounds naturally authored
+
+### Final Principles
+
+- Be uncompromising about standards, kind about people
+- Let architecture persuade; avoid aggressive marketing tone
+- Measure twice, claim once
+- Write like explaining to a technical colleague evaluating your logic critically
