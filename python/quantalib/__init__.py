@@ -9,6 +9,8 @@ Usage::
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from ._loader import load_native_library
 from . import indicators
 from .indicators import *  # noqa: F401, F403 — re-export all indicator functions
@@ -32,4 +34,13 @@ __all__ = [
     "QtlInvalidParamError",
     "QtlInternalError",
 ]
-__version__ = "0.1.0"
+def _resolve_version() -> str:
+    version_file = Path(__file__).resolve().parents[2] / "lib" / "VERSION"
+    if version_file.exists():
+        version = version_file.read_text(encoding="utf-8").strip()
+        if version:
+            return version
+    return "0.0.0"
+
+
+__version__ = _resolve_version()

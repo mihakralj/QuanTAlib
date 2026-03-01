@@ -1,5 +1,12 @@
 <Project>
   <PropertyGroup>
+    <QtaVersionFile>$(MSBuildThisFileDirectory)lib/VERSION</QtaVersionFile>
+    <QtaVersion Condition="Exists('$(QtaVersionFile)')">$([System.IO.File]::ReadAllText('$(QtaVersionFile)').Trim())</QtaVersion>
+    <Version Condition="'$(QtaVersion)' != ''">$(QtaVersion)</Version>
+    <PackageVersion Condition="'$(QtaVersion)' != ''">$(QtaVersion)</PackageVersion>
+    <AssemblyVersion Condition="'$(QtaVersion)' != ''">$(QtaVersion).0</AssemblyVersion>
+    <FileVersion Condition="'$(QtaVersion)' != ''">$(QtaVersion).0</FileVersion>
+    <InformationalVersion Condition="'$(QtaVersion)' != ''">$(QtaVersion)</InformationalVersion>
     <LangVersion>preview</LangVersion>
     <NoWarn>$(NoWarn);NU1903;NU5104</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -90,20 +97,8 @@
     </AdditionalFiles>
   </ItemGroup>
 
-  <!-- GitVersion: skip during design-time builds and restore to prevent VS Code/OmniSharp hangs.
-       GitVersion scans entire git history on every MSBuild evaluation; with 50+ untracked files
-       and VS Code's C# extension triggering continuous design-time builds, this causes infinite
-       process accumulation. Only run GitVersion during actual CLI builds. -->
-  <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">
-    <GitVersionSkip>true</GitVersionSkip>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

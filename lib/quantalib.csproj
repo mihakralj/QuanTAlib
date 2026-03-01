@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Title>QuanTAlib</Title>
@@ -23,11 +23,6 @@
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/docs/img/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <Version>$(GitVersion_MajorMinorPatch)</Version>
-    <PackageVersion>$(GitVersion_MajorMinorPatch)</PackageVersion>
-    <AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
-    <FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
-    <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
     <LangVersion>latest</LangVersion>
     <UserSecretsId>6afc11a7-4355-4f5e-9fdf-22431e5b03cb</UserSecretsId>
   </PropertyGroup>

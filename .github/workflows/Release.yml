@@ -40,17 +40,16 @@ jobs:
             **/*.csproj
             **/*.sln
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@d0139503a9321f76b4a417dfdc8aebcec24decdd  # v4.2.0
-        with:
-          versionSpec: "6.x"
-          includePrerelease: true
-
-      - name: Determine Version
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@d0139503a9321f76b4a417dfdc8aebcec24decdd  # v4.2.0
-        with:
-          updateAssemblyInfo: false
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="$(tr -d '[:space:]' < lib/VERSION)"
+          if [ -z "$VERSION" ]; then
+            echo "lib/VERSION is empty"
+            exit 1
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Using version: $VERSION"
 
       - name: Restore dependencies
         run: dotnet restore
@@ -70,7 +69,7 @@ jobs:
             --configuration Release \
             --no-build \
             -p:ContinuousIntegrationBuild=true \
-            -p:PackageVersion=${{ steps.gitversion.outputs.SemVer }}
+            -p:PackageVersion=${{ steps.version.outputs.value }}
 
           ls -lh lib/bin/Release/*.nupkg || true
 
@@ -78,10 +77,8 @@ jobs:
         id: release_type
         run: |
           BRANCH="${GITHUB_REF_NAME}"
-          PRERELEASE_TAG="${{ steps.gitversion.outputs.PreReleaseTag }}"
           
           echo "Branch: $BRANCH"
-          echo "PreReleaseTag: $PRERELEASE_TAG"
           
           if [ "$BRANCH" = "main" ]; then
             echo "type=production" >> $GITHUB_OUTPUT
@@ -128,8 +125,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ steps.gitversion.outputs.SemVer }}" \
-            --title "Release ${{ steps.gitversion.outputs.SemVer }}" \
+          gh release create "v${{ steps.version.outputs.value }}" \
+            --title "Release ${{ steps.version.outputs.value }}" \
             --generate-notes \
             lib/bin/Release/*.nupkg \
             quantower/bin/Release/*.dll

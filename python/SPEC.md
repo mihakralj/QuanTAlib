@@ -525,7 +525,6 @@ When pandas is not installed:
 ```xml
 <Project>
   <PropertyGroup>
-    <GitVersionSkip>true</GitVersionSkip>
     <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
     <RunAnalyzers>false</RunAnalyzers>
     <ErrorReport>none</ErrorReport>
