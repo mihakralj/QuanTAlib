@@ -49,6 +49,9 @@ BenchmarkDotNet.Artifacts/
 
 # Temporary files and agent workspace
 temp/
+temp_pandas_ta/
+temp_decompile/
+Invoke-WebRequest/
 .temp/
 *.tmp
 *.temp
@@ -79,3 +82,14 @@ plans/
 # SonarLint IDE plugin
 .sonarlint/
 .obsidian/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python cache
+__pycache__/
+.pytest_cache/
+
+# PowerShell accidents
+$null
