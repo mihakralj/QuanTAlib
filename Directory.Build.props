@@ -78,11 +78,13 @@
     <Exclude>[xunit.*]*,[*.Tests]*</Exclude>
   </PropertyGroup>
 
-  <!-- SonarLint local rule configuration -->
-  <PropertyGroup>
+  <!-- SonarLint local rule configuration (IDE-only, not committed to git)
+       The SonarLint VS/VSCode plugin manages .sonarlint/ locally.
+       SonarAnalyzer.CSharp NuGet provides build-time analysis; suppressions are in <NoWarn> above. -->
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory).sonarlint\csharp.ruleset')">
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory).sonarlint\csharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory).sonarlint\CSharp\SonarLint.xml')">
     <AdditionalFiles Include="$(MSBuildThisFileDirectory).sonarlint\CSharp\SonarLint.xml">
       <Link>Properties\SonarLint.xml</Link>
     </AdditionalFiles>
