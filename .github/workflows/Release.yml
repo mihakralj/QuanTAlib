@@ -55,10 +55,10 @@ jobs:
         run: dotnet restore
 
       - name: Build (warnings as errors)
-        run: dotnet build ./QuanTAlib.slnx --configuration Release --no-restore --nologo /warnaserror
+        run: dotnet build ./QuanTAlib.slnx --configuration Release --no-restore --nologo /warnaserror -v:diag
 
       - name: Test (core)
-        run: dotnet test ./lib/QuanTAlib.Tests.csproj --configuration Release --no-build --nologo
+        run: dotnet test ./lib/QuanTAlib.Tests.csproj --configuration Release --no-build --nologo -v:diag
 
       - name: Test (quantower)
         run: dotnet test ./quantower/Quantower.Tests.csproj --configuration Release --no-build --nologo
@@ -72,6 +72,24 @@ jobs:
             -p:PackageVersion=${{ steps.version.outputs.value }}
 
           ls -lh lib/bin/Release/*.nupkg || true
+
+      - name: Collect release assets
+        run: |
+          mkdir -p release-assets
+
+          cp -v lib/bin/Release/*.nupkg release-assets/
+
+          if [ ! -f "quantower/bin/Release/quantower.dll" ]; then
+            echo "quantower.dll not found at quantower/bin/Release/quantower.dll"
+            echo "Available DLLs under quantower/bin:"
+            find quantower/bin -type f -name "*.dll" -maxdepth 4 || true
+            exit 1
+          fi
+
+          cp -v quantower/bin/Release/quantower.dll release-assets/quantower_quantalib.dll
+
+          echo "Release assets:"
+          ls -lh release-assets
 
       - name: Detect release type
         id: release_type
@@ -101,8 +119,8 @@ jobs:
             --notes "Latest development build from commit ${{ github.sha }}" \
             --prerelease \
             --target ${{ github.sha }} \
-            lib/bin/Release/*.nupkg \
-            quantower/bin/Release/*.dll
+            release-assets/*.nupkg \
+            release-assets/quantower_quantalib.dll
 
       - name: Push to MyGet
         if: steps.release_type.outputs.type == 'development'
@@ -128,8 +146,8 @@ jobs:
           gh release create "v${{ steps.version.outputs.value }}" \
             --title "Release ${{ steps.version.outputs.value }}" \
             --generate-notes \
-            lib/bin/Release/*.nupkg \
-            quantower/bin/Release/*.dll
+            release-assets/*.nupkg \
+            release-assets/quantower_quantalib.dll
 
       - name: Push to NuGet
         if: steps.release_type.outputs.type == 'production'
