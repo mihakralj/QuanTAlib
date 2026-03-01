@@ -91,6 +91,21 @@ plans/
 __pycache__/
 .pytest_cache/
 
+# Python project artifacts
+python/publish/
+python/dist/
+python/build/
+python/*.egg-info/
+python/.venv/
+python/venv/
+python/.mypy_cache/
+python/.ruff_cache/
+python/.coverage
+python/htmlcov/
+python/quantalib/quantalib.dll
+python/quantalib/native/win_amd64/*.dll
+python/quantalib/native/win_amd64/*.pdb
+
 # PowerShell accidents
 $null
 
