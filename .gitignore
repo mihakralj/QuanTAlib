@@ -93,3 +93,6 @@ __pycache__/
 
 # PowerShell accidents
 $null
+
+# Local secrets
+.secrets
