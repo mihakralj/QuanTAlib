@@ -15,6 +15,38 @@ Every indicator implementation makes implicit claims about correctness. QuanTAli
 
 **Tolerance rationale:** Financial data uses double precision. Differences below 1e-9 stem from floating-point arithmetic order, not algorithmic divergence.
 
+## Python Wrapper vs pandas-ta (Current Sweep)
+
+Source: `python/tests/reports/pandas_ta_all_exported_report.md` (latest run)
+
+- Total scanned: **134**
+- Successful parity (✔️): **11**
+- Non-comparable / intentionally skipped (⏭️): **80**
+- Failing parity (⚠️): **43**
+
+Recent wrapper/parity harness fixes completed:
+
+- Hardened pandas-ta callable resolution and aliasing in `python/tests/run_all_exported_pandasta_validation.py`
+- Added explicit **non-comparable** set instead of reporting these as hard failures
+- Fixed mapping/signature adapters (for example `avgprice -> ohlc4`)
+- Corrected Python bridge ABI signatures in `python/quantalib/_bridge.py` for:
+  - `qtl_alma` (period + offset + sigma)
+  - `qtl_dem` (requires period)
+  - `qtl_etherm` (requires period)
+- Updated wrapper defaults/signatures in `python/quantalib/indicators.py`:
+  - `asi(limit=3.0)` (was invalid for native call path)
+  - `dem(..., length=14)`
+  - `etherm(..., length=14)`
+  - full ALMA native parameters (`alma_offset`, `sigma`)
+
+Next parity targets (highest impact):
+
+1. Reduce remaining **numeric mismatches** in mapped indicators (`alma`, `bbands`, `rsi`, `roc`, `ema`, `dema`, `tema`, `stddev`, `variance`, `zscore`, volume oscillators).
+2. Expand/replace generic sweep with indicator-specific adapters where formulas/defaults are known to differ.
+3. Keep the sweep split into:
+   - parity-comparable indicators
+   - non-comparable indicators (tracked, not failed)
+
 ## Technical Indicators
 
 | Indicator | QuanTAlib | TA-Lib | Tulip | Skender | Ooples | pandas-ta |

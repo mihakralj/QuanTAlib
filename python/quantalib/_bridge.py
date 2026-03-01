@@ -160,7 +160,7 @@ HAS_DYMOI     = _bind("qtl_dymoi",     [_dp, _ci, _dp, _ci, _ci, _ci, _ci, _ci])
 HAS_CRSI      = _bind("qtl_crsi",      [_dp, _ci, _dp, _ci, _ci, _ci])  # rsiP, streakP, rankP
 HAS_BBB       = _bind("qtl_bbb",       [_dp, _ci, _dp, _ci, _cd])    # period, mult
 HAS_BBI       = _bind("qtl_bbi",       [_dp, _ci, _dp, _ci, _ci, _ci, _ci])  # p1..p4
-HAS_DEM       = _bind("qtl_dem",       _PD)   # HL pattern
+HAS_DEM       = _bind("qtl_dem",       [_dp, _dp, _ci, _dp, _ci])   # high,low,n,dst,period
 HAS_BRAR      = _bind("qtl_brar",      [_dp, _dp, _dp, _dp, _ci, _dp, _dp, _ci])  # OHLC + 2 outputs + period
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -173,7 +173,7 @@ HAS_TRIMA   = _bind("qtl_trima",   _PA)
 HAS_SWMA    = _bind("qtl_swma",    _PA)
 HAS_DWMA    = _bind("qtl_dwma",    _PA)
 HAS_BLMA    = _bind("qtl_blma",    _PA)
-HAS_ALMA    = _bind("qtl_alma",    _PA)
+HAS_ALMA    = _bind("qtl_alma",    [_dp, _ci, _dp, _ci, _cd, _cd])  # period, offset, sigma
 HAS_LSMA    = _bind("qtl_lsma",   _PA)
 HAS_SGMA    = _bind("qtl_sgma",    _PA)
 HAS_SINEMA  = _bind("qtl_sinema",  _PA)
@@ -223,7 +223,7 @@ HAS_BBWN     = _bind("qtl_bbwn",     [_dp, _ci, _dp, _ci, _cd, _ci])  # period, 
 HAS_BBWP     = _bind("qtl_bbwp",     [_dp, _ci, _dp, _ci, _cd, _ci])  # period, mult, lookback
 HAS_STDDEV   = _bind("qtl_stddev",   _PA)
 HAS_VARIANCE = _bind("qtl_variance", _PA)
-HAS_ETHERM   = _bind("qtl_etherm",   _PD)  # HL
+HAS_ETHERM   = _bind("qtl_etherm",   [_dp, _dp, _ci, _dp, _ci])  # high,low,n,dst,period
 HAS_CCV      = _bind("qtl_ccv",      [_dp, _ci, _dp, _ci, _ci])      # shortP, longP
 HAS_CV       = _bind("qtl_cv",       [_dp, _ci, _dp, _ci, _cd, _cd]) # period, minVol, maxVol
 HAS_CVI      = _bind("qtl_cvi",      [_dp, _ci, _dp, _ci, _ci])      # emaPeriod, rocPeriod

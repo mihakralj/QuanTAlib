@@ -213,7 +213,7 @@ def cfb(close: object, lengths: list[int] | None = None,
     return _wrap(dst, idx, "CFB", "momentum", offset)
 
 def asi(open: object, high: object, low: object, close: object,
-        limit: float = 0.0, offset: int = 0, **kwargs) -> object:
+        limit: float = 3.0, offset: int = 0, **kwargs) -> object:
     """Accumulative Swing Index."""
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(o); dst = _out(n)
@@ -338,12 +338,14 @@ def bbi(close: object, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
     _check(_lib.qtl_bbi(_ptr(src), n, _ptr(dst), int(p1), int(p2), int(p3), int(p4)))
     return _wrap(dst, idx, "BBI", "oscillator", offset)
 
-def dem(high: object, low: object, offset: int = 0, **kwargs) -> object:
+def dem(high: object, low: object, length: int = 14,
+        offset: int = 0, **kwargs) -> object:
     """DeMarker."""
+    length = int(length) if length is not None else 14
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h); dst = _out(n)
-    _check(_lib.qtl_dem(_ptr(h), _ptr(l), n, _ptr(dst)))
-    return _wrap(dst, idx, "DEM", "oscillator", int(offset) if offset is not None else 0)
+    _check(_lib.qtl_dem(_ptr(h), _ptr(l), n, _ptr(dst), length))
+    return _wrap(dst, idx, f"DEM_{length}", "oscillator", int(offset) if offset is not None else 0)
 
 def brar(open: object, high: object, low: object, close: object,
          length: int = 26, offset: int = 0, **kwargs) -> object:
@@ -391,9 +393,17 @@ def blma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
     """Blackman Moving Average."""
     return _pa("qtl_blma", close, length, offset, 10, "BLMA", "trend")
 
-def alma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def alma(close: object, length: int = 10, offset: int = 0,
+         alma_offset: float = 0.85, sigma: float = 6.0, **kwargs) -> object:
     """Arnaud Legoux Moving Average."""
-    return _pa("qtl_alma", close, length, offset, 10, "ALMA", "trend")
+    length = int(length) if length is not None else 10
+    offset = int(offset) if offset is not None else 0
+    alma_offset = float(alma_offset) if alma_offset is not None else 0.85
+    sigma = float(sigma) if sigma is not None else 6.0
+    src, idx = _arr(close)
+    n = len(src); dst = _out(n)
+    _check(_lib.qtl_alma(_ptr(src), n, _ptr(dst), length, alma_offset, sigma))
+    return _wrap(dst, idx, f"ALMA_{length}", "trend", offset)
 
 def lsma(close: object, length: int = 25, offset: int = 0, **kwargs) -> object:
     """Least Squares Moving Average."""
@@ -701,12 +711,14 @@ def variance(close: object, length: int = 20, offset: int = 0, **kwargs) -> obje
     """Variance."""
     return _pa("qtl_variance", close, length, offset, 20, "VARIANCE", "volatility")
 
-def etherm(high: object, low: object, offset: int = 0, **kwargs) -> object:
+def etherm(high: object, low: object, length: int = 14,
+           offset: int = 0, **kwargs) -> object:
     """Elder Thermometer."""
+    length = int(length) if length is not None else 14
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h); dst = _out(n)
-    _check(_lib.qtl_etherm(_ptr(h), _ptr(l), n, _ptr(dst)))
-    return _wrap(dst, idx, "ETHERM", "volatility", int(offset) if offset is not None else 0)
+    _check(_lib.qtl_etherm(_ptr(h), _ptr(l), n, _ptr(dst), length))
+    return _wrap(dst, idx, f"ETHERM_{length}", "volatility", int(offset) if offset is not None else 0)
 
 def ccv(close: object, short_period: int = 20, long_period: int = 1,
         offset: int = 0, **kwargs) -> object:
