@@ -26,10 +26,7 @@ filterwarnings = [
 [tool.hatch.version]
 source = "regex"
 path = "../lib/VERSION"
-pattern = "(?P<version>\\d+\\.\\d+\\.\\d+)"
+pattern = "(?P<version>\\d+\\.\\d+\\.\\d+(?:\\.dev\\d+)?)"
 
 [tool.hatch.build.targets.wheel]
 packages = ["quantalib"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"quantalib/native" = "quantalib/native"
