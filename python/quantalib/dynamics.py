@@ -34,7 +34,7 @@ __all__ = [
 
 def adx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Average Directional Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -45,7 +45,7 @@ def adx(high: object, low: object, close: object, period: int = 14, offset: int 
 
 def adxr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """ADX Rating."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -86,7 +86,7 @@ def amat(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int 
 
 def aroon(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Aroon."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -97,7 +97,7 @@ def aroon(high: object, low: object, period: int = 14, offset: int = 0, **kwargs
 
 def aroonosc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Aroon Oscillator."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -108,7 +108,7 @@ def aroonosc(high: object, low: object, period: int = 14, offset: int = 0, **kwa
 
 def chop(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Choppiness Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -120,7 +120,7 @@ def chop(open: object, high: object, low: object, close: object, volume: object,
 
 def dmx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Directional Movement Extended."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -131,7 +131,7 @@ def dmx(high: object, low: object, close: object, period: int = 14, offset: int 
 
 def dx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Directional Movement Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -142,7 +142,7 @@ def dx(high: object, low: object, close: object, period: int = 14, offset: int =
 
 def ghla(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Gann Hi-Lo Activator."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -196,7 +196,7 @@ def impulse(close: object, emaPeriod: int = 13, macdFast: int = 12, macdSlow: in
 
 def pfe(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
     """Polarized Fractal Efficiency."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     smoothPeriod = int(smoothPeriod)
     offset = int(offset)
     src, idx = _arr(close)
@@ -208,7 +208,7 @@ def pfe(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0,
 
 def qstick(open: object, high: object, low: object, close: object, volume: object, period: int = 14, useEma: int = 0, offset: int = 0, **kwargs) -> object:
     """QStick."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     useEma = int(useEma)
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
@@ -233,7 +233,7 @@ def ravi(close: object, shortPeriod: int = 12, longPeriod: int = 26, offset: int
 
 def supertrend(open: object, high: object, low: object, close: object, volume: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """SuperTrend."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
@@ -262,7 +262,7 @@ def ttm_squeeze(open: object, high: object, low: object, close: object, volume: 
 
 def ttm_trend(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """TTM Trend."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -274,7 +274,7 @@ def ttm_trend(open: object, high: object, low: object, close: object, volume: ob
 
 def vhf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Vertical Horizontal Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -285,7 +285,7 @@ def vhf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def vortex(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Vortex Indicator."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)

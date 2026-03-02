@@ -45,7 +45,7 @@ __all__ = [
 
 def acf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwargs) -> object:
     """Autocorrelation Function."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     lag = int(lag)
     offset = int(offset)
     src, idx = _arr(close)
@@ -57,7 +57,7 @@ def acf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwarg
 
 def geomean(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Geometric Mean."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -68,7 +68,7 @@ def geomean(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
 
 def granger(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Granger Causality."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr)
@@ -79,7 +79,7 @@ def granger(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -
 
 def harmean(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Harmonic Mean."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -90,7 +90,7 @@ def harmean(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
 
 def hurst(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Hurst Exponent."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -101,7 +101,7 @@ def hurst(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def iqr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Interquartile Range."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -112,7 +112,7 @@ def iqr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def jb(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Jarque-Bera Test."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -123,7 +123,7 @@ def jb(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def kendall(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Kendall Rank Correlation."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr)
@@ -134,7 +134,7 @@ def kendall(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -
 
 def kurtosis(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs) -> object:
     """Kurtosis."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     isPopulation = int(isPopulation)
     offset = int(offset)
     src, idx = _arr(close)
@@ -146,7 +146,7 @@ def kurtosis(close: object, period: int = 14, isPopulation: int = 0, offset: int
 
 def linreg(close: object, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Linear Regression."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     initialLastValid = float(initialLastValid)
     offset = int(offset)
     src, idx = _arr(close)
@@ -158,7 +158,7 @@ def linreg(close: object, period: int = 14, initialLastValid: float = 0.0, offse
 
 def meandev(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Deviation."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -169,7 +169,7 @@ def meandev(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
 
 def median(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rolling Median."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -180,7 +180,7 @@ def median(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
 
 def mode(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rolling Mode."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -191,7 +191,7 @@ def mode(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def pacf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwargs) -> object:
     """Partial Autocorrelation Function."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     lag = int(lag)
     offset = int(offset)
     src, idx = _arr(close)
@@ -203,7 +203,7 @@ def pacf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwar
 
 def percentile(close: object, period: int = 14, percent: float = 50.0, offset: int = 0, **kwargs) -> object:
     """Rolling Percentile."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     percent = float(percent)
     offset = int(offset)
     src, idx = _arr(close)
@@ -215,7 +215,7 @@ def percentile(close: object, period: int = 14, percent: float = 50.0, offset: i
 
 def polyfit(close: object, period: int = 14, degree: int = 2, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Polynomial Fit."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     degree = int(degree)
     initialLastValid = float(initialLastValid)
     offset = int(offset)
@@ -228,7 +228,7 @@ def polyfit(close: object, period: int = 14, degree: int = 2, initialLastValid: 
 
 def quantile(close: object, period: int = 14, quantileLevel: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Rolling Quantile."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     quantileLevel = float(quantileLevel)
     offset = int(offset)
     src, idx = _arr(close)
@@ -240,7 +240,7 @@ def quantile(close: object, period: int = 14, quantileLevel: float = 0.5, offset
 
 def skew(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs) -> object:
     """Skewness."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     isPopulation = int(isPopulation)
     offset = int(offset)
     src, idx = _arr(close)
@@ -252,7 +252,7 @@ def skew(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0
 
 def spearman(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Spearman Rank Correlation."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr)
@@ -263,7 +263,7 @@ def spearman(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) 
 
 def stderr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Standard Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -274,7 +274,7 @@ def stderr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
 
 def sum(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rolling Sum."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -285,7 +285,7 @@ def sum(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def theil(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Theil U Statistic."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -296,7 +296,7 @@ def theil(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def trim(close: object, period: int = 14, trimPct: float = 0.1, offset: int = 0, **kwargs) -> object:
     """Trimmed Mean."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     trimPct = float(trimPct)
     offset = int(offset)
     src, idx = _arr(close)
@@ -308,7 +308,7 @@ def trim(close: object, period: int = 14, trimPct: float = 0.1, offset: int = 0,
 
 def wavg(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Weighted Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -319,7 +319,7 @@ def wavg(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def wins(close: object, period: int = 14, winPct: float = 0.05, offset: int = 0, **kwargs) -> object:
     """Winsorized Mean."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     winPct = float(winPct)
     offset = int(offset)
     src, idx = _arr(close)
@@ -331,7 +331,7 @@ def wins(close: object, period: int = 14, winPct: float = 0.05, offset: int = 0,
 
 def ztest(close: object, period: int = 14, mu0: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Z-Test."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     mu0 = float(mu0)
     offset = int(offset)
     src, idx = _arr(close)

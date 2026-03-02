@@ -34,7 +34,7 @@ def ha(open: object, high: object, low: object, close: object, offset: int = 0, 
 
 def midpoint(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Midpoint = src[i] over period."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -45,7 +45,7 @@ def midpoint(close: object, period: int = 14, offset: int = 0, **kwargs) -> obje
 
 def midprice(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mid Price = (High+Low)/2 over period."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)

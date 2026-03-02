@@ -41,7 +41,7 @@ __all__ = [
 
 def adr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, method: int = 0, offset: int = 0, **kwargs) -> object:
     """Average Daily Range."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     method = int(method)
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
@@ -54,7 +54,7 @@ def adr(open: object, high: object, low: object, close: object, volume: object, 
 
 def atr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Average True Range."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -66,7 +66,7 @@ def atr(open: object, high: object, low: object, close: object, volume: object, 
 
 def atrn(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Normalized ATR."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -78,7 +78,7 @@ def atrn(open: object, high: object, low: object, close: object, volume: object,
 
 def gkv(open: object, high: object, low: object, close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
     """Garman-Klass Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     annualize = int(annualize)
     annualPeriods = int(annualPeriods)
     offset = int(offset)
@@ -91,7 +91,7 @@ def gkv(open: object, high: object, low: object, close: object, period: int = 14
 
 def hlv(high: object, low: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
     """High-Low Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     annualize = int(annualize)
     annualPeriods = int(annualPeriods)
     offset = int(offset)
@@ -104,7 +104,7 @@ def hlv(high: object, low: object, period: int = 14, annualize: int = 1, annualP
 
 def hv(close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
     """Historical Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     annualize = int(annualize)
     annualPeriods = int(annualPeriods)
     offset = int(offset)
@@ -117,7 +117,7 @@ def hv(close: object, period: int = 14, annualize: int = 1, annualPeriods: int =
 
 def jvolty(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Jurik Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -128,7 +128,7 @@ def jvolty(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
 
 def jvoltyn(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Jurik Volatility Normalized."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -151,7 +151,7 @@ def massi(close: object, emaLength: int = 9, sumLength: int = 25, offset: int = 
 
 def natr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Normalized ATR."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -163,7 +163,7 @@ def natr(open: object, high: object, low: object, close: object, volume: object,
 
 def rsv(open: object, high: object, low: object, close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
     """Rogers-Satchell Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     annualize = int(annualize)
     annualPeriods = int(annualPeriods)
     offset = int(offset)
@@ -176,7 +176,7 @@ def rsv(open: object, high: object, low: object, close: object, period: int = 14
 
 def rv(close: object, period: int = 14, smoothingPeriod: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
     """Realized Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     smoothingPeriod = int(smoothingPeriod)
     annualize = int(annualize)
     annualPeriods = int(annualPeriods)
@@ -202,7 +202,7 @@ def rvi(close: object, stdevLength: int = 10, rmaLength: int = 14, offset: int =
 
 def ui(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Ulcer Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -225,7 +225,7 @@ def vov(close: object, volatilityPeriod: int = 20, vovPeriod: int = 20, offset: 
 
 def vr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Volatility Ratio."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -236,7 +236,7 @@ def vr(high: object, low: object, close: object, period: int = 14, offset: int =
 
 def yzv(open: object, high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Yang-Zhang Volatility."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(o)

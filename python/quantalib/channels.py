@@ -36,7 +36,7 @@ __all__ = [
 
 def aberr(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Aberration Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     src, idx = _arr(close)
@@ -50,7 +50,7 @@ def aberr(close: object, period: int = 14, multiplier: float = 2.0, offset: int 
 
 def accbands(high: object, low: object, close: object, period: int = 14, factor: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Acceleration Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     factor = float(factor)
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -64,7 +64,7 @@ def accbands(high: object, low: object, close: object, period: int = 14, factor:
 
 def apz(open: object, high: object, low: object, close: object, volume: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Adaptive Price Zone."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
@@ -79,7 +79,7 @@ def apz(open: object, high: object, low: object, close: object, volume: object, 
 
 def dchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Donchian Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -92,7 +92,7 @@ def dchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwa
 
 def decaychannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Decay Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -105,7 +105,7 @@ def decaychannel(high: object, low: object, period: int = 14, offset: int = 0, *
 
 def fcb(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Fractal Chaos Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -118,7 +118,7 @@ def fcb(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) 
 
 def jbands(close: object, period: int = 14, phase: int = 0, offset: int = 0, **kwargs) -> object:
     """J-Line Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     phase = int(phase)
     offset = int(offset)
     src, idx = _arr(close)
@@ -132,7 +132,7 @@ def jbands(close: object, period: int = 14, phase: int = 0, offset: int = 0, **k
 
 def kchannel(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Keltner Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -146,7 +146,7 @@ def kchannel(high: object, low: object, close: object, period: int = 14, multipl
 
 def maenv(close: object, period: int = 14, percentage: float = 2.5, maType: int = 0, offset: int = 0, **kwargs) -> object:
     """Moving Average Envelope."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     percentage = float(percentage)
     maType = int(maType)
     offset = int(offset)
@@ -161,7 +161,7 @@ def maenv(close: object, period: int = 14, percentage: float = 2.5, maType: int 
 
 def mmchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Min-Max Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -173,7 +173,7 @@ def mmchannel(high: object, low: object, period: int = 14, offset: int = 0, **kw
 
 def pchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Price Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
@@ -186,7 +186,7 @@ def pchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwa
 
 def regchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Regression Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     src, idx = _arr(close)
@@ -200,7 +200,7 @@ def regchannel(close: object, period: int = 14, multiplier: float = 2.0, offset:
 
 def sdchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Standard Deviation Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     src, idx = _arr(close)
@@ -214,7 +214,7 @@ def sdchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: 
 
 def starchannel(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, atrPeriod: int = 22, offset: int = 0, **kwargs) -> object:
     """Stoller Average Range Channel (STARC)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     atrPeriod = int(atrPeriod)
     offset = int(offset)
@@ -229,7 +229,7 @@ def starchannel(high: object, low: object, close: object, period: int = 14, mult
 
 def stbands(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """SuperTrend Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -243,7 +243,7 @@ def stbands(high: object, low: object, close: object, period: int = 14, multipli
 
 def ttm_lrc(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """TTM Linear Regression Channel."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -258,7 +258,7 @@ def ttm_lrc(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
 
 def ubands(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Upper/Lower Bands."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     src, idx = _arr(close)

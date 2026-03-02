@@ -62,7 +62,7 @@ def adosc(high: object, low: object, close: object, volume: object, fastPeriod: 
 
 def iii(high: object, low: object, close: object, volume: object, period: int = 14, cumulative: int = 0, offset: int = 0, **kwargs) -> object:
     """Intraday Intensity Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     cumulative = int(cumulative)
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close); v, _ = _arr(volume)
@@ -88,7 +88,7 @@ def kvo(high: object, low: object, close: object, volume: object, fastPeriod: in
 
 def twap(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Time Weighted Average Price."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -121,7 +121,7 @@ def vo(volume: object, shortPeriod: int = 12, longPeriod: int = 26, offset: int 
 
 def vroc(volume: object, period: int = 14, usePercent: int = 1, offset: int = 0, **kwargs) -> object:
     """Volume Rate of Change."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     usePercent = int(usePercent)
     offset = int(offset)
     src, idx = _arr(volume)
@@ -133,7 +133,7 @@ def vroc(volume: object, period: int = 14, usePercent: int = 1, offset: int = 0,
 
 def vwad(high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Volume Weighted Accumulation/Distribution."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close); v, _ = _arr(volume)
     n = len(h)
@@ -144,7 +144,7 @@ def vwad(high: object, low: object, close: object, volume: object, period: int =
 
 def vwap(high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Volume Weighted Average Price."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close); v, _ = _arr(volume)
     n = len(h)

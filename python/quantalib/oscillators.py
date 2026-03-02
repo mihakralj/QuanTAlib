@@ -108,7 +108,7 @@ def coppock(close: object, longRoc: int = 14, shortRoc: int = 11, wmaPeriod: int
 
 def eri(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Elder Ray Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -119,7 +119,7 @@ def eri(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def fi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Force Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -146,7 +146,7 @@ def gator(close: object, jawPeriod: int = 13, jawShift: int = 8, teethPeriod: in
 
 def imi(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Intraday Momentum Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -215,7 +215,7 @@ def mstoch(close: object, stochLength: int = 20, hpLength: int = 48, ssLength: i
 
 def pgo(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Pretty Good Oscillator."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)
@@ -239,7 +239,7 @@ def qqe(close: object, rsiPeriod: int = 14, smoothFactor: int = 5, qqeFactor: fl
 
 def reverseema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Reverse EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -250,7 +250,7 @@ def reverseema(close: object, period: int = 14, offset: int = 0, **kwargs) -> ob
 
 def rvgi(open: object, high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Relative Vigor Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(o)
@@ -277,7 +277,7 @@ def smi(high: object, low: object, close: object, kPeriod: int = 14, kSmooth: in
 
 def squeeze(high: object, low: object, close: object, period: int = 14, bbMult: float = 2.0, kcMult: float = 1.5, offset: int = 0, **kwargs) -> object:
     """Squeeze Momentum."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     bbMult = float(bbMult)
     kcMult = float(kcMult)
     offset = int(offset)
@@ -369,7 +369,7 @@ def ultosc(high: object, low: object, close: object, period1: int = 14, period2:
 
 def willr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Williams %R."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)

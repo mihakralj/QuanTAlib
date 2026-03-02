@@ -25,7 +25,7 @@ __all__ = [
 
 def chandelier(open: object, high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Chandelier Exit."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)

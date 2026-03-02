@@ -53,7 +53,7 @@ __all__ = [
 
 def adxvma(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """ADX Variable Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -65,7 +65,7 @@ def adxvma(open: object, high: object, low: object, close: object, volume: objec
 
 def frama(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Fractal Adaptive Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -76,7 +76,7 @@ def frama(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def holt(close: object, period: int = 14, gamma: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Holt Exponential Smoothing."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     gamma = float(gamma)
     offset = int(offset)
     src, idx = _arr(close)
@@ -98,7 +98,7 @@ def htit(close: object, offset: int = 0, **kwargs) -> object:
 
 def hwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Holt-Winter Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -121,7 +121,7 @@ def jma(close: object, period: int = 14, phase: int = 0, offset: int = 0, **kwar
 
 def kama(close: object, period: int = 14, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:
     """Kaufman Adaptive Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
     offset = int(offset)
@@ -134,7 +134,7 @@ def kama(close: object, period: int = 14, fastPeriod: int = 12, slowPeriod: int 
 
 def ltma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Low-Lag Triple Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -170,7 +170,7 @@ def mavp(x: object, periods: object, minPeriod: int = 6, maxPeriod: int = 48, of
 
 def mcnma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """McNicholl Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -181,7 +181,7 @@ def mcnma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def mgdi(close: object, period: int = 14, k: float = 0.6, offset: int = 0, **kwargs) -> object:
     """McGinley Dynamic."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     k = float(k)
     offset = int(offset)
     src, idx = _arr(close)
@@ -193,7 +193,7 @@ def mgdi(close: object, period: int = 14, k: float = 0.6, offset: int = 0, **kwa
 
 def mma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Modified Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -204,7 +204,7 @@ def mma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def nma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Normalized Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -215,7 +215,7 @@ def nma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def qema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Quadruple EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -226,7 +226,7 @@ def qema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def rema(close: object, period: int = 14, lam: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Regularized EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     lam = float(lam)
     offset = int(offset)
     src, idx = _arr(close)
@@ -238,7 +238,7 @@ def rema(close: object, period: int = 14, lam: float = 0.5, offset: int = 0, **k
 
 def rgma(close: object, period: int = 14, passes: int = 3, offset: int = 0, **kwargs) -> object:
     """Recursive Gaussian Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     passes = int(passes)
     offset = int(offset)
     src, idx = _arr(close)
@@ -250,7 +250,7 @@ def rgma(close: object, period: int = 14, passes: int = 3, offset: int = 0, **kw
 
 def rma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rolling Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -261,7 +261,7 @@ def rma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def t3(close: object, period: int = 14, vfactor: float = 0.7, offset: int = 0, **kwargs) -> object:
     """Tillson T3."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     vfactor = float(vfactor)
     offset = int(offset)
     src, idx = _arr(close)
@@ -273,7 +273,7 @@ def t3(close: object, period: int = 14, vfactor: float = 0.7, offset: int = 0, *
 
 def trama(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Triangular Adaptive Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -300,7 +300,7 @@ def vama(open: object, high: object, low: object, close: object, volume: object,
 
 def vidya(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Variable Index Dynamic Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -327,7 +327,7 @@ def yzvama(open: object, high: object, low: object, close: object, volume: objec
 
 def zldema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Zero-Lag Double EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -338,7 +338,7 @@ def zldema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
 
 def zlema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Zero-Lag EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -349,7 +349,7 @@ def zlema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def zltema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Zero-Lag Triple EMA."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)

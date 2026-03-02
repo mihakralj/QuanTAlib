@@ -43,7 +43,7 @@ def bop(open: object, high: object, low: object, close: object, offset: int = 0,
 
 def cci(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Commodity Channel Index."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     c, _ = _arr(close); v, _ = _arr(volume)
@@ -103,7 +103,7 @@ def prs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) 
 
 def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rate of Change (Percentage)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -114,7 +114,7 @@ def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def rocr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Rate of Change (Ratio)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -137,7 +137,7 @@ def sam(close: object, alpha: float = 0.07, cutoff: int = 8, offset: int = 0, **
 
 def vel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Velocity."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)

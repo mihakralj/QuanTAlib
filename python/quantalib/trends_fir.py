@@ -47,7 +47,7 @@ __all__ = [
 
 def fwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Fibonacci Weighted Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -58,7 +58,7 @@ def fwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def gwma(close: object, period: int = 14, sigma: float = 0.4, offset: int = 0, **kwargs) -> object:
     """Gaussian Weighted Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     sigma = float(sigma)
     offset = int(offset)
     src, idx = _arr(close)
@@ -70,7 +70,7 @@ def gwma(close: object, period: int = 14, sigma: float = 0.4, offset: int = 0, *
 
 def hamma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Hamming Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -81,7 +81,7 @@ def hamma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def hend(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Henderson Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     nanValue = float(nanValue)
     offset = int(offset)
     src, idx = _arr(close)
@@ -93,7 +93,7 @@ def hend(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0
 
 def ilrs(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Integral of Linear Regression Slope."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -104,7 +104,7 @@ def ilrs(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def kaiser(close: object, period: int = 14, beta: float = 3.0, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Kaiser Window Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     beta = float(beta)
     nanValue = float(nanValue)
     offset = int(offset)
@@ -117,7 +117,7 @@ def kaiser(close: object, period: int = 14, beta: float = 3.0, nanValue: float =
 
 def lanczos(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Lanczos Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     nanValue = float(nanValue)
     offset = int(offset)
     src, idx = _arr(close)
@@ -129,7 +129,7 @@ def lanczos(close: object, period: int = 14, nanValue: float = 0.0, offset: int 
 
 def nlma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Non-Lag Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -140,7 +140,7 @@ def nlma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def nyqma(close: object, period: int = 14, nyquistPeriod: int = 2, offset: int = 0, **kwargs) -> object:
     """Nyquist Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     nyquistPeriod = int(nyquistPeriod)
     offset = int(offset)
     src, idx = _arr(close)
@@ -152,7 +152,7 @@ def nyqma(close: object, period: int = 14, nyquistPeriod: int = 2, offset: int =
 
 def pma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Predictive Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -164,7 +164,7 @@ def pma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def pwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Pascal Weighted Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -175,7 +175,7 @@ def pwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def qrma(close: object, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Quick Reaction Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     initialLastValid = float(initialLastValid)
     offset = int(offset)
     src, idx = _arr(close)
@@ -187,7 +187,7 @@ def qrma(close: object, period: int = 14, initialLastValid: float = 0.0, offset:
 
 def rwma(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Range Weighted Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h)

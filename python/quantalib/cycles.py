@@ -100,7 +100,7 @@ def solar(close: object, offset: int = 0, **kwargs) -> object:
 
 def ssfdsp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Supersmoother DSP."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)

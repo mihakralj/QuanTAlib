@@ -52,7 +52,7 @@ def fdist(close: object, d1: int = 1, d2: int = 1, period: int = 14, offset: int
     """F-Distribution."""
     d1 = int(d1)
     d2 = int(d2)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -78,7 +78,7 @@ def gammadist(close: object, alpha: float = 2.0, beta: float = 1.0, period: int 
     """Gamma Distribution."""
     alpha = float(alpha)
     beta = float(beta)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -89,7 +89,7 @@ def gammadist(close: object, alpha: float = 2.0, beta: float = 1.0, period: int 
 
 def highest(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Highest Value."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -136,7 +136,7 @@ def lognormdist(close: object, mu: float = 0.0, sigma: float = 1.0, period: int 
     """Log-Normal Distribution."""
     mu = float(mu)
     sigma = float(sigma)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -157,7 +157,7 @@ def logtrans(close: object, offset: int = 0, **kwargs) -> object:
 
 def lowest(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Lowest Value."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -168,7 +168,7 @@ def lowest(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
 
 def normalize(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Normalization."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -181,7 +181,7 @@ def normdist(close: object, mu: float = 0.0, sigma: float = 1.0, period: int = 1
     """Normal Distribution."""
     mu = float(mu)
     sigma = float(sigma)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -193,7 +193,7 @@ def normdist(close: object, mu: float = 0.0, sigma: float = 1.0, period: int = 1
 def poissondist(close: object, lam: float = 1.0, period: int = 14, threshold: int = 5, offset: int = 0, **kwargs) -> object:
     """Poisson Distribution."""
     lam = float(lam)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     threshold = int(threshold)
     offset = int(offset)
     src, idx = _arr(close)
@@ -248,7 +248,7 @@ def sqrttrans(close: object, offset: int = 0, **kwargs) -> object:
 def tdist(close: object, nu: int = 10, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Student's t-Distribution."""
     nu = int(nu)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -261,7 +261,7 @@ def weibulldist(close: object, k: float = 1.5, lam: float = 1.0, period: int = 1
     """Weibull Distribution."""
     k = float(k)
     lam = float(lam)
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)

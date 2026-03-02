@@ -39,7 +39,7 @@ __all__ = [
 
 def huber(actual: object, predicted: object, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs) -> object:
     """Huber Loss."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     delta = float(delta)
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -51,7 +51,7 @@ def huber(actual: object, predicted: object, period: int = 14, delta: float = 1.
 
 def logcosh(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Log-Cosh Loss."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -62,7 +62,7 @@ def logcosh(actual: object, predicted: object, period: int = 14, offset: int = 0
 
 def maape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Arctangent Absolute Percentage Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -73,7 +73,7 @@ def maape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
 
 def mapd(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Absolute Percentage Deviation."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -84,7 +84,7 @@ def mapd(actual: object, predicted: object, period: int = 14, offset: int = 0, *
 
 def mase(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Absolute Scaled Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -95,7 +95,7 @@ def mase(actual: object, predicted: object, period: int = 14, offset: int = 0, *
 
 def mdae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Median Absolute Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -106,7 +106,7 @@ def mdae(actual: object, predicted: object, period: int = 14, offset: int = 0, *
 
 def mdape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Median Absolute Percentage Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -117,7 +117,7 @@ def mdape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
 
 def me(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -128,7 +128,7 @@ def me(actual: object, predicted: object, period: int = 14, offset: int = 0, **k
 
 def mpe(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Percentage Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -139,7 +139,7 @@ def mpe(actual: object, predicted: object, period: int = 14, offset: int = 0, **
 
 def mrae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Relative Absolute Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -150,7 +150,7 @@ def mrae(actual: object, predicted: object, period: int = 14, offset: int = 0, *
 
 def msle(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Mean Squared Logarithmic Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -161,7 +161,7 @@ def msle(actual: object, predicted: object, period: int = 14, offset: int = 0, *
 
 def pseudohuber(actual: object, predicted: object, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs) -> object:
     """Pseudo-Huber Loss."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     delta = float(delta)
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -173,7 +173,7 @@ def pseudohuber(actual: object, predicted: object, period: int = 14, delta: floa
 
 def quantileloss(actual: object, predicted: object, period: int = 14, quantile: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Quantile Loss (Pinball Loss)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     quantile = float(quantile)
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -185,7 +185,7 @@ def quantileloss(actual: object, predicted: object, period: int = 14, quantile: 
 
 def rae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Relative Absolute Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -196,7 +196,7 @@ def rae(actual: object, predicted: object, period: int = 14, offset: int = 0, **
 
 def rmsle(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Root Mean Squared Logarithmic Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -207,7 +207,7 @@ def rmsle(actual: object, predicted: object, period: int = 14, offset: int = 0, 
 
 def rse(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Relative Squared Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -218,7 +218,7 @@ def rse(actual: object, predicted: object, period: int = 14, offset: int = 0, **
 
 def rsquared(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """R-Squared (Coefficient of Determination)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -229,7 +229,7 @@ def rsquared(actual: object, predicted: object, period: int = 14, offset: int = 
 
 def smape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Symmetric Mean Absolute Percentage Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -240,7 +240,7 @@ def smape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
 
 def theilu(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Theil U Statistic (Error)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -251,7 +251,7 @@ def theilu(actual: object, predicted: object, period: int = 14, offset: int = 0,
 
 def tukeybiweight(actual: object, predicted: object, period: int = 14, c: float = 4.685, offset: int = 0, **kwargs) -> object:
     """Tukey Biweight Loss."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     c = float(c)
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -263,7 +263,7 @@ def tukeybiweight(actual: object, predicted: object, period: int = 14, c: float 
 
 def wmape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Weighted Mean Absolute Percentage Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)
@@ -274,7 +274,7 @@ def wmape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
 
 def wrmse(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Weighted Root Mean Squared Error."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a)

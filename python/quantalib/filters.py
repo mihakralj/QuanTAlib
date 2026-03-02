@@ -127,7 +127,7 @@ def lms(close: object, order: int = 16, mu: float = 0.5, offset: int = 0, **kwar
 
 def loess(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """LOESS Smoother."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -138,7 +138,7 @@ def loess(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def modf(close: object, period: int = 14, beta: float = 0.8, feedback: int = 0, fbWeight: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Modified Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     beta = float(beta)
     feedback = int(feedback)
     fbWeight = float(fbWeight)
@@ -152,7 +152,7 @@ def modf(close: object, period: int = 14, beta: float = 0.8, feedback: int = 0, 
 
 def notch(close: object, period: int = 14, q: float = 1.0, offset: int = 0, **kwargs) -> object:
     """Notch Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     q = float(q)
     offset = int(offset)
     src, idx = _arr(close)
@@ -164,7 +164,7 @@ def notch(close: object, period: int = 14, q: float = 1.0, offset: int = 0, **kw
 
 def nw(close: object, period: int = 64, bandwidth: float = 8.0, offset: int = 0, **kwargs) -> object:
     """Nadaraya-Watson Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     bandwidth = float(bandwidth)
     offset = int(offset)
     src, idx = _arr(close)
@@ -201,7 +201,7 @@ def rls(close: object, order: int = 16, lam: float = 0.99, offset: int = 0, **kw
 
 def rmed(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Running Median Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -224,7 +224,7 @@ def roofing(close: object, hpLength: int = 48, ssLength: int = 10, offset: int =
 
 def sgf(close: object, period: int = 14, polyOrder: int = 2, offset: int = 0, **kwargs) -> object:
     """Savitzky-Golay Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     polyOrder = int(polyOrder)
     offset = int(offset)
     src, idx = _arr(close)
@@ -249,7 +249,7 @@ def spbf(close: object, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: 
 
 def ssf2(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Super Smoother (2-pole)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -260,7 +260,7 @@ def ssf2(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def ssf3(close: object, period: int = 14, initialLast: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Super Smoother (3-pole)."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     initialLast = float(initialLast)
     offset = int(offset)
     src, idx = _arr(close)
@@ -272,7 +272,7 @@ def ssf3(close: object, period: int = 14, initialLast: float = 0.0, offset: int 
 
 def usf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Universal Smoother Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
@@ -283,7 +283,7 @@ def usf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def voss(close: object, period: int = 14, predict: int = 3, bandwidth: float = 0.25, offset: int = 0, **kwargs) -> object:
     """Voss Predictor."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     predict = int(predict)
     bandwidth = float(bandwidth)
     offset = int(offset)
@@ -308,7 +308,7 @@ def wavelet(close: object, levels: int = 4, threshMult: float = 1.0, offset: int
 
 def wiener(close: object, period: int = 14, smoothPeriod: int = 10, offset: int = 0, **kwargs) -> object:
     """Wiener Filter."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     smoothPeriod = int(smoothPeriod)
     offset = int(offset)
     src, idx = _arr(close)
