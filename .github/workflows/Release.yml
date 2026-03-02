@@ -50,7 +50,7 @@ jobs:
             native_dir: linux_arm64
             native_file: quantalib_native.so
           - wheel_id: macos-amd64
-            os: macos-13
+            os: macos-15-intel
             rid: osx-x64
             native_dir: macosx_x86_64
             native_file: quantalib_native.dylib
