@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Ahrens)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [ahrens_signature](ahrens_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Nlma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [nlma_signature](nlma_signature) |
 
 ### TL;DR
 

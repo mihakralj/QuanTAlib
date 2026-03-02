@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Qema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [qema_signature](qema_signature) |
 
 ### TL;DR
 

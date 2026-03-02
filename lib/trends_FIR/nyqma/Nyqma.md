@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Nyqma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [nyqma_signature](nyqma_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (ALaguerre)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [alaguerre_signature](alaguerre_signature) |
 
 ### TL;DR
 

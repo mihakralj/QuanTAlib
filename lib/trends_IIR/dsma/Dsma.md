@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Dsma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [dsma_signature](dsma_signature) |
 
 ### TL;DR
 

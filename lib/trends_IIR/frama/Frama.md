@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Frama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `pe` bars                          |
+| **Signature**    | [frama_signature](frama_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Cfitz)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `2` bars                          |
+| **Signature**    | [cfitz_signature](cfitz_signature) |
 
 ### TL;DR
 

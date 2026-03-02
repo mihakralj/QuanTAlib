@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Hend)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [hend_signature](hend_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Rma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `ema.WarmupPeriod` bars                          |
+| **Signature**    | [rma_signature](rma_signature) |
 
 ### TL;DR
 

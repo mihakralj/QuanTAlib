@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Jma)                       |
 | **Output range** | $-100$ to $+100$                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [jma_signature](jma_signature) |
 
 ### TL;DR
 

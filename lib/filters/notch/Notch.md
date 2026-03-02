@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Notch)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [notch_signature](notch_signature) |
 
 ### TL;DR
 

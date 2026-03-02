@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Nw)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [nw_signature](nw_signature) |
 
 ### TL;DR
 

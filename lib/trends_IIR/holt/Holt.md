@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (HOLT)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [holt_signature](holt_signature) |
 
 ### TL;DR
 

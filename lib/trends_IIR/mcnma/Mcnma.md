@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Mcnma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [mcnma_signature](mcnma_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Decycler)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [decycler_signature](decycler_signature) |
 
 ### TL;DR
 

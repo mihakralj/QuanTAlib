@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Sinema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [sinema_signature](sinema_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Sgf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [sgf_signature](sgf_signature) |
 
 ### TL;DR
 

@@ -228,7 +228,7 @@ public sealed class Nlma : AbstractBase
     /// <summary>
     /// Computes original Igorad two-phase kernel weights.
     /// Phase zone (i=0..period-2): t = i/(period-2), g = t≤0.5 ? 1 : 1/(3πt+1), w = g*cos(πt)
-    /// Cycle zone (i=period-1..flen-2): t = 1 + (i-period+1)*(2*Cycle-1)/(Cycle*period-1), same g/w
+    /// Cycle zone (i=period-1..flen-2): t = 1 + (i-phase)*(2*Cycle-1)/(Cycle*period-1), same g/w
     /// Last tap (i=flen-1): weight = 0.
     /// weights[0] = newest bar, weights[flen-1] = oldest bar.
     /// Returns the signed weight sum for normalization.
@@ -263,7 +263,7 @@ public sealed class Nlma : AbstractBase
                 else
                 {
                     // Cycle zone: t continues from 1 upward
-                    double numer = (double)(i - phase + 1) * (2 * Cycle - 1);
+                    double numer = (double)(i - phase) * (2 * Cycle - 1);
                     double denom = (double)(Cycle * period - 1);
                     t = 1.0 + (denom > 0 ? numer / denom : 0.0);
                 }

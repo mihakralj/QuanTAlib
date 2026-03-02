@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Usf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [usf_signature](usf_signature) |
 
 ### TL;DR
 

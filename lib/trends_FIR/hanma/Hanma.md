@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Hanma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [hanma_signature](hanma_signature) |
 
 ### TL;DR
 

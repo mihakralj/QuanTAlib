@@ -12,6 +12,7 @@
 | **Outputs**      | Single series (Ema)                    |
 | **Output range** | Tracks input                            |
 | **Warmup**       | `period` bars                         |
+| **Signature**    | [ema_signature](ema_signature) |
 
 ## Key Takeaways
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Zltema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+| **Signature**    | [zltema_signature](zltema_signature) |
 
 ### TL;DR
 

@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Vidya)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [vidya_signature](vidya_signature) |
 
 ### TL;DR
 

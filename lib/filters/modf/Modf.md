@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (MODF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [modf_signature](modf_signature) |
 
 ### TL;DR
 

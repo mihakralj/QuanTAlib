@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Ssf2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [ssf2_signature](ssf2_signature) |
 
 ### TL;DR
 

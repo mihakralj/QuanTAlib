@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Trama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [trama_signature](trama_signature) |
 
 ### TL;DR
 

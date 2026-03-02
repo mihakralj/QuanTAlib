@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Bessel)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [bessel_signature](bessel_signature) |
 
 ### TL;DR
 

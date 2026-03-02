@@ -8,6 +8,7 @@
 | **Outputs**      | Single series (Elliptic)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **Signature**    | [elliptic_signature](elliptic_signature) |
 
 ### TL;DR
 
