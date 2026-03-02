@@ -252,6 +252,66 @@ public class JmaTests
     }
 
     [Fact]
+    public void Jma_Period_AffectsResult()
+    {
+        // Verify that different periods produce meaningfully different outputs
+        var series = new TSeries();
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 500; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // --- TSeries Batch mode ---
+        var jma7 = Jma.Batch(series, 7);
+        var jma14 = Jma.Batch(series, 14);
+        var jma50 = Jma.Batch(series, 50);
+        var jma100 = Jma.Batch(series, 100);
+
+        // Last values must all differ
+        Assert.NotEqual(jma7.Last.Value, jma14.Last.Value);
+        Assert.NotEqual(jma14.Last.Value, jma50.Last.Value);
+        Assert.NotEqual(jma50.Last.Value, jma100.Last.Value);
+
+        // Longer period = smoother = values closer to mean (less extreme)
+        // Verify at least some interior values differ (not just the last)
+        int midIdx = series.Count / 2;
+        Assert.NotEqual(jma7[midIdx].Value, jma50[midIdx].Value);
+        Assert.NotEqual(jma14[midIdx].Value, jma100[midIdx].Value);
+
+        // --- Span Batch mode ---
+        double[] source = series.Values.ToArray();
+        double[] out7 = new double[source.Length];
+        double[] out14 = new double[source.Length];
+        double[] out50 = new double[source.Length];
+
+        Jma.Batch(source.AsSpan(), out7.AsSpan(), 7);
+        Jma.Batch(source.AsSpan(), out14.AsSpan(), 14);
+        Jma.Batch(source.AsSpan(), out50.AsSpan(), 50);
+
+        Assert.NotEqual(out7[^1], out14[^1]);
+        Assert.NotEqual(out14[^1], out50[^1]);
+
+        // Span results must match TSeries results
+        Assert.Equal(jma7.Last.Value, out7[^1], 1e-10);
+        Assert.Equal(jma14.Last.Value, out14[^1], 1e-10);
+        Assert.Equal(jma50.Last.Value, out50[^1], 1e-10);
+
+        // --- Streaming mode ---
+        var stream7 = new Jma(7);
+        var stream50 = new Jma(50);
+        for (int i = 0; i < series.Count; i++)
+        {
+            stream7.Update(series[i]);
+            stream50.Update(series[i]);
+        }
+        Assert.NotEqual(stream7.Last.Value, stream50.Last.Value);
+        Assert.Equal(jma7.Last.Value, stream7.Last.Value, 1e-10);
+        Assert.Equal(jma50.Last.Value, stream50.Last.Value, 1e-10);
+    }
+
+    [Fact]
     public void Jma_SpanCalc_HandlesNaN()
     {
         double[] source = [100, 110, double.NaN, 120, 130];
