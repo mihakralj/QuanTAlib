@@ -46,13 +46,13 @@ jobs:
             rid: linux-x64
             native_dir: linux_x86_64
             native_file: quantalib_native.so
-            wheel_platform_tag: linux_x86_64
+            wheel_platform_tag: manylinux_2_17_x86_64.manylinux2014_x86_64
           - wheel_id: linux-arm64
             os: ubuntu-24.04-arm
             rid: linux-arm64
             native_dir: linux_arm64
             native_file: quantalib_native.so
-            wheel_platform_tag: linux_aarch64
+            wheel_platform_tag: manylinux_2_17_aarch64.manylinux2014_aarch64
           - wheel_id: macos-amd64
             os: macos-15-intel
             rid: osx-x64
@@ -130,18 +130,25 @@ jobs:
           python -m pip install --upgrade pip build hatchling wheel
           python -m build --wheel ./python
 
+          $wheel = Get-ChildItem ./python/dist/*.whl | Select-Object -First 1
+          if (-not $wheel) {
+            Write-Error "No wheel produced by build"
+            exit 1
+          }
+
           python -m wheel tags `
             --python-tag py3 `
             --abi-tag none `
             --platform-tag ${{ matrix.wheel_platform_tag }} `
             --remove `
-            ./python/dist/*.whl
+            "$($wheel.FullName)"
 
           $taggedWheel = Get-ChildItem ./python/dist/*.whl | Select-Object -First 1
           if (-not $taggedWheel) {
-            Write-Error "No wheel found after tagging"
+            Write-Error "No wheel found after retagging"
             exit 1
           }
+
           "Tagged wheel: $($taggedWheel.Name)"
 
       - name: Upload wheel artifact
