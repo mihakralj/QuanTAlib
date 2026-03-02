@@ -105,13 +105,22 @@ jobs:
             -r ${{ matrix.rid }} `
             --self-contained true `
             -o $nativeOut `
-            -p:ContinuousIntegrationBuild=true
+            -p:ContinuousIntegrationBuild=true `
+            -p:DebugSymbols=false `
+            -p:DebugType=none
 
           $expectedNative = Join-Path $nativeOut "${{ matrix.native_file }}"
           if (-not (Test-Path $expectedNative)) {
             Write-Error "Missing native library: $expectedNative"
             exit 1
           }
+
+          Get-ChildItem $nativeOut -File | Where-Object {
+            $_.Name -ne "${{ matrix.native_file }}"
+          } | Remove-Item -Force
+
+          "Native payload files:"
+          Get-ChildItem $nativeOut -File | ForEach-Object { $_.Name }
 
       - name: Set wheel version for development
         if: github.ref_name != 'main'

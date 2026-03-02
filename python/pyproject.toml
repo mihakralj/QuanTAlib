@@ -7,8 +7,34 @@ name = "quantalib"
 dynamic = ["version"]
 description = "High-performance technical analysis wrappers over QuanTAlib NativeAOT"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24"]
+authors = [
+    { name = "QuanTAlib Contributors" },
+]
+keywords = ["quantitative", "finance", "technical-analysis", "indicators", "nativeaot"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/mihakralj/quantalib"
+Repository = "https://github.com/mihakralj/quantalib"
+Documentation = "https://mihakralj.github.io/quantalib/"
+Issues = "https://github.com/mihakralj/quantalib/issues"
 
 [project.optional-dependencies]
 pandas = ["pandas>=1.5"]
