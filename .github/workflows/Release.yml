@@ -11,20 +11,54 @@ defaults:
 
 env:
   DOTNET_VERSION: "10.x"
-  PYTHON_VERSION: "3.12"
+  PYTHON_VERSION: "3.14"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
 
 jobs:
   # ==============================================================================
-  # Build Python wheel (win-amd64)
+  # Build Python wheels (parallel matrix)
   # ==============================================================================
-  Build_Python_Wheel:
-    runs-on: windows-latest
-    timeout-minutes: 20
+  Build_Python_Wheels:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wheel_id: win-amd64
+            os: windows-latest
+            rid: win-x64
+            native_dir: win_amd64
+            native_file: quantalib_native.dll
+          - wheel_id: win-arm64
+            os: windows-latest
+            rid: win-arm64
+            native_dir: win_arm64
+            native_file: quantalib_native.dll
+          - wheel_id: linux-amd64
+            os: ubuntu-latest
+            rid: linux-x64
+            native_dir: linux_x86_64
+            native_file: quantalib_native.so
+          - wheel_id: linux-arm64
+            os: ubuntu-latest
+            rid: linux-arm64
+            native_dir: linux_arm64
+            native_file: quantalib_native.so
+          - wheel_id: macos-amd64
+            os: macos-13
+            rid: osx-x64
+            native_dir: macosx_x86_64
+            native_file: quantalib_native.dylib
+          - wheel_id: macos-arm64
+            os: macos-14
+            rid: osx-arm64
+            native_dir: macosx_arm64
+            native_file: quantalib_native.dylib
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,17 +90,20 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Publish python native wrapper (win-x64)
+      - name: Publish python native wrapper
         shell: pwsh
         run: |
+          $nativeOut = "./python/quantalib/native/${{ matrix.native_dir }}"
           dotnet publish ./python/python.csproj `
             -c Release `
-            -r win-x64 `
+            -r ${{ matrix.rid }} `
             --self-contained true `
-            -o ./python/quantalib/native/win_amd64 `
+            -o $nativeOut `
             -p:ContinuousIntegrationBuild=true
-          if (-not (Test-Path "./python/quantalib/native/win_amd64/quantalib_native.dll")) {
-            Write-Error "Missing quantalib_native.dll"
+
+          $expectedNative = Join-Path $nativeOut "${{ matrix.native_file }}"
+          if (-not (Test-Path $expectedNative)) {
+            Write-Error "Missing native library: $expectedNative"
             exit 1
           }
 
@@ -88,7 +125,7 @@ jobs:
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-wheel-win-amd64
+          name: python-wheel-${{ matrix.wheel_id }}
           path: python/dist/*.whl
           retention-days: 7
 
@@ -96,7 +133,7 @@ jobs:
   # Publish Package (manual trigger only)
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Python_Wheel]
+    needs: [Build_Python_Wheels]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -151,11 +188,23 @@ jobs:
 
           ls -lh lib/bin/Release/*.nupkg || true
 
-      - name: Download python wheel artifact
+      - name: Download all python wheel artifacts
         uses: actions/download-artifact@v4
         with:
-          name: python-wheel-win-amd64
-          path: python-wheel
+          pattern: python-wheel-*
+          path: python-wheel-all
+          merge-multiple: false
+
+      - name: Merge wheel artifacts for package publishing
+        run: |
+          mkdir -p python-wheel
+          for dir in python-wheel-all/python-wheel-*; do
+            [ -d "$dir" ] || continue
+            cp -v "$dir"/*.whl python-wheel/
+          done
+
+          echo "Wheels prepared for package publishing:"
+          ls -lh python-wheel/*.whl
 
       - name: Collect release assets
         run: |
@@ -233,6 +282,15 @@ jobs:
             --source https://www.myget.org/F/quantalib/api/v3/index.json \
             --skip-duplicate \
             --api-key "$MYGET_API_KEY"
+
+      - name: Publish wheels to PyPI
+        if: steps.release_type.outputs.type == 'production'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python-wheel
+          skip-existing: true
+          verbose: true
+          attestations: false
 
       - name: Create Production Release
         if: steps.release_type.outputs.type == 'production'
