@@ -56,7 +56,7 @@ def fwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"FWMA_{period}", "trends_fir", offset)
 
 
-def gwma(close: object, period: int = 14, sigma: float = 6.0, offset: int = 0, **kwargs) -> object:
+def gwma(close: object, period: int = 14, sigma: float = 0.4, offset: int = 0, **kwargs) -> object:
     """Gaussian Weighted Moving Average."""
     period = int(period)
     sigma = float(sigma)
@@ -102,7 +102,7 @@ def ilrs(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"ILRS_{period}", "trends_fir", offset)
 
 
-def kaiser(close: object, period: int = 14, beta: float = 2.0, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
+def kaiser(close: object, period: int = 14, beta: float = 3.0, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Kaiser Window Moving Average."""
     period = int(period)
     beta = float(beta)

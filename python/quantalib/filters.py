@@ -46,7 +46,7 @@ __all__ = [
 ]
 
 
-def gauss(close: object, sigma: float = 6.0, offset: int = 0, **kwargs) -> object:
+def gauss(close: object, sigma: float = 1.0, offset: int = 0, **kwargs) -> object:
     """Gaussian Filter."""
     sigma = float(sigma)
     offset = int(offset)
@@ -79,7 +79,7 @@ def hp(close: object, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "HP", "filters", offset)
 
 
-def hpf(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def hpf(close: object, length: int = 40, offset: int = 0, **kwargs) -> object:
     """High-Pass Filter."""
     length = int(length)
     offset = int(offset)
@@ -90,7 +90,7 @@ def hpf(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HPF_{length}", "filters", offset)
 
 
-def kalman(close: object, q: float = 0.3, r: float = 1.0, offset: int = 0, **kwargs) -> object:
+def kalman(close: object, q: float = 0.01, r: float = 0.1, offset: int = 0, **kwargs) -> object:
     """Kalman Filter."""
     q = float(q)
     r = float(r)
@@ -102,7 +102,7 @@ def kalman(close: object, q: float = 0.3, r: float = 1.0, offset: int = 0, **kwa
     return _wrap(output, idx, "KALMAN", "filters", offset)
 
 
-def laguerre(close: object, gamma: float = 0.7, offset: int = 0, **kwargs) -> object:
+def laguerre(close: object, gamma: float = 0.8, offset: int = 0, **kwargs) -> object:
     """Laguerre Filter."""
     gamma = float(gamma)
     offset = int(offset)
@@ -113,7 +113,7 @@ def laguerre(close: object, gamma: float = 0.7, offset: int = 0, **kwargs) -> ob
     return _wrap(output, idx, "LAGUERRE", "filters", offset)
 
 
-def lms(close: object, order: int = 3, mu: float = 0.01, offset: int = 0, **kwargs) -> object:
+def lms(close: object, order: int = 16, mu: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Least Mean Squares Filter."""
     order = int(order)
     mu = float(mu)
@@ -136,7 +136,7 @@ def loess(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"LOESS_{period}", "filters", offset)
 
 
-def modf(close: object, period: int = 14, beta: float = 2.0, feedback: int = 0, fbWeight: float = 0.5, offset: int = 0, **kwargs) -> object:
+def modf(close: object, period: int = 14, beta: float = 0.8, feedback: int = 0, fbWeight: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Modified Filter."""
     period = int(period)
     beta = float(beta)
@@ -150,7 +150,7 @@ def modf(close: object, period: int = 14, beta: float = 2.0, feedback: int = 0, 
     return _wrap(output, idx, f"MODF_{period}", "filters", offset)
 
 
-def notch(close: object, period: int = 14, q: float = 0.3, offset: int = 0, **kwargs) -> object:
+def notch(close: object, period: int = 14, q: float = 1.0, offset: int = 0, **kwargs) -> object:
     """Notch Filter."""
     period = int(period)
     q = float(q)
@@ -162,7 +162,7 @@ def notch(close: object, period: int = 14, q: float = 0.3, offset: int = 0, **kw
     return _wrap(output, idx, f"NOTCH_{period}", "filters", offset)
 
 
-def nw(close: object, period: int = 14, bandwidth: float = 0.25, offset: int = 0, **kwargs) -> object:
+def nw(close: object, period: int = 64, bandwidth: float = 8.0, offset: int = 0, **kwargs) -> object:
     """Nadaraya-Watson Filter."""
     period = int(period)
     bandwidth = float(bandwidth)
@@ -174,7 +174,7 @@ def nw(close: object, period: int = 14, bandwidth: float = 0.25, offset: int = 0
     return _wrap(output, idx, f"NW_{period}", "filters", offset)
 
 
-def oneeuro(close: object, minCutoff: float = 1.0, beta: float = 2.0, dCutoff: float = 1.0, offset: int = 0, **kwargs) -> object:
+def oneeuro(close: object, minCutoff: float = 1.0, beta: float = 0.007, dCutoff: float = 1.0, offset: int = 0, **kwargs) -> object:
     """1€ Filter."""
     minCutoff = float(minCutoff)
     beta = float(beta)
@@ -187,7 +187,7 @@ def oneeuro(close: object, minCutoff: float = 1.0, beta: float = 2.0, dCutoff: f
     return _wrap(output, idx, "ONEEURO", "filters", offset)
 
 
-def rls(close: object, order: int = 3, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
+def rls(close: object, order: int = 16, lam: float = 0.99, offset: int = 0, **kwargs) -> object:
     """Recursive Least Squares Filter."""
     order = int(order)
     lam = float(lam)
@@ -210,7 +210,7 @@ def rmed(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"RMED_{period}", "filters", offset)
 
 
-def roofing(close: object, hpLength: int = 40, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
+def roofing(close: object, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
     """Roofing Filter."""
     hpLength = int(hpLength)
     ssLength = int(ssLength)
@@ -222,7 +222,7 @@ def roofing(close: object, hpLength: int = 40, ssLength: int = 10, offset: int =
     return _wrap(output, idx, f"ROOFING_{hpLength}", "filters", offset)
 
 
-def sgf(close: object, period: int = 14, polyOrder: int = 3, offset: int = 0, **kwargs) -> object:
+def sgf(close: object, period: int = 14, polyOrder: int = 2, offset: int = 0, **kwargs) -> object:
     """Savitzky-Golay Filter."""
     period = int(period)
     polyOrder = int(polyOrder)
@@ -234,7 +234,7 @@ def sgf(close: object, period: int = 14, polyOrder: int = 3, offset: int = 0, **
     return _wrap(output, idx, f"SGF_{period}", "filters", offset)
 
 
-def spbf(close: object, shortPeriod: int = 12, longPeriod: int = 26, rmsPeriod: int = 20, offset: int = 0, **kwargs) -> object:
+def spbf(close: object, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: int = 50, offset: int = 0, **kwargs) -> object:
     """Short-Period Bandpass Filter."""
     shortPeriod = int(shortPeriod)
     longPeriod = int(longPeriod)
@@ -306,7 +306,7 @@ def wavelet(close: object, levels: int = 4, threshMult: float = 1.0, offset: int
     return _wrap(output, idx, "WAVELET", "filters", offset)
 
 
-def wiener(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
+def wiener(close: object, period: int = 14, smoothPeriod: int = 10, offset: int = 0, **kwargs) -> object:
     """Wiener Filter."""
     period = int(period)
     smoothPeriod = int(smoothPeriod)

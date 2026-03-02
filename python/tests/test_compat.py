@@ -69,8 +69,8 @@ class TestPandasSeriesIO:
         result = qtl.ema(s, length=14)
         assert isinstance(result, pd.Series)
         assert result.name == "EMA_14"
-        assert hasattr(result, "category")
-        assert result.category == "trend"
+        assert "category" in result.attrs
+        assert result.attrs["category"] == "trends_iir"
 
     def test_rsi_series(self, qtl, pd) -> None:
         s = pd.Series(CLOSE)

@@ -48,7 +48,7 @@ def accel(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "ACCEL", "numerics", offset)
 
 
-def fdist(close: object, d1: int = 10, d2: int = 20, period: int = 14, offset: int = 0, **kwargs) -> object:
+def fdist(close: object, d1: int = 1, d2: int = 1, period: int = 14, offset: int = 0, **kwargs) -> object:
     """F-Distribution."""
     d1 = int(d1)
     d2 = int(d2)
@@ -74,7 +74,7 @@ def fft(close: object, windowSize: int = 256, minPeriod: int = 6, maxPeriod: int
     return _wrap(output, idx, f"FFT_{minPeriod}", "numerics", offset)
 
 
-def gammadist(close: object, alpha: float = 2.0, beta: float = 2.0, period: int = 14, offset: int = 0, **kwargs) -> object:
+def gammadist(close: object, alpha: float = 2.0, beta: float = 1.0, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Gamma Distribution."""
     alpha = float(alpha)
     beta = float(beta)
@@ -132,7 +132,7 @@ def lineartrans(close: object, slope: float = 1.0, intercept: float = 0.0, offse
     return _wrap(output, idx, "LINEARTRANS", "numerics", offset)
 
 
-def lognormdist(close: object, mu: float = 0.01, sigma: float = 6.0, period: int = 14, offset: int = 0, **kwargs) -> object:
+def lognormdist(close: object, mu: float = 0.0, sigma: float = 1.0, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Log-Normal Distribution."""
     mu = float(mu)
     sigma = float(sigma)
@@ -177,7 +177,7 @@ def normalize(close: object, period: int = 14, offset: int = 0, **kwargs) -> obj
     return _wrap(output, idx, f"NORMALIZE_{period}", "numerics", offset)
 
 
-def normdist(close: object, mu: float = 0.01, sigma: float = 6.0, period: int = 14, offset: int = 0, **kwargs) -> object:
+def normdist(close: object, mu: float = 0.0, sigma: float = 1.0, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Normal Distribution."""
     mu = float(mu)
     sigma = float(sigma)
@@ -190,7 +190,7 @@ def normdist(close: object, mu: float = 0.01, sigma: float = 6.0, period: int = 
     return _wrap(output, idx, f"NORMDIST_{period}", "numerics", offset)
 
 
-def poissondist(close: object, lam: float = 1600.0, period: int = 14, threshold: int = 10, offset: int = 0, **kwargs) -> object:
+def poissondist(close: object, lam: float = 1.0, period: int = 14, threshold: int = 5, offset: int = 0, **kwargs) -> object:
     """Poisson Distribution."""
     lam = float(lam)
     period = int(period)
@@ -213,7 +213,7 @@ def relu(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "RELU", "numerics", offset)
 
 
-def sigmoid(close: object, k: float = 2.0, x0: float = 0.0, offset: int = 0, **kwargs) -> object:
+def sigmoid(close: object, k: float = 1.0, x0: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Sigmoid Transform."""
     k = float(k)
     x0 = float(x0)
@@ -257,7 +257,7 @@ def tdist(close: object, nu: int = 10, period: int = 14, offset: int = 0, **kwar
     return _wrap(output, idx, f"TDIST_{period}", "numerics", offset)
 
 
-def weibulldist(close: object, k: float = 2.0, lam: float = 1600.0, period: int = 14, offset: int = 0, **kwargs) -> object:
+def weibulldist(close: object, k: float = 1.5, lam: float = 1.0, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Weibull Distribution."""
     k = float(k)
     lam = float(lam)

@@ -74,7 +74,7 @@ def frama(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"FRAMA_{period}", "trends_iir", offset)
 
 
-def holt(close: object, period: int = 14, gamma: float = 0.7, offset: int = 0, **kwargs) -> object:
+def holt(close: object, period: int = 14, gamma: float = 0.0, offset: int = 0, **kwargs) -> object:
     """Holt Exponential Smoothing."""
     period = int(period)
     gamma = float(gamma)
@@ -107,7 +107,7 @@ def hwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HWMA_{period}", "trends_iir", offset)
 
 
-def jma(close: object, period: int = 14, phase: int = 0, power: float = 1.0, offset: int = 0, **kwargs) -> object:
+def jma(close: object, period: int = 14, phase: int = 0, power: float = 0.45, offset: int = 0, **kwargs) -> object:
     """Jurik Moving Average."""
     period = int(period)
     phase = int(phase)
@@ -180,7 +180,7 @@ def mcnma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"MCNMA_{period}", "trends_iir", offset)
 
 
-def mgdi(close: object, period: int = 14, k: float = 2.0, offset: int = 0, **kwargs) -> object:
+def mgdi(close: object, period: int = 14, k: float = 0.6, offset: int = 0, **kwargs) -> object:
     """McGinley Dynamic."""
     period = int(period)
     k = float(k)
@@ -225,7 +225,7 @@ def qema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"QEMA_{period}", "trends_iir", offset)
 
 
-def rema(close: object, period: int = 14, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
+def rema(close: object, period: int = 14, lam: float = 0.5, offset: int = 0, **kwargs) -> object:
     """Regularized EMA."""
     period = int(period)
     lam = float(lam)

@@ -200,7 +200,7 @@ def marketfi(high: object, low: object, volume: object, offset: int = 0, **kwarg
     return _wrap(output, idx, "MARKETFI", "oscillators", offset)
 
 
-def mstoch(close: object, stochLength: int = 14, hpLength: int = 40, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
+def mstoch(close: object, stochLength: int = 20, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
     """Modified Stochastic."""
     stochLength = int(stochLength)
     hpLength = int(hpLength)

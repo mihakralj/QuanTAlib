@@ -123,7 +123,7 @@ def rocr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"ROCR_{period}", "momentum", offset)
 
 
-def sam(close: object, alpha: float = 2.0, cutoff: int = 10, offset: int = 0, **kwargs) -> object:
+def sam(close: object, alpha: float = 0.07, cutoff: int = 8, offset: int = 0, **kwargs) -> object:
     """Simple Alpha Momentum."""
     alpha = float(alpha)
     cutoff = int(cutoff)
