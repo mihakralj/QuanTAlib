@@ -109,7 +109,7 @@ def hwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 def jma(close: object, period: int = 14, phase: int = 0, offset: int = 0, **kwargs) -> object:
     """Jurik Moving Average."""
-    period = int(period)
+    period = int(kwargs.get("length", period))
     phase = int(phase)
     offset = int(offset)
     src, idx = _arr(close)
