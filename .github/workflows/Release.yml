@@ -45,7 +45,7 @@ jobs:
             native_dir: linux_x86_64
             native_file: quantalib_native.so
           - wheel_id: linux-arm64
-            os: ubuntu-latest
+            os: ubuntu-24.04-arm
             rid: linux-arm64
             native_dir: linux_arm64
             native_file: quantalib_native.so
