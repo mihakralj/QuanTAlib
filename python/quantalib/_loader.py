@@ -7,7 +7,9 @@ from pathlib import Path
 
 _PLATFORM_MAP: dict[tuple[str, str], str] = {
     ("Windows", "AMD64"): "win_amd64/quantalib_native.dll",
+    ("Windows", "ARM64"): "win_arm64/quantalib_native.dll",
     ("Linux", "x86_64"): "linux_x86_64/quantalib_native.so",
+    ("Linux", "aarch64"): "linux_arm64/quantalib_native.so",
     ("Darwin", "arm64"): "macosx_arm64/quantalib_native.dylib",
     ("Darwin", "x86_64"): "macosx_x86_64/quantalib_native.dylib",
 }

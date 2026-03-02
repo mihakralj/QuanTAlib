@@ -34,31 +34,37 @@ jobs:
             rid: win-x64
             native_dir: win_amd64
             native_file: quantalib_native.dll
+            wheel_platform_tag: win_amd64
           - wheel_id: win-arm64
             os: windows-latest
             rid: win-arm64
             native_dir: win_arm64
             native_file: quantalib_native.dll
+            wheel_platform_tag: win_arm64
           - wheel_id: linux-amd64
             os: ubuntu-latest
             rid: linux-x64
             native_dir: linux_x86_64
             native_file: quantalib_native.so
+            wheel_platform_tag: linux_x86_64
           - wheel_id: linux-arm64
             os: ubuntu-24.04-arm
             rid: linux-arm64
             native_dir: linux_arm64
             native_file: quantalib_native.so
+            wheel_platform_tag: linux_aarch64
           - wheel_id: macos-amd64
             os: macos-15-intel
             rid: osx-x64
             native_dir: macosx_x86_64
             native_file: quantalib_native.dylib
+            wheel_platform_tag: macosx_10_13_x86_64
           - wheel_id: macos-arm64
             os: macos-14
             rid: osx-arm64
             native_dir: macosx_arm64
             native_file: quantalib_native.dylib
+            wheel_platform_tag: macosx_11_0_arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -119,8 +125,24 @@ jobs:
       - name: Build wheel
         shell: pwsh
         run: |
-          python -m pip install --upgrade pip build hatchling
+          Remove-Item ./python/dist/*.whl -ErrorAction SilentlyContinue
+
+          python -m pip install --upgrade pip build hatchling wheel
           python -m build --wheel ./python
+
+          python -m wheel tags `
+            --python-tag py3 `
+            --abi-tag none `
+            --platform-tag ${{ matrix.wheel_platform_tag }} `
+            --remove `
+            ./python/dist/*.whl
+
+          $taggedWheel = Get-ChildItem ./python/dist/*.whl | Select-Object -First 1
+          if (-not $taggedWheel) {
+            Write-Error "No wheel found after tagging"
+            exit 1
+          }
+          "Tagged wheel: $($taggedWheel.Name)"
 
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
