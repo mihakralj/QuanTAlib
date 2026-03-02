@@ -575,13 +575,13 @@ public static unsafe partial class Exports
     }
 
     [UnmanagedCallersOnly(EntryPoint = "qtl_frama")]
-    public static int QtlFrama(double* source, double* output, int n, int period)
+    public static int QtlFrama(double* high, double* low, double* output, int n, int period)
     {
-        if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (high == null || low == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Frama.Batch(Src(source, n), Dst(output, n), period);
+            Frama.Batch(Src(high, n), Src(low, n), period, Dst(output, n));
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }

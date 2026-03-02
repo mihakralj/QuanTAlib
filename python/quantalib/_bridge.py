@@ -166,7 +166,7 @@ HAS_RWMA = _bind("qtl_rwma", [_dp, _dp, _dp, _dp, _ci, _ci])
 #  Trends — IIR
 # ═══════════════════════════════════════════════════════════════════════════
 HAS_ADXVMA = _bind("qtl_adxvma", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _dp])
-HAS_FRAMA = _bind("qtl_frama", [_dp, _dp, _ci, _ci])
+HAS_FRAMA = _bind("qtl_frama", [_dp, _dp, _dp, _ci, _ci])
 HAS_HOLT = _bind("qtl_holt", [_dp, _dp, _ci, _ci, _cd])
 HAS_HTIT = _bind("qtl_htit", [_dp, _dp, _ci])
 HAS_HWMA = _bind("qtl_hwma", [_dp, _dp, _ci, _ci])

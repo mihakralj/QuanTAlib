@@ -63,14 +63,14 @@ def adxvma(open: object, high: object, low: object, close: object, volume: objec
     return _wrap(dst, idx, f"ADXVMA_{period}", "trends_iir", offset)
 
 
-def frama(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def frama(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Fractal Adaptive Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
-    src, idx = _arr(close)
-    n = len(src)
+    h, idx = _arr(high); l, _ = _arr(low)
+    n = len(h)
     output = _out(n)
-    _check(_lib.qtl_frama(_ptr(src), _ptr(output), n, period))
+    _check(_lib.qtl_frama(_ptr(h), _ptr(l), _ptr(output), n, period))
     return _wrap(output, idx, f"FRAMA_{period}", "trends_iir", offset)
 
 
