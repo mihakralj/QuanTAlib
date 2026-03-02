@@ -635,7 +635,7 @@ public class JbandsTests
     {
         // Verify that middle band matches standalone JMA
         var jbands = new Jbands(14, 0);
-        var jma = new Jma(14, 0, 0.45);
+        var jma = new Jma(14, 0);
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: 999);
 
         for (int i = 0; i < 200; i++)

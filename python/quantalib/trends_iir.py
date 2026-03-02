@@ -107,16 +107,15 @@ def hwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HWMA_{period}", "trends_iir", offset)
 
 
-def jma(close: object, period: int = 14, phase: int = 0, power: float = 0.45, offset: int = 0, **kwargs) -> object:
+def jma(close: object, period: int = 14, phase: int = 0, offset: int = 0, **kwargs) -> object:
     """Jurik Moving Average."""
     period = int(period)
     phase = int(phase)
-    power = float(power)
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
     output = _out(n)
-    _check(_lib.qtl_jma(_ptr(src), _ptr(output), n, period, phase, power))
+    _check(_lib.qtl_jma(_ptr(src), _ptr(output), n, period, phase))
     return _wrap(output, idx, f"JMA_{period}", "trends_iir", offset)
 
 

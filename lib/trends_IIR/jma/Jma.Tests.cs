@@ -32,11 +32,11 @@ public class JmaTests
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), 0, 0, 1.0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), -1, 0, 1.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), 0, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Batch(source.AsSpan(), output.AsSpan(), -1, 0));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Jma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0, 1.0));
+        Assert.Throws<ArgumentException>(() => Jma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0));
     }
 
     [Fact]
@@ -235,8 +235,10 @@ public class JmaTests
     }
 
     [Fact]
-    public void Jma_Power_AffectsResult()
+    public void Jma_Power_RemovedFromApi()
     {
+        // Power parameter was removed — it was never used in calculation.
+        // Verify the 2-parameter Batch still works correctly.
         var series = new TSeries();
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
         for (int i = 0; i < 100; i++)
@@ -245,14 +247,8 @@ public class JmaTests
             series.Add(bar.Time, bar.Close);
         }
 
-        var jmaPowerDefault = Jma.Batch(series, 10, power: 0.45);
-        var jmaPower1 = Jma.Batch(series, 10, power: 1.0);
-        var jmaPower2 = Jma.Batch(series, 10, power: 2.0);
-
-        // Power parameter is kept for API compatibility with Pine reference
-        // but does not affect output in this implementation
-        Assert.Equal(jmaPowerDefault.Last.Value, jmaPower1.Last.Value, 1e-10);
-        Assert.Equal(jmaPowerDefault.Last.Value, jmaPower2.Last.Value, 1e-10);
+        var result = Jma.Batch(series, 10);
+        Assert.True(double.IsFinite(result.Last.Value));
     }
 
     [Fact]

@@ -1146,13 +1146,13 @@ public static unsafe partial class Exports
     }
 
     [UnmanagedCallersOnly(EntryPoint = "qtl_jma")]
-    public static int QtlJma(double* source, double* output, int n, int period, int phase, double power)
+    public static int QtlJma(double* source, double* output, int n, int period, int phase)
     {
         if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Jma.Batch(Src(source, n), Dst(output, n), period, phase, power);
+            Jma.Batch(Src(source, n), Dst(output, n), period, phase);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }

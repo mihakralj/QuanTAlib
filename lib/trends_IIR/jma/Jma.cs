@@ -64,16 +64,11 @@ public sealed class Jma : AbstractBase
 
     public override bool IsHot => _state.Bars >= WarmupPeriod;
 
-    public Jma(int period, int phase = 0, double power = 0.45)
+    public Jma(int period, int phase = 0)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
-        }
-
-        if (!double.IsFinite(power))
-        {
-            throw new ArgumentException("Power must be finite.", nameof(power));
         }
 
         // --- Phase parameter: maps -100..100 -> 0.5..2.5 (Jurik convention) ---
@@ -115,7 +110,7 @@ public sealed class Jma : AbstractBase
         WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
 
         _handler = Handle;
-        Name = $"Jma({period},{phase},{power})"; // power kept for signature compatibility (ignored in calculation)
+        Name = $"Jma({period},{phase})";
 
         _devBuffer = new RingBuffer(DevWindowSize);
         _volBuffer = new RingBuffer(VolWindowSize);
@@ -123,8 +118,8 @@ public sealed class Jma : AbstractBase
         Reset();
     }
 
-    public Jma(ITValuePublisher source, int period, int phase = 0, double power = 0.45)
-        : this(period, phase, power)
+    public Jma(ITValuePublisher source, int period, int phase = 0)
+        : this(period, phase)
     {
         _source = source;
         source.Pub += _handler;
@@ -358,9 +353,9 @@ public sealed class Jma : AbstractBase
         }
     }
 
-    public static TSeries Batch(TSeries source, int period, int phase = 0, double power = 0.45)
+    public static TSeries Batch(TSeries source, int period, int phase = 0)
     {
-        var jma = new Jma(period, phase, power);
+        var jma = new Jma(period, phase);
         return jma.Update(source);
     }
 
@@ -370,8 +365,7 @@ public sealed class Jma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source,
                                  Span<double> output,
                                  int period,
-                                 int phase = 0,
-                                 double power = 0.45)
+                                 int phase = 0)
     {
         if (output.Length != source.Length)
         {
@@ -383,16 +377,16 @@ public sealed class Jma : AbstractBase
             return;
         }
 
-        var jma = new Jma(period, phase, power);
+        var jma = new Jma(period, phase);
         for (int i = 0; i < source.Length; i++)
         {
             output[i] = jma.Step(source[i], isNew: true);
         }
     }
 
-    public static (TSeries Results, Jma Indicator) Calculate(TSeries source, int period, int phase = 0, double power = 0.45)
+    public static (TSeries Results, Jma Indicator) Calculate(TSeries source, int period, int phase = 0)
     {
-        var indicator = new Jma(period, phase, power);
+        var indicator = new Jma(period, phase);
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
