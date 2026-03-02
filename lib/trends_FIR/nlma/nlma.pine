@@ -43,7 +43,7 @@ nlma(series float source, simple int period) =>
                 t := phase > 1 ? float(i) / float(phase - 1) : 0.0
             else
                 // Cycle zone: t continues from 1 upward
-                float numer = float(i - phase) * float(2 * cycle - 1)
+                float numer = float(i - phase + 1) * float(2 * cycle - 1)
                 float denom = float(cycle * period - 1)
                 t := 1.0 + (denom > 0 ? numer / denom : 0.0)
 

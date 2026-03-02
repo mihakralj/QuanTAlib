@@ -150,7 +150,7 @@ for i = 0 to flen-1:
     if i <= Phase - 1:
         t = i / (Phase - 1)
     else:
-        t = 1 + (i - Phase + 1) * (2*Cycle - 1) / (Cycle * period - 1)
+        t = 1.0 + (i - Phase + 1) * (2*Cycle - 1) / (Cycle * period - 1)
 
     if t <= 0.5:
         g = 1.0
