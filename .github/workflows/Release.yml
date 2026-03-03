@@ -173,6 +173,7 @@ jobs:
   Publish_Package:
     needs: [Build_Python_Wheels]
     runs-on: ubuntu-latest
+    environment: pypi
     timeout-minutes: 15
     permissions:
       contents: write
