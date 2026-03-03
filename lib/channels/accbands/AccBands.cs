@@ -201,8 +201,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         // Headley's per-bar normalized width
         double denom = high + low;
         double w = denom != 0.0 ? (high - low) / denom : 0.0;
-        double adjHigh = high * (1.0 + _factor * w);
-        double adjLow = low * (1.0 - _factor * w);
+        double adjHigh = high * (1.0 + (_factor * w));
+        double adjLow = low * (1.0 - (_factor * w));
 
         double removedAdjHigh = _adjHighBuffer.Count == _adjHighBuffer.Capacity ? _adjHighBuffer.Oldest : 0.0;
         double removedAdjLow = _adjLowBuffer.Count == _adjLowBuffer.Capacity ? _adjLowBuffer.Oldest : 0.0;
@@ -252,8 +252,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             // Recompute adjusted values for the corrected bar
             double denom = high + low;
             double w = denom != 0.0 ? (high - low) / denom : 0.0;
-            double adjHigh = high * (1.0 + _factor * w);
-            double adjLow = low * (1.0 - _factor * w);
+            double adjHigh = high * (1.0 + (_factor * w));
+            double adjLow = low * (1.0 - (_factor * w));
 
             _adjHighBuffer.UpdateNewest(adjHigh);
             _adjLowBuffer.UpdateNewest(adjLow);
@@ -851,8 +851,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             // Headley's per-bar adjustment
             double denom = h + l;
             double w = denom != 0.0 ? (h - l) / denom : 0.0;
-            double adjHigh = h * (1.0 + factor * w);
-            double adjLow = l * (1.0 - factor * w);
+            double adjHigh = h * (1.0 + (factor * w));
+            double adjLow = l * (1.0 - (factor * w));
 
             state.SumAdjHigh += adjHigh;
             state.SumAdjLow += adjLow;
@@ -885,8 +885,8 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             // Headley's per-bar adjustment
             double denom = h + l;
             double w = denom != 0.0 ? (h - l) / denom : 0.0;
-            double adjHigh = h * (1.0 + factor * w);
-            double adjLow = l * (1.0 - factor * w);
+            double adjHigh = h * (1.0 + (factor * w));
+            double adjLow = l * (1.0 - (factor * w));
 
             state.SumAdjHigh = state.SumAdjHigh - buffers.AdjHigh[state.BufferIndex] + adjHigh;
             state.SumAdjLow = state.SumAdjLow - buffers.AdjLow[state.BufferIndex] + adjLow;
