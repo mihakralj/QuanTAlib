@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Kaiser)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [kaiser_signature](kaiser_signature) |
+| **Signature**    | [kaiser_signature](kaiser_signature.md) |
 
 ### TL;DR
 

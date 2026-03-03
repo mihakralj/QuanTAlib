@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Gdema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [gdema_signature](gdema_signature) |
+| **Signature**    | [gdema_signature](gdema_signature.md) |
 
 ### TL;DR
 

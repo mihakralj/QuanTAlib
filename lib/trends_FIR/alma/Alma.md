@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Alma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [alma_signature](alma_signature) |
+| **Signature**    | [alma_signature](alma_signature.md) |
 
 ### TL;DR
 

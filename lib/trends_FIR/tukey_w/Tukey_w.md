@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Tukey_w)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [tukey_w_signature](tukey_w_signature) |
+| **Signature**    | [tukey_w_signature](tukey_w_signature.md) |
 
 ### TL;DR
 

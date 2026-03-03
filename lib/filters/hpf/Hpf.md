@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (HPF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [hpf_signature](hpf_signature) |
+| **Signature**    | [hpf_signature](hpf_signature.md) |
 
 ### TL;DR
 

@@ -12,7 +12,7 @@
 | Outputs | double (single value) |
 | Output range | Unbounded (tracks price scale) |
 | Warmup | ~$2N$ bars (dual cascaded EMAs) |
-| **Signature**    | [ltma_signature](ltma_signature) |
+| **Signature**    | [ltma_signature](ltma_signature.md) |
 
 ### Key takeaways
 

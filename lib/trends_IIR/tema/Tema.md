@@ -12,7 +12,7 @@
 | Outputs      | Single series (TEMA) |
 | Output range | Tracks input |
 | Warmup       | `period * 3` bars |
-| **Signature**    | [tema_signature](tema_signature) |
+| **Signature**    | [tema_signature](tema_signature.md) |
 
 ### Key takeaways
 

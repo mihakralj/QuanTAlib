@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Bilateral)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [bilateral_signature](bilateral_signature) |
+| **Signature**    | [bilateral_signature](bilateral_signature.md) |
 
 ### TL;DR
 

@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Fwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [fwma_signature](fwma_signature) |
+| **Signature**    | [fwma_signature](fwma_signature.md) |
 
 ### TL;DR
 

@@ -12,7 +12,7 @@
 | **Outputs**      | Single series (Dema)                    |
 | **Output range** | Tracks input                            |
 | **Warmup**       | `period` bars                         |
-| **Signature**    | [dema_signature](dema_signature) |
+| **Signature**    | [dema_signature](dema_signature.md) |
 
 ## Key Takeaways
 

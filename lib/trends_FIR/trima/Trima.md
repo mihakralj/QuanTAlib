@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Trima)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `p1 + p2 - 1` bars                          |
-| **Signature**    | [trima_signature](trima_signature) |
+| **Signature**    | [trima_signature](trima_signature.md) |
 
 ### TL;DR
 

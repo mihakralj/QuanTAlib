@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Hema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `EstimateWarmupPeriod()` bars                          |
-| **Signature**    | [hema_signature](hema_signature) |
+| **Signature**    | [hema_signature](hema_signature.md) |
 
 ### TL;DR
 

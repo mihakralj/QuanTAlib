@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Loess)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Period` bars                          |
-| **Signature**    | [loess_signature](loess_signature) |
+| **Signature**    | [loess_signature](loess_signature.md) |
 
 ### TL;DR
 

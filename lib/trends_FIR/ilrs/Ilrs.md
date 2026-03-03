@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Ilrs)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [ilrs_signature](ilrs_signature) |
+| **Signature**    | [ilrs_signature](ilrs_signature.md) |
 
 ### TL;DR
 

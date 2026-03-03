@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Pma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `(period * 2) - 1` bars                          |
-| **Signature**    | [pma_signature](pma_signature) |
+| **Signature**    | [pma_signature](pma_signature.md) |
 
 ### TL;DR
 

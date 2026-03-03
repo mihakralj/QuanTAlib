@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Wiener)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(period, smoothPeriod)` bars                          |
-| **Signature**    | [wiener_signature](wiener_signature) |
+| **Signature**    | [wiener_signature](wiener_signature.md) |
 
 ### TL;DR
 

@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Hma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period + sqrtPeriod - 1` bars                          |
-| **Signature**    | [hma_signature](hma_signature) |
+| **Signature**    | [hma_signature](hma_signature.md) |
 
 ### TL;DR
 

@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Rain)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [rain_signature](rain_signature) |
+| **Signature**    | [rain_signature](rain_signature.md) |
 
 ### TL;DR
 

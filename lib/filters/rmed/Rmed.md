@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Rmed)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [rmed_signature](rmed_signature) |
+| **Signature**    | [rmed_signature](rmed_signature.md) |
 
 ### TL;DR
 

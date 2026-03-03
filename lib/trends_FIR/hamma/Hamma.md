@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Hamma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [hamma_signature](hamma_signature) |
+| **Signature**    | [hamma_signature](hamma_signature.md) |
 
 ### TL;DR
 

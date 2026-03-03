@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Coral)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [coral_signature](coral_signature) |
+| **Signature**    | [coral_signature](coral_signature.md) |
 
 ### TL;DR
 

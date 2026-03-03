@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Tsf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [tsf_signature](tsf_signature) |
+| **Signature**    | [tsf_signature](tsf_signature.md) |
 
 ### TL;DR
 

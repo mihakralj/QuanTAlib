@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Lema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [lema_signature](lema_signature) |
+| **Signature**    | [lema_signature](lema_signature.md) |
 
 ### TL;DR
 

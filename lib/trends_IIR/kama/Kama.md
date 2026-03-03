@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Kama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period + 1` bars                          |
-| **Signature**    | [kama_signature](kama_signature) |
+| **Signature**    | [kama_signature](kama_signature.md) |
 
 ### TL;DR
 

@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Cheby2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [cheby2_signature](cheby2_signature) |
+| **Signature**    | [cheby2_signature](cheby2_signature.md) |
 
 ### TL;DR
 

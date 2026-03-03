@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Butter2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `4 * period` bars                          |
-| **Signature**    | [butter2_signature](butter2_signature) |
+| **Signature**    | [butter2_signature](butter2_signature.md) |
 
 ### TL;DR
 

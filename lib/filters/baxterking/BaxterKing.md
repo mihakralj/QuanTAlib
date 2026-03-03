@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (BaxterKing)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [baxterking_signature](baxterking_signature) |
+| **Signature**    | [baxterking_signature](baxterking_signature.md) |
 
 ### TL;DR
 

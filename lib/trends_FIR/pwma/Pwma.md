@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Pwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [pwma_signature](pwma_signature) |
+| **Signature**    | [pwma_signature](pwma_signature.md) |
 
 ### TL;DR
 

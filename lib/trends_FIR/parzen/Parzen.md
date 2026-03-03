@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Parzen)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [parzen_signature](parzen_signature) |
+| **Signature**    | [parzen_signature](parzen_signature.md) |
 
 ### TL;DR
 

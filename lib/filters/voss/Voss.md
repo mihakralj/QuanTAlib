@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (VOSS)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [voss_signature](voss_signature) |
+| **Signature**    | [voss_signature](voss_signature.md) |
 
 ### TL;DR
 

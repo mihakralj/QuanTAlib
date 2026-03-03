@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Hann)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [hann_signature](hann_signature) |
+| **Signature**    | [hann_signature](hann_signature.md) |
 
 ### TL;DR
 

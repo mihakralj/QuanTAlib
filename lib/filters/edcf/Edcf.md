@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Edcf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [edcf_signature](edcf_signature) |
+| **Signature**    | [edcf_signature](edcf_signature.md) |
 
 ### TL;DR
 

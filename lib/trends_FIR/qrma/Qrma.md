@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Qrma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [qrma_signature](qrma_signature) |
+| **Signature**    | [qrma_signature](qrma_signature.md) |
 
 ### TL;DR
 

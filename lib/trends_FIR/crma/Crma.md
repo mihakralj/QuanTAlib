@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Crma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [crma_signature](crma_signature) |
+| **Signature**    | [crma_signature](crma_signature.md) |
 
 ### TL;DR
 

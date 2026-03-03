@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (Lanczos)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [lanczos_signature](lanczos_signature) |
+| **Signature**    | [lanczos_signature](lanczos_signature.md) |
 
 ### TL;DR
 

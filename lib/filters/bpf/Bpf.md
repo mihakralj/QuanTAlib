@@ -8,7 +8,7 @@
 | **Outputs**      | Single series (BPF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(lowerPeriod, upperPeriod)` bars                          |
-| **Signature**    | [bpf_signature](bpf_signature) |
+| **Signature**    | [bpf_signature](bpf_signature.md) |
 
 ### TL;DR
 
