@@ -36,7 +36,7 @@ Signal processing filters adapted for financial time series. These are not indic
 | [RLS](rls/Rls.md) | Recursive Least Squares | Inverse correlation matrix. Faster convergence than LMS. O(order²) per bar. |
 | [RMED](rmed/Rmed.md) | Ehlers Recursive Median Filter | Recursive median approximation via IIR structure. Outlier-resistant. |
 | [ROOFING](roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers. HP + SS cascade. Bandpass for cycle extraction. |
-| SAK | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS). Single framework. |
+| [SAK](sak/Sak.md) | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS). Single framework. |
 | [SGF](sgf/Sgf.md) | Savitzky-Golay | Polynomial smoothing. Preserves higher moments (derivatives). |
 | [SPBF](spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers. Wide-band bandpass via differenced EMAs with RMS envelope. |
 | [SSF2](ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers. 2-pole Butterworth variant. Standard cycle pre-filter. |

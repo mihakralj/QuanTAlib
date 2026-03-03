@@ -15,10 +15,10 @@ Basic mathematical transforms and utility functions for time series. These build
 | [EXPDIST](expdist/Expdist.md) | Exponential Distribution | Exponential probability distribution transform. |
 | [EXPTRANS](exptrans/Exptrans.md) | Exponential Transform | e^x transform for log-space conversion reversal. |
 | [FDIST](fdist/Fdist.md) | F-Distribution | Fisher-Snedecor probability distribution transform. |
-| FFT | Fast Fourier Transform | Frequency-domain decomposition via FFT algorithm. |
+| [FFT](fft/Fft.md) | Fast Fourier Transform | Frequency-domain decomposition via FFT algorithm. |
 | [GAMMADIST](gammadist/Gammadist.md) | Gamma Distribution | Gamma probability distribution transform. |
 | [HIGHEST](highest/Highest.md) | Rolling Maximum | Maximum value over lookback window. |
-| IFFT | Inverse Fast Fourier Transform | Frequency-to-time domain reconstruction. |
+| [IFFT](ifft/Ifft.md) | Inverse Fast Fourier Transform | Frequency-to-time domain reconstruction. |
 | [JERK](jerk/Jerk.md) | Jerk | Rate of acceleration; third derivative of price. |
 | [LINEARTRANS](lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling transformation. |
 | [LOGNORMDIST](lognormdist/Lognormdist.md) | Log-normal Distribution | Log-normal probability distribution transform. |

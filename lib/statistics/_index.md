@@ -37,7 +37,7 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [ZTEST](ztest/Ztest.md) | Z-Test | One-sample t-test statistic against hypothesized mean. |
 | [MEANDEV](meandev/MeanDev.md) | Mean Absolute Deviation | Outlier-robust dispersion. Core of CCI. MD ≈ 0.7979σ for normal data. |
 | [STDERR](stderr/Stderr.md) | Standard Error of Regression | OLS residual scatter over rolling window. Quantifies trend fit quality. |
-| POLYFIT | Polynomial Fitting | Least-squares polynomial regression. |
-| TRIM | Trimmed Mean MA | Mean after discarding extreme percentiles. |
-| WAVG | Weighted Average | Generic weighted mean. |
-| WINS | Winsorized Mean MA | Mean with extreme values clamped to percentile bounds. |
+| [POLYFIT](polyfit/Polyfit.md) | Polynomial Fitting | Least-squares polynomial regression. |
+| [TRIM](trim/Trim.md) | Trimmed Mean MA | Mean after discarding extreme percentiles. |
+| [WAVG](wavg/Wavg.md) | Weighted Average | Generic weighted mean. |
+| [WINS](wins/Wins.md) | Winsorized Mean MA | Mean with extreme values clamped to percentile bounds. |

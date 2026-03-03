@@ -10,8 +10,8 @@ Error metrics and loss functions for model/strategy evaluation. All error indica
 | :--- | :--- | :--- |
 | [HUBER](huber/Huber.md) | Huber Loss | Combines MSE and MAE. Configurable outlier threshold δ. |
 | [LOGCOSH](logcosh/Logcosh.md) | Log-Cosh Loss | Smooth approximation to MAE. Twice-differentiable. |
-| [MAE](mae/Mae.md) | Mean Absolute Error | Average of absolute differences. Robust baseline. |
 | [MAAPE](maape/Maape.md) | Mean Arctangent APE | Bounded percentage error using arctangent. Range: 0 to π/2. |
+| [MAE](mae/Mae.md) | Mean Absolute Error | Average of absolute differences. Robust baseline. |
 | [MAPD](mapd/Mapd.md) | Mean Absolute % Deviation | Percentage error relative to mean of actual and predicted. |
 | [MAPE](mape/Mape.md) | Mean Absolute % Error | Percentage error relative to actual. Unbounded when actual≈0. |
 | [MASE](mase/Mase.md) | Mean Absolute Scaled Error | Scale-free. Uses naive forecast as baseline. |
@@ -23,7 +23,7 @@ Error metrics and loss functions for model/strategy evaluation. All error indica
 | [MSE](mse/Mse.md) | Mean Squared Error | Squared differences. Penalizes large errors heavily. |
 | [MSLE](msle/Msle.md) | Mean Squared Log Error | MSE on log-transformed values. For multiplicative errors. |
 | [PSEUDOHUBER](pseudohuber/Pseudohuber.md) | Pseudo-Huber Loss | Smooth Huber approximation. Fully differentiable. |
-| [QUANTILE](quantile/Quantile.md) | Quantile Loss | Asymmetric loss for quantile regression. Pinball loss. |
+| [QUANTILELOSS](quantileloss/Quantileloss.md) | Quantile Loss | Asymmetric loss for quantile regression. Pinball loss. |
 | [RAE](rae/Rae.md) | Relative Absolute Error | Absolute error relative to mean predictor. |
 | [RMSE](rmse/Rmse.md) | Root Mean Squared Error | √MSE. Same units as input. Penalizes outliers. |
 | [RMSLE](rmsle/Rmsle.md) | Root Mean Squared Log Error | √MSLE. For multiplicative error structures. |
@@ -31,7 +31,6 @@ Error metrics and loss functions for model/strategy evaluation. All error indica
 | [RSQUARED](rsquared/Rsquared.md) | R² (Coefficient of Determination) | Variance explained. 1 = perfect. Can be negative. |
 | [SMAPE](smape/Smape.md) | Symmetric MAPE | Bounded 0-200%. Symmetric around zero. |
 | [THEILU](theilu/Theilu.md) | Theil's U Statistic | Forecast vs naive. <1 beats naive. >1 worse than naive. |
-| [TUKEY](tukey/Tukey.md) | Tukey Biweight Loss | Hard-rejects outliers beyond threshold. Redescending. |
+| [TUKEYBIWEIGHT](tukeybiweight/Tukeybiweight.md) | Tukey Biweight Loss | Hard-rejects outliers beyond threshold. Redescending. |
 | [WMAPE](wmape/Wmape.md) | Weighted MAPE | Volume-weighted percentage error. For heterogeneous data. |
 | [WRMSE](wrmse/Wrmse.md) | Weighted RMSE | Weighted root mean squared error. Custom observation weighting. |
-| STDERR | Standard Error | StdDev / √n. Measures sampling variability. |

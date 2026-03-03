@@ -4,11 +4,11 @@
 
 | Category                             |  Count  | Description                                      |
 | :----------------------------------- | :-----: | :----------------------------------------------- |
-| [Core](core/_index.md)               |    7    | Price transforms and fundamental building blocks |
+| [Core](core/_index.md)               |    8    | Price transforms and fundamental building blocks |
 | [Trends (FIR)](trends_FIR/_index.md) |   33    | Finite Impulse Response moving averages          |
 | [Trends (IIR)](trends_IIR/_index.md) |   36    | Infinite Impulse Response moving averages        |
 | [Filters](filters/_index.md)         |   37    | Signal processing filters                        |
-| [Oscillators](oscillators/_index.md) |   47    | Indicators that fluctuate around a center line   |
+| [Oscillators](oscillators/_index.md) |   48    | Indicators that fluctuate around a center line   |
 | [Dynamics](dynamics/_index.md)       |   21    | Trend strength and direction indicators          |
 | [Momentum](momentum/_index.md)       |   19    | Momentum-based indicators                        |
 | [Volatility](volatility/_index.md)   |   26    | Volatility estimators and indicators             |
@@ -20,7 +20,7 @@
 | [Forecasts](forecasts/_index.md)     |    1    | Predictive indicators                            |
 | [Errors](errors/_index.md)           |   26    | Error metrics and loss functions                 |
 | [Numerics](numerics/_index.md)       |   27    | Mathematical transformations                     |
-| **Total**                            | **395** |                                                  |
+| **Total**                            | **393** |                                                  |
 
 ## All Indicators
 
