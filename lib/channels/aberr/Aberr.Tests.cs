@@ -6,12 +6,12 @@ public class AberrTests
     public void Aberr_Constructor_ValidatesInput()
     {
         // Period validation
-        Assert.Throws<ArgumentException>(() => new Aberr(0));
-        Assert.Throws<ArgumentException>(() => new Aberr(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Aberr(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Aberr(-1));
 
         // Multiplier validation
-        Assert.Throws<ArgumentException>(() => new Aberr(10, 0));
-        Assert.Throws<ArgumentException>(() => new Aberr(10, -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Aberr(10, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Aberr(10, -1));
 
         // Valid construction
         var aberr = new Aberr(10);
@@ -382,15 +382,15 @@ public class AberrTests
         double[] lower = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentException>(() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
             Aberr.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
             Aberr.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), -1));
 
         // Multiplier must be > 0
-        Assert.Throws<ArgumentException>(() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
             Aberr.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 3, 0));
-        Assert.Throws<ArgumentException>(() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
             Aberr.Batch(source.AsSpan(), middle.AsSpan(), upper.AsSpan(), lower.AsSpan(), 3, -1));
 
         // Output buffers must be same length as input
