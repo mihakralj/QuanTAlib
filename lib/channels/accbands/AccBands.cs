@@ -474,6 +474,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// Public Span fields are intentional: ref structs cannot use auto-properties with Span&lt;T&gt;
     /// and direct field access provides optimal performance for this high-throughput API.
     /// </remarks>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
     public readonly ref struct BatchOutputs
@@ -509,10 +510,12 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
         public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Input buffers for batch AccBands calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
     public readonly ref struct BatchInputs
@@ -548,10 +551,12 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         public static bool operator ==(BatchInputs left, BatchInputs right) => left.Equals(right);
         public static bool operator !=(BatchInputs left, BatchInputs right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
     [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
@@ -576,10 +581,12 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
         public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Working buffers for batch calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
     private readonly ref struct WorkBuffers(Span<double> adjHigh, Span<double> adjLow, Span<double> close)
     {
@@ -600,6 +607,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         public static bool operator ==(WorkBuffers left, WorkBuffers right) => left.Equals(right);
         public static bool operator !=(WorkBuffers left, WorkBuffers right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Calculates AccBands for the entire TBarSeries using a new instance.

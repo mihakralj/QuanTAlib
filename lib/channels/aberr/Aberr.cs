@@ -412,6 +412,7 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     /// <summary>
     /// Output buffers for batch Aberr calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
     public readonly ref struct BatchOutputs
@@ -447,10 +448,12 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
         public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
     [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
@@ -471,10 +474,12 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
         public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Working buffers for batch calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
     private readonly ref struct WorkBuffers(Span<double> source, Span<double> deviation)
     {
@@ -492,6 +497,7 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         public static bool operator ==(WorkBuffers left, WorkBuffers right) => left.Equals(right);
         public static bool operator !=(WorkBuffers left, WorkBuffers right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Calculates Aberr for the entire TSeries using a new instance.

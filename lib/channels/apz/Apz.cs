@@ -411,6 +411,7 @@ public sealed class Apz : ITValuePublisher
     /// <summary>
     /// Output buffers for batch APZ calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
     public readonly ref struct BatchOutputs
@@ -446,10 +447,12 @@ public sealed class Apz : ITValuePublisher
         public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
         public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
+#pragma warning disable MA0077 // ref struct cannot implement interfaces
     [StructLayout(LayoutKind.Auto)]
     [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
@@ -476,6 +479,7 @@ public sealed class Apz : ITValuePublisher
         public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
         public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
+#pragma warning restore MA0077
 
     /// <summary>
     /// Calculates APZ for the entire TBarSeries using a new instance.

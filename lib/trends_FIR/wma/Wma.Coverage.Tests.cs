@@ -18,12 +18,12 @@ public class WmaCoverageTests(ITestOutputHelper output)
             source[i] = i;
         }
 
-        double[] output = new double[len];
+        double[] result = new double[len];
 
         // This should trigger CalculateScalarCore internally
-        Wma.Batch(source.AsSpan(), output.AsSpan(), period);
+        Wma.Batch(source.AsSpan(), result.AsSpan(), period);
 
-        Assert.NotEqual(0, output[period]);
+        Assert.NotEqual(0, result[period]);
     }
 
     [Fact]
@@ -94,11 +94,11 @@ public class WmaCoverageTests(ITestOutputHelper output)
             source[i] = i;
         }
 
-        double[] output = new double[len];
+        double[] result = new double[len];
 
-        InvokePrivateStaticMethod_WithSpans("CalculateScalarCore", source, output, period);
+        InvokePrivateStaticMethod_WithSpans("CalculateScalarCore", source, result, period);
 
-        Assert.NotEqual(0, output[period]);
+        Assert.NotEqual(0, result[period]);
     }
 
     private delegate void CoreDelegate(ReadOnlySpan<double> source, Span<double> output, int period);
