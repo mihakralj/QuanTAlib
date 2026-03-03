@@ -238,8 +238,6 @@ public sealed class Yzv : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         // For TSeries (price-only), create synthetic bars
@@ -259,8 +257,6 @@ public sealed class Yzv : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -268,8 +264,6 @@ public sealed class Yzv : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = new State(0, 1.0, 0, 0, 0, false);

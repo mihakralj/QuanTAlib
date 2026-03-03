@@ -127,6 +127,6 @@ public class CciIndicatorTests
     public void CciIndicator_ImplementsIWatchlistIndicator()
     {
         var indicator = new CciIndicator();
-        Assert.True(indicator is IWatchlistIndicator);
+        Assert.IsAssignableFrom<IWatchlistIndicator>(indicator);
     }
 }

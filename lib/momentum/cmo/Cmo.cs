@@ -36,8 +36,6 @@ public sealed class Cmo : AbstractBase
     private readonly TValuePublishedHandler _handler;
     private double _prevValue;
     private double _p_prevValue;
-
-    /// <inheritdoc/>
     public override bool IsHot => _upBuffer.IsFull;
 
     /// <summary>
@@ -72,9 +70,6 @@ public sealed class Cmo : AbstractBase
     {
         source.Pub += _handler;
     }
-
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -131,8 +126,6 @@ public sealed class Cmo : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
@@ -167,8 +160,6 @@ public sealed class Cmo : AbstractBase
     {
         Update(args.Value, args.IsNew);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
@@ -290,8 +281,6 @@ public sealed class Cmo : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _upBuffer.Clear();
@@ -300,8 +289,6 @@ public sealed class Cmo : AbstractBase
         _p_prevValue = double.NaN;
         Last = default;
     }
-
-    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

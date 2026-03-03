@@ -8,14 +8,14 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
 
 [![Indicators](https://img.shields.io/badge/%23%20Indicators-393-blue?style=flat-square)](lib/_index.md)
-[![Classes](ndepend/badges/classes.svg)](ndepend/ndependout/ndependreport.html)
-[![Files](ndepend/badges/files.svg)](ndepend/ndependout/ndependreport.html)
-[![Methods](ndepend/badges/methods.svg)](ndepend/ndependout/ndependreport.html)
-[![Lines of Code](ndepend/badges/loc.svg)](ndepend/ndependout/ndependreport.html)  
-[![Public APIs](ndepend/badges/public-api.svg)](ndepend/ndependout/ndependreport.html)
-[![Comments](ndepend/badges/comments.svg)](ndepend/ndependout/ndependreport.html)
+[![Classes](docs/img/classes.svg)](docs/ndepend.md)
+[![Files](docs/img/files.svg)](docs/ndepend.md)
+[![Methods](docs/img/methods.svg)](docs/ndepend.md)
+[![Lines of Code](docs/img/loc.svg)](docs/ndepend.md)
+[![Public APIs](docs/img/public-api.svg)](docs/ndepend.md)
+[![Comments](docs/img/comments.svg)](docs/ndepend.md)
 
-Static code analysis provided by [ndepend](https://www.ndepend.com/)  
+Static code analysis provided by [ndepend](https://www.ndepend.com/)
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 

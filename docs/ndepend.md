@@ -73,7 +73,7 @@ This script:
 1. Builds the solution in Release configuration
 2. Runs NDepend analysis against the compiled assemblies
 3. Generates the HTML report at `ndepend/NDependOut/NDependReport.html`
-4. Updates quality gate badges in `ndepend/badges/`
+4. Updates quality gate badges in `docs/img/`
 
 **Prerequisites:** NDepend license (set `NDEPEND_LICENSE` environment variable). Without a license, the script runs but produces warnings instead of full analysis.
 

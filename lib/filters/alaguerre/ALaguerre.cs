@@ -117,13 +117,9 @@ public sealed class ALaguerre : AbstractBase
         }
         source.Pub += Handle;
     }
-
-    /// <inheritdoc/>
     public override bool IsHot => _s.Count >= WarmupPeriod;
 
     private const int StackAllocThreshold = 512;
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -203,8 +199,6 @@ public sealed class ALaguerre : AbstractBase
         }
         return _lastValidValue;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -230,8 +224,6 @@ public sealed class ALaguerre : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -571,8 +563,6 @@ public sealed class ALaguerre : AbstractBase
             coeffBuf, ref cHead, ref cCount,
             ref state, ref lastValid);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = State.New();

@@ -287,13 +287,6 @@ public class CcycTests
 
         Assert.Equal(source.Count, batchResults.Count);
 
-        // Compare last 50 values
-        for (int i = source.Count - 50; i < source.Count; i++)
-        {
-            // Streaming processes all bars and streaming result is the last one
-            // But for exact comparison, batch results should match streaming approach
-        }
-
         // The batch method creates a fresh indicator and calls Update(TSeries),
         // which processes sequentially — should match streaming exactly
         var ccyc2 = new Ccyc();

@@ -108,11 +108,7 @@ public sealed class Reflex : AbstractBase
         }
         source.Pub += Handle;
     }
-
-    /// <inheritdoc/>
     public override bool IsHot => _s.Count >= _period;
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -160,8 +156,6 @@ public sealed class Reflex : AbstractBase
         }
         return s.LastValid;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -183,8 +177,6 @@ public sealed class Reflex : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -396,8 +388,6 @@ public sealed class Reflex : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = State.New();

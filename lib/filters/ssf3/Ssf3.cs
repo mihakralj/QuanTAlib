@@ -33,7 +33,7 @@ public sealed class Ssf3 : AbstractBase
         CalculateCoefficients();
         Name = $"Ssf3({_period})";
         WarmupPeriod = 6 * period;
-        _handler = new TValuePublishedHandler(Handle);
+        _handler = Handle;
         Init();
     }
 

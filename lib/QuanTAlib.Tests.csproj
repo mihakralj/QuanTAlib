@@ -8,6 +8,7 @@
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CS8892</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/ooplesfinance_stockindicators/api/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <ItemGroup>

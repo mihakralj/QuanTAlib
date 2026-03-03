@@ -92,9 +92,9 @@ public class JvoltynValidationTests
 
         // Calculate logParam manually to verify normalization
         double lengthParam = (DefaultPeriod - 1.0) / 2.0;
-        double logParam = System.Math.Log(System.Math.Sqrt(lengthParam)) / System.Math.Log(2.0);
+        double logParam = Math.Log(Math.Sqrt(lengthParam)) / Math.Log(2.0);
         logParam = (logParam + 2.0) < 0.0 ? 0.0 : (logParam + 2.0);
-        double normFactor = System.Math.Abs(logParam - 1.0) > 1e-10 ? 100.0 / (logParam - 1.0) : 0.0;
+        double normFactor = Math.Abs(logParam - 1.0) > 1e-10 ? 100.0 / (logParam - 1.0) : 0.0;
 
         for (int i = 0; i < series.Count; i++)
         {

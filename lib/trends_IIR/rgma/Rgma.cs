@@ -47,8 +47,6 @@ public sealed class Rgma : AbstractBase
     private const double COVERAGE_THRESHOLD = 0.05;
     private const int ResyncInterval = 10000;
     private const int StackAllocThreshold = 512;
-
-    /// <inheritdoc/>
     public override bool IsHot => _state.IsHot;
 
     /// <summary>
@@ -112,8 +110,6 @@ public sealed class Rgma : AbstractBase
         }
         return _lastValidValue;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -190,8 +186,6 @@ public sealed class Rgma : AbstractBase
             }
         }
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -234,8 +228,6 @@ public sealed class Rgma : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -463,8 +455,6 @@ public sealed class Rgma : AbstractBase
         TSeries results = rgma.Update(source);
         return (results, rgma);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _state = State.New();
@@ -475,8 +465,6 @@ public sealed class Rgma : AbstractBase
         Array.Fill(_p_filters, double.NaN);
         Last = default;
     }
-
-    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (!_disposed)

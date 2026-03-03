@@ -269,8 +269,8 @@ public sealed class Dchannel : ITValuePublisher
 
         try
         {
-            QuanTAlib.Highest.Batch(high, top.AsSpan(0, len), period);
-            QuanTAlib.Lowest.Batch(low, bot.AsSpan(0, len), period);
+            Highest.Batch(high, top.AsSpan(0, len), period);
+            Lowest.Batch(low, bot.AsSpan(0, len), period);
 
             for (int i = 0; i < len; i++)
             {

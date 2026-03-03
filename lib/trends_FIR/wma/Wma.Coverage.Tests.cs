@@ -1,9 +1,10 @@
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class WmaCoverageTests
+public class WmaCoverageTests(ITestOutputHelper output)
 {
     [Fact]
     public void Cover_Scalar_Fallback_SmallData()
@@ -41,7 +42,7 @@ public class WmaCoverageTests
             source[i] = i;
         }
 
-        double[] output = new double[len];
+        double[] result = new double[len];
 
         // Use reflection to invoke private static CalculateSimdCore
         var method = typeof(Wma).GetMethod("CalculateSimdCore", BindingFlags.NonPublic | BindingFlags.Static);
@@ -73,12 +74,12 @@ public class WmaCoverageTests
             // Maybe I can use `MethodInfo.CreateDelegate`?
             // Delegates can take Spans if defined correctly.
 
-            InvokePrivateStaticMethod_WithSpans("CalculateSimdCore", source, output, period);
+            InvokePrivateStaticMethod_WithSpans("CalculateSimdCore", source, result, period);
         }
         catch (Exception ex)
         {
             // If reflection fails, we can't cover it.
-            Console.WriteLine($"Could not invoke AVX2 core: {ex.Message}");
+            output.WriteLine($"Could not invoke AVX2 core: {ex.Message}");
         }
     }
 

@@ -10,4 +10,7 @@
   <Folder Name="/python/">
     <Project Path="python/python.csproj" />
   </Folder>
+  <Properties Name="NDepend">
+    <Property Name="Project" Value="&quot;.\ndepend\quantalib.ndproj&quot;" />
+  </Properties>
 </Solution>

@@ -528,14 +528,14 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private ref struct ScalarState
     {
-        public double SumAdjHigh;
-        public double SumAdjLow;
-        public double SumClose;
-        public double LastValidHigh;
-        public double LastValidLow;
-        public double LastValidClose;
-        public int BufferIndex;
-        public int TickCount;
+        internal double SumAdjHigh;
+        internal double SumAdjLow;
+        internal double SumClose;
+        internal double LastValidHigh;
+        internal double LastValidLow;
+        internal double LastValidClose;
+        internal int BufferIndex;
+        internal int TickCount;
     }
 
     /// <summary>
@@ -544,9 +544,9 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private readonly ref struct WorkBuffers(Span<double> adjHigh, Span<double> adjLow, Span<double> close)
     {
-        public readonly Span<double> AdjHigh = adjHigh;
-        public readonly Span<double> AdjLow = adjLow;
-        public readonly Span<double> Close = close;
+        internal readonly Span<double> AdjHigh = adjHigh;
+        internal readonly Span<double> AdjLow = adjLow;
+        internal readonly Span<double> Close = close;
     }
 
     /// <summary>

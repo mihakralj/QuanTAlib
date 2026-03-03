@@ -113,15 +113,11 @@ public sealed class Correlation : AbstractBase
     {
         return Update(new TValue(DateTime.MinValue, seriesX), new TValue(DateTime.MinValue, seriesY), isNew);
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesX, seriesY) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Correlation requires two inputs (seriesX and seriesY). Use Update(seriesX, seriesY).");
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesX, seriesY, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -263,8 +259,6 @@ public sealed class Correlation : AbstractBase
             _sumXY = FusedMultiplyAdd(x, y, _sumXY);
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Correlation requires two inputs.");

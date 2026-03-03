@@ -117,8 +117,6 @@ public sealed class Ha : AbstractBase
 
         return result;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -204,8 +202,6 @@ public sealed class Ha : AbstractBase
         PubEvent(Last, isNew);
         return LastBar;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -213,8 +209,6 @@ public sealed class Ha : AbstractBase
             Update(new TValue(DateTime.UtcNow.Ticks, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = default;

@@ -78,8 +78,6 @@ public sealed class Dpo : AbstractBase
     /// Displacement of the SMA lookback.
     /// </summary>
     public int Displacement => _displacement;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -141,8 +139,6 @@ public sealed class Dpo : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -164,8 +160,6 @@ public sealed class Dpo : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -173,8 +167,6 @@ public sealed class Dpo : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _smaBuffer.Clear();

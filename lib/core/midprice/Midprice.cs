@@ -135,8 +135,6 @@ public sealed class Midprice : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         var result = new TSeries(source.Count);
@@ -178,8 +176,6 @@ public sealed class Midprice : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
@@ -191,8 +187,6 @@ public sealed class Midprice : AbstractBase
             time += interval;
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _highBuffer.Clear();

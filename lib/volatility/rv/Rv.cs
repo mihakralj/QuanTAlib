@@ -196,8 +196,6 @@ public sealed class Rv : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -320,8 +318,6 @@ public sealed class Rv : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -329,8 +325,6 @@ public sealed class Rv : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = new State(double.NaN, 0, 0, 0);

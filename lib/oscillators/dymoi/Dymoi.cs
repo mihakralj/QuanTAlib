@@ -143,8 +143,6 @@ public sealed class Dymoi : AbstractBase
 
     /// <summary>Maximum allowable dynamic period.</summary>
     public int MaxPeriod => _maxPeriod;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -276,8 +274,6 @@ public sealed class Dymoi : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -302,8 +298,6 @@ public sealed class Dymoi : AbstractBase
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -311,8 +305,6 @@ public sealed class Dymoi : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = new State(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0, true, double.NaN, double.NaN);

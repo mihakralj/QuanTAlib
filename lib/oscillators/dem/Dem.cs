@@ -278,7 +278,6 @@ public sealed class Dem : ITValuePublisher
             double prevHigh = double.NaN;
             double prevLow = double.NaN;
             int idx = 0;
-            int count = 0;
 
             for (int i = 0; i < len; i++)
             {
@@ -302,7 +301,6 @@ public sealed class Dem : ITValuePublisher
                 deMinSum += deMin;
 
                 idx = (idx + 1) % period;
-                count++;
                 prevHigh = h;
                 prevLow = l;
 

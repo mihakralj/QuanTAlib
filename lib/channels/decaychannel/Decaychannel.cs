@@ -16,8 +16,8 @@ public sealed class Decaychannel : ITValuePublisher
     private readonly double _decayLambda;
     private readonly double[] _hBuf;
     private readonly double[] _lBuf;
-    private readonly double[] _hBuf_prev;
-    private readonly double[] _lBuf_prev;
+    private readonly double[] _hBufPrev;
+    private readonly double[] _lBufPrev;
 
     private int _count;
     private long _index;
@@ -42,7 +42,7 @@ public sealed class Decaychannel : ITValuePublisher
         long Index);
 
     private State _state;
-    private State _p_state;
+    private State _pState;
 
     private readonly TBarPublishedHandler _barHandler;
 
@@ -66,8 +66,8 @@ public sealed class Decaychannel : ITValuePublisher
         _decayLambda = Math.Log(2.0) / period;
         _hBuf = new double[_period];
         _lBuf = new double[_period];
-        _hBuf_prev = new double[_period];
-        _lBuf_prev = new double[_period];
+        _hBufPrev = new double[_period];
+        _lBufPrev = new double[_period];
         _count = 0;
         _index = -1;
         _currentMax = double.NaN;
@@ -78,7 +78,7 @@ public sealed class Decaychannel : ITValuePublisher
         _minAge = 0;
 
         _state = new State(double.NaN, double.NaN, double.NaN, double.NaN, 0, 0, double.NaN, double.NaN, 0, -1);
-        _p_state = _state;
+        _pState = _state;
 
         Name = $"Decaychannel({period})";
         WarmupPeriod = period;
@@ -135,25 +135,25 @@ public sealed class Decaychannel : ITValuePublisher
             _index);
 
         // Save buffer contents
-        Array.Copy(_hBuf, _hBuf_prev, _period);
-        Array.Copy(_lBuf, _lBuf_prev, _period);
+        Array.Copy(_hBuf, _hBufPrev, _period);
+        Array.Copy(_lBuf, _lBufPrev, _period);
     }
 
     private void RestoreState()
     {
-        _currentMax = _p_state.CurrentMax;
-        _currentMin = _p_state.CurrentMin;
-        _maxAge = _p_state.MaxAge;
-        _minAge = _p_state.MinAge;
-        _rawMax = _p_state.RawMax;
-        _rawMin = _p_state.RawMin;
-        _count = _p_state.Count;
-        _index = _p_state.Index;
-        _state = _p_state;
+        _currentMax = _pState.CurrentMax;
+        _currentMin = _pState.CurrentMin;
+        _maxAge = _pState.MaxAge;
+        _minAge = _pState.MinAge;
+        _rawMax = _pState.RawMax;
+        _rawMin = _pState.RawMin;
+        _count = _pState.Count;
+        _index = _pState.Index;
+        _state = _pState;
 
         // Restore buffer contents
-        Array.Copy(_hBuf_prev, _hBuf, _period);
-        Array.Copy(_lBuf_prev, _lBuf, _period);
+        Array.Copy(_hBufPrev, _hBuf, _period);
+        Array.Copy(_lBufPrev, _lBuf, _period);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,7 +200,7 @@ public sealed class Decaychannel : ITValuePublisher
         {
             // Save state BEFORE advancing (this is state from end of previous bar)
             SaveState();
-            _p_state = _state;
+            _pState = _state;
 
             // Now advance to new bar
             _index++;
@@ -379,8 +379,8 @@ public sealed class Decaychannel : ITValuePublisher
     {
         Array.Clear(_hBuf);
         Array.Clear(_lBuf);
-        Array.Clear(_hBuf_prev);
-        Array.Clear(_lBuf_prev);
+        Array.Clear(_hBufPrev);
+        Array.Clear(_lBufPrev);
         _count = 0;
         _index = -1;
         _currentMax = double.NaN;
@@ -390,7 +390,7 @@ public sealed class Decaychannel : ITValuePublisher
         _maxAge = 0;
         _minAge = 0;
         _state = new State(double.NaN, double.NaN, double.NaN, double.NaN, 0, 0, double.NaN, double.NaN, 0, -1);
-        _p_state = _state;
+        _pState = _state;
         Last = default;
         Upper = default;
         Lower = default;
@@ -436,8 +436,8 @@ public sealed class Decaychannel : ITValuePublisher
 
         try
         {
-            QuanTAlib.Highest.Batch(high, rawMaxArr.AsSpan(0, len), period);
-            QuanTAlib.Lowest.Batch(low, rawMinArr.AsSpan(0, len), period);
+            Highest.Batch(high, rawMaxArr.AsSpan(0, len), period);
+            Lowest.Batch(low, rawMinArr.AsSpan(0, len), period);
 
             double currentMax = double.NaN;
             double currentMin = double.NaN;

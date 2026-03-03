@@ -37,16 +37,10 @@ public sealed class Va : ITValuePublisher
 
     private State _s;
     private State _ps;
-
-    /// <inheritdoc/>
     public TValue Last { get; private set; }
-    /// <inheritdoc/>
     public bool IsHot => _s.Index >= 1;
-    /// <inheritdoc/>
     public static int WarmupPeriod => 1;
-    /// <inheritdoc/>
     public string Name { get; }
-    /// <inheritdoc/>
     public event TValuePublishedHandler? Pub;
 
     /// <summary>

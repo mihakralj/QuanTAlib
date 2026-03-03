@@ -230,8 +230,6 @@ public sealed class Gator : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
@@ -257,8 +255,6 @@ public sealed class Gator : AbstractBase
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -555,8 +551,6 @@ public sealed class Gator : AbstractBase
             }
         }
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Reset()
     {

@@ -90,8 +90,6 @@ public sealed class Nlma : AbstractBase
         _isNew = isNew;
         return UpdateCore(input, isNew, publish: true);
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
@@ -326,8 +324,6 @@ public sealed class Nlma : AbstractBase
     }
 
     // ── Prime / Batch / Calculate ──────────────────────────────────────
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
@@ -489,8 +485,6 @@ public sealed class Nlma : AbstractBase
     }
 
     // ── Reset / Dispose ────────────────────────────────────────────────
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();
@@ -498,8 +492,6 @@ public sealed class Nlma : AbstractBase
         _p_lastValidValue = double.NaN;
         Last = default;
     }
-
-    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (!_disposed)

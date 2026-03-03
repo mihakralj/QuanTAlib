@@ -96,12 +96,12 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     {
         if (period <= 0)
         {
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
+            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
         }
 
         if (multiplier <= 0)
         {
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+            throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be greater than 0");
         }
 
         _period = period;
@@ -132,13 +132,13 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         _source.Pub += _handler;
     }
 
-    private void HandleValue(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void HandleValue(object? _, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// Helper to invoke the Pub event.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void PubEvent(TValue value, bool isNew = true)
+    private void PubEvent(TValue value, bool isNew)
     {
         Pub?.Invoke(this, new TValueEventArgs { Value = value, IsNew = isNew });
     }
@@ -301,7 +301,8 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         }
         else
         {
-            double recalcSumSource = 0, recalcSumDeviation = 0;
+            double recalcSumSource = 0;
+            double recalcSumDeviation = 0;
             for (int k = 0; k < period; k++)
             {
                 recalcSumSource += buffers.Source[k];
@@ -439,11 +440,11 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private ref struct ScalarState
     {
-        public double SumSource;
-        public double SumDeviation;
-        public double LastValidValue;
-        public int BufferIndex;
-        public int TickCount;
+        internal double SumSource;
+        internal double SumDeviation;
+        internal double LastValidValue;
+        internal int BufferIndex;
+        internal int TickCount;
     }
 
     /// <summary>
@@ -452,8 +453,8 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private readonly ref struct WorkBuffers(Span<double> source, Span<double> deviation)
     {
-        public readonly Span<double> Source = source;
-        public readonly Span<double> Deviation = deviation;
+        internal readonly Span<double> Source = source;
+        internal readonly Span<double> Deviation = deviation;
     }
 
     /// <summary>
@@ -510,12 +511,12 @@ public sealed class Aberr : ITValuePublisher, IDisposable
 
         if (period <= 0)
         {
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
+            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
         }
 
         if (multiplier <= 0)
         {
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+            throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be greater than 0");
         }
 
         if (len == 0)
@@ -701,5 +702,6 @@ public sealed class Aberr : ITValuePublisher, IDisposable
             }
             _disposed = true;
         }
+        GC.SuppressFinalize(this);
     }
 }

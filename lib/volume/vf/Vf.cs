@@ -36,16 +36,10 @@ public sealed class Vf : ITValuePublisher
     private State _ps;
     private readonly int _period;
     private readonly double _alpha;
-
-    /// <inheritdoc/>
     public TValue Last { get; private set; }
-    /// <inheritdoc/>
     public bool IsHot => _s.Index >= _period;
-    /// <inheritdoc/>
     public int WarmupPeriod => _period;
-    /// <inheritdoc/>
     public string Name { get; }
-    /// <inheritdoc/>
     public event TValuePublishedHandler? Pub;
 
     /// <summary>

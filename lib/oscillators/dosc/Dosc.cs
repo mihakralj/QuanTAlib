@@ -143,11 +143,7 @@ public sealed class Dosc : AbstractBase
         }
         source.Pub += Handle;
     }
-
-    /// <inheritdoc/>
     public override bool IsHot => _s.Count >= WarmupPeriod;
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -195,8 +191,6 @@ public sealed class Dosc : AbstractBase
         }
         return s.LastValidSrc;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -226,8 +220,6 @@ public sealed class Dosc : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -428,8 +420,6 @@ public sealed class Dosc : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = State.New();

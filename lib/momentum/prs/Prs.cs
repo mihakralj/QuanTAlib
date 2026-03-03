@@ -145,15 +145,11 @@ public sealed class Prs : AbstractBase
     {
         return Update(new TValue(DateTime.UtcNow, baseValue), new TValue(DateTime.UtcNow, compValue), isNew);
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Update(baseValue, compValue) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("PRS requires two inputs (base and comparison). Use Update(baseValue, compValue).");
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Calculate(baseSeries, compSeries, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -240,8 +236,6 @@ public sealed class Prs : AbstractBase
 
         return _ema;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("PRS requires two inputs. Use Prime(baseSource, compSource).");

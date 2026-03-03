@@ -683,7 +683,7 @@ public class TrValidationTests
         Tr.Batch(high, low, close, qOutput);
 
         // Use ValidationHelper for correct TALib index mapping
-        QuanTAlib.Tests.ValidationHelper.VerifyData(qOutput, output, outRange, lookback);
+        ValidationHelper.VerifyData(qOutput, output, outRange, lookback);
     }
 
     [Fact]

@@ -16,12 +16,12 @@ internal readonly record struct ParsedOhlcv(long Time, double Open, double High,
 [StructLayout(LayoutKind.Auto)]
 internal ref struct OhlcvParseState
 {
-    public long Time;
-    public double Open;
-    public double High;
-    public double Low;
-    public double Close;
-    public double Volume;
+    internal long Time;
+    internal double Open;
+    internal double High;
+    internal double Low;
+    internal double Close;
+    internal double Volume;
 }
 
 /// <summary>

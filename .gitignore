@@ -36,9 +36,8 @@ bld/
 *.coverage
 *.coveragexml
 
-# NDepend
-ndepend/NDependOut/
-ndepend/coverage/
+# NDepend (entire directory — tooling + generated output)
+ndepend/
 
 # BenchmarkDotNet
 BenchmarkDotNet.Artifacts/
@@ -49,7 +48,7 @@ BenchmarkDotNet.Artifacts/
 
 # Temporary files and agent workspace
 temp/
-temp_pandas_ta/
+pandas_ta/
 temp_decompile/
 Invoke-WebRequest/
 .temp/

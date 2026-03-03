@@ -232,19 +232,6 @@ public sealed class Cfitz : AbstractBase
         return weightedSum;
     }
 
-    /// <summary>
-    /// Computes the ideal band-pass weight B_j for lag j.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double IdealWeight(double wl, double wh, int j)
-    {
-        if (j == 0)
-        {
-            return (wh - wl) / Math.PI;
-        }
-        return (Math.Sin(j * wh) - Math.Sin(j * wl)) / (Math.PI * j);
-    }
-
     public static TSeries Batch(TSeries source, int pLow = 6, int pHigh = 32)
     {
         double[] input = source.Values.ToArray();

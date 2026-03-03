@@ -62,14 +62,10 @@ public sealed class Psl : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
-
-    /// <inheritdoc/>
     public override bool IsHot => _buffer.IsFull;
 
     /// <summary>Period of the indicator.</summary>
     public int Period => _period;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -126,8 +122,6 @@ public sealed class Psl : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -146,8 +140,6 @@ public sealed class Psl : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         TimeSpan interval = step ?? TimeSpan.FromTicks(1);
@@ -157,8 +149,6 @@ public sealed class Psl : AbstractBase
             Update(new TValue(baseTime + (interval * i), source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();

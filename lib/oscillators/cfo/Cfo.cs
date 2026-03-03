@@ -81,8 +81,6 @@ public sealed class Cfo : AbstractBase
     /// Period of the indicator.
     /// </summary>
     public int Period => _period;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -153,8 +151,6 @@ public sealed class Cfo : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -191,8 +187,6 @@ public sealed class Cfo : AbstractBase
             _state.SumXY += i * v;
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -200,8 +194,6 @@ public sealed class Cfo : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();

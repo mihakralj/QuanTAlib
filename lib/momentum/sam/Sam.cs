@@ -36,7 +36,6 @@ public sealed class Sam : AbstractBase
     private readonly double _ssC3;
 
     private const double TwoPi = 2.0 * Math.PI;
-    private const double HalfPi = Math.PI / 2.0;
     private const double Sqrt2 = 1.4142135623730951;
     private const int MaxCyclePeriod = 50;
     private const int MinCyclePeriod = 6;

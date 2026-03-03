@@ -58,18 +58,6 @@ public class VwapsdIndicator : Indicator, IWatchlistIndicator
         base.OnInit();
     }
 
-    private void UpdateSeriesNames()
-    {
-        if (UpperSeries != null)
-        {
-            UpperSeries.Name = $"Upper (+{NumDevs:F1}σ)";
-        }
-        if (LowerSeries != null)
-        {
-            LowerSeries.Name = $"Lower (-{NumDevs:F1}σ)";
-        }
-    }
-
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[0, SeekOriginHistory.End];

@@ -278,53 +278,53 @@ public sealed class Gauss : AbstractBase
                 weights[i] *= invSum;
             }
 
-        // Apply filter
-        for (int i = 0; i < source.Length; i++)
-        {
-            double result = 0;
-            double wSum = 0;
+           // Apply filter
+           for (int i = 0; i < source.Length; i++)
+           {
+               double result = 0;
+               double wSum = 0;
 
-            // This loop logic matches the RingBuffer partial fill logic.
-            // If i < kernelSize, we don't have enough history.
-            // The available history is source[0]...source[i].
-            // This history maps to the END of the kernel weights.
-            // E.g. if we have only 1 item (index i=0), it corresponds to weights[kernelSize-1].
+               // This loop logic matches the RingBuffer partial fill logic.
+               // If i < kernelSize, we don't have enough history.
+               // The available history is source[0]...source[i].
+               // This history maps to the END of the kernel weights.
+               // E.g. if we have only 1 item (index i=0), it corresponds to weights[kernelSize-1].
 
-            int count = Math.Min(i + 1, kernelSize);
+               int count = Math.Min(i + 1, kernelSize);
 
-            for (int j = 0; j < count; j++)
-            {
-                // Source index: i - (count - 1) + j
-                // if j=0, source index is i - count + 1. 
-                // if count=kernelSize, init index is i - kernelSize + 1.
-                // if count=1 (i=0), init index is 0.
+               for (int j = 0; j < count; j++)
+               {
+                   // Source index: i - (count - 1) + j
+                   // if j=0, source index is i - count + 1.
+                   // if count=kernelSize, init index is i - kernelSize + 1.
+                   // if count=1 (i=0), init index is 0.
 
-                int srcIdx = i - (count - 1) + j;
-                double val = source[srcIdx];
+                   int srcIdx = i - (count - 1) + j;
+                   double val = source[srcIdx];
 
-                if (!double.IsNaN(val))
-                {
-                    // Weight index:
-                    // If full buffer, we use full weights 0..kernelSize-1.
-                    // If partial, we align to end of weights.
-                    // j=0 (oldest available) -> weights[kernelSize - count]
-                    int weightIdx = kernelSize - count + j;
+                   if (!double.IsNaN(val))
+                   {
+                       // Weight index:
+                       // If full buffer, we use full weights 0..kernelSize-1.
+                       // If partial, we align to end of weights.
+                       // j=0 (oldest available) -> weights[kernelSize - count]
+                       int weightIdx = kernelSize - count + j;
 
-                    double w = weights[weightIdx];
-                    result += val * w;
-                    wSum += w;
-                }
-            }
+                       double w = weights[weightIdx];
+                       result += val * w;
+                       wSum += w;
+                   }
+               }
 
-            if (wSum > 0)
-            {
-                output[i] = result / wSum;
-            }
-            else
-            {
-                output[i] = double.NaN;
-            }
-        }
+               if (wSum > 0)
+               {
+                   output[i] = result / wSum;
+               }
+               else
+               {
+                   output[i] = double.NaN;
+               }
+           }
         }
         finally
         {

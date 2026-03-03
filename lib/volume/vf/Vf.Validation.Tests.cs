@@ -110,7 +110,7 @@ public class VfValidationTests
         vfHigh.Update(bar2High, isNew: true);
 
         // Higher volume should produce larger absolute VF
-        Assert.True(System.Math.Abs(vfHigh.Last.Value) > System.Math.Abs(vfLow.Last.Value),
+        Assert.True(Math.Abs(vfHigh.Last.Value) > Math.Abs(vfLow.Last.Value),
             $"High volume VF ({vfHigh.Last.Value}) should exceed low volume VF ({vfLow.Last.Value})");
     }
 

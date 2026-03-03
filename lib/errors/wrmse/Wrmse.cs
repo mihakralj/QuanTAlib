@@ -187,26 +187,18 @@ public sealed class Wrmse : AbstractBase
     {
         return Update(actual, predicted, DefaultWeight, isNew);
     }
-
-    /// <inheritdoc/>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("WRMSE requires two inputs. Use Update(actual, predicted) or Update(actual, predicted, weight).");
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         throw new NotSupportedException("WRMSE requires two inputs. Use Batch(actualSeries, predictedSeries, period) or Batch(actualSeries, predictedSeries, weightsSeries, period).");
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("WRMSE requires two inputs.");
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _weightedErrorBuffer.Clear();

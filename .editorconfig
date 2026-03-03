@@ -20,12 +20,43 @@ resharper_for_can_be_converted_to_foreach_highlighting = none
 resharper_unused_parameter_local_highlighting = none
 resharper_conditional_access_qualifier_is_non_nullable_according_to_api_contract_highlighting = none
 resharper_redundant_lambda_parameter_type_highlighting = none
+resharper_not_accessed_positional_property_local_highlighting = none
+resharper_possible_loss_of_fraction_highlighting = hint
+
+# Suppress JB InspectCode false positives / intentional patterns
+resharper_unused_method_return_value_local_highlighting = none
+resharper_member_initializer_value_ignored_highlighting = none
+resharper_redundant_explicit_array_creation_highlighting = hint
+resharper_with_expression_modifies_all_members_highlighting = hint
+resharper_redundant_delegate_creation_highlighting = hint
+resharper_redundant_default_member_initializer_highlighting = hint
+resharper_redundant_empty_switch_section_highlighting = hint
+resharper_empty_for_statement_highlighting = hint
+resharper_using_statement_resource_initialization_highlighting = hint
+resharper_unused_member_local_highlighting = hint
+resharper_not_accessed_variable_highlighting = hint
+resharper_private_field_can_be_converted_to_local_variable_highlighting = hint
+resharper_collection_never_queried_local_highlighting = hint
+resharper_unused_auto_property_accessor_local_highlighting = hint
+resharper_unused_tuple_component_in_return_value_highlighting = hint
+resharper_convert_type_check_to_null_check_highlighting = hint
+resharper_redundant_name_qualifier_highlighting = hint
+resharper_redundant_suppress_nullable_warning_expression_highlighting = hint
+resharper_possible_null_reference_exception_highlighting = hint
+resharper_assign_null_to_not_null_attribute_highlighting = hint
+resharper_default_struct_equality_is_used_global_highlighting = hint
+dotnet_diagnostic.CS0628.severity = none
+dotnet_diagnostic.CS8602.severity = none
+dotnet_diagnostic.CS8601.severity = none
+dotnet_diagnostic.CS0660.severity = none
+dotnet_diagnostic.CS0661.severity = none
 
 resharper_redundant_cast_highlighting = hint
 resharper_redundant_assignment_highlighting = hint
 resharper_not_accessed_field_local_highlighting = hint
 resharper_unused_auto_property_accessor_global_highlighting = hint
 resharper_condition_is_always_true_or_false_highlighting = hint
+resharper_condition_is_always_true_or_false_according_to_nullable_api_contract_highlighting = hint
 resharper_access_to_modified_closure_highlighting = hint
 resharper_generic_enumerator_not_disposed_highlighting = hint
 
@@ -84,6 +115,10 @@ dotnet_diagnostic.IDE0011.severity = warning
 csharp_style_var_for_built_in_types = false:silent
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = false:silent
+
+[python/src/**.cs]
+resharper_enforce_if_statement_braces_highlighting = none
+csharp_prefer_braces = false:silent
 
 [ndepend/**]
 dotnet_analyzer_diagnostic.severity = none

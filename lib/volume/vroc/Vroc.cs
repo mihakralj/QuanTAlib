@@ -34,16 +34,10 @@ public sealed class Vroc : ITValuePublisher
     private readonly bool _usePercent;
     private readonly double[] _buffer;
     private double[]? _pBuffer;
-
-    /// <inheritdoc/>
     public TValue Last { get; private set; }
-    /// <inheritdoc/>
     public bool IsHot => _s.Index > _period;
-    /// <inheritdoc/>
     public int WarmupPeriod => _period + 1;
-    /// <inheritdoc/>
     public string Name { get; }
-    /// <inheritdoc/>
     public event TValuePublishedHandler? Pub;
 
     /// <summary>

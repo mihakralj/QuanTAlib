@@ -247,9 +247,6 @@ public sealed class BaxterKing : AbstractBase
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double SoftBandPass(double value) => value;
-
     public static TSeries Batch(TSeries source, int pLow = 6, int pHigh = 32, int k = 12)
     {
         double[] input = source.Values.ToArray();

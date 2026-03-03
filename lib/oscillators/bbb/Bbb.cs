@@ -94,8 +94,6 @@ public sealed class Bbb : AbstractBase
     /// Standard deviation multiplier.
     /// </summary>
     public double Multiplier => _multiplier;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -167,8 +165,6 @@ public sealed class Bbb : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         Reset();
@@ -304,8 +300,6 @@ public sealed class Bbb : AbstractBase
             _state.SumSq += v * v;
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -313,8 +307,6 @@ public sealed class Bbb : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();

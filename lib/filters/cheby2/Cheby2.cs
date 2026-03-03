@@ -65,7 +65,7 @@ public sealed class Cheby2 : AbstractBase
         double wc = 2.0 * Math.PI / period;
         double Wc = 2.0 * Math.Tan(wc * 0.5);
         double epsilon = 1.0 / Math.Sqrt(Math.Pow(10.0, safeAtten * 0.1) - 1.0);
-        double mu = System.Math.Asinh(1.0 / epsilon) * 0.5;
+        double mu = Math.Asinh(1.0 / epsilon) * 0.5;
         double sinhMu = Math.Sinh(mu);
         double coshMu = Math.Cosh(mu);
         double sqrt2 = Math.Sqrt(2.0);
@@ -246,7 +246,7 @@ public sealed class Cheby2 : AbstractBase
         double wc = 2.0 * Math.PI / period;
         double Wc = 2.0 * Math.Tan(wc * 0.5);
         double epsilon = 1.0 / Math.Sqrt(Math.Pow(10.0, safeAtten * 0.1) - 1.0);
-        double mu = System.Math.Asinh(1.0 / epsilon) * 0.5;
+        double mu = Math.Asinh(1.0 / epsilon) * 0.5;
         double sinhMu = Math.Sinh(mu);
         double coshMu = Math.Cosh(mu);
         double sqrt2 = Math.Sqrt(2.0);

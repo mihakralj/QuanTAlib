@@ -93,15 +93,11 @@ public sealed class Kendall : AbstractBase
     {
         return Update(new TValue(DateTime.UtcNow, seriesX), new TValue(DateTime.UtcNow, seriesY), isNew);
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for dual-input indicator. Use Update(seriesX, seriesY) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Kendall requires two inputs (seriesX and seriesY). Use Update(seriesX, seriesY).");
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for dual-input indicator. Use Batch(seriesX, seriesY, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -173,8 +169,6 @@ public sealed class Kendall : AbstractBase
 
         return (concordant - discordant) / denominator;
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Kendall requires two inputs.");

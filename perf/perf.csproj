@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/ooplesfinance_stockindicators/api/v3/index.json</RestoreAdditionalProjectSources>
     
     <!-- NativeAOT is NOT compatible with BenchmarkDotNet (uses reflection/Assembly.Location) -->
     <!-- BenchmarkDotNet creates optimized JIT processes for benchmarking -->

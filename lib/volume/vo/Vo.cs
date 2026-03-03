@@ -47,18 +47,12 @@ public sealed class Vo : ITValuePublisher
     private double[]? _pBufferShort;
     private double[]? _pBufferLong;
     private double[]? _pBufferSignal;
-
-    /// <inheritdoc/>
     public TValue Last { get; private set; }
     /// <summary>Gets the current signal line value.</summary>
     public double Signal => _s.SignalValue;
-    /// <inheritdoc/>
     public bool IsHot => _s.Index >= _longPeriod;
-    /// <inheritdoc/>
     public int WarmupPeriod => _longPeriod;
-    /// <inheritdoc/>
     public string Name { get; }
-    /// <inheritdoc/>
     public event TValuePublishedHandler? Pub;
 
     /// <summary>

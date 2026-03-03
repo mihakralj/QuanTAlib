@@ -81,14 +81,11 @@ public sealed class Hann : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GenerateWeights()
     {
-        double coefSum = 0;
         double denom = Length - 1;
 
         for (int i = 0; i < Length; i++)
         {
-            double w = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * i / denom));
-            _weights[i] = w;
-            coefSum += w;
+            _weights[i] = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * i / denom));
         }
     }
 

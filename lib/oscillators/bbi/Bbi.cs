@@ -110,8 +110,6 @@ public sealed class Bbi : AbstractBase
 
     /// <summary>True when enough bars have been processed for valid (full-window) output.</summary>
     public override bool IsHot => _s.Index >= WarmupPeriod;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -202,8 +200,6 @@ public sealed class Bbi : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -227,8 +223,6 @@ public sealed class Bbi : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -236,8 +230,6 @@ public sealed class Bbi : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         Array.Clear(_buf1);

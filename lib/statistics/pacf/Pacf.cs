@@ -279,7 +279,7 @@ public sealed class Pacf : AbstractBase
         _sum = 0;
         for (int i = 0; i < _buffer.Count; i++)
         {
-        _sum += _buffer[i];
+            _sum += _buffer[i];
         }
     }
 

@@ -31,7 +31,7 @@ public sealed class Alma : AbstractBase
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidValue, bool IsInitialized);
     private State _state;
-    private State _p_state;
+    private State _pState;
 
     public bool IsNew => _isNew;
     public override bool IsHot => _buffer.IsFull;
@@ -139,11 +139,11 @@ public sealed class Alma : AbstractBase
     {
         if (isNew)
         {
-            _p_state = _state;
+            _pState = _state;
         }
         else
         {
-            _state = _p_state;
+            _state = _pState;
         }
 
         if (double.IsFinite(input.Value))
@@ -213,7 +213,7 @@ public sealed class Alma : AbstractBase
         // Reset state
         _buffer.Clear();
         _state = default;
-        _p_state = default;
+        _pState = default;
 
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
         int startIndex = source.Length - warmupLength;
@@ -254,7 +254,7 @@ public sealed class Alma : AbstractBase
             Update(new TValue(DateTime.MinValue, source[i]), isNew: true, publish: false);
         }
 
-        _p_state = _state;
+        _pState = _state;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -449,7 +449,7 @@ public sealed class Alma : AbstractBase
     {
         _buffer.Clear();
         _state = new State(double.NaN, IsInitialized: false);
-        _p_state = _state;
+        _pState = _state;
         Last = default;
     }
 }

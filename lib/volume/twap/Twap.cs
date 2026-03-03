@@ -41,16 +41,10 @@ public sealed class Twap : ITValuePublisher
 
     private State _s;
     private State _ps;
-
-    /// <inheritdoc/>
     public TValue Last { get; private set; }
-    /// <inheritdoc/>
     public bool IsHot { get; private set; }
-    /// <inheritdoc/>
     public static int WarmupPeriod => 1;
-    /// <inheritdoc/>
     public string Name { get; }
-    /// <inheritdoc/>
     public event TValuePublishedHandler? Pub;
 
     /// <summary>

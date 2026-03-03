@@ -122,11 +122,7 @@ public sealed class ReverseEma : AbstractBase
         }
         source.Pub += Handle;
     }
-
-    /// <inheritdoc/>
     public override bool IsHot => _s.IsHot;
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -185,8 +181,6 @@ public sealed class ReverseEma : AbstractBase
         }
         return _lastValidValue;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -213,8 +207,6 @@ public sealed class ReverseEma : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -415,8 +407,6 @@ public sealed class ReverseEma : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = State.New();

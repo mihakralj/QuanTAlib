@@ -439,15 +439,15 @@ public sealed class Apz : ITValuePublisher
     [StructLayout(LayoutKind.Auto)]
     private ref struct ScalarState
     {
-        public double Ema1Price;
-        public double Ema2Price;
-        public double Ema1Range;
-        public double Ema2Range;
-        public double E;
-        public double LastValidPrice;
-        public double LastValidHigh;
-        public double LastValidLow;
-        public bool IsHot;
+        internal double Ema1Price;
+        internal double Ema2Price;
+        internal double Ema1Range;
+        internal double Ema2Range;
+        internal double E;
+        internal double LastValidPrice;
+        internal double LastValidHigh;
+        internal double LastValidLow;
+        internal bool IsHot;
     }
 
     /// <summary>

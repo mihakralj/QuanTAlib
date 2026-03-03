@@ -77,14 +77,10 @@ public sealed class Cti : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
-
-    /// <inheritdoc/>
     public override bool IsHot => _buffer.IsFull;
 
     /// <summary>Period of the indicator.</summary>
     public int Period => _period;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -151,8 +147,6 @@ public sealed class Cti : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -207,8 +201,6 @@ public sealed class Cti : AbstractBase
             _s.SumXY = Math.FusedMultiplyAdd(i, v, _s.SumXY);
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -216,8 +208,6 @@ public sealed class Cti : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();

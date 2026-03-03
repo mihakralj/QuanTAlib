@@ -103,8 +103,6 @@ public sealed class Ewma : AbstractBase
     /// Number of periods per year for annualization.
     /// </summary>
     public int AnnualPeriods => _annualPeriods;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -193,8 +191,6 @@ public sealed class Ewma : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -217,8 +213,6 @@ public sealed class Ewma : AbstractBase
 
         return new TSeries(t, v);
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -226,8 +220,6 @@ public sealed class Ewma : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _s = new State(0.0, 1.0, double.NaN, 0.0, 0);

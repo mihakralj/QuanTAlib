@@ -108,15 +108,11 @@ public sealed class Granger : AbstractBase
     {
         return Update(new TValue(DateTime.UtcNow, seriesY), new TValue(DateTime.UtcNow, seriesX), isNew);
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for dual-input indicator. Use Update(seriesY, seriesX) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Granger requires two inputs (seriesY and seriesX). Use Update(seriesY, seriesX).");
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for dual-input indicator. Use Batch(seriesY, seriesX, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -370,8 +366,6 @@ public sealed class Granger : AbstractBase
             _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Granger requires two inputs.");

@@ -87,13 +87,9 @@ public sealed class Rema : AbstractBase
         }
         source.Pub += Handle;
     }
-
-    /// <inheritdoc/>
     public override bool IsHot => _state.IsHot;
 
     private const int StackAllocThreshold = 512;
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -162,8 +158,6 @@ public sealed class Rema : AbstractBase
         }
         return _lastValidValue;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -184,8 +178,6 @@ public sealed class Rema : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
@@ -450,8 +442,6 @@ public sealed class Rema : AbstractBase
         TSeries results = rema.Update(source);
         return (results, rema);
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _state = State.New();

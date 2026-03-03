@@ -208,8 +208,8 @@ public sealed class Ichimoku : ITValuePublisher
         _p_state = _state;
         Array.Fill(_highBuffer, double.NaN);
         Array.Fill(_lowBuffer, double.NaN);
-        Array.Copy(_highBuffer, _p_highBuffer!, _highBuffer.Length);
-        Array.Copy(_lowBuffer, _p_lowBuffer!, _lowBuffer.Length);
+        Array.Copy(_highBuffer, _p_highBuffer, _highBuffer.Length);
+        Array.Copy(_lowBuffer, _p_lowBuffer, _lowBuffer.Length);
         Tenkan = default;
         Kijun = default;
         SenkouA = default;
@@ -299,14 +299,14 @@ public sealed class Ichimoku : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
-            Array.Copy(_highBuffer, _p_highBuffer!, _highBuffer.Length);
-            Array.Copy(_lowBuffer, _p_lowBuffer!, _lowBuffer.Length);
+            Array.Copy(_highBuffer, _p_highBuffer, _highBuffer.Length);
+            Array.Copy(_lowBuffer, _p_lowBuffer, _lowBuffer.Length);
         }
         else
         {
             _state = _p_state;
-            Array.Copy(_p_highBuffer!, _highBuffer, _highBuffer.Length);
-            Array.Copy(_p_lowBuffer!, _lowBuffer, _lowBuffer.Length);
+            Array.Copy(_p_highBuffer, _highBuffer, _highBuffer.Length);
+            Array.Copy(_p_lowBuffer, _lowBuffer, _lowBuffer.Length);
         }
 
         var (high, low, close) = GetValidHLC(bar);

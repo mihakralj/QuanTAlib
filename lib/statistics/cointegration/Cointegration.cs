@@ -114,15 +114,11 @@ public sealed class Cointegration : AbstractBase
     {
         return Update(new TValue(DateTime.MinValue, seriesA), new TValue(DateTime.MinValue, seriesB), isNew);
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesA, seriesB) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Cointegration requires two inputs (seriesA and seriesB). Use Update(seriesA, seriesB).");
     }
-
-    /// <inheritdoc/>
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesA, seriesB, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -402,8 +398,6 @@ public sealed class Cointegration : AbstractBase
             _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Cointegration requires two inputs.");

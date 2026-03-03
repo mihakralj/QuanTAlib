@@ -49,7 +49,7 @@ public class TtmSqueezeValidationTests
         }
 
         // Momentum should be near zero since price = midline
-        Assert.True(System.Math.Abs(squeeze.Momentum.Value) < 1.0);
+        Assert.True(Math.Abs(squeeze.Momentum.Value) < 1.0);
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class TtmSqueezeValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 100 + System.Math.Sin(i * 0.2) * 10;
+            double price = 100 + Math.Sin(i * 0.2) * 10;
             double high = price + 2;
             double low = price - 2;
             source.Add(new TBar(baseTime + i * 60000, price, high, low, price + 0.5, 1000));
@@ -306,7 +306,7 @@ public class TtmSqueezeValidationTests
 
         Assert.True(double.IsFinite(squeeze.Momentum.Value));
         // With constant price, donchian midline = price, so momentum should be near 0
-        Assert.True(System.Math.Abs(squeeze.Momentum.Value) < 0.01);
+        Assert.True(Math.Abs(squeeze.Momentum.Value) < 0.01);
     }
 
     [Fact]

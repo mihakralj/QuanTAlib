@@ -107,8 +107,6 @@ public sealed class Bbwn : AbstractBase
     /// Historical lookback period for normalization.
     /// </summary>
     public int Lookback => _lookback;
-
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -212,8 +210,6 @@ public sealed class Bbwn : AbstractBase
         PubEvent(Last, isNew);
         return Last;
     }
-
-    /// <inheritdoc/>
     public override TSeries Update(TSeries source)
     {
         int len = source.Count;
@@ -249,8 +245,6 @@ public sealed class Bbwn : AbstractBase
             _state.SumSq += v * v;
         }
     }
-
-    /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
@@ -258,8 +252,6 @@ public sealed class Bbwn : AbstractBase
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
         }
     }
-
-    /// <inheritdoc/>
     public override void Reset()
     {
         _buffer.Clear();
