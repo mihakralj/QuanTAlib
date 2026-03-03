@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -413,14 +414,14 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
-    public ref struct BatchOutputs
+    public readonly ref struct BatchOutputs
     {
         /// <summary>Output middle band (SMA of source)</summary>
-        public Span<double> Middle;
+        public readonly Span<double> Middle;
         /// <summary>Output upper band</summary>
-        public Span<double> Upper;
+        public readonly Span<double> Upper;
         /// <summary>Output lower band</summary>
-        public Span<double> Lower;
+        public readonly Span<double> Lower;
 #pragma warning restore S1104
 
         /// <summary>
@@ -432,12 +433,26 @@ public sealed class Aberr : ITValuePublisher, IDisposable
             Upper = upper;
             Lower = lower;
         }
+
+        public bool Equals(BatchOutputs other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Middle), ref MemoryMarshal.GetReference(other.Middle)) &&
+            Middle.Length == other.Middle.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Upper), ref MemoryMarshal.GetReference(other.Upper)) &&
+            Upper.Length == other.Upper.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Lower), ref MemoryMarshal.GetReference(other.Lower)) &&
+            Lower.Length == other.Lower.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(Middle.Length, Upper.Length, Lower.Length);
+        public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
+        public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
+    [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
     {
         internal double SumSource;
@@ -445,6 +460,16 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         internal double LastValidValue;
         internal int BufferIndex;
         internal int TickCount;
+
+        public bool Equals(ScalarState other) =>
+            SumSource.Equals(other.SumSource) && SumDeviation.Equals(other.SumDeviation) &&
+            LastValidValue.Equals(other.LastValidValue) && BufferIndex == other.BufferIndex &&
+            TickCount == other.TickCount;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(SumSource, SumDeviation, LastValidValue, BufferIndex, TickCount);
+        public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
+        public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
 
     /// <summary>
@@ -455,6 +480,17 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     {
         internal readonly Span<double> Source = source;
         internal readonly Span<double> Deviation = deviation;
+
+        public bool Equals(WorkBuffers other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Source), ref MemoryMarshal.GetReference(other.Source)) &&
+            Source.Length == other.Source.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Deviation), ref MemoryMarshal.GetReference(other.Deviation)) &&
+            Deviation.Length == other.Deviation.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(Source.Length, Deviation.Length);
+        public static bool operator ==(WorkBuffers left, WorkBuffers right) => left.Equals(right);
+        public static bool operator !=(WorkBuffers left, WorkBuffers right) => !left.Equals(right);
     }
 
     /// <summary>

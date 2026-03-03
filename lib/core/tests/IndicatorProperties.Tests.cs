@@ -3,7 +3,7 @@ using System.Linq;
 using Xunit;
 using QuanTAlib;
 
-namespace QuanTAlib.Tests.Core;
+namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Tests verifying the structural stability of indicators across the repository.

@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -475,14 +476,14 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// </remarks>
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
-    public ref struct BatchOutputs
+    public readonly ref struct BatchOutputs
     {
         /// <summary>Output middle band (SMA of close)</summary>
-        public Span<double> Middle;
+        public readonly Span<double> Middle;
         /// <summary>Output upper band</summary>
-        public Span<double> Upper;
+        public readonly Span<double> Upper;
         /// <summary>Output lower band</summary>
-        public Span<double> Lower;
+        public readonly Span<double> Lower;
 #pragma warning restore S1104
 
         /// <summary>
@@ -494,6 +495,19 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             Upper = upper;
             Lower = lower;
         }
+
+        public bool Equals(BatchOutputs other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Middle), ref MemoryMarshal.GetReference(other.Middle)) &&
+            Middle.Length == other.Middle.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Upper), ref MemoryMarshal.GetReference(other.Upper)) &&
+            Upper.Length == other.Upper.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Lower), ref MemoryMarshal.GetReference(other.Lower)) &&
+            Lower.Length == other.Lower.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(Middle.Length, Upper.Length, Lower.Length);
+        public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
+        public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
 
     /// <summary>
@@ -501,14 +515,14 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
-    public ref struct BatchInputs
+    public readonly ref struct BatchInputs
     {
         /// <summary>High price values</summary>
-        public ReadOnlySpan<double> High;
+        public readonly ReadOnlySpan<double> High;
         /// <summary>Low price values</summary>
-        public ReadOnlySpan<double> Low;
+        public readonly ReadOnlySpan<double> Low;
         /// <summary>Close price values</summary>
-        public ReadOnlySpan<double> Close;
+        public readonly ReadOnlySpan<double> Close;
 #pragma warning restore S1104
 
         /// <summary>
@@ -520,12 +534,26 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             Low = low;
             Close = close;
         }
+
+        public bool Equals(BatchInputs other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(High), ref MemoryMarshal.GetReference(other.High)) &&
+            High.Length == other.High.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Low), ref MemoryMarshal.GetReference(other.Low)) &&
+            Low.Length == other.Low.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Close), ref MemoryMarshal.GetReference(other.Close)) &&
+            Close.Length == other.Close.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(High.Length, Low.Length, Close.Length);
+        public static bool operator ==(BatchInputs left, BatchInputs right) => left.Equals(right);
+        public static bool operator !=(BatchInputs left, BatchInputs right) => !left.Equals(right);
     }
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
+    [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
     {
         internal double SumAdjHigh;
@@ -536,6 +564,17 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         internal double LastValidClose;
         internal int BufferIndex;
         internal int TickCount;
+
+        public bool Equals(ScalarState other) =>
+            SumAdjHigh.Equals(other.SumAdjHigh) && SumAdjLow.Equals(other.SumAdjLow) &&
+            SumClose.Equals(other.SumClose) && LastValidHigh.Equals(other.LastValidHigh) &&
+            LastValidLow.Equals(other.LastValidLow) && LastValidClose.Equals(other.LastValidClose) &&
+            BufferIndex == other.BufferIndex && TickCount == other.TickCount;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(SumAdjHigh, SumAdjLow, SumClose, BufferIndex, TickCount);
+        public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
+        public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
 
     /// <summary>
@@ -547,6 +586,19 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         internal readonly Span<double> AdjHigh = adjHigh;
         internal readonly Span<double> AdjLow = adjLow;
         internal readonly Span<double> Close = close;
+
+        public bool Equals(WorkBuffers other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(AdjHigh), ref MemoryMarshal.GetReference(other.AdjHigh)) &&
+            AdjHigh.Length == other.AdjHigh.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(AdjLow), ref MemoryMarshal.GetReference(other.AdjLow)) &&
+            AdjLow.Length == other.AdjLow.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Close), ref MemoryMarshal.GetReference(other.Close)) &&
+            Close.Length == other.Close.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(AdjHigh.Length, AdjLow.Length, Close.Length);
+        public static bool operator ==(WorkBuffers left, WorkBuffers right) => left.Equals(right);
+        public static bool operator !=(WorkBuffers left, WorkBuffers right) => !left.Equals(right);
     }
 
     /// <summary>

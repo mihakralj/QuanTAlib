@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -412,14 +413,14 @@ public sealed class Apz : ITValuePublisher
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
 #pragma warning disable S1104 // Fields should not have public accessibility
-    public ref struct BatchOutputs
+    public readonly ref struct BatchOutputs
     {
         /// <summary>Output middle band (double-smoothed EMA of price)</summary>
-        public Span<double> Middle;
+        public readonly Span<double> Middle;
         /// <summary>Output upper band</summary>
-        public Span<double> Upper;
+        public readonly Span<double> Upper;
         /// <summary>Output lower band</summary>
-        public Span<double> Lower;
+        public readonly Span<double> Lower;
 #pragma warning restore S1104
 
         /// <summary>
@@ -431,12 +432,26 @@ public sealed class Apz : ITValuePublisher
             Upper = upper;
             Lower = lower;
         }
+
+        public bool Equals(BatchOutputs other) =>
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Middle), ref MemoryMarshal.GetReference(other.Middle)) &&
+            Middle.Length == other.Middle.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Upper), ref MemoryMarshal.GetReference(other.Upper)) &&
+            Upper.Length == other.Upper.Length &&
+            Unsafe.AreSame(ref MemoryMarshal.GetReference(Lower), ref MemoryMarshal.GetReference(other.Lower)) &&
+            Lower.Length == other.Lower.Length;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(Middle.Length, Upper.Length, Lower.Length);
+        public static bool operator ==(BatchOutputs left, BatchOutputs right) => left.Equals(right);
+        public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
 
     /// <summary>
     /// Internal state for scalar calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
+    [SuppressMessage("NDepend", "ND1903:StructuresShouldBeImmutable", Justification = "Mutable calculation state accumulator by design")]
     private ref struct ScalarState
     {
         internal double Ema1Price;
@@ -448,6 +463,18 @@ public sealed class Apz : ITValuePublisher
         internal double LastValidHigh;
         internal double LastValidLow;
         internal bool IsHot;
+
+        public bool Equals(ScalarState other) =>
+            Ema1Price.Equals(other.Ema1Price) && Ema2Price.Equals(other.Ema2Price) &&
+            Ema1Range.Equals(other.Ema1Range) && Ema2Range.Equals(other.Ema2Range) &&
+            E.Equals(other.E) && LastValidPrice.Equals(other.LastValidPrice) &&
+            LastValidHigh.Equals(other.LastValidHigh) && LastValidLow.Equals(other.LastValidLow) &&
+            IsHot == other.IsHot;
+
+        public override bool Equals(object? obj) => false;
+        public override int GetHashCode() => HashCode.Combine(Ema1Price, Ema2Price, Ema1Range, Ema2Range, E, IsHot);
+        public static bool operator ==(ScalarState left, ScalarState right) => left.Equals(right);
+        public static bool operator !=(ScalarState left, ScalarState right) => !left.Equals(right);
     }
 
     /// <summary>
