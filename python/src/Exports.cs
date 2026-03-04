@@ -1387,13 +1387,13 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    // Eacp: Pattern A (int period, int min, int max, bool useSimd → int)
+    // Eacp: (int minPeriod, int maxPeriod, int avgLength, bool enhance → int)
     [UnmanagedCallersOnly(EntryPoint = "qtl_eacp")]
-    public static int QtlEacp(double* src, int n, double* dst, int period, int minPeriod, int maxPeriod, int useMedian)
+    public static int QtlEacp(double* src, int n, double* dst, int minPeriod, int maxPeriod, int avgLength, int enhance)
     {
         int v = Chk1(src, dst, n); if (v != 0) return v;
-        v = ChkPeriod(period); if (v != 0) return v;
-        try { Eacp.Batch(Src(src, n), Dst(dst, n), period, minPeriod, maxPeriod, useMedian != 0); return StatusCodes.QTL_OK; }
+        v = ChkPeriod(minPeriod); if (v != 0) return v;
+        try { Eacp.Batch(Src(src, n), Dst(dst, n), minPeriod, maxPeriod, avgLength, enhance != 0); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 

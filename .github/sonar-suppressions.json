@@ -11,6 +11,10 @@
       "reason": "Unused private types or members should be removed - false positives on reflection/serialization patterns"
     },
     {
+      "id": "S1192",
+      "reason": "String literals should not be duplicated - guard clause exception messages are inline by .NET convention, not localizable strings"
+    },
+    {
       "id": "S1244",
       "reason": "Floating point numbers should not be tested for equality - intentional exact comparisons in financial calculations"
     },
