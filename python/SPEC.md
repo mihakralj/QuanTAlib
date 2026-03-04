@@ -429,16 +429,22 @@ class QtlInternalError(QtlError): ...       # status 4
 ### 6.4 Indicator wrappers (`indicators.py`)
 
 - Expose pandas-ta-compatible function signatures where practical.
-- Return types:
+- Return types adapt to the input container type (**"same-type-in, same-type-out"**):
 
 | Input type | Output (single) | Output (multi) |
 |------------|-----------------|----------------|
-| `pd.Series` | `pd.Series` | `pd.DataFrame` |
-| `pd.DataFrame` | `pd.Series` | `pd.DataFrame` |
 | `np.ndarray` | `np.ndarray` | tuple of `np.ndarray` |
+| `pd.Series` | `pd.Series` | `pd.DataFrame` |
+| `pd.DataFrame` | `pd.Series` (1st col) | `pd.DataFrame` |
+| `pl.Series` | `pl.Series` | `pl.DataFrame` |
+| `pl.DataFrame` | `pl.Series` (1st col) | `pl.DataFrame` |
+| `pa.Array` | `pa.Array` (float64) | `dict[str, pa.Array]` |
+| `pa.ChunkedArray` | `pa.Array` (float64) | `dict[str, pa.Array]` |
 
 - Series names follow pandas-ta conventions: `SMA_14`, `BBU_20_2.0`, etc.
 - DataFrame columns for multi-output: `BBU_20_2.0`, `BBM_20_2.0`, `BBL_20_2.0`.
+- Polars Series `.name` is set to the indicator name (e.g. `"SMA_14"`).
+- PyArrow arrays are always returned as `pa.float64()` type.
 
 ### 6.5 Concrete Python wrapper example
 
@@ -485,14 +491,26 @@ def sma(close, length=None, offset=None, **kwargs):
 - Known deltas from pandas-ta warmup lengths are documented in the
   compatibility table in `README.md`.
 
-### 6.7 pandas fallback policy
+### 6.7 Optional dependency policy
 
-When pandas is not installed:
+`numpy` is the only **hard** dependency. All DataFrame libraries are optional extras:
 
-- Functions accept and return `np.ndarray` only.
-- `pd.Series` / `pd.DataFrame` input raises `ImportError` with message
-  `"pandas required for Series/DataFrame input"`.
-- `numpy` is a hard dependency; `pandas` is an optional extra.
+| Extra | Install command | Enables |
+|-------|----------------|---------|
+| `pandas` | `pip install quantalib[pandas]` | `pd.Series` / `pd.DataFrame` I/O |
+| `polars` | `pip install quantalib[polars]` | `pl.Series` / `pl.DataFrame` I/O |
+| `pyarrow` | `pip install quantalib[pyarrow]` | `pa.Array` / `pa.ChunkedArray` I/O |
+| `all` | `pip install quantalib[all]` | All of the above |
+
+When a library is **not** installed, its input types are silently unsupported:
+the `_arr()` helper falls through to `np.asarray()`, which may produce an
+error or unexpected result. Because detection uses `isinstance`, there is no
+import overhead when a library is absent.
+
+**Origin token pattern:** `_arr()` returns an opaque `_Origin` token that
+`_wrap()` / `_wrap_multi()` use to reconstruct the original container type.
+Category modules never inspect this token — they pass it through unchanged.
+This keeps all 15 category modules free of any polars/pyarrow awareness.
 
 ---
 

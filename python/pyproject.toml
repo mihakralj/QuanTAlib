@@ -38,7 +38,10 @@ Issues = "https://github.com/mihakralj/quantalib/issues"
 
 [project.optional-dependencies]
 pandas = ["pandas>=1.5"]
-dev = ["pytest>=8.0", "pandas>=1.5"]
+polars = ["polars>=0.20"]
+pyarrow = ["pyarrow>=14.0"]
+all = ["pandas>=1.5", "polars>=0.20", "pyarrow>=14.0"]
+dev = ["pytest>=8.0", "pandas>=1.5", "polars>=0.20", "pyarrow>=14.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

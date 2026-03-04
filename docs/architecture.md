@@ -10,6 +10,27 @@ Traditional object-oriented design stores data as arrays of objects: `List<Price
 
 QuanTAlib stores timestamps and values in separate contiguous arrays. When calculating an average, the CPU loads a cache line filled entirely with price values, without wasting space on interleaved timestamps or object headers.
 
+``` mermaid
+graph LR
+    subgraph AoS [Array of Structures: CPU chokes on interleaved data]
+        direction LR
+        A1[Time] --- A2[Price] --- A3[Time] --- A4[Price] --- A5[Time]
+        style A1 fill:#550000
+        style A3 fill:#550000
+        style A5 fill:#550000
+    end
+    
+    subgraph SoA [Structure of Arrays: Contiguous SIMD pipeline]
+        direction LR
+        S1[Price] --- S2[Price] --- S3[Price] --- S4[Price] --- S5[Price]
+        style S1 fill:#005500
+        style S2 fill:#005500
+        style S3 fill:#005500
+        style S4 fill:#005500
+        style S5 fill:#005500
+    end
+```
+
 The performance difference is measurable:
 
 | Operation | SoA Layout | AoS Layout | Improvement |
@@ -61,6 +82,17 @@ The math to calculate averages works with limited history. A 14-period SMA with 
 ## Four Operating Modes
 
 Trading systems have different data flow patterns. Backtesting engines process years of historical data in batch. Real-time systems update indicators bar-by-bar. Event-driven architectures react to changes asynchronously. QuanTAlib provides four modes optimized for these patterns.
+
+``` mermaid
+graph TD
+    Event[Eventing Mode<br/>Reactive Chain] -->|Adds pub/sub overhead| Stream
+    Stream[Streaming Mode<br/>Stateful O1 Updates] -->|Maintains state across| Span
+    Batch[Batch Mode<br/>Time-Aligned TSeries] -->|Unwraps to| Span
+    
+    Span[Span Mode<br/>Stackalloc / Raw Memory]
+    
+    style Span fill:#003300,stroke:#00ff00,stroke-width:2px
+```
 
 ### Span Mode
 
@@ -168,6 +200,27 @@ else if (Avx2.IsSupported)
     CalculateAvx2(source, output);
 else
     CalculateScalar(source, output);
+```
+
+``` mermaid
+graph TD
+    Start{JIT Hardware Detection}
+    
+    AVX512[AVX-512 Vectorization<br/>8 doubles per instruction]
+    AVX2[AVX2 Vectorization<br/>4 doubles per instruction]
+    NEON[ARM NEON / AdvSimd<br/>2 doubles per instruction]
+    Scalar[Scalar Fallback<br/>1 double per instruction]
+
+    Start -->|Avx512F.IsSupported| AVX512
+    Start -->|Avx2.IsSupported| AVX2
+    Start -->|AdvSimd.IsSupported| NEON
+    Start -->|Instruction Set Missing| Scalar
+    
+    style Start fill:#333
+    style AVX512 fill:#004400
+    style AVX2 fill:#444400
+    style NEON fill:#003366
+    style Scalar fill:#440000
 ```
 
 The library checks hardware support at runtime. Systems without AVX2 fall back to scalar implementations. The code runs everywhere; speed varies with hardware capability.

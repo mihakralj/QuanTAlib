@@ -57,15 +57,15 @@ def gauss(close: object, sigma: float = 1.0, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, "GAUSS", "filters", offset)
 
 
-def hann(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def hann(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Hann Filter."""
-    length = int(length)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
     output = _out(n)
-    _check(_lib.qtl_hann(_ptr(src), _ptr(output), n, length))
-    return _wrap(output, idx, f"HANN_{length}", "filters", offset)
+    _check(_lib.qtl_hann(_ptr(src), _ptr(output), n, period))
+    return _wrap(output, idx, f"HANN_{period}", "filters", offset)
 
 
 def hp(close: object, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
@@ -79,15 +79,15 @@ def hp(close: object, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "HP", "filters", offset)
 
 
-def hpf(close: object, length: int = 40, offset: int = 0, **kwargs) -> object:
+def hpf(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
     """High-Pass Filter."""
-    length = int(length)
+    period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
     output = _out(n)
-    _check(_lib.qtl_hpf(_ptr(src), _ptr(output), n, length))
-    return _wrap(output, idx, f"HPF_{length}", "filters", offset)
+    _check(_lib.qtl_hpf(_ptr(src), _ptr(output), n, period))
+    return _wrap(output, idx, f"HPF_{period}", "filters", offset)
 
 
 def kalman(close: object, q: float = 0.01, r: float = 0.1, offset: int = 0, **kwargs) -> object:
@@ -317,106 +317,106 @@ def wiener(close: object, period: int = 14, smoothPeriod: int = 10, offset: int 
     _check(_lib.qtl_wiener(_ptr(src), _ptr(destination), n, period, smoothPeriod))
     return _wrap(destination, idx, f"WIENER_{period}", "filters", offset)
 
-def bessel(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def bessel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Bessel Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bessel(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"BESSEL_{length}", "filters", offset)
+    _check(_lib.qtl_bessel(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"BESSEL_{period}", "filters", offset)
 
 
-def butter2(close: object, length: int = 14, gain: float = 1.0,
+def butter2(close: object, period: int = 14, gain: float = 1.0,
             offset: int = 0, **kwargs) -> object:
     """2nd-order Butterworth."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_butter2(_ptr(src), n, _ptr(dst), length, float(gain)))
-    return _wrap(dst, idx, f"BUTTER2_{length}", "filters", offset)
+    _check(_lib.qtl_butter2(_ptr(src), n, _ptr(dst), period, float(gain)))
+    return _wrap(dst, idx, f"BUTTER2_{period}", "filters", offset)
 
 
-def butter3(close: object, length: int = 14, gain: float = 1.0,
+def butter3(close: object, period: int = 14, gain: float = 1.0,
             offset: int = 0, **kwargs) -> object:
     """3rd-order Butterworth."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_butter3(_ptr(src), n, _ptr(dst), length, float(gain)))
-    return _wrap(dst, idx, f"BUTTER3_{length}", "filters", offset)
+    _check(_lib.qtl_butter3(_ptr(src), n, _ptr(dst), period, float(gain)))
+    return _wrap(dst, idx, f"BUTTER3_{period}", "filters", offset)
 
 
-def cheby1(close: object, length: int = 14, ripple: float = 0.5,
+def cheby1(close: object, period: int = 14, ripple: float = 0.5,
            offset: int = 0, **kwargs) -> object:
     """Chebyshev Type I."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cheby1(_ptr(src), n, _ptr(dst), length, float(ripple)))
-    return _wrap(dst, idx, f"CHEBY1_{length}", "filters", offset)
+    _check(_lib.qtl_cheby1(_ptr(src), n, _ptr(dst), period, float(ripple)))
+    return _wrap(dst, idx, f"CHEBY1_{period}", "filters", offset)
 
 
-def cheby2(close: object, length: int = 14, ripple: float = 0.5,
+def cheby2(close: object, period: int = 14, ripple: float = 0.5,
            offset: int = 0, **kwargs) -> object:
     """Chebyshev Type II."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cheby2(_ptr(src), n, _ptr(dst), length, float(ripple)))
-    return _wrap(dst, idx, f"CHEBY2_{length}", "filters", offset)
+    _check(_lib.qtl_cheby2(_ptr(src), n, _ptr(dst), period, float(ripple)))
+    return _wrap(dst, idx, f"CHEBY2_{period}", "filters", offset)
 
 
-def elliptic(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def elliptic(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Elliptic (Cauer) Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_elliptic(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ELLIPTIC_{length}", "filters", offset)
+    _check(_lib.qtl_elliptic(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ELLIPTIC_{period}", "filters", offset)
 
 
-def edcf(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def edcf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Ehlers Distance Coefficient Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_edcf(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"EDCF_{length}", "filters", offset)
+    _check(_lib.qtl_edcf(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"EDCF_{period}", "filters", offset)
 
 
-def bpf(close: object, length: int = 14, bandwidth: int = 5,
+def bpf(close: object, period: int = 14, bandwidth: int = 5,
         offset: int = 0, **kwargs) -> object:
     """Bandpass Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bpf(_ptr(src), n, _ptr(dst), length, int(bandwidth)))
-    return _wrap(dst, idx, f"BPF_{length}", "filters", offset)
+    _check(_lib.qtl_bpf(_ptr(src), n, _ptr(dst), period, int(bandwidth)))
+    return _wrap(dst, idx, f"BPF_{period}", "filters", offset)
 
 
-def alaguerre(close: object, length: int = 20, order: int = 5,
+def alaguerre(close: object, period: int = 20, order: int = 5,
               offset: int = 0, **kwargs) -> object:
     """Adaptive Laguerre Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_alaguerre(_ptr(src), n, _ptr(dst), length, int(order)))
-    return _wrap(dst, idx, f"ALAGUERRE_{length}", "filters", offset)
+    _check(_lib.qtl_alaguerre(_ptr(src), n, _ptr(dst), period, int(order)))
+    return _wrap(dst, idx, f"ALAGUERRE_{period}", "filters", offset)
 
 
-def bilateral(close: object, length: int = 14, sigma_s: float = 0.5,
+def bilateral(close: object, period: int = 14, sigma_s: float = 0.5,
               sigma_r: float = 1.0, offset: int = 0, **kwargs) -> object:
     """Bilateral Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bilateral(_ptr(src), n, _ptr(dst), length, float(sigma_s), float(sigma_r)))
-    return _wrap(dst, idx, f"BILATERAL_{length}", "filters", offset)
+    _check(_lib.qtl_bilateral(_ptr(src), n, _ptr(dst), period, float(sigma_s), float(sigma_r)))
+    return _wrap(dst, idx, f"BILATERAL_{period}", "filters", offset)
 
 
-def baxterking(close: object, length: int = 12, min_period: int = 6,
+def baxterking(close: object, period: int = 12, min_period: int = 6,
                max_period: int = 32, offset: int = 0, **kwargs) -> object:
     """Baxter-King Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_baxterking(_ptr(src), n, _ptr(dst), length, int(min_period), int(max_period)))
-    return _wrap(dst, idx, f"BAXTERKING_{length}", "filters", offset)
+    _check(_lib.qtl_baxterking(_ptr(src), n, _ptr(dst), period, int(min_period), int(max_period)))
+    return _wrap(dst, idx, f"BAXTERKING_{period}", "filters", offset)
 
 
-def cfitz(close: object, length: int = 6, bw_period: int = 32,
+def cfitz(close: object, period: int = 6, bw_period: int = 32,
           offset: int = 0, **kwargs) -> object:
     """Christiano-Fitzgerald Filter."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cfitz(_ptr(src), n, _ptr(dst), length, int(bw_period)))
-    return _wrap(dst, idx, f"CFITZ_{length}", "filters", offset)
+    _check(_lib.qtl_cfitz(_ptr(src), n, _ptr(dst), period, int(bw_period)))
+    return _wrap(dst, idx, f"CFITZ_{period}", "filters", offset)

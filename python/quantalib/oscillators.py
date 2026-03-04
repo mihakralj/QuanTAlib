@@ -156,9 +156,9 @@ def imi(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap(dst, idx, f"IMI_{period}", "oscillators", offset)
 
 
-def kdj(high: object, low: object, close: object, length: int = 14, signal: int = 3, offset: int = 0, **kwargs) -> object:
+def kdj(high: object, low: object, close: object, period: int = 14, signal: int = 3, offset: int = 0, **kwargs) -> object:
     """KDJ Indicator."""
-    length = int(length)
+    period = int(kwargs.get("length", period))
     signal = int(signal)
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -166,7 +166,7 @@ def kdj(high: object, low: object, close: object, length: int = 14, signal: int 
     kOut = _out(n)
     dOut = _out(n)
     jOut = _out(n)
-    _check(_lib.qtl_kdj(_ptr(h), _ptr(l), _ptr(c), _ptr(kOut), _ptr(dOut), _ptr(jOut), n, length, signal))
+    _check(_lib.qtl_kdj(_ptr(h), _ptr(l), _ptr(c), _ptr(kOut), _ptr(dOut), _ptr(jOut), n, period, signal))
     return _wrap_multi({"kOut": kOut, "dOut": dOut, "jOut": jOut}, idx, "oscillators", offset)
 
 
@@ -377,100 +377,100 @@ def willr(high: object, low: object, close: object, period: int = 14, offset: in
     _check(_lib.qtl_willr(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period))
     return _wrap(output, idx, f"WILLR_{period}", "oscillators", offset)
 
-def fisher(close: object, length: int = 9, offset: int = 0, **kwargs) -> object:
+def fisher(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
     """Fisher Transform."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_fisher(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"FISHER_{length}", "oscillators", offset)
+    _check(_lib.qtl_fisher(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"FISHER_{period}", "oscillators", offset)
 
 
-def fisher04(close: object, length: int = 9, offset: int = 0, **kwargs) -> object:
+def fisher04(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
     """Fisher Transform (0.4 variant)."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_fisher04(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"FISHER04_{length}", "oscillators", offset)
+    _check(_lib.qtl_fisher04(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"FISHER04_{period}", "oscillators", offset)
 
 
-def dpo(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def dpo(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Detrended Price Oscillator."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dpo(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DPO_{length}", "oscillators", offset)
+    _check(_lib.qtl_dpo(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DPO_{period}", "oscillators", offset)
 
 
-def trix(close: object, length: int = 18, offset: int = 0, **kwargs) -> object:
+def trix(close: object, period: int = 18, offset: int = 0, **kwargs) -> object:
     """Triple EMA Rate of Change."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_trix(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TRIX_{length}", "oscillators", offset)
+    _check(_lib.qtl_trix(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TRIX_{period}", "oscillators", offset)
 
 
-def inertia(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def inertia(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Inertia."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_inertia(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"INERTIA_{length}", "oscillators", offset)
+    _check(_lib.qtl_inertia(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"INERTIA_{period}", "oscillators", offset)
 
 
-def rsx(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def rsx(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Relative Strength Xtra."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_rsx(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"RSX_{length}", "oscillators", offset)
+    _check(_lib.qtl_rsx(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"RSX_{period}", "oscillators", offset)
 
 
-def er(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def er(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Efficiency Ratio."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_er(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ER_{length}", "oscillators", offset)
+    _check(_lib.qtl_er(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ER_{period}", "oscillators", offset)
 
 
-def cti(close: object, length: int = 12, offset: int = 0, **kwargs) -> object:
+def cti(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
     """Correlation Trend Indicator."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cti(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CTI_{length}", "oscillators", offset)
+    _check(_lib.qtl_cti(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CTI_{period}", "oscillators", offset)
 
 
-def reflex(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def reflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Reflex."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_reflex(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"REFLEX_{length}", "oscillators", offset)
+    _check(_lib.qtl_reflex(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"REFLEX_{period}", "oscillators", offset)
 
 
-def trendflex(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def trendflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Trendflex."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_trendflex(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TRENDFLEX_{length}", "oscillators", offset)
+    _check(_lib.qtl_trendflex(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TRENDFLEX_{period}", "oscillators", offset)
 
 
-def kri(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def kri(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Kairi Relative Index."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_kri(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"KRI_{length}", "oscillators", offset)
+    _check(_lib.qtl_kri(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"KRI_{period}", "oscillators", offset)
 
 
-def psl(close: object, length: int = 12, offset: int = 0, **kwargs) -> object:
+def psl(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
     """Psychological Line."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_psl(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"PSL_{length}", "oscillators", offset)
+    _check(_lib.qtl_psl(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"PSL_{period}", "oscillators", offset)
 
 
 def deco(close: object, short_period: int = 30, long_period: int = 60,
@@ -515,13 +515,13 @@ def crsi(close: object, rsi_period: int = 3, streak_period: int = 2,
     return _wrap(dst, idx, f"CRSI_{rsi_period}", "oscillators", offset)
 
 
-def bbb(close: object, length: int = 20, mult: float = 2.0,
+def bbb(close: object, period: int = 20, mult: float = 2.0,
         offset: int = 0, **kwargs) -> object:
     """Bollinger Band Bounce."""
-    length = int(length); mult = float(mult); offset = int(offset)
+    period = int(kwargs.get("length", period)); mult = float(mult); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bbb(_ptr(src), n, _ptr(dst), length, mult))
-    return _wrap(dst, idx, f"BBB_{length}", "oscillators", offset)
+    _check(_lib.qtl_bbb(_ptr(src), n, _ptr(dst), period, mult))
+    return _wrap(dst, idx, f"BBB_{period}", "oscillators", offset)
 
 
 def bbi(close: object, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
@@ -533,14 +533,14 @@ def bbi(close: object, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
     return _wrap(dst, idx, "BBI", "oscillators", offset)
 
 
-def dem(high: object, low: object, length: int = 14,
+def dem(high: object, low: object, period: int = 14,
         offset: int = 0, **kwargs) -> object:
     """DeMarker."""
-    length = int(length)
+    period = int(kwargs.get("length", period))
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h); dst = _out(n)
-    _check(_lib.qtl_dem(_ptr(h), _ptr(l), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DEM_{length}", "oscillators", int(offset))
+    _check(_lib.qtl_dem(_ptr(h), _ptr(l), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DEM_{period}", "oscillators", int(offset))
 
 
 def brar(open: object, high: object, low: object, close: object,

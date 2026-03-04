@@ -252,57 +252,57 @@ def tr(high: object, low: object, close: object, offset: int = 0, **kwargs) -> o
     return _wrap(dst, idx, "TR", "volatility", int(offset))
 
 
-def bbw(close: object, length: int = 20, mult: float = 2.0,
+def bbw(close: object, period: int = 20, mult: float = 2.0,
         offset: int = 0, **kwargs) -> object:
     """Bollinger Band Width."""
-    length = int(length); mult = float(mult); offset = int(offset)
+    period = int(kwargs.get("length", period)); mult = float(mult); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bbw(_ptr(src), n, _ptr(dst), length, mult))
-    return _wrap(dst, idx, f"BBW_{length}", "volatility", offset)
+    _check(_lib.qtl_bbw(_ptr(src), n, _ptr(dst), period, mult))
+    return _wrap(dst, idx, f"BBW_{period}", "volatility", offset)
 
 
-def bbwn(close: object, length: int = 20, mult: float = 2.0,
+def bbwn(close: object, period: int = 20, mult: float = 2.0,
          lookback: int = 252, offset: int = 0, **kwargs) -> object:
     """Bollinger Band Width Normalized."""
-    length = int(length); mult = float(mult); lookback = int(lookback); offset = int(offset)
+    period = int(kwargs.get("length", period)); mult = float(mult); lookback = int(lookback); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bbwn(_ptr(src), n, _ptr(dst), length, mult, lookback))
-    return _wrap(dst, idx, f"BBWN_{length}", "volatility", offset)
+    _check(_lib.qtl_bbwn(_ptr(src), n, _ptr(dst), period, mult, lookback))
+    return _wrap(dst, idx, f"BBWN_{period}", "volatility", offset)
 
 
-def bbwp(close: object, length: int = 20, mult: float = 2.0,
+def bbwp(close: object, period: int = 20, mult: float = 2.0,
          lookback: int = 252, offset: int = 0, **kwargs) -> object:
     """Bollinger Band Width Percentile."""
-    length = int(length); mult = float(mult); lookback = int(lookback); offset = int(offset)
+    period = int(kwargs.get("length", period)); mult = float(mult); lookback = int(lookback); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bbwp(_ptr(src), n, _ptr(dst), length, mult, lookback))
-    return _wrap(dst, idx, f"BBWP_{length}", "volatility", offset)
+    _check(_lib.qtl_bbwp(_ptr(src), n, _ptr(dst), period, mult, lookback))
+    return _wrap(dst, idx, f"BBWP_{period}", "volatility", offset)
 
 
-def stddev(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def stddev(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Standard Deviation."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_stddev(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"STDDEV_{length}", "volatility", offset)
+    _check(_lib.qtl_stddev(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"STDDEV_{period}", "volatility", offset)
 
 
-def variance(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def variance(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Variance."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_variance(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"VAR_{length}", "volatility", offset)
+    _check(_lib.qtl_variance(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"VAR_{period}", "volatility", offset)
 
 
-def etherm(high: object, low: object, length: int = 14,
+def etherm(high: object, low: object, period: int = 14,
            offset: int = 0, **kwargs) -> object:
     """Elder Thermometer."""
-    length = int(length)
+    period = int(kwargs.get("length", period))
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h); dst = _out(n)
-    _check(_lib.qtl_etherm(_ptr(h), _ptr(l), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ETHERM_{length}", "volatility", int(offset))
+    _check(_lib.qtl_etherm(_ptr(h), _ptr(l), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ETHERM_{period}", "volatility", int(offset))
 
 
 def ccv(close: object, short_period: int = 20, long_period: int = 1,
@@ -314,13 +314,13 @@ def ccv(close: object, short_period: int = 20, long_period: int = 1,
     return _wrap(dst, idx, f"CCV_{short_period}", "volatility", offset)
 
 
-def cv(close: object, length: int = 20, min_vol: float = 0.2,
+def cv(close: object, period: int = 20, min_vol: float = 0.2,
        max_vol: float = 0.7, offset: int = 0, **kwargs) -> object:
     """Coefficient of Variation."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cv(_ptr(src), n, _ptr(dst), length, float(min_vol), float(max_vol)))
-    return _wrap(dst, idx, f"CV_{length}", "volatility", offset)
+    _check(_lib.qtl_cv(_ptr(src), n, _ptr(dst), period, float(min_vol), float(max_vol)))
+    return _wrap(dst, idx, f"CV_{period}", "volatility", offset)
 
 
 def cvi(close: object, ema_period: int = 10, roc_period: int = 10,
@@ -332,10 +332,10 @@ def cvi(close: object, ema_period: int = 10, roc_period: int = 10,
     return _wrap(dst, idx, f"CVI_{ema_period}", "volatility", offset)
 
 
-def ewma(close: object, length: int = 20, is_pop: int = 1,
+def ewma(close: object, period: int = 20, is_pop: int = 1,
          ann_factor: int = 252, offset: int = 0, **kwargs) -> object:
     """Exponentially Weighted Moving Average (volatility)."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_ewma(_ptr(src), n, _ptr(dst), length, int(is_pop), int(ann_factor)))
-    return _wrap(dst, idx, f"EWMA_{length}", "volatility", offset)
+    _check(_lib.qtl_ewma(_ptr(src), n, _ptr(dst), period, int(is_pop), int(ann_factor)))
+    return _wrap(dst, idx, f"EWMA_{period}", "volatility", offset)

@@ -216,54 +216,54 @@ def pvi(close: object, volume: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "PVI", "volume", offset)
 
 
-def tvi(close: object, volume: object, length: int = 14,
+def tvi(close: object, volume: object, period: int = 14,
         offset: int = 0, **kwargs) -> object:
     """Trade Volume Index."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     c, idx = _arr(close); v, _ = _arr(volume)
     n = len(c); dst = _out(n)
-    _check(_lib.qtl_tvi(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TVI_{length}", "volume", offset)
+    _check(_lib.qtl_tvi(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TVI_{period}", "volume", offset)
 
 
-def pvd(close: object, volume: object, length: int = 14,
+def pvd(close: object, volume: object, period: int = 14,
         offset: int = 0, **kwargs) -> object:
     """Price Volume Divergence."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     c, idx = _arr(close); v, _ = _arr(volume)
     n = len(c); dst = _out(n)
-    _check(_lib.qtl_pvd(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"PVD_{length}", "volume", offset)
+    _check(_lib.qtl_pvd(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"PVD_{period}", "volume", offset)
 
 
-def vwma(close: object, volume: object, length: int = 20,
+def vwma(close: object, volume: object, period: int = 20,
          offset: int = 0, **kwargs) -> object:
     """Volume Weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     c, idx = _arr(close); v, _ = _arr(volume)
     n = len(c); dst = _out(n)
-    _check(_lib.qtl_vwma(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"VWMA_{length}", "volume", offset)
+    _check(_lib.qtl_vwma(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"VWMA_{period}", "volume", offset)
 
 
-def evwma(close: object, volume: object, length: int = 20,
+def evwma(close: object, volume: object, period: int = 20,
           offset: int = 0, **kwargs) -> object:
     """Elastic Volume Weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     c, idx = _arr(close); v, _ = _arr(volume)
     n = len(c); dst = _out(n)
-    _check(_lib.qtl_evwma(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"EVWMA_{length}", "volume", offset)
+    _check(_lib.qtl_evwma(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"EVWMA_{period}", "volume", offset)
 
 
-def efi(close: object, volume: object, length: int = 13,
+def efi(close: object, volume: object, period: int = 13,
         offset: int = 0, **kwargs) -> object:
     """Elder Force Index."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     c, idx = _arr(close); v, _ = _arr(volume)
     n = len(c); dst = _out(n)
-    _check(_lib.qtl_efi(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"EFI_{length}", "volume", offset)
+    _check(_lib.qtl_efi(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"EFI_{period}", "volume", offset)
 
 
 def aobv(close: object, volume: object, offset: int = 0, **kwargs) -> object:

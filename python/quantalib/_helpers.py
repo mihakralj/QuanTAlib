@@ -9,11 +9,49 @@ from numpy.typing import NDArray
 
 from ._bridge import _lib, _check, _dp, _ci, _cd
 
-# Optional pandas support
+# ---------------------------------------------------------------------------
+#  Optional dataframe library imports (all optional; numpy is the only hard dep)
+# ---------------------------------------------------------------------------
 try:
     import pandas as pd  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover
     pd = None  # type: ignore[assignment]
+
+try:
+    import polars as pl  # type: ignore[import-untyped]
+except ImportError:  # pragma: no cover
+    pl = None  # type: ignore[assignment]
+
+try:
+    import pyarrow as pa  # type: ignore[import-untyped]
+except ImportError:  # pragma: no cover
+    pa = None  # type: ignore[assignment]
+
+# ---------------------------------------------------------------------------
+#  Origin token — opaque marker passed from _arr() → _wrap()/_wrap_multi()
+#
+#  Callers in category modules simply do:
+#      src, origin = _arr(close)
+#      ...
+#      return _wrap(dst, origin, name, category, offset)
+#
+#  The token carries enough info to reconstruct the original container type.
+# ---------------------------------------------------------------------------
+_ORIGIN_NUMPY = "numpy"
+_ORIGIN_PANDAS = "pandas"
+_ORIGIN_POLARS = "polars"
+_ORIGIN_PYARROW = "pyarrow"
+
+
+class _Origin:
+    """Lightweight tag recording the input container type + metadata."""
+
+    __slots__ = ("kind", "meta")
+
+    def __init__(self, kind: str, meta: object = None) -> None:
+        self.kind = kind
+        self.meta = meta  # pandas.Index | polars series name | None
+
 
 # ---------------------------------------------------------------------------
 #  Internal helpers
@@ -21,23 +59,53 @@ except ImportError:  # pragma: no cover
 _F64 = np.float64
 
 
-def _arr(x: object) -> tuple[NDArray[np.float64], object]:
-    """Return (contiguous float64 array, original_index_or_None)."""
+def _arr(x: object) -> tuple[NDArray[np.float64], _Origin | None]:
+    """Return *(contiguous float64 array, origin_token)*.
+
+    Supported input types
+    ---------------------
+    * ``numpy.ndarray``
+    * ``pandas.Series`` / ``pandas.DataFrame`` (first column)
+    * ``polars.Series`` / ``polars.DataFrame`` (first column)
+    * ``pyarrow.Array`` / ``pyarrow.ChunkedArray``
+    * Any sequence coercible via ``np.asarray``
+    """
     if x is None:
         raise ValueError("Input array must not be None")
-    idx = None
-    if pd is not None and isinstance(x, pd.Series):
-        idx = x.index
-        x = x.to_numpy(dtype=_F64, copy=False)
-    elif pd is not None and isinstance(x, pd.DataFrame):
-        idx = x.index
-        x = x.iloc[:, 0].to_numpy(dtype=_F64, copy=False)
+
+    origin: _Origin | None = None
+
+    # ── pandas ──────────────────────────────────────────────────────────
+    if pd is not None and isinstance(x, (pd.Series, pd.DataFrame)):
+        if isinstance(x, pd.DataFrame):
+            origin = _Origin(_ORIGIN_PANDAS, x.index)
+            x = x.iloc[:, 0].to_numpy(dtype=_F64, copy=False)
+        else:
+            origin = _Origin(_ORIGIN_PANDAS, x.index)
+            x = x.to_numpy(dtype=_F64, copy=False)
+
+    # ── polars ──────────────────────────────────────────────────────────
+    elif pl is not None and isinstance(x, (pl.Series, pl.DataFrame)):
+        if isinstance(x, pl.DataFrame):
+            col = x.get_column(x.columns[0])
+            origin = _Origin(_ORIGIN_POLARS, col.name)
+            x = col.cast(pl.Float64).to_numpy(allow_copy=True)
+        else:
+            origin = _Origin(_ORIGIN_POLARS, x.name)
+            x = x.cast(pl.Float64).to_numpy(allow_copy=True)
+
+    # ── pyarrow ─────────────────────────────────────────────────────────
+    elif pa is not None and isinstance(x, (pa.Array, pa.ChunkedArray)):
+        origin = _Origin(_ORIGIN_PYARROW)
+        x = x.to_numpy(zero_copy_only=False).astype(_F64, copy=False)
+
+    # ── coerce to numpy ────────────────────────────────────────────────
     arr = np.asarray(x, dtype=_F64)
     if not arr.flags["C_CONTIGUOUS"]:
         arr = np.ascontiguousarray(arr)
     if arr.ndim == 0 or len(arr) == 0:
         raise ValueError("Input array must not be empty")
-    return arr, idx
+    return arr, origin
 
 
 def _ptr(a: NDArray[np.float64]):  # noqa: ANN202
@@ -63,33 +131,73 @@ def _offset(arr: NDArray[np.float64], off: int) -> NDArray[np.float64]:
 
 def _wrap(
     arr: NDArray[np.float64],
-    idx: object,
+    origin: _Origin | None,
     name: str,
     category: str,
     offset: int = 0,
 ):
-    """Wrap result: apply offset, optionally convert to pd.Series."""
+    """Wrap result: apply offset, reconstruct the original container type.
+
+    Return types by origin
+    ----------------------
+    * numpy  → ``np.ndarray``
+    * pandas → ``pd.Series`` with original index
+    * polars → ``pl.Series``
+    * pyarrow → ``pa.Array`` (float64)
+    """
     arr = _offset(arr, offset)
-    if idx is not None and pd is not None:
-        s = pd.Series(arr, index=idx, name=name)
+
+    if origin is None:
+        return arr
+
+    if origin.kind == _ORIGIN_PANDAS and pd is not None:
+        s = pd.Series(arr, index=origin.meta, name=name)
         s.attrs["category"] = category
         return s
+
+    if origin.kind == _ORIGIN_POLARS and pl is not None:
+        return pl.Series(name=name, values=arr)
+
+    if origin.kind == _ORIGIN_PYARROW and pa is not None:
+        return pa.array(arr, type=pa.float64())
+
     return arr
 
 
 def _wrap_multi(
     arrays: dict[str, NDArray[np.float64]],
-    idx: object,
+    origin: _Origin | None,
     category: str,
     offset: int = 0,
 ):
-    """Wrap multi-output result into tuple or DataFrame."""
+    """Wrap multi-output result into the original container type.
+
+    Return types by origin
+    ----------------------
+    * numpy  → ``tuple[np.ndarray, ...]``
+    * pandas → ``pd.DataFrame`` with original index
+    * polars → ``pl.DataFrame``
+    * pyarrow → ``dict[str, pa.Array]``
+    """
     for k in arrays:
         arrays[k] = _offset(arrays[k], offset)
-    if idx is not None and pd is not None:
-        df = pd.DataFrame(arrays, index=idx)
+
+    if origin is None:
+        return tuple(arrays.values())
+
+    if origin.kind == _ORIGIN_PANDAS and pd is not None:
+        df = pd.DataFrame(arrays, index=origin.meta)
         df.attrs["category"] = category
         return df
+
+    if origin.kind == _ORIGIN_POLARS and pl is not None:
+        return pl.DataFrame(
+            {k: pl.Series(name=k, values=v) for k, v in arrays.items()}
+        )
+
+    if origin.kind == _ORIGIN_PYARROW and pa is not None:
+        return {k: pa.array(v, type=pa.float64()) for k, v in arrays.items()}
+
     return tuple(arrays.values())
 
 
@@ -98,17 +206,17 @@ def _wrap_multi(
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _pa(
-    fn_name: str, close: object, length: int, offset: int,
-    default_length: int, label: str, category: str,
+    fn_name: str, close: object, period: int, offset: int,
+    default_period: int, label: str, category: str,
 ) -> object:
     """Generic Pattern A wrapper: single-input + period."""
-    length = int(length) if length is not None else default_length
+    period = int(period) if period is not None else default_period
     offset = int(offset) if offset is not None else 0
     src, idx = _arr(close)
     n = len(src)
     dst = _out(n)
-    _check(getattr(_lib, fn_name)(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"{label}_{length}", category, offset)
+    _check(getattr(_lib, fn_name)(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"{label}_{period}", category, offset)
 
 
 def _pa3(
@@ -126,18 +234,18 @@ def _pa3(
 
 def _pf(
     fn_name: str, actual: object, predicted: object,
-    length: int, offset: int, default_length: int,
+    period: int, offset: int, default_period: int,
     label: str, category: str,
 ) -> object:
     """Generic Pattern F wrapper: actual+predicted+period."""
-    length = int(length) if length is not None else default_length
+    period = int(period) if period is not None else default_period
     offset = int(offset) if offset is not None else 0
     a, idx = _arr(actual)
     p, _ = _arr(predicted)
     n = len(a)
     dst = _out(n)
-    _check(getattr(_lib, fn_name)(_ptr(a), _ptr(p), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"{label}_{length}", category, offset)
+    _check(getattr(_lib, fn_name)(_ptr(a), _ptr(p), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"{label}_{period}", category, offset)
 
 
 def _pg(
@@ -155,33 +263,33 @@ def _pg(
 
 
 def _pg2(
-    fn_name: str, close: object, volume: object, length: int,
-    offset: int, default_length: int, label: str, category: str,
+    fn_name: str, close: object, volume: object, period: int,
+    offset: int, default_period: int, label: str, category: str,
 ) -> object:
     """Pattern G2: source+volume+period."""
-    length = int(length) if length is not None else default_length
+    period = int(period) if period is not None else default_period
     offset = int(offset) if offset is not None else 0
     c, idx = _arr(close)
     v, _ = _arr(volume)
     n = len(c)
     dst = _out(n)
-    _check(getattr(_lib, fn_name)(_ptr(c), _ptr(v), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"{label}_{length}", category, offset)
+    _check(getattr(_lib, fn_name)(_ptr(c), _ptr(v), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"{label}_{period}", category, offset)
 
 
 def _ph(
-    fn_name: str, x: object, y: object, length: int,
-    offset: int, default_length: int, label: str, category: str,
+    fn_name: str, x: object, y: object, period: int,
+    offset: int, default_period: int, label: str, category: str,
 ) -> object:
     """Pattern H: X+Y+period."""
-    length = int(length) if length is not None else default_length
+    period = int(period) if period is not None else default_period
     offset = int(offset) if offset is not None else 0
     xarr, idx = _arr(x)
     yarr, _ = _arr(y)
     n = len(xarr)
     dst = _out(n)
-    _check(getattr(_lib, fn_name)(_ptr(xarr), _ptr(yarr), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"{label}_{length}", category, offset)
+    _check(getattr(_lib, fn_name)(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"{label}_{period}", category, offset)
 
 
 def _ohlcv_bars_period(

@@ -26,6 +26,13 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator DateTime(TValue tv) => new(tv.Time, DateTimeKind.Utc);
 
+    /// <summary>
+    /// Implicitly converts a raw double to a TValue with DateTime.UtcNow timestamp.
+    /// Enables ergonomic APIs like <c>sma.Update(110.4)</c>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator TValue(double value) => new(DateTime.UtcNow, value);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString()
     {

@@ -145,36 +145,36 @@ def vel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     _check(_lib.qtl_vel(_ptr(src), _ptr(output), n, period))
     return _wrap(output, idx, f"VEL_{period}", "momentum", offset)
 
-def rsi(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def rsi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Relative Strength Index."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_rsi(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"RSI_{length}", "momentum", offset)
+    _check(_lib.qtl_rsi(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"RSI_{period}", "momentum", offset)
 
 
-def roc(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def roc(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Rate of Change."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_roc(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ROC_{length}", "momentum", offset)
+    _check(_lib.qtl_roc(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ROC_{period}", "momentum", offset)
 
 
-def mom(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def mom(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Momentum."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_mom(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"MOM_{length}", "momentum", offset)
+    _check(_lib.qtl_mom(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"MOM_{period}", "momentum", offset)
 
 
-def cmo(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def cmo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Chande Momentum Oscillator."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cmo(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CMO_{length}", "momentum", offset)
+    _check(_lib.qtl_cmo(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CMO_{period}", "momentum", offset)
 
 
 def tsi(close: object, long_period: int = 25, short_period: int = 13,
@@ -195,20 +195,20 @@ def apo(close: object, fast: int = 12, slow: int = 26,
     return _wrap(dst, idx, f"APO_{fast}_{slow}", "momentum", offset)
 
 
-def bias(close: object, length: int = 26, offset: int = 0, **kwargs) -> object:
+def bias(close: object, period: int = 26, offset: int = 0, **kwargs) -> object:
     """Bias."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bias(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"BIAS_{length}", "momentum", offset)
+    _check(_lib.qtl_bias(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"BIAS_{period}", "momentum", offset)
 
 
-def cfo(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def cfo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Chande Forecast Oscillator."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cfo(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CFO_{length}", "momentum", offset)
+    _check(_lib.qtl_cfo(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CFO_{period}", "momentum", offset)
 
 
 def cfb(close: object, lengths: list | None = None,

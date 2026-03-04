@@ -1,22 +1,14 @@
-# quantalib — Python NativeAOT Wrapper
+# quantalib
 
-High-performance Python wrapper for [QuanTAlib](https://github.com/mihakralj/quantalib), a .NET NativeAOT technical analysis library.
+[![PyPI](https://img.shields.io/pypi/v/quantalib?style=flat-square)](https://pypi.org/project/quantalib/)
+[![Python](https://img.shields.io/pypi/pyversions/quantalib?style=flat-square)](https://pypi.org/project/quantalib/)
+[![License](https://img.shields.io/pypi/l/quantalib?style=flat-square)](https://github.com/mihakralj/quantalib/blob/main/LICENSE)
 
-## Features
-
-- **~391 indicators** across 15 categories: channels, core, cycles, dynamics, errors, filters, momentum, numerics, oscillators, reversals, statistics, trends (FIR & IIR), volatility, volume
-- **Zero-copy FFI** — ctypes bridge to pre-compiled NativeAOT shared library
-- **NumPy native** — all inputs/outputs are `float64` arrays
-- **Optional pandas support** — pass `pd.Series` in, get `pd.Series` out with preserved index
-- **pandas-ta compatible** — `quantalib._compat` provides alias mapping for drop-in migration
-
-## Installation
+393 technical analysis indicators compiled to native code via .NET NativeAOT, called from Python through `ctypes`. Same SIMD-accelerated engine as the [QuanTAlib](https://github.com/mihakralj/quantalib) .NET package. Zero Python math reimplementation.
 
 ```bash
 pip install quantalib
 ```
-
-> **Note:** The NativeAOT shared library (`quantalib_native.dll` / `.so` / `.dylib`) must be present in `quantalib/native/<platform>/`. Pre-built binaries are included in wheel distributions.
 
 ## Quick Start
 
@@ -24,24 +16,59 @@ pip install quantalib
 import numpy as np
 import quantalib as qtl
 
-close = np.random.randn(200).cumsum() + 100
+close = np.random.default_rng(42).normal(100, 2, size=500)
 
-# Simple Moving Average
-sma = qtl.sma(close, length=20)
+sma = qtl.sma(close, period=20)
+rsi = qtl.rsi(close, period=14)
+upper, mid, lower = qtl.bbands(close, period=20, std=2.0)
+```
 
-# Bollinger Bands (multi-output → tuple or DataFrame)
-upper, mid, lower = qtl.bbands(close, length=20, std=2.0)
+Works with **pandas**, **polars**, and **pyarrow** — same-type-in, same-type-out:
 
-# With pandas
+```python
+# pandas — preserves index
 import pandas as pd
 s = pd.Series(close, name="close")
-rsi = qtl.rsi(s, length=14)  # returns pd.Series with preserved index
+rsi = qtl.rsi(s, period=14)        # → pd.Series
+
+# polars — zero-copy-friendly
+import polars as pl
+s = pl.Series("close", close)
+rsi = qtl.rsi(s, period=14)        # → pl.Series
+bb  = qtl.bbands(s, period=20)     # → pl.DataFrame (upper, mid, lower)
+
+# pyarrow — for Arrow-native pipelines
+import pyarrow as pa
+a = pa.array(close, type=pa.float64())
+rsi = qtl.rsi(a, period=14)        # → pa.Array
 ```
+
+> **pandas-ta users:** `length=` is accepted everywhere as an alias for `period=`.
+
+Install optional backends:
+
+```bash
+pip install quantalib[pandas]       # pandas / pd.Series support
+pip install quantalib[polars]       # polars / pl.Series support
+pip install quantalib[pyarrow]      # pyarrow / pa.Array support
+pip install quantalib[all]          # all three
+```
+
+## Performance (500,000 bars, AVX-512)
+
+| Indicator | quantalib | pandas-ta | Ratio |
+| --------- | --------: | --------: | ----: |
+| SMA | 328 μs | ~50 ms | ~150× |
+| EMA | 421 μs | ~45 ms | ~107× |
+| WMA | 302 μs | ~60 ms | ~199× |
+| RSI | 517 μs | ~80 ms | ~155× |
+
+The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, NativeAOT wins by two orders of magnitude.
 
 ## Categories
 
 | Category | Module | Examples |
-|----------|--------|----------|
+| -------- | ------ | -------- |
 | Channels | `channels` | bbands, kchannel, dchannel, aberr |
 | Core | `core` | ha, midpoint, avgprice, typprice |
 | Cycles | `cycles` | ht_dcperiod, ht_sine, cg, dsp |
@@ -58,21 +85,20 @@ rsi = qtl.rsi(s, length=14)  # returns pd.Series with preserved index
 | Volatility | `volatility` | atr, bbw, stddev, hv, tr |
 | Volume | `volume` | obv, vwma, mfi, cmf, adl |
 
-## Local Development
+## Requirements
 
-```bash
-cd python/
-python -m venv .venv && .venv/Scripts/activate  # or source .venv/bin/activate
-pip install -e ".[dev]"
-pytest
-```
+- Python 3.10+
+- NumPy >= 1.24
+- Pre-built wheels: `win-x64`, `linux-x64`, `osx-x64`, `osx-arm64`
 
-### Building the native library
+### Optional dependencies
 
-```bash
-dotnet publish python.csproj -c Release
-```
+| Extra | Minimum version | Enables |
+| ----- | --------------- | ------- |
+| `pandas` | ≥ 1.5 | `pd.Series` / `pd.DataFrame` round-trip |
+| `polars` | ≥ 0.20 | `pl.Series` / `pl.DataFrame` round-trip |
+| `pyarrow` | ≥ 14.0 | `pa.Array` / `pa.ChunkedArray` round-trip |
 
 ## License
 
-[MIT](../LICENSE)
+[MIT](https://github.com/mihakralj/quantalib/blob/main/LICENSE)
