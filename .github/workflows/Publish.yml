@@ -85,7 +85,7 @@ jobs:
           set +e
           jb inspectcode QuanTAlib.slnx \
             --no-build \
-            --exclude="**/bin/**;**/obj/**;**/TestResults/**;**/*.dll;**/*.pdb;**/*.cache" \
+            --include="**/*.cs" \
             --format=sarif \
             --output=.sarif/resharper.sarif
           rc=$?
