@@ -327,13 +327,13 @@ jobs:
         id: sonar_rules
         run: |
           # Read rule IDs from sonar-suppressions.json and generate multicriteria args
-          if [ ! -f "sonar-suppressions.json" ]; then
-            echo "ERROR: sonar-suppressions.json not found"
+          if [ ! -f ".github/sonar-suppressions.json" ]; then
+            echo "ERROR: .github/sonar-suppressions.json not found"
             exit 1
           fi
 
           # Extract rule IDs and build multicriteria parameters
-          rules=$(jq -r '.rules[].id' sonar-suppressions.json)
+          rules=$(jq -r '.rules[].id' .github/sonar-suppressions.json)
           multicriteria_names=""
           multicriteria_args=""
           index=1
@@ -744,13 +744,13 @@ jobs:
           TOOL_UUID="8954dff3-f19c-429c-ac76-c45fa5e73b62"  # SonarC# tool UUID
           API_BASE="https://app.codacy.com/api/v3"
 
-          if [ ! -f "sonar-suppressions.json" ]; then
-            echo "ERROR: sonar-suppressions.json not found"
+          if [ ! -f ".github/sonar-suppressions.json" ]; then
+            echo "ERROR: .github/sonar-suppressions.json not found"
             exit 1
           fi
 
           # Extract rule IDs from JSON
-          rules=$(jq -r '.rules[].id' sonar-suppressions.json)
+          rules=$(jq -r '.rules[].id' .github/sonar-suppressions.json)
           rule_count=$(echo "$rules" | wc -w)
           echo "Found $rule_count rules to disable in Codacy"
 
