@@ -43,7 +43,7 @@ jobs:
   # ==============================================================================
   ReSharper_Analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
       actions: write
@@ -68,6 +68,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Build solution
+        run: dotnet build QuanTAlib.slnx --no-restore --configuration Debug --nologo -m:1
+
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
 
@@ -81,6 +84,8 @@ jobs:
         run: |
           set +e
           jb inspectcode QuanTAlib.slnx \
+            --no-build \
+            --exclude="**/bin/**;**/obj/**;**/TestResults/**;**/*.dll;**/*.pdb;**/*.cache" \
             --format=sarif \
             --output=.sarif/resharper.sarif
           rc=$?
