@@ -151,8 +151,4 @@ Your bug reports make this library better. Your silence makes the dev mass more 
 
 Licensed under [Apache 2.0](LICENSE). Not MIT. Not BSD. Deliberately.
 
-Apache 2.0 includes an explicit patent grant and a retaliation clause — if someone patents a technique derived from this library and sues a contributor, their license terminates immediately. For a library optimizing financial math with SIMD-aligned memory patterns and incremental algorithms, patent protection is structural defense, not legal decoration.
-
-Commercial use, modification, and distribution are all permitted. Keep the license file, note your changes, and don't weaponize the legal system against the people who wrote the code you're profiting from.
-
 **[Full rationale →](docs/license.md)**
