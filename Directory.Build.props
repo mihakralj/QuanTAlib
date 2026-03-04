@@ -73,7 +73,7 @@
     <!-- S107: "Methods should not have too many parameters" - high-performance SIMD methods require multiple parameters for zero-allocation patterns -->
     <!-- S1244: "Do not check floating point equality with exact values" - exact-zero div guards and exact-equality tie detection are fundamental patterns in quantitative indicators -->
     <!-- MA0007: "Add comma after the last value" - trailing commas not enforced in this codebase -->
-    <NoWarn>$(NoWarn);S107;S1144;S1244;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3604;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0007;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
+    <NoWarn>$(NoWarn);S107;S1144;S1192;S1244;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3604;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0007;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
   </PropertyGroup>
 
   <!-- Code Coverage Configuration (for NDepend integration) -->
