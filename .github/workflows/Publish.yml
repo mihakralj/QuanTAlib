@@ -83,7 +83,7 @@ jobs:
       - name: Run ReSharper InspectCode (SARIF)
         run: |
           set +e
-          jb inspectcode QuanTAlib.slnx \
+          jb inspectcode lib/quantalib.csproj \
             --no-build \
             --include="**/*.cs" \
             --format=sarif \
