@@ -340,12 +340,12 @@ def ztest(close: object, period: int = 14, mu0: float = 0.0, offset: int = 0, **
     _check(_lib.qtl_ztest(_ptr(src), _ptr(output), n, period, mu0))
     return _wrap(output, idx, f"ZTEST_{period}", "statistics", offset)
 
-def zscore(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def zscore(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Z-Score."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_zscore(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ZSCORE_{length}", "statistics", offset)
+    _check(_lib.qtl_zscore(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ZSCORE_{period}", "statistics", offset)
 
 
 def cma(close: object, offset: int = 0, **kwargs) -> object:
@@ -356,39 +356,39 @@ def cma(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "CMA", "statistics", offset)
 
 
-def entropy(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def entropy(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Shannon Entropy."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_entropy(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"ENTROPY_{length}", "statistics", offset)
+    _check(_lib.qtl_entropy(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"ENTROPY_{period}", "statistics", offset)
 
 
-def correlation(x: object, y: object, length: int = 20,
+def correlation(x: object, y: object, period: int = 20,
                 offset: int = 0, **kwargs) -> object:
     """Pearson Correlation."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr); dst = _out(n)
-    _check(_lib.qtl_correlation(_ptr(xarr), _ptr(yarr), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CORR_{length}", "statistics", offset)
+    _check(_lib.qtl_correlation(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CORR_{period}", "statistics", offset)
 
 
-def covariance(x: object, y: object, length: int = 20,
+def covariance(x: object, y: object, period: int = 20,
                is_sample: bool = True, offset: int = 0, **kwargs) -> object:
     """Covariance."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr); dst = _out(n)
-    _check(_lib.qtl_covariance(_ptr(xarr), _ptr(yarr), n, _ptr(dst), length, int(is_sample)))
-    return _wrap(dst, idx, f"COV_{length}", "statistics", offset)
+    _check(_lib.qtl_covariance(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period, int(is_sample)))
+    return _wrap(dst, idx, f"COV_{period}", "statistics", offset)
 
 
-def cointegration(x: object, y: object, length: int = 20,
+def cointegration(x: object, y: object, period: int = 20,
                   offset: int = 0, **kwargs) -> object:
     """Cointegration."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr); dst = _out(n)
-    _check(_lib.qtl_cointegration(_ptr(xarr), _ptr(yarr), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"COINT_{length}", "statistics", offset)
+    _check(_lib.qtl_cointegration(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"COINT_{period}", "statistics", offset)

@@ -108,29 +108,29 @@ def ssfdsp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     _check(_lib.qtl_ssfdsp(_ptr(src), _ptr(output), n, period))
     return _wrap(output, idx, f"SSFDSP_{period}", "cycles", offset)
 
-def cg(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def cg(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Center of Gravity."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_cg(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CG_{length}", "cycles", offset)
+    _check(_lib.qtl_cg(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CG_{period}", "cycles", offset)
 
 
-def dsp(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def dsp(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Dominant Cycle Period (DSP)."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dsp(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DSP_{length}", "cycles", offset)
+    _check(_lib.qtl_dsp(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DSP_{period}", "cycles", offset)
 
 
-def ccor(close: object, length: int = 20, alpha: float = 0.07,
+def ccor(close: object, period: int = 20, alpha: float = 0.07,
          offset: int = 0, **kwargs) -> object:
     """Circular Correlation."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_ccor(_ptr(src), n, _ptr(dst), length, float(alpha)))
-    return _wrap(dst, idx, f"CCOR_{length}", "cycles", offset)
+    _check(_lib.qtl_ccor(_ptr(src), n, _ptr(dst), period, float(alpha)))
+    return _wrap(dst, idx, f"CCOR_{period}", "cycles", offset)
 
 
 def ebsw(close: object, hp_length: int = 40, ssf_length: int = 10,

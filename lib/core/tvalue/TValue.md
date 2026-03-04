@@ -9,7 +9,7 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
 
-### TL;DR
+## TL;DR
 
 - `TValue` is the fundamental atomic unit of data in QuanTAlib.
 - No configurable parameters; computation is stateless per bar.
@@ -73,16 +73,23 @@ var t1 = new TValue(DateTime.UtcNow, 100.5);
 var t2 = new TValue(DateTime.UtcNow.Ticks, 100.5);
 ```
 
-### Implicit Conversions
+### Conversions
 
 ```csharp
 TValue tv = new TValue(DateTime.UtcNow, 42.0);
 
-// Implicitly converts to double
-double val = tv; // 42.0
+// Explicitly converts to double (requires cast)
+double val = (double)tv; // 42.0
 
 // Implicitly converts to DateTime
 DateTime dt = tv; // DateTime object
+
+// Implicitly converts from double (uses DateTime.UtcNow)
+TValue fromDouble = 110.4; // same as new TValue(DateTime.UtcNow, 110.4)
+
+// Enables ergonomic indicator APIs
+var sma = new Sma(14);
+var result = sma.Update(110.4); // double → TValue implicit conversion
 ```
 
 ### String Representation

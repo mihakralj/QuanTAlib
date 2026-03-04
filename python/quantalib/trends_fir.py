@@ -195,117 +195,117 @@ def rwma(high: object, low: object, close: object, period: int = 14, offset: int
     _check(_lib.qtl_rwma(_ptr(c), _ptr(h), _ptr(l), _ptr(output), n, period))
     return _wrap(output, idx, f"RWMA_{period}", "trends_fir", offset)
 
-def sma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def sma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Simple Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_sma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"SMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_sma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"SMA_{period}", "trends_fir", offset)
 
 
-def wma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def wma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_wma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"WMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_wma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"WMA_{period}", "trends_fir", offset)
 
 
-def hma(close: object, length: int = 9, offset: int = 0, **kwargs) -> object:
+def hma(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
     """Hull Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_hma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"HMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_hma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"HMA_{period}", "trends_fir", offset)
 
 
-def trima(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def trima(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Triangular Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_trima(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TRIMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_trima(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TRIMA_{period}", "trends_fir", offset)
 
 
-def swma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def swma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Symmetric Weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_swma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"SWMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_swma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"SWMA_{period}", "trends_fir", offset)
 
 
-def dwma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def dwma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Double Weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dwma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DWMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_dwma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DWMA_{period}", "trends_fir", offset)
 
 
-def blma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def blma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Blackman Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_blma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"BLMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_blma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"BLMA_{period}", "trends_fir", offset)
 
 
-def alma(close: object, length: int = 10, alma_offset: float = 0.85,
+def alma(close: object, period: int = 10, alma_offset: float = 0.85,
          sigma: float = 6.0, offset: int = 0, **kwargs) -> object:
     """Arnaud Legoux Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_alma(_ptr(src), n, _ptr(dst), length, float(alma_offset), float(sigma)))
-    return _wrap(dst, idx, f"ALMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_alma(_ptr(src), n, _ptr(dst), period, float(alma_offset), float(sigma)))
+    return _wrap(dst, idx, f"ALMA_{period}", "trends_fir", offset)
 
 
-def lsma(close: object, length: int = 25, offset: int = 0, **kwargs) -> object:
+def lsma(close: object, period: int = 25, offset: int = 0, **kwargs) -> object:
     """Least Squares Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_lsma(_ptr(src), n, _ptr(dst), length, 0, 1.0))
-    return _wrap(dst, idx, f"LSMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_lsma(_ptr(src), n, _ptr(dst), period, 0, 1.0))
+    return _wrap(dst, idx, f"LSMA_{period}", "trends_fir", offset)
 
 
-def sgma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def sgma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Savitzky-Golay Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_sgma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"SGMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_sgma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"SGMA_{period}", "trends_fir", offset)
 
 
-def sinema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def sinema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Sine-weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_sinema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"SINEMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_sinema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"SINEMA_{period}", "trends_fir", offset)
 
 
-def hanma(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def hanma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Hann-weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_hanma(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"HANMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_hanma(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"HANMA_{period}", "trends_fir", offset)
 
 
-def parzen(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def parzen(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Parzen-weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_parzen(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"PARZEN_{length}", "trends_fir", offset)
+    _check(_lib.qtl_parzen(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"PARZEN_{period}", "trends_fir", offset)
 
 
-def tsf(close: object, length: int = 14, offset: int = 0, **kwargs) -> object:
+def tsf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Time Series Forecast."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_tsf(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TSF_{length}", "trends_fir", offset)
+    _check(_lib.qtl_tsf(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TSF_{period}", "trends_fir", offset)
 
 
 def conv(close: object, kernel: list | None = None,
@@ -320,52 +320,52 @@ def conv(close: object, kernel: list | None = None,
     return _wrap(dst, idx, "CONV", "trends_fir", offset)
 
 
-def bwma(close: object, length: int = 10, order: int = 0,
+def bwma(close: object, period: int = 10, order: int = 0,
          offset: int = 0, **kwargs) -> object:
     """Butterworth-weighted Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_bwma(_ptr(src), n, _ptr(dst), length, int(order)))
-    return _wrap(dst, idx, f"BWMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_bwma(_ptr(src), n, _ptr(dst), period, int(order)))
+    return _wrap(dst, idx, f"BWMA_{period}", "trends_fir", offset)
 
 
-def crma(close: object, length: int = 10, volume_factor: float = 1.0,
+def crma(close: object, period: int = 10, volume_factor: float = 1.0,
          offset: int = 0, **kwargs) -> object:
     """Cosine-Ramp Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_crma(_ptr(src), n, _ptr(dst), length, float(volume_factor)))
-    return _wrap(dst, idx, f"CRMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_crma(_ptr(src), n, _ptr(dst), period, float(volume_factor)))
+    return _wrap(dst, idx, f"CRMA_{period}", "trends_fir", offset)
 
 
-def sp15(close: object, length: int = 15, offset: int = 0, **kwargs) -> object:
+def sp15(close: object, period: int = 15, offset: int = 0, **kwargs) -> object:
     """SP-15 Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_sp15(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"SP15_{length}", "trends_fir", offset)
+    _check(_lib.qtl_sp15(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"SP15_{period}", "trends_fir", offset)
 
 
-def tukey_w(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def tukey_w(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Tukey-windowed Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_tukey_w(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TUKEY_{length}", "trends_fir", offset)
+    _check(_lib.qtl_tukey_w(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TUKEY_{period}", "trends_fir", offset)
 
 
-def rain(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def rain(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """RAIN Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_rain(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"RAIN_{length}", "trends_fir", offset)
+    _check(_lib.qtl_rain(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"RAIN_{period}", "trends_fir", offset)
 
 
-def afirma(close: object, length: int = 10, window_type: int = 0,
+def afirma(close: object, period: int = 10, window_type: int = 0,
            use_simd: bool = False, offset: int = 0, **kwargs) -> object:
     """Adaptive FIR Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_afirma(_ptr(src), n, _ptr(dst), length, int(window_type), int(use_simd)))
-    return _wrap(dst, idx, f"AFIRMA_{length}", "trends_fir", offset)
+    _check(_lib.qtl_afirma(_ptr(src), n, _ptr(dst), period, int(window_type), int(use_simd)))
+    return _wrap(dst, idx, f"AFIRMA_{period}", "trends_fir", offset)

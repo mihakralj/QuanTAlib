@@ -282,41 +282,41 @@ def wrmse(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     _check(_lib.qtl_wrmse(_ptr(a), _ptr(p), _ptr(output), n, period))
     return _wrap(output, idx, f"WRMSE_{period}", "errors", offset)
 
-def mse(actual: object, predicted: object, length: int = 20,
+def mse(actual: object, predicted: object, period: int = 20,
         offset: int = 0, **kwargs) -> object:
     """Mean Squared Error."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a); dst = _out(n)
-    _check(_lib.qtl_mse(_ptr(a), _ptr(p), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"MSE_{length}", "errors", offset)
+    _check(_lib.qtl_mse(_ptr(a), _ptr(p), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"MSE_{period}", "errors", offset)
 
 
-def rmse(actual: object, predicted: object, length: int = 20,
+def rmse(actual: object, predicted: object, period: int = 20,
          offset: int = 0, **kwargs) -> object:
     """Root Mean Squared Error."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a); dst = _out(n)
-    _check(_lib.qtl_rmse(_ptr(a), _ptr(p), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"RMSE_{length}", "errors", offset)
+    _check(_lib.qtl_rmse(_ptr(a), _ptr(p), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"RMSE_{period}", "errors", offset)
 
 
-def mae(actual: object, predicted: object, length: int = 20,
+def mae(actual: object, predicted: object, period: int = 20,
         offset: int = 0, **kwargs) -> object:
     """Mean Absolute Error."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a); dst = _out(n)
-    _check(_lib.qtl_mae(_ptr(a), _ptr(p), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"MAE_{length}", "errors", offset)
+    _check(_lib.qtl_mae(_ptr(a), _ptr(p), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"MAE_{period}", "errors", offset)
 
 
-def mape(actual: object, predicted: object, length: int = 20,
+def mape(actual: object, predicted: object, period: int = 20,
          offset: int = 0, **kwargs) -> object:
     """Mean Absolute Percentage Error."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
     n = len(a); dst = _out(n)
-    _check(_lib.qtl_mape(_ptr(a), _ptr(p), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"MAPE_{length}", "errors", offset)
+    _check(_lib.qtl_mape(_ptr(a), _ptr(p), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"MAPE_{period}", "errors", offset)

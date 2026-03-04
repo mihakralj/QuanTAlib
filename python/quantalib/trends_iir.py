@@ -357,12 +357,12 @@ def zltema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     _check(_lib.qtl_zltema(_ptr(src), _ptr(output), n, period))
     return _wrap(output, idx, f"ZLTEMA_{period}", "trends_iir", offset)
 
-def ema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def ema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Exponential Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_ema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"EMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_ema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"EMA_{period}", "trends_iir", offset)
 
 
 def ema_alpha(close: object, alpha: float = 0.1, offset: int = 0, **kwargs) -> object:
@@ -373,12 +373,12 @@ def ema_alpha(close: object, alpha: float = 0.1, offset: int = 0, **kwargs) -> o
     return _wrap(dst, idx, f"EMA_a{alpha:.4f}", "trends_iir", offset)
 
 
-def dema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def dema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Double Exponential Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DEMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_dema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DEMA_{period}", "trends_iir", offset)
 
 
 def dema_alpha(close: object, alpha: float = 0.1, offset: int = 0, **kwargs) -> object:
@@ -389,71 +389,71 @@ def dema_alpha(close: object, alpha: float = 0.1, offset: int = 0, **kwargs) -> 
     return _wrap(dst, idx, f"DEMA_a{alpha:.4f}", "trends_iir", offset)
 
 
-def tema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def tema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Triple Exponential Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_tema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"TEMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_tema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"TEMA_{period}", "trends_iir", offset)
 
 
-def lema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def lema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Laguerre-based EMA."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_lema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"LEMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_lema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"LEMA_{period}", "trends_iir", offset)
 
 
-def hema(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def hema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Henderson EMA."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_hema(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"HEMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_hema(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"HEMA_{period}", "trends_iir", offset)
 
 
-def ahrens(close: object, length: int = 10, offset: int = 0, **kwargs) -> object:
+def ahrens(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     """Ahrens Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_ahrens(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"AHRENS_{length}", "trends_iir", offset)
+    _check(_lib.qtl_ahrens(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"AHRENS_{period}", "trends_iir", offset)
 
 
-def decycler(close: object, length: int = 20, offset: int = 0, **kwargs) -> object:
+def decycler(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     """Simple Decycler."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_decycler(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"DECYCLER_{length}", "trends_iir", offset)
+    _check(_lib.qtl_decycler(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DECYCLER_{period}", "trends_iir", offset)
 
 
-def dsma(close: object, length: int = 10, factor: float = 0.5,
+def dsma(close: object, period: int = 10, factor: float = 0.5,
          offset: int = 0, **kwargs) -> object:
     """Deviation-Scaled Moving Average."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dsma(_ptr(src), n, _ptr(dst), length, float(factor)))
-    return _wrap(dst, idx, f"DSMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_dsma(_ptr(src), n, _ptr(dst), period, float(factor)))
+    return _wrap(dst, idx, f"DSMA_{period}", "trends_iir", offset)
 
 
-def gdema(close: object, length: int = 10, vfactor: float = 1.0,
+def gdema(close: object, period: int = 10, vfactor: float = 1.0,
           offset: int = 0, **kwargs) -> object:
     """Generalized DEMA."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_gdema(_ptr(src), n, _ptr(dst), length, float(vfactor)))
-    return _wrap(dst, idx, f"GDEMA_{length}", "trends_iir", offset)
+    _check(_lib.qtl_gdema(_ptr(src), n, _ptr(dst), period, float(vfactor)))
+    return _wrap(dst, idx, f"GDEMA_{period}", "trends_iir", offset)
 
 
-def coral(close: object, length: int = 10, friction: float = 0.4,
+def coral(close: object, period: int = 10, friction: float = 0.4,
           offset: int = 0, **kwargs) -> object:
     """CORAL Trend."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_coral(_ptr(src), n, _ptr(dst), length, float(friction)))
-    return _wrap(dst, idx, f"CORAL_{length}", "trends_iir", offset)
+    _check(_lib.qtl_coral(_ptr(src), n, _ptr(dst), period, float(friction)))
+    return _wrap(dst, idx, f"CORAL_{period}", "trends_iir", offset)
 
 
 def agc(close: object, alpha: float = 0.1, offset: int = 0, **kwargs) -> object:

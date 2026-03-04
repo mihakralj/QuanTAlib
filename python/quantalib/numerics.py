@@ -269,12 +269,12 @@ def weibulldist(close: object, k: float = 1.5, lam: float = 1.0, period: int = 1
     _check(_lib.qtl_weibulldist(_ptr(src), _ptr(output), n, k, lam, period))
     return _wrap(output, idx, f"WEIBULLDIST_{period}", "numerics", offset)
 
-def change(close: object, length: int = 1, offset: int = 0, **kwargs) -> object:
+def change(close: object, period: int = 1, offset: int = 0, **kwargs) -> object:
     """Price Change."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_change(_ptr(src), n, _ptr(dst), length))
-    return _wrap(dst, idx, f"CHANGE_{length}", "numerics", offset)
+    _check(_lib.qtl_change(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"CHANGE_{period}", "numerics", offset)
 
 
 def exptrans(close: object, offset: int = 0, **kwargs) -> object:
@@ -285,31 +285,31 @@ def exptrans(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "EXPTRANS", "numerics", offset)
 
 
-def betadist(close: object, length: int = 50, alpha: float = 2.0,
+def betadist(close: object, period: int = 50, alpha: float = 2.0,
              beta: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Beta Distribution."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_betadist(_ptr(src), n, _ptr(dst), length, float(alpha), float(beta)))
-    return _wrap(dst, idx, f"BETADIST_{length}", "numerics", offset)
+    _check(_lib.qtl_betadist(_ptr(src), n, _ptr(dst), period, float(alpha), float(beta)))
+    return _wrap(dst, idx, f"BETADIST_{period}", "numerics", offset)
 
 
-def expdist(close: object, length: int = 50, lam: float = 3.0,
+def expdist(close: object, period: int = 50, lam: float = 3.0,
             offset: int = 0, **kwargs) -> object:
     """Exponential Distribution."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_expdist(_ptr(src), n, _ptr(dst), length, float(lam)))
-    return _wrap(dst, idx, f"EXPDIST_{length}", "numerics", offset)
+    _check(_lib.qtl_expdist(_ptr(src), n, _ptr(dst), period, float(lam)))
+    return _wrap(dst, idx, f"EXPDIST_{period}", "numerics", offset)
 
 
-def binomdist(close: object, length: int = 50, trials: int = 20,
+def binomdist(close: object, period: int = 50, trials: int = 20,
               threshold: int = 10, offset: int = 0, **kwargs) -> object:
     """Binomial Distribution."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_binomdist(_ptr(src), n, _ptr(dst), length, int(trials), int(threshold)))
-    return _wrap(dst, idx, f"BINOMDIST_{length}", "numerics", offset)
+    _check(_lib.qtl_binomdist(_ptr(src), n, _ptr(dst), period, int(trials), int(threshold)))
+    return _wrap(dst, idx, f"BINOMDIST_{period}", "numerics", offset)
 
 
 def cwt(close: object, scale: float = 10.0, omega: float = 6.0,
@@ -321,10 +321,10 @@ def cwt(close: object, scale: float = 10.0, omega: float = 6.0,
     return _wrap(dst, idx, "CWT", "numerics", offset)
 
 
-def dwt(close: object, length: int = 4, levels: int = 0,
+def dwt(close: object, period: int = 4, levels: int = 0,
         offset: int = 0, **kwargs) -> object:
     """Discrete Wavelet Transform."""
-    length = int(length); levels = int(levels); offset = int(offset)
+    period = int(kwargs.get("length", period)); levels = int(levels); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dwt(_ptr(src), n, _ptr(dst), length, levels))
-    return _wrap(dst, idx, f"DWT_{length}", "numerics", offset)
+    _check(_lib.qtl_dwt(_ptr(src), n, _ptr(dst), period, levels))
+    return _wrap(dst, idx, f"DWT_{period}", "numerics", offset)

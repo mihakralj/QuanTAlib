@@ -315,15 +315,15 @@ def vwapsd(price: object, volume: object, numDevs: float = 2.0, offset: int = 0,
     return _wrap_multi({"upper": upper, "lower": lower, "vwap": vwap, "stdDev": stdDev}, idx, "channels", offset)
 
 
-def bbands(close: object, length: int = 20, std: float = 2.0,
+def bbands(close: object, period: int = 20, std: float = 2.0,
            offset: int = 0, **kwargs) -> object:
     """Bollinger Bands -> (upper, mid, lower) or DataFrame."""
-    length = int(length); std = float(std); offset = int(offset)
+    period = int(kwargs.get("length", period)); std = float(std); offset = int(offset)
     src, idx = _arr(close); n = len(src)
     upper = _out(n); mid = _out(n); lower = _out(n)
-    _check(_lib.qtl_bbands(_ptr(src), n, _ptr(upper), _ptr(mid), _ptr(lower), length, std))
+    _check(_lib.qtl_bbands(_ptr(src), n, _ptr(upper), _ptr(mid), _ptr(lower), period, std))
     return _wrap_multi(
-        {f"BBU_{length}_{std}": upper, f"BBM_{length}_{std}": mid, f"BBL_{length}_{std}": lower},
+        {f"BBU_{period}_{std}": upper, f"BBM_{period}_{std}": mid, f"BBL_{period}_{std}": lower},
         idx, "channels", offset)
 
 
@@ -341,12 +341,12 @@ def atrbands(high: object, low: object, close: object,
         idx, "channels", offset)
 
 
-def apchannel(high: object, low: object, length: int = 20,
+def apchannel(high: object, low: object, period: int = 20,
               offset: int = 0, **kwargs) -> object:
     """Average Price Channel -> (upper, lower) or DataFrame."""
-    length = int(length); offset = int(offset)
+    period = int(kwargs.get("length", period)); offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h)
     upper = _out(n); lower = _out(n)
-    _check(_lib.qtl_apchannel(_ptr(h), _ptr(l), n, _ptr(upper), _ptr(lower), float(length)))
-    return _wrap_multi({f"APCU_{length}": upper, f"APCL_{length}": lower}, idx, "channels", offset)
+    _check(_lib.qtl_apchannel(_ptr(h), _ptr(l), n, _ptr(upper), _ptr(lower), float(period)))
+    return _wrap_multi({f"APCU_{period}": upper, f"APCL_{period}": lower}, idx, "channels", offset)
