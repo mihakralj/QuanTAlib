@@ -63,6 +63,16 @@ public sealed class Adx : ITValuePublisher
     public TValue DiMinus { get; private set; }
 
     /// <summary>
+    /// Current smoothed +DM value (RMA-smoothed raw plus directional movement, before TR normalization).
+    /// </summary>
+    public TValue DmPlus { get; private set; }
+
+    /// <summary>
+    /// Current smoothed -DM value (RMA-smoothed raw minus directional movement, before TR normalization).
+    /// </summary>
+    public TValue DmMinus { get; private set; }
+
+    /// <summary>
     /// True if the ADX has warmed up and is providing valid results.
     /// </summary>
     public bool IsHot => _dxSamples >= _period;
@@ -116,6 +126,8 @@ public sealed class Adx : ITValuePublisher
         Last = default;
         DiPlus = default;
         DiMinus = default;
+        DmPlus = default;
+        DmMinus = default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -325,6 +337,8 @@ public sealed class Adx : ITValuePublisher
 
         DiPlus = new TValue(input.Time, diPlus);
         DiMinus = new TValue(input.Time, diMinus);
+        DmPlus = new TValue(input.Time, _samples >= _period ? _dmPlusSmooth : 0);
+        DmMinus = new TValue(input.Time, _samples >= _period ? _dmMinusSmooth : 0);
         Last = new TValue(input.Time, finalAdx);
 
         Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });

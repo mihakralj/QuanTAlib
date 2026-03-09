@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Elder's Thermometer", "ETHERM", overlay=false)
@@ -12,14 +12,13 @@ etherm(simple int period) =>
         runtime.error("Period must be greater than 0")
 
     // Step 1: Calculate raw thermometer value
-    // Temperature = max(abs(High - prevHigh), abs(prevLow - Low))
-    // Inside bar (High < prevHigh AND Low > prevLow) => 0
+    // Temperature = max of upward high protrusion and downward low protrusion
+    // Only outward extensions count; contractions clamp to zero
     float prevHigh = nz(high[1], high)
     float prevLow = nz(low[1], low)
-    float highDiff = math.abs(high - prevHigh)
-    float lowDiff = math.abs(prevLow - low)
-    bool isInsideBar = high < prevHigh and low > prevLow
-    float temp = isInsideBar ? 0.0 : math.max(highDiff, lowDiff)
+    float highDiff = math.max(high - prevHigh, 0.0)
+    float lowDiff = math.max(prevLow - low, 0.0)
+    float temp = math.max(highDiff, lowDiff)
 
     // Step 2: EMA of thermometer with warmup compensation
     float alpha = 2.0 / float(period + 1)

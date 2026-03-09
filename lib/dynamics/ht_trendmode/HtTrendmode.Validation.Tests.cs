@@ -197,4 +197,32 @@ public sealed class HtTrendmodeValidationTests : IDisposable
             Assert.Equal(results1[i], results2[i]);
         }
     }
+
+    [Fact]
+    public void HtTrendmode_Correction_Recomputes()
+    {
+        var ind = new HtTrendmode();
+        var t0 = new DateTime(946_684_800_000_000_0L, DateTimeKind.Utc);
+
+        // Build state well past warmup
+        for (int i = 0; i < 100; i++)
+        {
+            ind.Update(new TValue(t0.AddMinutes(i),
+                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddMinutes(100);
+        const double anchorPrice = 105.5;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorSmooth = ind.SmoothPeriod;
+
+        // Correction with a dramatically different price — SmoothPeriod must change
+        ind.Update(new TValue(anchorTime, anchorPrice * 10.0), isNew: false);
+        Assert.NotEqual(anchorSmooth, ind.SmoothPeriod);
+
+        // Correction back to original price — must exactly restore original SmoothPeriod
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorSmooth, ind.SmoothPeriod, 1e-9);
+    }
 }

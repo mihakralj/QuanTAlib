@@ -48,6 +48,7 @@ public sealed class Eacp : AbstractBase
     private readonly double[] _corr;
     private readonly double[] _power;
     private readonly double[] _smooth;
+    private readonly double[] _p_smooth;
 
     // State for filters and output
     [StructLayout(LayoutKind.Auto)]
@@ -122,6 +123,7 @@ public sealed class Eacp : AbstractBase
         _corr = new double[size];
         _power = new double[size];
         _smooth = new double[size];
+        _p_smooth = new double[size];
         _filtHistory = new RingBuffer(size + maxPeriod);
 
         Name = $"Eacp({minPeriod},{maxPeriod})";
@@ -156,11 +158,13 @@ public sealed class Eacp : AbstractBase
         {
             _ps = _s;
             _filtHistory.Snapshot();
+            Array.Copy(_smooth, _p_smooth, _smooth.Length);
         }
         else
         {
             _s = _ps;
             _filtHistory.Restore();
+            Array.Copy(_p_smooth, _smooth, _smooth.Length);
         }
 
         var s = _s;
@@ -407,6 +411,7 @@ public sealed class Eacp : AbstractBase
         Array.Clear(_corr);
         Array.Clear(_power);
         Array.Clear(_smooth);
+        Array.Clear(_p_smooth);
         Last = default;
     }
 
@@ -414,7 +419,7 @@ public sealed class Eacp : AbstractBase
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(DateTime.MinValue, value));
         }
     }
 
@@ -459,7 +464,7 @@ public sealed class Eacp : AbstractBase
         var eacp = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
         for (int i = 0; i < len; i++)
         {
-            var result = eacp.Update(new TValue(DateTime.UtcNow, source[i]));
+            var result = eacp.Update(new TValue(DateTime.MinValue, source[i]));
             output[i] = result.Value;
         }
     }

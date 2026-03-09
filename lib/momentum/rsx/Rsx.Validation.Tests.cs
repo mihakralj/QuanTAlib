@@ -142,4 +142,31 @@ public class RsxValidationTests
         int finiteCount = values.Count(v => double.IsFinite(v));
         Assert.True(finiteCount > 100, $"Expected >100 finite values, got {finiteCount}");
     }
+
+    [Fact]
+    public void Rsx_Correction_Recomputes()
+    {
+        var ind = new Rsx(14);
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorPrice = 125.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction with dramatically different value — use a large drop to move RSX away from ceiling
+        ind.Update(new TValue(anchorTime, anchorPrice / 10), isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
 }

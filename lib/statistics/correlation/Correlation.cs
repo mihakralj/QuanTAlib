@@ -45,6 +45,7 @@ public sealed class Correlation : AbstractBase
     private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
+    /// <inheritdoc />
     public override bool IsHot => _bufferX.Count >= WarmupPeriod;
 
     /// <summary>
@@ -108,16 +109,23 @@ public sealed class Correlation : AbstractBase
     /// <summary>
     /// Updates with raw double values.
     /// </summary>
+    /// <remarks>
+    /// Stamps both inputs with <c>DateTime.UtcNow</c> as their timestamp. For
+    /// deterministic or replay-safe sequences use
+    /// <see cref="Update(TValue, TValue, bool)"/> with explicit timestamps instead.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesX, double seriesY, bool isNew = true)
     {
-        return Update(new TValue(DateTime.MinValue, seriesX), new TValue(DateTime.MinValue, seriesY), isNew);
+        return Update(new TValue(DateTime.UtcNow, seriesX), new TValue(DateTime.UtcNow, seriesY), isNew);
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesX, seriesY) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Correlation requires two inputs (seriesX and seriesY). Use Update(seriesX, seriesY).");
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Batch(TSeries, TSeries, int)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesX, seriesY, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -259,11 +267,13 @@ public sealed class Correlation : AbstractBase
             _sumXY = FusedMultiplyAdd(x, y, _sumXY);
         }
     }
+    /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Correlation requires two inputs.");
     }
 
+    /// <inheritdoc />
     public override void Reset()
     {
         _bufferX.Clear();
@@ -323,6 +333,9 @@ public sealed class Correlation : AbstractBase
         }
     }
 
+    /// <summary>
+    /// Calculates Pearson correlation for two time series and returns both the result series and the live indicator instance.
+    /// </summary>
     public static (TSeries Results, Correlation Indicator) Calculate(TSeries seriesX, TSeries seriesY, int period = 20)
     {
         if (seriesX.Count != seriesY.Count)

@@ -412,22 +412,7 @@ public sealed class Vhf : AbstractBase
                 // Calculate VHF
                 if (closeFilled >= closeBufSize && diffFilled >= period)
                 {
-                    // Scan for max/min over close buffer
-                    double hi = double.MinValue;
-                    double lo = double.MaxValue;
-                    for (int k = 0; k < closeBufSize; k++)
-                    {
-                        double cv = closeBuf[k];
-                        if (cv > hi)
-                        {
-                            hi = cv;
-                        }
-                        if (cv < lo)
-                        {
-                            lo = cv;
-                        }
-                    }
-
+                    var (lo, hi) = ((ReadOnlySpan<double>)closeBuf).MinMaxSIMD();
                     double numerator = hi - lo;
 
                     if (diffSum > 1e-10)

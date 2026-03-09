@@ -309,7 +309,7 @@ public sealed class Covariance : AbstractBase
 
             sumX = sumX - oldX + x;
             sumY = sumY - oldY + y;
-            sumXY = sumXY - (oldX * oldY) + (x * y);
+            sumXY = sumXY - oldX * oldY + x * y;
 
             bufferX[bufferIndex] = x;
             bufferY[bufferIndex] = y;
@@ -337,7 +337,7 @@ public sealed class Covariance : AbstractBase
                     double by = bufferY[k];
                     recalcSumX += bx;
                     recalcSumY += by;
-                    recalcSumXY += bx * by;
+                    recalcSumXY = Math.FusedMultiplyAdd(bx, by, recalcSumXY);
                 }
                 sumX = recalcSumX;
                 sumY = recalcSumY;
@@ -477,7 +477,7 @@ public sealed class Covariance : AbstractBase
                     double y = Unsafe.Add(ref srcYRef, startIdx + k);
                     recalcSumX += x;
                     recalcSumY += y;
-                    recalcSumXY += x * y;
+                    recalcSumXY = Math.FusedMultiplyAdd(x, y, recalcSumXY);
                 }
                 sumX = recalcSumX;
                 sumY = recalcSumY;
@@ -513,7 +513,7 @@ public sealed class Covariance : AbstractBase
 
             sumX = sumX - oldX + x;
             sumY = sumY - oldY + y;
-            sumXY = sumXY - (oldX * oldY) + (x * y);
+            sumXY = sumXY - oldX * oldY + x * y;
 
             double numerator = sumXY - sumX * sumY * invN;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;

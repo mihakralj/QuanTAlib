@@ -348,6 +348,10 @@ public sealed class Stochrsi : AbstractBase
     /// <summary>
     /// High-performance span-based StochRSI %K calculation.
     /// </summary>
+    /// <remarks>
+    /// Computes only the %K line (SMA-smoothed Stochastic RSI). The %D signal line (<see cref="D"/>)
+    /// is not available from this API; use <see cref="Update(TValue, bool)"/> streaming to access both outputs.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output,
                              int rsiLength, int stochLength, int kSmooth, int dSmooth)

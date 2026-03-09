@@ -6,6 +6,10 @@ using QuanTAlib;
 
 namespace QuanTAlib.Python;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Security Hotspot",
+    "S6640",
+    Justification = "Generated NativeAOT export helpers bridge unmanaged caller-owned buffers into managed series objects. The unsafe context is required by the ABI and remains constrained to pointer-to-span copies over validated inputs.")]
 public static unsafe partial class Exports
 {
     private static TSeries BuildSeries(double* src, int n)
@@ -1580,6 +1584,19 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_maxindex")]
+    public static int QtlMaxindex(double* source, double* output, int n, int period)
+    {
+        if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            Maxindex.Batch(Src(source, n), Dst(output, n), period);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_mcnma")]
     public static int QtlMcnma(double* source, double* output, int n, int period)
     {
@@ -1692,6 +1709,57 @@ public static unsafe partial class Exports
         try
         {
             Midprice.Batch(Src(high, n), Src(low, n), Dst(output, n), period);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_minindex")]
+    public static int QtlMinindex(double* source, double* output, int n, int period)
+    {
+        if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            Minindex.Batch(Src(source, n), Dst(output, n), period);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_minusdi")]
+    public static int QtlMinusDi(double* sourceOpen, double* sourceHigh, double* sourceLow, double* sourceClose, double* sourceVolume, int period, int n, double* dst)
+    {
+        if (sourceOpen == null || sourceHigh == null || sourceLow == null || sourceClose == null || sourceVolume == null || dst == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var sourceBars = BuildBars(sourceOpen, sourceHigh, sourceLow, sourceClose, sourceVolume, n);
+            var result = MinusDi.Batch(sourceBars, period);
+            var values = result.Values;
+            if (values.Length > n) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+            var outSpan = Dst(dst, n);
+            outSpan.Fill(double.NaN);
+            values.CopyTo(outSpan);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_minusdm")]
+    public static int QtlMinusDm(double* sourceOpen, double* sourceHigh, double* sourceLow, double* sourceClose, double* sourceVolume, int period, int n, double* dst)
+    {
+        if (sourceOpen == null || sourceHigh == null || sourceLow == null || sourceClose == null || sourceVolume == null || dst == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var sourceBars = BuildBars(sourceOpen, sourceHigh, sourceLow, sourceClose, sourceVolume, n);
+            var result = MinusDm.Batch(sourceBars, period);
+            var values = result.Values;
+            if (values.Length > n) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+            var outSpan = Dst(dst, n);
+            outSpan.Fill(double.NaN);
+            values.CopyTo(outSpan);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -2062,6 +2130,44 @@ public static unsafe partial class Exports
         try
         {
             Pivotwood.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(ppOutput, n));
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_plusdi")]
+    public static int QtlPlusDi(double* sourceOpen, double* sourceHigh, double* sourceLow, double* sourceClose, double* sourceVolume, int period, int n, double* dst)
+    {
+        if (sourceOpen == null || sourceHigh == null || sourceLow == null || sourceClose == null || sourceVolume == null || dst == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var sourceBars = BuildBars(sourceOpen, sourceHigh, sourceLow, sourceClose, sourceVolume, n);
+            var result = PlusDi.Batch(sourceBars, period);
+            var values = result.Values;
+            if (values.Length > n) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+            var outSpan = Dst(dst, n);
+            outSpan.Fill(double.NaN);
+            values.CopyTo(outSpan);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_plusdm")]
+    public static int QtlPlusDm(double* sourceOpen, double* sourceHigh, double* sourceLow, double* sourceClose, double* sourceVolume, int period, int n, double* dst)
+    {
+        if (sourceOpen == null || sourceHigh == null || sourceLow == null || sourceClose == null || sourceVolume == null || dst == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var sourceBars = BuildBars(sourceOpen, sourceHigh, sourceLow, sourceClose, sourceVolume, n);
+            var result = PlusDm.Batch(sourceBars, period);
+            var values = result.Values;
+            if (values.Length > n) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+            var outSpan = Dst(dst, n);
+            outSpan.Fill(double.NaN);
+            values.CopyTo(outSpan);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -2549,6 +2655,19 @@ public static unsafe partial class Exports
         try
         {
             Sam.Batch(Src(source, n), Dst(output, n), alpha, cutoff);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_sarext")]
+    public static int QtlSarext(double* open, double* high, double* low, double* close, double* output, int n, double startValue, double offsetOnReverse, double afInitLong, double afLong, double afMaxLong, double afInitShort, double afShort, double afMaxShort)
+    {
+        if (open == null || high == null || low == null || close == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            Sarext.Batch(Src(open, n), Src(high, n), Src(low, n), Src(close, n), Dst(output, n), n, startValue, offsetOnReverse, afInitLong, afLong, afMaxLong, afInitShort, afShort, afMaxShort);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }

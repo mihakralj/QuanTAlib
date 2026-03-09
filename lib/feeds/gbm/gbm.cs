@@ -120,6 +120,10 @@ public sealed class GBM : IFeed
     /// <summary>
     /// Resets the generator to its initial state.
     /// </summary>
+    /// <remarks>
+    /// Sets the internal time anchor to <see cref="DateTime.UtcNow"/>. For deterministic
+    /// time sequences use <see cref="Reset(long)"/> with an explicit start time.
+    /// </remarks>
     public void Reset()
     {
         _lastPrice = StartPrice;
@@ -284,6 +288,15 @@ public sealed class GBM : IFeed
     /// <returns>A TBarSeries containing the generated bars</returns>
     /// <exception cref="ArgumentException">Thrown when count is not positive</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when interval is not positive</exception>
+    /// <remarks>
+    /// Price continuity: <c>batch[0].Open</c> equals <c>_lastPrice</c> at call time, so the
+    /// batch begins exactly where the previous <see cref="Next(bool)"/> call left off.
+    /// After the call, <c>_lastPrice</c> and <c>_lastTime</c> are updated to the end of the
+    /// generated batch, enabling seamless continuation via subsequent <see cref="Next(bool)"/>
+    /// calls. <paramref name="startTime"/> need not follow the previous <c>_lastTime</c> —
+    /// this allows replaying a window or generating a non-contiguous batch while preserving
+    /// price continuity.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBarSeries Fetch(int count, long startTime, TimeSpan interval)
     {

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -206,7 +207,7 @@ public sealed class Regchannel : ITValuePublisher
         for (int i = 0; i < count; i++)
         {
             sumY += values[i];
-            sumXY += i * values[i];
+            sumXY = Math.FusedMultiplyAdd((double)i, values[i], sumXY);
         }
 
         double n = count;
@@ -325,7 +326,11 @@ public sealed class Regchannel : ITValuePublisher
 
     /// <summary>
     /// Batch calculation using spans.
+    /// O(period) per bar: sums recomputed from circular buffer each bar for numerical
+    /// consistency with the streaming path, plus closed-form residual variance:
+    /// sumResiduals² = sumY² − intercept·sumY − slope·sumXY, eliminating a second O(period) pass.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> middle,
@@ -360,121 +365,124 @@ public sealed class Regchannel : ITValuePublisher
         double sumX2Full = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
         double denomFull = period * sumX2Full - sumXFull * sumXFull;
 
-        // Track last valid value for NaN substitution
-        double lastValid = double.NaN;
-
-        for (int i = 0; i < len; i++)
+        // Circular buffer of NaN-sanitised values for O(1) sliding-window recurrences.
+        const int StackAllocThreshold = 256;
+        double[]? rentedWindow = null;
+        scoped Span<double> window;
+        if (period <= StackAllocThreshold)
         {
-            // Get valid value with last-valid substitution
-            double currentValue = source[i];
-            if (double.IsFinite(currentValue))
-            {
-                lastValid = currentValue;
-            }
-            else
-            {
-                currentValue = lastValid;
-            }
+            window = stackalloc double[period];
+        }
+        else
+        {
+            rentedWindow = ArrayPool<double>.Shared.Rent(period);
+            window = rentedWindow.AsSpan(0, period);
+        }
 
-            // If still NaN (no valid value seen yet), output NaN
-            if (!double.IsFinite(currentValue))
+        try
+        {
+            window.Clear();
+
+            double lastValid = double.NaN;
+            int head = 0, count = 0;
+
+            for (int i = 0; i < len; i++)
             {
-                middle[i] = double.NaN;
-                upper[i] = double.NaN;
-                lower[i] = double.NaN;
-                continue;
-            }
-
-            int count = Math.Min(i + 1, period);
-            int start = i - count + 1;
-
-            if (count <= 1)
-            {
-                middle[i] = currentValue;
-                upper[i] = currentValue;
-                lower[i] = currentValue;
-                continue;
-            }
-
-            // Calculate sums for linear regression with NaN handling
-            double sumY = 0;
-            double sumXY = 0;
-            double lastValidInWindow = double.NaN;
-
-            for (int j = 0; j < count; j++)
-            {
-                double rawY = source[start + j];
-                double y;
-                if (double.IsFinite(rawY))
+                // NaN substitution
+                double y = source[i];
+                if (double.IsFinite(y))
                 {
-                    lastValidInWindow = rawY;
-                    y = rawY;
+                    lastValid = y;
                 }
                 else
                 {
-                    y = double.IsFinite(lastValidInWindow) ? lastValidInWindow : 0.0;
+                    y = lastValid;
                 }
-                sumY += y;
-                sumXY += j * y;
-            }
 
-            double n = count;
-            double sx, denom;
-
-            if (count < period)
-            {
-                sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
-            }
-            else
-            {
-                sx = sumXFull;
-                denom = denomFull;
-            }
-
-            double slope, intercept, regression;
-
-            if (Math.Abs(denom) < 1e-10)
-            {
-                slope = 0;
-                intercept = sumY / n;
-                regression = intercept;
-            }
-            else
-            {
-                slope = (n * sumXY - sx * sumY) / denom;
-                intercept = (sumY - slope * sx) / n;
-                regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
-            }
-
-            // Calculate standard deviation of residuals with NaN handling
-            double sumResiduals2 = 0;
-            lastValidInWindow = double.NaN;
-            for (int j = 0; j < count; j++)
-            {
-                double rawY = source[start + j];
-                double y;
-                if (double.IsFinite(rawY))
+                // No valid value seen yet
+                if (!double.IsFinite(y))
                 {
-                    lastValidInWindow = rawY;
-                    y = rawY;
+                    middle[i] = double.NaN;
+                    upper[i] = double.NaN;
+                    lower[i] = double.NaN;
+                    continue;
+                }
+
+                // Store in circular buffer
+                window[head] = y;
+                head = (head + 1) % period;
+                if (count < period)
+                {
+                    count++;
+                }
+
+                if (count <= 1)
+                {
+                    middle[i] = y;
+                    upper[i] = y;
+                    lower[i] = y;
+                    continue;
+                }
+
+                // Recompute sums fresh from circular buffer (oldest-to-newest).
+                // This matches the streaming Update() path numerically.
+                double sumY = 0, sumXY = 0, sumY2 = 0;
+                int oldestIdx = (head - count + period) % period;
+                for (int k = 0; k < count; k++)
+                {
+                    double wk = window[(oldestIdx + k) % period];
+                    sumY += wk;
+                    sumXY = Math.FusedMultiplyAdd((double)k, wk, sumXY);
+                    sumY2 = Math.FusedMultiplyAdd(wk, wk, sumY2);
+                }
+
+                double n = count;
+                double sx, denom;
+
+                if (count < period)
+                {
+                    sx = 0.5 * n * (n - 1);
+                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
+                    denom = n * sx2 - sx * sx;
                 }
                 else
                 {
-                    y = double.IsFinite(lastValidInWindow) ? lastValidInWindow : 0.0;
+                    sx = sumXFull;
+                    denom = denomFull;
                 }
-                double predicted = Math.FusedMultiplyAdd(slope, j, intercept);
-                double residual = y - predicted;
-                sumResiduals2 = Math.FusedMultiplyAdd(residual, residual, sumResiduals2);
+
+                double slope, intercept, regression;
+
+                if (Math.Abs(denom) < 1e-10)
+                {
+                    slope = 0;
+                    intercept = sumY / n;
+                    regression = intercept;
+                }
+                else
+                {
+                    slope = (n * sumXY - sx * sumY) / denom;
+                    intercept = (sumY - slope * sx) / n;
+                    regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
+                }
+
+                // Closed-form residual variance (normal-equation identity):
+                //   sumResiduals² = sumY² − intercept·sumY − slope·sumXY
+                double sumResiduals2 = Math.Max(0.0, sumY2 - intercept * sumY - slope * sumXY);
+                double stdDev = Math.Sqrt(sumResiduals2 / n);
+                double band = multiplier * stdDev;
+
+                middle[i] = regression;
+                upper[i] = regression + band;
+                lower[i] = regression - band;
             }
-
-            double stdDev = Math.Sqrt(sumResiduals2 / n);
-            double band = multiplier * stdDev;
-
-            middle[i] = regression;
-            upper[i] = regression + band;
-            lower[i] = regression - band;
+        }
+        finally
+        {
+            if (rentedWindow != null)
+            {
+                ArrayPool<double>.Shared.Return(rentedWindow);
+            }
         }
     }
 

@@ -12,7 +12,7 @@ public class RingBufferTests
         Assert.Equal(0, buffer.Count);
         Assert.False(buffer.IsFull);
         Assert.Equal(0, buffer.Sum);
-        Assert.Equal(0, buffer.Average);
+        Assert.True(double.IsNaN(buffer.Average));
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class RingBufferTests
 
         Assert.Equal(0, buffer.Count);
         Assert.Equal(0, buffer.Sum);
-        Assert.Equal(0, buffer.Average);
+        Assert.True(double.IsNaN(buffer.Average));
         Assert.False(buffer.IsFull);
     }
 
@@ -453,11 +453,11 @@ public class RingBufferTests
     }
 
     [Fact]
-    public void Average_EmptyBuffer_ReturnsZero()
+    public void Average_EmptyBuffer_ReturnsNaN()
     {
         var buffer = new RingBuffer(5);
 
-        Assert.Equal(0, buffer.Average);
+        Assert.True(double.IsNaN(buffer.Average));
     }
 
     [Fact]

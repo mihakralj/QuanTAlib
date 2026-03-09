@@ -140,6 +140,11 @@ public sealed class Prs : AbstractBase
     /// <summary>
     /// Updates with raw double values.
     /// </summary>
+    /// <remarks>
+    /// Stamps both inputs with <c>DateTime.UtcNow</c> as their timestamp. For
+    /// deterministic or replay-safe sequences use
+    /// <see cref="Update(TValue, TValue, bool)"/> with explicit timestamps instead.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double baseValue, double compValue, bool isNew = true)
     {

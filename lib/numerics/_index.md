@@ -18,12 +18,14 @@ Basic mathematical transforms and utility functions for time series. These build
 | [FFT](fft/Fft.md) | Fast Fourier Transform | Frequency-domain decomposition via FFT algorithm. |
 | [GAMMADIST](gammadist/Gammadist.md) | Gamma Distribution | Gamma probability distribution transform. |
 | [HIGHEST](highest/Highest.md) | Rolling Maximum | Maximum value over lookback window. |
+| [MAXINDEX](maxindex/Maxindex.md) | Rolling Maximum Index | Position of maximum value in rolling window. |
 | [IFFT](ifft/Ifft.md) | Inverse Fast Fourier Transform | Frequency-to-time domain reconstruction. |
 | [JERK](jerk/Jerk.md) | Jerk | Rate of acceleration; third derivative of price. |
 | [LINEARTRANS](lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling transformation. |
 | [LOGNORMDIST](lognormdist/Lognormdist.md) | Log-normal Distribution | Log-normal probability distribution transform. |
 | [LOGTRANS](logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage-based analysis. |
 | [LOWEST](lowest/Lowest.md) | Rolling Minimum | Minimum value over lookback window. |
+| [MININDEX](minindex/Minindex.md) | Rolling Minimum Index | Position of minimum value in rolling window. |
 | [NORMDIST](normdist/Normdist.md) | Normal Distribution | Gaussian probability distribution transform. |
 | [NORMALIZE](normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] range using rolling min/max. |
 | [POISSONDIST](poissondist/Poissondist.md) | Poisson Distribution | Poisson probability distribution transform. |

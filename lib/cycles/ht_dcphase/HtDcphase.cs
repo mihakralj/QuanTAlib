@@ -217,12 +217,10 @@ public sealed class HtDcphase : AbstractBase
         }
         else
         {
-            // Same-bar update: restore previous state and return cached result from Last
             _state = _p_state;
             Array.Copy(_p_circBuffer, _circBuffer, CIRC_BUFFER_SIZE);
             Array.Copy(_p_smoothPrice, _smoothPrice, SMOOTH_PRICE_SIZE);
             Array.Copy(_p_priceHistory, _priceHistory, PRICE_HISTORY_SIZE);
-            return Last.Value;
         }
 
         var s = _state;

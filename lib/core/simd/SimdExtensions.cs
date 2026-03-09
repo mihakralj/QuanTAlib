@@ -90,7 +90,7 @@ public static class SimdExtensions
         for (int i = 0; i < span.Length; i++)
         {
             double diff = span[i] - mean;
-            sumSquares += diff * diff;
+            sumSquares = Math.FusedMultiplyAdd(diff, diff, sumSquares);
         }
         return sumSquares / (span.Length - 1);
     }
@@ -438,7 +438,7 @@ public static class SimdExtensions
             for (; i < span.Length; i++)
             {
                 double diff = span[i] - m;
-                result += diff * diff;
+                result = Math.FusedMultiplyAdd(diff, diff, result);
             }
 
             return result / (span.Length - 1);
@@ -682,17 +682,17 @@ public static class SimdExtensions
         // Unroll scalar loop with 4 accumulators to break dependency chains
         for (; i <= len - 4; i += 4)
         {
-            s1 += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
-            s2 += Unsafe.Add(ref ar, i + 1) * Unsafe.Add(ref br, i + 1);
-            s3 += Unsafe.Add(ref ar, i + 2) * Unsafe.Add(ref br, i + 2);
-            s4 += Unsafe.Add(ref ar, i + 3) * Unsafe.Add(ref br, i + 3);
+            s1 = Math.FusedMultiplyAdd(Unsafe.Add(ref ar, i), Unsafe.Add(ref br, i), s1);
+            s2 = Math.FusedMultiplyAdd(Unsafe.Add(ref ar, i + 1), Unsafe.Add(ref br, i + 1), s2);
+            s3 = Math.FusedMultiplyAdd(Unsafe.Add(ref ar, i + 2), Unsafe.Add(ref br, i + 2), s3);
+            s4 = Math.FusedMultiplyAdd(Unsafe.Add(ref ar, i + 3), Unsafe.Add(ref br, i + 3), s4);
         }
 
         double s = s1 + s2 + s3 + s4;
 
         for (; i < len; i++)
         {
-            s += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
+            s = Math.FusedMultiplyAdd(Unsafe.Add(ref ar, i), Unsafe.Add(ref br, i), s);
         }
         return s;
     }

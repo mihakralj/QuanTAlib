@@ -233,4 +233,32 @@ public class FftValidationTests
                 $"Output at {i} must be finite, got {dst[i]}");
         }
     }
+
+    [Fact]
+    public void Fft_Correction_StateRestores()
+    {
+        // The Hanning window maps idx=0 to the newest bar and _hanning[0]=0, so
+        // corrections to the anchor bar carry zero spectral weight. isNew=false
+        // determinism is still correct: restoring the original value reproduces the
+        // original result exactly regardless of any intermediate correction.
+        var ind = new Fft(windowSize: 32, maxPeriod: 16);
+        var t0 = DateTime.MinValue;
+
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + 10.0 * Math.Sin(2 * Math.PI * i / 8.0)));
+        }
+
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorPrice = 100.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Apply an arbitrary correction — spectral output is unchanged due to zero Hanning weight
+        ind.Update(new TValue(anchorTime, anchorPrice * 100), isNew: false);
+
+        // Restoring to original must exactly reproduce the original result
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
 }

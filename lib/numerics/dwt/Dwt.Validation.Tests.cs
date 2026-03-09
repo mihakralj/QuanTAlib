@@ -322,6 +322,33 @@ public class DwtValidationTests
         }
     }
 
+    [Fact]
+    public void Dwt_Correction_Recomputes()
+    {
+        var ind = new Dwt(levels: 4);
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup (WarmupPeriod = 2^4 = 16)
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorPrice = 125.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction with dramatically different value — DWT uses anchor at lag 0
+        ind.Update(new TValue(anchorTime, anchorPrice * 10), isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
+
     // ─── Helper ──────────────────────────────────────────────────────────────
 
     private static double Variance(List<double> vals)

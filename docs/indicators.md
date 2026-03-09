@@ -194,12 +194,16 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**CHOP**](../lib/dynamics/chop/Chop.md) | Choppiness Index | ATR sum vs range; trending vs choppy |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
+| [**MINUS_DI**](../lib/dynamics/minusdi/MinusDi.md) | Minus Directional Indicator | Downward DI (0-100) |
+| [**MINUS_DM**](../lib/dynamics/minusdm/MinusDm.md) | Minus Directional Movement | Smoothed downward DM |
 | [**GHLA**](../lib/dynamics/ghla/Ghla.md) | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover |
 | [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Cycle vs trend regime detection |
 | [**ICHIMOKU**](../lib/dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Multi-component trend system |
 | [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
 | [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
 | [**PFE**](../lib/dynamics/pfe/Pfe.md) | Polarized Fractal Efficiency | Fractal path efficiency as trend strength |
+| [**PLUS_DI**](../lib/dynamics/plusdi/PlusDi.md) | Plus Directional Indicator | Upward DI (0-100) |
+| [**PLUS_DM**](../lib/dynamics/plusdm/PlusDm.md) | Plus Directional Movement | Smoothed upward DM |
 | [**RAVI**](../lib/dynamics/ravi/Ravi.md) | Chande Range Action Verification Index | Dual-SMA divergence as trend strength |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |
 | [**TTM_SQUEEZE**](../lib/dynamics/ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze with momentum |
@@ -432,11 +436,13 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**DWT**](../lib/numerics/dwt/Dwt.md) | Discrete Wavelet Transform | À trous Haar stationary DWT — multi-resolution approximation + detail, WarmupPeriod = 2^levels |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |
+| [**MAXINDEX**](../lib/numerics/maxindex/Maxindex.md) | Rolling Maximum Index | Position of max in window |
 | [**JERK**](../lib/numerics/jerk/Jerk.md) | Jerk (3rd Derivative) | Change in acceleration |
 | [**LINEARTRANS**](../lib/numerics/lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling |
 | [**LOGNORMDIST**](../lib/numerics/lognormdist/Lognormdist.md) | Log-Normal Distribution | Log-normal CDF via min-max normalization |
 | [**LOGTRANS**](../lib/numerics/logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage analysis |
 | [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) via monotonic deque |
+| [**MININDEX**](../lib/numerics/minindex/Minindex.md) | Rolling Minimum Index | Position of min in window |
 | [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |
 | [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x) activation |
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x) bounded [0,1] |
@@ -492,6 +498,7 @@ Reversal indicators identify potential turning points, compute adaptive stop lev
 | [**PIVOTFIB**](../lib/reversals/pivotfib/Pivotfib.md) | Fibonacci Pivot Points | Fibonacci pivots: 7 levels (PP, R1-R3, S1-S3); ratios 0.382/0.618/1.000 applied to range |
 | [**PIVOTWOOD**](../lib/reversals/pivotwood/Pivotwood.md) | Woodie's Pivot Points | Close-weighted pivots: 7 levels (PP, R1-R3, S1-S3); PP = (H+L+2C)/4 biased toward close |
 | [**PSAR**](../lib/reversals/psar/Psar.md) | Parabolic Stop And Reverse | Accelerating trailing stop; SAR dots flip on reversal; Welles Wilder (1978) |
+| [**SAREXT**](../lib/reversals/sarext/Sarext.md) | Parabolic SAR Extended | Asymmetric AF PSAR; sign-encoded output |
 | [**SWINGS**](../lib/reversals/swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector; dual SwingHigh/SwingLow with persistent levels |
 | [**TTM_SCALPER**](../lib/reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries; John Carter |
 

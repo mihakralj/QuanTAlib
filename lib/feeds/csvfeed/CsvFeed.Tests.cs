@@ -20,6 +20,7 @@ public sealed class CsvFeedTests : IDisposable
     private static readonly string[] NegativeValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,-100,50,-150,-50,1000"];
     private static readonly string[] ScientificNotationData = ["timestamp,open,high,low,close,volume", "2023-01-01,1.5e2,2e2,1e2,1.75e2,1e6"];
     private static readonly string[] GapDataReversed = ["timestamp,open,high,low,close,volume", "2023-01-05,103,104,102,103,1000", "2023-01-04,102,103,101,102,1000", "2023-01-02,101,102,100,101,1000", "2023-01-01,100,101,99,100,1000"];
+    private static readonly string[] TwoBarsWithGapData = ["timestamp,open,high,low,close,volume", "2023-01-03,101,102,100,101,1000", "2023-01-01,100,101,99,100,1000"];
     private static readonly string[] WhitespaceData = ["timestamp,open,high,low,close,volume", "  2023-01-01  ,  100  ,  101  ,  99  ,  100  ,  1000  "];
     private static readonly string[] ZeroValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,0,0,0,0,0"];
     private static readonly string[] LargeValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,999999999.99,1000000000.01,999999999.00,999999999.50,9999999999999"];
@@ -337,6 +338,26 @@ public sealed class CsvFeedTests : IDisposable
         Assert.True(bar2.Time > bar1.Time);
     }
 
+    [Fact]
+    public void CsvFeed_ObsoleteOverload_SilentlyMissesEndOfStream()
+    {
+        string tempCsv = CreateTempCsv(SingleBarData);
+        var feed = new CsvFeed(tempCsv);
+
+        // Value overload cannot detect end — silently returns last bar
+        feed.Next(isNew: true);   // bar 1
+        var postEnd = feed.Next(isNew: true);  // past end — no exception, no signal
+
+        // Must use HasMore to detect end when using value overload
+        Assert.False(feed.HasMore);
+        Assert.Equal(100.0, postEnd.Close);  // last bar returned again
+
+        // Ref overload detects end correctly
+        bool isNew = true;
+        feed.Next(ref isNew);
+        Assert.False(isNew);  // ref overload signals end
+    }
+
     #endregion
 
     #region Fetch Method Tests
@@ -408,6 +429,26 @@ public sealed class CsvFeedTests : IDisposable
         feed.Fetch(5, startTime, TimeSpan.FromDays(1));
 
         Assert.False(feed.HasCurrentBar);
+    }
+
+    [Fact]
+    public void CsvFeed_FetchThenNext_StreamsFromFetchStartNotEnd()
+    {
+        var feed = new CsvFeed(TestCsvPath);
+
+        var startTime = new DateTime(2025, 7, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+        var interval = TimeSpan.FromDays(1);
+        var series = feed.Fetch(5, startTime, interval);
+
+        // After Fetch, streaming replays from the START of the fetched window
+        // (not from after the last returned bar)
+        for (int i = 0; i < series.Count; i++)
+        {
+            bool isNew = true;
+            var bar = feed.Next(ref isNew);
+            Assert.Equal(series[i].Time, bar.Time);
+            Assert.True(isNew);
+        }
     }
 
     #endregion
@@ -886,6 +927,21 @@ public sealed class CsvFeedTests : IDisposable
         {
             Assert.Equal(firstPass[i], secondPass[i]);
         }
+    }
+
+    [Fact]
+    public void CsvFeed_Fetch_Tolerance_GapBarSkipped()
+    {
+        // Verify gap-skip behavior: Jan 2 is absent, Fetch re-aligns to Jan 3
+        string tempCsv = CreateTempCsv(TwoBarsWithGapData);
+        var feed = new CsvFeed(tempCsv);
+        var startTime = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+        var series = feed.Fetch(5, startTime, TimeSpan.FromDays(1));
+
+        // Jan 1 and Jan 3 present; Jan 2 absent → Fetch includes both with gap
+        Assert.Equal(2, series.Count);
+        Assert.Equal(startTime, series[0].Time);
+        Assert.Equal(startTime + 2 * TimeSpan.FromDays(1).Ticks, series[1].Time);
     }
 
     #endregion

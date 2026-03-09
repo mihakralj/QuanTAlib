@@ -201,8 +201,8 @@ public sealed class Skew : AbstractBase
         {
             double val = span[i];
             sum += val;
-            sumSq += val * val;
-            sumCu += val * val * val;
+            sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
+            sumCu = Math.FusedMultiplyAdd(val * val, val, sumCu);
         }
         _sum = sum;
         _sumSq = sumSq;
@@ -312,8 +312,8 @@ public sealed class Skew : AbstractBase
             }
 
             sum = sum - oldVal + val;
-            sumSq = sumSq - (oldVal * oldVal) + (val * val);
-            sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
+            sumSq = sumSq - oldVal * oldVal + val * val;
+            sumCu = sumCu - oldVal * oldVal * oldVal + val * val * val;
 
             output[i] = CalculateSkewFromSums(sum, sumSq, sumCu, period, isPopulation);
 
@@ -334,8 +334,8 @@ public sealed class Skew : AbstractBase
                     }
 
                     recalcSum += v;
-                    recalcSumSq += v * v;
-                    recalcSumCu += v * v * v;
+                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
+                    recalcSumCu = Math.FusedMultiplyAdd(v * v, v, recalcSumCu);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -533,8 +533,8 @@ public sealed class Skew : AbstractBase
                 {
                     double v = Unsafe.Add(ref srcRef, startIdx + k);
                     recalcSum += v;
-                    recalcSumSq += v * v;
-                    recalcSumCu += v * v * v;
+                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
+                    recalcSumCu = Math.FusedMultiplyAdd(v * v, v, recalcSumCu);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -548,8 +548,8 @@ public sealed class Skew : AbstractBase
             double oldVal = Unsafe.Add(ref srcRef, i - period);
 
             sum = sum - oldVal + val;
-            sumSq = sumSq - (oldVal * oldVal) + (val * val);
-            sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
+            sumSq = Math.FusedMultiplyAdd(val, val, Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq));
+            sumCu = Math.FusedMultiplyAdd(val * val, val, Math.FusedMultiplyAdd(-(oldVal * oldVal), oldVal, sumCu));
 
             Unsafe.Add(ref outRef, i) = CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation);
         }

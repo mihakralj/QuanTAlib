@@ -103,6 +103,52 @@ public sealed class DxValidationTests : IDisposable
     }
 
     [Fact]
+    public void DmPlus_MatchesTalib()
+    {
+        var dx = new Dx(14);
+        var dmPlusResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            dx.Update(_data.Bars[i]);
+            dmPlusResults.Add(dx.DmPlus.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[] outReal = new double[_data.Bars.Count];
+
+        var retCode = Functions.PlusDM(hData, lData, 0..^0, outReal, out var outRange, 14);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        int lookback = Functions.PlusDMLookback(14);
+        ValidationHelper.VerifyData(dmPlusResults, outReal, outRange, lookback);
+    }
+
+    [Fact]
+    public void DmMinus_MatchesTalib()
+    {
+        var dx = new Dx(14);
+        var dmMinusResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            dx.Update(_data.Bars[i]);
+            dmMinusResults.Add(dx.DmMinus.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[] outReal = new double[_data.Bars.Count];
+
+        var retCode = Functions.MinusDM(hData, lData, 0..^0, outReal, out var outRange, 14);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        int lookback = Functions.MinusDMLookback(14);
+        ValidationHelper.VerifyData(dmMinusResults, outReal, outRange, lookback);
+    }
+
+    [Fact]
     public void MatchesSkender_DiValues()
     {
         var dx = new Dx(14);

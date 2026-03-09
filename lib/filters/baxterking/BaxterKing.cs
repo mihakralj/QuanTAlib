@@ -198,13 +198,14 @@ public sealed class BaxterKing : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double ComputeFilter()
     {
-        // Apply symmetric FIR: sum of weights[i] * buffer[i]
-        // Buffer[0] is oldest (K bars ago from center), buffer[2K] is newest
+        // Apply symmetric FIR: dot product of weights with buffer (oldest to newest)
         // The "center" is buffer[K], which represents time t-K (delayed output)
-        double sum = 0.0;
-        for (int i = 0; i < _filterLen; i++)
+        _buffer.GetSequencedSpans(out var first, out var second);
+        ReadOnlySpan<double> w = _weights;
+        double sum = w.Slice(0, first.Length).DotProduct(first);
+        if (!second.IsEmpty)
         {
-            sum += _weights[i] * _buffer[i];
+            sum += w.Slice(first.Length).DotProduct(second);
         }
         return sum;
     }
@@ -270,6 +271,7 @@ public sealed class BaxterKing : AbstractBase
         ComputeWeights(weights, pLow, pHigh, k);
 
         int n = source.Length;
+        ReadOnlySpan<double> w = weights;
 
         for (int i = 0; i < n; i++)
         {
@@ -279,12 +281,7 @@ public sealed class BaxterKing : AbstractBase
             }
             else
             {
-                double sum = 0.0;
-                for (int j = 0; j < filterLen; j++)
-                {
-                    sum += weights[j] * source[i - filterLen + 1 + j];
-                }
-                output[i] = sum;
+                output[i] = w.DotProduct(source.Slice(i - filterLen + 1, filterLen));
             }
         }
     }

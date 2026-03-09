@@ -106,6 +106,12 @@ public sealed class Afirma : AbstractBase
     /// <summary>
     /// Creates AFIRMA with TSeries source for priming.
     /// </summary>
+    /// <remarks>
+    /// Primes the internal buffer from <paramref name="source"/> history, then overwrites
+    /// <c>Last.Time</c> with <c>source.LastTime</c>, replacing the
+    /// <see cref="DateTime.MinValue"/> placeholder set by <see cref="Prime"/>.
+    /// Subscribes to future source updates via the publisher event.
+    /// </remarks>
     public Afirma(TSeries source, int period, WindowType window = WindowType.BlackmanHarris, bool leastSquares = false)
         : this(period, window, leastSquares)
     {
@@ -133,6 +139,11 @@ public sealed class Afirma : AbstractBase
     /// <summary>
     /// Initializes the indicator state using the provided history.
     /// </summary>
+    /// <remarks>
+    /// Sets <c>Last.Time = <see cref="DateTime.MinValue"/></c> as a placeholder timestamp.
+    /// Callers that invoke <see cref="Prime"/> directly must not rely on <c>Last.Time</c>
+    /// until the first <see cref="Update(TValue, bool)"/> call assigns a real timestamp.
+    /// </remarks>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -541,7 +552,7 @@ public sealed class Afirma : AbstractBase
                             int idx = (readIndex + bufferCount - 1 - j + period) % period;
                             double v = buffer[idx];
                             sy += v;
-                            sxy += j * v;
+                            sxy = Math.FusedMultiplyAdd(j, v, sxy);
                         }
 
                         double denom = dn * sx2 - sx * sx;
@@ -559,7 +570,7 @@ public sealed class Afirma : AbstractBase
                                 double v_ls;
                                 if (j < n)
                                 {
-                                    v_ls = intercept + slope * j;
+                                    v_ls = Math.FusedMultiplyAdd(slope, j, intercept);
                                 }
                                 else
                                 {

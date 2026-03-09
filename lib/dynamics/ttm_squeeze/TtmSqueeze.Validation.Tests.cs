@@ -325,5 +325,33 @@ public class TtmSqueezeValidationTests
         Assert.InRange(squeeze.ColorCode, 0, 3);
     }
 
+    [Fact]
+    public void TtmSqueeze_Correction_Recomputes()
+    {
+        var ind = new TtmSqueeze();
+        var t0 = new DateTime(946_684_800_000_000_0L, DateTimeKind.Utc);
+
+        // Build state well past warmup
+        for (int i = 0; i < 100; i++)
+        {
+            double p = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            ind.Update(new TBar(t0.AddMinutes(i), p, p + 2, p - 2, p, 1000), isNew: true);
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddMinutes(100);
+        const double anchorClose = 105.5;
+        ind.Update(new TBar(anchorTime, anchorClose, anchorClose + 2, anchorClose - 2, anchorClose, 1000), isNew: true);
+        double anchorMomentum = ind.Momentum.Value;
+
+        // Correction with a dramatically different price — Momentum must change
+        ind.Update(new TBar(anchorTime, anchorClose * 10, (anchorClose + 2) * 10, (anchorClose - 2) * 10, anchorClose * 10, 1000), isNew: false);
+        Assert.NotEqual(anchorMomentum, ind.Momentum.Value);
+
+        // Correction back to original price — must exactly restore original Momentum
+        ind.Update(new TBar(anchorTime, anchorClose, anchorClose + 2, anchorClose - 2, anchorClose, 1000), isNew: false);
+        Assert.Equal(anchorMomentum, ind.Momentum.Value, 1e-9);
+    }
+
     #endregion
 }

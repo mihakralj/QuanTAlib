@@ -141,12 +141,12 @@ public sealed class RingBuffer : IEnumerable<double>
 
     /// <summary>
     /// Average of all elements in the buffer.
-    /// Returns 0 if buffer is empty.
+    /// Returns <see langword="double.NaN"/> if buffer is empty.
     /// </summary>
     public double Average
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _count > 0 ? _sum / _count : 0;
+        get => _count > 0 ? _sum / _count : double.NaN;
     }
 
     /// <summary>

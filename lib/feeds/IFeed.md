@@ -60,3 +60,4 @@ When implementing `IFeed`:
 
 * **`GBM`**: Geometric Brownian Motion generator (Synthetic).
 * **`CsvFeed`**: Reads OHLCV data from CSV files (Historical).
+* **`AlphaVantage`**: Fetches OHLCV data from the Alpha Vantage REST API (Historical/Live).

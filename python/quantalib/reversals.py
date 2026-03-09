@@ -18,6 +18,7 @@ __all__ = [
     "pivotfib",
     "pivotwood",
     "psar",
+    "sarext",
     "swings",
     "ttm_scalper",
 ]
@@ -130,6 +131,24 @@ def psar(open: object, high: object, low: object, close: object, afStart: float 
     output = _out(n)
     _check(_lib.qtl_psar(_ptr(o), _ptr(h), _ptr(l), _ptr(c), _ptr(output), n, afStart, afIncrement, afMax))
     return _wrap(output, idx, "PSAR", "reversals", offset)
+
+
+def sarext(open: object, high: object, low: object, close: object, startValue: float = 0.0, offsetOnReverse: float = 0.0, afInitLong: float = 0.02, afLong: float = 0.02, afMaxLong: float = 0.2, afInitShort: float = 0.02, afShort: float = 0.02, afMaxShort: float = 0.2, offset: int = 0, **kwargs) -> object:
+    """Parabolic SAR Extended."""
+    startValue = float(startValue)
+    offsetOnReverse = float(offsetOnReverse)
+    afInitLong = float(afInitLong)
+    afLong = float(afLong)
+    afMaxLong = float(afMaxLong)
+    afInitShort = float(afInitShort)
+    afShort = float(afShort)
+    afMaxShort = float(afMaxShort)
+    offset = int(offset)
+    o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(o)
+    output = _out(n)
+    _check(_lib.qtl_sarext(_ptr(o), _ptr(h), _ptr(l), _ptr(c), _ptr(output), n, startValue, offsetOnReverse, afInitLong, afLong, afMaxLong, afInitShort, afShort, afMaxShort))
+    return _wrap(output, idx, "SAREXT", "reversals", offset)
 
 
 def swings(high: object, low: object, lookback: int = 5, offset: int = 0, **kwargs) -> object:

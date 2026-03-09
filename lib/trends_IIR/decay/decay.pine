@@ -1,0 +1,34 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Linear Decay (DECAY)", "DECAY", overlay=true)
+
+//@function Calculates linear decay: output = max(input, prev_output - 1/period)
+//@param source Source price series
+//@param length Decay period
+//@returns Decayed value that tracks peaks and descends linearly
+decay(series float source, simple int length) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    var float prev = na
+    float scale = 1.0 / length
+    float result = na
+    if na(prev)
+        result := source
+    else
+        float d = prev - scale
+        result := source > d ? source : d
+    prev := result
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(5, "Length", minval=1)
+
+// Calculate Decay
+float decay_val = decay(i_source, i_length)
+
+// Plot
+plot(decay_val, "Decay", color=color.yellow, linewidth=2)

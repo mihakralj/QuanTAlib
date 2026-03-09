@@ -65,7 +65,7 @@ public sealed class TheilU : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double actual, double predicted, bool isNew = true)
     {
-        return UpdateCore(DateTime.UtcNow, actual, predicted, isNew);
+        return UpdateCore(DateTime.MinValue, actual, predicted, isNew);
     }
 
     public override TValue Update(TValue input, bool isNew = true)

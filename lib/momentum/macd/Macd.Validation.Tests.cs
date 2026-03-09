@@ -238,4 +238,35 @@ public sealed class MacdValidationTests : IDisposable
 
         _output.WriteLine("MACD Streaming validated successfully against Tulip");
     }
+
+    [Fact]
+    public void Macd_Correction_Recomputes()
+    {
+        var ind = new Macd();
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorPrice = 125.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorMacd = ind.Last.Value;
+        double anchorSignal = ind.Signal.Value;
+        double anchorHistogram = ind.Histogram.Value;
+
+        // Correction with dramatically different value
+        ind.Update(new TValue(anchorTime, anchorPrice * 10), isNew: false);
+        Assert.NotEqual(anchorMacd, ind.Last.Value);
+
+        // Correction back to original — all three outputs must restore exactly
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorMacd, ind.Last.Value, 1e-9);
+        Assert.Equal(anchorSignal, ind.Signal.Value, 1e-9);
+        Assert.Equal(anchorHistogram, ind.Histogram.Value, 1e-9);
+    }
 }

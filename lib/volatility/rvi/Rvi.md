@@ -3,7 +3,7 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
-| **Inputs**       | OHLCV bar (TBar)                          |
+| **Inputs**       | OHLCV bar (TBar) or single price (TValue) |
 | **Parameters**   | `stdevLength` (default 10), `rmaLength` (default 14)                      |
 | **Outputs**      | Single series (Rvi)                       |
 | **Output range** | $0$ to $100$                     |
@@ -11,15 +11,16 @@
 
 ### TL;DR
 
-- The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility.
-- Parameterized by `stdevlength` (default 10), `rmalength` (default 14).
+- The Relative Volatility Index (RVI) implements Dorsey's **revised (1995)** version: computes original RVI separately on High and Low series, then averages.
+- When fed single-price data (TValue), both channels receive the same value, reducing to the original (1993) formula.
+- Parameterized by `stdevLength` (default 10), `rmaLength` (default 14).
 - Output range: $0$ to $100$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- Requires `stdevLength` bars of warmup before first valid output (IsHot = true).
+- Validated against FM Labs revised RVI specification.
 
 > "Not all volatility is created equal—upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure."
 
-The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility. Originally developed by Donald Dorsey in 1993, RVI measures the standard deviation of closing prices and categorizes this volatility based on whether prices are rising or falling. The result is an oscillator bounded between 0 and 100, where values above 50 indicate upward volatility dominance and values below 50 indicate downward volatility dominance.
+The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility. Originally developed by Donald Dorsey in 1993 using close prices only, RVI was **revised in 1995** to compute separate RVI values on the High and Low price series and average them. This implementation follows the revised version: when fed OHLCV bars (TBar), it runs independent RVI channels on High and Low; when fed single prices (TValue), both channels receive the same value, reducing to the original formula.
 
 ## Historical Context
 
@@ -27,13 +28,29 @@ Donald Dorsey introduced the Relative Volatility Index in the June 1993 issue of
 
 The key innovation was separating volatility into directional components. Traditional volatility measures (standard deviation, ATR) treat upward and downward price movements identically. Dorsey recognized that traders experience these movements differently: upward volatility in a long position feels like opportunity, while downward volatility feels like risk.
 
-The original 1993 formula used a 10-period standard deviation and 14-period Wilder's smoothing (RMA). This implementation follows the PineScript reference which uses bias-corrected RMA to ensure proper warmup behavior during the initial periods.
+The original 1993 formula used a 10-period standard deviation of closing prices with 14-period Wilder's smoothing (RMA). In 1995, Dorsey revised the formula to average RVI computed independently on the High and Low series, capturing volatility structure across the full price range rather than just closes.
+
+FM Labs documents both versions: the original (close-only) and the revised (high+low average). This implementation follows the **revised** version with bias-corrected RMA for proper warmup behavior.
 
 ## Architecture & Physics
 
-### 1. Rolling Population Standard Deviation
+### 1. Dual-Channel Architecture (Revised 1995)
 
-First, compute the population standard deviation of closing prices over `stdevLength` periods:
+The revised RVI computes the original RVI algorithm independently on two channels:
+- **High channel:** uses bar High prices
+- **Low channel:** uses bar Low prices
+
+The final RVI is their average:
+
+$$
+\text{RVI}_{\text{revised}} = \frac{\text{RVI}_{\text{high}} + \text{RVI}_{\text{low}}}{2}
+$$
+
+When fed single prices (TValue), both channels receive the same value: $\text{RVI} = \frac{\text{RVI}_p + \text{RVI}_p}{2} = \text{RVI}_p$ (original behavior).
+
+### 2. Per-Channel: Rolling Population Standard Deviation
+
+For each channel, compute the population standard deviation over `stdevLength` periods:
 
 $$
 \sigma_t = \sqrt{\frac{\sum_{i=0}^{n-1}(P_{t-i} - \bar{P})^2}{n}}
@@ -51,7 +68,7 @@ $$
 \sigma_t = \sqrt{\frac{\sum P_i^2}{n} - \left(\frac{\sum P_i}{n}\right)^2}
 $$
 
-### 2. Directional Classification
+### 3. Directional Classification
 
 Based on price change direction, assign the volatility to either upward or downward:
 
@@ -71,7 +88,7 @@ $$
 
 Note: When $P_t = P_{t-1}$ (unchanged), both upStd and downStd are zero. The volatility is "orphaned" rather than assigned to either direction.
 
-### 3. Bias-Corrected RMA Smoothing
+### 4. Bias-Corrected RMA Smoothing
 
 Both directional volatilities are smoothed using Wilder's RMA (Exponential Moving Average with $\alpha = 1/n$) with bias correction for proper warmup:
 
@@ -100,13 +117,19 @@ where $\alpha = 1/\text{rmaLength}$ and $\epsilon = 10^{-10}$.
 
 This bias correction compensates for the zero initialization of raw RMA, preventing artificially low values during warmup.
 
-### 4. Final RVI Calculation
+### 5. Per-Channel RVI
 
 $$
-\text{RVI}_t = \begin{cases}
+\text{RVI}_{\text{channel}} = \begin{cases}
 100 \times \frac{\text{avgUpStd}_t}{\text{avgUpStd}_t + \text{avgDownStd}_t} & \text{if sum} > 0 \\
 50 & \text{otherwise}
 \end{cases}
+$$
+
+### 6. Final Revised RVI
+
+$$
+\text{RVI}_t = \frac{\text{RVI}_{\text{high}} + \text{RVI}_{\text{low}}}{2}
 $$
 
 ## Mathematical Foundation
@@ -192,13 +215,14 @@ Dominant cost: five divisions (63%) for variance calculation and RMA updates.
 
 | Library | Status | Notes |
 | :--- | :---: | :--- |
+| **FM Labs** | ✅ | Matches revised (1995) dual-channel specification |
 | **TA-Lib** | N/A | Not implemented |
 | **Skender** | N/A | Not implemented |
 | **Tulip** | N/A | Not implemented |
 | **OoplesFinance** | ❔ | Different algorithm (RSI-based) |
-| **PineScript** | ✅ | Matches rvi.pine reference |
+| **PineScript** | ✅ | Matches rvi.pine reference (original algorithm per channel) |
 
-Note: Some libraries implement "RVI" as a different indicator (often RSI applied to volatility). This implementation follows Dorsey's original design using directional standard deviation.
+Note: Some libraries implement "RVI" as a different indicator (often RSI applied to volatility). FM Labs distinguishes between original (1993, close-only) and revised (1995, high+low average). This implementation follows the **revised** version.
 
 ## Common Pitfalls
 
@@ -261,4 +285,5 @@ Price making lower lows + RVI making higher lows: Bullish divergence
 
 - Dorsey, D. (1993). "The Relative Volatility Index." *Technical Analysis of Stocks & Commodities*, 11(6), 253-256.
 - Dorsey, D. (1995). "Refining the Relative Volatility Index." *Technical Analysis of Stocks & Commodities*, 13(9).
+- FM Labs. "Relative Volatility Index." https://www.fmlabs.com/reference/RVI.htm (Original vs Revised versions).
 - TradingView. (2024). "PineScript Reference Implementation." rvi.pine source file.

@@ -13,12 +13,14 @@ __all__ = [
     "fft",
     "gammadist",
     "highest",
+    "maxindex",
     "ifft",
     "jerk",
     "lineartrans",
     "lognormdist",
     "logtrans",
     "lowest",
+    "minindex",
     "normalize",
     "normdist",
     "poissondist",
@@ -98,6 +100,17 @@ def highest(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, f"HIGHEST_{period}", "numerics", offset)
 
 
+def maxindex(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Index of Highest Value."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    src, idx = _arr(close)
+    n = len(src)
+    output = _out(n)
+    _check(_lib.qtl_maxindex(_ptr(src), _ptr(output), n, period))
+    return _wrap(output, idx, f"MAXINDEX_{period}", "numerics", offset)
+
+
 def ifft(close: object, windowSize: int = 256, numHarmonics: int = 10, offset: int = 0, **kwargs) -> object:
     """Inverse FFT."""
     windowSize = int(windowSize)
@@ -164,6 +177,17 @@ def lowest(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     output = _out(n)
     _check(_lib.qtl_lowest(_ptr(src), _ptr(output), n, period))
     return _wrap(output, idx, f"LOWEST_{period}", "numerics", offset)
+
+
+def minindex(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Index of Lowest Value."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    src, idx = _arr(close)
+    n = len(src)
+    output = _out(n)
+    _check(_lib.qtl_minindex(_ptr(src), _ptr(output), n, period))
+    return _wrap(output, idx, f"MININDEX_{period}", "numerics", offset)
 
 
 def normalize(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:

@@ -310,4 +310,60 @@ public sealed class AfirmaValidationTests : IDisposable
         Assert.True(double.IsFinite(rectLast));
         Assert.True(double.IsFinite(bhLast));
     }
+
+    [Fact]
+    public void Afirma_LeastSquares_Streaming_Matches_Batch()
+    {
+        int[] periods = { 5, 10, 20 };
+
+        foreach (var period in periods)
+        {
+            // Batch calculation with leastSquares=true
+            var afirmaBatch = new Afirma(period, leastSquares: true);
+            var batchResult = afirmaBatch.Update(_testData.Data);
+
+            // Streaming calculation with leastSquares=true
+            var afirmaStream = new Afirma(period, leastSquares: true);
+            var streamResults = new List<double>();
+            foreach (var item in _testData.Data)
+            {
+                streamResults.Add(afirmaStream.Update(item).Value);
+            }
+
+            // Compare last 100 values
+            int compareCount = Math.Min(100, batchResult.Count);
+            for (int i = 0; i < compareCount; i++)
+            {
+                int idx = batchResult.Count - compareCount + i;
+                Assert.Equal(batchResult[idx].Value, streamResults[idx], 1e-10);
+            }
+        }
+    }
+
+    [Fact]
+    public void Afirma_Correction_Recomputes()
+    {
+        var ind = new Afirma(20);
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorValue = 125.0;
+        ind.Update(new TValue(anchorTime, anchorValue), isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction with dramatically different value — must yield different result
+        ind.Update(new TValue(anchorTime, anchorValue * 10), isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore original result
+        ind.Update(new TValue(anchorTime, anchorValue), isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
 }

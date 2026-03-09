@@ -418,5 +418,33 @@ public class EacpValidationTests
         Assert.True(diff > 5, $"Should detect different cycles: {eacp1.DominantCycle} vs {eacp2.DominantCycle}");
     }
 
+    [Fact]
+    public void Eacp_Correction_Recomputes()
+    {
+        var ind = new Eacp(8, 48, 3, true);
+        var t0 = new DateTime(946_684_800_000_000_0L, DateTimeKind.Utc);
+
+        // Build state well past warmup
+        for (int i = 0; i < 100; i++)
+        {
+            ind.Update(new TValue(t0.AddMinutes(i),
+                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddMinutes(100);
+        const double anchorPrice = 105.5;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction with a dramatically different price — recompute must yield different result
+        ind.Update(new TValue(anchorTime, anchorPrice * 10.0), isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original price — must exactly restore original result
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, Tolerance);
+    }
+
     #endregion
 }

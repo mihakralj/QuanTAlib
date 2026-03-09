@@ -101,4 +101,4 @@ The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, N
 
 ## License
 
-[MIT](https://github.com/mihakralj/quantalib/blob/main/LICENSE)
+[Apache License 2.0](https://github.com/mihakralj/quantalib/blob/main/LICENSE)

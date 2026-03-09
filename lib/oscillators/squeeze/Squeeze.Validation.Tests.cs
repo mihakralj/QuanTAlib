@@ -215,4 +215,35 @@ public sealed class SqueezeValidationTests
         Assert.Equal(sqStream.Momentum, sqBatch.Momentum, precision: 8);
         Assert.Equal(sqStream.SqueezeOn, sqBatch.SqueezeOn);
     }
+
+    [Fact]
+    public void Squeeze_Correction_Recomputes()
+    {
+        var ind = new Squeeze(period: 20);
+        long t0 = TimeSpan.TicksPerSecond;
+
+        // Build state well past warmup (WarmupPeriod = 20)
+        for (int i = 0; i < 50; i++)
+        {
+            double p = 100.0 + i * 0.5;
+            ind.Update(new TBar(t0 + i * TimeSpan.TicksPerSecond, p, p + 1, p - 1, p, 1000), isNew: true);
+        }
+
+        // Anchor bar
+        long anchorTime = t0 + 50 * TimeSpan.TicksPerSecond;
+        var anchorBar = new TBar(anchorTime, 125.0, 126.0, 124.0, 125.0, 1000);
+        ind.Update(anchorBar, isNew: true);
+        double anchorMomentum = ind.Momentum;
+        bool anchorSqueezeOn = ind.SqueezeOn;
+
+        // Correction with dramatically different values — Momentum must change
+        var corruptBar = new TBar(anchorTime, 1250.0, 1260.0, 1240.0, 1250.0, 1000);
+        ind.Update(corruptBar, isNew: false);
+        Assert.NotEqual(anchorMomentum, ind.Momentum);
+
+        // Correction back to original — both outputs must restore exactly
+        ind.Update(anchorBar, isNew: false);
+        Assert.Equal(anchorMomentum, ind.Momentum, 1e-9);
+        Assert.Equal(anchorSqueezeOn, ind.SqueezeOn);
+    }
 }

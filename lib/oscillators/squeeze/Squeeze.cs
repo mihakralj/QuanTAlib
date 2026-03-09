@@ -369,6 +369,11 @@ public sealed class Squeeze : ITValuePublisher
         SqueezeOn = false;
     }
 
+    /// <summary>
+    /// Span-based batch Squeeze calculation. Populates both the momentum and squeeze-state output spans.
+    /// </summary>
+    /// <param name="momOut">Output span for Squeeze momentum values (linear regression of detrended price).</param>
+    /// <param name="sqOut">Output span for squeeze-state values (positive when Bollinger Bands are inside Keltner Channel).</param>
     public static void Batch(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
