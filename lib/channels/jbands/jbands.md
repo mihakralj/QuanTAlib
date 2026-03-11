@@ -7,14 +7,14 @@
 | **Parameters**   | `period`, `phase` (default 0)                      |
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `⌈20 + 80 × period^0.36⌉` bars                          |
 
 ### TL;DR
 
 - JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new pri...
 - Parameterized by `period`, `phase` (default 0).
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `⌈20 + 80 × period^0.36⌉` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation. Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetric width around a center line, JBANDS feature "snap-and-decay" hysteresis: expansion is instantaneous (plasticity), contraction is gradual (elasticity). The decay rate is dynamically modulated by a two-stage volatility estimator — a 10-bar SMA feeding a 128-bar trimmed mean — making the bands tight during quiet markets and expansive during trends. The center line is the full JMA: a 2-pole IIR filter with phase control and adaptive alpha.
