@@ -10,9 +10,6 @@ indicator("Volume Rate of Change (VROC)", "VROC", overlay=false)
 //@returns Volume Rate of Change value
 //@optimized for performance and dirty data
 vroc(simple int period, simple bool calc_type, series float vol = volume) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    
     float current_volume = vol
     float historical_volume = vol[period]
     if na(current_volume) or na(historical_volume)

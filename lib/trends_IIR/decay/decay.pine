@@ -8,8 +8,6 @@ indicator("Linear Decay (DECAY)", "DECAY", overlay=true)
 //@param length Decay period
 //@returns Decayed value that tracks peaks and descends linearly
 decay(series float source, simple int length) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
     var float prev = na
     float scale = 1.0 / length
     float result = na

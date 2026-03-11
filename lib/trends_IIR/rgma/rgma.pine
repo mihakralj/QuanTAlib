@@ -10,10 +10,6 @@ indicator("Recursive Gaussian Moving Average (RGMA)", "RGMA", overlay=true)
 //@returns RGMA value with gaussian-like smoothing properties using recursive calculation
 //@optimized Uses cascaded exponential filters for O(1) complexity per bar
 rgma(series float source, simple int period, simple int passes=3) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    if passes <= 0
-        runtime.error("Passes must be greater than 0")
     simple float alpha = 2.0 / (period / math.sqrt(passes) + 1.0)
     var array<float> filters = array.new_float(passes, na)
     float result = na

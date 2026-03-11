@@ -18,9 +18,9 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Edecay : AbstractBase
 {
-    private readonly int _period;
     private readonly double _scale;
     private int _count;
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValid, double LastOutput);
     private State _state, _p_state;
     private int _p_count;
@@ -40,7 +40,6 @@ public sealed class Edecay : AbstractBase
             throw new ArgumentException("Period must be >= 1", nameof(period));
         }
 
-        _period = period;
         _scale = (period - 1.0) / period;
         Name = $"Edecay({period})";
         WarmupPeriod = 1;

@@ -8,8 +8,6 @@ indicator("Normalized Average True Range", "NATR", overlay=false, format=format.
 //@returns The NATR value as a percentage of close price.
 //@optimized Beta precomputation for RMA warmup compensation
 natr(simple int length) =>
-    if length <= 0
-        runtime.error("Period must be greater than 0")
     float prevClose = nz(close[1], close)
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)

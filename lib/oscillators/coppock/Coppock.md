@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `longRoc` (default DefaultLongRoc), `shortRoc` (default DefaultShortRoc), `wmaPeriod` (default DefaultWmaPeriod)                      |
+| **Parameters**   | `longRoc` (default 14), `shortRoc` (default 11), `wmaPeriod` (default 10)                      |
 | **Outputs**      | Single series (Coppock)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at differ...
-- Parameterized by `longroc` (default defaultlongroc), `shortroc` (default defaultshortroc), `wmaperiod` (default defaultwmaperiod).
+- Parameterized by `longRoc` (default 14), `shortRoc` (default 11), `wmaPeriod` (default 10).
 - Output range: Varies (see docs).
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

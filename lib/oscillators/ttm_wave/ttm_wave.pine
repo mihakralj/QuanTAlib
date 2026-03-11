@@ -1,0 +1,67 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("TTM Wave (TTM_WAVE)", "TTM_WAVE", overlay=false)
+
+//@function EMA — standard exponential moving average for MACD computation.
+//@param src Source series
+//@param length EMA period
+//@returns EMA value
+ema_calc(series float src, simple int length) =>
+    float alpha = 2.0 / (length + 1)
+    var float result = 0.0
+    result := bar_index == 0 ? src : alpha * src + (1 - alpha) * result
+    result
+
+//@function MACD histogram — (fast_ema - slow_ema) - signal_ema(fast_ema - slow_ema)
+//          This is the second derivative of momentum: acceleration of the spread.
+//@param src Source series
+//@param fast Fast EMA period
+//@param slow Slow EMA period
+//@param signal Signal EMA period (same as slow for TTM Wave)
+//@returns MACD histogram value
+macd_hist(series float src, simple int fast, simple int slow, simple int signal) =>
+    float fast_ema = ema_calc(src, fast)
+    float slow_ema = ema_calc(src, slow)
+    float macd_line = fast_ema - slow_ema
+    float signal_line = ema_calc(macd_line, signal)
+    macd_line - signal_line
+
+//@function TTM Wave — six parallel MACD histogram channels at Fibonacci periods.
+//          Wave A (short-term):  channels 1 (8,34,34) and 2 (8,55,55)
+//          Wave B (medium-term): channels 3 (8,89,89) and 4 (8,144,144)
+//          Wave C (long-term):   channels 5 (8,233,233) and 6 (8,377,377)
+//          All channels share fast period 8. Signal period equals slow period.
+//@param src Source series (default: close)
+//@returns [waveA1, waveA2, waveB1, waveB2, waveC1, waveC2]
+//@reference John Carter, "Mastering the Trade" (2005, 2012)
+//@optimized Six independent EMA cascades, O(1) per bar per channel
+ttm_wave(series float src) =>
+    float waveA1 = macd_hist(src, 8, 34,  34)
+    float waveA2 = macd_hist(src, 8, 55,  55)
+    float waveB1 = macd_hist(src, 8, 89,  89)
+    float waveB2 = macd_hist(src, 8, 144, 144)
+    float waveC1 = macd_hist(src, 8, 233, 233)
+    float waveC2 = macd_hist(src, 8, 377, 377)
+    [waveA1, waveA2, waveB1, waveB2, waveC1, waveC2]
+
+// ── Inputs ──
+float i_src = input.source(close, "Source")
+
+// ── Calculation ──
+[waveA1, waveA2, waveB1, waveB2, waveC1, waveC2] = ttm_wave(i_src)
+
+// ── Plot (thinkorswim color convention) ──
+// Wave A: yellow/green (short-term momentum)
+plot(waveA1, "Wave A1", color=color.yellow, style=plot.style_histogram, linewidth=2)
+plot(waveA2, "Wave A2", color=color.lime,   style=plot.style_histogram, linewidth=2)
+
+// Wave B: magenta/pink (medium-term momentum)
+plot(waveB1, "Wave B1", color=color.fuchsia, style=plot.style_histogram, linewidth=2)
+plot(waveB2, "Wave B2", color=color.new(color.fuchsia, 40), style=plot.style_histogram, linewidth=2)
+
+// Wave C: red/orange (long-term momentum)
+plot(waveC1, "Wave C1", color=color.red,    style=plot.style_histogram, linewidth=2)
+plot(waveC2, "Wave C2", color=color.orange, style=plot.style_histogram, linewidth=2)
+
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

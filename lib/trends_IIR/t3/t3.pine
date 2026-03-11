@@ -10,8 +10,6 @@ indicator("Tillson T3 Moving Average (T3)", "T3", overlay=true)
 //@returns T3 value with optimized coefficients
 //@optimized Uses six cascaded EMAs with precomputed coefficients for O(1) complexity
 t3(series float src, simple int period, simple float v) =>
-    if period <= 0
-        runtime.error("T3 period must be > 0")
     float a = 2.0 / (period + 1)
     float v2 = v * v
     float v3 = v2 * v

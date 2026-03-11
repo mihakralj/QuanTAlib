@@ -1,4 +1,4 @@
-# AC: Acceleration Oscillator
+# AC: Accelerator Oscillator
 
 > "Momentum tells you which way the wind is blowing. Acceleration tells you whether the wind is picking up." -- Bill Williams, paraphrased
 

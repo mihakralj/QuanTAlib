@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `r1` (default DefaultR1), `r2` (default DefaultR2), `r3` (default DefaultR3), `r4` (default DefaultR4), `s1` (default DefaultS1), `s2` (default DefaultS2), `s3` (default DefaultS3), `s4` (default DefaultS4), `sigPeriod` (default DefaultSigPeriod)                      |
+| **Parameters**   | `r1` (default 10), `r2` (default 15), `r3` (default 20), `r4` (default 30), `s1` (default 10), `s2` (default 10), `s3` (default 10), `s4` (default 15), `sigPeriod` (default 9)                      |
 | **Outputs**      | Multiple series (KstValue, Signal)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(r1, r2), Math.Max(r3, r4))
@@ -14,7 +14,7 @@
 ### TL;DR
 
 - The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smo...
-- Parameterized by `r1` (default defaultr1), `r2` (default defaultr2), `r3` (default defaultr3), `r4` (default defaultr4), `s1` (default defaults1), `s2` (default defaults2), `s3` (default defaults3), `s4` (default defaults4), `sigperiod` (default defaultsigperiod).
+- Parameterized by `r1` (default 10), `r2` (default 15), `r3` (default 20), `r4` (default 30), `s1` (default 10), `s2` (default 10), `s3` (default 10), `s4` (default 15), `sigPeriod` (default 9).
 - Output range: Varies (see docs).
 - Requires `Math.Max(Math.Max(r1, r2), Math.Max(r3, r4))
                      + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))

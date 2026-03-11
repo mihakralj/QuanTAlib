@@ -3,18 +3,18 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
-| **Parameters**   | `period`, `c` (default DefaultC)                      |
-| **Outputs**      | Single series (UNKNOWN)                       |
+| **Inputs**       | Actual vs Predicted (dual input)                          |
+| **Parameters**   | `period`, `c` (default 4.685)                      |
+| **Outputs**      | Single series (TukeyBiweight)                       |
 | **Output range** | $\geq 0$                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `period` bars                          |
 
 ### TL;DR
 
 - Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold.
 - Parameterized by `period`, `c` (default defaultc).
 - Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "When outliers need to be silenced, not just quieted."

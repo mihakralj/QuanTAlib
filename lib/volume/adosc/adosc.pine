@@ -9,8 +9,6 @@ indicator("Chaikin A/D Oscillator (ADOSC)", "ADOSC", overlay=false)
 //@returns (float) The ADOSC value for the current bar (difference between short and long EMAs of ADL)
 adosc(simple int shortPeriod, simple int longPeriod) =>
     float EPSILON = 1e-10
-    if shortPeriod <= 0 or longPeriod <= 0
-        runtime.error("Periods must be greater than 0")
     short_alpha = 2.0 / (shortPeriod + 1)
     long_alpha = 2.0 / (longPeriod + 1)
     one_minus_long_alpha = 1.0 - long_alpha
@@ -36,4 +34,4 @@ longPeriod = input.int(10, "Long Period", minval=1)
 osc = adosc(shortPeriod, longPeriod)
 
 // ---------- Plotting ----------
-plot(osc, "ADOSC", color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)
+plot(osc, "ADOSC", color=color.yellow, linewidth=2)

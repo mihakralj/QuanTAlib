@@ -7,7 +7,7 @@ indicator("Autoregressive FIR Moving Average (AFIRMA)", "AFIRMA", overlay=true)
 //@param source Series to calculate AFIRMA from
 //@param period Lookback period - window size
 //@param windowType Window function type (1:Hanning, 2:Hamming, 3:Blackman, 4:Blackman-Harris)
-//@param leastSquares Apply least squares cubic polynomial fitting for autoregressive prediction
+//@param leastSquares Apply least squares linear regression fitting for autoregressive prediction
 //@returns AFIRMA value, calculates from first bar using available data
 //@optimized Uses windowing functions with O(n) complexity; least squares adds O(n) for polynomial fitting
 afirma(series float src, simple int period, simple int windowType=4, simple bool leastSquares=false) =>
@@ -111,7 +111,7 @@ afirma(series float src, simple int period, simple int windowType=4, simple bool
 i_period = input.int(20, "Period", minval=1)
 i_source = input.source(close, "Source")
 i_windowType = input.int(4, "Window Function", minval=1, maxval=4, tooltip="1:Hanning, 2:Hamming, 3:Blackman, 4:Blackman-Harris")
-i_leastSquares = input.bool(false, "Least Squares Method", tooltip="Enable cubic polynomial fitting for autoregressive prediction")
+i_leastSquares = input.bool(false, "Least Squares Method", tooltip="Enable linear regression fitting for autoregressive prediction")
 
 // Calculation
 afirma_value = afirma(i_source, i_period, i_windowType, i_leastSquares)

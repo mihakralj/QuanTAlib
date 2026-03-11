@@ -6,15 +6,15 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `shortPeriod` (default 40), `longPeriod` (default 60), `rmsPeriod` (default 50)                      |
 | **Outputs**      | Single series (SPBF)                       |
-| **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Output range** | Oscillates around zero           |
+| **Warmup**       | `max(longPeriod, rmsPeriod)` bars (default 60) |
 
 ### TL;DR
 
 - The **Super Passband Filter** is John Ehlers' wide-band bandpass constructed by differencing two z-transformed EMAs with Ehlers-style smoothing ($\...
 - Parameterized by `shortperiod` (default 40), `longperiod` (default 60), `rmsperiod` (default 50).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Output range: Oscillates around zero.
+- Requires `max(longPeriod, rmsPeriod)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Two EMAs walk into a frequency domain. The difference between them is the only thing worth trading."

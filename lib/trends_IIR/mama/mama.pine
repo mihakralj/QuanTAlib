@@ -10,8 +10,6 @@ indicator("Ehlers MESA Adaptive Moving Average (MAMA)", "MAMA", overlay=true)
 //@returns [mama, fama] array containing MAMA and FAMA values
 //@optimized Uses Hilbert Transform phase detection for O(1) complexity per bar
 mama(series float source, float fastLimit=0.5, float slowLimit=0.05) =>
-    if fastLimit < slowLimit or fastLimit <= 0 or slowLimit < 0
-        runtime.error("MAMA: fastLimit must be > slowLimit > 0")
     var float mama_val = na
     var float fama_val = na
     var float period = 0.0

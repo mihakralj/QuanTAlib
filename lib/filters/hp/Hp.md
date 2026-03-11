@@ -14,7 +14,7 @@
 - The Hodrick-Prescott (HP) filter is a widely used tool in macroeconomics for separating the cyclical component of a time series from raw data.
 - Parameterized by `lambda` (default 1600.0).
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `⌈2√λ⌉` bars of warmup before first valid output (IsHot = true). Default: **~80 bars** (λ=1600).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Trends are not lines; they are curves that we simplify for our sanity, often at the cost of reality."

@@ -8,8 +8,6 @@ indicator("Average True Range Normalized (ATRN)", "ATRN", overlay=false, format=
 //@returns The ATRN value, normalized relative to its maximum over the longer period.
 //@optimized Beta precomputation for RMA warmup compensation
 atrn(simple int length) =>
-    if length <= 0
-        runtime.error("Period must be greater than 0")
     var float prevClose = close
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)

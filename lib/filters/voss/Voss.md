@@ -6,7 +6,7 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `period` (default 20), `predict` (default 3), `bandwidth` (default 0.25)                      |
 | **Outputs**      | Single series (VOSS)                       |
-| **Output range** | Tracks input                     |
+| **Output range** | Oscillates around zero           |
 | **Warmup**       | `period` bars                          |
 | **Signature**    | [voss_signature](voss_signature.md) |
 
@@ -86,25 +86,26 @@ The Voss predictor stage is an IIR filter with `Order` feedback taps, each weigh
 
 ### Operation Count (Streaming Mode)
 
-Voss-McCartney 1/f noise filter: octave-cascade of N random sources, each updated probabilistically. O(N) per bar worst-case, O(1) amortized.
+Ehlers Voss Predictive Filter: two-stage pipeline — 2-pole bandpass filter (Stage 1) + weighted feedback predictor (Stage 2). O(Order) per bar where Order = 3 × Predict.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| Bit-scan (which octave to update) | 1 | ~3 cy | ~3 cy |
-| RNG sample + accumulate | 1 | ~8 cy | ~8 cy |
-| Running sum update | 1 | ~2 cy | ~2 cy |
-| **Total (amortized)** | **3** | — | **~13 cycles** |
+| BPF: diff + 3-term FMA | 3 | ~4 cy | ~12 cy |
+| Voss: weighted sum loop | Order | ~5 cy | ~45 cy (Order=9) |
+| Voss: gain × filt − sumC | 2 | ~4 cy | ~8 cy |
+| State update (shifts) | 4 | ~1 cy | ~4 cy |
+| **Total (Order=9)** | **Order+9** | — | **~69 cycles** |
 
-O(1) amortized per bar. Each bar updates exactly 1 octave source on average. ~13 cycles/bar amortized.
+O(Order) per bar. Order = 3 × Predict; at defaults (Predict=3), Order=9. ~69 cycles/bar.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Octave update scheduling | No | Bit-count branching; data-dependent |
-| RNG generation | Partial | SIMD RNG (e.g., xoshiro SIMD) available but niche |
+| BPF recursion | No | y[n] depends on y[n-1] and y[n-2] |
+| Voss weighted sum | Partial | Inner loop vectorizable but short (Order=9) |
 
-Amortized O(1) makes SIMD gains minimal. Batch throughput: ~13 cy/bar.
+Batch throughput: ~69 cy/bar at defaults.
 
 | Metric | Value |
 |--------|-------|

@@ -55,9 +55,13 @@ public sealed class Rvi : AbstractBase
     public Rvi(int stdevLength = 10, int rmaLength = 14)
     {
         if (stdevLength < 2)
+        {
             throw new ArgumentException("Standard deviation length must be at least 2", nameof(stdevLength));
+        }
         if (rmaLength < 1)
+        {
             throw new ArgumentException("RMA length must be at least 1", nameof(rmaLength));
+        }
 
         _stdevLength = stdevLength;
         _rmaLength = rmaLength;
@@ -101,7 +105,9 @@ public sealed class Rvi : AbstractBase
     public TSeries Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -126,7 +132,9 @@ public sealed class Rvi : AbstractBase
 
         // Sync internal state
         for (int i = 0; i < len; i++)
+        {
             Update(source[i], isNew: true);
+        }
 
         return new TSeries(t, v);
     }
@@ -134,7 +142,9 @@ public sealed class Rvi : AbstractBase
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -150,7 +160,9 @@ public sealed class Rvi : AbstractBase
         source.Times.CopyTo(tSpan);
 
         for (int i = 0; i < len; i++)
+        {
             Update(new TValue(source.Times[i], source.Values[i]), isNew: true);
+        }
 
         return new TSeries(t, v);
     }
@@ -188,9 +200,13 @@ public sealed class Rvi : AbstractBase
         double rviValue = (rviHi + rviLo) * 0.5;
 
         if (!double.IsFinite(rviValue))
+        {
             rviValue = _lastValue;
+        }
         else
+        {
             _lastValue = rviValue;
+        }
 
         Last = new TValue(timeTicks, rviValue);
         PubEvent(Last, isNew);
@@ -244,9 +260,13 @@ public sealed class Rvi : AbstractBase
         double upStdVal = 0.0;
         double downStdVal = 0.0;
         if (priceChange > 0)
+        {
             upStdVal = currentStdDev;
+        }
         else if (priceChange < 0)
+        {
             downStdVal = currentStdDev;
+        }
 
         double rawRmaUp = Math.FusedMultiplyAdd(s.RawRmaUp, _rmaLength - 1, upStdVal) / _rmaLength;
         double eUp = (1 - _alpha) * s.EUp;
@@ -266,7 +286,9 @@ public sealed class Rvi : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         for (int i = 0; i < source.Length; i++)
+        {
             Update(new TValue(DateTime.UtcNow, source[i]), isNew: true);
+        }
     }
 
     public override void Reset()
@@ -288,9 +310,13 @@ public sealed class Rvi : AbstractBase
     public static TSeries Batch(TSeries source, int stdevLength = 10, int rmaLength = 14)
     {
         if (stdevLength < 2)
+        {
             throw new ArgumentException("Standard deviation length must be at least 2", nameof(stdevLength));
+        }
         if (rmaLength < 1)
+        {
             throw new ArgumentException("RMA length must be at least 1", nameof(rmaLength));
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -323,11 +349,17 @@ public sealed class Rvi : AbstractBase
         int rmaLength = 14)
     {
         if (stdevLength < 2)
+        {
             throw new ArgumentException("Standard deviation length must be at least 2", nameof(stdevLength));
+        }
         if (rmaLength < 1)
+        {
             throw new ArgumentException("RMA length must be at least 1", nameof(rmaLength));
+        }
         if (output.Length < prices.Length)
+        {
             throw new ArgumentException("Output span must be at least as long as prices span", nameof(output));
+        }
 
         // Single-price: feed same data to both channels, average = original
         BatchDual(prices, prices, output, stdevLength, rmaLength);
@@ -344,15 +376,23 @@ public sealed class Rvi : AbstractBase
         int rmaLength = 14)
     {
         if (stdevLength < 2)
+        {
             throw new ArgumentException("Standard deviation length must be at least 2", nameof(stdevLength));
+        }
         if (rmaLength < 1)
+        {
             throw new ArgumentException("RMA length must be at least 1", nameof(rmaLength));
+        }
 
         int len = highs.Length;
         if (len == 0)
+        {
             return;
+        }
         if (output.Length < len)
+        {
             throw new ArgumentException("Output span must be at least as long as input span", nameof(output));
+        }
 
         // Allocate temp buffers for each channel's RVI output
         Span<double> rviHi = len <= 256 ? stackalloc double[len] : new double[len];
@@ -363,7 +403,9 @@ public sealed class Rvi : AbstractBase
 
         // Average
         for (int i = 0; i < len; i++)
+        {
             output[i] = (rviHi[i] + rviLo[i]) * 0.5;
+        }
     }
 
     /// <summary>
@@ -377,7 +419,9 @@ public sealed class Rvi : AbstractBase
     {
         int len = prices.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double alpha = 1.0 / rmaLength;
 
@@ -407,7 +451,9 @@ public sealed class Rvi : AbstractBase
                 }
 
                 if (count < stdevLength)
+                {
                     count++;
+                }
                 else
                 {
                     double oldest = priceBuffer[head];
@@ -434,7 +480,9 @@ public sealed class Rvi : AbstractBase
             prevPrice = price;
 
             if (count < stdevLength)
+            {
                 count++;
+            }
             else
             {
                 double oldest = priceBuffer[head];
@@ -458,9 +506,13 @@ public sealed class Rvi : AbstractBase
             double upStdVal = 0.0;
             double downStdVal = 0.0;
             if (priceChange > 0)
+            {
                 upStdVal = currentStdDev;
+            }
             else if (priceChange < 0)
+            {
                 downStdVal = currentStdDev;
+            }
 
             rawRmaUp = Math.FusedMultiplyAdd(rawRmaUp, rmaLength - 1, upStdVal) / rmaLength;
             eUp = (1 - alpha) * eUp;
@@ -474,9 +526,13 @@ public sealed class Rvi : AbstractBase
             double rviValue = sumAvgStd > Epsilon ? (100.0 * avgUpStd / sumAvgStd) : 50.0;
 
             if (!double.IsFinite(rviValue))
+            {
                 rviValue = lastValue;
+            }
             else
+            {
                 lastValue = rviValue;
+            }
 
             output[i] = rviValue;
         }

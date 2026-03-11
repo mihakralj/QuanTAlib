@@ -12,8 +12,6 @@ indicator("Price Volume Divergence (PVD)", "PVD", overlay=false)
 //@returns Smoothed divergence value
 //@optimized for performance and dirty data
 pvd(simple int price_period, simple int volume_period, simple int smoothing_period, series float c=close, series float vol=volume ) =>
-    if smoothing_period <= 0
-        runtime.error("Smoothing period must be greater than 0")
     float close_price = nz(c, close)
     float volume_val = math.max(nz(vol, 0.0), 1.0)
     float prev_close = bar_index < price_period ? close_price[math.max(bar_index, 1)] : close_price[price_period]

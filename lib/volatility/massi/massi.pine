@@ -9,8 +9,6 @@ indicator("Mass Index (MASSI)", "MASSI", overlay=false)
 //@returns float Mass Index value
 //@optimized for performance and dirty data
 massi(simple int ema_length, simple int sum_length) =>
-    if ema_length <= 0 or sum_length <= 0
-        runtime.error("Periods must be greater than 0")
     float a = 2.0 / (ema_length + 1)
     float beta = 1.0 - a
     var bool warmup = true, var float e = 1.0

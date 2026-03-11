@@ -11,8 +11,6 @@ indicator("Ahrens Moving Average (AHRENS)", "AHRENS", overlay=true)
 //@reference Richard D. Ahrens, "Build A Better Moving Average" (Stocks & Commodities V.31:11, October 2013)
 //@optimized O(1) per bar via circular buffer for lagged MA state; O(period) memory for the ring buffer
 ahrens(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
 
     // Circular buffer to store past ahma values for period-bar lookback
     var array<float> buffer = array.new_float(period, na)

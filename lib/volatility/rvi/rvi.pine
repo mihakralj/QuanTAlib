@@ -9,10 +9,6 @@ indicator("Relative Volatility Index (RVI)", shorttitle="RVI", overlay=false)
 //@param rmaLength The lookback period for Wilder's smoothing (RMA) of the upward and downward standard deviations. Default is 14.
 //@returns float The Relative Volatility Index value.
 rvi(series float src = close, simple int stdevLength = 10, simple int rmaLength = 14) =>
-    if stdevLength <= 1 
-        runtime.error("Standard Deviation Length must be greater than 1")
-    if rmaLength <= 0
-        runtime.error("RMA Length must be greater than 0")
     float currentStdDev = 0.0
     var array<float> buffer_stddev = array.new_float(stdevLength, na) // p_stddev simplified
     var int head_stddev = 0, var int count_stddev = 0

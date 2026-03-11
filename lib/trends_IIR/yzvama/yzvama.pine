@@ -13,14 +13,6 @@ indicator("Yang-Zhang Volatility Adjusted Moving Average (YZVAMA)", "YZVAMA", ov
 //@returns YZVAMA value
 //@optimized Uses RMA compensators for YZV and circular buffers for O(1) sum updates
 yzvama(series float source, simple int yzv_short_period=3, simple int yzv_long_period=50, simple int percentile_lookback=100, simple int min_length=5, simple int max_length=100) =>
-    if yzv_short_period <= 0 or yzv_long_period <= 0
-        runtime.error("All periods must be greater than 0")
-    if min_length <= 0 or max_length <= 0
-        runtime.error("Min and max length must be greater than 0")
-    if min_length > max_length
-        runtime.error("Min length must be less than or equal to max length")
-    if percentile_lookback <= 0
-        runtime.error("Percentile lookback must be greater than 0")
     var float prev_close = na
     float o = open
     float h = high

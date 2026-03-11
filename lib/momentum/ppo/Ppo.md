@@ -4,17 +4,17 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `fastPeriod` (default DefaultFastPeriod), `slowPeriod` (default DefaultSlowPeriod), `signalPeriod` (default DefaultSignalPeriod)                      |
+| **Parameters**   | `fastPeriod` (default 12), `slowPeriod` (default 26), `signalPeriod` (default 9)                      |
 | **Outputs**      | Multiple series (Signal, Histogram)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `slowPeriod + signalPeriod` bars (35 default)                          |
 
 ### TL;DR
 
 - PPO (Percentage Price Oscillator) measures the percentage difference between a fast EMA and a slow EMA.
-- Parameterized by `fastperiod` (default defaultfastperiod), `slowperiod` (default defaultslowperiod), `signalperiod` (default defaultsignalperiod).
+- Parameterized by `fastPeriod` (default 12), `slowPeriod` (default 26), `signalPeriod` (default 9).
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `slowPeriod + signalPeriod` bars (35 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "MACD told you the spread in dollars. PPO tells you the spread in percent. One of those actually works across instruments."

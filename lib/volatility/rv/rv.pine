@@ -10,10 +10,6 @@ indicator("Realized Volatility (RV)", "RV", overlay=false)
 //@param annualPeriods Number of periods (of the main chart's timeframe) in a year for annualization. Default is 252 (assuming daily chart).
 //@returns float The Realized Volatility value.
 rv(simple int length = 20, simple string intradayTimeframe = "5", simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     intraday_closes_arr = request.security_lower_tf(syminfo.tickerid, intradayTimeframe, close)
     float sum_sq_log_returns = 0.0
     if array.size(intraday_closes_arr) > 1

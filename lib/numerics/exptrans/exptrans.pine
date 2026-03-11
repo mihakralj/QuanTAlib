@@ -9,16 +9,17 @@ indicator("Exponential Transformation (EXP)", "Exptrans", overlay=false)
 //@optimized for performance and dirty data
 expT(series float source) =>
     if na(source)
-        runtime.error("Parameter 'source' cannot be na.")
-    math.exp(source)
+        na
+    else
+        math.exp(source)
 
 // ---------- Main loop ----------
 
 // Inputs
-i_source = input(close, "Source")
+i_source = input.source(close, "Source")
 
 // Calculation
 transformedSource = expT(i_source)
 
 // Plot
-plot(transformedSource, "Exponential Transformation", color=color.yellow, linewidth=2)
+plot(transformedSource, "Exptrans", color=color.yellow, linewidth=2)

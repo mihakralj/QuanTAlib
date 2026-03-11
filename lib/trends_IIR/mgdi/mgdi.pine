@@ -10,10 +10,6 @@ indicator("McGinley Dynamic Indicator (MGDI)", "MGDI", overlay=true)
 //@returns MGDI value that tracks price movements more closely than EMAs
 //@optimized Uses adaptive smoothing with O(1) complexity after initialization
 mgdi(series float source, simple int period, simple float factor=0.6) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    if factor <= 0
-        runtime.error("Factor must be greater than 0")
     var float mgdi_val = na
     if not na(source)
         if na(mgdi_val)

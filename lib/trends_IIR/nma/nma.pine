@@ -21,9 +21,6 @@ indicator("NMA - Natural Moving Average", "NMA", overlay=true)
 // @param period Lookback window for volatility analysis (must be > 0)
 // @returns NMA value
 nma(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-
     float src = nz(source)
 
     // Step 1: scaled natural log of price

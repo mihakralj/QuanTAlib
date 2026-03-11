@@ -8,8 +8,6 @@ indicator("Ulcer Index (UI)", shorttitle="UI", format=format.price, precision=2,
 //@param period The lookback period. Default is 14.
 //@returns float The Ulcer Index value.
 ui(series float src, int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     var deque = array.new_int(0)
     var src_buffer = array.new_float(period, na)
     var int current_index = 0

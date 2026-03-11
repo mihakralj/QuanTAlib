@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
 // Fisher04: Ehlers Fisher Transform (2004 Cybernetic Analysis)
 // Source: John Ehlers, "Cybernetic Analysis for Stocks and Futures", Wiley, 2004, Chapter 1
 //
@@ -7,9 +10,7 @@
 //   Clamp threshold: 0.9999 vs 0.99→0.999
 //   Fisher multiplier: 0.25 vs 0.5
 //   Fisher IIR: 0.5 (same)
-
-//@version=6
-indicator("Fisher04 - Ehlers 2004 Cybernetic Analysis", shorttitle="Fisher04", overlay=false)
+indicator("Ehlers Fisher Transform 2004 (FISHER04)", "FISHER04", overlay=false)
 
 length = input.int(10, "Length", minval=1)
 

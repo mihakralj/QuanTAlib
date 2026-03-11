@@ -11,10 +11,6 @@ indicator("Exponential Weighted MA Volatility", "EWMA Volty", overlay=false)
 //@returns float The EWMA Volatility value.
 //@optimized for performance and dirty data
 ewmaVolty(series float src, simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     float logReturn = nz(math.log(src / src[1]),0.0)
     float squaredReturn = logReturn * logReturn
     var float raw_rma_sq_ret = 0.0, var float e_rma = 1.0

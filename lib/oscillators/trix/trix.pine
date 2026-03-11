@@ -1,7 +1,7 @@
 // Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("TRIX", "TRIX", overlay=false)
+indicator("Triple Exponential Average (TRIX)", "TRIX", overlay=false)
 
 //@function Calculates TRIX oscillator with compensation
 //@param source Series to calculate TRIX from

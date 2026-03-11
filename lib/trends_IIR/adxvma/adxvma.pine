@@ -9,8 +9,6 @@ indicator("ADX Variable Moving Average (ADXVMA)", "ADXVMA", overlay=true)
 //@returns ADXVMA value that adapts smoothing based on trend strength measured by ADX
 //@optimized O(1) per bar using Wilder's RMA with warmup compensation for all smoothed components
 adxvma(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     float alpha = 1.0 / float(period)
     float beta = 1.0 - alpha
     float EPSILON = 1e-10

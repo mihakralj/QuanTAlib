@@ -6,15 +6,15 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `decay` (default 0.991)                      |
 | **Outputs**      | Single series (AGC)                       |
-| **Output range** | Tracks input                     |
+| **Output range** | [-1, +1] (normalized)            |
 | **Warmup**       | `1` bars                          |
 
 ### TL;DR
 
 - The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking.
 - Parameterized by `decay` (default 0.991).
-- Output range: Tracks input.
-- Requires `1` bars of warmup before first valid output (IsHot = true).
+- Output range: [-1, +1] (normalized amplitude).
+- Requires `1` bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The purpose of the AGC is to normalize the amplitude of any indicator to unity." — John F. Ehlers, TASC January 2015
@@ -86,26 +86,25 @@ Peak initializes to $10^{-10}$ (tiny positive) to avoid division by zero on the 
 
 ### Operation Count (Streaming Mode)
 
-AGC (Adaptive Gain Control) applies a slow EMA to estimate signal level, then scales the signal by the inverse of that level. O(1) per bar.
+AGC uses exponential peak decay with a ratchet-up mechanism, then divides the signal by the tracked peak. O(1) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| Level EMA (FMA) | 1 | ~4 cy | ~4 cy |
-| Gain = 1 / level (division) | 1 | ~10 cy | ~10 cy |
-| Output multiply | 1 | ~3 cy | ~3 cy |
-| **Total** | **3** | — | **~17 cycles** |
+| Peak decay (multiply) | 1 | ~3 cy | ~3 cy |
+| Abs + compare (ratchet) | 1 | ~2 cy | ~2 cy |
+| Normalize (division) | 1 | ~10 cy | ~10 cy |
+| **Total** | **3** | — | **~15 cycles** |
 
-O(1) per bar. The division dominates; precomputing gain incrementally saves it but adds state. ~17 cycles/bar.
+O(1) per bar. The division dominates. ~15 cycles/bar.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Level EMA recursion | No | Sequential IIR dependency |
-| Gain division | No | Depends on current EMA |
-| Output multiply | N/A | Single scalar multiply |
+| Peak decay + ratchet | No | Data-dependent branching (max of decay vs abs) |
+| Normalize (division) | No | Depends on current peak |
 
-Fully recursive. Batch throughput: ~17 cy/bar.
+Fully sequential due to data-dependent peak tracking. Batch throughput: ~15 cy/bar.
 
 | Metric | Value |
 |---|---|

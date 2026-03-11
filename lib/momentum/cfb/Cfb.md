@@ -7,14 +7,14 @@
 | **Parameters**   | int[]? lengths = null                      |
 | **Outputs**      | Single series (CFB)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `maxLen` bars (192 default)                          |
 
 ### TL;DR
 
 - The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars...
 - Parameterized by int[]? lengths = null.
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `maxLen` bars (192 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Mark Jurik's CFB is not a momentum indicator. It is a stopwatch for chaos."

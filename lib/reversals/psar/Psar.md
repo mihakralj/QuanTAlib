@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
 | **Inputs**       | OHLCV bar (TBar)                          |
-| **Parameters**   | `afStart` (default DefaultAfStart), `afIncrement` (default DefaultAfIncrement), `afMax` (default DefaultAfMax)                      |
+| **Parameters**   | `afStart` (default 0.02), `afIncrement` (default 0.02), `afMax` (default 0.20)                      |
 | **Outputs**      | Single series (Psar)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - The Parabolic Stop And Reverse (PSAR) is a trend-following overlay indicator created by J.
-- Parameterized by `afstart` (default defaultafstart), `afincrement` (default defaultafincrement), `afmax` (default defaultafmax).
+- Parameterized by `afStart` (default 0.02), `afIncrement` (default 0.02), `afMax` (default 0.20).
 - Output range: Varies (see docs).
 - Requires `1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

@@ -137,18 +137,18 @@ $$
 
 ### Operation Count (Streaming Mode)
 
-AFIRMA chains AR model estimation with IIR/FIR filtering — O(p) per bar where p = AR order.
+Windowed FIR convolution — O(P) per bar where P = period (window length).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| AR coefficient estimation (p terms) | p | 4 cy | ~4p cy |
-| FIR forward pass (p multiplies) | p | 1 cy | ~p cy |
-| IIR feedback pass (p multiplies) | p | 1 cy | ~p cy |
-| Output computation via FMA | 1 | 1 cy | ~1 cy |
-| NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (p=8)** | **O(p)** | — | **~49 cy** |
+| RingBuffer write | 1 | ~2 cy | ~2 cy |
+| FIR convolution (P FMA ops) | P | ~1 cy | ~P cy |
+| Weight normalization | 1 | ~1 cy | ~1 cy |
+| LS regression (if enabled) | n | ~2 cy | ~2n cy |
+| NaN guard + state update | 1 | ~2 cy | ~2 cy |
+| **Total (P=20)** | **O(P)** | — | **~25 cy** |
 
-O(p) per bar where p = AR order. AR coefficient estimation dominates; FMA-fused filter passes are cheap. Streaming mode maintains p state variables.
+O(P) per bar where P = window length. FMA-fused dot product dominates; LS regression adds O(n) where n = min(⌊(P−1)/2⌋, 50).
 
 | Metric | Value | Notes |
 | :--- | :---: | :--- |

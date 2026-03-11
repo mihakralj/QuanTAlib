@@ -27,4 +27,4 @@ i_length = input.int(1, "Length", minval = 1)
 result = change(i_source, i_length)
 
 // Plot
-plot(result, "Change %", color.blue, color=color.yellow, linewidth=2)
+plot(result, "Change %", color=color.yellow, linewidth=2)

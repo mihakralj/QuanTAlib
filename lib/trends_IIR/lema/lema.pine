@@ -16,9 +16,6 @@ indicator("Leader EMA (LEMA)", "LEMA", overlay=true)
 //           Stocks & Commodities, 26(7), 30-37.
 //@optimized O(1) per bar — two IIR state variables with warmup compensation
 lema(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-
     float price = nz(source)
     float alpha = 2.0 / (period + 1)
     float beta = 1.0 - alpha

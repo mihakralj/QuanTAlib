@@ -10,14 +10,6 @@ indicator("Conditional Volatility (CV)", "CV", overlay=false)
 //@returns float Conditional volatility value
 //@optimized for performance and efficient variance updating
 cv(simple int length, simple float alpha, simple float beta) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if alpha <= 0.0 or alpha >= 1.0
-        runtime.error("Alpha must be between 0 and 1")
-    if beta <= 0.0 or beta >= 1.0
-        runtime.error("Beta must be between 0 and 1")
-    if alpha + beta >= 1.0
-        runtime.error("Alpha + Beta must be less than 1 for stationarity")
     var float omega = 0.0
     var float longRunVar = 0.0
     var float prevVariance = 0.0

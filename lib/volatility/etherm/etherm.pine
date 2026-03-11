@@ -8,9 +8,6 @@ indicator("Elder's Thermometer", "ETHERM", overlay=false)
 //@returns [thermometer, signal] The raw thermometer value and EMA signal line
 //@optimized Beta precomputation for EMA warmup compensation
 etherm(simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-
     // Step 1: Calculate raw thermometer value
     // Temperature = max of upward high protrusion and downward low protrusion
     // Only outward extensions count; contractions clamp to zero

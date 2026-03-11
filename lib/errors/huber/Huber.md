@@ -3,11 +3,11 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Actual, Predicted (dual series)          |
 | **Parameters**   | `period`, `delta` (default 1.345)                      |
 | **Outputs**      | Single series (Huber)                       |
 | **Output range** | $\geq 0$                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `period` bars                          |
 
 ### TL;DR
 

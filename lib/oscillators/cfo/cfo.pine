@@ -1,7 +1,7 @@
 // Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Chande Forecast Oscillator", "CFO", overlay=false)
+indicator("Chande Forecast Oscillator (CFO)", "CFO", overlay=false)
 
 //@function Chande Forecast Oscillator - measures percentage difference between price and forecasted price
 //@param source Price data to analyze

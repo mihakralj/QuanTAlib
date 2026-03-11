@@ -7,7 +7,7 @@
 | **Parameters**   | None                      |
 | **Outputs**      | Single series (BOP)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | `> 0` bars                          |
+| **Warmup**       | 0 bars (always hot)                          |
 
 ### TL;DR
 

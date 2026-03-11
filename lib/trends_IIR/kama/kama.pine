@@ -11,12 +11,6 @@ indicator("Kaufman's Adaptive Moving Average (KAMA)", "KAMA", overlay=true)
 //@returns KAMA value with efficiency ratio-based adaptive smoothing
 //@optimized Uses efficiency ratio calculation for O(n) complexity per bar due to lookback sum
 kama(series float source, simple int period, simple float fast_alpha=0.666667, simple float slow_alpha=0.0645) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    if fast_alpha <= 0 or slow_alpha <= 0
-        runtime.error("Alpha values must be greater than 0")
-    if fast_alpha <= slow_alpha
-        runtime.error("Fast alpha must be greater than slow alpha")
     var float kama_state = na
     float current_kama = na
     if not na(source)

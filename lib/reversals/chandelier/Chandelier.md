@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
 | **Inputs**       | OHLCV bar (TBar)                          |
-| **Parameters**   | `period` (default DefaultPeriod), `multiplier` (default DefaultMultiplier)                      |
+| **Parameters**   | `period` (default 22), `multiplier` (default 3.0)                      |
 | **Outputs**      | Single series (Chandelier)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) ov...
-- Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).
+- Parameterized by `period` (default 22), `multiplier` (default 3.0).
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

@@ -11,10 +11,6 @@ indicator("Chaikin Money Flow (CMF)", "CMF", overlay=false)
 //@param src_vol The volume (default: built-in volume)
 //@returns float CMF value between -1 and 1
 cmf(len = 20, src_high = high, src_low = low, src_close = close, src_vol = volume) =>
-    // Validate parameters
-    if len < 1
-        runtime.error("Length must be >= 1")
-
     // Calculate Money Flow Multiplier
     float mfm = 0.0
     if not na(src_high) and not na(src_low) and not na(src_close)

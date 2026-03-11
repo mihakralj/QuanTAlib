@@ -9,10 +9,6 @@ indicator("Close-to-Close Volatility (CCV)", "CCV", overlay=false)
 //@returns float Volatility value
 //@optimized Beta precomputation for RMA warmup compensation
 ccv(simple int length, simple int method) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if method < 1 or method > 3
-        runtime.error("Method must be 1 (SMA), 2 (EMA), or 3 (WMA)")
     var int p = math.max(1, length)
     var int head = 0
     var int count = 0

@@ -10,10 +10,6 @@ indicator("Regularized EMA (REMA)", "REMA", overlay=true)
 //@returns REMA value, calculates from first bar using available data
 //@optimized Uses regularization term to reduce noise for O(1) complexity
 rema(series float source, simple int period, simple float lambda=0.5) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
-    if lambda < 0.0 or lambda > 1.0
-        runtime.error("Lambda must be between 0 and 1")
     float alpha = 2.0 / (period + 1.0)
     var float rema_val = na
     var float prev_rema = na

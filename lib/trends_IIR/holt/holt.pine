@@ -15,8 +15,6 @@ indicator("Holt Exponential Moving Average (HOLT)", "HOLT", overlay=true)
 //  When gamma=0, degenerates to standard EMA (no trend correction).
 //  When gamma=alpha, provides balanced level/trend tracking.
 holt(series float source, simple int period, simple float gamma=0) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     float alpha = 2.0 / (period + 1)
     float g = gamma > 0 ? gamma : alpha
     var float level = na

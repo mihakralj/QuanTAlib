@@ -26,7 +26,7 @@ ssf2(series float src, simple int length) =>
     float ssrc = nz(src, src[1])
     float src1 = nz(src[1], ssrc)
     float src2 = nz(src[2], src1)
-    ssf_internal := c1 * ssrc + c2 * nz(ssf_internal[1], src1) + c3 * nz(ssf_internal[2], src2)
+    ssf_internal := c1 * (ssrc + src1) * 0.5 + c2 * nz(ssf_internal[1], src1) + c3 * nz(ssf_internal[2], src2)
     ssf_internal
 
 // ---------- Main loop ----------

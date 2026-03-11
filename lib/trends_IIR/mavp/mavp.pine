@@ -11,10 +11,6 @@ indicator("Moving Average Variable Period (MAVP)", "MAVP", overlay=true)
 //@returns EMA value with variable alpha = 2/(period+1), compensated warmup
 //@optimized Uses adaptive warmup compensator that tracks cumulative (1-alpha) product for O(1) per bar
 mavp(series float source, series float period, simple int min_period, simple int max_period) =>
-    if min_period < 1
-        runtime.error("min_period must be >= 1")
-    if max_period < min_period
-        runtime.error("max_period must be >= min_period")
     var float ema = 0.0
     var float e = 1.0
     var bool warmup = true

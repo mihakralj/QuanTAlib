@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `rsiPeriod` (default DefaultRsiPeriod), `smoothFactor` (default DefaultSmoothFactor), `qqeFactor` (default DefaultQqeFactor)                      |
+| **Parameters**   | `rsiPeriod` (default 14), `smoothFactor` (default 5), `qqeFactor` (default 4.236)                      |
 | **Outputs**      | Single series (Qqe)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `rsiPeriod + smoothFactor + darPeriod * 2` bars                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands aro...
-- Parameterized by `rsiperiod` (default defaultrsiperiod), `smoothfactor` (default defaultsmoothfactor), `qqefactor` (default defaultqqefactor).
+- Parameterized by `rsiPeriod` (default 14), `smoothFactor` (default 5), `qqeFactor` (default 4.236).
 - Output range: Varies (see docs).
 - Requires `rsiPeriod + smoothFactor + darPeriod * 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

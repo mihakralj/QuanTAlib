@@ -7,7 +7,7 @@
 | **Parameters**   | `length`                      |
 | **Outputs**      | Single series (Bessel)                       |
 | **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `length` bars                    |
 | **Signature**    | [bessel_signature](bessel_signature.md) |
 
 ### TL;DR
@@ -15,7 +15,7 @@
 - The Bessel Filter is a 2nd-order low-pass IIR filter designed to preserve the **shape** and **timing** of price moves.
 - Parameterized by `length`.
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `length` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > When you care more about *when* the market turns than how aggressively you can torture the noise, you reach for a Bessel.

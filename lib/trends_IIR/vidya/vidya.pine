@@ -10,8 +10,6 @@ indicator("Variable Index Dynamic Average (VIDYA)", "VIDYA", overlay=true)
 //@returns VIDYA value that adapts to market volatility
 //@optimized Uses volatility index calculation with O(n) complexity per bar due to lookback loops
 vidya(series float source, simple int period, simple int std_period=0) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     float alpha = 2.0 / (period + 1.0)
     var float vidya = na
     if not na(source)

@@ -11,8 +11,6 @@ indicator("Triple Exponential Moving Average (TEMA)", "TEMA", overlay=true)
 //@returns TEMA value from first bar with proper compensation
 //@optimized Uses exponential warmup compensator on all three EMA stages for O(1) complexity
 tema(series float source, simple int period=0, simple float alpha=0.0, simple bool corrected=false) =>
-    if alpha <= 0 and period <= 0
-        runtime.error("Alpha or period must be provided")
     float a1 = alpha > 0 ? alpha : (period > 0 ? 2.0 / (period + 1) : 0.1)
     float r = math.pow(1.0 / a1, 1.0 / 3.0)
     float a2 = corrected ? a1 * r : a1

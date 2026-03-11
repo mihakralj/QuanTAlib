@@ -7,14 +7,14 @@
 | **Parameters**   | `fastPeriod` (default 12), `slowPeriod` (default 26), `signalPeriod` (default 9)                      |
 | **Outputs**      | Multiple series (Signal, Histogram)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `Max(fast, slow) + signal - 2` bars (33 default)                          |
 
 ### TL;DR
 
 - The Moving Average Convergence Divergence measures momentum through the relationship between two exponential moving averages.
 - Parameterized by `fastperiod` (default 12), `slowperiod` (default 26), `signalperiod` (default 9).
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `Max(fast, slow) + signal - 2` bars (33 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The trend is your friend, until it bends." — Ed Seykota

@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
 | **Inputs**       | OHLCV bar (TBar)                          |
-| **Parameters**   | `lookback` (default DefaultLookback)                      |
+| **Parameters**   | `lookback` (default 5)                      |
 | **Outputs**      | Single series (Swings)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - Swing High/Low detection identifies local price extremes using a configurable lookback window.
-- Parameterized by `lookback` (default defaultlookback).
+- Parameterized by `lookback` (default 5).
 - Output range: Varies (see docs).
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

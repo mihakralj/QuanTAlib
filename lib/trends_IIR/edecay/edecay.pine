@@ -1,0 +1,33 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Exponential Decay (EDECAY)", "EDECAY", overlay=true)
+
+//@function Calculates exponential decay: output = max(input, prev_output * (period-1)/period)
+//@param source Source price series
+//@param length Decay period
+//@returns Decayed value that tracks peaks and descends exponentially
+//@optimized Uses multiplicative decay factor for O(1) complexity per bar
+edecay(series float source, simple int length) =>
+    var float prev = na
+    float scale = (length - 1.0) / length
+    float result = na
+    if na(prev)
+        result := source
+    else
+        float d = prev * scale
+        result := source > d ? source : d
+    prev := result
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(5, "Length", minval=1)
+
+// Calculate Edecay
+float edecay_val = edecay(i_source, i_length)
+
+// Plot
+plot(edecay_val, "Edecay", color=color.yellow, linewidth=2)

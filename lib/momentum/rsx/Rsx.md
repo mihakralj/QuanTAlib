@@ -1,4 +1,4 @@
-# RSX: Relative Strength Quality Index
+# RSX: Relative Strength Xtra (Jurik RSX)
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
