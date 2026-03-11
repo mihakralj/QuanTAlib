@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MEDPRICE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [medprice.pine](medprice.pine)                       |
 
 - MEDPRICE computes the midpoint of a bar's High and Low: $(H + L) \times 0.5$.
 - No configurable parameters; computation is stateless per bar.

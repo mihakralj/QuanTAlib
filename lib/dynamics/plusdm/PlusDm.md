@@ -1,6 +1,5 @@
 # PLUS_DM: Plus Directional Movement
 
-### TL;DR
 Wilder-smoothed upward directional movement in price units (≥0).
 
 ## Introduction

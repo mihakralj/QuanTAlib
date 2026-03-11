@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mfi)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mfi.pine](mfi.pine)                       |
 
 - Money Flow Index is the volume-weighted cousin of RSI.
 - Parameterized by `period` (default 14).

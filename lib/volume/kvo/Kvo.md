@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Kvo)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `slowPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [kvo.pine](kvo.pine)                       |
 
 - The Klinger Volume Oscillator (KVO), developed by Stephen Klinger in the 1970s, measures the long-term trend of money flow while remaining sensitiv...
 - Parameterized by `fastperiod` (default 34), `slowperiod` (default 55), `signalperiod` (default 13).

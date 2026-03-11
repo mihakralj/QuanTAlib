@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [decaychannel.pine](decaychannel.pine)                       |
 
 - Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that exp...
 - Parameterized by `period`.

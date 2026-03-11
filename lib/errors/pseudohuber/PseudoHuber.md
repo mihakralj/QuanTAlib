@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PseudoHuber)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [pseudohuber.pine](pseudohuber.pine)                       |
 
 - Pseudo-Huber Loss (also called Charbonnier Loss) is a smooth approximation to the Huber loss function.
 - Parameterized by `period`, `delta` (default 1.0).

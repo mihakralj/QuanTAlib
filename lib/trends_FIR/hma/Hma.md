@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period + sqrtPeriod - 1` bars                          |
+| **PineScript**   | [hma.pine](hma.pine)                       |
 | **Signature**    | [hma_signature](hma_signature.md) |
-
-### TL;DR
 
 - HMA (Hull Moving Average) is a solution to the eternal struggle between smoothness and lag.
 - Parameterized by `period`.

@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Zldema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+| **PineScript**   | [zldema.pine](zldema.pine)                       |
 | **Signature**    | [zldema_signature](zldema_signature.md) |
-
-### TL;DR
 
 - ZLDEMA takes a standard DEMA and feeds it a **zero-lag signal**: current price minus a lagged price.
 - Parameterized by `period`.

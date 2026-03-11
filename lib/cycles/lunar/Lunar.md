@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (LUNAR)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [lunar.pine](lunar.pine)                       |
 
 - LUNAR calculates the Moon's illumination fraction using precise orbital mechanics from Jean Meeus' *Astronomical Algorithms*.
 - No configurable parameters; computation is stateless per bar.

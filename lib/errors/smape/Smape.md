@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SMAPE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [smape.pine](smape.pine)                       |
 
 - Symmetric Mean Absolute Percentage Error addresses a fundamental asymmetry in MAPE: the fact that over-predictions and under-predictions of the sam...
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (HT_SINE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `LOOKBACK` bars                          |
-
-### TL;DR
+| **PineScript**   | [ht_sine.pine](ht_sine.pine)                       |
 
 - HT_SINE extracts the dominant market cycle phase and outputs both Sine and LeadSine (45° phase advance) for cycle timing.
 - No configurable parameters; computation is stateless per bar.

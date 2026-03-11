@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PIVOTEXT)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pivotext.pine](pivotext.pine)                       |
 
 - Extended Traditional Pivot Points calculate eleven horizontal support and resistance levels from the previous bar's high, low, and close.
 - No configurable parameters; computation is stateless per bar.

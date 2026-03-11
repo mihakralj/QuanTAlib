@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
 
-### TL;DR
-
 - `CsvFeed` is a file-based feed implementation that loads historical OHLCV data from CSV files.
 - Parameterized by `filepath`.
 - Output range: Varies (see docs).

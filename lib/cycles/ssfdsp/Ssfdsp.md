@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SsfDsp)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `slowPeriod * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [ssfdsp.pine](ssfdsp.pine)                       |
 
 - SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscill...
 - Parameterized by `period` (default 40).

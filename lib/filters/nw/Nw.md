@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Nw)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [nw.pine](nw.pine)                       |
 | **Signature**    | [nw_signature](nw_signature.md) |
-
-### TL;DR
 
 - NW computes the Nadaraya-Watson kernel regression estimator with a Gaussian kernel, producing a nonparametric smooth of the price series.
 - Parameterized by `period` (default 64), `bandwidth` (default 8.0).

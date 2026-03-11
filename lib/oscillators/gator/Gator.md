@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Gator)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(jawPeriod + jawShift, Math.Max(teethPeriod + teethShift, lipsPeriod + lipsShift))` bars                          |
-
-### TL;DR
+| **PineScript**   | [gator.pine](gator.pine)                       |
 
 - The Williams Gator Oscillator is a dual-histogram visualization of the Alligator indicator's convergence and divergence.
 - Parameterized by `jawperiod` (default 13), `jawshift` (default 8), `teethperiod` (default 8), `teethshift` (default 5), `lipsperiod` (default 5), `lipsshift` (default 3).

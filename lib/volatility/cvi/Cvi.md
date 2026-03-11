@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cvi)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [cvi.pine](cvi.pine)                       |
 
 - Chaikin's Volatility (CVI) measures the rate of change of the EMA-smoothed high-low trading range.
 - Parameterized by `roclength` (default 10), `smoothlength` (default 10).

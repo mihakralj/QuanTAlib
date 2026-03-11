@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PIVOT)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pivot.pine](pivot.pine)                       |
 
 - Classic Pivot Points calculate seven horizontal support and resistance levels from the previous bar's high, low, and close.
 - No configurable parameters; computation is stateless per bar.

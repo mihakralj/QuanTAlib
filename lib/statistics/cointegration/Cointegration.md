@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ADF statistic)           |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [cointegration.pine](cointegration.pine)                       |
 
 - The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an...
 - Parameterized by `period` (default 20).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PIVOTFIB)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pivotfib.pine](pivotfib.pine)                       |
 
 - Fibonacci Pivot Points apply Fibonacci retracement ratios (38.2%, 61.8%, 100%) to the standard pivot point formula.
 - No configurable parameters; computation is stateless per bar.

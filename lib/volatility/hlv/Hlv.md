@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Hlv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [hlv.pine](hlv.pine)                       |
 
 - *Also known as: PV (Parkinson Volatility)*
 - Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).

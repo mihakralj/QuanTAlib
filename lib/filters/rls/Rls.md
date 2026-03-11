@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (RLS)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `order + 1` bars                          |
+| **PineScript**   | [rls.pine](rls.pine)                       |
 | **Signature**    | [rls_signature](rls_signature.md) |
 
-
-### TL;DR
 
 - The Recursive Least Squares (RLS) adaptive filter is the Rolls-Royce of adaptive FIR filters.
 - Parameterized by `order` (default 16), `lambda` (default 0.99).

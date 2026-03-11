@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TTM_TREND)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [TtmTrend.pine](TtmTrend.pine)                       |
 
 - John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign.
 - Parameterized by `period` (default defaultperiod).

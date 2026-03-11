@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (DiPlus, DiMinus)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [dx.pine](dx.pine)                       |
 
 - The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system.
 - Parameterized by `period` (default 14).

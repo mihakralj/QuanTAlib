@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Midpoint)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [midpoint.pine](midpoint.pine)                       |
 
 - Single-series rolling midpoint: `(Highest(V, N) + Lowest(V, N)) * 0.5`.
 - Parameterized by `period`.

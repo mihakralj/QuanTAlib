@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Rma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `ema.WarmupPeriod` bars                          |
+| **PineScript**   | [rma.pine](rma.pine)                       |
 | **Signature**    | [rma_signature](rma_signature.md) |
-
-### TL;DR
 
 - The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Wilder's Moving Average, is the backbone of J.
 - Parameterized by `period`.

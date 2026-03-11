@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Dsma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [dsma.pine](dsma.pine)                       |
 | **Signature**    | [dsma_signature](dsma_signature.md) |
-
-### TL;DR
 
 - DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RM...
 - Parameterized by `period`, `scalefactor` (default 0.5).

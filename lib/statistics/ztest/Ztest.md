@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ztest)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ztest.pine](ztest.pine)                       |
 
 - ZTEST computes the **one-sample t-statistic**, measuring how many standard errors the rolling sample mean deviates from a hypothesized population m...
 - Parameterized by `period` (default 30), `mu0` (default 0.0).

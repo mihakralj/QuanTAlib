@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rae)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rae.pine](rae.pine)                       |
 
 - Relative Absolute Error (RAE) measures the total absolute error of predictions relative to the total absolute error of a simple baseline predictor ...
 - Parameterized by `period`.

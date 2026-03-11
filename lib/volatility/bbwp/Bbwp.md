@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Bbwp)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period + lookback` bars                          |
-
-### TL;DR
+| **PineScript**   | [bbwp.pine](bbwp.pine)                       |
 
 - BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the res...
 - Parameterized by `period`, `multiplier` (default 2.0), `lookback` (default 252).

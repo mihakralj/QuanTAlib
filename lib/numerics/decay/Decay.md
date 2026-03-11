@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Decay)            |
 | **Output range** | Same as input (overlay)          |
 | **Warmup**       | `1` bar                          |
-
-### TL;DR
+| **PineScript**   | [decay.pine](decay.pine)                       |
 
 - DECAY (Linear Decay) tracks the maximum of the current input and the previous output minus a fixed absolute step of `1/period`.
 - Parameterized by `period` (default 5).

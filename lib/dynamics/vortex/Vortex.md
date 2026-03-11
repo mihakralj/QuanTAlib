@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (ViPlus, ViMinus)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vortex.pine](vortex.pine)                       |
 
 - The Vortex Indicator measures upward and downward trend momentum by computing the ratio of positive and negative vortex movements to true range ove...
 - Parameterized by `period` (default 14).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Tsi)                       |
 | **Output range** | $-100$ to $+100$                     |
 | **Warmup**       | `longPeriod + shortPeriod + signalPeriod` bars (51 default)                          |
-
-### TL;DR
+| **PineScript**   | [tsi.pine](tsi.pine)                       |
 
 - The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price mom...
 - Parameterized by `longPeriod` (default 25), `shortPeriod` (default 13), `signalPeriod` (default 13).

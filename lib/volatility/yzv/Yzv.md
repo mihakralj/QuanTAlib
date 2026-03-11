@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Yzv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [yzv.pine](yzv.pine)                       |
 
 - Yang-Zhang Volatility is a sophisticated volatility estimator that combines overnight (close-to-open) returns with Rogers-Satchell intraday volatil...
 - Parameterized by `period` (default 20).

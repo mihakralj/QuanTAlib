@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Entropy)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [entropy.pine](entropy.pine)                       |
 
 - Shannon Entropy measures the unpredictability or randomness of a time series over a sliding window.
 - Parameterized by `period`.

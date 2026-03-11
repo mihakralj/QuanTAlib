@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SLOPE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [slope.pine](slope.pine)                       |
 
 - SLOPE measures the instantaneous rate of change—the velocity of a time series.
 - No configurable parameters; computation is stateless per bar.

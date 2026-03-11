@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Midprice)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [midprice.pine](midprice.pine)                       |
 
 - MIDPRICE computes the center of a rolling price channel by averaging the highest High and lowest Low over the past $N$ bars: $(\text{Highest}(H, N)...
 - Parameterized by `period`.

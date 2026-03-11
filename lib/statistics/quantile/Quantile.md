@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Quantile)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [quantile.pine](quantile.pine)                       |
 
 - The Rolling Quantile computes the value below which a given fraction of observations fall within a sliding window.
 - Parameterized by `period`, `quantilelevel` (default 0.25).

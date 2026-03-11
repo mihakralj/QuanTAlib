@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower, Vwap, StdDev, Width)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [vwapsd.pine](vwapsd.pine)                       |
 
 - VWAP with Standard Deviation Bands combines the Volume Weighted Average Price with a single configurable standard deviation band pair, providing a ...
 - Parameterized by `numdevs` (default defaultnumdevs).

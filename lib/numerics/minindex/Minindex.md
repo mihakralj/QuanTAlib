@@ -9,8 +9,6 @@
 | **Output range** | Streaming: 0 to period-1 (bars-ago); Batch span: absolute array index |
 | **Warmup**       | `period` bars                          |
 
-### TL;DR
-
 - MININDEX finds the position (index) of the minimum value within a rolling lookback window.
 - Parameterized by `period` (minimum 2).
 - Streaming mode outputs bars-ago offset (0 = current bar holds the min, period-1 = oldest bar).

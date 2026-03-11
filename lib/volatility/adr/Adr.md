@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Adr)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `ma.WarmupPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [adr.pine](adr.pine)                       |
 
 - The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period.
 - Parameterized by `period`, `method` (default adrmethod.sma).

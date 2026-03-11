@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Parzen)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [parzen.pine](parzen.pine)                       |
 | **Signature**    | [parzen_signature](parzen_signature.md) |
-
-### TL;DR
 
 - PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppre...
 - Parameterized by `period` (default 14).

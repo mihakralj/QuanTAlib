@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Reflex)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [reflex.pine](reflex.pine)                       |
 
 - REFLEX is a zero-lag oscillator that measures the reversal tendency of price by comparing a Super-Smoother-filtered price against a linear extrapol...
 - Parameterized by `period`.

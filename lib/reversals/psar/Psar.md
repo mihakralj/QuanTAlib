@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Psar)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [psar.pine](psar.pine)                       |
 
 - The Parabolic Stop And Reverse (PSAR) is a trend-following overlay indicator created by J.
 - Parameterized by `afStart` (default 0.02), `afIncrement` (default 0.02), `afMax` (default 0.20).

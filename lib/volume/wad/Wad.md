@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (WAD)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [wad.pine](wad.pine)                       |
 
 - Williams Accumulation/Distribution (WAD) is Larry Williams' contribution to the volume analysis toolkit.
 - No configurable parameters; computation is stateless per bar.

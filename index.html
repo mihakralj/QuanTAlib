@@ -6,10 +6,21 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Quantitative Technical Analysis Library in C#">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="icon" type="image/png" href="docs/img/QuanTAlib2.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/themes/dark.css">
   <style>
+    @font-face {
+      font-family: 'IBM Plex Sans';
+      font-weight: 400;
+      src: url(https://cdn.jsdelivr.net/fontsource/fonts/ibm-plex-sans@latest/latin-400-normal.woff2) format('woff2');
+    }
+    @font-face {
+      font-family: 'IBM Plex Sans';
+      font-weight: 600;
+      src: url(https://cdn.jsdelivr.net/fontsource/fonts/ibm-plex-sans@latest/latin-600-normal.woff2) format('woff2');
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
       background-color: #0d1117 !important;
       color: #c9d1d9 !important;
     }
@@ -37,11 +48,28 @@
       padding-left: 0;
     }
 
-    .sidebar-nav > ul > li {
-      font-weight: 600;
-      margin-top: 1.5em;
-      margin-bottom: 0.5em;
+    .sidebar-nav li {
+      font-weight: 400;
+      font-size: 14px !important;
+    }
+
+    .sidebar-nav li.sidebar-l1 > a,
+    .sidebar-nav li.sidebar-l1 > p > a,
+    .sidebar-nav li.sidebar-l1 > p {
+      font-weight: 600 !important;
+      font-size: 20px !important;
       color: #c9d1d9 !important;
+    }
+
+    .sidebar-nav li.sidebar-l1 {
+      margin-top: 0.5em;
+      margin-bottom: 0.1em;
+    }
+
+    .sidebar-nav li.sidebar-l1 li,
+    .sidebar-nav li.sidebar-l1 li a {
+      font-weight: 400 !important;
+      font-size: 14px !important;
     }
 
     .sidebar-nav a {
@@ -64,19 +92,20 @@
       color: #c9d1d9 !important;
     }
 
-    .markdown-section h1, 
+    .markdown-section h1 {
+      color: #c9d1d9 !important;
+      font-weight: 600;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.3em;
+    }
+
     .markdown-section h2, 
     .markdown-section h3,
     .markdown-section h4,
     .markdown-section h5,
     .markdown-section h6 {
       color: #c9d1d9 !important;
-      font-weight: 600;
-    }
-
-    .markdown-section h1 {
-      border-bottom: 1px solid #21262d;
-      padding-bottom: 0.3em;
+      font-weight: 400;
     }
 
     .markdown-section h2 {
@@ -165,19 +194,98 @@
     .markdown-section img {
       background-color: transparent !important;
     }
+
+    /* Pine Script syntax highlighting — GitHub dark palette */
+    .token.doctype,
+    .token.annotation { color: #8b949e; font-style: italic; }
+    .token.type-definition { color: #79c0ff; }
+    .token.class-name { color: #d2a8ff; }
+    .token.constant { color: #ffa657; }
+    .token.property { color: #c9d1d9; }
+    .token.function { color: #d2a8ff; }
+    .token.boolean { color: #ff7b72; }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
     globalThis.$docsify = {
-      name: 'QuanTAlib',
+      name: '<img src="docs/img/QuanTAlib2.png" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;">QuanTAlib',
       repo: 'https://github.com/mihakralj/QuanTAlib',
       loadSidebar: true,
       subMaxLevel: 0,
       auto2top: true,
       homepage: 'README.md',
       relativePath: true,
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md',
+      },
+      plugins: [
+        function(hook) {
+          hook.doneEach(function() {
+            setTimeout(function() {
+              var nav = document.querySelector('.sidebar-nav');
+              if (!nav) return;
+              var topUl = nav.querySelector('ul');
+              if (!topUl) return;
+              Array.from(topUl.children).forEach(function(li) {
+                if (li.tagName === 'LI') {
+                  li.classList.add('sidebar-l1');
+                }
+              });
+            }, 100);
+          });
+        },
+        // Render .pine files as fixed-font code blocks inside docsify
+        function(hook, vm) {
+          hook.doneEach(function() {
+            var content = document.querySelector('.markdown-section');
+            if (!content) return;
+            content.querySelectorAll('a').forEach(function(a) {
+              var rawHref = a.getAttribute('href');
+              if (!rawHref || !rawHref.endsWith('.pine')) return;
+              a.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Extract the .pine path from the hash link or raw href
+                var pinePath = rawHref;
+                // If docsify converted it to a hash link: #/lib/.../file.pine
+                var fullHref = a.href || '';
+                var hashIdx = fullHref.indexOf('#/');
+                if (hashIdx !== -1) {
+                  pinePath = fullHref.substring(hashIdx + 2);
+                } else if (!pinePath.startsWith('/') && !pinePath.startsWith('http')) {
+                  // Relative link — resolve against current route's directory
+                  var routeFile = (vm.route && vm.route.file) || '';
+                  var routeDir = routeFile.replace(/[^/]*$/, '');
+                  pinePath = routeDir + pinePath;
+                }
+                // Fetch from server root
+                var fetchUrl = pinePath.startsWith('/') ? pinePath : '/' + pinePath;
+                // For relative server (non-root), use document.baseURI
+                var absUrl = new URL(pinePath, document.baseURI).href;
+                fetch(absUrl).then(function(r) {
+                  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+                  return r.text();
+                }).then(function(text) {
+                  // Verify we got pine content, not HTML fallback
+                  if (text.trimStart().startsWith('<!DOCTYPE') || text.trimStart().startsWith('<html')) {
+                    throw new Error('Server returned HTML instead of .pine file');
+                  }
+                  var fname = pinePath.split('/').pop();
+                  var md = '# 📜 ' + fname + '\n\n```pine\n' + text + '\n```\n';
+                  content.innerHTML = vm.compiler.compile(md);
+                  // Re-run Prism highlighting on the injected code block
+                  if (window.Prism) { Prism.highlightAllUnder(content); }
+                  window.scrollTo(0, 0);
+                }).catch(function(err) {
+                  content.innerHTML = '<h1>Error</h1><p>Could not load <code>' + pinePath + '</code>: ' + err.message + '</p>';
+                });
+              });
+            });
+          });
+        }
+      ],
     }
   </script>
   <!-- Docsify v4 -->
@@ -189,5 +297,87 @@
   <script src="https://cdn.jsdelivr.net/npm/docsify-latex@0"></script>
    <!-- Prism for C# syntax highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-csharp.min.js"></script>
+  <!-- Prism PineScript v6 language definition -->
+  <script>
+    Prism.languages.pine = {
+      // Block comments (/* ... */) — must come before line comments
+      'block-comment': {
+        pattern: /\/\*[\s\S]*?\*\//,
+        alias: 'comment',
+        greedy: true
+      },
+      // Compiler annotations: //@version, //@function, //@param, etc.
+      'annotation': {
+        pattern: /\/\/@(?:version|function|param|returns?|field|type|enum|variable|description|optimized)\b.*/,
+        alias: 'doctype',
+        greedy: true
+      },
+      // Line comments
+      'comment': {
+        pattern: /\/\/.*/,
+        greedy: true
+      },
+      // Strings — single and double quoted, with escape sequences
+      'string': {
+        pattern: /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/,
+        greedy: true
+      },
+      // Numbers — hex, scientific notation, float, integer
+      'number': /\b0x[\da-fA-F]+\b|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b/,
+      // Boolean literals
+      'boolean': /\b(?:true|false)\b/,
+      // Type qualifiers (must precede type keywords)
+      'type-qualifier': {
+        pattern: /\b(?:series|simple|const|input)\b/,
+        alias: 'keyword'
+      },
+      // Declaration modes
+      'declaration-mode': {
+        pattern: /\b(?:var|varip)\b/,
+        alias: 'keyword'
+      },
+      // Type keywords
+      'type-keyword': {
+        pattern: /\b(?:float|int|bool|string|color|void|matrix|array|map|line|label|box|table|linefill|polyline|chart\.point|type|enum)\b/,
+        alias: 'type-definition'
+      },
+      // Namespace.member access — namespace highlighted as class-name
+      'namespace': {
+        pattern: /\b(?:math|ta|input|color|str|array|matrix|map|chart|request|strategy|runtime|log|ticker|table|line|label|box|linefill|polyline|plot|hline|fill|syminfo|timeframe|barstate|session)\b(?=\.)/,
+        alias: 'class-name'
+      },
+      // Dot-accessed members after namespace (e.g. .sma, .abs, .style_line)
+      'dot-access': {
+        pattern: /(?<=\.)\b[a-zA-Z_]\w*\b/,
+        alias: 'property'
+      },
+      // Built-in OHLCV and market variables
+      'builtin-var': {
+        pattern: /\b(?:open|high|low|close|volume|time|time_close|hl2|hlc3|hlcc4|ohlc4|bar_index|last_bar_index|timenow)\b/,
+        alias: 'constant'
+      },
+      // na — special undefined value (both variable and function)
+      'na-value': {
+        pattern: /\b(?:na)\b/,
+        alias: 'constant'
+      },
+      // Top-level declaration and output functions
+      'builtin-function': {
+        pattern: /\b(?:indicator|strategy|library|plot|plotshape|plotchar|plotarrow|plotbar|plotcandle|bgcolor|barcolor|hline|fill|alert|alertcondition|nz|fixnan)\b(?=\s*\()/,
+        alias: 'function'
+      },
+      // User-defined function calls
+      'function-call': {
+        pattern: /\b[a-zA-Z_]\w*\b(?=\s*\()/,
+        alias: 'function'
+      },
+      // Control flow keywords
+      'keyword': /\b(?:if|else|for|to|while|switch|break|continue|return|export|import|method)\b/,
+      // Compound operators first, then single-char
+      'operator': /=>|:=|\+=|-=|\*=|\/=|%=|==|!=|<=|>=|[+\-*\/%<>=]|\b(?:and|or|not)\b|\?|:/,
+      // Punctuation and delimiters
+      'punctuation': /[{}()\[\],.]/
+    };
+  </script>
 </body>
 </html>

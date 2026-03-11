@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mstoch)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [mstoch.pine](mstoch.pine)                       |
 
 - The MESA Stochastic applies John Ehlers' Roofing Filter as a preprocessing stage before computing a stochastic oscillator, then smooths the stochas...
 - Parameterized by `stochlength` (default 20), `hplength` (default 48), `sslength` (default 10).

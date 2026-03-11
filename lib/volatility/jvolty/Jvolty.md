@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Jvolty)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [jvolty.pine](jvolty.pine)                       |
 
 - Jurik Volatility (JVOLTY) is the adaptive volatility component extracted from Mark Jurik's JMA algorithm.
 - Parameterized by `period`.

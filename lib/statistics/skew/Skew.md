@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Skew)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [skew.pine](skew.pine)                       |
 
 - Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean.
 - Parameterized by `period`, `ispopulation` (default false).

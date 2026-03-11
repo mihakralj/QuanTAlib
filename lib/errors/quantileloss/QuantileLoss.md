@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (QuantileLoss)               |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [quantileloss.pine](quantileloss.pine)                       |
 
 - Quantile Loss (also called Pinball Loss) measures prediction accuracy with asymmetric penalties for over-prediction versus under-prediction.
 - Parameterized by `period`, `quantile` (default 0.5).

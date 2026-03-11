@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [sdchannel.pine](sdchannel.pine)                       |
 
 - Standard Deviation Channel plots a linear regression line through price data with parallel bands at a specified number of standard deviations of re...
 - Parameterized by `period` (default 20), `multiplier` (default 2.0).

@@ -27,7 +27,7 @@ yzv(int length) =>
             raw_rma_val := (nz(raw_rma_val[1]) * (length - 1) + s_sq_daily) / length
         e_comp_val := (1.0 - rma_alpha) * e_comp_val
         smoothed_s_sq := e_comp_val > EPSILON_YZV ? raw_rma_val / (1.0 - e_comp_val) : raw_rma_val
-    result = math.sqrt(smoothed_s_sq)
+    result = math.sqrt(math.max(0.0, nz(smoothed_s_sq)))
     result
 
 // Inputs

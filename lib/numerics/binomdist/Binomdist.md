@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Binomdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [binomdist.pine](binomdist.pine)                       |
 
 - BINOMDIST computes the cumulative distribution function of the Binomial distribution, mapping a min-max normalized price to a success probability $...
 - Parameterized by `period` (default 50), `trials` (default 20), `threshold` (default 10).

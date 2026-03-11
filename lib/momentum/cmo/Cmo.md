@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cmo)                       |
 | **Output range** | $-100$ to $+100$                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [cmo.pine](cmo.pine)                       |
 
 - The Chande Momentum Oscillator (CMO) is a momentum indicator developed by Tushar Chande.
 - Parameterized by `period` (default 14).

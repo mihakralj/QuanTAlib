@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Jaw, Teeth, Lips)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(jawPeriod, teethPeriod), lipsPeriod)` bars                          |
-
-### TL;DR
+| **PineScript**   | [alligator.pine](alligator.pine)                       |
 
 - The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display o...
 - Parameterized by `jawperiod`, `jawoffset`, `teethperiod`, `teethoffset`, `lipsperiod`, `lipsoffset`.

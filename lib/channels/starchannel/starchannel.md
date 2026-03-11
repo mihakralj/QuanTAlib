@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(period, effectiveAtrPeriod)` bars                          |
-
-### TL;DR
+| **PineScript**   | [starchannel.pine](starchannel.pine)                       |
 
 - Stoller Average Range Channel creates a volatility-adaptive price envelope using Average True Range (ATR) to determine band width around a simple m...
 - Parameterized by `period` (default 20), `multiplier` (default 2.0), `atrperiod` (default 0).

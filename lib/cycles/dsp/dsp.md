@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dsp)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `slowPeriod * 3` bars                          |
-
-### TL;DR
+| **PineScript**   | [dsp.pine](dsp.pine)                       |
 
 - DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price...
 - Parameterized by `period` (default 40).

@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Trima)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `p1 + p2 - 1` bars                          |
+| **PineScript**   | [trima.pine](trima.pine)                       |
 | **Signature**    | [trima_signature](trima_signature.md) |
-
-### TL;DR
 
 - The Triangular Moving Average (TRIMA) places the majority of its weight on the middle of the data window, tapering off linearly towards the ends.
 - Parameterized by `period`.

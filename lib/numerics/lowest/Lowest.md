@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Lowest)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [lowest.pine](lowest.pine)                       |
 
 - LOWEST calculates the minimum value over a rolling lookback window.
 - Parameterized by `period`.

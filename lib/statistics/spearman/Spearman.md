@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Spearman)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [spearman.pine](spearman.pine)                       |
 
 - Spearman's ρ (rho) measures the strength and direction of monotonic association between two variables.
 - Parameterized by `period` (default 20).

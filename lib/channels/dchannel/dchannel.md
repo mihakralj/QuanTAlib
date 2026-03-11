@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [dchannel.pine](dchannel.pine)                       |
 
 - Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset ...
 - Parameterized by `period`.

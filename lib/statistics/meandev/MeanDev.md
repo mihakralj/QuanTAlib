@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MeanDev)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [meandev.pine](meandev.pine)                       |
 
 - ````markdown
 - Parameterized by `period`.

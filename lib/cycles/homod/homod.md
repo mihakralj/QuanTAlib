@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Homod)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `maxPeriod * 2` bars (default 100)                          |
-
-### TL;DR
+| **PineScript**   | [homod.pine](homod.pine)                       |
 
 - HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a d...
 - Parameterized by `minperiod` (default 6.0), `maxperiod` (default 50.0).

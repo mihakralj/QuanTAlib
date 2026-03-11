@@ -1,6 +1,5 @@
 # PLUS_DI: Plus Directional Indicator
 
-### TL;DR
 Measures upward directional movement strength as a percentage (0-100).
 
 ## Introduction

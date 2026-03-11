@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Pma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `(period * 2) - 1` bars                          |
+| **PineScript**   | [pma.pine](pma.pine)                       |
 | **Signature**    | [pma_signature](pma_signature.md) |
-
-### TL;DR
 
 - PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predi...
 - Parameterized by `period`.

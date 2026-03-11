@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cwt)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | windowSize (2K+1) bars, where K = round(3 × scale) |
-
-### TL;DR
+| **PineScript**   | [cwt.pine](cwt.pine)                       |
 
 - CWT computes the magnitude of the Continuous Wavelet Transform at a specified scale using the Morlet wavelet, providing a time-frequency decomposit...
 - Parameterized by `scale` (default 10.0), `omega0` (default 6.0).

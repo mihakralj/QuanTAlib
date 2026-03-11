@@ -10,6 +10,7 @@
 | **Outputs** | Dual: Bull Power (primary), Bear Power (property) |
 | **Output range** | Unbounded (centered around 0) |
 | **Warmup** | `period` bars |
+| **PineScript**   | [eri.pine](eri.pine)                       |
 
 ### Key takeaways
 

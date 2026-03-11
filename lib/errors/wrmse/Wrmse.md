@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Wrmse)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [wrmse.pine](wrmse.pine)                       |
 
 - WRMSE extends the classic RMSE by incorporating weights for each observation, enabling analysts to emphasize critical data points such as recent ob...
 - Parameterized by `period`.

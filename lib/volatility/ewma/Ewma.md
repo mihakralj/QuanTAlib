@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (EWMA)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ewma.pine](ewma.pine)                       |
 
 - EWMA Volatility calculates market volatility using an exponentially weighted moving average of squared log returns with bias correction.
 - Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).

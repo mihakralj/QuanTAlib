@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (HA)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [ha.pine](ha.pine)                       |
 
 - HA transforms standard OHLC bars into smoothed Heikin-Ashi candles by averaging each component with its predecessor.
 - No configurable parameters; computation is stateless per bar.

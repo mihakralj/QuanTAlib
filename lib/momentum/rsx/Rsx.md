@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rsx)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rsx.pine](rsx.pine)                       |
 
 - Mark Jurik's RSX represents the pinnacle of bounded momentum oscillator design.
 - Parameterized by `period`.

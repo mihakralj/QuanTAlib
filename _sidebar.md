@@ -1,16 +1,13 @@
-* **Core concepts**
-  * [Architecture](/docs/architecture.md)
-  * [API](/docs/api.md)
-  * [Benchmarks](/docs/benchmarks.md)
-  * [Indicators](/docs/indicators.md)
-  * [Usage Guides](/docs/usage.md)
-  * [Integration](/docs/integration.md)
-  * [Validation](/docs/validation.md)
-  * [MA Qualities](/docs/ma-qualities.md)
-  * [Error Metrics](/docs/errors.md)
-
-* **Core**
-  * [Overview](/lib/core/_index.md)
+* [Core](/lib/core/_index.md)
+  * [⭐ Architecture](/docs/architecture.md)
+  * [⭐ API](/docs/api.md)
+  * [⭐ Benchmarks](/docs/benchmarks.md)
+  * [⭐ Indicators](/docs/indicators.md)
+  * [⭐ Usage Guides](/docs/usage.md)
+  * [⭐ Integration](/docs/integration.md)
+  * [⭐ Validation](/docs/validation.md)
+  * [⭐ Moving Average Qualities](/docs/ma-qualities.md)
+  * [⭐ Error Metrics](/docs/errors.md)
   * [AVGPRICE - Average Price](/lib/core/avgprice/Avgprice.md)
   * [HA - Heikin-Ashi](/lib/core/ha/Ha.md)
   * [MEDPRICE - Median Price](/lib/core/medprice/Medprice.md)
@@ -19,9 +16,8 @@
   * [MIDBODY - Open-Close Average](/lib/core/midbody/Midbody.md)
   * [TYPPRICE - Typical Price](/lib/core/typprice/Typprice.md)
   * [WCLPRICE - Weighted Close Price](/lib/core/wclprice/Wclprice.md)
-
-* **Trends (FIR)**
-  * [Overview](/lib/trends_FIR/_index.md)
+  
+* [FIR Trends](/lib/trends_FIR/_index.md)
   * [ALMA - Arnaud Legoux MA](/lib/trends_FIR/alma/Alma.md)
   * [BLMA - Blackman Window MA](/lib/trends_FIR/blma/Blma.md)
   * [BWMA - Bessel-Weighted MA](/lib/trends_FIR/bwma/Bwma.md)
@@ -56,8 +52,7 @@
   * [TUKEY_W - Tukey (Tapered Cosine) Window MA](/lib/trends_FIR/tukey_w/Tukey_w.md)
   * [WMA - Weighted MA](/lib/trends_FIR/wma/Wma.md)
 
-* **Trends (IIR)**
-  * [Overview](/lib/trends_IIR/_index.md)
+* [IIR Trends](/lib/trends_IIR/_index.md)
   * [ADXVMA - ADX Variable MA](/lib/trends_IIR/adxvma/Adxvma.md)
   * [AHRENS - Ahrens MA](/lib/trends_IIR/ahrens/Ahrens.md)
   * [CORAL - Coral Trend Filter](/lib/trends_IIR/coral/Coral.md)
@@ -95,8 +90,7 @@
   * [ZLEMA - Zero-Lag Exponential MA](/lib/trends_IIR/zlema/Zlema.md)
   * [ZLTEMA - Zero-Lag Triple Exponential MA](/lib/trends_IIR/zltema/Zltema.md)
 
-* **Filters**
-  * [Overview](/lib/filters/_index.md)
+* [Filters](/lib/filters/_index.md)
   * [AGC - Ehlers Automatic Gain Control](/lib/filters/agc/Agc.md)
   * [ALAGUERRE - Ehlers Adaptive Laguerre Filter](/lib/filters/alaguerre/ALaguerre.md)
   * [BAXTERKING - Baxter-King Band-Pass Filter](/lib/filters/baxterking/BaxterKing.md)
@@ -135,8 +129,7 @@
   * [WAVELET - Wavelet Denoising Filter](/lib/filters/wavelet/Wavelet.md)
   * [WIENER - Wiener Filter](/lib/filters/wiener/Wiener.md)
 
-* **Oscillators**
-  * [Overview](/lib/oscillators/_index.md)
+* [Oscillators](/lib/oscillators/_index.md)
   * [AC - Acceleration Oscillator](/lib/oscillators/ac/Ac.md)
   * [AO - Awesome Oscillator](/lib/oscillators/ao/Ao.md)
   * [APO - Absolute Price Oscillator](/lib/oscillators/apo/Apo.md)
@@ -186,8 +179,7 @@
   * [ULTOSC - Ultimate Oscillator](/lib/oscillators/ultosc/Ultosc.md)
   * [WILLR - Williams %R](/lib/oscillators/willr/Willr.md)
 
-* **Dynamics**
-  * [Overview](/lib/dynamics/_index.md)
+* [Dynamics](/lib/dynamics/_index.md)
   * [ADX - Average Directional Index](/lib/dynamics/adx/Adx.md)
   * [ADXR - Average Directional Movement Rating](/lib/dynamics/adxr/Adxr.md)
   * [ALLIGATOR - Williams Alligator](/lib/dynamics/alligator/Alligator.md)
@@ -214,8 +206,7 @@
   * [VHF - Vertical Horizontal Filter](/lib/dynamics/vhf/Vhf.md)
   * [VORTEX - Vortex Indicator](/lib/dynamics/vortex/Vortex.md)
 
-* **Momentum**
-  * [Overview](/lib/momentum/_index.md)
+* [Momentum](/lib/momentum/_index.md)
   * [ASI - Accumulation Swing Index](/lib/momentum/asi/Asi.md)
   * [BIAS - Bias / Disparity Index](/lib/momentum/bias/Bias.md)
   * [BOP - Balance of Power](/lib/momentum/bop/Bop.md)
@@ -236,8 +227,7 @@
   * [TSI - True Strength Index](/lib/momentum/tsi/Tsi.md)
   * [VEL - Jurik Velocity](/lib/momentum/vel/Vel.md)
 
-* **Volatility**
-  * [Overview](/lib/volatility/_index.md)
+* [Volatility](/lib/volatility/_index.md)
   * [ADR - Average Daily Range](/lib/volatility/adr/Adr.md)
   * [ATR - Average True Range](/lib/volatility/atr/Atr.md)
   * [ATRN - ATR Normalized](/lib/volatility/atrn/Atrn.md)
@@ -265,8 +255,7 @@
   * [VR - Volatility Ratio](/lib/volatility/vr/Vr.md)
   * [YZV - Yang-Zhang Volatility](/lib/volatility/yzv/Yzv.md)
 
-* **Volume**
-  * [Overview](/lib/volume/_index.md)
+* [Volume](/lib/volume/_index.md)
   * [ADL - Accumulation/Distribution Line](/lib/volume/adl/Adl.md)
   * [ADOSC - Chaikin A/D Oscillator](/lib/volume/adosc/Adosc.md)
   * [AOBV - Archer On-Balance Volume](/lib/volume/aobv/Aobv.md)
@@ -295,8 +284,7 @@
   * [VWMA - Volume Weighted MA](/lib/volume/vwma/Vwma.md)
   * [WAD - Williams A/D](/lib/volume/wad/Wad.md)
 
-* **Channels**
-  * [Overview](/lib/channels/_index.md)
+* [Channels](/lib/channels/_index.md)
   * [ABERR - Aberration Bands](/lib/channels/aberr/aberr.md)
   * [ACCBANDS - Acceleration Bands](/lib/channels/accbands/accbands.md)
   * [APCHANNEL - Andrews' Pitchfork](/lib/channels/apchannel/Apchannel.md)
@@ -321,8 +309,7 @@
   * [VWAPBANDS - VWAP Bands](/lib/channels/vwapbands/Vwapbands.md)
   * [VWAPSD - VWAP with Standard Deviation Bands](/lib/channels/vwapsd/Vwapsd.md)
 
-* **Statistics**
-  * [Overview](/lib/statistics/_index.md)
+* [Statistics](/lib/statistics/_index.md)
   * [ACF - Autocorrelation Function](/lib/statistics/acf/Acf.md)
   * [BETA - Beta Coefficient](/lib/statistics/beta/Beta.md)
   * [CMA - Cumulative MA](/lib/statistics/cma/Cma.md)
@@ -359,8 +346,7 @@
   * [ZSCORE - Z-score](/lib/statistics/zscore/Zscore.md)
   * [ZTEST - Z-Test](/lib/statistics/ztest/Ztest.md)
 
-* **Numerics**
-  * [Overview](/lib/numerics/_index.md)
+* [Numerics](/lib/numerics/_index.md)
   * [ACCEL - Acceleration](/lib/numerics/accel/Accel.md)
   * [BETADIST - Beta Distribution](/lib/numerics/betadist/Betadist.md)
   * [BINOMDIST - Binomial Distribution](/lib/numerics/binomdist/Binomdist.md)
@@ -391,8 +377,7 @@
   * [TDIST - Student's t-Distribution](/lib/numerics/tdist/Tdist.md)
   * [WEIBULLDIST - Weibull Distribution](/lib/numerics/weibulldist/Weibulldist.md)
 
-* **Errors**
-  * [Overview](/lib/errors/_index.md)
+* [Errors](/lib/errors/_index.md)
   * [HUBER - Huber Loss](/lib/errors/huber/Huber.md)
   * [LOGCOSH - Log-Cosh Loss](/lib/errors/logcosh/LogCosh.md)
   * [MAAPE - Mean Arctangent Absolute Percentage Error](/lib/errors/maape/Maape.md)
@@ -420,12 +405,10 @@
   * [WMAPE - Weighted Mean Absolute Percentage Error](/lib/errors/wmape/Wmape.md)
   * [WRMSE - Weighted RMSE](/lib/errors/wrmse/Wrmse.md)
 
-* **Forecasts**
-  * [Overview](/lib/forecasts/_index.md)
+* [Forecasts](/lib/forecasts/_index.md)
   * [AFIRMA - Adaptive FIR MA](/lib/forecasts/afirma/Afirma.md)
 
-* **Cycles**
-  * [Overview](/lib/cycles/_index.md)
+* [Cycles](/lib/cycles/_index.md)
   * [CCOR - Ehlers Correlation Cycle](/lib/cycles/ccor/Ccor.md)
   * [CCYC - Ehlers Cyber Cycle](/lib/cycles/ccyc/Ccyc.md)
   * [CG - Ehlers Center of Gravity](/lib/cycles/cg/Cg.md)
@@ -441,8 +424,7 @@
   * [SOLAR - Solar Activity Cycle](/lib/cycles/solar/Solar.md)
   * [SSFDSP - Ehlers SSF Detrended Synthetic Price](/lib/cycles/ssfdsp/Ssfdsp.md)
 
-* **Reversals**
-  * [Overview](/lib/reversals/_index.md)
+* [Reversals](/lib/reversals/_index.md)
   * [CHANDELIER - Chandelier Exit](/lib/reversals/chandelier/Chandelier.md)
   * [CKSTOP - Chande Kroll Stop](/lib/reversals/ckstop/Ckstop.md)
   * [FRACTALS - Williams Fractals](/lib/reversals/fractals/Fractals.md)
@@ -456,4 +438,3 @@
   * [SAREXT - Parabolic SAR Extended](/lib/reversals/sarext/Sarext.md)
   * [SWINGS - Swing High/Low Detection](/lib/reversals/swings/Swings.md)
   * [TTM_SCALPER - TTM Scalper Alert](/lib/reversals/ttm_scalper/TtmScalper.md)
-

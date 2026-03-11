@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (BOP)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 0 bars (always hot)                          |
-
-### TL;DR
+| **PineScript**   | [bop.pine](bop.pine)                       |
 
 - The Balance of Power measures buying versus selling pressure by comparing the body (Close minus Open) to the range (High minus Low).
 - No configurable parameters; computation is stateless per bar.

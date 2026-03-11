@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PRS)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `smoothPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [prs.pine](prs.pine)                       |
 
 - **Category:** Momentum **Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio
 - Parameterized by `smoothperiod` (default 1).

@@ -9,8 +9,6 @@
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
 
-### TL;DR
-
 - TTM Linear Regression Channel plots a least-squares regression line through price data with dual standard deviation bands at $\pm 1\sigma$ and $\pm...
 - Parameterized by `period` (default 100).
 - Output range: Tracks input.

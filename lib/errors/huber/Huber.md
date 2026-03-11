@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Huber)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [huber.pine](huber.pine)                       |
 
 - Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 - Parameterized by `period`, `delta` (default 1.345).

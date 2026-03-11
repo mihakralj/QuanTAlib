@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Frama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `pe` bars                          |
+| **PineScript**   | [frama.pine](frama.pine)                       |
 | **Signature**    | [frama_signature](frama_signature.md) |
-
-### TL;DR
 
 - FRAMA is John Ehlers' fractal adaptive moving average.
 - Parameterized by `period`.

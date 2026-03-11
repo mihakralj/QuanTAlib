@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (VA)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [va.pine](va.pine)                       |
 
 - Volume Accumulation (VA) measures the cumulative flow of volume weighted by where price closes relative to the bar's midpoint.
 - No configurable parameters; computation is stateless per bar.

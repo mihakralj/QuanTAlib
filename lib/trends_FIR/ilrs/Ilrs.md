@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Ilrs)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [ilrs.pine](ilrs.pine)                       |
 | **Signature**    | [ilrs_signature](ilrs_signature.md) |
-
-### TL;DR
 
 - ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smooth...
 - Parameterized by `period` (default 14).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Poissondist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [poissondist.pine](poissondist.pine)                       |
 
 - The Poisson Distribution CDF computes the probability $P(X \le k)$ for a Poisson random variable whose rate parameter $\lambda$ is derived from the...
 - Parameterized by `lambda` (default 1.0), `period` (default 14), `threshold` (default 5).

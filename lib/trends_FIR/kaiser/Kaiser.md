@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Kaiser)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [kaiser.pine](kaiser.pine)                       |
 | **Signature**    | [kaiser_signature](kaiser_signature.md) |
-
-### TL;DR
 
 - KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade...
 - Parameterized by `period` (default 14), `beta` (default 3.0).

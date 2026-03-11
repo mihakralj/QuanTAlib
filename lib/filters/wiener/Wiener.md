@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Wiener)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(period, smoothPeriod)` bars                          |
+| **PineScript**   | [wiener.pine](wiener.pine)                       |
 | **Signature**    | [wiener_signature](wiener_signature.md) |
-
-### TL;DR
 
 - The Wiener Filter is an optimal linear filter that attempts to minimize the mean square error between the estimated random process and the desired ...
 - Parameterized by `period`, `smoothperiod` (default 10).

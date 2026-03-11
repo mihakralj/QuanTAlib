@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PIVOTDEM)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pivotdem.pine](pivotdem.pine)                       |
 
 - DeMark Pivot Points calculate three horizontal support and resistance levels from the previous bar's open, high, low, and close.
 - No configurable parameters; computation is stateless per bar.

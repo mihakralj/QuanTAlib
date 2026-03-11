@@ -1,6 +1,5 @@
 # MINUS_DI: Minus Directional Indicator
 
-### TL;DR
 Measures downward directional movement strength as a percentage (0-100).
 
 ## Introduction

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SPBF)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `max(longPeriod, rmsPeriod)` bars (default 60) |
-
-### TL;DR
+| **PineScript**   | [spbf.pine](spbf.pine)                       |
 
 - The **Super Passband Filter** is John Ehlers' wide-band bandpass constructed by differencing two z-transformed EMAs with Ehlers-style smoothing ($\...
 - Parameterized by `shortperiod` (default 40), `longperiod` (default 60), `rmsperiod` (default 50).

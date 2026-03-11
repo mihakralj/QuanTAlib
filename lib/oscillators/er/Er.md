@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Efficiency Ratio) |
 | **Output range** | $0$ to $1$                       |
 | **Warmup**       | `period + 1` bars                |
-
-### TL;DR
+| **PineScript**   | [er.pine](er.pine)                       |
 
 - ER measures the signal-to-noise ratio of price movement: net directional change divided by total path length.
 - Clamped to $[0, 1]$; division by zero (zero noise) returns $0$.

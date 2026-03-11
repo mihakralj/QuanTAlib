@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mode)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mode.pine](mode.pine)                       |
 
 - The **Mode** is a rolling statistical indicator that identifies the most frequently occurring value within a sliding window of recent observations.
 - Parameterized by `period`.

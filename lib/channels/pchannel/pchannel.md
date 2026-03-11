@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [pchannel.pine](pchannel.pine)                       |
 
 - Price Channel tracks the highest high and lowest low over a lookback period with a midpoint average, creating a three-line price envelope that defi...
 - Parameterized by `period`.

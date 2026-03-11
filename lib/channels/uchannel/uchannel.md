@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Middle, Lower, STR)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(strPeriod, centerPeriod)` bars                          |
-
-### TL;DR
+| **PineScript**   | [uchannel.pine](uchannel.pine)                       |
 
 - Ehlers Ultimate Channel applies the Ultrasmooth Filter (USF) twice: once to the close price for the centerline and once to True Range for band widt...
 - Parameterized by `strperiod` (default defaultstrperiod), `centerperiod` (default defaultcenterperiod), `multiplier` (default defaultmultiplier).

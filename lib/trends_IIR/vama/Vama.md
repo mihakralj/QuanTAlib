@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [vama.pine](vama.pine)                       |
 
 - Most moving averages use a fixed lookback period.
 - Parameterized by `baselength` (default 20), `shortatrperiod` (default 10), `longatrperiod` (default 50), `minlength` (default 5), `maxlength` (default 100).

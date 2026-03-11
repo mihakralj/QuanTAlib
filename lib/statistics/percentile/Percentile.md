@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Percentile)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [percentile.pine](percentile.pine)                       |
 
 - The Rolling Percentile computes the value below which a given percentage of observations fall within a sliding window.
 - Parameterized by `period`, `percent` (default 50.0).

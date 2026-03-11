@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Fdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [fdist.pine](fdist.pine)                       |
 
 - The F-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the F-distribution (Fisher-Snedecor distr...
 - Parameterized by `d1` (default 1), `d2` (default 1), `period` (default 14).

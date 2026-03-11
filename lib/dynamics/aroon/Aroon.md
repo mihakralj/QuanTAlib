@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Up, Down)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [aroon.pine](aroon.pine)                       |
 
 - The Aroon indicator measures the temporal freshness of price extremes, answering not "how much did price move?" but "how long ago did it make a new...
 - Parameterized by `period`.

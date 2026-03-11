@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Lanczos)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [lanczos.pine](lanczos.pine)                       |
 | **Signature**    | [lanczos_signature](lanczos_signature.md) |
-
-### TL;DR
 
 - LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near...
 - Parameterized by `period` (default 14).

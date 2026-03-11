@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Tdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [tdist.pine](tdist.pine)                       |
 
 - The Student's t-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of Student's t-distribution, produ...
 - Parameterized by `nu` (default 10), `period` (default 14).

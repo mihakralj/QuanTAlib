@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [regchannel.pine](regchannel.pine)                       |
 
 - Linear Regression Channel plots a best-fit line through price data over a specified period with parallel bands at a configurable standard deviation...
 - Parameterized by `period` (default 20), `multiplier` (default 2.0).

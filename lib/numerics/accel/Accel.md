@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ACCEL)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `3` bars                          |
-
-### TL;DR
+| **PineScript**   | [accel.pine](accel.pine)                       |
 
 - ACCEL measures the rate of change of velocity—the acceleration of a time series.
 - No configurable parameters; computation is stateless per bar.

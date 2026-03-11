@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
 
-## TL;DR
-
 - `TValue` is the fundamental atomic unit of data in QuanTAlib.
 - No configurable parameters; computation is stateless per bar.
 - Output range: Varies (see docs).

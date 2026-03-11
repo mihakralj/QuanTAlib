@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (sign-encoded SAR) |
 | **Output range** | ±price level (positive = long, negative = short) |
 | **Warmup**       | `2` bars                        |
-
-### TL;DR
+| **PineScript**   | [sarext.pine](sarext.pine)                       |
 
 - Extended Parabolic SAR with **asymmetric acceleration factors** for long and short positions.
 - Sign-encoded output: positive = long (SAR below price), negative = short (SAR above price).

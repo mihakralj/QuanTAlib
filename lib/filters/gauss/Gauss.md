@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (Gauss)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [gauss.pine](gauss.pine)                       |
 | **Signature**    | [gauss_signature](gauss_signature.md) |
 
-
-### TL;DR
 
 - Gauss (Gaussian Filter) is a smoothing filter that applies a Gaussian kernel to time series data.
 - Parameterized by `sigma` (default 1.0).

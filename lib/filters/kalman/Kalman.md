@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (Kalman)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `10` bars                          |
+| **PineScript**   | [kalman.pine](kalman.pine)                       |
 | **Signature**    | [kalman_signature](kalman_signature.md) |
 
-
-### TL;DR
 
 - The **Kalman Filter** is a recursive algorithm that estimates the state of a dynamic system from a series of incomplete and noisy measurements.
 - Parameterized by `q` (default 0.01), `r` (default 0.1).

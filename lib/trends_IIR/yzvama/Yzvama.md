@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Yzvama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [yzvama.pine](yzvama.pine)                       |
 
 - Most adaptive moving averages measure volatility using close-to-close changes (standard deviation) or high-low ranges (ATR).
 - Parameterized by `yzvshortperiod` (default 3), `yzvlongperiod` (default 50), `percentilelookback` (default 100), `minlength` (default 5), `maxlength` (default 100).

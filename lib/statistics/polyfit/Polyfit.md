@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Polyfit)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [polyfit.pine](polyfit.pine)                       |
 
 - Polynomial Fitting computes a rolling polynomial regression of configurable degree over a lookback window, returning the fitted value at the curren...
 - Parameterized by `period`, `degree` (default 2).

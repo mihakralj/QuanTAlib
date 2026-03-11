@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rocp)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [rocp.pine](rocp.pine)                       |
 
 - ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago.
 - Parameterized by `period` (default 9).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Deco)                       |
 | **Output range** | $0$ to $1$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [deco.pine](deco.pine)                       |
 
 - The Decycler Oscillator (DECO) is a DSP-based oscillator developed by John F.
 - Parameterized by `shortperiod` (default 30), `longperiod` (default 60).

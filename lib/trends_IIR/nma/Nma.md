@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Nma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [nma.pine](nma.pine)                       |
 | **Signature**    | [nma_signature](nma_signature.md) |
-
-### TL;DR
 
 - NMA is an adaptive IIR filter whose smoothing ratio is derived from a volatility-weighted square-root kernel analysis of log-price movements over a...
 - Parameterized by `period`.

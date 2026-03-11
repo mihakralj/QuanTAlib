@@ -8,10 +8,9 @@
 | **Outputs**      | Multiple series (KstValue, Signal)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(r1, r2), Math.Max(r3, r4))
+| **PineScript**   | [kst.pine](kst.pine)                       |
                      + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))
                      + sigPeriod - 2` bars                          |
-
-### TL;DR
 
 - The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smo...
 - Parameterized by `r1` (default 10), `r2` (default 15), `r3` (default 20), `r4` (default 30), `s1` (default 10), `s2` (default 10), `s3` (default 10), `s4` (default 15), `sigPeriod` (default 9).

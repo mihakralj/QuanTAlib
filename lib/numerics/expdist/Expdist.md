@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Expdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [expdist.pine](expdist.pine)                       |
 
 - The Exponential Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the exponential distribution, p...
 - Parameterized by `period` (default 50), `lambda` (default 3.0).

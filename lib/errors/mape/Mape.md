@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MAPE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mape.pine](mape.pine)                       |
 
 - Mean Absolute Percentage Error (MAPE) measures the average absolute percentage difference between actual and predicted values.
 - Parameterized by `period`.

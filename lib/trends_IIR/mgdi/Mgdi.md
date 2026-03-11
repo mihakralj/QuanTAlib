@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Mgdi)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [mgdi.pine](mgdi.pine)                       |
 | **Signature**    | [mgdi_signature](mgdi_signature.md) |
-
-### TL;DR
 
 - MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle.
 - Parameterized by `period` (default 14), `k` (default 0.6).

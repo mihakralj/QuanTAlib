@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Middle, Upper, Lower, Width, PercentB)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [bbands.pine](bbands.pine)                       |
 
 - Bollinger Bands construct a volatility-adaptive envelope around a Simple Moving Average using population standard deviation as the width measure.
 - Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).

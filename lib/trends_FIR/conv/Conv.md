@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Conv)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [conv.pine](conv.pine)                       |
 
 - CONV (Convolution Moving Average) is the ultimate tool for the signal processing purist.
 - Parameterized by double[] kernel.

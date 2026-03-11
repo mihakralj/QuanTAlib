@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Jma)                       |
 | **Output range** | $-100$ to $+100$                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [jma.pine](jma.pine)                       |
 | **Signature**    | [jma_signature](jma_signature.md) |
-
-### TL;DR
 
 - JMA (Jurik Moving Average) is Mark Jurik's flagship adaptive smoother, recovered through decompilation of his proprietary AmiBroker/MetaTrader bina...
 - Parameterized by `period`, `phase` (default 0), `power` (default 0.45).

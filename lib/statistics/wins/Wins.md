@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Wins)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [wins.pine](wins.pine)                       |
 
 - The Winsorized Mean Moving Average computes a rolling average after replacing (not discarding) the most extreme values in each tail with the bounda...
 - Parameterized by `period`, `winpct` (default 10.0).

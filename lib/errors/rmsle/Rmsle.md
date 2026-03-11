@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (RMSLE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rmsle.pine](rmsle.pine)                       |
 
 - Root Mean Squared Logarithmic Error is the square root of MSLE, providing an error metric in log-scale units.
 - Parameterized by `period`.

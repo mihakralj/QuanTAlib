@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Adxvma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [adxvma.pine](adxvma.pine)                       |
 
 - ADXVMA is an adaptive IIR filter that uses the Average Directional Index (ADX) as its smoothing constant.
 - Parameterized by `period` (default 14).

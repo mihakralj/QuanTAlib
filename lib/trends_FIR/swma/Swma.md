@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Swma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [swma.pine](swma.pine)                       |
 | **Signature**    | [swma_signature](swma_signature.md) |
-
-### TL;DR
 
 - SWMA applies triangular (symmetric) weights that peak at the center of the window and taper linearly to the edges.
 - Parameterized by `period` (default 4).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (LMS)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `order + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [lms.pine](lms.pine)                       |
 
 - The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm i...
 - Parameterized by `order` (default 16), `mu` (default 0.5).

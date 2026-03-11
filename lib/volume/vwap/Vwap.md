@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (VWAP)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [vwap.pine](vwap.pine)                       |
 
 - VWAP (Volume Weighted Average Price) calculates the cumulative average price weighted by trading volume, typically reset at session boundaries.
 - Parameterized by `period` (default 0).

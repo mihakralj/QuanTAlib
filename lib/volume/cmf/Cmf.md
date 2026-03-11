@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (CMF)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [cmf.pine](cmf.pine)                       |
 
 - Chaikin Money Flow (CMF) is the normalized cousin of the Accumulation/Distribution Line.
 - Parameterized by `period` (default 20).

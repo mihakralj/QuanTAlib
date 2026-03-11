@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `⌈20 + 80 × period^0.36⌉` bars                          |
-
-### TL;DR
+| **PineScript**   | [Jbands.pine](Jbands.pine)                       |
 
 - JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new pri...
 - Parameterized by `period`, `phase` (default 0).

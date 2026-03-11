@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (BaxterKing)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `2K+1` bars (default 25)         |
-
-### TL;DR
+| **PineScript**   | [baxterking.pine](baxterking.pine)                       |
 
 - The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncati...
 - Parameterized by `plow` (default 6), `phigh` (default 32), `k` (default 12).

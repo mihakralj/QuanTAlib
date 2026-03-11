@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (IMI)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [imi.pine](imi.pine)                       |
 
 - The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-clo...
 - Parameterized by `period` (default 14).

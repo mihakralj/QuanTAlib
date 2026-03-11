@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Qema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [qema.pine](qema.pine)                       |
 | **Signature**    | [qema_signature](qema_signature.md) |
-
-### TL;DR
 
 - QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them us...
 - Parameterized by `period`.

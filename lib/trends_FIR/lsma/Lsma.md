@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Lsma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [lsma.pine](lsma.pine)                       |
 | **Signature**    | [lsma_signature](lsma_signature.md) |
-
-### TL;DR
 
 - LSMA (Least Squares Moving Average), also known as the Moving Linear Regression or Endpoint Moving Average, calculates the least squares regression...
 - Parameterized by `period`, `offset` (default 0).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (LinReg)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [linreg.pine](linreg.pine)                       |
 
 - The Linear Regression Curve plots the end point of the linear regression line for each bar.
 - Parameterized by `period`, `offset` (default 0).

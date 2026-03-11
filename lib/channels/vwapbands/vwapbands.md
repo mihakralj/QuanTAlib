@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper1, Lower1, Upper2, Lower2, Vwap, StdDev, Width)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [vwapbands.pine](vwapbands.pine)                       |
 
 - VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-l...
 - Parameterized by `multiplier` (default defaultmultiplier).

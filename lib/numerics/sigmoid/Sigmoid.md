@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Sigmoid)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [sigmoid.pine](sigmoid.pine)                       |
 
 - The Sigmoid (Logistic) transformer maps any real-valued input to the bounded range (0, 1) using the standard logistic function.
 - Parameterized by `k` (default 1.0), `x0` (default 0.0).

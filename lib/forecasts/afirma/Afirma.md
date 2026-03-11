@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Afirma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [afirma.pine](afirma.pine)                       |
 
 - AFIRMA is a Windowed Weighted Moving Average that replaces standard linear weighting with weights derived from signal processing window functions (...
 - Parameterized by `period`, `window` (default windowtype.blackmanharris), `leastsquares` (default false).

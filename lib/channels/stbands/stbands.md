@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower, Trend, Width)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [stbands.pine](stbands.pine)                       |
 
 - Super Trend Bands provide ATR-based dynamic support and resistance levels with asymmetric ratchet logic: the upper band only tightens downward duri...
 - Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).

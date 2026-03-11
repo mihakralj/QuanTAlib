@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (Laguerre)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `WarmupBars` bars                          |
+| **PineScript**   | [laguerre.pine](laguerre.pine)                       |
 | **Signature**    | [laguerre_signature](laguerre_signature.md) |
 
-
-### TL;DR
 
 - The Laguerre Filter is a four-element IIR (Infinite Impulse Response) filter designed by John F.
 - Parameterized by `gamma` (default 0.8).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Normdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [normdist.pine](normdist.pine)                       |
 
 - The Normal Distribution CDF transforms a z-score normalized price into the cumulative distribution function of the Gaussian distribution, producing...
 - Parameterized by `mu` (default 0.0), `sigma` (default 1.0), `period` (default 14).

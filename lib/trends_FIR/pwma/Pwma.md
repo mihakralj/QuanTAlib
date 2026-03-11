@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Pwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [pwma.pine](pwma.pine)                       |
 | **Signature**    | [pwma_signature](pwma_signature.md) |
-
-### TL;DR
 
 - PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window.
 - Parameterized by `period`.

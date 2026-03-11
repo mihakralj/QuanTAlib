@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Signal, Histogram)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `slowPeriod + signalPeriod` bars (35 default)                          |
-
-### TL;DR
+| **PineScript**   | [ppo.pine](ppo.pine)                       |
 
 - PPO (Percentage Price Oscillator) measures the percentage difference between a fast EMA and a slow EMA.
 - Parameterized by `fastPeriod` (default 12), `slowPeriod` (default 26), `signalPeriod` (default 9).

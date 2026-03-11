@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (CMA)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [cma.pine](cma.pine)                       |
 
 - The Cumulative Moving Average (CMA) calculates the arithmetic mean of ALL data points seen so far, not just a fixed window.
 - Parameterized by `source`.

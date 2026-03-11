@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (OneEuro)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `1` bars                          |
+| **PineScript**   | [oneeuro.pine](oneeuro.pine)                       |
 | **Signature**    | [oneeuro_signature](oneeuro_signature.md) |
 
-
-### TL;DR
 
 - The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness.
 - Parameterized by `mincutoff` (default 1.0), `beta` (default 0.007), `dcutoff` (default 1.0).

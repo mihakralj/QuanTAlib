@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [accbands.pine](accbands.pine)                       |
 
 - Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating chann...
 - Parameterized by `period`, `factor` (default 4.0).

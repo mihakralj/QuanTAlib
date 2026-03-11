@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Atrn)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [atrn.pine](atrn.pine)                       |
 
 - ATRN transforms the absolute ATR into a relative measure by normalizing it to a [0,1] scale using min-max scaling over a lookback window.
 - Parameterized by `period`.

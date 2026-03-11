@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hanma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [hanma.pine](hanma.pine)                       |
 | **Signature**    | [hanma_signature](hanma_signature.md) |
-
-### TL;DR
 
 - HANMA is a Finite Impulse Response (FIR) filter that applies a Hanning (Hann) window to price data.
 - Parameterized by `period` (default 10).

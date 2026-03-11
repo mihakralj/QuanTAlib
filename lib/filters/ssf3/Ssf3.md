@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Ssf3)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `6 * period` bars                          |
+| **PineScript**   | [ssf3.pine](ssf3.pine)                       |
 | **Signature**    | [ssf3_signature](ssf3_signature.md) |
-
-### TL;DR
 
 - The 3-Pole Super Smoother Filter (SSF3) extends Ehlers' Super Smoother concept to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
 - Parameterized by `period`.

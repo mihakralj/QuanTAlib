@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (HP)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [hp.pine](hp.pine)                       |
 | **Signature**    | [hp_signature](hp_signature.md) |
 
-
-### TL;DR
 
 - The Hodrick-Prescott (HP) filter is a widely used tool in macroeconomics for separating the cyclical component of a time series from raw data.
 - Parameterized by `lambda` (default 1600.0).

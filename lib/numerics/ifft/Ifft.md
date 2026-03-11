@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ifft)                       |
 | **Output range** | Varies (overlays on price)                     |
 | **Warmup**       | windowSize bars                          |
-
-### TL;DR
+| **PineScript**   | [ifft.pine](ifft.pine)                       |
 
 - The IFFT indicator reconstructs a smoothed version of the price series using a true forward FFT → spectral truncation → inverse FFT pipeline.
 - Parameterized by `windowSize` (default 64), `numHarmonics` (default 5).

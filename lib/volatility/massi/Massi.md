@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Massi)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [massi.pine](massi.pine)                       |
 
 - The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue of *Technical Analysis of Stocks & Commodities*, identifies potent...
 - Parameterized by `emalength` (default 9), `sumlength` (default 25).

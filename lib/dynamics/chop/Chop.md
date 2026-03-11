@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (CHOP)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [chop.pine](chop.pine)                       |
 
 - The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways.
 - Parameterized by `period` (default 14).

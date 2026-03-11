@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (EFI)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [efi.pine](efi.pine)                       |
 
 - Elder's Force Index (EFI) quantifies the buying and selling pressure behind price movements by multiplying price change by volume.
 - Parameterized by `period` (default 13).

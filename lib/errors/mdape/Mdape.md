@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mdape)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mdape.pine](mdape.pine)                       |
 
 - Median Absolute Percentage Error (MdAPE) combines the scale-independence of percentage errors with the robustness of median statistics.
 - Parameterized by `period`.

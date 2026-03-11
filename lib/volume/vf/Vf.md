@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vf)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vf.pine](vf.pine)                       |
 
 - Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with wa...
 - Parameterized by `period` (default 14).

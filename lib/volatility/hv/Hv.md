@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Hv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [hv.pine](hv.pine)                       |
 
 - Historical Volatility (HV), also known as close-to-close volatility or realized volatility, is the classical measure of price volatility using the ...
 - Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).

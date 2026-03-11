@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Zlema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+| **PineScript**   | [zlema.pine](zlema.pine)                       |
 | **Signature**    | [zlema_signature](zlema_signature.md) |
-
-### TL;DR
 
 - ZLEMA takes a standard EMA and feeds it a **zero-lag signal**: current price minus a lagged price.
 - Parameterized by `period`.

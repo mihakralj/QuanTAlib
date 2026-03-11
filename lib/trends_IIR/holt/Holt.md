@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (HOLT)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [holt.pine](holt.pine)                       |
 | **Signature**    | [holt_signature](holt_signature.md) |
-
-### TL;DR
 
 - Holt's exponential smoothing extends simple exponential smoothing (EMA) by adding a second equation that explicitly tracks the local trend.
 - Parameterized by `period`, `gamma` (default 0).

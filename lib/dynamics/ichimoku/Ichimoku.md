@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Tenkan, Kijun, SenkouA, SenkouB, Chikou)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `maxPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [ichimoku.pine](ichimoku.pine)                       |
 
 - Ichimoku Kinko Hyo ("One Glance Equilibrium Chart") is a comprehensive trend-following system that provides five distinct components revealing tren...
 - Parameterized by `tenkanperiod`, `kijunperiod`, `senkoubperiod`, `displacement`.

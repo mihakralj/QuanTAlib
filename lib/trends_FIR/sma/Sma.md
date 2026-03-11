@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Sma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [sma.pine](sma.pine)                       |
 | **Signature**    | [sma_signature](sma_signature.md) |
-
-### TL;DR
 
 - The Simple Moving Average (SMA) is the unweighted arithmetic mean of the last $N$ data points.
 - Parameterized by `period`.

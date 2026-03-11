@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (Wavelet)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `2^levels` bars (default 16)   |
+| **PineScript**   | [wavelet.pine](wavelet.pine)                       |
 | **Signature**    | [wavelet_signature](wavelet_signature.md) |
 
-
-### TL;DR
 
 - The Wavelet Denoising Filter applies an *à trous* (with holes) Haar wavelet decomposition with soft thresholding to remove high-frequency noise fro...
 - Parameterized by `levels` (default 4), `threshmult` (default 1.0).

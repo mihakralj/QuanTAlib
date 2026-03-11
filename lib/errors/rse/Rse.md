@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rse)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rse.pine](rse.pine)                       |
 
 - Relative Squared Error (RSE) measures the total squared error of predictions relative to the total squared error of a simple baseline predictor tha...
 - Parameterized by `period`.

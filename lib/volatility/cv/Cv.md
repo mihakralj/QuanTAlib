@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [cv.pine](cv.pine)                       |
 
 - Conditional Volatility (CV) implements the GARCH(1,1) model for volatility forecasting, the most widely used time-varying volatility model in finan...
 - Parameterized by `period` (default 20), `alpha` (default 0.2), `beta` (default 0.7).

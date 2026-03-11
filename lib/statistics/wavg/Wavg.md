@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Wavg)                       |
 | **Output range** | $0$ to $1$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [wavg.pine](wavg.pine)                       |
 
 - The Weighted Average computes a rolling linearly-weighted mean where the most recent observation receives weight $N$ and the oldest receives weight...
 - Parameterized by `period`.

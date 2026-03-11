@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cti)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [cti.pine](cti.pine)                       |
 
 - The Correlation Trend Indicator computes the Pearson correlation coefficient between the price series and a linear time index over a rolling window...
 - Parameterized by `period` (default 20).

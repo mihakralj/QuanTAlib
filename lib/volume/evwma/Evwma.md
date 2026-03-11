@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (EVWMA)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [evwma.pine](evwma.pine)                       |
 
 - EVWMA (Elastic Volume Weighted Moving Average) is a volume-adaptive moving average that weights each bar's contribution to the average by its volum...
 - Parameterized by `period` (default 20).

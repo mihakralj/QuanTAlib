@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ghla)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ghla.pine](ghla.pine)                       |
 
 - The Gann High-Low Activator (GHLA) is a trend-following stop/reversal indicator that alternates between the Simple Moving Average of Highs and the ...
 - Parameterized by `period` (default 13).

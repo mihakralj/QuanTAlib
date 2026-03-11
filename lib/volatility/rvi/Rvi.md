@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rvi)                       |
 | **Output range** | $0$ to $100$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [rvi.pine](rvi.pine)                       |
 
 - The Relative Volatility Index (RVI) implements Dorsey's **revised (1995)** version: computes original RVI separately on High and Low series, then averages.
 - When fed single-price data (TValue), both channels receive the same value, reducing to the original (1993) formula.

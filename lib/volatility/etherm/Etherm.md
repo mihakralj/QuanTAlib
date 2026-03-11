@@ -8,8 +8,7 @@
 | **Outputs**      | Temperature + Signal (EMA)       |
 | **Output range** | $\geq 0$                        |
 | **Warmup**       | `period` bars                    |
-
-### TL;DR
+| **PineScript**   | [etherm.pine](etherm.pine)                       |
 
 - Elder's Thermometer (ETHERM) measures how far today's price bar protrudes beyond yesterday's range, capturing the maximum outward extension in either direction.
 - Parameterized by `period` (default 22) for the EMA signal line.

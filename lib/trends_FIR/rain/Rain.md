@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Rain)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [rain.pine](rain.pine)                       |
 | **Signature**    | [rain_signature](rain_signature.md) |
-
-### TL;DR
 
 - RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across ...
 - Parameterized by `period`.

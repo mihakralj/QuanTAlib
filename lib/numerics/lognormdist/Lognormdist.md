@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Lognormdist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [lognormdist.pine](lognormdist.pine)                       |
 
 - The Log-Normal Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the log-normal distribution, pro...
 - Parameterized by `mu` (default 0.0), `sigma` (default 1.0), `period` (default 14).

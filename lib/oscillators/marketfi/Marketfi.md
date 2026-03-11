@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MARKETFI)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `> 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [marketfi.pine](marketfi.pine)                       |
 
 - The Market Facilitation Index answers a single question with arithmetic directness: how much price moved per unit of volume traded?
 - No configurable parameters; computation is stateless per bar.

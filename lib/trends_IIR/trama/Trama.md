@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Trama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [trama.pine](trama.pine)                       |
 | **Signature**    | [trama_signature](trama_signature.md) |
-
-### TL;DR
 
 - TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars th...
 - Parameterized by `period`.

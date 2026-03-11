@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Bias)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [bias.pine](bias.pine)                       |
 
 - The Bias indicator measures the percentage difference between the current price and its Simple Moving Average (SMA).
 - Parameterized by `period`.

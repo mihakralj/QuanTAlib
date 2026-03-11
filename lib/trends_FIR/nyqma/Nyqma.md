@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Nyqma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [nyqma.pine](nyqma.pine)                       |
 | **Signature**    | [nyqma_signature](nyqma_signature.md) |
-
-### TL;DR
 
 - NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\...
 - Parameterized by `period` (default 89), `nyquistperiod` (default 21).

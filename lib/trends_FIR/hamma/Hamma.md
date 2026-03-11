@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hamma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [hamma.pine](hamma.pine)                       |
 | **Signature**    | [hamma_signature](hamma_signature.md) |
-
-### TL;DR
 
 - HAMMA is a Finite Impulse Response (FIR) filter that applies a Hamming window to price data.
 - Parameterized by `period` (default 10).

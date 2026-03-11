@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [aberr.pine](aberr.pine)                       |
 
 - ABERR measures price deviation from a central moving average using mean absolute deviation rather than standard deviation, producing dynamic bands ...
 - Parameterized by `period`, `multiplier` (default 2.0).

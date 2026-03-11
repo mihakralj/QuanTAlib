@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (AGC)                       |
 | **Output range** | [-1, +1] (normalized)            |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [agc.pine](agc.pine)                       |
 
 - The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking.
 - Parameterized by `decay` (default 0.991).

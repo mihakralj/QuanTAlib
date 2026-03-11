@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vov)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `volatilityPeriod + vovPeriod - 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [vov.pine](vov.pine)                       |
 
 - Volatility of Volatility (VOV) measures the standard deviation of volatility itself, quantifying how much volatility fluctuates over time.
 - Parameterized by `volatilityperiod` (default 20), `vovperiod` (default 10).

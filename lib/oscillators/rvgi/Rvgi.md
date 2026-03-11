@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rvgi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rvgi.pine](rvgi.pine)                       |
 
 - The Relative Vigor Index measures the conviction of a price move by comparing closing strength (close minus open) to the total intrabar range (high...
 - Parameterized by `period` (default 10).

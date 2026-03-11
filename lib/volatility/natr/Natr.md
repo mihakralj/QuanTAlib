@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Natr)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [natr.pine](natr.pine)                       |
 
 - NATR normalizes the Average True Range (ATR) as a percentage of the closing price.
 - Parameterized by `period` (default 14).

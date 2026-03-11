@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Eacp)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `maxPeriod * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [eacp.pine](eacp.pine)                       |
 
 - EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result i...
 - Parameterized by `minperiod` (default 8), `maxperiod` (default 48), `avglength` (default 3), `enhance` (default true).

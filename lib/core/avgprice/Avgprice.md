@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (AVGPRICE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [avgprice.pine](avgprice.pine)                       |
 
 - AVGPRICE computes the arithmetic mean of a bar's four canonical prices: Open, High, Low, and Close.
 - No configurable parameters; computation is stateless per bar.

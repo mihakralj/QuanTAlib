@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Beta)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [beta.pine](beta.pine)                       |
 
 - Beta measures the volatility of an asset in relation to the overall market.
 - Parameterized by `period`.

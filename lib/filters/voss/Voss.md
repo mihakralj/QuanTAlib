@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (VOSS)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [voss.pine](voss.pine)                       |
 
 - The Voss Predictive Filter is a two-stage signal processing pipeline that extracts a dominant cycle from noisy price data and then predicts its fut...
 - Parameterized by `period` (default 20), `predict` (default 3), `bandwidth` (default 0.25).

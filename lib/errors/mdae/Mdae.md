@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mdae)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mdae.pine](mdae.pine)                       |
 
 - Median Absolute Error (MdAE) measures the middle value of all absolute errors.
 - Parameterized by `period`.

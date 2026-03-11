@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Jb)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [jb.pine](jb.pine)                       |
 
 - The Jarque-Bera test quantifies departure from normality by combining skewness and excess kurtosis into a single chi-squared statistic.
 - Parameterized by `period`.

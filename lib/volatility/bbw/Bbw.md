@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Bbw)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [bbw.pine](bbw.pine)                       |
 
 - Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band.
 - Parameterized by `period`, `multiplier` (default 2.0).

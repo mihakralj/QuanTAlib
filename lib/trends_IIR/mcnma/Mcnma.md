@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Mcnma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [mcnma.pine](mcnma.pine)                       |
 | **Signature**    | [mcnma_signature](mcnma_signature.md) |
-
-### TL;DR
 
 - MCNMA computes $2 \times \text{TEMA}(x, N) - \text{TEMA}(\text{TEMA}(x, N), N)$, applying the DEMA lag-cancellation technique to TEMA itself.
 - Parameterized by `period`.

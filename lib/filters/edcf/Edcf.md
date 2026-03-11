@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Edcf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `length` bars                    |
+| **PineScript**   | [edcf.pine](edcf.pine)                       |
 | **Signature**    | [edcf_signature](edcf_signature.md) |
-
-### TL;DR
 
 - The **Ehlers Distance Coefficient Filter (EDCF)** is a nonlinear adaptive FIR filter created by John F.
 - Parameterized by `length` (default 15).

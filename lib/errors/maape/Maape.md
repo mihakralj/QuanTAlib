@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MAAPE)                       |
 | **Output range** | $[0, \pi/2]$                   |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [maape.pine](maape.pine)                       |
 
 - Mean Arctangent Absolute Percentage Error (MAAPE) transforms percentage errors through the arctangent function, naturally bounding the metric betwe...
 - Parameterized by `period`.

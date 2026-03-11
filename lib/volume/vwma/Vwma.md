@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (VWMA)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vwma.pine](vwma.pine)                       |
 
 - VWMA (Volume Weighted Moving Average) calculates a moving average where each price is weighted by its corresponding volume over a specified lookbac...
 - Parameterized by `period` (default 20).

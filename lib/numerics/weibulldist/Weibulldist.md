@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Weibulldist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [weibulldist.pine](weibulldist.pine)                       |
 
 - The Weibull Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the Weibull distribution, producing...
 - Parameterized by `k` (default 1.5), `lambda` (default 1.0), `period` (default 14).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Nvi)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [nvi.pine](nvi.pine)                       |
 
 - The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day.
 - Parameterized by `startvalue` (default 100.0).

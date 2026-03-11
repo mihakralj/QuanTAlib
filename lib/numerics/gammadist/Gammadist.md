@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Gammadist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [gammadist.pine](gammadist.pine)                       |
 
 - The Gamma Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the gamma distribution, producing an ...
 - Parameterized by `alpha` (default 2.0), `beta` (default 1.0), `period` (default 14).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ADL)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [adl.pine](adl.pine)                       |
 
 - The Accumulation/Distribution Line (ADL) is the bedrock of volume analysis.
 - No configurable parameters; computation is stateless per bar.

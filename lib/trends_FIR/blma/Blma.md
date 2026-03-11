@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Blma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [blma.pine](blma.pine)                       |
 | **Signature**    | [blma_signature](blma_signature.md) |
-
-### TL;DR
 
 - The Blackman Window Moving Average (BLMA) applies a triple-cosine window function from digital signal processing to financial time series.
 - Parameterized by `period`.

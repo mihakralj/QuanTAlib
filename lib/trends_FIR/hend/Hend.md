@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hend)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [hend.pine](hend.pine)                       |
 | **Signature**    | [hend_signature](hend_signature.md) |
-
-### TL;DR
 
 - HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without disto...
 - Parameterized by `period` (default 7).

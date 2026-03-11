@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (FRACTALS)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [fractals.pine](fractals.pine)                       |
 
 - Williams Fractals detect local price extremes using a strict five-bar pattern: an Up Fractal marks a bar whose high exceeds the highs of the two ba...
 - No configurable parameters; computation is stateless per bar.

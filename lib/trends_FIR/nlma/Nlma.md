@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Nlma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [nlma.pine](nlma.pine)                       |
 | **Signature**    | [nlma_signature](nlma_signature.md) |
-
-### TL;DR
 
 - NLMA uses a two-phase damped cosine kernel with $5P - 1$ taps (where $P$ is the user period).
 - Parameterized by `period` (default 14).

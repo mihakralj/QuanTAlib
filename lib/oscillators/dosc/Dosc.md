@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dosc)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `rsiPeriod + sigPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [dosc.pine](dosc.pine)                       |
 
 - The Derivative Oscillator applies a four-stage signal processing pipeline to extract momentum inflection points: RSI via Wilder's smoothing, double...
 - Parameterized by `rsiperiod` (default 14), `ema1period` (default 5), `ema2period` (default 3), `sigperiod` (default 9).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Asi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 2 bars                          |
-
-### TL;DR
+| **PineScript**   | [asi.pine](asi.pine)                       |
 
 - The Accumulation Swing Index is Wilder's method for separating genuine breakouts from whipsaw noise.
 - Parameterized by `limitmove` (default 3.0).

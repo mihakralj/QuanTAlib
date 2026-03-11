@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Gdema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [gdema.pine](gdema.pine)                       |
 | **Signature**    | [gdema_signature](gdema_signature.md) |
-
-### TL;DR
 
 - GDEMA extends the standard DEMA (Double Exponential Moving Average) with a tunable gain factor $v$ that controls the aggressiveness of lag compensa...
 - Parameterized by `period` (default 10), `vfactor` (default 1.0).

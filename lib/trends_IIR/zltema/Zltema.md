@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Zltema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars                          |
+| **PineScript**   | [zltema.pine](zltema.pine)                       |
 | **Signature**    | [zltema_signature](zltema_signature.md) |
-
-### TL;DR
 
 - ZLTEMA takes a standard TEMA and feeds it a **zero-lag signal**: current price minus a lagged price.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Fft)                       |
 | **Output range** | [minPeriod, maxPeriod]                     |
 | **Warmup**       | windowSize bars                          |
-
-### TL;DR
+| **PineScript**   | [fft.pine](fft.pine)                       |
 
 - The FFT indicator computes the dominant cycle period in a price series using a radix-2 Cooley-Tukey Fast Fourier Transform with a Hanning window.
 - Parameterized by `windowSize` (default 64), `minPeriod` (default 4), `maxPeriod` (default 32).

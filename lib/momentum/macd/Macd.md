@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Signal, Histogram)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Max(fast, slow) + signal - 2` bars (33 default)                          |
-
-### TL;DR
+| **PineScript**   | [macd.pine](macd.pine)                       |
 
 - The Moving Average Convergence Divergence measures momentum through the relationship between two exponential moving averages.
 - Parameterized by `fastperiod` (default 12), `slowperiod` (default 26), `signalperiod` (default 9).

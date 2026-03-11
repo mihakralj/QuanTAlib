@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MSE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mse.pine](mse.pine)                       |
 
 - Mean Squared Error (MSE) measures the average of the squares of the errors between actual and predicted values.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Stderr)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [stderr.pine](stderr.pine)                       |
 
 - `Stderr` computes the standard error of an OLS regression fit over a rolling window.
 - Parameterized by `period`.

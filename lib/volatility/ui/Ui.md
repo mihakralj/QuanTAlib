@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ui)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ui.pine](ui.pine)                       |
 
 - Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs.
 - Parameterized by `period` (default 14).

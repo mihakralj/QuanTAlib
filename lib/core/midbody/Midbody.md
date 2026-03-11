@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
 
-### TL;DR
-
 Midbody computes the arithmetic mean of Open and Close prices: $(O + C) \times 0.5$. It captures where price started and ended within a bar, ignoring intra-bar extremes. No lookback period, no state, always hot after the first bar. Equivalent to `TBar.OC2`.
 
 ## Historical Context

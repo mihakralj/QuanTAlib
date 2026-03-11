@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TYPPRICE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [typprice.pine](typprice.pine)                       |
 
 - TYPPRICE computes the equal-weighted average of Open, High, and Low: $(O + H + L) \times \frac{1}{3}$.
 - No configurable parameters; computation is stateless per bar.

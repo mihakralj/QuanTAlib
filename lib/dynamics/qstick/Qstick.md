@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (QSTICK)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [qstick.pine](qstick.pine)                       |
 
 - The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying ...
 - Parameterized by `period` (default defaultperiod), `useema` (default defaultuseema).

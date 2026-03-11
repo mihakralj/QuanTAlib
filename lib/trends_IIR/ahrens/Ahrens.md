@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Ahrens)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [ahrens.pine](ahrens.pine)                       |
 | **Signature**    | [ahrens_signature](ahrens_signature.md) |
-
-### TL;DR
 
 - AHRENS is a recursive IIR filter that adjusts toward the source price minus the midpoint of its current and lagged (by one period) states.
 - Parameterized by `period` (default 9).

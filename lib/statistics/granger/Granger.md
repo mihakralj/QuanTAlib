@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Granger)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [granger.pine](granger.pine)                       |
 
 - The Granger Causality test asks a precise, falsifiable question: does knowing the history of series X improve your ability to predict series Y, bey...
 - Parameterized by `period` (default 20).

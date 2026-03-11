@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (StdDev)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [stddev.pine](stddev.pine)                       |
 
 - Standard Deviation measures the amount of variation or dispersion of a set of values.
 - Parameterized by `period`, `ispopulation` (default false).

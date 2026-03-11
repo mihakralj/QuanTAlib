@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Bwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [bwma.pine](bwma.pine)                       |
 | **Signature**    | [bwma_signature](bwma_signature.md) |
-
-### TL;DR
 
 - BWMA is a Finite Impulse Response (FIR) filter that applies a Bessel-derived window function to weight price data.
 - Parameterized by `period`, `order` (default 0).

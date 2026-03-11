@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `⌈3/alpha⌉` bars (default 15)                          |
-
-### TL;DR
+| **PineScript**   | [apchannel.pine](apchannel.pine)                       |
 
 - APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes wh...
 - Parameterized by `alpha` (default 0.2).

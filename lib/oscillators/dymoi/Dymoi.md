@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dymoi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [dymoi.pine](dymoi.pine)                       |
 
 - DYMOI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator be...
 - Parameterized by `baseperiod` (default 14), `shortperiod` (default 5), `longperiod` (default 10), `minperiod` (default 3), `maxperiod` (default 30).

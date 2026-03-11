@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (Mama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `50` bars                          |
+| **PineScript**   | [mama.pine](mama.pine)                       |
 | **Signature**    | [mama_signature](mama_signature.md) |
 
-
-### TL;DR
 
 - MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of th...
 - Parameterized by `fastlimit` (default 0.5), `slowlimit` (default 0.05).

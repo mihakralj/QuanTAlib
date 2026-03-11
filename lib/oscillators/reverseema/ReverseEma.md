@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ReverseEma)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [reverseema.pine](reverseema.pine)                       |
 
 - The Reverse EMA applies an 8-stage cascaded Z-transform inversion to a compensated EMA, progressively extracting and subtracting the accumulated la...
 - Parameterized by `period`.

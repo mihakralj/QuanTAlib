@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Jvoltyn)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [jvoltyn.pine](jvoltyn.pine)                       |
 
 - Normalized Jurik Volatility (JVOLTYN) maps the raw JVOLTY dynamic exponent to a 0-100 scale.
 - Parameterized by `period`.

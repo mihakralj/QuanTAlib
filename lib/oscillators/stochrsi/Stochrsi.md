@@ -10,6 +10,7 @@
 | **Outputs** | Dual series (%K line, %D signal line) |
 | **Output range** | $0$ to $100$ |
 | **Warmup** | `rsiWarmup + stochLength - 1 + kSmooth - 1 + dSmooth - 1` bars |
+| **PineScript**   | [stochrsi.pine](stochrsi.pine)                       |
 
 ### Key takeaways
 

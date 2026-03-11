@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ebsw)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(hpLength, ssfLength) + 3` bars (default 43)                          |
-
-### TL;DR
+| **PineScript**   | [ebsw.pine](ebsw.pine)                       |
 
 - EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Co...
 - Parameterized by `hplength` (default 40), `ssflength` (default 10).

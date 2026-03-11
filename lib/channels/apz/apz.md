@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [apz.pine](apz.pine)                       |
 
 - APZ constructs a volatility-adaptive envelope using double-smoothed exponential moving averages with an aggressive smoothing factor derived from $\...
 - Parameterized by `period`, `multiplier` (default 2.0).

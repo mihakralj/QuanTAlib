@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Bbwn)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period + lookback` bars                          |
-
-### TL;DR
+| **PineScript**   | [bbwn.pine](bbwn.pine)                       |
 
 - Bollinger Band Width Normalized (BBWN) extends the standard BBW by normalizing it to a [0,1] range based on historical minimum and maximum values o...
 - Parameterized by `period`, `multiplier` (default 2.0), `lookback` (default 252).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ccv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [ccv.pine](ccv.pine)                       |
 
 - Close-to-Close Volatility (CCV) calculates the annualized standard deviation of logarithmic returns using only closing prices.
 - Parameterized by `period`, `method` (default 1).

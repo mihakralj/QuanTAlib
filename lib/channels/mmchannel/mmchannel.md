@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mmchannel.pine](mmchannel.pine)                       |
 
 - Min-Max Channel tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation.
 - Parameterized by `period`.

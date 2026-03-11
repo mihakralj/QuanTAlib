@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [atrbands.pine](atrbands.pine)                       |
 
 - ATR Bands create a volatility-adaptive envelope by projecting Wilder's Average True Range above and below a central Simple Moving Average.
 - Parameterized by `period`, `multiplier` (default 2.0).

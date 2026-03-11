@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (HT_DCPERIOD)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `LOOKBACK` bars                          |
-
-### TL;DR
+| **PineScript**   | [ht_dcperiod.pine](ht_dcperiod.pine)                       |
 
 - HT_DCPERIOD estimates the period of the dominant market cycle using Ehlers' Hilbert Transform cascade.
 - No configurable parameters; computation is stateless per bar.

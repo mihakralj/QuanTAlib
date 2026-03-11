@@ -10,6 +10,7 @@
 | **Outputs** | Dual series (K line, D signal line) |
 | **Output range** | $-100$ to $+100$ |
 | **Warmup** | `kPeriod + kSmooth + dSmooth` bars |
+| **PineScript**   | [smi.pine](smi.pine)                       |
 
 ### Key takeaways
 

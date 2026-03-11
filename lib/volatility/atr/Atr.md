@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Atr)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `rma.WarmupPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [atr.pine](atr.pine)                       |
 
 - The Average True Range measures market "heat" with complete disregard for direction.
 - Parameterized by `period`.

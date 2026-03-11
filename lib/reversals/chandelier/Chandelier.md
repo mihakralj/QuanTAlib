@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Chandelier)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [chandelier.pine](chandelier.pine)                       |
 
 - The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) ov...
 - Parameterized by `period` (default 22), `multiplier` (default 3.0).

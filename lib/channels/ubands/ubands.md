@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Middle, Lower, Width)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ubands.pine](ubands.pine)                       |
 
 - Ehlers Ultimate Bands replace the conventional SMA foundation of Bollinger Bands with the Ultrasmooth Filter (USF), a 2-pole IIR filter with zero o...
 - Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).

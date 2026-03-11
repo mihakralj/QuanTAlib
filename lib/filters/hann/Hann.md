@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hann)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **PineScript**   | [hann.pine](hann.pine)                       |
 | **Signature**    | [hann_signature](hann_signature.md) |
-
-### TL;DR
 
 - Hann (Hann Filter) is a Finite Impulse Response (FIR) smoothing filter that applies a Hann window to time series data.
 - Parameterized by `length`.

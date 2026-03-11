@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Crsi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [crsi.pine](crsi.pine)                       |
 
 - Connors RSI is a composite momentum oscillator that combines three independent measurements of price behavior into a single bounded (0-100) output:...
 - Parameterized by `rsiperiod` (default 3), `streakperiod` (default 2), `rankperiod` (default 100).

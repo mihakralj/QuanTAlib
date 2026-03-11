@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Rmed)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 5 bars (MedianWindow)                          |
+| **PineScript**   | [rmed.pine](rmed.pine)                       |
 | **Signature**    | [rmed_signature](rmed_signature.md) |
-
-### TL;DR
 
 - RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing sm...
 - Parameterized by `period` (default 12).

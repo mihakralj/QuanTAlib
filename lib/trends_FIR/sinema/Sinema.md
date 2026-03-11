@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Sinema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [sinema.pine](sinema.pine)                       |
 | **Signature**    | [sinema_signature](sinema_signature.md) |
-
-### TL;DR
 
 - The Sine-Weighted Moving Average (SINEMA) applies sine-wave weighting to data points within the lookback window.
 - Parameterized by `period`.

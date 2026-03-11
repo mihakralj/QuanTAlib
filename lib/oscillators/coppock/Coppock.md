@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Coppock)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [coppock.pine](coppock.pine)                       |
 
 - The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at differ...
 - Parameterized by `longRoc` (default 14), `shortRoc` (default 11), `wmaPeriod` (default 10).

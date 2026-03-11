@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vo)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [vo.pine](vo.pine)                       |
 
 - The Volume Oscillator (VO) measures the difference between two moving averages of volume, expressed as a percentage.
 - Parameterized by `shortperiod` (default 5), `longperiod` (default 10), `signalperiod` (default 10).

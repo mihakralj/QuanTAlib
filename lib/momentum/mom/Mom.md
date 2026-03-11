@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mom)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [mom.pine](mom.pine)                       |
 
 - MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago.
 - Parameterized by `period` (default 10).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Normalize)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [normalize.pine](normalize.pine)                       |
 
 - The Normalize transformer applies min-max scaling to map any value series into the bounded range [0, 1] based on the observed minimum and maximum w...
 - Parameterized by `period` (default 14).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Bbi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(p1, p2), Math.Max(p3, p4))` bars                          |
-
-### TL;DR
+| **PineScript**   | [bbi.pine](bbi.pine)                       |
 
 - BBI (Bulls Bears Index) computes the arithmetic mean of four Simple Moving Averages with geometrically spaced periods (3, 6, 12, 24 by default).
 - Parameterized by `p1` (default defaultp1), `p2` (default defaultp2), `p3` (default defaultp3), `p4` (default defaultp4).

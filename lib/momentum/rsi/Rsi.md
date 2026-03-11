@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rsi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [rsi.pine](rsi.pine)                       |
 
 - The Relative Strength Index measures the speed and magnitude of price changes.
 - Parameterized by `period` (default 14).

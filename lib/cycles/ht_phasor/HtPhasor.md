@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (HT_PHASOR)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `LOOKBACK` bars                          |
-
-### TL;DR
+| **PineScript**   | [phasor.pine](phasor.pine)                       |
 
 - HT_PHASOR decomposes the price signal into two orthogonal components, InPhase ($I$) and Quadrature ($Q$), using the Hilbert Transform.
 - No configurable parameters; computation is stateless per bar.

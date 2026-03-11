@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Zscore)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [zscore.pine](zscore.pine)                       |
 
 - The Z-Score measures how many population standard deviations a value lies from the rolling mean over a lookback window.
 - Parameterized by `period` (default 14).

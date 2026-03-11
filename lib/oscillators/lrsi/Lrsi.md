@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Lrsi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `4` bars                          |
-
-### TL;DR
+| **PineScript**   | [lrsi.pine](lrsi.pine)                       |
 
 - Laguerre RSI is an adaptive oscillator invented by John Ehlers that replaces standard RSI's Wilder-smoothed gain/loss averages with a 4-stage casca...
 - Parameterized by `gamma` (default 0.5).

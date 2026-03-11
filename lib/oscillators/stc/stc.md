@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Stc)                       |
 | **Output range** | $0$ to $100$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [stc.pine](stc.pine)                       |
 
 - The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden withi...
 - Parameterized by `kperiod` (default 10), `dperiod` (default 3), `fastlength` (default 23), `slowlength` (default 50), `smoothing` (default stcsmoothing.ema).

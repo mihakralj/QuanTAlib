@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Butter3)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `6 * period` bars                          |
+| **PineScript**   | [butter3.pine](butter3.pine)                       |
 | **Signature**    | [butter3_signature](butter3_signature.md) |
-
-### TL;DR
 
 - The 3-Pole Butterworth Filter (BUTTER3) extends the classic Butterworth design to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
 - Parameterized by `period`.

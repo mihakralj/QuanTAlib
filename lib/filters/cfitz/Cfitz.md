@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cfitz)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [cfitz.pine](cfitz.pine)                       |
 
 - The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-var...
 - Parameterized by `plow` (default 6), `phigh` (default 32).

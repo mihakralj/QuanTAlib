@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
 
-### TL;DR
-
 - `IFeed` defines the standard contract for all data feeds in QuanTAlib, ensuring consistent behavior across different data sources (synthetic, file-...
 - No configurable parameters; computation is stateless per bar.
 - Output range: Varies (see docs).

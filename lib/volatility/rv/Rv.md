@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [rv.pine](rv.pine)                       |
 
 - Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing ...
 - Parameterized by `period` (default 5), `smoothingperiod` (default 20), `annualize` (default true), `annualperiods` (default 252).

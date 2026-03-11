@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vr)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vr.pine](vr.pine)                       |
 
 - Volatility Ratio (VR) measures the current bar's True Range relative to its Average True Range (ATR), providing a normalized indicator of short-ter...
 - Parameterized by `period` (default 14).

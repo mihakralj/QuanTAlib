@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ccor)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [ccor.pine](ccor.pine)                       |
 
 - CCOR extracts cycle phase by computing Pearson correlation of a price window against cosine (Real) and negative-sine (Imaginary) reference waves of...
 - Parameterized by `period` (default 20), `threshold` (default 9.0).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Lineartrans)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [lineartrans.pine](lineartrans.pine)                       |
 
 - The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series.
 - Parameterized by `slope` (default 1.0), `intercept` (default 0.0).

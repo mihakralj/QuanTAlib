@@ -10,6 +10,7 @@
 | **Outputs** | Single series (percentage of up-bars) |
 | **Output range** | $0$ to $100$ |
 | **Warmup** | `period` bars |
+| **PineScript**   | [psl.pine](psl.pine)                       |
 
 ### Key takeaways
 

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (RMSE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rmse.pine](rmse.pine)                       |
 
 - Root Mean Squared Error (RMSE) is the square root of MSE, providing an error metric in the same units as the original data while retaining sensitiv...
 - Parameterized by `period`.

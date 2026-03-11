@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cg)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [cg.pine](cg.pine)                       |
 
 - CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window.
 - Parameterized by `period` (default 10).

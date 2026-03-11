@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Tvi)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [tvi.pine](tvi.pine)                       |
 
 - Trade Volume Index refines the relationship between price and volume by introducing a threshold filter.
 - Parameterized by `mintick` (default 0.125).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MSLE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [msle.pine](msle.pine)                       |
 
 - Mean Squared Logarithmic Error transforms both actual and predicted values through logarithms before computing squared error.
 - Parameterized by `period`.

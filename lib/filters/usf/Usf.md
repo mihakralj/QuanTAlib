@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Usf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [usf.pine](usf.pine)                       |
 | **Signature**    | [usf_signature](usf_signature.md) |
-
-### TL;DR
 
 - The Ultimate Smoother Filter (USF) is a zero-lag smoothing filter introduced by John Ehlers in the April 2024 issue of *Technical Analysis of Stock...
 - Parameterized by `period`.

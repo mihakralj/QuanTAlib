@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (LOGTRANS)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [logtrans.pine](logtrans.pine)                       |
 
 - The LOG transformer applies the natural logarithm function $\ln(x)$ to input values.
 - No configurable parameters; computation is stateless per bar.

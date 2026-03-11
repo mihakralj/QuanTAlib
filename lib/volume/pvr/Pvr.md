@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PVR)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [pvr.pine](pvr.pine)                       |
 
 - Price Volume Rank distills the price-volume relationship into a simple categorical indicator.
 - No configurable parameters; computation is stateless per bar.

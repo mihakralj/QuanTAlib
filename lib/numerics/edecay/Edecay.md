@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Edecay)           |
 | **Output range** | Same as input (overlay)          |
 | **Warmup**       | `1` bar                          |
-
-### TL;DR
+| **PineScript**   | [edecay.pine](edecay.pine)                       |
 
 - EDECAY (Exponential Decay) tracks the maximum of the current input and the previous output multiplied by a decay factor of `(period-1)/period`.
 - Parameterized by `period` (default 5).

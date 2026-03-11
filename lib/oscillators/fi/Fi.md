@@ -10,6 +10,7 @@
 | **Outputs** | Single series (EMA-smoothed Force Index) |
 | **Output range** | Unbounded (centered around 0) |
 | **Warmup** | `period` bars |
+| **PineScript**   | [fi.pine](fi.pine)                       |
 
 ### Key takeaways
 

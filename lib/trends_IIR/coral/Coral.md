@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Coral)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [coral.pine](coral.pine)                       |
 | **Signature**    | [coral_signature](coral_signature.md) |
-
-### TL;DR
 
 - The **Coral** filter is a smooth, low-lag trend indicator that chains six cascaded EMA passes and combines stages 3–6 using polynomial coefficients...
 - Parameterized by `period`, `cd` (default 0.4).

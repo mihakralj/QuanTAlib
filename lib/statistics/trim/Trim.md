@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Trim)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [trim.pine](trim.pine)                       |
 
 - The Trimmed Mean Moving Average computes a rolling average after discarding a configurable percentage of the most extreme values from each tail of ...
 - Parameterized by `period`, `trimpct` (default 10.0).

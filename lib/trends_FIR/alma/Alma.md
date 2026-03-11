@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Alma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [alma.pine](alma.pine)                       |
 | **Signature**    | [alma_signature](alma_signature.md) |
-
-### TL;DR
 
 - ALMA is a Finite Impulse Response (FIR) filter that applies a Gaussian window to price data.
 - Parameterized by `period`, `offset` (default 0.85), `sigma` (default 6.0).

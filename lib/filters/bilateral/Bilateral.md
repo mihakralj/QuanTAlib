@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Bilateral)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [Bilateral.pine](Bilateral.pine)                       |
 | **Signature**    | [bilateral_signature](bilateral_signature.md) |
-
-### TL;DR
 
 - The Bilateral Filter is a non-linear, edge-preserving, and noise-reducing smoothing filter.
 - Parameterized by `period`, `sigmasratio` (default 0.5), `sigmarmult` (default 1.0).

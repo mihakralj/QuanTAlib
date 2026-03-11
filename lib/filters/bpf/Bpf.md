@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (BPF)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `Math.Max(lowerPeriod, upperPeriod)` bars                          |
-
-### TL;DR
+| **PineScript**   | [bpf.pine](bpf.pine)                       |
 
 - The **BPF** (BandPass Filter) is a second-order IIR architecture designed to surgically excise specific frequency components from a time series.
 - Parameterized by `lowerperiod`, `upperperiod`.

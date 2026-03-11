@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ME)                       |
 | **Output range** | Any (positive or negative)     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [me.pine](me.pine)                       |
 
 - Mean Error (ME), also known as Mean Bias Error, measures the average error between actual and predicted values while preserving the sign.
 - Parameterized by `period`.

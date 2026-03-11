@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Adxr)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `adx.WarmupPeriod + period - 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [adxr.pine](adxr.pine)                       |
 
 - The Average Directional Movement Rating is a smoothed version of ADX that dampens short-term fluctuations in trend strength by averaging the curren...
 - Parameterized by `period`.

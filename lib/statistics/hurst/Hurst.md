@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Hurst)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [hurst.pine](hurst.pine)                       |
 
 - The Hurst Exponent ($H$) quantifies long-range dependence in a time series through Rescaled Range (R/S) analysis.
 - Parameterized by `period`.

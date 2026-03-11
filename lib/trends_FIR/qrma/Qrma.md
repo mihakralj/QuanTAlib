@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Qrma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [qrma.pine](qrma.pine)                       |
 | **Signature**    | [qrma_signature](qrma_signature.md) |
-
-### TL;DR
 
 - QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at t...
 - Parameterized by `period`.

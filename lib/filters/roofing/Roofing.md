@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (ROOFING)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `hpLength` bars (default 48)                          |
-
-### TL;DR
+| **PineScript**   | [roofing.pine](roofing.pine)                       |
 
 - The **Roofing Filter** is John Ehlers' bandpass architecture designed specifically for oscillator construction.
 - Parameterized by `hplength` (default 48), `sslength` (default 10).

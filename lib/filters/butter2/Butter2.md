@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Butter2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `4 * period` bars                          |
+| **PineScript**   | [butter2.pine](butter2.pine)                       |
 | **Signature**    | [butter2_signature](butter2_signature.md) |
-
-### TL;DR
 
 - The 2-Pole Butterworth Filter (BUTTER2) is a signal processing tool designed to provide maximally flat frequency response in the passband.
 - Parameterized by `period`.

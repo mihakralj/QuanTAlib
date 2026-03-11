@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TWAP)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [twap.pine](twap.pine)                       |
 
 - Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume.
 - Parameterized by `period` (default defaultperiod).

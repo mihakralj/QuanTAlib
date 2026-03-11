@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Qqe)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `rsiPeriod + smoothFactor + darPeriod * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [qqe.pine](qqe.pine)                       |
 
 - Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands aro...
 - Parameterized by `rsiPeriod` (default 14), `smoothFactor` (default 5), `qqeFactor` (default 4.236).

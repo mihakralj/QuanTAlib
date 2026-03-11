@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (JERK)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `4` bars                          |
-
-### TL;DR
+| **PineScript**   | [jerk.pine](jerk.pine)                       |
 
 - JERK measures the rate of change of acceleration—called "jerk" in physics.
 - No configurable parameters; computation is stateless per bar.

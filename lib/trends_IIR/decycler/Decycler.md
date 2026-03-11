@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Decycler)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [decycler.pine](decycler.pine)                       |
 | **Signature**    | [decycler_signature](decycler_signature.md) |
-
-### TL;DR
 
 - The Ehlers Decycler extracts the trend component from a price series by subtracting a 2-pole Butterworth high-pass filter from the source signal.
 - Parameterized by `period` (default 60).

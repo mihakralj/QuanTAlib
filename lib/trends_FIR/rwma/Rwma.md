@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rwma.pine](rwma.pine)                       |
 
 - RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narr...
 - Parameterized by `period` (default 14).

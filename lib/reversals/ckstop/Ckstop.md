@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ckstop)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `atrPeriod + stopPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [ckstop.pine](ckstop.pine)                       |
 
 - The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes.
 - Parameterized by `atrPeriod` (default 10), `multiplier` (default 1.0), `stopPeriod` (default 9).

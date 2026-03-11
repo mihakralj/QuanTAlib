@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Geomean)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [geomean.pine](geomean.pine)                       |
 
 - The Geometric Mean computes the nth root of the product of n positive values over a sliding window.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (DiPlus, DiMinus)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [adx.pine](adx.pine)                       |
 
 - The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price exp...
 - Parameterized by `period`.

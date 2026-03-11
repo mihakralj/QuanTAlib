@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ravi)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `longPeriod` bars (default 65)                          |
-
-### TL;DR
+| **PineScript**   | [ravi.pine](ravi.pine)                       |
 
 - RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a lon...
 - Parameterized by `shortperiod` (default 7), `longperiod` (default 65).

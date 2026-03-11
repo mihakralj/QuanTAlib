@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MAPD)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mapd.pine](mapd.pine)                       |
 
 - Mean Absolute Percentage Deviation (MAPD) measures the average absolute percentage difference between actual and predicted values, using the predic...
 - Parameterized by `period`.

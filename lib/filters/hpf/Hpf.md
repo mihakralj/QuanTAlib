@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (HPF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [hpf.pine](hpf.pine)                       |
 
 - The 2-Pole Highpass Filter (HPF) is designed to separate high-frequency components (like cycles and noise) from the underlying trend.
 - Parameterized by `length` (default 40).

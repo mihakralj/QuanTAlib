@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Trendflex)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [trendflex.pine](trendflex.pine)                       |
 
 - The Trendflex indicator combines a 2-pole Butterworth low-pass pre-filter (Super Smoother) with an O(1) cumulative slope measurement and exponentia...
 - Parameterized by `period`.

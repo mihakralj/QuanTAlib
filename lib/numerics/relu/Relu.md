@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (RELU)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [relu.pine](relu.pine)                       |
 
 - The Rectified Linear Unit (ReLU) activation function applies `max(0, x)` to each value, passing positive inputs unchanged while zeroing negative ones.
 - No configurable parameters; computation is stateless per bar.

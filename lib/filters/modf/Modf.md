@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (MODF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [modf.pine](modf.pine)                       |
 | **Signature**    | [modf_signature](modf_signature.md) |
-
-### TL;DR
 
 - MODF is a dual-path adaptive filter that maintains separate upper and lower EMA bands with conditional state selection.
 - Parameterized by `period`, `beta` (default 0.8), `feedback` (default false), `fbweight` (default 0.5).

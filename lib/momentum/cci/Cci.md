@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (CCI)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [cci.pine](cci.pine)                       |
 
 - The Commodity Channel Index (CCI) is a versatile momentum-based oscillator developed by Donald Lambert in 1980.
 - Parameterized by `period` (default 20).

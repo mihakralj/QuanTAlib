@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Strength, FastEma, SlowEma)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `slowPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [amat.pine](amat.pine)                       |
 
 - The Archer Moving Averages Trends indicator is a triple-confirmation trend identification system that uses dual EMAs to produce discrete directiona...
 - Parameterized by `fastperiod` (default 10), `slowperiod` (default 50).

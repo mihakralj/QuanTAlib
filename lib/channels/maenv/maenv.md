@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [maenv.pine](maenv.pine)                       |
 
 - Moving Average Envelope (MA Envelope) constructs symmetric bands at a fixed percentage distance above and below a moving average center line.
 - Parameterized by `period` (default 20), `percentage` (default 1.0), `matype` (default maenvtype.ema).

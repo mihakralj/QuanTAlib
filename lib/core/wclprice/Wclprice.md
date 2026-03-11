@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (WCLPRICE)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [wclprice.pine](wclprice.pine)                       |
 
 - WCLPRICE computes a Close-biased average of High, Low, and Close by double-weighting the closing price: $(H + L + 2C) \times 0.25$.
 - No configurable parameters; computation is stateless per bar.

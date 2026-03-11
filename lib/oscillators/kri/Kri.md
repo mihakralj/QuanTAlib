@@ -10,6 +10,7 @@
 | **Outputs** | Single series (percentage deviation from SMA) |
 | **Output range** | Unbounded (centered around 0) |
 | **Warmup** | `period` bars |
+| **PineScript**   | [kri.pine](kri.pine)                       |
 
 ### Key takeaways
 

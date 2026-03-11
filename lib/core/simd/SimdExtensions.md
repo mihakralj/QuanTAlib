@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
 
-### TL;DR
-
 - `SimdExtensions` provides high-performance, SIMD-accelerated extension methods for `ReadOnlySpan<double>`.
 - No configurable parameters; computation is stateless per bar.
 - Output range: Varies (see docs).

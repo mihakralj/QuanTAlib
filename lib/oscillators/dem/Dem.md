@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dem)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [dem.pine](dem.pine)                       |
 
 - DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures sequential demand pressure by comparing each bar's high and low aga...
 - Parameterized by `period` (default 14).

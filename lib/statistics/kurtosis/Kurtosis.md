@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Kurtosis)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [kurtosis.pine](kurtosis.pine)                       |
 
 - Kurtosis measures the **tailedness** of a probability distribution.
 - Parameterized by `period`, `ispopulation` (default false).

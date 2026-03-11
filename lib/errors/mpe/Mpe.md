@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MPE)                       |
 | **Output range** | Any (positive or negative)     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mpe.pine](mpe.pine)                       |
 
 - Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign.
 - Parameterized by `period`.

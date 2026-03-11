@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dmx)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [dmx.pine](dmx.pine)                       |
 
 - The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Ave...
 - Parameterized by `period`.

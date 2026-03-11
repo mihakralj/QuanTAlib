@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Cheby2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [cheby2.pine](cheby2.pine)                       |
 | **Signature**    | [cheby2_signature](cheby2_signature.md) |
-
-### TL;DR
 
 - A Chebyshev Type II filter (also known as Inverse Chebyshev) with O(1) complexity.
 - Parameterized by `period`, `attenuation` (default 5.0).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Rocr)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [rocr.pine](rocr.pine)                       |
 
 - ROCR (Rate of Change Ratio) calculates the ratio between the current value and the value N periods ago.
 - Parameterized by `period` (default 9).

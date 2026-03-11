@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (ALaguerre)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `max(4, length)` bars            |
+| **PineScript**   | [alaguerre.pine](alaguerre.pine)                       |
 | **Signature**    | [alaguerre_signature](alaguerre_signature.md) |
-
-### TL;DR
 
 - The Adaptive Laguerre Filter extends Ehlers' four-element all-pass cascade by replacing the fixed damping factor with a per-bar adaptive alpha deri...
 - Parameterized by `length` (default 20), `medianlength` (default 5).

@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(bbPeriod, kcPeriod), momPeriod)` bars                          |
 
-### TL;DR
-
 - John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside K...
 - Parameterized by `bbperiod` (default 20), `bbmult` (default 2.0), `kcperiod` (default 20), `kcmult` (default 1.5), `momperiod` (default 20).
 - Output range: Varies (see docs).

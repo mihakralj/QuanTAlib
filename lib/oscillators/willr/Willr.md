@@ -10,6 +10,7 @@
 | **Outputs** | Single series (Williams %R line) |
 | **Output range** | $-100$ to $0$ |
 | **Warmup** | `period` bars |
+| **PineScript**   | [willr.pine](willr.pine)                       |
 
 ### Key takeaways
 

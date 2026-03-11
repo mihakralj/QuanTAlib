@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Signal, Histogram)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `slowPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [pvo.pine](pvo.pine)                       |
 
 - The Percentage Volume Oscillator (PVO) measures the difference between two exponential moving averages of volume, expressed as a percentage of the ...
 - Parameterized by `fastperiod` (default 12), `slowperiod` (default 26), `signalperiod` (default 9).

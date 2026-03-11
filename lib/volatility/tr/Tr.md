@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TR)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `1` bars                          |
-
-### TL;DR
+| **PineScript**   | [tr.pine](tr.pine)                       |
 
 - True Range (TR) is a volatility measure that captures the maximum price movement for each bar, including any gap from the previous close.
 - No configurable parameters; computation is stateless per bar.

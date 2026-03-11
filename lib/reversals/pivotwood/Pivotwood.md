@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PIVOTWOOD)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pivotwood.pine](pivotwood.pine)                       |
 
 - Woodie's Pivot Points weight the closing price twice in the pivot calculation, biasing the central pivot toward where the market actually settled r...
 - No configurable parameters; computation is stateless per bar.

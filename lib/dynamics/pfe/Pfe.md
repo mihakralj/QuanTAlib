@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pfe)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [pfe.pine](pfe.pine)                       |
 
 - Polarized Fractal Efficiency (PFE) quantifies trend strength by comparing the Euclidean distance a price series actually travels bar-to-bar against...
 - Parameterized by `period` (default 10), `smoothperiod` (default 5).

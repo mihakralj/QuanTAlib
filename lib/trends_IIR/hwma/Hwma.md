@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [hwma.pine](hwma.pine)                       |
 | **Signature**    | [hwma_signature](hwma_signature.md) |
-
-### TL;DR
 
 - HWMA is an Infinite Impulse Response (IIR) filter that applies triple exponential smoothing with level (F), velocity (V), and acceleration (A) comp...
 - Parameterized by `period` (default 10).

@@ -10,6 +10,7 @@
 | **Outputs** | Single series (DPO line) |
 | **Output range** | Unbounded (centered on zero) |
 | **Warmup** | `period + floor(period / 2) + 1` bars |
+| **PineScript**   | [dpo.pine](dpo.pine)                       |
 
 ### Key takeaways
 

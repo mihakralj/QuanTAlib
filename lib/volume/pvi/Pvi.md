@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pvi)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pvi.pine](pvi.pine)                       |
 
 - The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day.
 - Parameterized by `startvalue` (default 100.0).

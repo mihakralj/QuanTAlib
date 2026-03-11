@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Rema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [rema.pine](rema.pine)                       |
 | **Signature**    | [rema_signature](rema_signature.md) |
-
-### TL;DR
 
 - REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous...
 - Parameterized by `period`, `lambda` (default 0.5).

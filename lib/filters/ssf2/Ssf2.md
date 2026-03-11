@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Ssf2)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [ssf2.pine](ssf2.pine)                       |
 | **Signature**    | [ssf2_signature](ssf2_signature.md) |
-
-### TL;DR
 
 - The 2-Pole Super Smooth Filter (SSF2) is a 2-pole Butterworth filter designed by John Ehlers.
 - Parameterized by `period`.

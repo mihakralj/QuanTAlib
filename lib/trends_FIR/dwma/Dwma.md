@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Dwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `(period * 2) - 1` bars                          |
+| **PineScript**   | [dwma.pine](dwma.pine)                       |
 | **Signature**    | [dwma_signature](dwma_signature.md) |
-
-### TL;DR
 
 - DWMA (Double Weighted Moving Average) is exactly what it says on the tin: a Weighted Moving Average of a Weighted Moving Average.
 - Parameterized by `period`.

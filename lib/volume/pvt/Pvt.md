@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (PVT)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [pvt.pine](pvt.pine)                       |
 
 - Price Volume Trend refines the OBV concept by weighting volume according to the percentage price change rather than using an all-or-nothing approach.
 - No configurable parameters; computation is stateless per bar.

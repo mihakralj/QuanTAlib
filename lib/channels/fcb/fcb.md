@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period + 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [fcb.pine](fcb.pine)                       |
 
 - Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest ...
 - Parameterized by `period` (default 20).

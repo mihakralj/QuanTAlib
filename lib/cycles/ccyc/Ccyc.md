@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Ccyc)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `7` bars                          |
-
-### TL;DR
+| **PineScript**   | [ccyc.pine](ccyc.pine)                       |
 
 - CCYC isolates the dominant cycle component from price data using a 2-pole high-pass IIR filter applied to a 4-tap FIR-smoothed input, producing an ...
 - Parameterized by `alpha` (default 0.07).

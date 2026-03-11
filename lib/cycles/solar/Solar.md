@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SOLAR)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [solar.pine](solar.pine)                       |
 
 - SOLAR models Earth's seasonal position relative to the Sun using astronomical ephemeris calculations.
 - No configurable parameters; computation is stateless per bar.

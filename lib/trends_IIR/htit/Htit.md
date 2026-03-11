@@ -8,10 +8,9 @@
 | **Outputs**      | Single series (HTIT)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `12` bars                          |
+| **PineScript**   | [htit.pine](htit.pine)                       |
 | **Signature**    | [htit_signature](htit_signature.md) |
 
-
-### TL;DR
 
 - HTIT (Hilbert Transform Instantaneous Trend) is a trend-following indicator that doesn't rely on simple averaging.
 - No configurable parameters; computation is stateless per bar.

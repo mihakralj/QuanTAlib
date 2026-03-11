@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TdSeq)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `comparePeriod + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [td_seq.pine](td_seq.pine)                       |
 
 - TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that d...
 - No configurable parameters; computation is stateless per bar.

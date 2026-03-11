@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vel)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vel.pine](vel.pine)                       |
 
 - Jurik Velocity (VEL) measures price rate-of-change through the differential between two weighted moving averages with distinct inertia profiles.
 - Parameterized by `period`.

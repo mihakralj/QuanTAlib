@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Crma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [crma.pine](crma.pine)                       |
 | **Signature**    | [crma_signature](crma_signature.md) |
-
-### TL;DR
 
 - CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitt...
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Highest)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [highest.pine](highest.pine)                       |
 
 - HIGHEST calculates the maximum value over a rolling lookback window.
 - Parameterized by `period`.

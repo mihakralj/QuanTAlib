@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pvd)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [pvd.pine](pvd.pine)                       |
 
 - Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum.
 - Parameterized by `priceperiod` (default 14), `volumeperiod` (default 14), `smoothingperiod` (default 3).

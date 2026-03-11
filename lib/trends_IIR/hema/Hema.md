@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Hema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `EstimateWarmupPeriod()` bars                          |
+| **PineScript**   | [hema.pine](hema.pine)                       |
 | **Signature**    | [hema_signature](hema_signature.md) |
-
-### TL;DR
 
 - HEMA is a Hull-style moving average built entirely from **exponential smoothers**.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (III)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [iii.pine](iii.pine)                       |
 
 - The Intraday Intensity Index (III) measures buying and selling pressure by analyzing where the close price falls within the high-low range, weighte...
 - Parameterized by `period` (default 14), `cumulative` (default false).

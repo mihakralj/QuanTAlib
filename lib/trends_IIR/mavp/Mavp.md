@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Mavp)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `maxPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [mavp.pine](mavp.pine)                       |
 
 - MAVP applies an EMA-style exponential smoothing where the period -- and therefore the smoothing constant alpha -- changes on every bar.
 - Parameterized by `minperiod` (default 2), `maxperiod` (default 30).

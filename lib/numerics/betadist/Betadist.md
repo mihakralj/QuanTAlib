@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Betadist)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [betadist.pine](betadist.pine)                       |
 
 - BETADIST computes the cumulative distribution function of the Beta distribution applied to a min-max normalized price series.
 - Parameterized by `period` (default 50), `alpha` (default 2.0), `beta` (default 2.0).

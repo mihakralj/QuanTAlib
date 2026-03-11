@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (R²)                       |
 | **Output range** | $(-\infty, 1]$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [rsquared.pine](rsquared.pine)                       |
 
 - The Coefficient of Determination (R²) measures the proportion of variance in the actual values that is predictable from the predicted values.
 - Parameterized by `period`.

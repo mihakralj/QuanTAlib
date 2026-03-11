@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Squeeze)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [squeeze.pine](squeeze.pine)                       |
 
 - Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultan...
 - Parameterized by `period` (default 20), `bbmult` (default 2.0), `kcmult` (default 1.5).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pearson r)               |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [correlation.pine](correlation.pine)                       |
 
 - The Pearson Correlation Coefficient measures the linear relationship between two variables, returning a value from -1 (perfect negative correlation...
 - Parameterized by `period` (default 20).

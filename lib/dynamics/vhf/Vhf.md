@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vhf)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [vhf.pine](vhf.pine)                       |
 
 - VHF (Vertical Horizontal Filter) measures trend strength by dividing the price range over $N$ periods by the total absolute bar-to-bar path distanc...
 - Parameterized by `period` (default 28).

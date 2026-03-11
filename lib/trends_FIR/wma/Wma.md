@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Wma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [wma.pine](wma.pine)                       |
 | **Signature**    | [wma_signature](wma_signature.md) |
-
-### TL;DR
 
 - The Weighted Moving Average (WMA) assigns a linearly decreasing weight to data points.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Brar)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [brar.pine](brar.pine)                       |
 
 - BRAR is a dual-output sentiment oscillator from the Japanese technical analysis tradition that decomposes market pressure into two independent rati...
 - Parameterized by `period` (default 26).

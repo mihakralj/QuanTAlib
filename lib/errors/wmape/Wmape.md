@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Wmape)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [wmape.pine](wmape.pine)                       |
 
 - Weighted Mean Absolute Percentage Error (WMAPE) adjusts MAPE by weighting each error by the magnitude of the actual value.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (CFB)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `maxLen` bars (192 default)                          |
-
-### TL;DR
+| **PineScript**   | [cfb.pine](cfb.pine)                       |
 
 - The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars...
 - Parameterized by int[]? lengths = null.

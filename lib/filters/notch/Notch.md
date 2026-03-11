@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Notch)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [notch.pine](notch.pine)                       |
 | **Signature**    | [notch_signature](notch_signature.md) |
-
-### TL;DR
 
 - The Notch Filter is a band-stop filter with a narrow bandwidth.
 - Parameterized by `period`, `q` (default 1.0).

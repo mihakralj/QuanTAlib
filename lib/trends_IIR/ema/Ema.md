@@ -12,6 +12,7 @@
 | **Outputs**      | Single series (Ema)                    |
 | **Output range** | Tracks input                            |
 | **Warmup**       | `period` bars                         |
+| **PineScript**   | [ema.pine](ema.pine)                       |
 | **Signature**    | [ema_signature](ema_signature.md) |
 
 ## Key Takeaways

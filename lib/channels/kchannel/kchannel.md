@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (Upper, Lower)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [kchannel.pine](kchannel.pine)                       |
 
 - Keltner Channel constructs a volatility-adaptive envelope by projecting Average True Range above and below an Exponential Moving Average center line.
 - Parameterized by `period` (default 20), `multiplier` (default 2.0).

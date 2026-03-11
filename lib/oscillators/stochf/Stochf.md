@@ -10,6 +10,7 @@
 | **Outputs** | Dual series (%K line, %D signal line) |
 | **Output range** | $0$ to $100$ |
 | **Warmup** | `kLength` bars |
+| **PineScript**   | [stochf.pine](stochf.pine)                       |
 
 ### Key takeaways
 

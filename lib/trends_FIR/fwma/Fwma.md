@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Fwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [fwma.pine](fwma.pine)                       |
 | **Signature**    | [fwma_signature](fwma_signature.md) |
-
-### TL;DR
 
 - The Fibonacci Weighted Moving Average applies the Fibonacci sequence as FIR filter weights, assigning exponentially growing importance to recent bars.
 - Parameterized by `period` (default 10).

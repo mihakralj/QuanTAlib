@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Sam)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `MaxCyclePeriod * 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [sam.pine](sam.pine)                       |
 
 - The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length,...
 - Parameterized by `alpha` (default 0.07), `cutoff` (default 8).

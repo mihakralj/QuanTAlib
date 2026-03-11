@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Kama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period + 1` bars                          |
+| **PineScript**   | [kama.pine](kama.pine)                       |
 | **Signature**    | [kama_signature](kama_signature.md) |
-
-### TL;DR
 
 - KAMA (Kaufman's Adaptive Moving Average) is an intelligent moving average that adjusts its smoothing speed based on market noise.
 - Parameterized by `period` (default 10), `fastperiod` (default 2), `slowperiod` (default 30).

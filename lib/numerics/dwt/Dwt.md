@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Dwt)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `bufferSize` bars                          |
-
-### TL;DR
+| **PineScript**   | [dwt.pine](dwt.pine)                       |
 
 - The Discrete Wavelet Transform decomposes a price series into multi-resolution frequency components using the a trous (with holes) stationary Haar ...
 - Parameterized by `levels` (default 4), `output` (default 0).

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Change)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [change.pine](change.pine)                       |
 
 - CHANGE calculates the percentage change between the current value and a value N periods ago.
 - Parameterized by `period` (default 1).

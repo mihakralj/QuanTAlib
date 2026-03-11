@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Rgma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [rgma.pine](rgma.pine)                       |
 | **Signature**    | [rgma_signature](rgma_signature.md) |
-
-### TL;DR
 
 - RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages.
 - Parameterized by `period`, `passes` (default 3).

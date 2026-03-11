@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Gkv)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [gkv.pine](gkv.pine)                       |
 
 - Garman-Klass Volatility (GKV) is a range-based volatility estimator that uses all four OHLC prices to provide more efficient volatility estimates t...
 - Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).

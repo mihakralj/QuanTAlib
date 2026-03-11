@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Theil)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [theil.pine](theil.pine)                       |
 
 - The Theil T Index is an information-theoretic measure of inequality (or concentration) within a distribution of positive values.
 - Parameterized by `period`.

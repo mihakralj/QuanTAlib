@@ -8,8 +8,7 @@
 | **Outputs**      | Multiple series (UpperBand, LowerBand)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `> period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [super.pine](super.pine)                       |
 
 - SuperTrend is a trend-following overlay that uses ATR-scaled bands around the HL2 midpoint, switching between upper and lower bands based on close ...
 - Parameterized by `period` (default 10), `multiplier` (default 3.0).

@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Sgma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [sgma.pine](sgma.pine)                       |
 | **Signature**    | [sgma_signature](sgma_signature.md) |
-
-### TL;DR
 
 - SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inf...
 - Parameterized by `period` (default 9), `degree` (default 2).

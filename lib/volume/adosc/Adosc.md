@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Adosc)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `slowPeriod` bars                          |
-
-### TL;DR
+| **PineScript**   | [adosc.pine](adosc.pine)                       |
 
 - The Chaikin Oscillator (ADOSC) is an indicator of an indicator.
 - Parameterized by `fastperiod` (default 3), `slowperiod` (default 10).

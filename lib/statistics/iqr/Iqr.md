@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Iqr)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [iqr.pine](iqr.pine)                       |
 
 - The Interquartile Range measures the spread of the middle 50% of a sorted dataset within a rolling window.
 - Parameterized by `period`.

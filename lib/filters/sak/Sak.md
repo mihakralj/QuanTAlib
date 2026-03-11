@@ -13,6 +13,7 @@ SAK is John Ehlers' unified second-order IIR filter framework that collapses nin
 | **Parameters** | `filterType` (string, default `"BP"`), `period` (int, default 20), `n` (int, default 10, SMA only), `delta` (float, default 0.1, BP/BS only) |
 | **Outputs** | Single `double` per bar |
 | **Warmup** | 3 bars (2nd-order IIR), except SMA which needs `n` bars |
+| **PineScript**   | [sak.pine](sak.pine)                       |
 | **Range** | Overlay (EMA, SMA, Gauss, Butter, Smooth) or oscillator around zero (HP, 2PHP, BP, BS) |
 
 ## Key Takeaways

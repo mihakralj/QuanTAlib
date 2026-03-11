@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Acf)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [acf.pine](acf.pine)                       |
 
 - The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself.
 - Parameterized by `period`, `lag` (default 1).

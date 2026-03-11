@@ -9,8 +9,6 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(emaPeriod, macdSlow) + macdSignal - 1` bars (default 34)                          |
 
-### TL;DR
-
 - The Elder Impulse System combines a 13-period EMA (trend inertia) with the MACD(12,26,9) histogram (momentum acceleration) to classify each bar as ...
 - Parameterized by `emaperiod` (default 13), `macdfast` (default 12), `macdslow` (default 26), `macdsignal` (default 9).
 - Output range: Varies (see docs).

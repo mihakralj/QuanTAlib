@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (VWAD)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period` bars                          |
-
-### TL;DR
+| **PineScript**   | [vwad.pine](vwad.pine)                       |
 
 - Volume Weighted Accumulation/Distribution (VWAD) takes the classic ADL concept and asks a sharper question: not just "where did the close fall in t...
 - Parameterized by `period` (default 20).

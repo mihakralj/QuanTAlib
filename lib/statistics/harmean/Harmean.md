@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Harmean)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [harmean.pine](harmean.pine)                       |
 
 - The Harmonic Mean computes the reciprocal of the arithmetic mean of reciprocals over a sliding window.
 - Parameterized by `period`.

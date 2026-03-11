@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (SQRTTRANS)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [sqrttrans.pine](sqrttrans.pine)                       |
 
 - The Square Root (SQRT) transformer applies $\sqrt{x}$ to each value in a time series.
 - No configurable parameters; computation is stateless per bar.

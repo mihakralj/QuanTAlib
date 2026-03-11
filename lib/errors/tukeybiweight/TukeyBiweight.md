@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TukeyBiweight)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [tukeybiweight.pine](tukeybiweight.pine)                       |
 
 - Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold.
 - Parameterized by `period`, `c` (default defaultc).

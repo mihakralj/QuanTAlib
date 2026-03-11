@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Lema)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [lema.pine](lema.pine)                       |
 | **Signature**    | [lema_signature](lema_signature.md) |
-
-### TL;DR
 
 - LEMA (Leader EMA) adds a smoothed error correction to the standard EMA, creating a moving average that anticipates price movement.
 - Parameterized by `period`.

@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Loess)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `Period` bars                          |
+| **PineScript**   | [loess.pine](loess.pine)                       |
 | **Signature**    | [loess_signature](loess_signature.md) |
-
-### TL;DR
 
 - Locally Estimated Scatterplot Smoothing (LOESS) applies a weighted linear regression over a localized window of nearest neighbors.
 - Parameterized by `period`.

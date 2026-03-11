@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Sum)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [sum.pine](sum.pine)                       |
 
 - The Sum indicator calculates a rolling window summation using the Kahan-Babuška algorithm (also known as "improved Kahan" or "second-order compensa...
 - Parameterized by `period`.

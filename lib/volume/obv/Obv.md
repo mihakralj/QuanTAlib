@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (OBV)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> 2` bars                          |
-
-### TL;DR
+| **PineScript**   | [obv.pine](obv.pine)                       |
 
 - On Balance Volume distills the relationship between price and volume into a single cumulative indicator.
 - No configurable parameters; computation is stateless per bar.

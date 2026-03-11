@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Median)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [median.pine](median.pine)                       |
 
 - The Rolling Median is a robust statistic that represents the middle value of a dataset within a moving window.
 - Parameterized by `period`.

@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Gwma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [gwma.pine](gwma.pine)                       |
 | **Signature**    | [gwma_signature](gwma_signature.md) |
-
-### TL;DR
 
 - GWMA is a Finite Impulse Response (FIR) filter that applies a centered Gaussian window to price data.
 - Parameterized by `period`, `sigma` (default 0.4).

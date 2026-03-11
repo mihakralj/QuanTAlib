@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (EXPTRANS)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `0` bars                          |
-
-### TL;DR
+| **PineScript**   | [exptrans.pine](exptrans.pine)                       |
 
 - The Exponential (EXP) transformer applies the natural exponential function $e^x$ to each value in a time series.
 - No configurable parameters; computation is stateless per bar.

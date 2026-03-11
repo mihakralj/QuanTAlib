@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TtmScalper)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [ttmscalper.pine](ttmscalper.pine)                       |
 
 - John Carter designed TTM Scalper Alert for quick identification of potential reversal points using a simple three-bar pattern recognition.
 - Parameterized by `usecloses` (default false).

@@ -1,6 +1,5 @@
 # MINUS_DM: Minus Directional Movement
 
-### TL;DR
 Wilder-smoothed downward directional movement in price units (≥0).
 
 ## Introduction

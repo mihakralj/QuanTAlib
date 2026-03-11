@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Tsf)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [tsf.pine](tsf.pine)                       |
 | **Signature**    | [tsf_signature](tsf_signature.md) |
-
-### TL;DR
 
 - TSF projects the least-squares regression line one bar forward, providing a statistically grounded forecast of the next bar's value.
 - Parameterized by `period` (default 14).

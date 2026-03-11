@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pmo)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `timePeriods + smoothPeriods` bars                          |
-
-### TL;DR
+| **PineScript**   | [pmo.pine](pmo.pine)                       |
 
 - PMO (Price Momentum Oscillator), developed by Carl Swenlin at DecisionPoint, is a double-smoothed 1-bar rate of change.
 - Parameterized by `timeperiods` (default defaulttimeperiods), `smoothperiods` (default defaultsmoothperiods), `signalperiods` (default defaultsignalperiods).

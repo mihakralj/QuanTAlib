@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Cov)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [covariance.pine](covariance.pine)                       |
 
 - Covariance measures the joint variability of two random variables.
 - Parameterized by `period`, `ispopulation` (default false).

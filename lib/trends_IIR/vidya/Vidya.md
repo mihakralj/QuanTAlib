@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Vidya)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [vidya.pine](vidya.pine)                       |
 | **Signature**    | [vidya_signature](vidya_signature.md) |
-
-### TL;DR
 
 - The Variable Index Dynamic Average (VIDYA) is an adaptive moving average that automatically adjusts its smoothing speed based on market volatility.
 - Parameterized by `period`.

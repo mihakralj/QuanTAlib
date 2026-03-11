@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Mma)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [mma.pine](mma.pine)                       |
 | **Signature**    | [mma_signature](mma_signature.md) |
-
-### TL;DR
 
 - MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the ...
 - Parameterized by `period`.

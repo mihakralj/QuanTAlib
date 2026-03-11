@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Variance)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [variance.pine](variance.pine)                       |
 
 - Variance measures how far a set of numbers is spread out from their average value.
 - Parameterized by `period`, `ispopulation` (default false).

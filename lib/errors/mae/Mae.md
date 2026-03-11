@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MAE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mae.pine](mae.pine)                       |
 
 - Mean Absolute Error (MAE) measures the average magnitude of errors in a set of predictions, without considering their direction.
 - Parameterized by `period`.

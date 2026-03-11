@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Eom)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [eom.pine](eom.pine)                       |
 
 - Ease of Movement (EOM) quantifies how easily price moves relative to volume.
 - Parameterized by `period` (default 14), `volumescale` (default 10000).

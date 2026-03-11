@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (TheilU)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [theilu.pine](theilu.pine)                       |
 
 - Theil's U Statistic measures forecast accuracy relative to a naive no-change forecast.
 - Parameterized by `period`.

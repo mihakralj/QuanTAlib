@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (AroonOsc)                       |
 | **Output range** | $-100$ to $+100$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [aroonosc.pine](aroonosc.pine)                       |
 
 - The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$.
 - Parameterized by `period`.

@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (LogCosh)                    |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [logcosh.pine](logcosh.pine)                       |
 
 - Log-Cosh Loss combines the best properties of L1 (absolute) and L2 (squared) error metrics through the logarithm of the hyperbolic cosine function.
 - Parameterized by `period`.

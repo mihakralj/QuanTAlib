@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (MRAE)                       |
 | **Output range** | $\geq 0$                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [mrae.pine](mrae.pine)                       |
 
 - Mean Relative Absolute Error (MRAE) measures the average magnitude of errors relative to the actual values.
 - Parameterized by `period`.

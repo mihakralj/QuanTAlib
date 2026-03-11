@@ -8,9 +8,8 @@
 | **Outputs**      | Single series (Cheby1)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `period` bars                          |
+| **PineScript**   | [cheby1.pine](cheby1.pine)                       |
 | **Signature**    | [cheby1_signature](cheby1_signature.md) |
-
-### TL;DR
 
 - The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with...
 - Parameterized by `period`, `ripple` (default 1.0).

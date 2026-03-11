@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Swings)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | 1 bar                          |
-
-### TL;DR
+| **PineScript**   | [swings.pine](swings.pine)                       |
 
 - Swing High/Low detection identifies local price extremes using a configurable lookback window.
 - Parameterized by `lookback` (default 5).

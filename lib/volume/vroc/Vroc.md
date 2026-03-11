@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Vroc)                       |
 | **Output range** | Unbounded                     |
 | **Warmup**       | `> period + 1` bars                          |
-
-### TL;DR
+| **PineScript**   | [vroc.pine](vroc.pine)                       |
 
 - VROC (Volume Rate of Change) measures the percentage or absolute change in volume over a specified lookback period.
 - Parameterized by `period` (default 12), `usepercent` (default true).

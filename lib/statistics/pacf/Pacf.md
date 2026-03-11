@@ -8,8 +8,7 @@
 | **Outputs**      | Single series (Pacf)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `period` bars                          |
-
-### TL;DR
+| **PineScript**   | [pacf.pine](pacf.pine)                       |
 
 - The Partial Autocorrelation Function (PACF) measures the correlation between a time series and its lagged values, after removing the effects of all...
 - Parameterized by `period`, `lag` (default 1).
