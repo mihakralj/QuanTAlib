@@ -8,7 +8,6 @@
 | **Outputs**      | Single series (Cfitz)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `2` bars                          |
-| **Signature**    | [cfitz_signature](cfitz_signature.md) |
 
 ### TL;DR
 

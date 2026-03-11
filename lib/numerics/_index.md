@@ -10,8 +10,10 @@ Basic mathematical transforms and utility functions for time series. These build
 | [BETADIST](betadist/Betadist.md) | Beta Distribution | Beta probability distribution transform. |
 | [BINOMDIST](binomdist/Binomdist.md) | Binomial Distribution | Binomial probability distribution transform. |
 | [CHANGE](change/Change.md) | Percentage Change | Relative price movement over lookback period. |
+| [DECAY](decay/Decay.md) | Linear Decay | Peak envelope with linear degradation; max(input, prev − 1/period). |
 | [CWT](cwt/Cwt.md) | Continuous Wavelet Transform | Time-frequency decomposition with continuous wavelets. |
 | [DWT](dwt/Dwt.md) | Discrete Wavelet Transform | À trous Haar stationary DWT; multi-resolution approximation + detail decomposition. |
+| [EDECAY](edecay/Edecay.md) | Exponential Decay | Peak envelope with exponential degradation; max(input, prev × (period−1)/period). |
 | [EXPDIST](expdist/Expdist.md) | Exponential Distribution | Exponential probability distribution transform. |
 | [EXPTRANS](exptrans/Exptrans.md) | Exponential Transform | e^x transform for log-space conversion reversal. |
 | [FDIST](fdist/Fdist.md) | F-Distribution | Fisher-Snedecor probability distribution transform. |

@@ -433,7 +433,9 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**WEIBULLDIST**](../lib/numerics/weibulldist/Weibulldist.md) | Weibull Distribution (CDF) | Rolling Weibull CDF — two-parameter closed-form probability transform via pow + exp |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement |
 | [**CWT**](../lib/numerics/cwt/Cwt.md) | Continuous Wavelet Transform | Morlet CWT magnitude at a specified scale — time-frequency decomposition |
+| [**DECAY**](../lib/numerics/decay/Decay.md) | Linear Decay | Peak envelope with linear degradation |
 | [**DWT**](../lib/numerics/dwt/Dwt.md) | Discrete Wavelet Transform | À trous Haar stationary DWT — multi-resolution approximation + detail, WarmupPeriod = 2^levels |
+| [**EDECAY**](../lib/numerics/edecay/Edecay.md) | Exponential Decay | Peak envelope with exponential degradation |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |
 | [**MAXINDEX**](../lib/numerics/maxindex/Maxindex.md) | Rolling Maximum Index | Position of max in window |

@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (OneEuro)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `1` bars                          |
+| **Signature**    | [oneeuro_signature](oneeuro_signature.md) |
+
 
 ### TL;DR
 

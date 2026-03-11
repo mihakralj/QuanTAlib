@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (HP)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [hp_signature](hp_signature.md) |
+
 
 ### TL;DR
 

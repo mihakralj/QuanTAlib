@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (Wavelet)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `2^levels` bars (default 16)   |
+| **Signature**    | [wavelet_signature](wavelet_signature.md) |
+
 
 ### TL;DR
 

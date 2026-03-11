@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (RLS)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `order + 1` bars                          |
+| **Signature**    | [rls_signature](rls_signature.md) |
+
 
 ### TL;DR
 

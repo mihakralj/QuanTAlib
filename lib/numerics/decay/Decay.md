@@ -2,7 +2,7 @@
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
-| **Category**     | Trends (IIR)                     |
+| **Category**     | Numerics                         |
 | **Inputs**       | Source (close)                   |
 | **Parameters**   | `period` (default 5)             |
 | **Outputs**      | Single series (Decay)            |

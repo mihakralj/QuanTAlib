@@ -8,7 +8,6 @@
 | **Outputs**      | Single series (BaxterKing)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `2K+1` bars (default 25)         |
-| **Signature**    | [baxterking_signature](baxterking_signature.md) |
 
 ### TL;DR
 

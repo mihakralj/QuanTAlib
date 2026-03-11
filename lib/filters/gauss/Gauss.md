@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (Gauss)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
+| **Signature**    | [gauss_signature](gauss_signature.md) |
+
 
 ### TL;DR
 

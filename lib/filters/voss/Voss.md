@@ -8,7 +8,6 @@
 | **Outputs**      | Single series (VOSS)                       |
 | **Output range** | Oscillates around zero           |
 | **Warmup**       | `period` bars                          |
-| **Signature**    | [voss_signature](voss_signature.md) |
 
 ### TL;DR
 
