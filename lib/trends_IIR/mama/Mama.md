@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (Mama)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `50` bars                          |
+| **Signature**    | [mama_signature](mama_signature.md) |
+
 
 ### TL;DR
 

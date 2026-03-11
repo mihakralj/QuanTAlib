@@ -8,14 +8,13 @@
 | **Outputs**      | Single series (HPF)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | 1 bar                          |
-| **Signature**    | [hpf_signature](hpf_signature.md) |
 
 ### TL;DR
 
 - The 2-Pole Highpass Filter (HPF) is designed to separate high-frequency components (like cycles and noise) from the underlying trend.
 - Parameterized by `length` (default 40).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Output range: Oscillates around zero (detrended signal).
+- Requires `length` bars of warmup before first valid output (IsHot = true). Default: **40 bars**.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "Noise is just signal you haven't figured out how to filter yet. Or maybe, it's the only signal that matters."

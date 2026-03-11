@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (Laguerre)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `WarmupBars` bars                          |
+| **Signature**    | [laguerre_signature](laguerre_signature.md) |
+
 
 ### TL;DR
 

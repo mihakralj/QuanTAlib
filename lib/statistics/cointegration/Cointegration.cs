@@ -55,6 +55,7 @@ public sealed class Cointegration : AbstractBase
     private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
+    /// <inheritdoc />
     public override bool IsHot => _bufferA.IsFull && _hasPrevResidual;
 
     /// <summary>
@@ -109,16 +110,23 @@ public sealed class Cointegration : AbstractBase
     /// <summary>
     /// Updates with raw double values.
     /// </summary>
+    /// <remarks>
+    /// Stamps both inputs with <c>DateTime.UtcNow</c> as their timestamp. For
+    /// deterministic or replay-safe sequences use
+    /// <see cref="Update(TValue, TValue, bool)"/> with explicit timestamps instead.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesA, double seriesB, bool isNew = true)
     {
-        return Update(new TValue(DateTime.MinValue, seriesA), new TValue(DateTime.MinValue, seriesB), isNew);
+        return Update(new TValue(DateTime.UtcNow, seriesA), new TValue(DateTime.UtcNow, seriesB), isNew);
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesA, seriesB) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Cointegration requires two inputs (seriesA and seriesB). Use Update(seriesA, seriesB).");
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Batch(TSeries, TSeries, int)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Calculate(seriesA, seriesB, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -398,11 +406,13 @@ public sealed class Cointegration : AbstractBase
             _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
         }
     }
+    /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Cointegration requires two inputs.");
     }
 
+    /// <inheritdoc />
     public override void Reset()
     {
         _bufferA.Clear();
@@ -473,6 +483,9 @@ public sealed class Cointegration : AbstractBase
         }
     }
 
+    /// <summary>
+    /// Calculates the ADF cointegration statistic for two time series and returns both the result series and the live indicator instance.
+    /// </summary>
     public static (TSeries Results, Cointegration Indicator) Calculate(TSeries seriesA, TSeries seriesB, int period = 20)
     {
         if (seriesA.Count != seriesB.Count)

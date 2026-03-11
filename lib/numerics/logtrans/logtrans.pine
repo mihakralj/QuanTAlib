@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Logarithmic Transformation (LOG)", "Logtrans", overlay=false)
@@ -9,8 +9,8 @@ indicator("Logarithmic Transformation (LOG)", "Logtrans", overlay=false)
 //@optimized for performance and dirty data
 logT(series float source) =>
     if na(source)
-        runtime.error("Parameter 'source' cannot be na.")
-    if source <= 0
+        na
+    else if source <= 0
         na
     else
         math.log(source)
@@ -18,10 +18,10 @@ logT(series float source) =>
 // ---------- Main loop ----------
 
 // Inputs
-i_source = input(close, "Source")
+i_source = input.source(close, "Source")
 
 // Calculation
 transformedSource = logT(i_source)
 
 // Plot
-plot(transformedSource, "Log Transformation", color=color.green, color=color.yellow, linewidth=2)
+plot(transformedSource, "Logtrans", color=color.yellow, linewidth=2)

@@ -367,7 +367,7 @@ public sealed class Acf : AbstractBase
             for (int j = 0; j < bufferCount; j++)
             {
                 double diff = buffer[j] - mean;
-                variance += diff * diff;
+                variance = Math.FusedMultiplyAdd(diff, diff, variance);
             }
 
             variance /= bufferCount;
@@ -388,7 +388,7 @@ public sealed class Acf : AbstractBase
                 int laggedIdx = (effectiveStart + t - lag) % period;
                 double xt = buffer[currentIdx];
                 double xtk = buffer[laggedIdx];
-                autocovariance += (xt - mean) * (xtk - mean);
+                autocovariance = Math.FusedMultiplyAdd(xt - mean, xtk - mean, autocovariance);
             }
 
             autocovariance /= bufferCount;

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("AOBV - Archer On-Balance Volume (AOBV)", "AOBV", overlay=false)
@@ -25,7 +25,7 @@ aobv(src, vol) =>
     resArr = array.new_float(2, na)
     for i = 0 to array.size(periods) - 1
         period = array.get(periods, i)
-        alpha = 2.0 / math.max(period, 1)
+        alpha = 2.0 / (period + 1)
         beta = array.get(betaArr, i)
         if beta == 0.0
             beta := 1.0 - alpha
@@ -50,8 +50,8 @@ aobv(src, vol) =>
     [array.get(resArr, 0), array.get(resArr, 1)]
 
 // ---------- Inputs ----------
-src = input(close, "Source")
-vol = input(volume, "Volume")
+src = input.source(close, "Source")
+vol = input.source(volume, "Volume")
 
 // ---------- Calculations ----------
 [aobvFast, aobvSlow] = aobv(src, vol)

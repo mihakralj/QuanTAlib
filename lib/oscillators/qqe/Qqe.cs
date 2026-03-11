@@ -278,6 +278,10 @@ public sealed class Qqe : AbstractBase
     }
 
     /// <summary>Span-based batch calculation (QQE line only).</summary>
+    /// <remarks>
+    /// Computes only the QQE line (EMA-smoothed RSI). The dynamic trailing <see cref="Signal"/> line
+    /// is not available from this API; use <see cref="Update(TValue, bool)"/> streaming to access both outputs.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output,
                              int rsiPeriod = DefaultRsiPeriod,

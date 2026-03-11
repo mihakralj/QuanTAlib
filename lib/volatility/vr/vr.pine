@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Volatility Ratio (VR)", shorttitle="VR", format=format.price, precision=2, overlay=false)
@@ -9,8 +9,6 @@ indicator("Volatility Ratio (VR)", shorttitle="VR", format=format.price, precisi
 //@param atrPeriod The lookback period for ATR. Must be > 0.
 //@returns float The Volatility Ratio value for the current bar.
 vr(int atrPeriod) =>
-    if atrPeriod <= 0
-        runtime.error("ATR Period must be greater than 0")
     var float EPSILON_ATR = 1e-10
     var float raw_atr = 0.0
     var float e_compensator = 1.0

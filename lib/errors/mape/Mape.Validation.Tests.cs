@@ -84,4 +84,31 @@ public sealed class MapeValidationTests : IDisposable
 
         return sum / actual.Length;
     }
+
+    [Fact]
+    public void Mape_Correction_Recomputes()
+    {
+        var ind = new Mape(20);
+
+        // Build state well past warmup (actual always > 0 so MAPE denominator is valid)
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(100.0 + i * 0.5, 98.0 + i * 0.5);
+        }
+
+        // Anchor bar
+        const double anchorActual = 125.0;
+        const double anchorPredicted = 123.0;
+        ind.Update(anchorActual, anchorPredicted, isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // MAPE is scale-invariant: ×10 on both actual and predicted leaves ratio unchanged.
+        // Change only predicted to dramatically alter the error percentage.
+        ind.Update(anchorActual, 10.0, isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore original result
+        ind.Update(anchorActual, anchorPredicted, isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
 }

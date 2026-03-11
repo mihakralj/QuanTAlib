@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Bollinger Band Width (BBW)", "BBW", overlay=false)
@@ -10,8 +10,6 @@ indicator("Bollinger Band Width (BBW)", "BBW", overlay=false)
 //@returns BBW value representing the width between Bollinger Bands
 //@optimized for performance and dirty data
 bbw(series float source, simple int period, simple float multiplier) =>
-    if period <= 0 or multiplier <= 0.0
-        runtime.error("Period and multiplier must be greater than 0")
     var int p = math.max(1, period), var int head = 0, var int count = 0
     var array<float> buffer = array.new_float(p, na)
     var float sum = 0.0, var float sumSq = 0.0
@@ -28,7 +26,7 @@ bbw(series float source, simple int period, simple float multiplier) =>
     head := (head + 1) % p
     float basis = nz(sum / count, source)
     float dev = count > 1 ? multiplier * math.sqrt(math.max(0.0, sumSq / count - basis * basis)) : 0.0
-    2 * dev
+    basis != 0.0 ? 2 * dev / basis : 0.0
 
 // ---------- Main loop ----------
 

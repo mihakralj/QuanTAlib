@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2004-2024 John F. Ehlers
@@ -10,8 +10,6 @@ indicator("Ehlers Decycler (DECYCLER)", "DECYCLER", overlay=true)
 //@returns Decycler value (source minus high-pass filtered component)
 //@optimized Uses 2-pole Butterworth HP with O(1) complexity per bar
 decycler(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be positive")
 
     float src = na(source) ? 0.0 : source
 

@@ -17,11 +17,15 @@ __all__ = [
     "chop",
     "dmx",
     "dx",
+    "minus_di",
+    "minus_dm",
     "ghla",
     "ht_trendmode",
     "ichimoku",
     "impulse",
     "pfe",
+    "plus_di",
+    "plus_dm",
     "qstick",
     "ravi",
     "supertrend",
@@ -140,6 +144,28 @@ def dx(high: object, low: object, close: object, period: int = 14, offset: int =
     return _wrap(destination, idx, f"DX_{period}", "dynamics", offset)
 
 
+def minus_di(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Minus Directional Indicator."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    destination = _out(n)
+    _check(_lib.qtl_minusdi(_ptr(h), _ptr(h), _ptr(l), _ptr(c), _ptr(destination), period, n, _ptr(destination)))
+    return _wrap(destination, idx, f"MINUS_DI_{period}", "dynamics", offset)
+
+
+def minus_dm(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Minus Directional Movement."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    destination = _out(n)
+    _check(_lib.qtl_minusdm(_ptr(h), _ptr(h), _ptr(l), _ptr(c), _ptr(destination), period, n, _ptr(destination)))
+    return _wrap(destination, idx, f"MINUS_DM_{period}", "dynamics", offset)
+
+
 def ghla(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Gann Hi-Lo Activator."""
     period = int(kwargs.get("length", period))
@@ -204,6 +230,28 @@ def pfe(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0,
     output = _out(n)
     _check(_lib.qtl_pfe(_ptr(src), _ptr(output), n, period, smoothPeriod))
     return _wrap(output, idx, f"PFE_{period}", "dynamics", offset)
+
+
+def plus_di(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Plus Directional Indicator."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    destination = _out(n)
+    _check(_lib.qtl_plusdi(_ptr(h), _ptr(h), _ptr(l), _ptr(c), _ptr(destination), period, n, _ptr(destination)))
+    return _wrap(destination, idx, f"PLUS_DI_{period}", "dynamics", offset)
+
+
+def plus_dm(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Plus Directional Movement."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    destination = _out(n)
+    _check(_lib.qtl_plusdm(_ptr(h), _ptr(h), _ptr(l), _ptr(c), _ptr(destination), period, n, _ptr(destination)))
+    return _wrap(destination, idx, f"PLUS_DM_{period}", "dynamics", offset)
 
 
 def qstick(open: object, high: object, low: object, close: object, volume: object, period: int = 14, useEma: int = 0, offset: int = 0, **kwargs) -> object:

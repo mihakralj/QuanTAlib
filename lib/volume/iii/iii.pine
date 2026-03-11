@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Intraday Intensity Index (III)", "III", overlay=false)
@@ -28,7 +28,7 @@ iii(simple int period, simple bool cumulative=false, series float h=high, series
     valid_count := not na(raw_iii) ? valid_count + 1 : valid_count
     array.set(buffer, head, raw_iii)
     head := (head + 1) % period
-    smoothed_iii = sum / period
+    smoothed_iii = valid_count > 0 ? sum / valid_count : 0.0
     cumulative_value := cumulative_value + raw_iii
     cumulative ? cumulative_value : smoothed_iii
 

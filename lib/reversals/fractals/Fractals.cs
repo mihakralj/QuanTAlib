@@ -1,6 +1,6 @@
 // FRACTALS: Williams Fractals
 // Five-bar pattern identifying local highs (up fractals) and local lows (down fractals).
-// Created by Larry Williams (1995, "Trading Chaos").
+// Created by Bill Williams (1995, "Trading Chaos").
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;

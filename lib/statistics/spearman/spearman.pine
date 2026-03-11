@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Spearman Rank Correlation (SPEARMAN)", "SPEARMAN", overlay=false, precision=4)

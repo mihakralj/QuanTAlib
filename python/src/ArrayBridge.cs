@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib.Python;
@@ -5,7 +6,7 @@ namespace QuanTAlib.Python;
 internal static class ArrayBridge
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static unsafe bool IsNull(double* ptr) => ptr == null;
+    public static bool IsNull(IntPtr ptr) => ptr == IntPtr.Zero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ValidateLength(int n) =>

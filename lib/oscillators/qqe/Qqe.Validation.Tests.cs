@@ -241,4 +241,33 @@ public sealed class QqeValidationTests
         Assert.NotEqual(ind1.QqeValue, ind2.QqeValue);
         _output.WriteLine($"QQE(14,5,4.236)={ind1.QqeValue:F6}  QQE(7,3,2)={ind2.QqeValue:F6}");
     }
+
+    [Fact]
+    public void Qqe_Correction_Recomputes()
+    {
+        var ind = new Qqe();
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup (WarmupPeriod ≈ 37)
+        for (int i = 0; i < 60; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(60);
+        const double anchorPrice = 130.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorQqe = ind.QqeValue;
+        double anchorSignal = ind.Signal;
+
+        // Use large downward spike (÷10) to move RSI away from ceiling
+        ind.Update(new TValue(anchorTime, anchorPrice / 10), isNew: false);
+        Assert.NotEqual(anchorQqe, ind.QqeValue);
+
+        // Correction back to original — both outputs must restore exactly
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorQqe, ind.QqeValue, 1e-9);
+        Assert.Equal(anchorSignal, ind.Signal, 1e-9);
+    }
 }

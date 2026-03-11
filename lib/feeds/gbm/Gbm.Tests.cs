@@ -664,6 +664,36 @@ public class GBMTests
         Assert.False(gbm.HasCurrentBar);
     }
 
+    [Fact]
+    public void GBM_FetchThenNext_PriceContinuity()
+    {
+        var gbm = new GBM(startPrice: 100.0, seed: 42);
+        long startTime = new DateTime(2024, 1, 1, 9, 30, 0, DateTimeKind.Utc).Ticks;
+        var interval = TimeSpan.FromMinutes(1);
+
+        var series = gbm.Fetch(5, startTime, interval);
+        double lastBatchClose = series[4].Close;
+
+        // Next bar after Fetch must open at the last batch close (price continuity)
+        var nextBar = gbm.Next(isNew: true);
+        Assert.Equal(lastBatchClose, nextBar.Open, 1e-10);
+    }
+
+    [Fact]
+    public void GBM_NextThenFetch_PriceContinuity()
+    {
+        var gbm = new GBM(startPrice: 100.0, seed: 42);
+
+        _ = gbm.Next(isNew: true);
+        var bar2 = gbm.Next(isNew: true);  // _lastPrice = bar2.Close
+
+        long startTime = bar2.Time + TimeSpan.FromMinutes(1).Ticks;
+        var series = gbm.Fetch(3, startTime, TimeSpan.FromMinutes(1));
+
+        // First bar of Fetch must open at bar2.Close
+        Assert.Equal(bar2.Close, series[0].Open, 1e-10);
+    }
+
     #endregion
 
     #region IFeed Interface Tests

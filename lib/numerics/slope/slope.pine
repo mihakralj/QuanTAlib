@@ -1,61 +1,26 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Slope, Linear Regression (SLOPE)", "SLOPE", overlay=false, precision=8)
+indicator("First Derivative / Velocity (SLOPE)", "SLOPE", overlay=false, precision=8)
 
-//@function Calculates slope (linear regression)
-//@param src Source series to calculate slope from
-//@param len Lookback period for calculation
-//@returns Slope value properly calculated
-slope(series float src, simple int len) =>
-    if len <= 1
-        runtime.error("Length must be greater than 1")
-    var float sumX = 0.0
-    var float sumY = 0.0
-    var float sumXY = 0.0
-    var float sumX2 = 0.0
-    var int   validCount = 0
-    var array<float> x_values = array.new_float(len)
-    var array<float> y_values = array.new_float(len)
-    var int   head = 0
-    var int internal_time_counter = 0
-    if internal_time_counter >= len
-        float oldX = array.get(x_values, head)
-        float oldY = array.get(y_values, head)
-        if not na(oldY)
-            sumX := sumX - oldX
-            sumY := sumY - oldY
-            sumXY := sumXY - oldX * oldY
-            sumX2 := sumX2 - oldX * oldX
-            validCount := validCount - 1
-    float currentX = internal_time_counter
-    float currentY = src
-    array.set(x_values, head, currentX)
-    array.set(y_values, head, currentY)
-    if not na(currentY)
-        sumX := sumX + currentX
-        sumY := sumY + currentY
-        sumXY := sumXY + currentX * currentY
-        sumX2 := sumX2 + currentX * currentX
-        validCount := validCount + 1
-    head := (head + 1) % len
-    internal_time_counter := internal_time_counter + 1
-    float calculatedSlope = na
-    if validCount >= 2
-        float n = validCount
-        float divisor = n * sumX2 - sumX * sumX
-        if divisor != 0.0
-            calculatedSlope := (n * sumXY - sumX * sumY) / divisor
-    calculatedSlope
+//@function Calculates the first finite difference (velocity): Slope = V[t] - V[t-1]
+//@param src Source series
+//@returns First difference of consecutive values. Returns 0.0 on first bar.
+//@optimized Uses direct history access for zero-allocation streaming.
+slope(series float src) =>
+    float prev = src[1]
+    if na(prev)
+        0.0
+    else
+        src - prev
 
 // ---------- Main loop ----------
 
 // Inputs
-i_period = input.int(14, "Period", minval=2)
 i_source = input.source(close, "Source")
 
 // Calculation
-s = slope(i_source, i_period)
+s = slope(i_source)
 
 // Plot
 plot(s, "Slope", color=color.yellow, linewidth=2)

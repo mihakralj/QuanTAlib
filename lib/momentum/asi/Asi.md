@@ -7,7 +7,7 @@
 | **Parameters**   | `limitMove` (default 3.0)                      |
 | **Outputs**      | Single series (Asi)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | `> 2` bars                          |
+| **Warmup**       | 2 bars                          |
 
 ### TL;DR
 

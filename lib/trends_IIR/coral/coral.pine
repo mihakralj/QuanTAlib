@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Coral Filter (CORAL)", "CORAL", overlay=true)
@@ -20,8 +20,6 @@ indicator("Coral Filter (CORAL)", "CORAL", overlay=true)
 //  bfr = -cd³*i6 + c3*i5 + c4*i4 + c5*i3
 //  Note: c3 + c4 + c5 + (-cd³) = 1 (unity DC gain).
 coral(series float source, simple int period, simple float cd = 0.4) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     float di = (period - 1.0) / 2.0 + 1.0
     float c1 = 2.0 / (di + 1.0)
     float c2 = 1.0 - c1

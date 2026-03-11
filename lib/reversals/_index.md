@@ -16,5 +16,6 @@ Reversal indicators identify potential turning points where price may change dir
 | [PIVOTFIB](pivotfib/Pivotfib.md) | Fibonacci Pivot Points | Fibonacci-ratio based pivots; Golden Ratio (61.8%) at R2/S2. |
 | [PIVOTWOOD](pivotwood/Pivotwood.md) | Woodie's Pivot Points | Weighted close pivots (2× close weight) for intraday trading. |
 | [PSAR](psar/Psar.md) | Parabolic Stop And Reverse | Trailing stop that accelerates with trend; SAR dots mark entry/exit signals. |
+| [SAREXT](sarext/Sarext.md) | Parabolic SAR Extended | PSAR with asymmetric long/short acceleration factors. Sign-encoded output. |
 | [SWINGS](swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector for swing highs/lows; dual SwingHigh/SwingLow. |
 | [TTM_SCALPER](ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries. John Carter. |

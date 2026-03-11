@@ -15,7 +15,7 @@
 - Hann (Hann Filter) is a Finite Impulse Response (FIR) smoothing filter that applies a Hann window to time series data.
 - Parameterized by `length`.
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `length` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The Hanning window whispers where the Boxcar screams. Smoothness is not just an aesthetic; it's a mathematical necessity."

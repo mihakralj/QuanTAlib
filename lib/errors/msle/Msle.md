@@ -3,11 +3,11 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Actual, Predicted (dual series)          |
 | **Parameters**   | `period`                      |
 | **Outputs**      | Single series (MSLE)                       |
 | **Output range** | $\geq 0$                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `period` bars                          |
 
 ### TL;DR
 

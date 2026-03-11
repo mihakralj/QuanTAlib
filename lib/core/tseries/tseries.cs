@@ -213,6 +213,12 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(DateTime time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);
 
+    /// <remarks>
+    /// <b>Synthetic timestamps:</b> Each element receives a fabricated timestamp starting at
+    /// <see cref="DateTime.UtcNow"/> (captured once at call time) and incrementing by one minute
+    /// per item. These timestamps do not reflect real market time. Use the typed overloads
+    /// (<see cref="Add(TValue)"/>, <see cref="Add(DateTime,double,bool)"/>) when real timestamps matter.
+    /// </remarks>
     public void Add(IEnumerable<double> values)
     {
         long t = DateTime.UtcNow.Ticks;

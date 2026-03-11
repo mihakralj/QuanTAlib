@@ -194,4 +194,30 @@ public sealed class RsquaredValidationTests : IDisposable
         Assert.True(double.IsFinite(rsq.Last.Value), "QuanTAlib R² last must be finite");
         Assert.True(rsq.Last.Value <= 1.0 + 1e-9, $"QuanTAlib R² should be ≤ 1, got {rsq.Last.Value}");
     }
+
+    [Fact]
+    public void Rsquared_Correction_Recomputes()
+    {
+        var ind = new Rsquared(20);
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(100.0 + i * 0.5, 98.0 + i * 0.5);
+        }
+
+        // Anchor bar
+        const double anchorActual = 125.0;
+        const double anchorPredicted = 123.0;
+        ind.Update(anchorActual, anchorPredicted, isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // R² is scale-invariant: change only predicted (not ×10 both) to break R²
+        ind.Update(anchorActual, 10.0, isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore original result
+        ind.Update(anchorActual, anchorPredicted, isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
 }

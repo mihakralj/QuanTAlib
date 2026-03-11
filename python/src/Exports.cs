@@ -24,6 +24,10 @@ namespace QuanTAlib.Python;
 #pragma warning disable CA1031 // catch general exception types — ABI boundary requires catching all
 #pragma warning disable IDE0060 // unused parameters — some reserved for future use
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Security Hotspot",
+    "S6640",
+    Justification = "NativeAOT unmanaged exports must accept raw caller-owned buffers. Each entry point validates null pointers and lengths before projecting them into spans, and the ABI surface intentionally centralizes the required unsafe context on the export type.")]
 [SkipLocalsInit]
 public static unsafe partial class Exports
 {

@@ -393,5 +393,34 @@ public sealed class CciValidationTests(ITestOutputHelper output) : IDisposable
         _output.WriteLine("CCI Batch vs Streaming consistency validated");
     }
 
+    [Fact]
+    public void Cci_Correction_Recomputes()
+    {
+        var ind = new Cci(20);
+        long t0 = TimeSpan.TicksPerSecond;
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            double p = 100.0 + i * 0.5;
+            ind.Update(new TBar(t0 + i * TimeSpan.TicksPerSecond, p, p + 1, p - 1, p, 1000));
+        }
+
+        // Anchor bar
+        long anchorTime = t0 + 50 * TimeSpan.TicksPerSecond;
+        var anchorBar = new TBar(anchorTime, 125.0, 126.0, 124.0, 125.0, 1000);
+        ind.Update(anchorBar, isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction with dramatically different bar
+        var corruptBar = new TBar(anchorTime, 1250.0, 1260.0, 1240.0, 1250.0, 1000);
+        ind.Update(corruptBar, isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore
+        ind.Update(anchorBar, isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
+
     #endregion
 }

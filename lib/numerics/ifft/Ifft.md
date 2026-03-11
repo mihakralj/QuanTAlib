@@ -1,4 +1,4 @@
-# IFFT: Inverse Fast Fourier Transform (Spectral Filter)
+# IFFT: Inverse Fast Fourier Transform (Spectral Low-Pass Filter)
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -6,64 +6,68 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `windowSize` (default 64), `numHarmonics` (default 5)                      |
 | **Outputs**      | Single series (Ifft)                       |
-| **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Output range** | Varies (overlays on price)                     |
+| **Warmup**       | windowSize bars                          |
 
 ### TL;DR
 
-- The Inverse FFT indicator reconstructs a smoothed version of the price series by performing a forward DFT, retaining only the lowest-frequency harm...
-- Parameterized by `windowsize` (default 64), `numharmonics` (default 5).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- The IFFT indicator reconstructs a smoothed version of the price series using a true forward FFT → spectral truncation → inverse FFT pipeline.
+- Parameterized by `windowSize` (default 64), `numHarmonics` (default 5).
+- Output range: Varies (overlays on price chart).
+- Requires windowSize bars of warmup before first valid output (IsHot = true).
+- True $O(N \log N)$ radix-2 FFT/IFFT with bit-reversal permutation and Cooley-Tukey butterflies.
 
-The Inverse FFT indicator reconstructs a smoothed version of the price series by performing a forward DFT, retaining only the lowest-frequency harmonics, and synthesizing the output via inverse transform. The result is a spectral low-pass filter that preserves the dominant cyclical components while discarding high-frequency noise. By controlling the number of retained harmonics $H$, the user adjusts the smoothness/responsiveness trade-off: $H = 1$ yields a near-sinusoidal trend, while $H = N/2$ reproduces the original (windowed) signal. The indicator overlays on price and provides a frequency-domain alternative to conventional moving averages.
+The IFFT indicator reconstructs a smoothed version of the price series by performing a true radix-2 forward FFT, zeroing frequency bins above the specified number of harmonics (spectral truncation), then applying a true inverse FFT to reconstruct the filtered time-domain signal. The result is a spectral low-pass filter that preserves the dominant cyclical components while discarding high-frequency noise. By controlling the number of retained harmonics $H$, the user adjusts the smoothness/responsiveness trade-off: $H = 1$ yields a near-sinusoidal trend, while $H = N/2$ reproduces the original (windowed) signal. The indicator overlays on price and provides a frequency-domain alternative to conventional moving averages.
 
 ## Historical Context
 
-Spectral filtering via Fourier decomposition dates to Joseph Fourier's 1822 work on heat conduction, where he showed that any periodic function can be represented as a sum of sinusoids. The idea of reconstructing a signal from a subset of its Fourier coefficients is foundational to signal compression (JPEG, MP3) and has been applied to financial time series since the 1970s.
+Spectral filtering via Fourier decomposition dates to Joseph Fourier's 1822 work on heat conduction, where he showed that any periodic function can be represented as a sum of sinusoids. The Cooley-Tukey FFT algorithm (1965) made real-time spectral analysis practical by reducing complexity from $O(N^2)$ to $O(N \log N)$.
 
-John Ehlers brought spectral methods to mainstream technical analysis through his books on cycle analytics. His approach typically uses the DFT to identify the dominant cycle, then constructs adaptive filters tuned to that cycle. The IFFT indicator takes the complementary approach: rather than extracting a single cycle period, it reconstructs the signal from the $H$ lowest-frequency components, producing a multi-harmonic trend estimate.
+John Ehlers brought spectral methods to mainstream technical analysis through his books on cycle analytics. The IFFT indicator implements the classic spectral filtering paradigm: forward FFT to decompose into frequency components, selective retention of low-frequency bins, and inverse FFT to reconstruct the filtered signal.
 
-The Hanning window applied before the forward DFT reduces spectral leakage, ensuring that the retained harmonics accurately represent the true low-frequency content rather than artifacts of the window boundary. The inverse step only uses the real part of the synthesis (cosine terms), since the output must be a real-valued price estimate. The factor of 2 in the inverse accounts for the conjugate symmetry of real-valued DFT coefficients.
+The Hanning window applied before the forward FFT reduces spectral leakage, ensuring that the retained harmonics accurately represent the true low-frequency content rather than artifacts of the window boundary. Conjugate symmetry is preserved during spectral truncation to guarantee real-valued reconstruction.
 
 ## Architecture and Physics
 
-The computation has three stages executed per bar:
+The computation has four stages executed per bar:
 
-**Stage 1: DC component** computes the windowed mean of the source over the window. This is the zero-frequency (average level) component:
+**Stage 1: Forward FFT** applies a Hanning window to the rolling price buffer, then performs an in-place radix-2 Cooley-Tukey FFT with bit-reversal permutation:
 
-$$\text{DC} = \frac{1}{N}\sum_{n=0}^{N-1} x[n] \cdot w[n]$$
+$$X[k] = \text{FFT}\!\left(x[n] \cdot w[n]\right)$$
 
-**Stage 2: Forward DFT for harmonics $k = 1$ to $H$** computes the real and imaginary Fourier coefficients for each retained harmonic. The Hanning window $w[n] = 0.5 - 0.5\cos(2\pi n/N)$ is applied to every sample.
+where $w[n] = 0.5 - 0.5\cos(2\pi n/N)$.
 
-**Stage 3: Inverse synthesis** reconstructs the current bar's value by summing the DC component plus twice the real part of each harmonic evaluated at $n = 0$ (the current bar):
+**Stage 2: Spectral truncation** zeroes frequency bins outside the preserved range, keeping bins $k = 0, 1, \ldots, H$ and their conjugate mirrors $k = N-H, \ldots, N-1$:
 
-$$\hat{x}[0] = \frac{\text{DC}_{\text{Re}}}{N} + \sum_{k=1}^{H} \frac{2 \cdot \text{Re}(X[k])}{N}$$
+$$\tilde{X}[k] = \begin{cases} X[k] & \text{if } k \le H \text{ or } k \ge N-H \\ 0 & \text{otherwise} \end{cases}$$
 
-The factor $2/N$ accounts for: (1) the $1/N$ normalization of the inverse DFT, and (2) the factor of 2 from collapsing the conjugate-symmetric negative frequencies.
+This preserves conjugate symmetry ($\tilde{X}[N-k] = \tilde{X}[k]^*$), ensuring the inverse FFT produces real-valued output.
 
-**Complexity**: The forward DFT for $H$ harmonics costs $O(N \cdot H)$ multiply-adds per bar. With $N = 64$ and $H = 5$ (defaults), this is ~320 multiply-adds per bar. The inverse synthesis at $n = 0$ reduces to just summing the real components, costing $O(H)$.
+**Stage 3: Inverse FFT** reconstructs the filtered time-domain signal using the conjugate method:
 
-**Smoothness control**: Fewer harmonics produce smoother output but introduce more lag and lose detail. The relationship between harmonics and equivalent moving average length is roughly: $H$ harmonics approximate the smoothness of an $N/(2H)$-period moving average, but with better frequency selectivity (sharper cutoff).
+$$\hat{x}[n] = \frac{1}{N} \cdot \overline{\text{FFT}\!\left(\overline{\tilde{X}[k]}\right)}$$
+
+This reuses the forward FFT algorithm by conjugating inputs, applying FFT, conjugating outputs, and scaling by $1/N$.
+
+**Stage 4: Sample extraction** returns the value at position $N-1$ (the newest bar in the window).
+
+**Complexity**: Two FFT passes of $O(N \log N)$ each, plus $O(N)$ for windowing and spectral truncation. Total: $O(N \log N)$ per bar.
+
+**Smoothness control**: Fewer harmonics produce smoother output but introduce more lag. The relationship between harmonics and equivalent moving average length is roughly: $H$ harmonics approximate the smoothness of an $N/(2H)$-period moving average, with better frequency selectivity (sharper cutoff).
 
 ## Mathematical Foundation
 
-The **forward DFT** with Hanning window:
+The **forward FFT** with Hanning window (radix-2 Cooley-Tukey):
 
-$$X[k] = \sum_{n=0}^{N-1} x[n] \cdot w[n] \cdot e^{-j 2\pi k n / N}$$
+$$X[k] = \text{FFT}_N\!\left(x[n] \cdot w[n]\right), \quad k = 0, 1, \ldots, N-1$$
 
-where $w[n] = 0.5 - 0.5\cos(2\pi n / N)$.
+**Spectral truncation** (ideal low-pass in frequency domain):
 
-The **inverse DFT** evaluated at the current bar ($n = 0$):
+$$\tilde{X}[k] = X[k] \cdot H_{\text{LP}}[k], \quad H_{\text{LP}}[k] = \begin{cases} 1 & k \le H \text{ or } k \ge N-H \\ 0 & \text{otherwise} \end{cases}$$
 
-$$\hat{x}[0] = \frac{1}{N}\sum_{k=0}^{N-1} X[k] \cdot e^{j 2\pi k \cdot 0 / N} = \frac{1}{N}\sum_{k=0}^{N-1} X[k]$$
+**Inverse FFT** via conjugation:
 
-Since $e^{j \cdot 0} = 1$, the inverse at $n = 0$ is simply the sum of all retained coefficients divided by $N$.
-
-For a real-valued signal, $X[N-k] = X[k]^*$, so:
-
-$$\hat{x}[0] = \frac{X[0]}{N} + \frac{2}{N}\sum_{k=1}^{H} \text{Re}(X[k])$$
+$$\hat{x}[n] = \frac{1}{N} \cdot \overline{\text{FFT}_N\!\left(\overline{\tilde{X}[k]}\right)}$$
 
 **Parseval's theorem** relates the energy retained:
 
@@ -75,27 +79,27 @@ $$\frac{\sum_{k=0}^{H} |X[k]|^2}{\sum_{k=0}^{N/2} |X[k]|^2} = \text{fraction of 
 IFFT(source, windowSize, numHarmonics):
     N = windowSize
     H = min(numHarmonics, N/2)
-    twoPiOverN = 2 * pi / N
 
-    // DC component (k=0)
-    dcRe = 0
+    // Stage 1: Window + Forward FFT
     for n = 0 to N-1:
-        w = 0.5 - 0.5 * cos(twoPiOverN * n)
-        dcRe += source[n] * w
-    result = dcRe / N
+        workRe[n] = source[n] * hanning[n]
+        workIm[n] = 0
+    FFT_InPlace(workRe, workIm, N)
 
-    // Harmonics k=1..H
-    for k = 1 to H:
-        re = 0;  im = 0
-        for n = 0 to N-1:
-            w = 0.5 - 0.5 * cos(twoPiOverN * n)
-            xw = source[n] * w
-            angle = twoPiOverN * k * n
-            re += xw * cos(angle)
-            im -= xw * sin(angle)
-        result += 2 * re / N    // inverse at n=0
+    // Stage 2: Spectral truncation
+    for k = H+1 to N-H-1:
+        workRe[k] = 0
+        workIm[k] = 0
 
-    return result
+    // Stage 3: Inverse FFT (via conjugation)
+    for i = 0 to N-1: workIm[i] = -workIm[i]
+    FFT_InPlace(workRe, workIm, N)
+    for i = 0 to N-1:
+        workRe[i] /= N
+        workIm[i] = -workIm[i] / N
+
+    // Stage 4: Extract newest sample
+    return workRe[N-1]
 ```
 
 
@@ -103,32 +107,37 @@ IFFT(source, windowSize, numHarmonics):
 
 ### Operation Count (Streaming Mode)
 
-IFFT (Inverse DFT reconstruction) sums B frequency components back into the time domain — O(N*B) per bar.
+IFFT performs two radix-2 FFT passes (forward + inverse) plus spectral truncation — O(N log N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| Complex multiply-accumulate (N * B) | N*B | 4 cy | ~4*N*B cy |
-| cos/sin table lookup (precomputed) | 2*N*B | 0 cy | ~0 cy |
-| Division by N for normalization | N | 1 cy | ~N cy |
-| NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=64, B=10)** | **O(N*B)** | — | **~2626 cy** |
+| Hanning window multiply | N | 2 cy | ~2N cy |
+| Forward FFT (N/2 × log₂N butterflies) | N/2 × log₂N | 8 cy | ~4N·log₂N cy |
+| Spectral truncation | N-2H | 1 cy | ~(N-2H) cy |
+| Conjugation (2×) | 2N | 1 cy | ~2N cy |
+| Inverse FFT (N/2 × log₂N butterflies) | N/2 × log₂N | 8 cy | ~4N·log₂N cy |
+| Scale by 1/N | N | 1 cy | ~N cy |
+| **Total (N=64, H=5)** | **O(N log N)** | — | **~3254 cy** |
 
-Same complexity as forward FFT. Precomputed trig tables allow the inner loop to reduce to 4 FMAs per bin. Paired with FFT for frequency-domain filtering.
+Two FFT passes dominate cost. Pre-allocated work arrays ensure zero allocation in the hot path.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Complex MAC (re*cos - im*sin) | Yes | FMA with precomputed table |
-| Normalization | Yes | Vector divide by N |
-| Output time-domain signal | Yes | Full SIMD reconstruction |
+| Hanning window application | Yes | Vector multiply with precomputed weights |
+| FFT butterfly operations | Yes | Complex FMA on paired elements |
+| Spectral truncation (zeroing) | Yes | Vector zero-fill |
+| IFFT butterfly operations | Yes | Same as forward FFT |
+| Scale by 1/N | Yes | Vector multiply by constant |
 
-Same SIMD profile as FFT forward pass. 3-4× batch speedup expected over scalar using Vector<double> FMA.
+Good SIMD potential: both FFT passes are vectorizable. Expected 2× speedup over scalar for N=64.
 
 ## Resources
 
+- Cooley, J.W. & Tukey, J.W. "An Algorithm for the Machine Calculation of Complex Fourier Series." *Mathematics of Computation*, 1965.
 - Fourier, J.B.J. "Theorie Analytique de la Chaleur." Firmin Didot, 1822.
 - Ehlers, J.F. "Cycle Analytics for Traders." Wiley, 2013.
 - Oppenheim, A.V. & Schafer, R.W. "Discrete-Time Signal Processing." 3rd edition, Pearson, 2010.
 - Bloomfield, P. "Fourier Analysis of Time Series: An Introduction." 2nd edition, Wiley, 2000.
-- Priestley, M.B. "Spectral Analysis and Time Series." Academic Press, 1981.
+- PineScript reference: [`ifft.pine`](ifft.pine)

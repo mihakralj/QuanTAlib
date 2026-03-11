@@ -1,0 +1,124 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Parabolic SAR Extended (SAREXT)", "SAREXT", overlay=true)
+
+//@function Parabolic SAR Extended — asymmetric PSAR with separate long/short AF parameters,
+//          auto-detect or forced initial direction, and an offset applied on reversal.
+//          Output is sign-encoded: positive SAR = long mode, negative SAR = short mode.
+//@param start_value Initial direction: >0 force long, <0 force short, 0 auto-detect from DM
+//@param offset_on_reverse Gap added to SAR on reversal (default 0)
+//@param af_init_long Initial AF for long positions (default 0.02)
+//@param af_long AF increment per new EP in long (default 0.02)
+//@param af_max_long Maximum AF for long (default 0.20)
+//@param af_init_short Initial AF for short positions (default 0.02)
+//@param af_short AF increment per new EP in short (default 0.02)
+//@param af_max_short Maximum AF for short (default 0.20)
+//@returns Sign-encoded SAR value (positive = long, negative = short)
+//@reference J. Welles Wilder Jr., "New Concepts in Technical Trading Systems" (1978)
+//@optimized O(1) per bar, state-machine with asymmetric acceleration factors
+sarext(simple float start_value = 0.0, simple float offset_on_reverse = 0.0,
+       simple float af_init_long = 0.02, simple float af_long = 0.02, simple float af_max_long = 0.20,
+       simple float af_init_short = 0.02, simple float af_short = 0.02, simple float af_max_short = 0.20) =>
+    if af_init_long <= 0 or af_long <= 0 or af_max_long <= af_init_long
+        runtime.error("Long AF parameters invalid")
+    if af_init_short <= 0 or af_short <= 0 or af_max_short <= af_init_short
+        runtime.error("Short AF parameters invalid")
+    if offset_on_reverse < 0
+        runtime.error("Offset must be >= 0")
+
+    var bool is_long = true
+    var float sar = low
+    var float ep = high
+    var float af = af_init_long
+
+    if bar_index == 0
+        // Bar 0: collect first bar data
+        is_long := true
+        sar := high
+        ep := low
+        af := af_init_short
+        float(na)
+    else if bar_index == 1
+        // Bar 1: determine initial direction
+        if start_value > 0
+            is_long := true
+            sar := math.min(low[1], low)
+            ep := math.max(high[1], high)
+            af := af_init_long
+        else if start_value < 0
+            is_long := false
+            sar := math.max(high[1], high)
+            ep := math.min(low[1], low)
+            af := af_init_short
+        else
+            // Auto-detect from DM
+            float plus_dm = high - high[1]
+            float minus_dm = low[1] - low
+            if plus_dm > minus_dm and plus_dm > 0
+                is_long := true
+                sar := math.min(low[1], low)
+                ep := math.max(high[1], high)
+                af := af_init_long
+            else
+                is_long := false
+                sar := math.max(high[1], high)
+                ep := math.min(low[1], low)
+                af := af_init_short
+        is_long ? sar : -sar
+    else
+        // Bar 2+: standard SAR state machine with asymmetric AF
+        float new_sar = sar + af * (ep - sar)
+        if is_long
+            new_sar := math.min(new_sar, low[1])
+            if bar_index > 1
+                new_sar := math.min(new_sar, low[2])
+            if low <= new_sar
+                // Reverse to short
+                is_long := false
+                new_sar := ep + offset_on_reverse
+                ep := low
+                af := af_init_short
+            else
+                if high > ep
+                    ep := high
+                    af := math.min(af + af_long, af_max_long)
+        else
+            new_sar := math.max(new_sar, high[1])
+            if bar_index > 1
+                new_sar := math.max(new_sar, high[2])
+            if high >= new_sar
+                // Reverse to long
+                is_long := true
+                new_sar := ep - offset_on_reverse
+                ep := high
+                af := af_init_long
+            else
+                if low < ep
+                    ep := low
+                    af := math.min(af + af_short, af_max_short)
+        sar := new_sar
+        is_long ? sar : -sar
+
+// ── Inputs ──
+float i_start          = input.float(0.0,  "Start Value (0=auto)")
+float i_offset         = input.float(0.0,  "Offset on Reverse", minval=0)
+float i_af_init_long   = input.float(0.02, "AF Init Long",  minval=0.001, step=0.001)
+float i_af_long        = input.float(0.02, "AF Long",       minval=0.001, step=0.001)
+float i_af_max_long    = input.float(0.20, "AF Max Long",   minval=0.01,  step=0.01)
+float i_af_init_short  = input.float(0.02, "AF Init Short", minval=0.001, step=0.001)
+float i_af_short       = input.float(0.02, "AF Short",      minval=0.001, step=0.001)
+float i_af_max_short   = input.float(0.20, "AF Max Short",  minval=0.01,  step=0.01)
+
+// ── Calculation ──
+float result = sarext(i_start, i_offset, i_af_init_long, i_af_long, i_af_max_long,
+                      i_af_init_short, i_af_short, i_af_max_short)
+
+float sar_val = math.abs(nz(result))
+bool  is_long = nz(result) > 0
+float sar_above = not is_long ? sar_val : na
+float sar_below = is_long ? sar_val : na
+
+// ── Plot ──
+plot(sar_above, "SAREXT Above", color=color.red,   style=plot.style_linebr, linewidth=2)
+plot(sar_below, "SAREXT Below", color=color.green, style=plot.style_linebr, linewidth=2)

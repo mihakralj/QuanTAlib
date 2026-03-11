@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Garman-Klass Volatility (GKV)", "GKV", overlay=false)
@@ -10,10 +10,6 @@ indicator("Garman-Klass Volatility (GKV)", "GKV", overlay=false)
 //@returns float The Garman-Klass Volatility value.
 //@optimized for performance and dirty data
 gkv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     float lnH = math.log(high), float lnL = math.log(low), float lnO = math.log(open), float lnC = math.log(close)
     float C_2LN2_1 = 0.3862941611 // 2 * math.log(2) - 1
     float term1 = 0.5 * math.pow(lnH - lnL, 2)

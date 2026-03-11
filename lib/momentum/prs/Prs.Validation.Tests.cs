@@ -548,5 +548,31 @@ public class PrsValidationTests
         ValidationHelper.VerifyData(qResults, sResult, s => s.Prs, tolerance: ValidationHelper.SkenderTolerance);
     }
 
+    [Fact]
+    public void Prs_Correction_Recomputes()
+    {
+        var ind = new Prs(smoothPeriod: 5);
+
+        // Build state well past warmup
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(100.0 + i * 0.5, 98.0 + i * 0.5);
+        }
+
+        // Anchor bar
+        const double anchorBase = 125.0;
+        const double anchorComp = 100.0;
+        ind.Update(anchorBase, anchorComp, isNew: true);
+        double anchorResult = ind.Last.Value;
+
+        // Correction: change base dramatically — ratio changes from 1.25 to 12.5
+        ind.Update(anchorBase * 10, anchorComp, isNew: false);
+        Assert.NotEqual(anchorResult, ind.Last.Value);
+
+        // Correction back to original — must exactly restore
+        ind.Update(anchorBase, anchorComp, isNew: false);
+        Assert.Equal(anchorResult, ind.Last.Value, 1e-9);
+    }
+
     #endregion
 }

@@ -1,8 +1,8 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 // Indicator algorithm (C) 2013 John F. Ehlers
-indicator(" Ehlers Trendflex Indicator (TRENDFLEX)", "TRENDFLEX", overlay=false)
+indicator("Ehlers Trendflex (TRENDFLEX)", "TRENDFLEX", overlay=false)
 
 //@function Calculates Ehlers Trendflex using SuperSmoother pre-filtering and cumulative slope with RMS normalization
 //@param source Series to calculate Trendflex from

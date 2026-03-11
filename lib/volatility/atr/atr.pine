@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Average True Range (ATR)", "ATR", overlay=false)
@@ -8,8 +8,6 @@ indicator("Average True Range (ATR)", "ATR", overlay=false)
 //@returns The ATR value.
 //@optimized Beta precomputation for RMA warmup compensation
 atr(simple int length) =>
-    if length <= 0
-        runtime.error("Period must be greater than 0")
     var float prevClose = close
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)

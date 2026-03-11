@@ -4,17 +4,17 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
 | **Inputs**       | Source (close)                          |
-| **Parameters**   | `longPeriod` (default DefaultLongPeriod), `shortPeriod` (default DefaultShortPeriod), `signalPeriod` (default DefaultSignalPeriod)                      |
+| **Parameters**   | `longPeriod` (default 25), `shortPeriod` (default 13), `signalPeriod` (default 13)                      |
 | **Outputs**      | Single series (Tsi)                       |
-| **Output range** | $-1$ to $+1$                     |
-| **Warmup**       | 1 bar                          |
+| **Output range** | $-100$ to $+100$                     |
+| **Warmup**       | `longPeriod + shortPeriod + signalPeriod` bars (51 default)                          |
 
 ### TL;DR
 
 - The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price mom...
-- Parameterized by `longperiod` (default defaultlongperiod), `shortperiod` (default defaultshortperiod), `signalperiod` (default defaultsignalperiod).
-- Output range: $-1$ to $+1$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Parameterized by `longPeriod` (default 25), `shortPeriod` (default 13), `signalPeriod` (default 13).
+- Output range: $-100$ to $+100$.
+- Requires `longPeriod + shortPeriod + signalPeriod` bars (51 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price momentum to reduce noise and identify trend strength and direction.

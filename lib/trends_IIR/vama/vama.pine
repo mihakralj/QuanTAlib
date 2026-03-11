@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Volatility Adjusted Moving Average (VAMA)", "VAMA", overlay=true)
@@ -13,14 +13,6 @@ indicator("Volatility Adjusted Moving Average (VAMA)", "VAMA", overlay=true)
 //@returns VAMA value
 //@optimized Uses RMA compensator for ATR and circular buffer for O(1) sum updates
 vama(series float source, simple int base_length, simple int short_atr_period=10, simple int long_atr_period=50, simple int min_length=5, simple int max_length=100) =>
-    if base_length <= 0
-        runtime.error("Base length must be greater than 0")
-    if short_atr_period <= 0 or long_atr_period <= 0
-        runtime.error("ATR periods must be greater than 0")
-    if min_length <= 0 or max_length <= 0
-        runtime.error("Min and max length must be greater than 0")
-    if min_length > max_length
-        runtime.error("Min length must be less than or equal to max length")
     var float prevClose = na
     float tr1 = high - low
     float tr2 = math.abs(high - prevClose)

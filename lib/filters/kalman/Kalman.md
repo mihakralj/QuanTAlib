@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (Kalman)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `10` bars                          |
+| **Signature**    | [kalman_signature](kalman_signature.md) |
+
 
 ### TL;DR
 

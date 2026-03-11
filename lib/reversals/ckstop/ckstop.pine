@@ -1,0 +1,52 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Chande Kroll Stop (CKSTOP)", "CKSTOP", overlay=true)
+
+//@function Chande Kroll Stop — adaptive trailing stop using ATR-smoothed volatility
+//          envelopes around rolling extremes, then smoothed through a second window.
+//          Stage 1: first_high_stop = HH(p) - m*ATR, first_low_stop = LL(p) + m*ATR
+//          Stage 2: StopShort = highest(first_high_stop, x), StopLong = lowest(first_low_stop, x)
+//@param atr_period ATR and first-stop extreme lookback (default 10)
+//@param multiplier ATR scaling factor (default 1.0)
+//@param stop_period Second smoothing window (default 9)
+//@returns [stop_long, stop_short] — two overlay stop levels
+//@reference Chande & Kroll, "The New Technical Trader" (1994)
+//@optimized O(1) per bar using ta.rma, ta.highest, ta.lowest
+ckstop(simple int atr_period = 10, simple float multiplier = 1.0, simple int stop_period = 9) =>
+    if atr_period < 1
+        runtime.error("ATR period must be >= 1")
+    if multiplier <= 0
+        runtime.error("Multiplier must be > 0")
+    if stop_period < 1
+        runtime.error("Stop period must be >= 1")
+
+    // True Range
+    float tr = na(close[1]) ? high - low : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+
+    // ATR via Wilder's RMA
+    float atr = ta.rma(tr, atr_period)
+
+    // Stage 1: First stops (volatility envelope)
+    float hh = ta.highest(high, atr_period)
+    float ll = ta.lowest(low, atr_period)
+    float first_high_stop = hh - multiplier * atr
+    float first_low_stop  = ll + multiplier * atr
+
+    // Stage 2: Smoothed stops over stop_period
+    float stop_short = ta.highest(first_high_stop, stop_period)
+    float stop_long  = ta.lowest(first_low_stop, stop_period)
+
+    [stop_long, stop_short]
+
+// ── Inputs ──
+int   i_atr_period  = input.int(10, "ATR Period", minval=1)
+float i_multiplier  = input.float(1.0, "Multiplier", minval=0.01, step=0.1)
+int   i_stop_period = input.int(9, "Stop Period", minval=1)
+
+// ── Calculation ──
+[stop_long, stop_short] = ckstop(i_atr_period, i_multiplier, i_stop_period)
+
+// ── Plot ──
+plot(stop_long,  "Stop Long",  color=color.green, linewidth=2)
+plot(stop_short, "Stop Short", color=color.red,   linewidth=2)

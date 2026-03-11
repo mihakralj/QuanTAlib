@@ -62,25 +62,24 @@ Where:
 
 ### Operation Count (Streaming Mode)
 
-Universal Smooth Filter: adaptive-weight FIR that adjusts taps based on signal characteristics. O(N) per bar.
+Ehlers Ultimate Smoother Filter (USF): 2-pole IIR low-pass filter with high-pass subtraction for zero-lag smoothing. Five FMA operations per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| Adaptive weight derivation | N | ~8 cy | ~240 cy (N=30) |
-| Weighted sum FMA | N | ~5 cy | ~150 cy |
-| Normalization | 1 | ~3 cy | ~3 cy |
-| **Total (N=30)** | **2N+1** | — | **~393 cycles** |
+| Input combination (3 taps) | 3 | ~4 cy | ~12 cy |
+| Feedback (2 taps) | 2 | ~4 cy | ~8 cy |
+| State update | 4 | ~1 cy | ~4 cy |
+| **Total** | **9** | — | **~24 cycles** |
 
-O(N) per bar. Adaptive weights computed per bar (no precomputation) because they depend on current signal level. ~393 cycles for N=30.
+O(1) per bar. Coefficients derived from period parameter; precomputed. ~24 cycles/bar.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Adaptive weight computation | Partial | Independent per element; vectorizable if no data dependency |
-| Weighted sum FMA | Yes | Standard dot product |
+| USF recursion | No | y[n] depends on y[n-1] and y[n-2] |
 
-SIMD potential: ~100 cy for N=30 if adaptive weights vectorized.
+Batch throughput: ~24 cy/bar.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

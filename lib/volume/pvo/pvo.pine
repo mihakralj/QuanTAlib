@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Percentage Volume Oscillator (PVO)", "PVO", overlay=false)
@@ -11,10 +11,6 @@ indicator("Percentage Volume Oscillator (PVO)", "PVO", overlay=false)
 //@returns tuple with [pvo, signal, histogram] values
 //@optimized Beta precomputation for EMA warmup compensation
 pvo(series float vol, simple int fast_period, simple int slow_period, simple int signal_period) =>
-    if fast_period <= 0 or slow_period <= 0 or signal_period <= 0
-        runtime.error("All periods must be greater than 0")
-    if fast_period >= slow_period
-        runtime.error("Fast period must be less than slow period")
     float vol_val = nz(vol, 0.0)
     float fast_alpha = 2.0 / (fast_period + 1)
     float slow_alpha = 2.0 / (slow_period + 1)

@@ -256,8 +256,8 @@ public sealed class Kurtosis : AbstractBase
             double valSq = val * val;
             sum += val;
             sumSq += valSq;
-            sumCu += valSq * val;
-            sumQu += valSq * valSq;
+            sumCu = Math.FusedMultiplyAdd(valSq, val, sumCu);
+            sumQu = Math.FusedMultiplyAdd(valSq, valSq, sumQu);
         }
         _sum = sum;
         _sumSq = sumSq;
@@ -415,8 +415,8 @@ public sealed class Kurtosis : AbstractBase
             double oldSq = oldVal * oldVal;
             sum = sum - oldVal + val;
             sumSq = sumSq - oldSq + valSq;
-            sumCu = sumCu - (oldSq * oldVal) + (valSq * val);
-            sumQu = sumQu - (oldSq * oldSq) + (valSq * valSq);
+            sumCu = sumCu - oldSq * oldVal + valSq * val;
+            sumQu = sumQu - oldSq * oldSq + valSq * valSq;
 
             output[i] = CalculateKurtosisFromSums(sum, sumSq, sumCu, sumQu, period, isPopulation);
 
@@ -440,8 +440,8 @@ public sealed class Kurtosis : AbstractBase
                     double vSq = v * v;
                     recalcSum += v;
                     recalcSumSq += vSq;
-                    recalcSumCu += vSq * v;
-                    recalcSumQu += vSq * vSq;
+                    recalcSumCu = Math.FusedMultiplyAdd(vSq, v, recalcSumCu);
+                    recalcSumQu = Math.FusedMultiplyAdd(vSq, vSq, recalcSumQu);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -633,8 +633,8 @@ public sealed class Kurtosis : AbstractBase
                     double vSq = v * v;
                     recalcSum += v;
                     recalcSumSq += vSq;
-                    recalcSumCu += vSq * v;
-                    recalcSumQu += vSq * vSq;
+                    recalcSumCu = Math.FusedMultiplyAdd(vSq, v, recalcSumCu);
+                    recalcSumQu = Math.FusedMultiplyAdd(vSq, vSq, recalcSumQu);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -652,8 +652,8 @@ public sealed class Kurtosis : AbstractBase
             double oldSq = oldVal * oldVal;
             sum = sum - oldVal + val;
             sumSq = sumSq - oldSq + valSq;
-            sumCu = sumCu - (oldSq * oldVal) + (valSq * val);
-            sumQu = sumQu - (oldSq * oldSq) + (valSq * valSq);
+            sumCu = Math.FusedMultiplyAdd(valSq, val, Math.FusedMultiplyAdd(-oldSq, oldVal, sumCu));
+            sumQu = Math.FusedMultiplyAdd(valSq, valSq, Math.FusedMultiplyAdd(-oldSq, oldSq, sumQu));
 
             Unsafe.Add(ref outRef, i) = CalculateKurtosisFromSums(sum, sumSq, sumCu, sumQu, n, isPopulation);
         }

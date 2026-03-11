@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Volume Oscillator (VO)", "VO", overlay=false)
@@ -11,8 +11,6 @@ indicator("Volume Oscillator (VO)", "VO", overlay=false)
 //@returns Volume Oscillator value
 //@optimized for performance and dirty data
 vo(simple int short_period, simple int long_period, simple int signal_period, series float vol=volume) =>
-    if short_period >= long_period
-        runtime.error("Short period must be less than long period")
     volume_val = math.max(nz(vol, 0.0), 1.0)
     var p_short = short_period
     var buffer_short = array.new_float(p_short, na)

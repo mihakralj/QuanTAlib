@@ -258,28 +258,34 @@ public class RviValidationTests
     }
 
     /// <summary>
-    /// Validates TBar update uses only Close price.
+    /// Validates TBar update uses High and Low channels (revised 1995 algorithm),
+    /// producing a different result than single-price Close-only input.
     /// </summary>
     [Fact]
-    public void Rvi_TBar_UsesOnlyClose()
+    public void Rvi_TBar_UsesDualChannel_HighLow()
     {
         var bars = GenerateTestData(50);
 
-        // Using TBar
+        // Using TBar (revised: high + low dual-channel)
         var rviBar = new Rvi(10, 14);
         for (int i = 0; i < bars.Count; i++)
         {
             rviBar.Update(bars[i]);
         }
 
-        // Using just Close prices
+        // Using just Close prices (single-channel)
         var rviClose = new Rvi(10, 14);
         for (int i = 0; i < bars.Count; i++)
         {
             rviClose.Update(new TValue(bars[i].Time, bars[i].Close));
         }
 
-        Assert.Equal(rviClose.Last.Value, rviBar.Last.Value, 10);
+        // TBar uses High/Low channels → different from Close-only
+        Assert.NotEqual(rviClose.Last.Value, rviBar.Last.Value);
+
+        // Both should still be in valid range
+        Assert.True(rviBar.Last.Value >= 0 && rviBar.Last.Value <= 100);
+        Assert.True(rviClose.Last.Value >= 0 && rviClose.Last.Value <= 100);
     }
 
     // === Parameter Sensitivity ===

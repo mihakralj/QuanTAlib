@@ -3,18 +3,18 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Actual vs Predicted (dual input)                          |
 | **Parameters**   | `period`                      |
 | **Outputs**      | Single series (RMSLE)                       |
 | **Output range** | $\geq 0$                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `period` bars                          |
 
 ### TL;DR
 
 - Root Mean Squared Logarithmic Error is the square root of MSLE, providing an error metric in log-scale units.
 - Parameterized by `period`.
 - Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "RMSLE: because sometimes your errors need to be measured in decades, not dollars."

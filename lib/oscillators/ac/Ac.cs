@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// AC: Acceleration Oscillator
+/// AC: Accelerator Oscillator
 /// </summary>
 /// <remarks>
 /// Bill Williams' Acceleration Oscillator measures the acceleration or deceleration

@@ -322,7 +322,7 @@ public sealed class TtmSqueeze : ITValuePublisher
             _priceSum -= oldest;
             _priceSumSquares -= oldest * oldest;
         }
-        _priceBuffer.Add(close, isNew);
+        _priceBuffer.Add(close);
         _priceSum += close;
         _priceSumSquares += close * close;
 
@@ -365,11 +365,11 @@ public sealed class TtmSqueeze : ITValuePublisher
         _prevSqueezeOn = squeezeOn;
 
         // === Donchian Midline ===
-        _highBuffer.Add(high, isNew);
-        _lowBuffer.Add(low, isNew);
+        _highBuffer.Add(high);
+        _lowBuffer.Add(low);
 
-        double donchianHigh = GetMax(_highBuffer);
-        double donchianLow = GetMin(_lowBuffer);
+        double donchianHigh = _highBuffer.Max();
+        double donchianLow = _lowBuffer.Min();
         double donchianMid = (donchianHigh + donchianLow) / 2;
 
         // === Momentum (Linear Regression) ===
@@ -383,7 +383,7 @@ public sealed class TtmSqueeze : ITValuePublisher
             _momentumSumXY = _momentumSumXY + prevSumY - _momPeriod * oldest;
             _momentumSumY -= oldest;
         }
-        _momentumBuffer.Add(deviation, isNew);
+        _momentumBuffer.Add(deviation);
         _momentumSumY += deviation;
 
         // Recalculate sumXY during warmup (non-O(1), but short duration)
@@ -535,6 +535,10 @@ public sealed class TtmSqueeze : ITValuePublisher
         _saved_prevMomentum = _prevMomentum;
         _saved_prevSqueezeOn = _prevSqueezeOn;
         _saved_barCount = _barCount;
+        _priceBuffer.Snapshot();
+        _highBuffer.Snapshot();
+        _lowBuffer.Snapshot();
+        _momentumBuffer.Snapshot();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -552,43 +556,10 @@ public sealed class TtmSqueeze : ITValuePublisher
         _prevMomentum = _saved_prevMomentum;
         _prevSqueezeOn = _saved_prevSqueezeOn;
         _barCount = _saved_barCount;
+        _priceBuffer.Restore();
+        _highBuffer.Restore();
+        _lowBuffer.Restore();
+        _momentumBuffer.Restore();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double GetMax(RingBuffer buffer)
-    {
-        if (buffer.Count == 0)
-        {
-            return 0;
-        }
-        var span = buffer.GetSpan();
-        double max = span[0];
-        for (int i = 1; i < span.Length; i++)
-        {
-            if (span[i] > max)
-            {
-                max = span[i];
-            }
-        }
-        return max;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double GetMin(RingBuffer buffer)
-    {
-        if (buffer.Count == 0)
-        {
-            return 0;
-        }
-        var span = buffer.GetSpan();
-        double min = span[0];
-        for (int i = 1; i < span.Length; i++)
-        {
-            if (span[i] < min)
-            {
-                min = span[i];
-            }
-        }
-        return min;
-    }
 }

@@ -7,14 +7,14 @@
 | **Parameters**   | `strPeriod` (default DefaultStrPeriod), `centerPeriod` (default DefaultCenterPeriod), `multiplier` (default DefaultMultiplier)                      |
 | **Outputs**      | Multiple series (Upper, Middle, Lower, STR)                       |
 | **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `Math.Max(strPeriod, centerPeriod)` bars                          |
 
 ### TL;DR
 
 - Ehlers Ultimate Channel applies the Ultrasmooth Filter (USF) twice: once to the close price for the centerline and once to True Range for band widt...
 - Parameterized by `strperiod` (default defaultstrperiod), `centerperiod` (default defaultcenterperiod), `multiplier` (default defaultmultiplier).
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `Math.Max(strPeriod, centerPeriod)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Ehlers Ultimate Channel applies the Ultrasmooth Filter (USF) twice: once to the close price for the centerline and once to True Range for band width, creating a channel where both the trend estimate and the volatility measure share the same low-lag, zero-overshoot filter characteristics. Unlike UBANDS which uses RMS of price residuals, UCHANNEL uses Smoothed True Range (STR) for band width, making it responsive to gap-inclusive volatility. Separate period parameters allow independent tuning of centerline smoothness and band-width responsiveness.

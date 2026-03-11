@@ -1,8 +1,11 @@
 // FFT: Fast Fourier Transform — Dominant Cycle Detector
-// Estimates the dominant cycle period in bars using a DFT on a windowed price buffer.
-// Algorithm: Ehlers, J.F. "Cycle Analytics for Traders." Wiley, 2013.
-// Hanning-windowed DFT across bins [minBin..maxBin], with parabolic interpolation
-// for sub-bin period estimation. Output: dominant cycle period in bars (clamped).
+// Estimates the dominant cycle period in bars using a radix-2 Cooley-Tukey FFT
+// on a Hanning-windowed price buffer, with parabolic interpolation for sub-bin
+// period estimation. Output: dominant cycle period in bars (clamped).
+//
+// Algorithm: Cooley, J.W. & Tukey, J.W. (1965). "An Algorithm for the Machine
+// Calculation of Complex Fourier Series." Mathematics of Computation, 19(90).
+// Ehlers, J.F. "Cycle Analytics for Traders." Wiley, 2013 (application context).
 
 using System.Buffers;
 using System.Runtime.CompilerServices;
@@ -12,15 +15,16 @@ namespace QuanTAlib;
 
 /// <summary>
 /// FFT: Fast Fourier Transform Dominant Cycle Detector
-/// Computes the dominant cycle period using a Hanning-windowed DFT
-/// over a rolling price buffer, with parabolic interpolation refinement.
+/// Computes the dominant cycle period using a Hanning-windowed radix-2
+/// Cooley-Tukey FFT over a rolling price buffer, with parabolic interpolation.
 /// </summary>
 /// <remarks>
 /// Key properties:
 /// - Output: dominant cycle period in bars, clamped to [minPeriod, maxPeriod]
-/// - windowSize must be 32, 64, or 128
+/// - windowSize must be 32, 64, or 128 (power of 2 for radix-2)
 /// - WarmupPeriod = windowSize bars
-/// - No allocation in Update (RingBuffer + precomputed Hanning weights)
+/// - True O(N log N) radix-2 FFT with bit-reversal permutation
+/// - Pre-allocated work arrays for zero-allocation streaming
 /// - Parabolic interpolation on peak bin for sub-bin accuracy
 /// </remarks>
 [SkipLocalsInit]
@@ -31,8 +35,10 @@ public sealed class Fft : AbstractBase
     private readonly int _maxPeriod;
     private readonly int _minBin;
     private readonly int _maxBin;
-    private readonly double _twoPiOverN;
     private readonly double[] _hanning;
+    private readonly int[] _bitRev;
+    private readonly double[] _workRe;
+    private readonly double[] _workIm;
     private readonly RingBuffer _buffer;
 
     [StructLayout(LayoutKind.Auto)]
@@ -44,7 +50,7 @@ public sealed class Fft : AbstractBase
     /// <summary>
     /// Initializes a new Fft indicator.
     /// </summary>
-    /// <param name="windowSize">DFT window size in bars. Must be 32, 64, or 128. Default 64.</param>
+    /// <param name="windowSize">FFT window size in bars. Must be 32, 64, or 128. Default 64.</param>
     /// <param name="minPeriod">Minimum detectable cycle period. Must be >= 2. Default 4.</param>
     /// <param name="maxPeriod">Maximum detectable cycle period. Must be &lt;= windowSize/2. Default 32.</param>
     public Fft(int windowSize = 64, int minPeriod = 4, int maxPeriod = 32)
@@ -67,18 +73,30 @@ public sealed class Fft : AbstractBase
         _windowSize = windowSize;
         _minPeriod = minPeriod;
         _maxPeriod = maxPeriod;
-        _twoPiOverN = 2.0 * Math.PI / windowSize;
+        int log2N = Log2(windowSize);
 
-        // bin k corresponds to period N/k; k=minBin → period=N/minBin=maxPeriod, k=maxBin → period=N/maxBin=minPeriod
+        // bin k corresponds to period N/k
         _minBin = Math.Max(1, windowSize / maxPeriod);
         _maxBin = Math.Min(windowSize / 2, windowSize / minPeriod);
 
-        // Precompute Hanning window: w[n] = 0.5 - 0.5*cos(2π*n/N), n=0..N-1
+        // Precompute Hanning window: w[n] = 0.5 - 0.5*cos(2π*n/N)
+        double twoPiOverN = 2.0 * Math.PI / windowSize;
         _hanning = new double[windowSize];
         for (int n = 0; n < windowSize; n++)
         {
-            _hanning[n] = 0.5 - 0.5 * Math.Cos(_twoPiOverN * n);
+            _hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
         }
+
+        // Precompute bit-reversal permutation table
+        _bitRev = new int[windowSize];
+        for (int i = 0; i < windowSize; i++)
+        {
+            _bitRev[i] = BitReverse(i, log2N);
+        }
+
+        // Pre-allocate work arrays (zero allocation in hot path)
+        _workRe = new double[windowSize];
+        _workIm = new double[windowSize];
 
         _buffer = new RingBuffer(windowSize);
         Name = $"Fft({windowSize},{minPeriod},{maxPeriod})";
@@ -90,10 +108,6 @@ public sealed class Fft : AbstractBase
     /// <summary>
     /// Initializes a new Fft indicator with source for event-based chaining.
     /// </summary>
-    /// <param name="source">Source indicator for chaining</param>
-    /// <param name="windowSize">DFT window size. Must be 32, 64, or 128. Default 64.</param>
-    /// <param name="minPeriod">Minimum detectable period. Must be >= 2. Default 4.</param>
-    /// <param name="maxPeriod">Maximum detectable period. Must be &lt;= windowSize/2. Default 32.</param>
     public Fft(ITValuePublisher source, int windowSize = 64, int minPeriod = 4, int maxPeriod = 32)
         : this(windowSize, minPeriod, maxPeriod)
     {
@@ -103,59 +117,155 @@ public sealed class Fft : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void HandleUpdate(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
+    /// <summary>
+    /// Computes floor(log2(n)) for powers of 2.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int Log2(int n)
+    {
+        int p = 0;
+        int x = n;
+        while (x > 1)
+        {
+            x >>= 1;
+            p++;
+        }
+        return p;
+    }
+
+    /// <summary>
+    /// Reverses the bits of x using 'bits' bit-width.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int BitReverse(int x, int bits)
+    {
+        int r = 0;
+        for (int i = 0; i < bits; i++)
+        {
+            r = (r << 1) | (x & 1);
+            x >>= 1;
+        }
+        return r;
+    }
+
+    /// <summary>
+    /// In-place iterative radix-2 Cooley-Tukey FFT.
+    /// </summary>
+    /// <param name="re">Real part array (modified in-place)</param>
+    /// <param name="im">Imaginary part array (modified in-place)</param>
+    /// <param name="n">Array length (must be power of 2)</param>
+    /// <param name="bitRev">Pre-computed bit-reversal table</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void FftInPlace(double[] re, double[] im, int n, int[] bitRev)
+    {
+        // Bit-reversal permutation
+        for (int i = 0; i < n; i++)
+        {
+            int j = bitRev[i];
+            if (j > i)
+            {
+                (re[i], re[j]) = (re[j], re[i]);
+                (im[i], im[j]) = (im[j], im[i]);
+            }
+        }
+
+        // Cooley-Tukey butterfly stages
+        int len = 2;
+        while (len <= n)
+        {
+            int half = len >> 1;
+            double angStep = -2.0 * Math.PI / len;
+
+            for (int start = 0; start < n; start += len)
+            {
+                for (int k = 0; k < half; k++)
+                {
+                    double angle = angStep * k;
+                    double wr = Math.Cos(angle);
+                    double wi = Math.Sin(angle);
+
+                    int i0 = start + k;
+                    int i1 = i0 + half;
+
+                    double ur = re[i0];
+                    double ui = im[i0];
+                    double vr = re[i1];
+                    double vi = im[i1];
+
+                    // Twiddle: t = w * v
+                    double tr = Math.FusedMultiplyAdd(vr, wr, -(vi * wi));
+                    double ti = Math.FusedMultiplyAdd(vr, wi, vi * wr);
+
+                    re[i0] = ur + tr;
+                    im[i0] = ui + ti;
+                    re[i1] = ur - tr;
+                    im[i1] = ui - ti;
+                }
+            }
+
+            len <<= 1;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double ComputeDominantPeriod()
     {
         var span = _buffer.GetSpan();
         int n = _windowSize;
-        double maxMag = 0.0;
-        int peakBin = _minBin;
-        double magBefore = 0.0;
-        double magAtPeak = 0.0;
-        double magAfter = 0.0;
+
+        // Fill work arrays: windowed data (oldest→newest), imag=0
+        for (int i = 0; i < n; i++)
+        {
+            _workRe[i] = span[i] * _hanning[i];
+            _workIm[i] = 0.0;
+        }
+
+        // Radix-2 FFT in-place
+        FftInPlace(_workRe, _workIm, n, _bitRev);
+
+        // Find peak magnitude in [minBin..maxBin]
+        double bestMag = -1.0;
+        int bestK = _minBin;
 
         for (int k = _minBin; k <= _maxBin; k++)
         {
-            double omegaK = _twoPiOverN * k;
-            double re = 0.0;
-            double im = 0.0;
-
-            for (int idx = 0; idx < n; idx++)
+            double mag = Math.FusedMultiplyAdd(_workRe[k], _workRe[k], _workIm[k] * _workIm[k]);
+            if (mag > bestMag)
             {
-                // span[0]=oldest, span[n-1]=newest
-                // n=0 in DFT = current (newest): map DFT-n to span index (n-1-dftN)
-                // span[n-1-dftN]: dftN=0 → span[n-1] (newest), dftN=n-1 → span[0] (oldest)
-                double val = span[n - 1 - idx];
-                double xw = val * _hanning[idx];
-                double angle = omegaK * idx;
-                double cosA = Math.Cos(angle);
-                double sinA = Math.Sin(angle);
-                re = Math.FusedMultiplyAdd(xw, cosA, re);
-                im = Math.FusedMultiplyAdd(xw, -sinA, im);
-            }
-
-            double mag = Math.FusedMultiplyAdd(re, re, im * im);
-
-            if (mag > maxMag)
-            {
-                magBefore = magAtPeak;
-                magAfter = 0.0;
-                maxMag = mag;
-                magAtPeak = mag;
-                peakBin = k;
-            }
-            else if (peakBin > 0 && magAfter == 0.0)
-            {
-                magAfter = mag;
+                bestMag = mag;
+                bestK = k;
             }
         }
 
-        // Parabolic interpolation for sub-bin refinement
-        double denom = magBefore + 2.0 * maxMag + magAfter;
-        double shift = (denom > 0.0) ? (magBefore - magAfter) / denom : 0.0;
-        double dominantPeriod = (double)_windowSize / (peakBin + shift);
+        // Neighbor magnitudes for parabolic interpolation
+        double a, b, c;
+        b = bestMag;
 
-        // Clamp to [minPeriod, maxPeriod]
+        if (bestK > _minBin)
+        {
+            a = Math.FusedMultiplyAdd(_workRe[bestK - 1], _workRe[bestK - 1],
+                _workIm[bestK - 1] * _workIm[bestK - 1]);
+        }
+        else
+        {
+            a = b;
+        }
+
+        if (bestK < _maxBin)
+        {
+            c = Math.FusedMultiplyAdd(_workRe[bestK + 1], _workRe[bestK + 1],
+                _workIm[bestK + 1] * _workIm[bestK + 1]);
+        }
+        else
+        {
+            c = b;
+        }
+
+        // Parabolic interpolation: shift = 0.5*(a-c)/(a - 2b + c)
+        double denom = a - 2.0 * b + c;
+        double shift = Math.Abs(denom) > 0.0 ? 0.5 * (a - c) / denom : 0.0;
+        double dominantPeriod = (double)_windowSize / (bestK + shift);
+
         return Math.Clamp(dominantPeriod, _minPeriod, _maxPeriod);
     }
 
@@ -212,6 +322,9 @@ public sealed class Fft : AbstractBase
         return result;
     }
 
+    /// <summary>
+    /// Primes the indicator with historical values.
+    /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
@@ -231,8 +344,8 @@ public sealed class Fft : AbstractBase
     }
 
     /// <summary>
-    /// Computes dominant cycle period over a span of values using a sliding Hanning-windowed DFT.
-    /// Uses stackalloc for Hanning weights when windowSize &lt;= 64, otherwise ArrayPool.
+    /// Computes dominant cycle period over a span using sliding Hanning-windowed radix-2 FFT.
+    /// Uses stackalloc for work arrays when windowSize &lt;= 64, otherwise ArrayPool.
     /// </summary>
     public static void Batch(
         ReadOnlySpan<double> src, Span<double> output,
@@ -263,15 +376,24 @@ public sealed class Fft : AbstractBase
             throw new ArgumentException($"maxPeriod must be <= windowSize/2", nameof(maxPeriod));
         }
 
+        int log2N = Log2(windowSize);
         double twoPiOverN = 2.0 * Math.PI / windowSize;
         int minBin = Math.Max(1, windowSize / maxPeriod);
         int maxBin = Math.Min(windowSize / 2, windowSize / minPeriod);
         double defaultPeriod = (minPeriod + maxPeriod) * 0.5;
         double lastValid = defaultPeriod;
 
+        // Precompute Hanning window and bit-reversal table
         const int StackallocThreshold = 64;
-        double[]? rentedW = null;
+        double[]? rentedH = null;
+        double[]? rentedRe = null;
+        double[]? rentedIm = null;
+        int[]? rentedBr = null;
+
         scoped Span<double> hanning;
+        double[] workRe;
+        double[] workIm;
+        int[] bitRev;
 
         if (windowSize <= StackallocThreshold)
         {
@@ -279,15 +401,24 @@ public sealed class Fft : AbstractBase
         }
         else
         {
-            rentedW = ArrayPool<double>.Shared.Rent(windowSize);
-            hanning = rentedW.AsSpan(0, windowSize);
+            rentedH = ArrayPool<double>.Shared.Rent(windowSize);
+            hanning = rentedH.AsSpan(0, windowSize);
         }
+
+        // FFT work arrays (must be double[] for FftInPlace)
+        rentedRe = ArrayPool<double>.Shared.Rent(windowSize);
+        rentedIm = ArrayPool<double>.Shared.Rent(windowSize);
+        rentedBr = ArrayPool<int>.Shared.Rent(windowSize);
+        workRe = rentedRe;
+        workIm = rentedIm;
+        bitRev = rentedBr;
 
         try
         {
             for (int n = 0; n < windowSize; n++)
             {
                 hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
+                bitRev[n] = BitReverse(n, log2N);
             }
 
             for (int i = 0; i < src.Length; i++)
@@ -305,52 +436,49 @@ public sealed class Fft : AbstractBase
                     continue;
                 }
 
-                double maxMag = 0.0;
-                int peakBin = minBin;
-                double magBefore = 0.0;
-                double magAtPeak = 0.0;
-                double magAfter = 0.0;
+                // Fill work arrays with windowed data
+                for (int n = 0; n < windowSize; n++)
+                {
+                    double v = src[i - windowSize + 1 + n];
+                    if (!double.IsFinite(v))
+                    {
+                        v = lastValid;
+                    }
+                    workRe[n] = v * hanning[n];
+                    workIm[n] = 0.0;
+                }
+
+                // Radix-2 FFT
+                FftInPlace(workRe, workIm, windowSize, bitRev);
+
+                // Find peak magnitude
+                double bestMag = -1.0;
+                int bestK = minBin;
 
                 for (int k = minBin; k <= maxBin; k++)
                 {
-                    double omegaK = twoPiOverN * k;
-                    double re = 0.0;
-                    double im = 0.0;
-
-                    for (int dftN = 0; dftN < windowSize; dftN++)
+                    double mag = Math.FusedMultiplyAdd(workRe[k], workRe[k], workIm[k] * workIm[k]);
+                    if (mag > bestMag)
                     {
-                        // dftN=0 → newest (src[i]), dftN=windowSize-1 → oldest (src[start])
-                        double v = src[i - dftN];
-                        if (!double.IsFinite(v))
-                        {
-                            v = lastValid;
-                        }
-
-                        double xw = v * hanning[dftN];
-                        double angle = omegaK * dftN;
-                        re = Math.FusedMultiplyAdd(xw, Math.Cos(angle), re);
-                        im = Math.FusedMultiplyAdd(xw, -Math.Sin(angle), im);
-                    }
-
-                    double mag = Math.FusedMultiplyAdd(re, re, im * im);
-
-                    if (mag > maxMag)
-                    {
-                        magBefore = magAtPeak;
-                        magAfter = 0.0;
-                        maxMag = mag;
-                        magAtPeak = mag;
-                        peakBin = k;
-                    }
-                    else if (peakBin > 0 && magAfter == 0.0)
-                    {
-                        magAfter = mag;
+                        bestMag = mag;
+                        bestK = k;
                     }
                 }
 
-                double denom = magBefore + 2.0 * maxMag + magAfter;
-                double shift = (denom > 0.0) ? (magBefore - magAfter) / denom : 0.0;
-                double dominant = (double)windowSize / (peakBin + shift);
+                // Neighbor magnitudes for parabolic interpolation
+                double a = bestK > minBin
+                    ? Math.FusedMultiplyAdd(workRe[bestK - 1], workRe[bestK - 1],
+                        workIm[bestK - 1] * workIm[bestK - 1])
+                    : bestMag;
+
+                double c = bestK < maxBin
+                    ? Math.FusedMultiplyAdd(workRe[bestK + 1], workRe[bestK + 1],
+                        workIm[bestK + 1] * workIm[bestK + 1])
+                    : bestMag;
+
+                double denom = a - 2.0 * bestMag + c;
+                double shift = Math.Abs(denom) > 0.0 ? 0.5 * (a - c) / denom : 0.0;
+                double dominant = (double)windowSize / (bestK + shift);
                 double clamped = Math.Clamp(dominant, minPeriod, maxPeriod);
                 lastValid = clamped;
                 output[i] = clamped;
@@ -358,10 +486,13 @@ public sealed class Fft : AbstractBase
         }
         finally
         {
-            if (rentedW != null)
+            if (rentedH != null)
             {
-                ArrayPool<double>.Shared.Return(rentedW);
+                ArrayPool<double>.Shared.Return(rentedH);
             }
+            ArrayPool<double>.Shared.Return(rentedRe);
+            ArrayPool<double>.Shared.Return(rentedIm);
+            ArrayPool<int>.Shared.Return(rentedBr);
         }
     }
 

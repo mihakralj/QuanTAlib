@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Double Exponential Moving Average (DEMA)", "DEMA", overlay=true)
@@ -10,8 +10,6 @@ indicator("Double Exponential Moving Average (DEMA)", "DEMA", overlay=true)
 //@returns DEMA value from first bar with proper compensation
 //@optimized Uses exponential warmup compensator on both EMA stages for O(1) complexity
 dema(series float source, simple int period=0, simple float alpha=0) =>
-    if alpha <= 0 and period <= 0
-        runtime.error("Alpha or period must be provided")
     float a = alpha > 0 ? alpha : 2.0 / (period + 1)
     float beta = 1.0 - a
     var bool warmup = true

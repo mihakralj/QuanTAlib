@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Modified Moving Average (MMA)", "MMA", overlay=true)
@@ -9,8 +9,6 @@ indicator("Modified Moving Average (MMA)", "MMA", overlay=true)
 //@returns MMA value, combines SMA with weighted component for balanced smoothing
 //@optimized Uses circular buffer for O(1) sum updates, O(n) for weighted component
 mma(series float source, simple int period) =>
-    if period < 2
-        runtime.error("Period must be at least 2")
     var array<float> buffer = array.new_float(math.min(math.max(2, period), 4000), na)
     var int head = 0
     var float sum = 0.0

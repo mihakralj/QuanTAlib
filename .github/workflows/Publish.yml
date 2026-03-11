@@ -107,6 +107,17 @@ jobs:
           path: .sarif/resharper.sarif
           retention-days: 7
 
+      - name: Upload Roslyn SARIF artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-roslyn
+          path: |
+            .sarif/*.sarif
+            !.sarif/resharper.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
   # ==============================================================================
   # 2) Snyk Security Scan -> SARIF artifact
   # ==============================================================================
@@ -438,20 +449,8 @@ jobs:
           path: coverage-merged/
           retention-days: 7
 
-      - name: List Roslyn SARIF files
-        if: always()
-        run: |
-          echo "Roslyn SARIF files generated (per-project, SARIF 2.1):"
-          ls -la .sarif/*.sarif 2>/dev/null || echo "No SARIF files found"
-
-      - name: Upload Roslyn SARIF Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: sarif-roslyn
-          path: .sarif/*.sarif
-          retention-days: 7
-          if-no-files-found: warn
+      # Roslyn SARIF artifacts are uploaded by ReSharper_Analysis job
+      # (which builds without SonarScanner wrapper that can suppress ErrorLog output)
 
   # ==============================================================================
   # 5) GitHub Code Scanning Upload (SARIF → Security tab)

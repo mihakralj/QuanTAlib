@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Rogers-Satchell Volatility (RSV)", "RSV", overlay=false)
@@ -9,10 +9,6 @@ indicator("Rogers-Satchell Volatility (RSV)", "RSV", overlay=false)
 //@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.
 //@returns float The Rogers-Satchell Volatility value.
 rsv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     float h = math.max(high, 0.0000001)
     float l = math.max(low, 0.0000001)
     float o = math.max(open, 0.0000001)

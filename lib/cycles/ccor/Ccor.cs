@@ -231,7 +231,7 @@ public sealed class Ccor : AbstractBase
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(DateTime.MinValue, value));
         }
     }
 

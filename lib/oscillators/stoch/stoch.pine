@@ -1,7 +1,7 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Stochastic Oscillator (STOCH)", "Stoch", overlay=false)
+indicator("Stochastic Oscillator (STOCH)", "STOCH", overlay=false)
 
 //@function Calculates the Stochastic Oscillator (%K and %D). %K = 100 * (close - lowest_low(kLength)) / (highest_high(kLength) - lowest_low(kLength)). %D = SMA(%K, dPeriod). Uses efficient deque implementation for min/max and buffer-based SMA.
 //@param kLength `simple int` The lookback period for calculating highest high and lowest low.

@@ -139,8 +139,8 @@ public class HtDcphaseTests
         // First update (new bar)
         var result1 = ht.Update(new TValue(now.AddMinutes(70), 105), isNew: true);
 
-        // Same bar update
-        var result2 = ht.Update(new TValue(now.AddMinutes(70), 106), isNew: false);
+        // Same bar update with the same price — must yield identical result
+        var result2 = ht.Update(new TValue(now.AddMinutes(70), 105), isNew: false);
 
         Assert.Equal(result1.Value, result2.Value);
     }

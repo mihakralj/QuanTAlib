@@ -7,7 +7,7 @@
 | **Parameters**   | `length` (default 20), `medianLength` (default 5)                      |
 | **Outputs**      | Single series (ALaguerre)                       |
 | **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `max(4, length)` bars            |
 | **Signature**    | [alaguerre_signature](alaguerre_signature.md) |
 
 ### TL;DR
@@ -15,7 +15,7 @@
 - The Adaptive Laguerre Filter extends Ehlers' four-element all-pass cascade by replacing the fixed damping factor with a per-bar adaptive alpha deri...
 - Parameterized by `length` (default 20), `medianlength` (default 5).
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `max(4, length)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The best filter is one that knows when to listen closely and when to smooth aggressively." -- John F. Ehlers (paraphrased)
@@ -111,24 +111,28 @@ The filter requires $\max(4, N)$ bars before producing reliable output. The firs
 
 ### Operation Count (Streaming Mode)
 
-Laguerre filter uses 4 cascaded Laguerre stages L0..L3, each an O(1) gamma-parameterized FMA, plus a final weighted combination.
+Adaptive Laguerre combines HH/LL tracking error normalization (O(N) scan), median smoothing (O(M log M) sort), and 4-stage Laguerre cascade (O(1)).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
+| Tracking error computation | 1 | ~3 cy | ~3 cy |
+| HH/LL scan over N-element buffer | N | ~2 cy | ~40 cy (N=20) |
+| Median via insertion sort (M elements) | M log M | ~3 cy | ~25 cy (M=5) |
 | Laguerre state update x4 (each: 2 FMA) | 8 | ~4 cy | ~32 cy |
-| Weighted output combination (3 adds) | 3 | ~2 cy | ~6 cy |
-| **Total** | **11** | — | **~38 cycles** |
+| Weighted output combination | 3 | ~2 cy | ~6 cy |
+| **Total** | — | — | **~106 cycles** (N=20, M=5) |
 
-O(1) per bar. Four recursive stages with precomputed gamma constant. ~38 cycles/bar.
+O(N + M log M) per bar due to HH/LL scan and median sort. Dominated by the lookback scan for large N.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Laguerre stage recursion | No | Each stage `L[k][n]` depends on `L[k-1][n]` and `L[k][n-1]` |
-| Weighted combination | No | Only 4 terms; SIMD overhead not worthwhile |
+| HH/LL scan | Partial | Min/max over contiguous buffer amenable to `Vector<double>` |
+| Median sort | No | Comparison-based sort, data-dependent |
+| Laguerre cascade | No | Each stage depends on previous stage and previous bar |
 
-Cascaded IIR stages cannot be vectorized. Batch throughput: ~38 cy/bar.
+Adaptive overhead limits SIMD gains. Batch throughput: ~106 cy/bar (N=20, M=5).
 
 | Metric | Value | Notes |
 |--------|-------|-------|

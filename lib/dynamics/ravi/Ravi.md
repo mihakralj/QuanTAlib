@@ -7,14 +7,14 @@
 | **Parameters**   | `shortPeriod` (default 7), `longPeriod` (default 65)                      |
 | **Outputs**      | Single series (Ravi)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `longPeriod` bars (default 65)                          |
 
 ### TL;DR
 
 - RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a lon...
 - Parameterized by `shortperiod` (default 7), `longperiod` (default 65).
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `longPeriod` bars (default 65) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The simplest question in technical analysis is also the most important: is this market trending or not? RAVI answers it with two moving averages and a division."

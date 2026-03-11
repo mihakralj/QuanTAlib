@@ -7,7 +7,7 @@
 | **Parameters**   | `period` (default 12)                      |
 | **Outputs**      | Single series (Rmed)                       |
 | **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | 5 bars (MedianWindow)                          |
 | **Signature**    | [rmed_signature](rmed_signature.md) |
 
 ### TL;DR
@@ -15,7 +15,7 @@
 - RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing sm...
 - Parameterized by `period` (default 12).
 - Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires **5 bars** of warmup (MedianWindow) before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "John Ehlers combined two tools that rarely meet: the median (nonlinear, spike-resistant) and the EMA (smooth, recursive). The median kills the spikes, the EMA smooths the survivors. Together they produce a filter that is both resistant and smooth."

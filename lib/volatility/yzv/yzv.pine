@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Yang-Zhang Volatility (YZV)", shorttitle="YZV", overlay=false)
@@ -8,9 +8,6 @@ indicator("Yang-Zhang Volatility (YZV)", shorttitle="YZV", overlay=false)
 //@returns Yang-Zhang Volatility value for the current bar
 //@optimized Uses bias-corrected RMA with OHLC prices for O(1) complexity per bar
 yzv(int length) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0 for YZV calculation.")
-        float(na)
     o=open,h=high,l=low,c=close,pc=na(close[1])?open:close[1]
     ro=math.log(o/pc),rc=math.log(c/o),rh=math.log(h/o),rl=math.log(l/o)
     s_o_sq=ro*ro,s_c_sq=rc*rc

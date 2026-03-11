@@ -158,6 +158,12 @@ public sealed class Macd : ITValuePublisher, IDisposable
     /// Calculates the MACD Line (Fast EMA - Slow EMA).
     /// Does not calculate Signal or Histogram.
     /// </summary>
+    /// <remarks>
+    /// For full MACD output (MACD line, Signal, and Histogram) use
+    /// <see cref="Update(TSeries)"/> or the streaming
+    /// <see cref="Update(TValue, bool)"/> API together with <see cref="Signal"/>
+    /// and <see cref="Histogram"/> properties.
+    /// </remarks>
     public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != destination.Length)

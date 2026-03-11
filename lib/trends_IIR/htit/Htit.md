@@ -8,6 +8,8 @@
 | **Outputs**      | Single series (HTIT)                       |
 | **Output range** | Tracks input                     |
 | **Warmup**       | `12` bars                          |
+| **Signature**    | [htit_signature](htit_signature.md) |
+
 
 ### TL;DR
 

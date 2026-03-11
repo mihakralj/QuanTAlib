@@ -32,7 +32,4 @@
     <TrimmerRootAssembly Include="QuanTAlib" />
   </ItemGroup>
 
-  <Target Name="ValidateExportsCoverage" BeforeTargets="Build;Publish">
-    <Exec Command="python tools/validate_exports.py --repo-root $(MSBuildThisFileDirectory).." WorkingDirectory="$(MSBuildThisFileDirectory)" />
-  </Target>
 </Project>

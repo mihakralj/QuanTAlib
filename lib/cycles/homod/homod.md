@@ -7,14 +7,14 @@
 | **Parameters**   | `minPeriod` (default 6.0), `maxPeriod` (default 50.0)                      |
 | **Outputs**      | Single series (Homod)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `maxPeriod * 2` bars (default 100)                          |
 
 ### TL;DR
 
 - HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a d...
 - Parameterized by `minperiod` (default 6.0), `maxperiod` (default 50.0).
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `maxPeriod * 2` bars (default 100) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a delayed copy of itself to expose the angular phase change between samples. The output is a continuously varying period measurement (in bars) that tracks the market's instantaneous cycle length, enabling adaptive indicator tuning. Developed by John Ehlers, it offers better noise rejection and stability than the raw Hilbert Transform period estimator.

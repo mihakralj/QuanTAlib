@@ -7,14 +7,14 @@
 | **Parameters**   | `hpLength` (default 40), `ssfLength` (default 10)                      |
 | **Outputs**      | Single series (Ebsw)                       |
 | **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `Math.Max(hpLength, ssfLength) + 3` bars (default 43)                          |
 
 ### TL;DR
 
 - EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Co...
 - Parameterized by `hplength` (default 40), `ssflength` (default 10).
 - Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Requires `Math.Max(hpLength, ssfLength) + 3` bars (default 43) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Control to produce a normalized $[-1, +1]$ output representing the current position within the dominant market cycle. Developed by John Ehlers as an improvement over the original Hilbert Transform SineWave, it provides cleaner turning point detection without requiring complex phase extraction mathematics.

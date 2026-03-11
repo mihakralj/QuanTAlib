@@ -4,7 +4,7 @@
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
 | **Inputs**       | OHLCV bar (TBar)                          |
-| **Parameters**   | `atrPeriod` (default DefaultAtrPeriod), `multiplier` (default DefaultMultiplier), `stopPeriod` (default DefaultStopPeriod)                      |
+| **Parameters**   | `atrPeriod` (default 10), `multiplier` (default 1.0), `stopPeriod` (default 9)                      |
 | **Outputs**      | Single series (Ckstop)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `atrPeriod + stopPeriod` bars                          |
@@ -12,7 +12,7 @@
 ### TL;DR
 
 - The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes.
-- Parameterized by `atrperiod` (default defaultatrperiod), `multiplier` (default defaultmultiplier), `stopperiod` (default defaultstopperiod).
+- Parameterized by `atrPeriod` (default 10), `multiplier` (default 1.0), `stopPeriod` (default 9).
 - Output range: Varies (see docs).
 - Requires `atrPeriod + stopPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.

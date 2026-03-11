@@ -295,7 +295,6 @@ public sealed class HtSine : AbstractBase
             Array.Copy(_circBuffer, _p_circBuffer, CIRC_BUFFER_SIZE);
             Array.Copy(_smoothPrice, _p_smoothPrice, SMOOTH_PRICE_SIZE);
             Array.Copy(_priceHistory, _p_priceHistory, PRICE_HISTORY_SIZE);
-            _state.Today++;
         }
         else
         {
@@ -304,6 +303,8 @@ public sealed class HtSine : AbstractBase
             Array.Copy(_p_smoothPrice, _smoothPrice, SMOOTH_PRICE_SIZE);
             Array.Copy(_p_priceHistory, _priceHistory, PRICE_HISTORY_SIZE);
         }
+
+        _state.Today++;
 
         // Local copy of state for struct promotion (AGENTS.md §2.5)
         var s = _state;

@@ -122,4 +122,34 @@ public sealed class HtSineValidationTests : IDisposable
 
         Assert.Equal(talibLookback, htSine.WarmupPeriod);
     }
+
+    [Fact]
+    public void HtSine_Correction_Recomputes()
+    {
+        var ind = new HtSine();
+        var t0 = new DateTime(946_684_800_000_000_0L, DateTimeKind.Utc);
+
+        // Build state well past warmup
+        for (int i = 0; i < 100; i++)
+        {
+            ind.Update(new TValue(t0.AddMinutes(i),
+                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddMinutes(100);
+        const double anchorPrice = 105.5;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorSine = ind.Last.Value;
+        double anchorLeadSine = ind.LeadSine;
+
+        // Correction with a dramatically different price — recompute must yield different results
+        ind.Update(new TValue(anchorTime, anchorPrice * 10.0), isNew: false);
+        Assert.NotEqual(anchorSine, ind.Last.Value);
+
+        // Correction back to original price — must exactly restore original results
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorSine, ind.Last.Value, 1e-9);
+        Assert.Equal(anchorLeadSine, ind.LeadSine, 1e-9);
+    }
 }

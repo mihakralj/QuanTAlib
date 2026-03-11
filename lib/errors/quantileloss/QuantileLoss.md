@@ -3,11 +3,11 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Actual, Predicted (dual series)          |
 | **Parameters**   | `period`, `quantile` (default 0.5)                      |
-| **Outputs**      | Single series (Quantile)                       |
+| **Outputs**      | Single series (QuantileLoss)               |
 | **Output range** | $\geq 0$                     |
-| **Warmup**       | 1 bar                          |
+| **Warmup**       | `period` bars                          |
 
 ### TL;DR
 

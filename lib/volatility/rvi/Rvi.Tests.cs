@@ -108,12 +108,35 @@ public class RviTests
     }
 
     [Fact]
-    public void Update_WithTBar_UsesClosePrice()
+    public void Update_WithTBar_UsesHighAndLow()
     {
         var rvi = new Rvi();
         var bar = new TBar(DateTime.UtcNow, 98, 102, 97, 100, 1000);
         var result = rvi.Update(bar);
-        Assert.Equal(50.0, result.Value, Tolerance); // First value
+        Assert.Equal(50.0, result.Value, Tolerance); // First value is always neutral
+    }
+
+    [Fact]
+    public void Update_WithTBar_RevisedDiffersFromOriginal()
+    {
+        // The revised RVI (high+low avg) should differ from original (close-only)
+        // Use oscillating close with asymmetric high/low
+        var rviBar = new Rvi(stdevLength: 5, rmaLength: 5);
+        var rviClose = new Rvi(stdevLength: 5, rmaLength: 5);
+
+        for (int i = 0; i < 50; i++)
+        {
+            var time = DateTime.UtcNow.AddSeconds(i);
+            double close = 100.0 + Math.Sin(i * 0.5) * 3.0; // oscillating
+            double high = close + 2.0 + Math.Sin(i * 0.3) * 1.5; // asymmetric highs
+            double low = close - 1.0 - Math.Cos(i * 0.7) * 0.8;  // asymmetric lows
+
+            rviBar.Update(new TBar(time, close - 0.5, high, low, close, 1000));
+            rviClose.Update(new TValue(time, close));
+        }
+
+        // With asymmetric high/low, revised RVI should differ from close-only
+        Assert.NotEqual(rviBar.Last.Value, rviClose.Last.Value, 0.01);
     }
 
     [Fact]

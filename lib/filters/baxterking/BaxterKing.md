@@ -6,16 +6,15 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `pLow` (default 6), `pHigh` (default 32), `k` (default 12)                      |
 | **Outputs**      | Single series (BaxterKing)                       |
-| **Output range** | Tracks input                     |
-| **Warmup**       | 1 bar                          |
-| **Signature**    | [baxterking_signature](baxterking_signature.md) |
+| **Output range** | Oscillates around zero           |
+| **Warmup**       | `2K+1` bars (default 25)         |
 
 ### TL;DR
 
 - The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncati...
 - Parameterized by `plow` (default 6), `phigh` (default 32), `k` (default 12).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- Output range: Oscillates around zero (extracts cyclical component).
+- Requires `2K+1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > "The business cycle is whatever remains after you strip away the trend and the noise. Baxter and King figured out the stripping."

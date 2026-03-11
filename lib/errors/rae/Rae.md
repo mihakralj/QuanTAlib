@@ -3,7 +3,7 @@
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
-| **Inputs**       | Source (close)                          |
+| **Inputs**       | Actual, Predicted (dual series)          |
 | **Parameters**   | `period`                      |
 | **Outputs**      | Single series (Rae)                       |
 | **Output range** | $\geq 0$                     |

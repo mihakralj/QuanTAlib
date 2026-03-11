@@ -1,38 +1,26 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Pascal Weighted Moving Average (PWMA)", "PWMA", overlay=true)
+indicator("Parabolic Weighted Moving Average (PWMA)", "PWMA", overlay=true)
 
-//@function Calculates PWMA using Pascal's triangle coefficients as weights with compensator
+//@function Calculates PWMA using i² (parabolic) weights with compensator
 //@param source Series to calculate PWMA from
 //@param period Lookback period - FIR window size
 //@returns PWMA value, calculates from first bar using available data
-//@optimized Uses Pascal's triangle weighting with O(n) complexity per bar due to lookback loop
+//@optimized Uses parabolic weighting w[i]=i² with O(n) complexity per bar due to lookback loop
 pwma(series float source, simple int period) =>
     if period <= 0
         runtime.error("Period must be greater than 0")
     int p = math.min(bar_index + 1, period)
-    var array<float> weights = array.new_float(1, 1.0)
-    var int last_p = 1
-    if last_p != p
-        weights := array.new_float(p, 0.0)
-        array.set(weights, 0, 1.0)
-        if p > 1
-            float prev_weight = 1.0
-            for i = 1 to p - 1
-                float curr_weight = prev_weight * (p - i) / i
-                array.set(weights, i, curr_weight)
-                prev_weight := curr_weight
-        last_p := p
-    float sum = 0.0
+    float psum = 0.0
     float weight_sum = 0.0
     for i = 0 to p - 1
         float price = source[i]
         if not na(price)
-            float w = array.get(weights, i)
-            sum += price * w
+            float w = float((p - i) * (p - i))
+            psum += price * w
             weight_sum += w
-    nz(sum / weight_sum, source)
+    nz(psum / weight_sum, source)
 
 // ---------- Main loop ----------
 

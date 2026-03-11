@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Elder's Force Index (EFI)", "EFI", overlay=false)
@@ -9,8 +9,6 @@ indicator("Elder's Force Index (EFI)", "EFI", overlay=false)
 //@param src_vol The volume (default: built-in volume)
 //@returns float The smoothed Force Index value
 efi(len = 13, src = close, src_vol = volume) =>
-    if len < 1
-        runtime.error("Length must be >= 1")
     var float prev_src = src
     float raw_force = (nz(src) - nz(prev_src)) * nz(src_vol)
     prev_src := src

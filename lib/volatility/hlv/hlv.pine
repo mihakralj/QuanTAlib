@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("High-Low Volatility (HLV)", "HLV", overlay=false)
@@ -10,10 +10,6 @@ indicator("High-Low Volatility (HLV)", "HLV", overlay=false)
 //@returns float The High-Low Volatility value.
 //@optimized for performance and dirty data
 hlv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length <= 0
-        runtime.error("Length must be greater than 0")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     float lnH = math.log(high), float lnL = math.log(low)
     float C_4LN2_INV = 0.3606737602 // 1.0 / (4.0 * math.log(2.0))
     float parkinsonEstimator = C_4LN2_INV * math.pow(lnH - lnL, 2)

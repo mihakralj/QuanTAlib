@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Acceleration Bands (ACCBANDS)", "ACCBANDS", overlay=true)

@@ -295,7 +295,7 @@ public sealed class Cg : AbstractBase
                 int idx = (effectiveStart + j) % period;
                 double price = buffer[idx];
                 int weight = j + 1; // 1-based weighting
-                weightedSum += weight * price;
+                weightedSum = Math.FusedMultiplyAdd(weight, price, weightedSum);
                 sum += price;
             }
 

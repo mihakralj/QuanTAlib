@@ -149,7 +149,7 @@ public sealed class Rae : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double actual, double predicted, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
+        return Update(new TValue(DateTime.MinValue, actual), new TValue(DateTime.MinValue, predicted), isNew);
     }
 
     public override TValue Update(TValue input, bool isNew = true)

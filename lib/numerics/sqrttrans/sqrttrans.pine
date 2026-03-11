@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Square Root Transformation (SQRT)", "Sqrttrans", overlay=false)
@@ -9,8 +9,8 @@ indicator("Square Root Transformation (SQRT)", "Sqrttrans", overlay=false)
 //@optimized for performance and dirty data
 sqrtT(series float source) =>
     if na(source)
-        runtime.error("Parameter 'source' cannot be na.")
-    if source < 0
+        na
+    else if source < 0
         na
     else
         math.sqrt(source)
@@ -18,10 +18,10 @@ sqrtT(series float source) =>
 // ---------- Main loop ----------
 
 // Inputs
-i_source = input(close, "Source")
+i_source = input.source(close, "Source")
 
 // Calculation
 transformedSource = sqrtT(i_source)
 
 // Plot
-plot(transformedSource, "Square Root Transformation", color=color.yellow, linewidth=2)
+plot(transformedSource, "Sqrttrans", color=color.yellow, linewidth=2)

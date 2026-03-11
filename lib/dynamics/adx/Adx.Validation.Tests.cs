@@ -92,6 +92,78 @@ public sealed class AdxValidationTests : IDisposable
     }
 
     [Fact]
+    public void DiPlus_MatchesTalib()
+    {
+        var adx = new Adx(14);
+        var diPlusResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            adx.Update(_data.Bars[i]);
+            diPlusResults.Add(adx.DiPlus.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
+        double[] outReal = new double[_data.Bars.Count];
+
+        var retCode = Functions.PlusDI(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        int lookback = Functions.PlusDILookback(14);
+        ValidationHelper.VerifyData(diPlusResults, outReal, outRange, lookback);
+    }
+
+    [Fact]
+    public void DiMinus_MatchesTalib()
+    {
+        var adx = new Adx(14);
+        var diMinusResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            adx.Update(_data.Bars[i]);
+            diMinusResults.Add(adx.DiMinus.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
+        double[] outReal = new double[_data.Bars.Count];
+
+        var retCode = Functions.MinusDI(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        int lookback = Functions.MinusDILookback(14);
+        ValidationHelper.VerifyData(diMinusResults, outReal, outRange, lookback);
+    }
+
+    [Fact]
+    public void MatchesSkender_DiValues()
+    {
+        var adx = new Adx(14);
+        var diPlusResults = new List<double>();
+        var diMinusResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            adx.Update(_data.Bars[i]);
+            diPlusResults.Add(adx.DiPlus.Value);
+            diMinusResults.Add(adx.DiMinus.Value);
+        }
+
+        // Skender's GetAdx returns ADX with +DI and -DI values
+        var skenderResults = _data.SkenderQuotes.GetAdx(14).ToList();
+
+        // Verify +DI
+        ValidationHelper.VerifyData(diPlusResults, skenderResults, x => x.Pdi);
+
+        // Verify -DI
+        ValidationHelper.VerifyData(diMinusResults, skenderResults, x => x.Mdi);
+    }
+
+    [Fact]
     public void MatchesOoples()
     {
         var adx = new Adx(14);

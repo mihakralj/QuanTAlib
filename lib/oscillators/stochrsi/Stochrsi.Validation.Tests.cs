@@ -405,4 +405,33 @@ public sealed class StochrsiValidationTests : IDisposable
         _output.WriteLine($"Skender span: {totalCompared} compared, {mismatches} mismatches ({mismatchRate:P2})");
         Assert.True(mismatchRate < 0.05, $"Skender span mismatch rate {mismatchRate:P2} exceeds 5% ({mismatches}/{totalCompared})");
     }
+
+    [Fact]
+    public void Stochrsi_Correction_Recomputes()
+    {
+        var ind = new Stochrsi();
+        var t0 = DateTime.MinValue;
+
+        // Build state well past warmup (WarmupPeriod ≈ 31)
+        for (int i = 0; i < 50; i++)
+        {
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+        }
+
+        // Anchor bar
+        var anchorTime = t0.AddSeconds(50);
+        const double anchorPrice = 125.0;
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: true);
+        double anchorK = ind.K;
+        double anchorD = ind.D;
+
+        // Use large downward spike (÷10) to move StochRSI away from ceiling
+        ind.Update(new TValue(anchorTime, anchorPrice / 10), isNew: false);
+        Assert.NotEqual(anchorK, ind.K);
+
+        // Correction back to original — both outputs must restore exactly
+        ind.Update(new TValue(anchorTime, anchorPrice), isNew: false);
+        Assert.Equal(anchorK, ind.K, 1e-9);
+        Assert.Equal(anchorD, ind.D, 1e-9);
+    }
 }

@@ -114,10 +114,10 @@ public sealed class Bilateral : AbstractBase
         {
             double val = GetValidValue(source[i]);
             double removed = _buffer.Add(val);
-            _state.SumSq += (val * val);
+            _state.SumSq = Math.FusedMultiplyAdd(val, val, _state.SumSq);
             if (_buffer.IsFull)
             {
-                _state.SumSq -= (removed * removed);
+                _state.SumSq = Math.FusedMultiplyAdd(-removed, removed, _state.SumSq);
             }
         }
 
@@ -187,10 +187,10 @@ public sealed class Bilateral : AbstractBase
             double val = GetValidValue(input.Value);
             double removed = _buffer.Add(val);
 
-            _state.SumSq += (val * val);
+            _state.SumSq = Math.FusedMultiplyAdd(val, val, _state.SumSq);
             if (_buffer.IsFull)
             {
-                _state.SumSq -= (removed * removed);
+                _state.SumSq = Math.FusedMultiplyAdd(-removed, removed, _state.SumSq);
             }
         }
         else
@@ -207,15 +207,15 @@ public sealed class Bilateral : AbstractBase
             if (_buffer.Count == 0)
             {
                 _buffer.Add(val);
-                _state.SumSq += (val * val);
+                _state.SumSq = Math.FusedMultiplyAdd(val, val, _state.SumSq);
             }
             else
             {
                 double oldNewest = _buffer.Newest; // Get current newest before overwriting
                 _buffer.UpdateNewest(val);
 
-                _state.SumSq -= (oldNewest * oldNewest);
-                _state.SumSq += (val * val);
+                _state.SumSq = Math.FusedMultiplyAdd(-oldNewest, oldNewest, _state.SumSq);
+                _state.SumSq = Math.FusedMultiplyAdd(val, val, _state.SumSq);
             }
         }
 
@@ -421,12 +421,12 @@ public sealed class Bilateral : AbstractBase
                 {
                     removed = window[windowIdx];
                     sum -= removed;
-                    sumSq -= removed * removed;
+                    sumSq = Math.FusedMultiplyAdd(-removed, removed, sumSq);
                 }
 
                 window[windowIdx] = val;
                 sum += val;
-                sumSq += val * val;
+                sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
                 int currentNewestIdx = windowIdx;
                 windowIdx = (windowIdx + 1) % period;

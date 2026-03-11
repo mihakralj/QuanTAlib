@@ -1,11 +1,12 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
 //@version=6
 // LRSI: Laguerre RSI
 // John Ehlers, "Cybernetic Analysis for Stocks and Futures" (2004)
 // A modified RSI that uses a 4-element Laguerre filter as its core moving average.
 // The gamma parameter controls the damping of the filter stages, trading
 // responsiveness against smoothness. Output is dimensionless [0, 1].
-
-indicator("LRSI: Laguerre RSI", shorttitle="LRSI", overlay=false)
+indicator("Laguerre RSI (LRSI)", "LRSI", overlay=false)
 
 gamma = input.float(0.5, "Gamma", minval=0.0, maxval=1.0, step=0.01,
     tooltip="Damping factor [0,1]. Lower = more responsive; higher = smoother.")

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Volume Weighted Accumulation/Distribution (VWAD)", "VWAD", overlay=false)
@@ -12,8 +12,6 @@ indicator("Volume Weighted Accumulation/Distribution (VWAD)", "VWAD", overlay=fa
 //@returns VWAD value representing volume-weighted accumulation/distribution
 //@optimized for performance and dirty data
 vwad(simple int period, series float src_high = high, series float src_low = low, series float src_close = close, series float src_vol = volume) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     var int p = math.max(1, period), var int head = 0
     var array<float> vol_buffer = array.new_float(p, na)
     var float sum_vol = 0.0

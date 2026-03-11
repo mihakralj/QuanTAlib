@@ -12,9 +12,8 @@ namespace QuanTAlib;
 /// <remarks>
 /// <b>Calculation steps:</b>
 /// <list type="number">
-/// <item>highDiff = |High - prevHigh|, lowDiff = |prevLow - Low|</item>
-/// <item>Inside bar (High &lt; prevHigh AND Low &gt; prevLow) → Temperature = 0</item>
-/// <item>Otherwise Temperature = max(highDiff, lowDiff)</item>
+/// <item>highDiff = max(High − prevHigh, 0), lowDiff = max(prevLow − Low, 0)</item>
+/// <item>Temperature = max(highDiff, lowDiff)</item>
 /// <item>Signal = EMA(Temperature, period) with bias compensation</item>
 /// </list>
 ///
@@ -271,10 +270,9 @@ public sealed class Etherm : AbstractBase
                     prevL = lastValidLow;
                 }
 
-                double highDiff = Math.Abs(h - prevH);
-                double lowDiff = Math.Abs(prevL - l);
-                bool isInsideBar = h < prevH && l > prevL;
-                temp = isInsideBar ? 0 : Math.Max(highDiff, lowDiff);
+                double highDiff = Math.Max(h - prevH, 0.0);
+                double lowDiff = Math.Max(prevL - l, 0.0);
+                temp = Math.Max(highDiff, lowDiff);
             }
 
             if (!double.IsFinite(temp) || temp < 0)
@@ -345,10 +343,9 @@ public sealed class Etherm : AbstractBase
         }
         else
         {
-            double highDiff = Math.Abs(high - s.PrevHigh);
-            double lowDiff = Math.Abs(s.PrevLow - low);
-            bool isInsideBar = high < s.PrevHigh && low > s.PrevLow;
-            temp = isInsideBar ? 0 : Math.Max(highDiff, lowDiff);
+            double highDiff = Math.Max(high - s.PrevHigh, 0.0);
+            double lowDiff = Math.Max(s.PrevLow - low, 0.0);
+            temp = Math.Max(highDiff, lowDiff);
         }
 
         // NaN/Infinity safety on computed temp

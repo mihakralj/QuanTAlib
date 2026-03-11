@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -325,7 +326,11 @@ public sealed class Sdchannel : ITValuePublisher
 
     /// <summary>
     /// Batch calculation using spans.
+    /// O(period) per bar: sums and residuals recomputed from circular buffer each bar for numerical
+    /// consistency with the streaming path. Uses the same plain arithmetic as Update() for sumXY
+    /// and the same FMA residual loop to ensure streaming/batch agreement within 1e-9.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void Batch(
         ReadOnlySpan<double> source,
         Span<double> middle,
@@ -360,75 +365,130 @@ public sealed class Sdchannel : ITValuePublisher
         double sumX2Full = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
         double denomFull = period * sumX2Full - sumXFull * sumXFull;
 
-        for (int i = 0; i < len; i++)
+        // Circular buffer of NaN-sanitised values for O(1) sliding-window recurrences.
+        const int StackAllocThreshold = 256;
+        double[]? rentedWindow = null;
+        scoped Span<double> window;
+        if (period <= StackAllocThreshold)
         {
-            int count = Math.Min(i + 1, period);
-            int start = i - count + 1;
+            window = stackalloc double[period];
+        }
+        else
+        {
+            rentedWindow = ArrayPool<double>.Shared.Rent(period);
+            window = rentedWindow.AsSpan(0, period);
+        }
 
-            if (count <= 1)
+        try
+        {
+            window.Clear();
+
+            double lastValid = double.NaN;
+            int head = 0, count = 0;
+
+            for (int i = 0; i < len; i++)
             {
-                middle[i] = source[i];
-                upper[i] = source[i];
-                lower[i] = source[i];
-                continue;
+                // NaN substitution matching GetValid() in streaming Update()
+                double y = source[i];
+                if (double.IsFinite(y))
+                {
+                    lastValid = y;
+                }
+                else
+                {
+                    y = lastValid;
+                }
+
+                // No valid value seen yet
+                if (!double.IsFinite(y))
+                {
+                    middle[i] = double.NaN;
+                    upper[i] = double.NaN;
+                    lower[i] = double.NaN;
+                    continue;
+                }
+
+                // Store in circular buffer
+                window[head] = y;
+                head = (head + 1) % period;
+                if (count < period)
+                {
+                    count++;
+                }
+
+                if (count <= 1)
+                {
+                    middle[i] = y;
+                    upper[i] = y;
+                    lower[i] = y;
+                    continue;
+                }
+
+                // Recompute sums fresh from circular buffer (oldest-to-newest).
+                // Plain arithmetic for sumXY matches streaming Update() path numerically.
+                double sumY = 0, sumXY = 0;
+                int oldestIdx = (head - count + period) % period;
+                for (int k = 0; k < count; k++)
+                {
+                    double wk = window[(oldestIdx + k) % period];
+                    sumY += wk;
+                    sumXY += (double)k * wk;
+                }
+
+                double n = count;
+                double sx, denom;
+
+                if (count < period)
+                {
+                    sx = 0.5 * n * (n - 1);
+                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
+                    denom = n * sx2 - sx * sx;
+                }
+                else
+                {
+                    sx = sumXFull;
+                    denom = denomFull;
+                }
+
+                double slope, intercept, regression;
+
+                if (Math.Abs(denom) < 1e-10)
+                {
+                    slope = 0;
+                    intercept = sumY / n;
+                    regression = intercept;
+                }
+                else
+                {
+                    slope = (n * sumXY - sx * sumY) / denom;
+                    intercept = (sumY - slope * sx) / n;
+                    regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
+                }
+
+                // Explicit residual loop matching streaming Update() path numerically.
+                double sumResiduals2 = 0;
+                for (int k = 0; k < count; k++)
+                {
+                    double wk = window[(oldestIdx + k) % period];
+                    double predicted = Math.FusedMultiplyAdd(slope, k, intercept);
+                    double residual = wk - predicted;
+                    sumResiduals2 = Math.FusedMultiplyAdd(residual, residual, sumResiduals2);
+                }
+
+                double stdDev = Math.Sqrt(sumResiduals2 / n);
+                double band = multiplier * stdDev;
+
+                middle[i] = regression;
+                upper[i] = regression + band;
+                lower[i] = regression - band;
             }
-
-            // Calculate sums for linear regression
-            double sumY = 0;
-            double sumXY = 0;
-
-            for (int j = 0; j < count; j++)
+        }
+        finally
+        {
+            if (rentedWindow != null)
             {
-                double y = source[start + j];
-                sumY += y;
-                sumXY += j * y;
+                ArrayPool<double>.Shared.Return(rentedWindow);
             }
-
-            double n = count;
-            double sx, denom;
-
-            if (count < period)
-            {
-                sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
-            }
-            else
-            {
-                sx = sumXFull;
-                denom = denomFull;
-            }
-
-            double slope, intercept, regression;
-
-            if (Math.Abs(denom) < 1e-10)
-            {
-                slope = 0;
-                intercept = sumY / n;
-                regression = intercept;
-            }
-            else
-            {
-                slope = (n * sumXY - sx * sumY) / denom;
-                intercept = (sumY - slope * sx) / n;
-                regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
-            }
-
-            // Calculate standard deviation of residuals
-            double sumResiduals2 = 0;
-            for (int j = 0; j < count; j++)
-            {
-                double predicted = Math.FusedMultiplyAdd(slope, j, intercept);
-                double residual = source[start + j] - predicted;
-                sumResiduals2 = Math.FusedMultiplyAdd(residual, residual, sumResiduals2);
-            }
-
-            double stdDev = Math.Sqrt(sumResiduals2 / n);
-            double band = multiplier * stdDev;
-
-            middle[i] = regression;
-            upper[i] = regression + band;
-            lower[i] = regression - band;
         }
     }
 
@@ -464,7 +524,9 @@ public sealed class Sdchannel : ITValuePublisher
 
     public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Sdchannel Indicator) Calculate(TSeries source, int period = 20, double multiplier = 2.0)
     {
-        var indicator = new Sdchannel(source, period, multiplier);
+        // Use parameterless constructor to avoid double-processing: new Sdchannel(source, ...) calls Prime(source),
+        // then Update(source) would call Prime again.
+        var indicator = new Sdchannel(period, multiplier);
         var results = indicator.Update(source);
         return (results, indicator);
     }

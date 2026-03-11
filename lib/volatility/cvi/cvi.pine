@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Chaikin's Volatility (CVI)", "CVI", overlay=false)
@@ -9,8 +9,6 @@ indicator("Chaikin's Volatility (CVI)", "CVI", overlay=false)
 //@returns float Volatility value measuring change in trading ranges
 //@optimized for performance using efficient range ROC calculation
 cvi(simple int roc_length, simple int smooth_length) =>
-    if roc_length <= 0 or smooth_length <= 0
-        runtime.error("Lengths must be greater than 0")
     var float prevEma = 0.0
     hlRange = high - low
     alpha = 2.0 / (smooth_length + 1)

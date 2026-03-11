@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Money Flow Index (MFI)", "MFI", overlay=false)
@@ -12,8 +12,6 @@ indicator("Money Flow Index (MFI)", "MFI", overlay=false)
 //@returns float The MFI value (0-100)
 //@optimized Uses circular buffers for O(1) performance with proper NA handling
 mfi(simple int len, series float src_high=high, series float src_low=low, series float src_close=close, series float src_vol=volume) =>
-    if len < 1
-        runtime.error("Invalid parameter: len must be >= 1")
     float typical_price = (src_high + src_low + src_close) / 3.0
     float raw_money_flow = typical_price * nz(src_vol, 0.0)
     float prev_typical_price = nz(typical_price[1], typical_price)

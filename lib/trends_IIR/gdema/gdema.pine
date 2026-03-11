@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Generalized Double Exponential Moving Average (GDEMA)", "GDEMA", overlay=true)
@@ -14,8 +14,6 @@ indicator("Generalized Double Exponential Moving Average (GDEMA)", "GDEMA", over
 //@reference Patrick G. Mulloy, "Smoothing Data with Faster Moving Averages" (TASC, Feb 1994)
 //@optimized O(1) per bar; two cascaded EMA states with shared warmup compensator
 gdema(series float source, simple int period, simple float vfactor) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
 
     float a = 2.0 / (period + 1)
     float beta = 1.0 - a

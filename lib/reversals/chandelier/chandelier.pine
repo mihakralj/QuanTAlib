@@ -1,0 +1,45 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Chandelier Exit (CHANDELIER)", "CHANDELIER", overlay=true)
+
+//@function Chandelier Exit — ATR-based trailing stops that hang from the highest high
+//          (ExitLong) or rise from the lowest low (ExitShort) over a lookback period.
+//          Uses SMA-seeded Wilder's RMA for ATR, matching Skender/TradingView convention.
+//@param period Lookback for ATR and rolling HH/LL (default 22)
+//@param multiplier ATR scaling factor (default 3.0)
+//@returns [exitLong, exitShort] — two overlay stop levels
+//@reference Charles Le Beau; Alexander Elder, "Come Into My Trading Room" (2002)
+//@optimized O(1) per bar using ta.rma, ta.highest, ta.lowest
+chandelier(simple int period = 22, simple float multiplier = 3.0) =>
+    if period < 1
+        runtime.error("Period must be >= 1")
+    if multiplier <= 0
+        runtime.error("Multiplier must be > 0")
+
+    // True Range
+    float tr = na(close[1]) ? high - low : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+
+    // Wilder's ATR (RMA = EMA with alpha = 1/period, SMA-seeded)
+    float atr = ta.rma(tr, period)
+
+    // Rolling extremes over the lookback window
+    float hh = ta.highest(high, period)
+    float ll = ta.lowest(low, period)
+
+    // Chandelier exits
+    float exit_long  = hh - multiplier * atr
+    float exit_short = ll + multiplier * atr
+
+    [exit_long, exit_short]
+
+// ── Inputs ──
+int   i_period     = input.int(22, "Period", minval=1)
+float i_multiplier = input.float(3.0, "Multiplier", minval=0.01, step=0.1)
+
+// ── Calculation ──
+[exit_long, exit_short] = chandelier(i_period, i_multiplier)
+
+// ── Plot ──
+plot(exit_long,  "Exit Long",  color=color.green, linewidth=2)
+plot(exit_short, "Exit Short", color=color.red,   linewidth=2)

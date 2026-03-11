@@ -1,0 +1,28 @@
+# MINUS_DM: Minus Directional Movement
+
+### TL;DR
+Wilder-smoothed downward directional movement in price units (≥0).
+
+## Introduction
+Minus Directional Movement (-DM) measures the magnitude of downward price movement, smoothed using Wilder's method. Unlike -DI which normalizes by true range to produce a percentage, -DM outputs raw smoothed values in price units.
+
+-DM captures when the previous bar's low exceeds the current bar's low by more than the current bar's high exceeds the previous bar's high. It is the raw building block of the Directional Movement System.
+
+## Calculation
+-DM = max(PrevLow - Low, 0) when PrevLow - Low > High - PrevHigh, else 0
+
+Smoothed using Wilder's method: Smooth = Smooth - Smooth/N + Input
+
+## Parameters
+| Parameter | Default | Range | Description |
+| :--- | :--- | :--- | :--- |
+| Period | 14 | 2-∞ | Wilder smoothing period |
+
+## Interpretation
+- **Rising -DM:** Increasing downward price extension
+- **-DM > +DM:** Downward movement exceeds upward movement
+- **Zero -DM:** No downward directional movement on the bar
+- Values are in price units and scale with the instrument
+
+## References
+- Wilder, J. Welles Jr. "New Concepts in Technical Trading Systems" (1978)

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Linear Trend Moving Average (LTMA)", "LTMA", overlay=true)
@@ -12,8 +12,6 @@ indicator("Linear Trend Moving Average (LTMA)", "LTMA", overlay=true)
 //  EMA1 lags by τ = (1−α)/α bars; EMA1−EMA2 ≈ slope·τ; result = EMA1 + (EMA1−EMA2).
 //  Initializing both EMAs to source on bar 1 gives zero warmup bias with no compensator needed.
 ltma(series float source, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     float alpha = 2.0 / (period + 1)
     float beta  = 1.0 - alpha
 

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Historical Volatility (HV)", "HV", overlay=false)
@@ -11,10 +11,6 @@ indicator("Historical Volatility (HV)", "HV", overlay=false)
 //@returns float The Historical Volatility value.
 //@optimized for performance and dirty data
 hv(series float src_price, simple int length_hv, simple bool annualize = true, simple int annualPeriods = 252) =>
-    if length_hv <= 1
-        runtime.error("Length for HV must be greater than 1")
-    if annualize and annualPeriods <= 0
-        runtime.error("Annual periods must be greater than 0 if annualizing")
     var array<float> _buffer_hv = array.new_float(length_hv, na)
     var int _head_idx_hv = 0
     var int _current_fill_count_hv = 0

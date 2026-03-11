@@ -135,7 +135,7 @@ public sealed class Vwma : ITValuePublisher
             double v = _volBuffer[i];
             if (v > 0)
             {
-                sumPV += p * v;
+                sumPV = Math.FusedMultiplyAdd(p, v, sumPV);
                 sumVol += v;
             }
         }
@@ -224,14 +224,14 @@ public sealed class Vwma : ITValuePublisher
 
         if (s.Count >= _period && oldVol > 0)
         {
-            s.SumPV -= oldPrice * oldVol;
+            s.SumPV = Math.FusedMultiplyAdd(-oldPrice, oldVol, s.SumPV);
             s.SumVol -= oldVol;
         }
 
         // Add new values
         if (currentVol > 0)
         {
-            s.SumPV += currentPrice * currentVol;
+            s.SumPV = Math.FusedMultiplyAdd(currentPrice, currentVol, s.SumPV);
             s.SumVol += currentVol;
         }
 
@@ -437,14 +437,14 @@ public sealed class Vwma : ITValuePublisher
 
                 if (count >= period && oldVol > 0)
                 {
-                    sumPV -= oldPrice * oldVol;
+                    sumPV = Math.FusedMultiplyAdd(-oldPrice, oldVol, sumPV);
                     sumVol -= oldVol;
                 }
 
                 // Add new values
                 if (currentVol > 0)
                 {
-                    sumPV += currentPrice * currentVol;
+                    sumPV = Math.FusedMultiplyAdd(currentPrice, currentVol, sumPV);
                     sumVol += currentVol;
                 }
 
@@ -474,7 +474,7 @@ public sealed class Vwma : ITValuePublisher
                         double vj = volBuffer[j];
                         if (vj > 0)
                         {
-                            sumPV += pj * vj;
+                            sumPV = Math.FusedMultiplyAdd(pj, vj, sumPV);
                             sumVol += vj;
                         }
                     }

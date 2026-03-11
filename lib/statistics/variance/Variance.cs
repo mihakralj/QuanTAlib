@@ -449,7 +449,7 @@ public sealed class Variance : AbstractBase
                 {
                     double v = Unsafe.Add(ref srcRef, startIdx + k);
                     recalcSum += v;
-                    recalcSumSq += v * v;
+                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -553,7 +553,7 @@ public sealed class Variance : AbstractBase
                 {
                     double v = Unsafe.Add(ref srcRef, startIdx + k);
                     recalcSum += v;
-                    recalcSumSq += v * v;
+                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;
@@ -676,7 +676,7 @@ public sealed class Variance : AbstractBase
                 {
                     double v = Unsafe.Add(ref srcRef, startIdx + k);
                     recalcSum += v;
-                    recalcSumSq += v * v;
+                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
                 }
                 sum = recalcSum;
                 sumSq = recalcSumSq;

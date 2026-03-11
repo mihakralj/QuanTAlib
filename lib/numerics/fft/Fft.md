@@ -6,46 +6,51 @@
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `windowSize` (default 64), `minPeriod` (default 4), `maxPeriod` (default 32)                      |
 | **Outputs**      | Single series (Fft)                       |
-| **Output range** | Varies (see docs)                     |
-| **Warmup**       | 1 bar                          |
+| **Output range** | [minPeriod, maxPeriod]                     |
+| **Warmup**       | windowSize bars                          |
 
 ### TL;DR
 
-- The FFT indicator computes the dominant cycle period in a price series using a Discrete Fourier Transform with a Hanning window.
-- Parameterized by `windowsize` (default 64), `minperiod` (default 4), `maxperiod` (default 32).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- The FFT indicator computes the dominant cycle period in a price series using a radix-2 Cooley-Tukey Fast Fourier Transform with a Hanning window.
+- Parameterized by `windowSize` (default 64), `minPeriod` (default 4), `maxPeriod` (default 32).
+- Output range: [minPeriod, maxPeriod] bars.
+- Requires windowSize bars of warmup before first valid output (IsHot = true).
+- True $O(N \log N)$ radix-2 FFT with bit-reversal permutation and Cooley-Tukey butterflies.
 
-The FFT indicator computes the dominant cycle period in a price series using a Discrete Fourier Transform with a Hanning window. Rather than outputting frequency-domain magnitudes, it returns the estimated dominant cycle period in bars, making it directly usable as an adaptive period input for other indicators. The implementation uses a brute-force DFT over a constrained frequency band (not a radix-2 FFT), with parabolic interpolation on the magnitude spectrum to achieve sub-bin frequency resolution. With window sizes of 32, 64, or 128 and $O(N \cdot N/2)$ complexity per bar, the indicator trades computational cost for precise cycle detection within user-specified period bounds.
+The FFT indicator computes the dominant cycle period in a price series using a true radix-2 Cooley-Tukey Fast Fourier Transform with a Hanning window. Rather than outputting frequency-domain magnitudes, it returns the estimated dominant cycle period in bars, making it directly usable as an adaptive period input for other indicators. The implementation uses an in-place iterative radix-2 FFT with bit-reversal permutation and Cooley-Tukey butterfly operations, achieving $O(N \log N)$ complexity. Parabolic interpolation on the magnitude spectrum provides sub-bin frequency resolution. With window sizes restricted to powers of two (32, 64, or 128), the indicator achieves precise cycle detection within user-specified period bounds with pre-allocated work arrays for zero-allocation streaming.
 
 ## Historical Context
 
-The Fourier transform, formalized by Joseph Fourier (1822), decomposes any periodic signal into sinusoidal components. The Fast Fourier Transform algorithm (Cooley and Tukey, 1965) reduced the DFT from $O(N^2)$ to $O(N \log N)$, enabling real-time spectral analysis. However, for the small window sizes used in financial cycle detection (32-128 samples), the asymptotic advantage of FFT over DFT is minimal, and the DFT avoids the power-of-two length constraint.
+The Fourier transform, formalized by Joseph Fourier (1822), decomposes any periodic signal into sinusoidal components. The Fast Fourier Transform algorithm, published by James Cooley and John Tukey in 1965, reduced the DFT from $O(N^2)$ to $O(N \log N)$ by recursively decomposing the DFT into smaller sub-problems using the "butterfly" operation pattern. The radix-2 variant requires power-of-two input lengths and uses bit-reversal permutation followed by iterative butterfly stages.
 
-John Ehlers pioneered the application of spectral analysis to financial markets in the 1990s and 2000s, using DFT-based cycle measurement to create adaptive indicators. His work demonstrated that financial time series contain quasi-periodic cycles with time-varying periods, typically in the 6-40 bar range. The dominant cycle period, extracted via spectral peak detection, can drive adaptive moving averages (MAMA, FAMA), adaptive RSI, and other indicators that benefit from knowing the current market rhythm.
+John Ehlers pioneered the application of spectral analysis to financial markets in the 1990s and 2000s, using FFT-based cycle measurement to create adaptive indicators. His work demonstrated that financial time series contain quasi-periodic cycles with time-varying periods, typically in the 6-40 bar range. The dominant cycle period, extracted via spectral peak detection, can drive adaptive moving averages (MAMA, FAMA), adaptive RSI, and other indicators that benefit from knowing the current market rhythm.
 
 The Hanning window (also called Hann window, after Julius von Hann) is applied to reduce spectral leakage. Without windowing, the sharp truncation of a finite data segment creates artificial high-frequency components that contaminate the spectrum. The Hanning window tapers the data to zero at both ends, suppressing sidelobes at the cost of slightly wider main lobes (reduced frequency resolution).
 
 ## Architecture and Physics
 
-The computation pipeline has four stages:
+The computation pipeline has five stages:
 
-**Stage 1: Windowed DFT** computes the real and imaginary components of the Fourier coefficients for frequency bins $k$ ranging from `minBin` to `maxBin`:
+**Stage 1: Windowing** applies the Hanning window to the rolling price buffer:
 
-$$X[k] = \sum_{n=0}^{N-1} x[n] \cdot w[n] \cdot e^{-j 2\pi k n / N}$$
+$$x_w[n] = x[n] \cdot w[n], \quad w[n] = 0.5 - 0.5\cos\!\left(\frac{2\pi n}{N}\right)$$
 
-where $w[n] = 0.5 - 0.5\cos(2\pi n/N)$ is the Hanning window. Only bins corresponding to periods in `[minPeriod, maxPeriod]` are evaluated, reducing computation.
+**Stage 2: Bit-reversal permutation** reorders the windowed data according to the bit-reversed indices, preparing for in-place butterfly computation. The permutation table is pre-computed in the constructor.
 
-**Stage 2: Power spectrum peak** finds the bin $k^*$ with maximum squared magnitude $|X[k]|^2 = \text{Re}^2 + \text{Im}^2$. During the search, the magnitudes of the bins adjacent to the peak (one before, one after) are captured for interpolation.
+**Stage 3: Cooley-Tukey butterflies** perform $\log_2(N)$ stages of butterfly operations. Each stage $s$ processes pairs of elements separated by $2^{s-1}$ positions, combining them with twiddle factors:
 
-**Stage 3: Parabolic interpolation** refines the peak location using a three-point parabola fit on the magnitudes at bins $k^*-1$, $k^*$, $k^*+1$:
+$$\begin{aligned}
+X[i_0] &\leftarrow X[i_0] + W_N^k \cdot X[i_1] \\
+X[i_1] &\leftarrow X[i_0] - W_N^k \cdot X[i_1]
+\end{aligned}$$
 
-$$\delta = \frac{M_{k^*-1} - M_{k^*+1}}{M_{k^*-1} + 2 M_{k^*} + M_{k^*+1}}$$
+where $W_N^k = e^{-j2\pi k/N}$ is the twiddle factor.
 
-The refined dominant period is $N / (k^* + \delta)$.
+**Stage 4: Peak detection with parabolic interpolation** finds the bin $k^*$ with maximum squared magnitude in `[minBin, maxBin]`, then refines using a three-point parabolic fit:
 
-**Stage 4: Clamping** ensures the output stays within `[minPeriod, maxPeriod]`.
+$$\delta = \frac{0.5 \cdot (P[k^*-1] - P[k^*+1])}{P[k^*-1] - 2P[k^*] + P[k^*+1]}$$
+
+**Stage 5: Period extraction and clamping** converts the refined bin index to period: $T = N / (k^* + \delta)$, clamped to `[minPeriod, maxPeriod]`.
 
 **Window size trade-offs**: $N = 32$ gives coarse resolution (period bins spaced ~1 bar apart) but fast response; $N = 128$ gives fine resolution (~0.25 bar spacing) but sluggish adaptation. The default $N = 64$ balances resolution and responsiveness.
 
@@ -54,6 +59,12 @@ The refined dominant period is $N / (k^* + \delta)$.
 The **Discrete Fourier Transform** for $N$ samples:
 
 $$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j 2\pi k n / N}, \quad k = 0, 1, \ldots, N-1$$
+
+**Radix-2 Cooley-Tukey decomposition** splits the DFT into even and odd indexed sub-problems:
+
+$$X[k] = \sum_{r=0}^{N/2-1} x[2r] \cdot W_{N/2}^{kr} + W_N^k \sum_{r=0}^{N/2-1} x[2r+1] \cdot W_{N/2}^{kr}$$
+
+This recursion, applied iteratively with bit-reversal permutation, achieves $O(N \log N)$ complexity.
 
 **Hanning window**:
 
@@ -69,7 +80,7 @@ $$k_{\min} = \max\!\left(1,\; \left\lfloor\frac{N}{T_{\max}}\right\rfloor\right)
 
 **Parabolic interpolation** for sub-bin precision:
 
-$$\hat{k} = k^* + \frac{P[k^*-1] - P[k^*+1]}{P[k^*-1] + 2P[k^*] + P[k^*+1]}$$
+$$\hat{k} = k^* + \frac{0.5 \cdot (P[k^*-1] - P[k^*+1])}{P[k^*-1] - 2P[k^*] + P[k^*+1]}$$
 
 $$T_{\text{dominant}} = \frac{N}{\hat{k}}$$
 
@@ -78,28 +89,33 @@ $$T_{\text{dominant}} = \frac{N}{\hat{k}}$$
 ```
 FFT(source, windowSize, minPeriod, maxPeriod):
     N = windowSize
-    twoPiOverN = 2 * pi / N
-    minBin = max(1, N / maxPeriod)
-    maxBin = min(N/2, N / minPeriod)
+    // Stage 1: Apply Hanning window
+    for n = 0 to N-1:
+        workRe[n] = source[n] * hanning[n]
+        workIm[n] = 0
 
-    maxMag = 0;  peakBin = 0
-    for k = minBin to maxBin:
-        re = 0;  im = 0
-        for n = 0 to N-1:
-            w = 0.5 - 0.5 * cos(twoPiOverN * n)   // Hanning
-            xw = source[n] * w
-            angle = twoPiOverN * k * n
-            re += xw * cos(angle)
-            im -= xw * sin(angle)
-        mag = re*re + im*im
-        if mag > maxMag:
-            track neighbor magnitudes
-            maxMag = mag;  peakBin = k
+    // Stage 2: Bit-reversal permutation
+    for i = 0 to N-1:
+        j = bitReverse(i)
+        if j > i: swap(workRe[i], workRe[j])
 
-    // Parabolic interpolation
-    shift = (magBefore - magAfter) / (magBefore + 2*maxMag + magAfter)
-    dominantPeriod = N / (peakBin + shift)
-    return clamp(dominantPeriod, minPeriod, maxPeriod)
+    // Stage 3: Cooley-Tukey butterflies
+    len = 2
+    while len <= N:
+        half = len / 2
+        angStep = -2π / len
+        for start = 0 to N-1 step len:
+            for k = 0 to half-1:
+                w = exp(j * angStep * k)
+                butterfly(workRe, workIm, start+k, start+k+half, w)
+        len *= 2
+
+    // Stage 4: Peak detection + interpolation
+    peakBin = argmax |X[k]|² for k in [minBin..maxBin]
+    shift = 0.5*(P[k-1] - P[k+1]) / (P[k-1] - 2*P[k] + P[k+1])
+
+    // Stage 5: Period extraction
+    return clamp(N / (peakBin + shift), minPeriod, maxPeriod)
 ```
 
 
@@ -107,34 +123,37 @@ FFT(source, windowSize, minPeriod, maxPeriod):
 
 ### Operation Count (Streaming Mode)
 
-FFT (DFT dominant cycle detector) evaluates B frequency bins, each requiring N multiply-accumulates — O(N*B) per bar.
+FFT (radix-2 Cooley-Tukey) performs N/2 butterflies per stage across log₂(N) stages — O(N log N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | Hanning window multiply | N | 2 cy | ~2N cy |
-| DFT inner loop (B bins * N samples) | B*N | 4 cy | ~4*N*B cy |
-| cos/sin evaluation (precomputed table) | 2*B*N | 0 cy | ~0 cy |
-| Magnitude comparison + peak track | B | 2 cy | ~2B cy |
-| Parabolic interpolation (3 points) | 1 | 5 cy | ~5 cy |
-| **Total (N=64, B=10)** | **O(N*B)** | — | **~2617 cy** |
+| Bit-reversal permutation | N | 1 cy | ~N cy |
+| Butterfly operations (log₂N stages × N/2) | N/2 × log₂N | 8 cy | ~4N·log₂N cy |
+| cos/sin per butterfly | N/2 × log₂N | 14 cy | ~7N·log₂N cy |
+| Magnitude search (B bins) | B | 4 cy | ~4B cy |
+| Parabolic interpolation | 1 | 10 cy | ~10 cy |
+| **Total (N=64, B=10)** | **O(N log N)** | — | **~4362 cy** |
 
-O(N*B) per bar where B = active frequency bins. Precomputed sin/cos tables eliminate transcendental cost. Suitable for 1-minute+ timeframes; not tick-data hot paths.
+O(N log N) per bar. Pre-allocated work arrays ensure zero allocation in the hot path. Twiddle factor computation dominates; pre-computing sin/cos tables would reduce to ~2500 cy.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | Hanning window application | Yes | Vector multiply with precomputed weights |
-| DFT inner dot product | Yes | FMA with sin/cos table lookup |
-| Magnitude squared | Yes | Vector FMA (re^2 + im^2) |
+| Bit-reversal permutation | No | Random access pattern; scalar only |
+| Butterfly multiply-add | Yes | Complex FMA operations on paired elements |
+| Magnitude squared | Yes | Vector FMA (re² + im²) |
 | Peak search | Partial | Max reduction; SIMD-friendly |
 
-Strong batch SIMD: inner dot products are FMA-vectorizable. AVX2 processes 4 complex outputs per 2 cycles. Expected 3-4× speedup for N=64.
+Moderate SIMD potential: butterfly FMA operations are vectorizable within each stage. Bit-reversal permutation is inherently scalar. Expected 2× speedup over scalar for N=64.
 
 ## Resources
 
-- Cooley, J.W. & Tukey, J.W. "An Algorithm for the Machine Calculation of Complex Fourier Series." Mathematics of Computation, 1965.
+- Cooley, J.W. & Tukey, J.W. "An Algorithm for the Machine Calculation of Complex Fourier Series." *Mathematics of Computation*, 1965.
 - Ehlers, J.F. "Cycle Analytics for Traders." Wiley, 2013.
 - Ehlers, J.F. "Rocket Science for Traders." Wiley, 2001.
-- Harris, F.J. "On the Use of Windows for Harmonic Analysis with the Discrete Fourier Transform." Proc. IEEE, 1978.
+- Harris, F.J. "On the Use of Windows for Harmonic Analysis with the Discrete Fourier Transform." *Proc. IEEE*, 1978.
 - Oppenheim, A.V. & Schafer, R.W. "Discrete-Time Signal Processing." 3rd edition, Pearson, 2010.
+- PineScript reference: [`fft.pine`](fft.pine)

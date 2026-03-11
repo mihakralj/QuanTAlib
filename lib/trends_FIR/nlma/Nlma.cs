@@ -224,11 +224,12 @@ public sealed class Nlma : AbstractBase
     // ── Weight computation ─────────────────────────────────────────────
 
     /// <summary>
-    /// Computes original Igorad two-phase kernel weights.
+    /// Computes original Igorad two-phase kernel weights (MQL4 NonLagMA v7.1 order).
     /// Phase zone (i=0..period-2): t = i/(period-2), g = t≤0.5 ? 1 : 1/(3πt+1), w = g*cos(πt)
     /// Cycle zone (i=period-1..flen-2): t = 1 + (i-phase+1)*(2*Cycle-1)/(Cycle*period-1), same g/w
     /// Last tap (i=flen-1): weight = 0.
-    /// weights[0] = newest bar, weights[flen-1] = oldest bar.
+    /// weights[0] = newest bar (=1.0), weights[flen-1] = oldest bar (=0.0).
+    /// Matches MQL4 alfa[] order: alfa[0]*Close[0] (newest) .. alfa[Len-1]*Close[Len-1] (oldest).
     /// Returns the signed weight sum for normalization.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -238,57 +239,35 @@ public sealed class Nlma : AbstractBase
         int phase = period - 1;
         double coeff = 3.0 * Math.PI;
 
-        // Compute weights in "oldest-first" order (taps[0]=oldest, taps[flen-1]=newest)
-        // then reverse into weights[] so weights[0]=newest, weights[flen-1]=oldest
-        const int StackallocThreshold = 256;
-        double[]? rented = flen > StackallocThreshold ? ArrayPool<double>.Shared.Rent(flen) : null;
-        Span<double> taps = flen <= StackallocThreshold
-            ? stackalloc double[flen]
-            : rented!.AsSpan(0, flen);
-
+        // Compute weights directly in MQL4 alfa[] order:
+        // weights[0] = alfa[0] = weight for newest bar (=1.0 at t=0)
+        // weights[flen-1] = alfa[flen-1] = weight for oldest bar (=0.0)
         double wsum = 0.0;
 
-        try
+        for (int i = 0; i < flen - 1; i++)
         {
-            for (int i = 0; i < flen - 1; i++)
+            double t;
+            if (i <= phase - 1)
             {
-                double t;
-                if (i <= phase - 1)
-                {
-                    // Phase zone: t ramps from 0 to 1
-                    t = phase > 1 ? (double)i / (phase - 1) : 0.0;
-                }
-                else
-                {
-                    // Cycle zone: t continues from 1 upward
-                    double numer = (double)(i - phase + 1) * (2 * Cycle - 1);
-                    double denom = (double)(Cycle * period - 1);
-                    t = 1.0 + (denom > 0 ? numer / denom : 0.0);
-                }
-
-                double beta = Math.Cos(Math.PI * t);
-                double g = t <= 0.5 ? 1.0 : 1.0 / Math.FusedMultiplyAdd(coeff, t, 1.0);
-                double w = g * beta;
-                taps[i] = w;
-                wsum += w;
+                // Phase zone: t ramps from 0 to 1
+                t = phase > 1 ? (double)i / (phase - 1) : 0.0;
+            }
+            else
+            {
+                // Cycle zone: t continues from 1 upward
+                double numer = (double)(i - phase + 1) * (2 * Cycle - 1);
+                double denom = (double)(Cycle * period - 1);
+                t = 1.0 + (denom > 0 ? numer / denom : 0.0);
             }
 
-            // Last tap has weight 0 (original MQL4 loop goes to Len-2)
-            taps[flen - 1] = 0.0;
-
-            // Reverse into weights[]: weights[0]=newest=taps[flen-1], weights[flen-1]=oldest=taps[0]
-            for (int i = 0; i < flen; i++)
-            {
-                weights[i] = taps[flen - 1 - i];
-            }
+            double beta = Math.Cos(Math.PI * t);
+            double g = t <= 0.5 ? 1.0 : 1.0 / Math.FusedMultiplyAdd(coeff, t, 1.0);
+            weights[i] = g * beta;
+            wsum += weights[i];
         }
-        finally
-        {
-            if (rented != null)
-            {
-                ArrayPool<double>.Shared.Return(rented);
-            }
-        }
+
+        // Last tap has weight 0 (original MQL4 loop goes to Len-2)
+        weights[flen - 1] = 0.0;
 
         return wsum;
     }
@@ -297,7 +276,8 @@ public sealed class Nlma : AbstractBase
 
     /// <summary>
     /// Convolves when buffer is full (count == flen). Uses precomputed weights.
-    /// weights[0] = newest, weights[flen-1] = oldest. Normalized by signed weight sum.
+    /// weights[0] = newest bar weight (=1.0), weights[flen-1] = oldest bar weight (=0.0).
+    /// Normalized by signed weight sum. Matches MQL4: alfa[0]*Close[0] + ... + alfa[Len-1]*Close[Len-1].
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double ConvolveFull()
@@ -307,7 +287,7 @@ public sealed class Nlma : AbstractBase
         int capacity = _buffer.Capacity;
         double sum = 0.0;
 
-        // Iterate oldest-to-newest: oldest bar gets weights[flen-1], newest gets weights[0]
+        // Iterate oldest-to-newest: oldest bar gets weights[flen-1] (≈0), newest gets weights[0] (=1.0)
         int wi = _flen - 1;
         for (int i = head; i < capacity; i++)
         {

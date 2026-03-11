@@ -132,7 +132,7 @@ public sealed class Rwma : ITValuePublisher
         {
             double c = _closeBuffer[i];
             double r = _rangeBuffer[i];
-            sumCR += c * r;
+            sumCR = Math.FusedMultiplyAdd(c, r, sumCR);
             sumR += r;
         }
 
@@ -222,12 +222,12 @@ public sealed class Rwma : ITValuePublisher
 
         if (s.Count >= _period)
         {
-            s.SumCR -= oldClose * oldRange;
+            s.SumCR = Math.FusedMultiplyAdd(-oldClose, oldRange, s.SumCR);
             s.SumR -= oldRange;
         }
 
         // Add new values
-        s.SumCR += currentClose * currentRange;
+        s.SumCR = Math.FusedMultiplyAdd(currentClose, currentRange, s.SumCR);
         s.SumR += currentRange;
 
         // Store in circular buffer
@@ -421,12 +421,12 @@ public sealed class Rwma : ITValuePublisher
 
                 if (count >= period)
                 {
-                    sumCR -= oldClose * oldRange;
+                    sumCR = Math.FusedMultiplyAdd(-oldClose, oldRange, sumCR);
                     sumR -= oldRange;
                 }
 
                 // Add new values
-                sumCR += currentClose * currentRange;
+                sumCR = Math.FusedMultiplyAdd(currentClose, currentRange, sumCR);
                 sumR += currentRange;
 
                 // Store in circular buffer
@@ -449,7 +449,7 @@ public sealed class Rwma : ITValuePublisher
                     sumR = 0;
                     for (int j = 0; j < period; j++)
                     {
-                        sumCR += closeBuffer[j] * rangeBuffer[j];
+                        sumCR = Math.FusedMultiplyAdd(closeBuffer[j], rangeBuffer[j], sumCR);
                         sumR += rangeBuffer[j];
                     }
                 }

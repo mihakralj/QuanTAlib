@@ -48,6 +48,7 @@ public sealed class Granger : AbstractBase
     private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
+    /// <inheritdoc />
     public override bool IsHot => _windowY.IsFull;
 
     /// <summary>
@@ -103,16 +104,23 @@ public sealed class Granger : AbstractBase
     /// <summary>
     /// Updates with raw double values.
     /// </summary>
+    /// <remarks>
+    /// Stamps both inputs with <c>DateTime.UtcNow</c> as their timestamp. For
+    /// deterministic or replay-safe sequences use
+    /// <see cref="Update(TValue, TValue, bool)"/> with explicit timestamps instead.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesY, double seriesX, bool isNew = true)
     {
         return Update(new TValue(DateTime.UtcNow, seriesY), new TValue(DateTime.UtcNow, seriesX), isNew);
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for dual-input indicator. Use Update(seriesY, seriesX) instead.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("Granger requires two inputs (seriesY and seriesX). Use Update(seriesY, seriesX).");
     }
+    /// <summary>Not supported. This indicator requires two inputs; use <see cref="Batch(TSeries, TSeries, int)"/> instead.</summary>
     /// <remarks>Not supported for dual-input indicator. Use Batch(seriesY, seriesX, period) instead.</remarks>
     public override TSeries Update(TSeries source)
     {
@@ -366,11 +374,13 @@ public sealed class Granger : AbstractBase
             _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
         }
     }
+    /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Granger requires two inputs.");
     }
 
+    /// <inheritdoc />
     public override void Reset()
     {
         _bufferY.Clear();
@@ -465,6 +475,9 @@ public sealed class Granger : AbstractBase
         }
     }
 
+    /// <summary>
+    /// Calculates the Granger Causality F-statistic for two time series and returns both the result series and the live indicator instance.
+    /// </summary>
     public static (TSeries Results, Granger Indicator) Calculate(TSeries seriesY, TSeries seriesX, int period = 20)
     {
         if (seriesY.Count != seriesX.Count)

@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -309,48 +308,7 @@ public sealed class Loess : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double DotProduct(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
-    {
-        // a and b expected to be same length (slice called in Update ensures this)
-        int length = a.Length;
-        if (length == 0)
-        {
-            return 0;
-        }
-
-        int i = 0;
-        double sum = 0;
-
-        if (Vector.IsHardwareAccelerated && length >= Vector<double>.Count)
-        {
-            var vSum = Vector<double>.Zero;
-            ref double rA = ref MemoryMarshal.GetReference(a);
-            ref double rB = ref MemoryMarshal.GetReference(b);
-
-            int vectorCount = Vector<double>.Count;
-            int limit = length - vectorCount;
-
-            for (; i <= limit; i += vectorCount)
-            {
-                var vA = Vector.LoadUnsafe(ref rA, (nuint)i);
-                var vB = Vector.LoadUnsafe(ref rB, (nuint)i);
-                vSum += vA * vB;
-            }
-
-            // Reduce vector sum
-            for (int j = 0; j < vectorCount; j++)
-            {
-                sum += vSum[j];
-            }
-        }
-
-        // Remainder
-        for (; i < length; i++)
-        {
-            sum += a[i] * b[i];
-        }
-
-        return sum;
-    }
+        => a.DotProduct(b);
 
     public static (TSeries Results, Loess Indicator) Calculate(TSeries source, int period)
     {

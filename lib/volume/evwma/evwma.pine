@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Elastic Volume Weighted Moving Average (EVWMA)", "EVWMA", overlay=true)
@@ -10,8 +10,6 @@ indicator("Elastic Volume Weighted Moving Average (EVWMA)", "EVWMA", overlay=tru
 //@returns EVWMA value where high-volume bars get more weight (faster response)
 //@optimized O(1) per bar via circular buffer for running volume sum
 evwma(series float src, series float vol, simple int period) =>
-    if period <= 0
-        runtime.error("Period must be greater than 0")
     var int p = math.max(1, period), var int head = 0, var int count = 0
     var array<float> vol_buffer = array.new_float(p, 0.0)
     var float sum_vol = 0.0
