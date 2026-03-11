@@ -316,7 +316,7 @@ public sealed class Afirma : AbstractBase
                 // Calculation in loop for clarity or formula:
                 double dn = (double)n;
                 sx = (dn - 1.0) * dn * 0.5;
-                sx2 = (dn - 1.0) * dn * (2.0 * dn - 1.0) / 6.0;
+                sx2 = (dn - 1.0) * dn * ((2.0 * dn) - 1.0) / 6.0;
 
                 for (int i = 0; i < n; i++)
                 {
@@ -328,11 +328,11 @@ public sealed class Afirma : AbstractBase
                     sxy += i * val;
                 }
 
-                double denom = dn * sx2 - sx * sx;
+                double denom = (dn * sx2) - (sx * sx);
                 if (Math.Abs(denom) > 1e-10)
                 {
-                    double slope = (dn * sxy - sx * sy) / denom;
-                    double intercept = (sy - slope * sx) / dn;
+                    double slope = ((dn * sxy) - (sx * sy)) / denom;
+                    double intercept = (sy - (slope * sx)) / dn;
 
                     double lsSum = 0.0;
                     double lsCount = 0.0;
@@ -345,7 +345,7 @@ public sealed class Afirma : AbstractBase
                     for (int i = 0; i < count; i++)
                     {
                         // Use fitted value (intercept + slope * i) for i < n, otherwise use original from buffer
-                        double val = i < n ? intercept + slope * i : _buffer[count - 1 - i];
+                        double val = i < n ? intercept + (slope * i) : _buffer[count - 1 - i];
                         lsSum += val;
                         lsCount++;
                     }
@@ -390,7 +390,7 @@ public sealed class Afirma : AbstractBase
         for (int k = 0; k < _period; k++)
         {
             double kTwoPiDivP = k * twoPiDivP;
-            double coef = a0 + a1 * Math.Cos(kTwoPiDivP);
+            double coef = a0 + (a1 * Math.Cos(kTwoPiDivP));
             if (Math.Abs(a2) > 1e-9)
             {
                 coef += a2 * Math.Cos(2.0 * kTwoPiDivP);
@@ -475,7 +475,7 @@ public sealed class Afirma : AbstractBase
             for (int k = 0; k < period; k++)
             {
                 double kTwoPiDivP = k * twoPiDivP;
-                double coef = a0 + a1 * Math.Cos(kTwoPiDivP);
+                double coef = a0 + (a1 * Math.Cos(kTwoPiDivP));
                 if (Math.Abs(a2) > 1e-9)
                 {
                     coef += a2 * Math.Cos(2.0 * kTwoPiDivP);
@@ -544,7 +544,7 @@ public sealed class Afirma : AbstractBase
                         double sx = 0.0, sx2 = 0.0, sy = 0.0, sxy = 0.0;
                         double dn = (double)n;
                         sx = (dn - 1.0) * dn * 0.5;
-                        sx2 = (dn - 1.0) * dn * (2.0 * dn - 1.0) / 6.0;
+                        sx2 = (dn - 1.0) * dn * ((2.0 * dn) - 1.0) / 6.0;
 
                         for (int j = 0; j < n; j++)
                         {
@@ -555,11 +555,11 @@ public sealed class Afirma : AbstractBase
                             sxy = Math.FusedMultiplyAdd(j, v, sxy);
                         }
 
-                        double denom = dn * sx2 - sx * sx;
+                        double denom = (dn * sx2) - (sx * sx);
                         if (Math.Abs(denom) > 1e-10)
                         {
-                            double slope = (dn * sxy - sx * sy) / denom;
-                            double intercept = (sy - slope * sx) / dn;
+                            double slope = ((dn * sxy) - (sx * sy)) / denom;
+                            double intercept = (sy - (slope * sx)) / dn;
 
                             double lsSum = 0.0;
                             double lsCount = 0.0;

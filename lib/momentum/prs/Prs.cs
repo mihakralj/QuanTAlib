@@ -352,5 +352,4 @@ public sealed class Prs : AbstractBase
         TSeries results = Batch(baseSeries, compSeries, smoothPeriod);
         return (results, indicator);
     }
-
 }

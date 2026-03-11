@@ -113,7 +113,7 @@ public sealed class GBM : IFeed
         const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = timeframe.TotalMinutes / minutesPerYear;
 
-        _drift = (mu - 0.5 * sigma * sigma) * dt;
+        _drift = (mu - (0.5 * sigma * sigma)) * dt;
         _vol = sigma * Math.Sqrt(dt);
     }
 
@@ -218,7 +218,7 @@ public sealed class GBM : IFeed
                 price = _lastPrice;
             }
 
-            double volume = 1000 + NextDouble() * 1000;
+            double volume = 1000 + (NextDouble() * 1000);
 
             double open = _lastPrice;
             double close = price;
@@ -226,8 +226,8 @@ public sealed class GBM : IFeed
             double rnd1 = NextDouble();
             double rnd2 = NextDouble();
 
-            double high = Math.Max(open, close) * (1.0 + rnd1 * 0.01);
-            double low = Math.Min(open, close) * (1.0 - rnd2 * 0.01);
+            double high = Math.Max(open, close) * (1.0 + (rnd1 * 0.01));
+            double low = Math.Min(open, close) * (1.0 - (rnd2 * 0.01));
 
             // Ensure valid OHLC constraints
             high = Math.Max(high, Math.Max(open, close));
@@ -252,7 +252,7 @@ public sealed class GBM : IFeed
                 price = _lastPrice;
             }
 
-            double additionalVolume = 1000 + NextDouble() * 1000;
+            double additionalVolume = 1000 + (NextDouble() * 1000);
 
             var bar = _currentBar;
             double newClose = price;
@@ -412,7 +412,7 @@ public sealed class GBM : IFeed
     {
         const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = interval.TotalMinutes / minutesPerYear;
-        double drift = (Mu - 0.5 * Sigma * Sigma) * dt;
+        double drift = (Mu - (0.5 * Sigma * Sigma)) * dt;
         double vol = Sigma * Math.Sqrt(dt);
 
         long timeStep = interval.Ticks;
@@ -441,8 +441,8 @@ public sealed class GBM : IFeed
             o[i] = open;
             c[i] = close;
 
-            double high = Math.Max(open, close) * (1.0 + rnd1 * 0.01);
-            double low = Math.Min(open, close) * (1.0 - rnd2 * 0.01);
+            double high = Math.Max(open, close) * (1.0 + (rnd1 * 0.01));
+            double low = Math.Min(open, close) * (1.0 - (rnd2 * 0.01));
 
             // Ensure valid OHLC constraints
             high = Math.Max(high, Math.Max(open, close));
@@ -451,7 +451,7 @@ public sealed class GBM : IFeed
 
             h[i] = high;
             l[i] = low;
-            v[i] = 1000 + rnd3 * 1000;
+            v[i] = 1000 + (rnd3 * 1000);
 
             currentPrice = price;
             currentTime += timeStep;

@@ -150,7 +150,7 @@ public sealed class Kurtosis : AbstractBase
 
             // Second central moment (variance): m₂ = Σ(x-μ)²/n
             // = (SumSq - Sum²/n) / n
-            double m2Numerator = _sumSq - (_sum * _sum) / n;
+            double m2Numerator = _sumSq - ((_sum * _sum) / n);
             if (m2Numerator < Epsilon)
             {
                 m2Numerator = 0;
@@ -165,10 +165,10 @@ public sealed class Kurtosis : AbstractBase
                 // m₄ = SumQu/n - 4·mean·SumCu/n + 6·mean²·SumSq/n - 3·mean⁴
                 // Note: last term -4·mean³·Sum/n + mean⁴ = -4·mean⁴ + mean⁴ = -3·mean⁴
                 double meanSq = mean * mean;
-                double m4 = _sumQu / n
-                    - 4.0 * mean * _sumCu / n
-                    + 6.0 * meanSq * _sumSq / n
-                    - 3.0 * meanSq * meanSq;
+                double m4 = (_sumQu / n)
+                    - (4.0 * mean * _sumCu / n)
+                    + (6.0 * meanSq * _sumSq / n)
+                    - (3.0 * meanSq * meanSq);
 
                 // Population excess kurtosis: g₂ = m₄/m₂² - 3
                 double g2 = (m4 / (m2 * m2)) - 3.0;
@@ -184,7 +184,7 @@ public sealed class Kurtosis : AbstractBase
                     double denom = (n - 2.0) * (n - 3.0);
                     if (Math.Abs(denom) > Epsilon)
                     {
-                        kurtosis = ((n - 1.0) / denom) * ((n + 1.0) * g2 + 6.0);
+                        kurtosis = ((n - 1.0) / denom) * (((n + 1.0) * g2) + 6.0);
                     }
                 }
             }
@@ -327,7 +327,7 @@ public sealed class Kurtosis : AbstractBase
     {
         double mean = sum / n;
 
-        double m2Numerator = sumSq - (sum * sum) / n;
+        double m2Numerator = sumSq - ((sum * sum) / n);
         if (m2Numerator < Epsilon)
         {
             return 0;
@@ -342,10 +342,10 @@ public sealed class Kurtosis : AbstractBase
 
         // Fourth central moment via raw moments
         double meanSq = mean * mean;
-        double m4 = sumQu / n
-            - 4.0 * mean * sumCu / n
-            + 6.0 * meanSq * sumSq / n
-            - 3.0 * meanSq * meanSq;
+        double m4 = (sumQu / n)
+            - (4.0 * mean * sumCu / n)
+            + (6.0 * meanSq * sumSq / n)
+            - (3.0 * meanSq * meanSq);
 
         double g2 = (m4 / (m2 * m2)) - 3.0;
 
@@ -361,7 +361,7 @@ public sealed class Kurtosis : AbstractBase
             return 0;
         }
 
-        return ((n - 1.0) / denom) * ((n + 1.0) * g2 + 6.0);
+        return ((n - 1.0) / denom) * (((n + 1.0) * g2) + 6.0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -415,8 +415,8 @@ public sealed class Kurtosis : AbstractBase
             double oldSq = oldVal * oldVal;
             sum = sum - oldVal + val;
             sumSq = sumSq - oldSq + valSq;
-            sumCu = sumCu - oldSq * oldVal + valSq * val;
-            sumQu = sumQu - oldSq * oldSq + valSq * valSq;
+            sumCu = sumCu - (oldSq * oldVal) + (valSq * val);
+            sumQu = sumQu - (oldSq * oldSq) + (valSq * valSq);
 
             output[i] = CalculateKurtosisFromSums(sum, sumSq, sumCu, sumQu, period, isPopulation);
 
@@ -507,7 +507,7 @@ public sealed class Kurtosis : AbstractBase
         var vFisherNp1 = Vector256.Create(isPopulation ? 1.0 : fisherNp1);
         var vFisherAdd = Vector256.Create(fisherAdd);
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)

@@ -255,8 +255,8 @@ public sealed class Nlma : AbstractBase
             else
             {
                 // Cycle zone: t continues from 1 upward
-                double numer = (double)(i - phase + 1) * (2 * Cycle - 1);
-                double denom = (double)(Cycle * period - 1);
+                double numer = (double)(i - phase + 1) * ((2 * Cycle) - 1);
+                double denom = (double)((Cycle * period) - 1);
                 t = 1.0 + (denom > 0 ? numer / denom : 0.0);
             }
 

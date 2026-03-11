@@ -82,7 +82,7 @@ public sealed class RmseValidationTests : IDisposable
         // Build state well past warmup
         for (int i = 0; i < 50; i++)
         {
-            ind.Update(100.0 + i * 0.5, 98.0 + i * 0.5);
+            ind.Update(100.0 + (i * 0.5), 98.0 + (i * 0.5));
         }
 
         // Anchor bar

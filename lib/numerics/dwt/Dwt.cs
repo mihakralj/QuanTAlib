@@ -440,9 +440,9 @@ public sealed class Dwt : AbstractBase
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static double Get(Span<double> b, int h, int c, int lag)
         {
-            int idx = ((h - 1 - lag) % c + c) % c;
+            int idx = (((h - 1 - lag) % c) + c) % c;
             int maxLag = c - 1;
-            if (lag > maxLag) { idx = ((h - 1 - maxLag) % c + c) % c; }
+            if (lag > maxLag) { idx = (((h - 1 - maxLag) % c) + c) % c; }
             return b[idx];
         }
 

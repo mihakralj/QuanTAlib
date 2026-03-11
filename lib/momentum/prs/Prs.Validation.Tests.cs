@@ -248,8 +248,8 @@ public class PrsValidationTests
 
         for (int i = 0; i < 10; i++)
         {
-            double basePrice = 100 * (1 + i * 0.05); // 5% growth
-            double compPrice = 50 * (1 + i * 0.05);  // 5% growth
+            double basePrice = 100 * (1 + (i * 0.05)); // 5% growth
+            double compPrice = 50 * (1 + (i * 0.05));  // 5% growth
             var result = prs.Update(basePrice, compPrice, true);
             results.Add(result.Value);
         }
@@ -556,7 +556,7 @@ public class PrsValidationTests
         // Build state well past warmup
         for (int i = 0; i < 50; i++)
         {
-            ind.Update(100.0 + i * 0.5, 98.0 + i * 0.5);
+            ind.Update(100.0 + (i * 0.5), 98.0 + (i * 0.5));
         }
 
         // Anchor bar

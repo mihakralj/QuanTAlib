@@ -276,7 +276,7 @@ public class GBMTests
 
         Assert.Equal(startTime, series[0].Time);
         Assert.Equal(startTime + interval.Ticks, series[1].Time);
-        Assert.Equal(startTime + 2 * interval.Ticks, series[2].Time);
+        Assert.Equal(startTime + (2 * interval.Ticks), series[2].Time);
     }
 
     [Theory]

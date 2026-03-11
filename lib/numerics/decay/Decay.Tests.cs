@@ -337,7 +337,7 @@ public class DecayTests
 
         for (int i = 0; i < largeSize; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Decay.Batch(source, output, TestPeriod);

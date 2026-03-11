@@ -103,7 +103,7 @@ public sealed class HtDcperiodValidationTests : IDisposable
         for (int i = 0; i < 100; i++)
         {
             ind.Update(new TValue(t0.AddMinutes(i),
-                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+                100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0))), isNew: true);
         }
 
         // Anchor bar

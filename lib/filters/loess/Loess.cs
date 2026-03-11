@@ -267,7 +267,7 @@ public sealed class Loess : AbstractBase
                 dist = 0.9999;
             }
 
-            double t = 1.0 - dist * dist * dist;
+            double t = 1.0 - (dist * dist * dist);
             double w = t * t * t;
 
             double xi = i - halfWindow;
@@ -277,7 +277,7 @@ public sealed class Loess : AbstractBase
             x2Sum += xi * xi * w;
         }
 
-        double delta = weightSum * x2Sum - xSum * xSum;
+        double delta = (weightSum * x2Sum) - (xSum * xSum);
         if (Math.Abs(delta) < double.Epsilon)
         {
             delta = 1.0;
@@ -293,12 +293,12 @@ public sealed class Loess : AbstractBase
                 dist = 0.9999;
             }
 
-            double t = 1.0 - dist * dist * dist;
+            double t = 1.0 - (dist * dist * dist);
             double w = t * t * t;
             double xi = i - halfWindow;
 
-            double term1 = x2Sum - xi * xSum;
-            double term2 = targetX * (xi * weightSum - xSum);
+            double term1 = x2Sum - (xi * xSum);
+            double term2 = targetX * ((xi * weightSum) - xSum);
 
             double kValue = (w / delta) * (term1 + term2);
 

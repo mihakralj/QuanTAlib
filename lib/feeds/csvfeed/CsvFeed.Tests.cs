@@ -817,8 +817,8 @@ public sealed class CsvFeedTests : IDisposable
         Assert.Equal(startTime, series[0].Time); // Jan 1
         Assert.Equal(startTime + interval.Ticks, series[1].Time); // Jan 2
         // Gap here (Jan 3 missing)
-        Assert.Equal(startTime + 3 * interval.Ticks, series[2].Time); // Jan 4
-        Assert.Equal(startTime + 4 * interval.Ticks, series[3].Time); // Jan 5
+        Assert.Equal(startTime + (3 * interval.Ticks), series[2].Time); // Jan 4
+        Assert.Equal(startTime + (4 * interval.Ticks), series[3].Time); // Jan 5
     }
 
     [Fact]
@@ -941,7 +941,7 @@ public sealed class CsvFeedTests : IDisposable
         // Jan 1 and Jan 3 present; Jan 2 absent → Fetch includes both with gap
         Assert.Equal(2, series.Count);
         Assert.Equal(startTime, series[0].Time);
-        Assert.Equal(startTime + 2 * TimeSpan.FromDays(1).Ticks, series[1].Time);
+        Assert.Equal(startTime + (2 * TimeSpan.FromDays(1).Ticks), series[1].Time);
     }
 
     #endregion

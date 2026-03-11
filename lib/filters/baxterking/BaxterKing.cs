@@ -79,7 +79,7 @@ public sealed class BaxterKing : AbstractBase
         _pLow = pLow;
         _pHigh = pHigh;
         _k = k;
-        _filterLen = 2 * k + 1;
+        _filterLen = (2 * k) + 1;
 
         Name = $"BaxterKing({pLow},{pHigh},{k})";
         WarmupPeriod = _filterLen;
@@ -218,7 +218,7 @@ public sealed class BaxterKing : AbstractBase
     {
         double a = 2.0 * Math.PI / pHigh;  // low cutoff angular frequency
         double b = 2.0 * Math.PI / pLow;   // high cutoff angular frequency
-        int filterLen = 2 * k + 1;
+        int filterLen = (2 * k) + 1;
 
         // Compute ideal band-pass weights B[j] for j = 0..K
         // B_0 = (b - a) / pi
@@ -266,7 +266,7 @@ public sealed class BaxterKing : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output,
         int pLow = 6, int pHigh = 32, int k = 12)
     {
-        int filterLen = 2 * k + 1;
+        int filterLen = (2 * k) + 1;
         double[] weights = new double[filterLen];
         ComputeWeights(weights, pLow, pHigh, k);
 

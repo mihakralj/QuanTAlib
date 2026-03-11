@@ -167,7 +167,7 @@ public class RviValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            rvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+            rvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         Assert.True(rvi.Last.Value > 80.0, $"Strictly rising prices should produce high RVI, got {rvi.Last.Value}");
@@ -183,7 +183,7 @@ public class RviValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            rvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 - i * 0.5));
+            rvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 - (i * 0.5)));
         }
 
         Assert.True(rvi.Last.Value < 20.0, $"Strictly falling prices should produce low RVI, got {rvi.Last.Value}");
@@ -486,7 +486,7 @@ public class RviValidationTests
         // Multiple corrections on same price
         for (int j = 0; j < 5; j++)
         {
-            var tempPrice = new TValue(prices[29].Time, prices[29].Value * (1.0 + j * 0.01));
+            var tempPrice = new TValue(prices[29].Time, prices[29].Value * (1.0 + (j * 0.01)));
             rvi.Update(tempPrice, isNew: false);
         }
 
@@ -575,7 +575,7 @@ public class RviValidationTests
         // Symmetric oscillation
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + Math.Sin(i * 0.1) * 5; // Oscillating ±5
+            double price = 100.0 + (Math.Sin(i * 0.1) * 5); // Oscillating ±5
             rvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
         }
 
@@ -621,5 +621,4 @@ public class RviValidationTests
         double mean = values.Average();
         return values.Average(v => Math.Pow(v - mean, 2));
     }
-
 }

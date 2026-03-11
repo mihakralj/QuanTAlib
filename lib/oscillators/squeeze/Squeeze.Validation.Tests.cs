@@ -225,12 +225,12 @@ public sealed class SqueezeValidationTests
         // Build state well past warmup (WarmupPeriod = 20)
         for (int i = 0; i < 50; i++)
         {
-            double p = 100.0 + i * 0.5;
-            ind.Update(new TBar(t0 + i * TimeSpan.TicksPerSecond, p, p + 1, p - 1, p, 1000), isNew: true);
+            double p = 100.0 + (i * 0.5);
+            ind.Update(new TBar(t0 + (i * TimeSpan.TicksPerSecond), p, p + 1, p - 1, p, 1000), isNew: true);
         }
 
         // Anchor bar
-        long anchorTime = t0 + 50 * TimeSpan.TicksPerSecond;
+        long anchorTime = t0 + (50 * TimeSpan.TicksPerSecond);
         var anchorBar = new TBar(anchorTime, 125.0, 126.0, 124.0, 125.0, 1000);
         ind.Update(anchorBar, isNew: true);
         double anchorMomentum = ind.Momentum;

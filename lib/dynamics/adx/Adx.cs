@@ -476,7 +476,7 @@ public sealed class Adx : ITValuePublisher
         double dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
         dxSum += dx;
 
-        int adxStart = period * 2 - 1;
+        int adxStart = (period * 2) - 1;
 
         for (int i = period + 1; i <= adxStart; i++)
         {

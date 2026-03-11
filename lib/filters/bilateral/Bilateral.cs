@@ -252,7 +252,7 @@ public sealed class Bilateral : AbstractBase
         // Use Math.Max(0, ...) to handle potential floating point negative zero
         // Pre-compute inverse for efficiency
         double invCount = 1.0 / count;
-        double variance = Math.Max(0, (_state.SumSq - sum * sum * invCount) * invCount);
+        double variance = Math.Max(0, (_state.SumSq - (sum * sum * invCount)) * invCount);
         double stdev = Math.Sqrt(variance);
 
         double sigmaR = Math.Max(stdev * _sigmaRMult, 1e-10);
@@ -437,7 +437,7 @@ public sealed class Bilateral : AbstractBase
 
                 // Calculate StDev
                 double invCount = 1.0 / count;
-                double variance = Math.Max(0, (sumSq - sum * sum * invCount) * invCount);
+                double variance = Math.Max(0, (sumSq - (sum * sum * invCount)) * invCount);
                 double stdev = Math.Sqrt(variance);
 
                 double sigmaR = Math.Max(stdev * sigmaRMult, 1e-10);

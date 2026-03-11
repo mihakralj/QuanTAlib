@@ -161,8 +161,8 @@ public sealed class HtSine : AbstractBase
         double input1 = buffer[KEY_Q1];
         DoHilbertTransform(buffer, KEY_JQ, input1, true, hilbertIdx, adjustedPrevPeriod);
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForOddPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForOddPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         // The variable I1 is the detrender delayed for 3 price bars.
         i1ForEvenPrev3 = i1ForEvenPrev2;
@@ -187,8 +187,8 @@ public sealed class HtSine : AbstractBase
             hilbertIdx = 0;
         }
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         // The variable i1 is the detrender delayed for 3 price bars.
         i1ForOddPrev3 = i1ForOddPrev2;
@@ -199,8 +199,8 @@ public sealed class HtSine : AbstractBase
     private static void CalcSmoothedPeriod(
         ref double re, double i2, double q2, ref double prevI2, ref double prevQ2, ref double im, ref double period)
     {
-        re = Math.FusedMultiplyAdd(0.2, i2 * prevI2 + q2 * prevQ2, 0.8 * re);
-        im = Math.FusedMultiplyAdd(0.2, i2 * prevQ2 - q2 * prevI2, 0.8 * im);
+        re = Math.FusedMultiplyAdd(0.2, (i2 * prevI2) + (q2 * prevQ2), 0.8 * re);
+        im = Math.FusedMultiplyAdd(0.2, (i2 * prevQ2) - (q2 * prevI2), 0.8 * im);
 
         prevQ2 = q2;
         prevI2 = i2;
@@ -373,7 +373,7 @@ public sealed class HtSine : AbstractBase
         }
 
         // Calculate smoothed price using WMA
-        double adjustedPrevPeriod = 0.075 * s.Period + 0.54;
+        double adjustedPrevPeriod = (0.075 * s.Period) + 0.54;
 
         s.PeriodWMASub += price;
         s.PeriodWMASub -= s.TrailingWMAValue;

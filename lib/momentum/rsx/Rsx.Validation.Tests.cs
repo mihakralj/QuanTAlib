@@ -78,7 +78,6 @@ public class RsxValidationTests
             // Core RSX calculations (assuming price input as closing price):
             double f8 = 100 * price;
 
-
             if (!initialized)
             {
                 lastF8 = f8;
@@ -89,32 +88,32 @@ public class RsxValidationTests
             lastF8 = f8;
 
             // First smoothing stage:
-            f28 = ialpha * f28 + alpha * v8;
-            f30 = alpha * f28 + ialpha * f30;
-            double vC = 1.5 * f28 - 0.5 * f30;
+            f28 = (ialpha * f28) + (alpha * v8);
+            f30 = (alpha * f28) + (ialpha * f30);
+            double vC = (1.5 * f28) - (0.5 * f30);
             // Second smoothing stage:
-            f38 = ialpha * f38 + alpha * vC;
-            f40 = alpha * f38 + ialpha * f40;
-            double v10 = 1.5 * f38 - 0.5 * f40;
+            f38 = (ialpha * f38) + (alpha * vC);
+            f40 = (alpha * f38) + (ialpha * f40);
+            double v10 = (1.5 * f38) - (0.5 * f40);
             // Third smoothing stage:
-            f48 = ialpha * f48 + alpha * v10;
-            f50 = alpha * f48 + ialpha * f50;
-            double v14 = 1.5 * f48 - 0.5 * f50;
+            f48 = (ialpha * f48) + (alpha * v10);
+            f50 = (alpha * f48) + (ialpha * f50);
+            double v14 = (1.5 * f48) - (0.5 * f50);
             // Repeat stages for absolute value (momentum magnitude):
-            f58 = ialpha * f58 + alpha * Math.Abs(v8);
-            f60 = alpha * f58 + ialpha * f60;
-            double v18 = 1.5 * f58 - 0.5 * f60;
-            f68 = ialpha * f68 + alpha * v18;
-            f70 = alpha * f68 + ialpha * f70;
-            double v1C = 1.5 * f68 - 0.5 * f70;
-            f78 = ialpha * f78 + alpha * v1C;
-            f80 = alpha * f78 + ialpha * f80;
-            double v20 = 1.5 * f78 - 0.5 * f80;
+            f58 = (ialpha * f58) + (alpha * Math.Abs(v8));
+            f60 = (alpha * f58) + (ialpha * f60);
+            double v18 = (1.5 * f58) - (0.5 * f60);
+            f68 = (ialpha * f68) + (alpha * v18);
+            f70 = (alpha * f68) + (ialpha * f70);
+            double v1C = (1.5 * f68) - (0.5 * f70);
+            f78 = (ialpha * f78) + (alpha * v1C);
+            f80 = (alpha * f78) + (ialpha * f80);
+            double v20 = (1.5 * f78) - (0.5 * f80);
             // Final RSX value:
             double rsx;
             if (v20 > 1e-10) // Avoid division by zero
             {
-                double v4 = (v14 / v20 + 1.0) * 50.0;
+                double v4 = ((v14 / v20) + 1.0) * 50.0;
                 rsx = Math.Clamp(v4, 0.0, 100.0);
             }
             else
@@ -152,7 +151,7 @@ public class RsxValidationTests
         // Build state well past warmup
         for (int i = 0; i < 50; i++)
         {
-            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + (i * 0.5)));
         }
 
         // Anchor bar

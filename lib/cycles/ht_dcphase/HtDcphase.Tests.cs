@@ -27,7 +27,7 @@ public class HtDcphaseTests
         // Feed data through publisher
         for (int i = 0; i < 80; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + Math.Sin(i * 0.3) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (Math.Sin(i * 0.3) * 10)));
         }
 
         Assert.True(ht.IsHot);
@@ -131,7 +131,7 @@ public class HtDcphaseTests
         // Prime with data
         for (int i = 0; i < 70; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.1) * 10));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(ht.IsHot);
@@ -153,7 +153,7 @@ public class HtDcphaseTests
 
         for (int i = 0; i < 70; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + i * 0.5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (i * 0.5)));
         }
 
         // New bar
@@ -187,7 +187,7 @@ public class HtDcphaseTests
 
         for (int i = 0; i < 80; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
 
         Assert.True(ht.IsHot);
@@ -203,7 +203,7 @@ public class HtDcphaseTests
 
         for (int i = 0; i < 80; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + i * 0.5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (i * 0.5)));
         }
 
         var result = ht.Update(new TValue(now.AddMinutes(80), double.PositiveInfinity));
@@ -236,14 +236,14 @@ public class HtDcphaseTests
 
         for (int i = 0; i < 80; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
         var firstResult = ht.Last.Value;
 
         ht.Reset();
         for (int i = 0; i < 80; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
         Assert.Equal(firstResult, ht.Last.Value);
     }
@@ -352,7 +352,7 @@ public class HtDcphaseTests
         var values = new double[80];
         for (int i = 0; i < 80; i++)
         {
-            values[i] = 100 + Math.Sin(i * 0.2) * 5;
+            values[i] = 100 + (Math.Sin(i * 0.2) * 5);
         }
 
         ht.Prime(values, TimeSpan.FromMinutes(5));

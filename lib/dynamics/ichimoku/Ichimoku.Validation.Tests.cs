@@ -124,8 +124,8 @@ public sealed class IchimokuValidationTests : IDisposable
         // Add 4 bars with increasing trend
         for (int i = 0; i < 4; i++)
         {
-            double basePrice = 100 + i * 5;
-            ichimoku.Update(new TBar(baseTime + i * 60000, basePrice, basePrice + 5, basePrice - 5, basePrice, 1000));
+            double basePrice = 100 + (i * 5);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), basePrice, basePrice + 5, basePrice - 5, basePrice, 1000));
         }
 
         // Tenkan (2-period) uses last 2 bars: bars 3,4
@@ -223,7 +223,7 @@ public sealed class IchimokuValidationTests : IDisposable
 
         for (int i = 0; i < 5; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, (highs[i] + lows[i]) / 2, highs[i], lows[i], (highs[i] + lows[i]) / 2, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), (highs[i] + lows[i]) / 2, highs[i], lows[i], (highs[i] + lows[i]) / 2, 1000));
         }
 
         // 5-period: max(100,110,120,115,105) = 120, min(90,85,80,88,92) = 80
@@ -244,7 +244,7 @@ public sealed class IchimokuValidationTests : IDisposable
 
         for (int i = 1; i < 10; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 110, 90, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 110, 90, 100, 1000));
         }
 
         // 10-period includes the extreme bar
@@ -254,7 +254,7 @@ public sealed class IchimokuValidationTests : IDisposable
         Assert.Equal(125.0, ichimoku.SenkouB.Value, Precision);
 
         // Add another bar to drop the extreme
-        ichimoku.Update(new TBar(baseTime + 10 * 60000, 100, 110, 90, 100, 1000));
+        ichimoku.Update(new TBar(baseTime + (10 * 60000), 100, 110, 90, 100, 1000));
 
         // Now 10-period window doesn't include extreme bar
         // max(110,110,...) = 110, min(90,90,...) = 90
@@ -291,8 +291,8 @@ public sealed class IchimokuValidationTests : IDisposable
 
         for (int i = 0; i < 15; i++)
         {
-            double expectedClose = 100 + i * 1.5;
-            ichimoku.Update(new TBar(baseTime + i * 60000, expectedClose, expectedClose + 5, expectedClose - 5, expectedClose, 1000));
+            double expectedClose = 100 + (i * 1.5);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), expectedClose, expectedClose + 5, expectedClose - 5, expectedClose, 1000));
             Assert.Equal(expectedClose, ichimoku.Chikou.Value, Precision);
         }
     }
@@ -315,14 +315,14 @@ public sealed class IchimokuValidationTests : IDisposable
         for (int i = 0; i < 10; i++)
         {
             double price = 50 + i; // 50 to 59
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         // Then jump to much higher prices - affects Tenkan and Kijun more than SenkouB
         for (int i = 10; i < 15; i++)
         {
-            double price = 100 + (i - 10) * 2;
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            double price = 100 + ((i - 10) * 2);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         // In this scenario, SenkouA should be above SenkouB (bullish cloud)
@@ -344,14 +344,14 @@ public sealed class IchimokuValidationTests : IDisposable
         for (int i = 0; i < 10; i++)
         {
             double price = 150 - i; // 150 down to 141
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         // Then drop to much lower prices
         for (int i = 10; i < 15; i++)
         {
-            double price = 100 - (i - 10) * 3;
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            double price = 100 - ((i - 10) * 3);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         // In downtrend, SenkouB (longer term) should be above SenkouA (bearish cloud)
@@ -374,9 +374,9 @@ public sealed class IchimokuValidationTests : IDisposable
         for (int i = 0; i < 100; i++)
         {
             // Random walk-ish price movement
-            double change = Math.Sin(i * 0.1) * 2 + Math.Cos(i * 0.05);
+            double change = (Math.Sin(i * 0.1) * 2) + Math.Cos(i * 0.05);
             price += change;
-            barSeries.Add(new TBar(baseTime + i * 60000, price, price + 2, price - 2, price, 1000));
+            barSeries.Add(new TBar(baseTime + (i * 60000), price, price + 2, price - 2, price, 1000));
         }
 
         // Process all bars
@@ -406,8 +406,8 @@ public sealed class IchimokuValidationTests : IDisposable
         // Process enough bars to warmup
         for (int i = 0; i < 70; i++)
         {
-            double price = 40000 + Math.Sin(i * 0.05) * 1000;
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 50, price - 50, price, 10));
+            double price = 40000 + (Math.Sin(i * 0.05) * 1000);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 50, price - 50, price, 10));
         }
 
         Assert.True(ichimoku.IsHot);
@@ -427,7 +427,7 @@ public sealed class IchimokuValidationTests : IDisposable
         for (int i = 0; i < 60; i++)
         {
             double price = 100 + i;
-            barSeries.Add(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            barSeries.Add(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         // Batch processing
@@ -472,7 +472,7 @@ public sealed class IchimokuValidationTests : IDisposable
         for (int i = 0; i < 60; i++)
         {
             double price = 100 + i;
-            barSeries.Add(new TBar(baseTime + i * 60000, price, price + 5, price - 5, price, 1000));
+            barSeries.Add(new TBar(baseTime + (i * 60000), price, price + 5, price - 5, price, 1000));
         }
 
         var (results, indicator) = Ichimoku.Calculate(barSeries);
@@ -500,7 +500,7 @@ public sealed class IchimokuValidationTests : IDisposable
         // Phase 1: Ranging market - Tenkan ≈ Kijun
         for (int i = 0; i < 5; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 100, 1000));
         }
 
         // Capture initial state (using discards since we're testing the response to change)
@@ -510,8 +510,8 @@ public sealed class IchimokuValidationTests : IDisposable
         // Phase 2: Sharp upward move - Tenkan should rise faster
         for (int i = 5; i < 10; i++)
         {
-            double price = 100 + (i - 5) * 5;
-            ichimoku.Update(new TBar(baseTime + i * 60000, price, price + 3, price - 3, price, 1000));
+            double price = 100 + ((i - 5) * 5);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), price, price + 3, price - 3, price, 1000));
         }
 
         // Tenkan (short-term) should react faster to the uptrend
@@ -689,7 +689,7 @@ public sealed class IchimokuValidationTests : IDisposable
         // Build state well past warmup
         for (int i = 0; i < 100; i++)
         {
-            double p = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double p = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             ind.Update(new TBar(t0.AddMinutes(i), p, p + 2, p - 2, p, 1000), isNew: true);
         }
 

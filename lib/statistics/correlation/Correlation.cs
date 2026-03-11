@@ -357,5 +357,4 @@ public sealed class Correlation : AbstractBase
 
         return (result, indicator);
     }
-
 }

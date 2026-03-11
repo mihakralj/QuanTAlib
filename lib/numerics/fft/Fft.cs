@@ -84,7 +84,7 @@ public sealed class Fft : AbstractBase
         _hanning = new double[windowSize];
         for (int n = 0; n < windowSize; n++)
         {
-            _hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
+            _hanning[n] = 0.5 - (0.5 * Math.Cos(twoPiOverN * n));
         }
 
         // Precompute bit-reversal permutation table
@@ -262,7 +262,7 @@ public sealed class Fft : AbstractBase
         }
 
         // Parabolic interpolation: shift = 0.5*(a-c)/(a - 2b + c)
-        double denom = a - 2.0 * b + c;
+        double denom = a - (2.0 * b) + c;
         double shift = Math.Abs(denom) > 0.0 ? 0.5 * (a - c) / denom : 0.0;
         double dominantPeriod = (double)_windowSize / (bestK + shift);
 
@@ -417,7 +417,7 @@ public sealed class Fft : AbstractBase
         {
             for (int n = 0; n < windowSize; n++)
             {
-                hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
+                hanning[n] = 0.5 - (0.5 * Math.Cos(twoPiOverN * n));
                 bitRev[n] = BitReverse(n, log2N);
             }
 
@@ -476,7 +476,7 @@ public sealed class Fft : AbstractBase
                         workIm[bestK + 1] * workIm[bestK + 1])
                     : bestMag;
 
-                double denom = a - 2.0 * bestMag + c;
+                double denom = a - (2.0 * bestMag) + c;
                 double shift = Math.Abs(denom) > 0.0 ? 0.5 * (a - c) / denom : 0.0;
                 double dominant = (double)windowSize / (bestK + shift);
                 double clamped = Math.Clamp(dominant, minPeriod, maxPeriod);

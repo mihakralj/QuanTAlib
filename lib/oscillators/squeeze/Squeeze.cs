@@ -213,7 +213,7 @@ public sealed class Squeeze : ITValuePublisher
 
         int n = Math.Max(1, s.SmaCount);
         double smaVal = s.SmaSum / n;
-        double variance = Math.Max(0.0, s.SmaSumSq / n - smaVal * smaVal);
+        double variance = Math.Max(0.0, (s.SmaSumSq / n) - (smaVal * smaVal));
         double stddev = Math.Sqrt(variance);
         double bbUpper = Math.FusedMultiplyAdd(_bbMult, stddev, smaVal);
         double bbLower = Math.FusedMultiplyAdd(-_bbMult, stddev, smaVal);
@@ -269,7 +269,7 @@ public sealed class Squeeze : ITValuePublisher
             if (!double.IsNaN(dl) && dl < lowest) { lowest = dl; }
         }
         double donMid = (highest + lowest) * 0.5;
-        double delta = close - (donMid + smaVal) * 0.5;
+        double delta = close - ((donMid + smaVal) * 0.5);
 
         // ===== STAGE 5: Linear regression of delta over period (O(1) incremental) =====
         UpdateLrBuf(ref s, delta);
@@ -277,16 +277,16 @@ public sealed class Squeeze : ITValuePublisher
         int pn = Math.Min(s.LrCount, _period);
         int startIdx = s.LrCount - pn;
         // Closed-form sums: ΣX and ΣX²
-        double sumX = (double)pn * (2.0 * startIdx + pn - 1) * 0.5;
+        double sumX = (double)pn * ((2.0 * startIdx) + pn - 1) * 0.5;
         double sumX2 = Math.FusedMultiplyAdd(
             pn, (double)startIdx * startIdx,
             Math.FusedMultiplyAdd(
                 (double)startIdx * (pn - 1), pn,
-                (double)(pn - 1) * pn * (2 * pn - 1) / 6.0));
+                (double)(pn - 1) * pn * ((2 * pn) - 1) / 6.0));
         double denomX = Math.FusedMultiplyAdd(pn, sumX2, -(sumX * sumX));
         double slope = denomX == 0.0 ? 0.0
             : Math.FusedMultiplyAdd(pn, s.SumXY, -(sumX * s.SumY)) / denomX;
-        double intercept = (s.SumY - slope * sumX) / pn;
+        double intercept = (s.SumY - (slope * sumX)) / pn;
         double momentum = Math.FusedMultiplyAdd(slope, s.LrCount - 1, intercept);
 
         _s = s;
@@ -554,7 +554,7 @@ public sealed class Squeeze : ITValuePublisher
 
             int n = Math.Max(1, smaCount);
             double smaVal = smaSum / n;
-            double vari = Math.Max(0.0, smaSumSq / n - smaVal * smaVal);
+            double vari = Math.Max(0.0, (smaSumSq / n) - (smaVal * smaVal));
             double sd = Math.Sqrt(vari);
             double bbUpper = Math.FusedMultiplyAdd(bbMult, sd, smaVal);
             double bbLower = Math.FusedMultiplyAdd(-bbMult, sd, smaVal);
@@ -602,7 +602,7 @@ public sealed class Squeeze : ITValuePublisher
                 if (!double.IsNaN(dl) && dl < lowest) { lowest = dl; }
             }
             double donMid = (highest + lowest) * 0.5;
-            double delta = c - (donMid + smaVal) * 0.5;
+            double delta = c - ((donMid + smaVal) * 0.5);
 
             // Stage 5: LinReg incremental
             double oldLr = lrBuf[lrHead];
@@ -620,16 +620,16 @@ public sealed class Squeeze : ITValuePublisher
 
             int pn = Math.Min(lrCount, period);
             int startI = lrCount - pn;
-            double sx = (double)pn * (2.0 * startI + pn - 1) * 0.5;
+            double sx = (double)pn * ((2.0 * startI) + pn - 1) * 0.5;
             double sx2 = Math.FusedMultiplyAdd(
                 pn, (double)startI * startI,
                 Math.FusedMultiplyAdd(
                     (double)startI * (pn - 1), pn,
-                    (double)(pn - 1) * pn * (2 * pn - 1) / 6.0));
+                    (double)(pn - 1) * pn * ((2 * pn) - 1) / 6.0));
             double denomX = Math.FusedMultiplyAdd(pn, sx2, -(sx * sx));
             double slope = denomX == 0.0 ? 0.0
                 : Math.FusedMultiplyAdd(pn, sumXY, -(sx * sumY)) / denomX;
-            double intc = (sumY - slope * sx) / pn;
+            double intc = (sumY - (slope * sx)) / pn;
             double momentum = Math.FusedMultiplyAdd(slope, lrCount - 1, intc);
 
             momOut[i] = momentum;

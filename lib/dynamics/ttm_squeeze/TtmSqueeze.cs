@@ -210,8 +210,8 @@ public sealed class TtmSqueeze : ITValuePublisher
 
         // Precompute linear regression constants
         _sumX = 0.5 * momPeriod * (momPeriod - 1);
-        double sumX2 = (momPeriod - 1.0) * momPeriod * (2.0 * momPeriod - 1.0) / 6.0;
-        _denominator = momPeriod * sumX2 - _sumX * _sumX;
+        double sumX2 = (momPeriod - 1.0) * momPeriod * ((2.0 * momPeriod) - 1.0) / 6.0;
+        _denominator = (momPeriod * sumX2) - (_sumX * _sumX);
 
         Reset();
     }
@@ -328,11 +328,11 @@ public sealed class TtmSqueeze : ITValuePublisher
 
         double bbCount = Math.Min(_barCount, _bbPeriod);
         double bbMean = bbCount > 0 ? _priceSum / bbCount : close;
-        double bbVariance = bbCount > 1 ? (_priceSumSquares - _priceSum * _priceSum / bbCount) / bbCount : 0;
+        double bbVariance = bbCount > 1 ? (_priceSumSquares - (_priceSum * _priceSum / bbCount)) / bbCount : 0;
         double bbStdDev = Math.Sqrt(Math.Max(0, bbVariance));
 
-        double bbUpper = bbMean + _bbMult * bbStdDev;
-        double bbLower = bbMean - _bbMult * bbStdDev;
+        double bbUpper = bbMean + (_bbMult * bbStdDev);
+        double bbLower = bbMean - (_bbMult * bbStdDev);
 
         // === Keltner Channel Calculation ===
         // EMA with warmup compensation
@@ -354,8 +354,8 @@ public sealed class TtmSqueeze : ITValuePublisher
         _atrE = Math.FusedMultiplyAdd(_atrE, 1 - atrAlpha, 0);
         double atr = _atrE < 1.0 ? _atrRma / (1.0 - _atrE) : _atrRma;
 
-        double kcUpper = kcMid + _kcMult * atr;
-        double kcLower = kcMid - _kcMult * atr;
+        double kcUpper = kcMid + (_kcMult * atr);
+        double kcLower = kcMid - (_kcMult * atr);
 
         // === Squeeze Detection ===
         bool wasSqueezeOn = _prevSqueezeOn;
@@ -380,7 +380,7 @@ public sealed class TtmSqueeze : ITValuePublisher
         {
             double oldest = _momentumBuffer[0];
             double prevSumY = _momentumSumY;
-            _momentumSumXY = _momentumSumXY + prevSumY - _momPeriod * oldest;
+            _momentumSumXY = _momentumSumXY + prevSumY - (_momPeriod * oldest);
             _momentumSumY -= oldest;
         }
         _momentumBuffer.Add(deviation);
@@ -411,8 +411,8 @@ public sealed class TtmSqueeze : ITValuePublisher
             if (momCount < _momPeriod)
             {
                 sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
+                double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                denom = (n * sx2) - (sx * sx);
             }
             else
             {
@@ -426,8 +426,8 @@ public sealed class TtmSqueeze : ITValuePublisher
             }
             else
             {
-                double slope = (n * _momentumSumXY - sx * _momentumSumY) / denom;
-                double intercept = (_momentumSumY - slope * sx) / n;
+                double slope = ((n * _momentumSumXY) - (sx * _momentumSumY)) / denom;
+                double intercept = (_momentumSumY - (slope * sx)) / n;
                 // Regression value at current point (x = count - 1)
                 momentum = Math.FusedMultiplyAdd(slope, n - 1, intercept);
             }
@@ -561,5 +561,4 @@ public sealed class TtmSqueeze : ITValuePublisher
         _lowBuffer.Restore();
         _momentumBuffer.Restore();
     }
-
 }

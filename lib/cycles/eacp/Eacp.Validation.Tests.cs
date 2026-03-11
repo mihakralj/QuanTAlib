@@ -40,7 +40,7 @@ public class EacpValidationTests
         // Generate sine wave with known period
         for (int i = 0; i < 500; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
             eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -155,7 +155,7 @@ public class EacpValidationTests
         // Generate sine wave
         for (int i = 0; i < 300; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             eacpEnhanced.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             eacpNormal.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
@@ -293,7 +293,7 @@ public class EacpValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double price = 0.0001 + 0.00001 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 0.0001 + (0.00001 * Math.Sin(2.0 * Math.PI * i / 20.0));
             eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -308,7 +308,7 @@ public class EacpValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double price = 1e10 + 1e9 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 1e10 + (1e9 * Math.Sin(2.0 * Math.PI * i / 20.0));
             eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -360,7 +360,7 @@ public class EacpValidationTests
         // Generate pure sine wave
         for (int i = 0; i < 300; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -406,8 +406,8 @@ public class EacpValidationTests
         // Generate two different sine waves
         for (int i = 0; i < 500; i++)
         {
-            double price1 = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period1);
-            double price2 = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period2);
+            double price1 = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period1));
+            double price2 = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period2));
 
             eacp1.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price1));
             eacp2.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price2));
@@ -428,7 +428,7 @@ public class EacpValidationTests
         for (int i = 0; i < 100; i++)
         {
             ind.Update(new TValue(t0.AddMinutes(i),
-                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+                100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0))), isNew: true);
         }
 
         // Anchor bar

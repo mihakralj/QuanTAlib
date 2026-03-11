@@ -237,7 +237,7 @@ public sealed class Spearman : AbstractBase
             }
 
             // Average rank: 1-based position = countSmaller + (countEqual - 1) / 2.0 + 1
-            ranks[i] = countSmaller + (countEqual - 1) * 0.5 + 1.0;
+            ranks[i] = countSmaller + ((countEqual - 1) * 0.5) + 1.0;
         }
     }
     /// <summary>Not supported. This indicator requires two input spans.</summary>

@@ -158,7 +158,7 @@ public sealed class Ccor : AbstractBase
             // Phasor angle (degrees) with quadrant resolution
             if (imagVal != 0.0)
             {
-                angleVal = 90.0 + Math.Atan(realVal / imagVal) * (180.0 / Math.PI);
+                angleVal = 90.0 + (Math.Atan(realVal / imagVal) * (180.0 / Math.PI));
             }
             if (imagVal > 0.0)
             {
@@ -342,7 +342,7 @@ public sealed class Ccor : AbstractBase
 
                         for (int k = 0; k < n; k++)
                         {
-                            int idx = ((bufIdx - 1 - k) % period + period) % period;
+                            int idx = (((bufIdx - 1 - k) % period) + period) % period;
                             double x = priceBuf[idx];
                             double y = cosTab[k];
                             sx += x;
@@ -353,8 +353,8 @@ public sealed class Ccor : AbstractBase
                         }
 
                         double nd = n;
-                        double dp = (nd * sxx - sx * sx) * (nd * syy - sy * sy);
-                        realVal = dp > 0.0 ? Math.Clamp((nd * sxy - sx * sy) / Math.Sqrt(dp), -1.0, 1.0) : 0.0;
+                        double dp = ((nd * sxx) - (sx * sx)) * ((nd * syy) - (sy * sy));
+                        realVal = dp > 0.0 ? Math.Clamp(((nd * sxy) - (sx * sy)) / Math.Sqrt(dp), -1.0, 1.0) : 0.0;
                     }
 
                     output[i] = realVal;
@@ -423,13 +423,13 @@ public sealed class Ccor : AbstractBase
         }
 
         double nd = n;
-        double denomProd = (nd * sxx - sx * sx) * (nd * syy - sy * sy);
+        double denomProd = ((nd * sxx) - (sx * sx)) * ((nd * syy) - (sy * sy));
         if (denomProd <= 0.0)
         {
             return 0.0;
         }
 
-        double r = (nd * sxy - sx * sy) / Math.Sqrt(denomProd);
+        double r = ((nd * sxy) - (sx * sy)) / Math.Sqrt(denomProd);
         return Math.Clamp(r, -1.0, 1.0);
     }
 }

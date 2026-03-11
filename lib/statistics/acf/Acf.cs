@@ -124,7 +124,6 @@ public sealed class Acf : AbstractBase
             double oldVal = _buffer.Oldest;
             _sum -= oldVal;
             _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
-
         }
 
         // Add new value

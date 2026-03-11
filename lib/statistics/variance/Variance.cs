@@ -97,7 +97,7 @@ public sealed class Variance : AbstractBase
             // Using Sum:
             // Var = (SumSq - (Sum*Sum)/N) / ...
 
-            double numerator = _sumSq - (_buffer.Sum * _buffer.Sum) / n;
+            double numerator = _sumSq - ((_buffer.Sum * _buffer.Sum) / n);
 
             // Handle floating point noise
             if (numerator < 0)
@@ -271,7 +271,7 @@ public sealed class Variance : AbstractBase
             double n = i + 1;
             if (n > 1)
             {
-                double numerator = sumSq - (sum * sum) / n;
+                double numerator = sumSq - ((sum * sum) / n);
                 if (numerator < 0)
                 {
                     numerator = 0;
@@ -310,7 +310,7 @@ public sealed class Variance : AbstractBase
             }
 
             double n = period;
-            double numerator = sumSq - (sum * sum) / n;
+            double numerator = sumSq - ((sum * sum) / n);
             if (numerator < 0)
             {
                 numerator = 0;
@@ -343,7 +343,7 @@ public sealed class Variance : AbstractBase
             double n = i + 1;
             if (n > 1)
             {
-                double num = sumSq - (sum * sum) / n;
+                double num = sumSq - ((sum * sum) / n);
                 if (num < 0)
                 {
                     num = 0;
@@ -382,7 +382,7 @@ public sealed class Variance : AbstractBase
         var vInvDenom = Vector512.Create(invDenom);
         var vZero = Vector512<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -465,7 +465,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - sum * sum * invN;
+            double numerator = sumSq - (sum * sum * invN);
             if (numerator < 0)
             {
                 numerator = 0;
@@ -498,7 +498,7 @@ public sealed class Variance : AbstractBase
         var vInvDenom = Vector128.Create(invDenom);
         var vZero = Vector128<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -569,7 +569,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - sum * sum * invN;
+            double numerator = sumSq - (sum * sum * invN);
             if (numerator < 0)
             {
                 numerator = 0;
@@ -602,7 +602,7 @@ public sealed class Variance : AbstractBase
         var vInvDenom = Vector256.Create(invDenom);
         var vZero = Vector256<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -693,7 +693,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - sum * sum * invN;
+            double numerator = sumSq - (sum * sum * invN);
             if (numerator < 0)
             {
                 numerator = 0;

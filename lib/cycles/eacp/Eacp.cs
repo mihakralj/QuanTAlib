@@ -191,10 +191,10 @@ public sealed class Eacp : AbstractBase
         // High-pass filter: removes DC and low-frequency trend
         double hp2 = s.Hp1;
         double hp1 = s.Hp0;
-        double coef = (1.0 - _alphaHP / 2.0);
-        double hp0 = coef * coef * (price0 - 2.0 * price1 + price2)
-                   + 2.0 * (1.0 - _alphaHP) * hp1
-                   - (1.0 - _alphaHP) * (1.0 - _alphaHP) * hp2;
+        double coef = (1.0 - (_alphaHP / 2.0));
+        double hp0 = (coef * coef * (price0 - (2.0 * price1) + price2))
+                   + (2.0 * (1.0 - _alphaHP) * hp1)
+                   - ((1.0 - _alphaHP) * (1.0 - _alphaHP) * hp2);
 
         // Super-smoother filter: removes high-frequency noise
         double filt2 = s.Filt1;
@@ -290,12 +290,12 @@ public sealed class Eacp : AbstractBase
             double corrVal = 0;
             if (valid > 1)
             {
-                double denomX = valid * sxx - sx * sx;
-                double denomY = valid * syy - sy * sy;
+                double denomX = (valid * sxx) - (sx * sx);
+                double denomY = (valid * syy) - (sy * sy);
                 double denom = denomX * denomY;
                 if (denom > 0)
                 {
-                    corrVal = (valid * sxy - sx * sy) / Math.Sqrt(denom);
+                    corrVal = ((valid * sxy) - (sx * sy)) / Math.Sqrt(denom);
                 }
             }
 
@@ -319,7 +319,7 @@ public sealed class Eacp : AbstractBase
             }
 
             // Power = amplitude squared
-            double sq = cosAcc * cosAcc + sinAcc * sinAcc;
+            double sq = (cosAcc * cosAcc) + (sinAcc * sinAcc);
 
             // Smooth the power spectrum (EMA-like smoothing)
             // Power squared per Ehlers: emphasizes spectral peaks, suppresses noise

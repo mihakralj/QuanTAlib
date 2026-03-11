@@ -103,7 +103,7 @@ public sealed class Skew : AbstractBase
 
             // Calculate 2nd moment (Variance)
             // m2 = Sum((x-mean)^2) / n = (SumSq - Sum^2/n) / n
-            double m2Numerator = _sumSq - (_sum * _sum) / n;
+            double m2Numerator = _sumSq - ((_sum * _sum) / n);
             if (m2Numerator < Epsilon)
             {
                 m2Numerator = 0;
@@ -312,8 +312,8 @@ public sealed class Skew : AbstractBase
             }
 
             sum = sum - oldVal + val;
-            sumSq = sumSq - oldVal * oldVal + val * val;
-            sumCu = sumCu - oldVal * oldVal * oldVal + val * val * val;
+            sumSq = sumSq - (oldVal * oldVal) + (val * val);
+            sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
 
             output[i] = CalculateSkewFromSums(sum, sumSq, sumCu, period, isPopulation);
 
@@ -349,7 +349,7 @@ public sealed class Skew : AbstractBase
     {
         double mean = sum / n;
 
-        double m2Numerator = sumSq - (sum * sum) / n;
+        double m2Numerator = sumSq - ((sum * sum) / n);
         if (m2Numerator < Epsilon)
         {
             return 0;
@@ -422,7 +422,7 @@ public sealed class Skew : AbstractBase
         var vEpsilon = Vector256.Create(Epsilon);
         var vZero = Vector256<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)

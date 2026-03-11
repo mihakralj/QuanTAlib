@@ -112,7 +112,7 @@ public sealed class QqeValidationTests
         // Strongly trending up
         for (int i = 0; i < 200; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 50.0 + i * 0.5));
+            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 50.0 + (i * 0.5)));
         }
 
         Assert.True(ind.IsHot);
@@ -130,7 +130,7 @@ public sealed class QqeValidationTests
         // Strongly trending down
         for (int i = 0; i < 200; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - i * 0.5));
+            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - (i * 0.5)));
         }
 
         Assert.True(ind.IsHot);
@@ -251,7 +251,7 @@ public sealed class QqeValidationTests
         // Build state well past warmup (WarmupPeriod ≈ 37)
         for (int i = 0; i < 60; i++)
         {
-            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + (i * 0.5)));
         }
 
         // Anchor bar

@@ -22,7 +22,7 @@ public class TtmSqueezeValidationTests
         // Very tight range bars - stddev will be near 0
         for (int i = 0; i < 10; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100.0, 100.01, 99.99, 100.0, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100.0, 100.01, 99.99, 100.0, 1000));
         }
 
         // With effectively zero stddev, BB bands collapse to the mean
@@ -45,7 +45,7 @@ public class TtmSqueezeValidationTests
             double high = 105;
             double low = 95;
             double close = (high + low) / 2;  // exactly at midline
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, high, low, close, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, high, low, close, 1000));
         }
 
         // Momentum should be near zero since price = midline
@@ -113,7 +113,7 @@ public class TtmSqueezeValidationTests
             double midline = 100;  // (110 + 90) / 2
             double close = midline + (i * 2);  // 100, 102, 104, ...
 
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, high, low, close, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, high, low, close, 1000));
         }
 
         // Momentum should be strongly positive with rising trend
@@ -135,28 +135,28 @@ public class TtmSqueezeValidationTests
         // Uptrend (rising above zero - cyan = 0)
         for (int i = 0; i < 5; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100 + i * 2, 105 + i * 2, 95 + i * 2, 103 + i * 2, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100 + (i * 2), 105 + (i * 2), 95 + (i * 2), 103 + (i * 2), 1000));
             colorsSeen.Add(squeeze.ColorCode);
         }
 
         // Now weakening but still positive (falling above zero - blue = 1)
         for (int i = 5; i < 10; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 115, 118, 112, 114, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 115, 118, 112, 114, 1000));
             colorsSeen.Add(squeeze.ColorCode);
         }
 
         // Downtrend (falling below zero - red = 2)
         for (int i = 10; i < 15; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100 - (i - 10) * 3, 102 - (i - 10) * 3, 95 - (i - 10) * 3, 97 - (i - 10) * 3, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100 - ((i - 10) * 3), 102 - ((i - 10) * 3), 95 - ((i - 10) * 3), 97 - ((i - 10) * 3), 1000));
             colorsSeen.Add(squeeze.ColorCode);
         }
 
         // Recovering but still negative (rising below zero - yellow = 3)
         for (int i = 15; i < 20; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 80, 85, 78, 82, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 80, 85, 78, 82, 1000));
             colorsSeen.Add(squeeze.ColorCode);
         }
 
@@ -173,7 +173,7 @@ public class TtmSqueezeValidationTests
         // Strong uptrend to ensure positive and rising momentum
         for (int i = 0; i < 10; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100 + i * 5, 105 + i * 5, 95 + i * 5, 103 + i * 5, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100 + (i * 5), 105 + (i * 5), 95 + (i * 5), 103 + (i * 5), 1000));
         }
 
         if (squeeze.MomentumPositive && squeeze.MomentumRising)
@@ -191,7 +191,7 @@ public class TtmSqueezeValidationTests
         // Strong downtrend to ensure negative and falling momentum
         for (int i = 0; i < 10; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100 - i * 5, 105 - i * 5, 95 - i * 5, 97 - i * 5, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100 - (i * 5), 105 - (i * 5), 95 - (i * 5), 97 - (i * 5), 1000));
         }
 
         if (!squeeze.MomentumPositive && !squeeze.MomentumRising)
@@ -215,7 +215,7 @@ public class TtmSqueezeValidationTests
         // Start with tight range to build squeeze
         for (int i = 0; i < 5; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, 100.1, 99.9, 100, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, 100.1, 99.9, 100, 1000));
             if (squeeze.SqueezeFired)
             {
                 squeezeFiredCount++;
@@ -226,7 +226,7 @@ public class TtmSqueezeValidationTests
         for (int i = 5; i < 10; i++)
         {
             double volatility = (i - 4) * 5;
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, 100 + volatility, 100 - volatility, 100 + volatility - 2, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, 100 + volatility, 100 - volatility, 100 + volatility - 2, 1000));
             if (squeeze.SqueezeFired)
             {
                 squeezeFiredCount++;
@@ -250,10 +250,10 @@ public class TtmSqueezeValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 100 + Math.Sin(i * 0.2) * 10;
+            double price = 100 + (Math.Sin(i * 0.2) * 10);
             double high = price + 2;
             double low = price - 2;
-            source.Add(new TBar(baseTime + i * 60000, price, high, low, price + 0.5, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), price, high, low, price + 0.5, 1000));
         }
 
         // Batch calculation
@@ -301,7 +301,7 @@ public class TtmSqueezeValidationTests
         // All bars identical
         for (int i = 0; i < 10; i++)
         {
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, 100, 100, 100, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, 100, 100, 100, 1000));
         }
 
         Assert.True(double.IsFinite(squeeze.Momentum.Value));
@@ -318,7 +318,7 @@ public class TtmSqueezeValidationTests
         for (int i = 0; i < 10; i++)
         {
             double range = (i + 1) * 100;  // Increasing volatility
-            squeeze.Update(new TBar(baseTime + i * 60000, 100, 100 + range, 100 - range, 100 + range / 2, 1000));
+            squeeze.Update(new TBar(baseTime + (i * 60000), 100, 100 + range, 100 - range, 100 + (range / 2), 1000));
         }
 
         Assert.True(double.IsFinite(squeeze.Momentum.Value));
@@ -334,7 +334,7 @@ public class TtmSqueezeValidationTests
         // Build state well past warmup
         for (int i = 0; i < 100; i++)
         {
-            double p = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double p = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             ind.Update(new TBar(t0.AddMinutes(i), p, p + 2, p - 2, p, 1000), isNew: true);
         }
 

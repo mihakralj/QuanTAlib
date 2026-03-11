@@ -53,7 +53,7 @@ public class FftValidationTests
 
         for (int i = 0; i < windowSize * 3; i++)
         {
-            double signal = 50.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / targetPeriod);
+            double signal = 50.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / targetPeriod));
             indicator.Update(new TValue(time.AddMinutes(i), signal), true);
         }
 
@@ -74,7 +74,7 @@ public class FftValidationTests
 
         for (int i = 0; i < windowSize * 4; i++)
         {
-            double signal = 50.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / targetPeriod);
+            double signal = 50.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / targetPeriod));
             indicator.Update(new TValue(time.AddMinutes(i), signal), true);
         }
 
@@ -246,7 +246,7 @@ public class FftValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + 10.0 * Math.Sin(2 * Math.PI * i / 8.0)));
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + (10.0 * Math.Sin(2 * Math.PI * i / 8.0))));
         }
 
         var anchorTime = t0.AddSeconds(50);

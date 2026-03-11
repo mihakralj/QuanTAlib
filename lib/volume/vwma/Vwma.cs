@@ -269,7 +269,6 @@ public sealed class Vwma : ITValuePublisher
         return Last;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

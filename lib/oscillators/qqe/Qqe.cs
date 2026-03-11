@@ -101,11 +101,11 @@ public sealed class Qqe : AbstractBase
         _sfAlpha = 2.0 / (smoothFactor + 1.0);
         _sfBeta  = 1.0 - _sfAlpha;
 
-        int darPeriod = 2 * smoothFactor - 1;
+        int darPeriod = (2 * smoothFactor) - 1;
         _darAlpha = 2.0 / (darPeriod + 1.0);
         _darBeta  = 1.0 - _darAlpha;
 
-        WarmupPeriod = rsiPeriod + smoothFactor + darPeriod * 2;
+        WarmupPeriod = rsiPeriod + smoothFactor + (darPeriod * 2);
 
         _s = new State(
             Count: 0,
@@ -168,7 +168,7 @@ public sealed class Qqe : AbstractBase
         double avgGain = s.RmaGain * cRma;
         double avgLoss = s.RmaLoss * cRma;
         double rs     = avgLoss < Epsilon ? 100.0 : avgGain / avgLoss;
-        double rsiVal  = 100.0 - 100.0 / (1.0 + rs);
+        double rsiVal  = 100.0 - (100.0 / (1.0 + rs));
 
         // ── Stage 2: EMA smooth of RSI (α = 2/(SF+1)) with §2 warmup → rsiMA ──
         s.RawRsiMa = Math.FusedMultiplyAdd(s.RawRsiMa, _sfBeta, rsiVal * _sfAlpha);

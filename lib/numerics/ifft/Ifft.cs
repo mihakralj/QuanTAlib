@@ -73,7 +73,7 @@ public sealed class Ifft : AbstractBase
         _hanning = new double[windowSize];
         for (int n = 0; n < windowSize; n++)
         {
-            _hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
+            _hanning[n] = 0.5 - (0.5 * Math.Cos(twoPiOverN * n));
         }
 
         // Precompute bit-reversal permutation table
@@ -330,7 +330,7 @@ public sealed class Ifft : AbstractBase
         {
             for (int n = 0; n < windowSize; n++)
             {
-                hanning[n] = 0.5 - 0.5 * Math.Cos(twoPiOverN * n);
+                hanning[n] = 0.5 - (0.5 * Math.Cos(twoPiOverN * n));
                 bitRev[n] = BitReverse(n, log2N);
             }
 

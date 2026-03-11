@@ -94,7 +94,7 @@ public class CcorValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double val = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double val = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             ccor.Update(new TValue(DateTime.UtcNow.AddMinutes(i), val), true);
         }
 
@@ -103,7 +103,7 @@ public class CcorValidationTests
             $"Sine wave should produce non-trivial phasor: Real={ccor.Real:F4}, Imag={ccor.Imag:F4}");
 
         // R² + I² should be near 1 for a pure tone at the matched frequency
-        double magnitude = Math.Sqrt(ccor.Real * ccor.Real + ccor.Imag * ccor.Imag);
+        double magnitude = Math.Sqrt((ccor.Real * ccor.Real) + (ccor.Imag * ccor.Imag));
         Assert.True(magnitude > 0.5,
             $"Phasor magnitude should be significant for matched sine: {magnitude:F4}");
     }
@@ -138,7 +138,7 @@ public class CcorValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double val = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double val = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             ccor.Update(new TValue(DateTime.UtcNow.AddMinutes(i), val), true);
         }
 
@@ -374,7 +374,7 @@ public class CcorValidationTests
         for (int i = 0; i < 100; i++)
         {
             ind.Update(new TValue(t0.AddMinutes(i),
-                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+                100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0))), isNew: true);
         }
 
         // Anchor bar

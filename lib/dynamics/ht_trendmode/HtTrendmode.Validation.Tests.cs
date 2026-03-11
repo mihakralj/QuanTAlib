@@ -55,7 +55,7 @@ public sealed class HtTrendmodeValidationTests : IDisposable
         // Act - Process with sinusoidal data
         for (int i = 0; i < 200; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.2) * 10.0 + Math.Sin(i * 0.05) * 5.0;
+            double value = 100.0 + (Math.Sin(i * 0.2) * 10.0) + (Math.Sin(i * 0.05) * 5.0);
             indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value));
         }
 
@@ -74,7 +74,7 @@ public sealed class HtTrendmodeValidationTests : IDisposable
         // Act
         for (int i = 0; i < 200; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.15) * 8.0;
+            double value = 100.0 + (Math.Sin(i * 0.15) * 8.0);
             indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value));
         }
 
@@ -208,7 +208,7 @@ public sealed class HtTrendmodeValidationTests : IDisposable
         for (int i = 0; i < 100; i++)
         {
             ind.Update(new TValue(t0.AddMinutes(i),
-                100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0)), isNew: true);
+                100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0))), isNew: true);
         }
 
         // Anchor bar

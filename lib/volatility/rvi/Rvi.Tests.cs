@@ -127,9 +127,9 @@ public class RviTests
         for (int i = 0; i < 50; i++)
         {
             var time = DateTime.UtcNow.AddSeconds(i);
-            double close = 100.0 + Math.Sin(i * 0.5) * 3.0; // oscillating
-            double high = close + 2.0 + Math.Sin(i * 0.3) * 1.5; // asymmetric highs
-            double low = close - 1.0 - Math.Cos(i * 0.7) * 0.8;  // asymmetric lows
+            double close = 100.0 + (Math.Sin(i * 0.5) * 3.0); // oscillating
+            double high = close + 2.0 + (Math.Sin(i * 0.3) * 1.5); // asymmetric highs
+            double low = close - 1.0 - (Math.Cos(i * 0.7) * 0.8);  // asymmetric lows
 
             rviBar.Update(new TBar(time, close - 0.5, high, low, close, 1000));
             rviClose.Update(new TValue(time, close));
@@ -267,7 +267,7 @@ public class RviTests
         // Build up some history
         for (int i = 0; i < 20; i++)
         {
-            rvi.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.1), isNew: true);
+            rvi.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.1)), isNew: true);
         }
 
         _ = rvi.Last; // Capture state before update
@@ -291,7 +291,7 @@ public class RviTests
         // Build history
         for (int i = 0; i < 30; i++)
         {
-            rvi.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.5), isNew: true);
+            rvi.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.5)), isNew: true);
         }
 
         // Start a new bar
@@ -648,7 +648,7 @@ public class RviTests
         var source = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)));
         }
 
         var result = Rvi.Batch(source, stdevLength: 10, rmaLength: 14);
@@ -665,7 +665,7 @@ public class RviTests
         for (int i = 0; i < 50; i++)
         {
             var time = DateTime.UtcNow.AddSeconds(i);
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             source.Add(new TBar(time, price - 1, price + 1, price - 2, price, 1000));
         }
 

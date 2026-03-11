@@ -117,7 +117,7 @@ public sealed class Covariance : AbstractBase
         if (n >= 2)
         {
             // Standard covariance formula: (sumXY - sumX*sumY/n) / denom
-            double numerator = _sumXY - (_sumX * _sumY) / n;
+            double numerator = _sumXY - ((_sumX * _sumY) / n);
             double denominator = _isPopulation ? n : (n - 1);
             cov = numerator / denominator;
         }
@@ -278,7 +278,7 @@ public sealed class Covariance : AbstractBase
             double n = i + 1;
             if (n >= 2)
             {
-                double numerator = sumXY - (sumX * sumY) / n;
+                double numerator = sumXY - ((sumX * sumY) / n);
                 double denominator = isPopulation ? n : (n - 1);
                 output[i] = numerator / denominator;
             }
@@ -309,7 +309,7 @@ public sealed class Covariance : AbstractBase
 
             sumX = sumX - oldX + x;
             sumY = sumY - oldY + y;
-            sumXY = sumXY - oldX * oldY + x * y;
+            sumXY = sumXY - (oldX * oldY) + (x * y);
 
             bufferX[bufferIndex] = x;
             bufferY[bufferIndex] = y;
@@ -320,7 +320,7 @@ public sealed class Covariance : AbstractBase
             }
 
             double n = period;
-            double numerator = sumXY - (sumX * sumY) / n;
+            double numerator = sumXY - ((sumX * sumY) / n);
             double denominator = isPopulation ? n : (n - 1);
             output[i] = numerator / denominator;
 
@@ -364,7 +364,7 @@ public sealed class Covariance : AbstractBase
             double n = i + 1;
             if (n >= 2)
             {
-                double num = sumXY - (sumX * sumY) / n;
+                double num = sumXY - ((sumX * sumY) / n);
                 double den = isPopulation ? n : (n - 1);
                 Unsafe.Add(ref outRef, i) = num / den;
             }
@@ -400,7 +400,7 @@ public sealed class Covariance : AbstractBase
         var vInvDenom = Vector256.Create(invDenom);
         var vZero = Vector256<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
         int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -513,9 +513,9 @@ public sealed class Covariance : AbstractBase
 
             sumX = sumX - oldX + x;
             sumY = sumY - oldY + y;
-            sumXY = sumXY - oldX * oldY + x * y;
+            sumXY = sumXY - (oldX * oldY) + (x * y);
 
-            double numerator = sumXY - sumX * sumY * invN;
+            double numerator = sumXY - (sumX * sumY * invN);
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }

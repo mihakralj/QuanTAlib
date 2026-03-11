@@ -105,9 +105,9 @@ public sealed class Regchannel : ITValuePublisher
         // sumX = 0 + 1 + ... + (n-1) = n(n-1)/2
         _sumX = 0.5 * period * (period - 1);
         // sumX2 = 0² + 1² + ... + (n-1)² = (n-1)n(2n-1)/6
-        double sumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
+        double sumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
         // denominator = n * sumX2 - sumX²
-        _denominator = period * sumX2 - _sumX * _sumX;
+        _denominator = (period * sumX2) - (_sumX * _sumX);
 
         Reset();
     }
@@ -218,8 +218,8 @@ public sealed class Regchannel : ITValuePublisher
         if (count < _period)
         {
             sx = 0.5 * n * (n - 1);
-            double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-            denom = n * sx2 - sx * sx;
+            double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+            denom = (n * sx2) - (sx * sx);
         }
 
         double slope, intercept, regression;
@@ -232,8 +232,8 @@ public sealed class Regchannel : ITValuePublisher
         }
         else
         {
-            slope = (n * sumXY - sx * sumY) / denom;
-            intercept = (sumY - slope * sx) / n;
+            slope = ((n * sumXY) - (sx * sumY)) / denom;
+            intercept = (sumY - (slope * sx)) / n;
             // Regression value at current point (x = count - 1)
             regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
         }
@@ -362,8 +362,8 @@ public sealed class Regchannel : ITValuePublisher
 
         // Precompute constants for full period
         double sumXFull = 0.5 * period * (period - 1);
-        double sumX2Full = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        double denomFull = period * sumX2Full - sumXFull * sumXFull;
+        double sumX2Full = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        double denomFull = (period * sumX2Full) - (sumXFull * sumXFull);
 
         // Circular buffer of NaN-sanitised values for O(1) sliding-window recurrences.
         const int StackAllocThreshold = 256;
@@ -442,8 +442,8 @@ public sealed class Regchannel : ITValuePublisher
                 if (count < period)
                 {
                     sx = 0.5 * n * (n - 1);
-                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                    denom = n * sx2 - sx * sx;
+                    double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                    denom = (n * sx2) - (sx * sx);
                 }
                 else
                 {
@@ -461,14 +461,14 @@ public sealed class Regchannel : ITValuePublisher
                 }
                 else
                 {
-                    slope = (n * sumXY - sx * sumY) / denom;
-                    intercept = (sumY - slope * sx) / n;
+                    slope = ((n * sumXY) - (sx * sumY)) / denom;
+                    intercept = (sumY - (slope * sx)) / n;
                     regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
                 }
 
                 // Closed-form residual variance (normal-equation identity):
                 //   sumResiduals² = sumY² − intercept·sumY − slope·sumXY
-                double sumResiduals2 = Math.Max(0.0, sumY2 - intercept * sumY - slope * sumXY);
+                double sumResiduals2 = Math.Max(0.0, sumY2 - (intercept * sumY) - (slope * sumXY));
                 double stdDev = Math.Sqrt(sumResiduals2 / n);
                 double band = multiplier * stdDev;
 

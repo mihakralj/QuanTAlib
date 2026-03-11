@@ -331,7 +331,7 @@ public class DwtValidationTests
         // Build state well past warmup (WarmupPeriod = 2^4 = 16)
         for (int i = 0; i < 50; i++)
         {
-            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + i * 0.5));
+            ind.Update(new TValue(t0.AddSeconds(i), 100.0 + (i * 0.5)));
         }
 
         // Anchor bar

@@ -336,7 +336,7 @@ public sealed class Mdae : AbstractBase
             }
 
             // Median-of-three pivot selection for better pivot choice
-            int mid = left + (right - left) / 2;
+            int mid = left + ((right - left) / 2);
             if (span[mid] < span[left])
             {
                 (span[left], span[mid]) = (span[mid], span[left]);

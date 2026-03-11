@@ -507,5 +507,4 @@ public sealed class Cointegration : AbstractBase
 
         return (result, indicator);
     }
-
 }
