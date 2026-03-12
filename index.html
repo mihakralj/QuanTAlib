@@ -236,53 +236,18 @@
             }, 100);
           });
         },
-        // Render .pine files as fixed-font code blocks inside docsify
+        // Render .pine files as syntax-highlighted code blocks with their own URL
         function(hook, vm) {
-          hook.doneEach(function() {
-            var content = document.querySelector('.markdown-section');
-            if (!content) return;
-            content.querySelectorAll('a').forEach(function(a) {
-              var rawHref = a.getAttribute('href');
-              if (!rawHref || !rawHref.endsWith('.pine')) return;
-              a.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                // Extract the .pine path from the hash link or raw href
-                var pinePath = rawHref;
-                // If docsify converted it to a hash link: #/lib/.../file.pine
-                var fullHref = a.href || '';
-                var hashIdx = fullHref.indexOf('#/');
-                if (hashIdx !== -1) {
-                  pinePath = fullHref.substring(hashIdx + 2);
-                } else if (!pinePath.startsWith('/') && !pinePath.startsWith('http')) {
-                  // Relative link — resolve against current route's directory
-                  var routeFile = (vm.route && vm.route.file) || '';
-                  var routeDir = routeFile.replace(/[^/]*$/, '');
-                  pinePath = routeDir + pinePath;
-                }
-                // Fetch from server root
-                var fetchUrl = pinePath.startsWith('/') ? pinePath : '/' + pinePath;
-                // For relative server (non-root), use document.baseURI
-                var absUrl = new URL(pinePath, document.baseURI).href;
-                fetch(absUrl).then(function(r) {
-                  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
-                  return r.text();
-                }).then(function(text) {
-                  // Verify we got pine content, not HTML fallback
-                  if (text.trimStart().startsWith('<!DOCTYPE') || text.trimStart().startsWith('<html')) {
-                    throw new Error('Server returned HTML instead of .pine file');
-                  }
-                  var fname = pinePath.split('/').pop();
-                  var md = '# 📜 ' + fname + '\n\n```pine\n' + text + '\n```\n';
-                  content.innerHTML = vm.compiler.compile(md);
-                  // Re-run Prism highlighting on the injected code block
-                  if (window.Prism) { Prism.highlightAllUnder(content); }
-                  window.scrollTo(0, 0);
-                }).catch(function(err) {
-                  content.innerHTML = '<h1>Error</h1><p>Could not load <code>' + pinePath + '</code>: ' + err.message + '</p>';
-                });
-              });
-            });
+          hook.beforeEach(function(content, next) {
+            var routeFile = (vm.route && vm.route.file) || '';
+            if (routeFile.endsWith('.pine')) {
+              var fname = routeFile.split('/').pop();
+              // Wrap raw pine content in markdown code fence
+              var md = '# 📜 ' + fname + '\n\n```pine\n' + content + '\n```\n';
+              next(md);
+            } else {
+              next(content);
+            }
           });
         }
       ],
