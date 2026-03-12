@@ -61,12 +61,12 @@ public sealed class PivotValidationTests
                 double range = pH - pL;
 
                 Assert.Equal(pp, p.PP, precision: 10);
-                Assert.Equal(2.0 * pp - pL, p.R1, precision: 10);
-                Assert.Equal(2.0 * pp - pH, p.S1, precision: 10);
+                Assert.Equal((2.0 * pp) - pL, p.R1, precision: 10);
+                Assert.Equal((2.0 * pp) - pH, p.S1, precision: 10);
                 Assert.Equal(pp + range, p.R2, precision: 10);
                 Assert.Equal(pp - range, p.S2, precision: 10);
-                Assert.Equal(pH + 2.0 * (pp - pL), p.R3, precision: 10);
-                Assert.Equal(pL - 2.0 * (pH - pp), p.S3, precision: 10);
+                Assert.Equal(pH + (2.0 * (pp - pL)), p.R3, precision: 10);
+                Assert.Equal(pL - (2.0 * (pH - pp)), p.S3, precision: 10);
             }
         }
     }
@@ -258,5 +258,4 @@ public sealed class PivotValidationTests
             }
         }
     }
-
 }

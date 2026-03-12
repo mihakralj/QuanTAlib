@@ -309,7 +309,7 @@ public class UiValidationTests
 
         for (int i = 0; i < 10; i++)
         {
-            double price = 100.0 + Math.Sin(i * 0.1) * 0.001; // Tiny movements
+            double price = 100.0 + (Math.Sin(i * 0.1) * 0.001); // Tiny movements
             var result = ui.Update(new TValue(time.AddSeconds(i), price));
 
             Assert.True(double.IsFinite(result.Value));
@@ -387,7 +387,7 @@ public class UiValidationTests
         // Multiple corrections on same bar
         for (int j = 0; j < 5; j++)
         {
-            ui.Update(new TValue(time.AddSeconds(4), 100 + j * 2), isNew: false);
+            ui.Update(new TValue(time.AddSeconds(4), 100 + (j * 2)), isNew: false);
         }
 
         // Final correction back to original

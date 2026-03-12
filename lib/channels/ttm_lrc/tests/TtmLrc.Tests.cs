@@ -166,7 +166,7 @@ public class TtmLrcTests
         // Perfect linear data: y = 100 + 2*x
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + 2.0 * i), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (2.0 * i)), isNew: true);
         }
 
         Assert.True(indicator.IsHot);
@@ -189,7 +189,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + 5.0 * i), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (5.0 * i)), isNew: true);
         }
 
         Assert.True(indicator.Slope > 0, $"Slope should be positive for uptrend, got {indicator.Slope}");
@@ -203,7 +203,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 - 3.0 * i), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 - (3.0 * i)), isNew: true);
         }
 
         Assert.True(indicator.Slope < 0, $"Slope should be negative for downtrend, got {indicator.Slope}");
@@ -236,7 +236,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + 2.0 * i), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (2.0 * i)), isNew: true);
         }
 
         Assert.True(Math.Abs(indicator.RSquared - 1.0) < 1e-9, $"R² should be 1.0 for perfect linear fit, got {indicator.RSquared}");
@@ -313,7 +313,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 8; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + i * 2), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (i * 2)), isNew: true);
         }
 
         double baseMid = indicator.Midline.Value;
@@ -321,11 +321,11 @@ public class TtmLrcTests
         // Multiple corrections
         for (int j = 0; j < 5; j++)
         {
-            indicator.Update(new TValue(now.AddMinutes(7), 150 + j * 10), isNew: false);
+            indicator.Update(new TValue(now.AddMinutes(7), 150 + (j * 10)), isNew: false);
         }
 
         // Revert to original
-        indicator.Update(new TValue(now.AddMinutes(7), 100 + 7 * 2), isNew: false);
+        indicator.Update(new TValue(now.AddMinutes(7), 100 + (7 * 2)), isNew: false);
 
         Assert.Equal(baseMid, indicator.Midline.Value, 10);
     }
@@ -492,7 +492,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 10; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + i * 2), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (i * 2)), isNew: true);
         }
 
         Assert.True(indicator.IsHot);
@@ -546,7 +546,7 @@ public class TtmLrcTests
         for (int i = 0; i < 15; i++)
         {
             times.Add(now.AddMinutes(i).Ticks);
-            values.Add(100 + i * 2);
+            values.Add(100 + (i * 2));
         }
 
         var source = new TSeries(times, values);
@@ -565,7 +565,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 8; i++)
         {
-            source.Add(new TValue(now.AddMinutes(i), 100 + i * 3), isNew: true);
+            source.Add(new TValue(now.AddMinutes(i), 100 + (i * 3)), isNew: true);
         }
 
         Assert.True(indicator.IsHot);
@@ -720,7 +720,7 @@ public class TtmLrcTests
 
         for (int i = 0; i < 8; i++)
         {
-            indicator.Update(new TValue(now.AddMinutes(i), 100 + i * 2), isNew: true);
+            indicator.Update(new TValue(now.AddMinutes(i), 100 + (i * 2)), isNew: true);
         }
 
         Assert.NotNull(lastPubValue);

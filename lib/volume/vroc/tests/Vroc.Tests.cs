@@ -171,7 +171,7 @@ public class VrocTests
         // Increasing volumes
         for (int i = 0; i < 10; i++)
         {
-            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 1000 + i * 100);
+            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 1000 + (i * 100));
             vroc.Update(bar, isNew: true);
         }
 
@@ -187,7 +187,7 @@ public class VrocTests
         // Decreasing volumes
         for (int i = 0; i < 10; i++)
         {
-            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 2000 - i * 100);
+            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 2000 - (i * 100));
             vroc.Update(bar, isNew: true);
         }
 
@@ -257,7 +257,7 @@ public class VrocTests
         // Add several bars
         for (int i = 0; i < 10; i++)
         {
-            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 1000 + i * 50);
+            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 1000 + (i * 50));
             vroc.Update(bar, isNew: true);
         }
 
@@ -266,7 +266,7 @@ public class VrocTests
         // Apply multiple corrections
         for (int j = 0; j < 5; j++)
         {
-            var correctionBar = new TBar(now.AddMinutes(9), 100, 100, 100, 100, 2000 + j * 100);
+            var correctionBar = new TBar(now.AddMinutes(9), 100, 100, 100, 100, 2000 + (j * 100));
             vroc.Update(correctionBar, isNew: false);
         }
 

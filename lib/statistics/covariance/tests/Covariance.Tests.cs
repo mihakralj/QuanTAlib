@@ -294,7 +294,7 @@ public class CovarianceTests
         {
             var bar = gbm.Next();
             x[i] = bar.Close;
-            y[i] = bar.Close * 1.5 + 10; // Correlated series
+            y[i] = (bar.Close * 1.5) + 10; // Correlated series
         }
 
         // Streaming

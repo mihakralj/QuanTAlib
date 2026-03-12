@@ -67,7 +67,7 @@ public class Ssf3ValidationTests
         double c1 = a1 * a1;
 
         double coef2 = b1 + c1;
-        double coef3 = -(c1 + b1 * c1);
+        double coef3 = -(c1 + (b1 * c1));
         double coef4 = c1 * c1;
         double coef1 = 1.0 - coef2 - coef3 - coef4;
 
@@ -84,7 +84,7 @@ public class Ssf3ValidationTests
             else
             {
                 // y = coef1*x + coef2*y[1] + coef3*y[2] + coef4*y[3]
-                filt = coef1 * src + coef2 * filt1 + coef3 * filt2 + coef4 * filt3;
+                filt = (coef1 * src) + (coef2 * filt1) + (coef3 * filt2) + (coef4 * filt3);
             }
 
             result.Add(filt);

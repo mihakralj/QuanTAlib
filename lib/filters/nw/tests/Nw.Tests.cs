@@ -328,7 +328,7 @@ public class NwTests
         double[] dst = new double[len];
         for (int i = 0; i < len; i++)
         {
-            src[i] = 100.0 + i * 0.01;
+            src[i] = 100.0 + (i * 0.01);
         }
         Nw.Batch(src, dst, 500, 50.0); // period > StackallocThreshold
         Assert.False(double.IsNaN(dst[len - 1]));
@@ -402,7 +402,7 @@ public class NwTests
         }
         nw.Update(new TValue(DateTime.UtcNow, 200.0), isNew: true);
         // With h=100 and period=20, all weights nearly equal → nearly SMA
-        double expected = (100.0 * 19 + 200.0) / 20.0; // ~105
+        double expected = ((100.0 * 19) + 200.0) / 20.0; // ~105
         Assert.True(Math.Abs(nw.Last.Value - expected) < 5.0);
     }
 
@@ -429,7 +429,7 @@ public class NwTests
         var n2 = new Nw(10, 3.0);
         for (int i = 0; i < 30; i++)
         {
-            double v = 100.0 + Math.Sin(i * 0.3) * 10.0;
+            double v = 100.0 + (Math.Sin(i * 0.3) * 10.0);
             n1.Update(new TValue(DateTime.UtcNow, v));
             n2.Update(new TValue(DateTime.UtcNow, v));
         }

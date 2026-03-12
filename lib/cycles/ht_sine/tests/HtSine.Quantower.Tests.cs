@@ -207,7 +207,7 @@ public class HtSineIndicatorTests
         // Add enough bars to pass warmup (63 bars)
         for (int i = 0; i < 70; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.15);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.15));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -231,7 +231,7 @@ public class HtSineIndicatorTests
         // Generate enough data
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.15);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.15));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -260,7 +260,7 @@ public class HtSineIndicatorTests
         // Generate cyclic price pattern
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.15);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.15));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             sineValues.Add(indicator.LinesSeries[0].GetValue(0));

@@ -146,7 +146,7 @@ public class MapeTests
         for (int i = 1; i <= 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             mape.Update(tenthActual, tenthPredicted);
         }
 
@@ -171,7 +171,7 @@ public class MapeTests
 
         for (int i = 1; i <= 10; i++)
         {
-            mape.Update(i * 10, i * 10 + 5);
+            mape.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(mape.IsHot);
@@ -249,7 +249,7 @@ public class MapeTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2; // Offset prediction
+            predicted[i] = (bar.Close * 1.05) + 2; // Offset prediction
         }
 
         // Streaming

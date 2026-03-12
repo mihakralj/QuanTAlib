@@ -269,11 +269,11 @@ public class VwmaValidationTests
         Assert.Equal(10.0, results[0], 6);
 
         // Bar 1: VWMA = (10*100 + 20*200) / 300 = 5000/300 = 16.667
-        double expectedBar1 = (10.0 * 100 + 20.0 * 200) / 300.0;
+        double expectedBar1 = ((10.0 * 100) + (20.0 * 200)) / 300.0;
         Assert.Equal(expectedBar1, results[1], 6);
 
         // Bar 2: VWMA = (10*100 + 20*200 + 30*150) / 450 = 9500/450 = 21.111
-        double expectedBar2 = (10.0 * 100 + 20.0 * 200 + 30.0 * 150) / 450.0;
+        double expectedBar2 = ((10.0 * 100) + (20.0 * 200) + (30.0 * 150)) / 450.0;
         Assert.Equal(expectedBar2, results[2], 6);
     }
 
@@ -309,7 +309,7 @@ public class VwmaValidationTests
         var result = vwma.Update(new TBar(DateTime.UtcNow.AddMinutes(1), 20, 20, 20, 20, 100));
 
         // VWMA = (10*1000 + 20*100) / 1100 = 12000/1100 = 10.909
-        double expected = (10.0 * 1000.0 + 20.0 * 100.0) / 1100.0;
+        double expected = ((10.0 * 1000.0) + (20.0 * 100.0)) / 1100.0;
         Assert.Equal(expected, result.Value, 6);
 
         // VWMA should be much closer to 10 than to 20
@@ -351,7 +351,7 @@ public class VwmaValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 50, 50, 50, 50, 1000 + i * 10);
+            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 50, 50, 50, 50, 1000 + (i * 10));
             results.Add(vwma.Update(bar).Value);
         }
 

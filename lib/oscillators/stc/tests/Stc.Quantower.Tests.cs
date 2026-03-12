@@ -144,7 +144,7 @@ public class StcIndicatorTests
         double[] closes = new double[100];
         for (int i = 0; i < 100; i++)
         {
-            closes[i] = 100 + Math.Sin(i * 0.1) * 10;
+            closes[i] = 100 + (Math.Sin(i * 0.1) * 10);
         }
 
         foreach (var close in closes)

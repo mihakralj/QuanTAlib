@@ -115,7 +115,7 @@ public class BetadistValidationTests
 
         for (int i = 0; i <= 10; i++)
         {
-            double x = i / 10.0 + 1e-10; // avoid exact 0
+            double x = (i / 10.0) + 1e-10; // avoid exact 0
             x = Math.Min(x, 1.0 - 1e-10);
             double cdf = Betadist.IncompleteBeta(x, alpha, beta);
 

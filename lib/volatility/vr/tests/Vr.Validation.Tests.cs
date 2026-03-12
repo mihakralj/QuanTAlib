@@ -374,7 +374,7 @@ public class VrValidationTests
         // Low volatility consolidation
         for (int i = 0; i < 50; i++)
         {
-            vr.Update(new TBar(DateTime.UtcNow, 100, 101, 99, 100 + (i % 2) * 0.5, 1000));
+            vr.Update(new TBar(DateTime.UtcNow, 100, 101, 99, 100 + ((i % 2) * 0.5), 1000));
         }
 
         double consolidationVr = vr.Last.Value;
@@ -407,7 +407,7 @@ public class VrValidationTests
         // Gradually increase volatility
         for (int i = 0; i < 20; i++)
         {
-            double range = 1 + i * 0.5;
+            double range = 1 + (i * 0.5);
             var result = vr.Update(new TBar(DateTime.UtcNow, 100, 100 + range, 100 - range, 100, 1000));
             vrValues.Add(result.Value);
         }

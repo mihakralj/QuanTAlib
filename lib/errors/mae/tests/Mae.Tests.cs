@@ -34,10 +34,10 @@ public class MaeTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(mae.IsHot, $"IsHot should be false at index {i}");
-            mae.Update(i * 10, i * 10 + 5);
+            mae.Update(i * 10, (i * 10) + 5);
         }
 
-        mae.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        mae.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(mae.IsHot, "IsHot should be true after period updates");
     }
 
@@ -146,7 +146,7 @@ public class MaeTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             mae.Update(tenthActual, tenthPredicted);
         }
 
@@ -171,7 +171,7 @@ public class MaeTests
 
         for (int i = 0; i < 10; i++)
         {
-            mae.Update(i * 10, i * 10 + 5);
+            mae.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(mae.IsHot);
@@ -249,7 +249,7 @@ public class MaeTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2; // Offset prediction
+            predicted[i] = (bar.Close * 1.05) + 2; // Offset prediction
         }
 
         // Streaming
@@ -305,7 +305,7 @@ public class MaeTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
         }
 
         var results = Mae.Batch(actual, predicted, 3);

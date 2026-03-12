@@ -61,7 +61,7 @@ public class TwapIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 + i * 0.5;
+            double close = 100 + (i * 0.5);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), close - 2, close + 2, close - 3, close, 100000);
 
             // Process update for each bar to simulate history loading
@@ -191,7 +191,7 @@ public class TwapIndicatorTests
         // Add 10 bars to both
         for (int i = 0; i < 10; i++)
         {
-            double close = 100 + i * 2;
+            double close = 100 + (i * 2);
             noReset.HistoricalData.AddBar(now.AddMinutes(i), close - 2, close + 2, close - 3, close, 10000);
             period5.HistoricalData.AddBar(now.AddMinutes(i), close - 2, close + 2, close - 3, close, 10000);
 

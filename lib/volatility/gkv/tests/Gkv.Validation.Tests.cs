@@ -25,7 +25,7 @@ public class GkvValidationTests
     [Fact]
     public void Gkv_GarmanKlassCoefficient_IsCorrect()
     {
-        double expectedCoeff = 2.0 * Math.Log(2) - 1.0;
+        double expectedCoeff = (2.0 * Math.Log(2)) - 1.0;
         Assert.Equal(0.38629436111989, expectedCoeff, 10);
     }
 
@@ -38,7 +38,7 @@ public class GkvValidationTests
     [InlineData(10, 0.9)]                  // 1 - 1/10 = 9/10
     public void Gkv_RmaDecay_IsCorrect(int period, double expectedDecay)
     {
-        double decay = 1.0 - 1.0 / period;
+        double decay = 1.0 - (1.0 / period);
         Assert.Equal(expectedDecay, decay, 10);
     }
 
@@ -59,7 +59,7 @@ public class GkvValidationTests
         double lnC = Math.Log(close);
 
         double term1 = 0.5 * Math.Pow(lnH - lnL, 2);
-        double coeff = 2.0 * Math.Log(2) - 1.0;
+        double coeff = (2.0 * Math.Log(2)) - 1.0;
         double term2 = coeff * Math.Pow(lnC - lnO, 2);
         double expectedGk = term1 - term2;
 
@@ -87,7 +87,7 @@ public class GkvValidationTests
         double lnC = Math.Log(price);
 
         double term1 = 0.5 * Math.Pow(lnH - lnL, 2); // 0
-        double coeff = 2.0 * Math.Log(2) - 1.0;
+        double coeff = (2.0 * Math.Log(2)) - 1.0;
         double term2 = coeff * Math.Pow(lnC - lnO, 2); // 0
         double gk = term1 - term2;
 
@@ -104,7 +104,7 @@ public class GkvValidationTests
     [InlineData(14, 100)]  // Very late - correction should be minimal
     public void Gkv_BiasCorrection_WorksCorrectly(int period, int count)
     {
-        double decay = 1.0 - 1.0 / period;
+        double decay = 1.0 - (1.0 / period);
         double e = Math.Pow(decay, count);
         double correctionFactor = 1.0 / (1.0 - e);
 
@@ -610,7 +610,7 @@ public class GkvValidationTests
         double lnC = Math.Log(close);
 
         double term1 = 0.5 * Math.Pow(lnH - lnL, 2);
-        double coeff = 2.0 * Math.Log(2) - 1.0;
+        double coeff = (2.0 * Math.Log(2)) - 1.0;
         double term2 = coeff * Math.Pow(lnC - lnO, 2);
 
         return term1 - term2;

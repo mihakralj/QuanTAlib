@@ -179,7 +179,7 @@ public sealed class DemaValidationTests : IDisposable
                 // Manual DEMA (Ooples logic)
                 var e1 = ema1.Update(item);
                 var e2 = ema2.Update(e1); // EMA of EMA
-                double ooplesVal = 2 * e1.Value - e2.Value;
+                double ooplesVal = (2 * e1.Value) - e2.Value;
 
                 // Compare
                 // Note: There might be tiny differences due to floating point operations order

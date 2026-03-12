@@ -31,19 +31,19 @@ public class StderrValidationTests
             sumX2 += (double)i * i;
         }
 
-        double denom = n * sumX2 - sumX * sumX;
+        double denom = (n * sumX2) - (sumX * sumX);
         if (denom == 0)
         {
             return 0;
         }
 
-        double slope = (n * sumXY - sumX * sumY) / denom;
-        double intercept = (sumY - slope * sumX) / n;
+        double slope = ((n * sumXY) - (sumX * sumY)) / denom;
+        double intercept = (sumY - (slope * sumX)) / n;
 
         double ssr = 0;
         for (int i = 0; i < n; i++)
         {
-            double predicted = slope * i + intercept;
+            double predicted = (slope * i) + intercept;
             double res = window[i] - predicted;
             ssr += res * res;
         }
@@ -58,7 +58,7 @@ public class StderrValidationTests
         var se = new Stderr(5);
         for (int i = 0; i < 5; i++)
         {
-            se.Update(new TValue(DateTime.UtcNow, i * 3.0 + 2.0));
+            se.Update(new TValue(DateTime.UtcNow, (i * 3.0) + 2.0));
         }
         Assert.Equal(0.0, se.Last.Value, precision: 8);
     }

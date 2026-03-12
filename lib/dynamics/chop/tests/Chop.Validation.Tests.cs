@@ -74,7 +74,7 @@ public sealed class ChopValidationTests : IDisposable
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + i * 3.0; // Strong linear uptrend
+            double price = 100.0 + (i * 3.0); // Strong linear uptrend
             var bar = new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 0.5, price - 0.5, price, 1000);
             chop.Update(bar);
         }
@@ -95,7 +95,7 @@ public sealed class ChopValidationTests : IDisposable
         for (int i = 0; i < 100; i++)
         {
             // Oscillating price with wide range but no trend
-            double price = 100.0 + 5.0 * Math.Sin(2.0 * Math.PI * i / 3.0);
+            double price = 100.0 + (5.0 * Math.Sin(2.0 * Math.PI * i / 3.0));
             double high = price + 3.0;
             double low = price - 3.0;
             var bar = new TBar(DateTime.UtcNow.AddMinutes(i), price, high, low, price, 1000);

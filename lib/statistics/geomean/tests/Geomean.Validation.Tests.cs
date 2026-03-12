@@ -106,7 +106,7 @@ public sealed class GeomeanValidationTests
         var g = new Geomean(10);
         for (int i = 0; i < 20; i++)
         {
-            g.Update(new TValue(DateTime.UtcNow, 100.0 + i * 0.001));
+            g.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 0.001)));
         }
         Assert.True(Math.Abs(g.Last.Value - 100.01) < 0.1,
             $"Expected near 100.01, got {g.Last.Value}");

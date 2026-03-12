@@ -78,7 +78,7 @@ public class StderrBasicTests
         var se = new Stderr(10);
         for (int i = 0; i < 10; i++)
         {
-            se.Update(new TValue(DateTime.UtcNow, i * 2.0 + 5.0));
+            se.Update(new TValue(DateTime.UtcNow, (i * 2.0) + 5.0));
         }
         Assert.Equal(0.0, se.Last.Value, precision: 8);
     }
@@ -138,7 +138,7 @@ public class StderrStateTests
         var se = new Stderr(5);
         for (int i = 0; i < 5; i++)
         {
-            se.Update(new TValue(DateTime.UtcNow, i * 10.0 + 10.0));
+            se.Update(new TValue(DateTime.UtcNow, (i * 10.0) + 10.0));
         }
         double after5 = se.Last.Value;
 
@@ -152,7 +152,7 @@ public class StderrStateTests
         var se = new Stderr(5);
         for (int i = 0; i < 5; i++)
         {
-            se.Update(new TValue(DateTime.UtcNow, i * 10.0 + 10.0));
+            se.Update(new TValue(DateTime.UtcNow, (i * 10.0) + 10.0));
         }
 
         se.Update(new TValue(DateTime.UtcNow, 50.0), isNew: true);

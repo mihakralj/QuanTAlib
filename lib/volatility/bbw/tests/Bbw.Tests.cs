@@ -379,7 +379,7 @@ public class BbwTests
 
         for (int i = 0; i < 10; i++)
         {
-            bbw.Update(new TValue(DateTime.UtcNow, 100 + i * 0.1));
+            bbw.Update(new TValue(DateTime.UtcNow, 100 + (i * 0.1)));
         }
         double lowVolatilityBbw = bbw.Last.Value;
 
@@ -387,7 +387,7 @@ public class BbwTests
 
         for (int i = 0; i < 10; i++)
         {
-            bbw.Update(new TValue(DateTime.UtcNow, 100 + i * 10));
+            bbw.Update(new TValue(DateTime.UtcNow, 100 + (i * 10)));
         }
         double highVolatilityBbw = bbw.Last.Value;
 

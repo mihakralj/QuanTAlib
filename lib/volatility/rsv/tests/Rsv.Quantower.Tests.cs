@@ -226,7 +226,7 @@ public class RsvIndicatorTests
         // Same data for both
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100 + i * 0.5;
+            double basePrice = 100 + (i * 0.5);
             indicatorRaw.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 3, basePrice - 3, basePrice + 1, 1000);
             indicatorRaw.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
@@ -313,7 +313,7 @@ public class RsvIndicatorTests
         // Strong uptrend with consistent volatility
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100 + i * 2; // Trending up
+            double basePrice = 100 + (i * 2); // Trending up
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 3, basePrice - 2, basePrice + 1, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

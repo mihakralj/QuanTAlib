@@ -34,10 +34,10 @@ public class MseTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(mse.IsHot, $"IsHot should be false at index {i}");
-            mse.Update(i * 10, i * 10 + 5);
+            mse.Update(i * 10, (i * 10) + 5);
         }
 
-        mse.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        mse.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(mse.IsHot, "IsHot should be true after period updates");
     }
 
@@ -152,7 +152,7 @@ public class MseTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             mse.Update(tenthActual, tenthPredicted);
         }
 
@@ -177,7 +177,7 @@ public class MseTests
 
         for (int i = 0; i < 10; i++)
         {
-            mse.Update(i * 10, i * 10 + 5);
+            mse.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(mse.IsHot);
@@ -237,7 +237,7 @@ public class MseTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2;
+            predicted[i] = (bar.Close * 1.05) + 2;
         }
 
         // Streaming
@@ -284,7 +284,7 @@ public class MseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
         }
 
         var results = Mse.Batch(actual, predicted, 3);

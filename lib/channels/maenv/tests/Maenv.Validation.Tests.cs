@@ -120,11 +120,11 @@ public sealed class MaenvValidationTests : IDisposable
         Assert.Equal(100.0, ind.Last.Value, 1e-10);
 
         ind.Update(series[1]);
-        double expected2 = (110.0 * 9 + 100.0 * 6) / 15.0;
+        double expected2 = ((110.0 * 9) + (100.0 * 6)) / 15.0;
         Assert.Equal(expected2, ind.Last.Value, 1e-10);
 
         ind.Update(series[2]);
-        double expected3 = (120.0 * 9 + 110.0 * 6 + 100.0 * 3) / 18.0;
+        double expected3 = ((120.0 * 9) + (110.0 * 6) + (100.0 * 3)) / 18.0;
         Assert.Equal(expected3, ind.Last.Value, 1e-10);
 
         _output.WriteLine("Maenv WMA manual calculation validated");

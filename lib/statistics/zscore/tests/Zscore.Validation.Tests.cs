@@ -65,7 +65,7 @@ public sealed class ZscoreValidationTests
         {
             double val = rng.Next().Close;
             z1.Update(new TValue(DateTime.UtcNow, val));
-            z2.Update(new TValue(DateTime.UtcNow, val * 3.0 + 100.0)); // linear transform
+            z2.Update(new TValue(DateTime.UtcNow, (val * 3.0) + 100.0)); // linear transform
 
             if (z1.IsHot && z2.IsHot)
             {

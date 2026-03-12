@@ -128,7 +128,7 @@ public sealed class FisherValidationTests(ITestOutputHelper output) : IDisposabl
                 }
 
                 // Ehlers 2002: Fish = arctanh(Value1) + 0.5 * Fish[1]  (IIR feedback)
-                fisherValue = 0.5 * Math.Log((1.0 + emaValue) / (1.0 - emaValue)) + 0.5 * fisherValue;
+                fisherValue = (0.5 * Math.Log((1.0 + emaValue) / (1.0 - emaValue))) + (0.5 * fisherValue);
                 manualOutput[i] = fisherValue;
             }
 

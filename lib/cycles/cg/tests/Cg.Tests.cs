@@ -79,7 +79,7 @@ public class CgTests
         var cg = new Cg(5);
         for (int i = 0; i < 10; i++)
         {
-            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + i * 10));
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + (i * 10)));
         }
         Assert.True(cg.Last.Value > 0, $"Expected positive CG, got {cg.Last.Value}");
     }
@@ -91,7 +91,7 @@ public class CgTests
         var cg = new Cg(5);
         for (int i = 0; i < 10; i++)
         {
-            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 200 - i * 10));
+            cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 200 - (i * 10)));
         }
         Assert.True(cg.Last.Value < 0, $"Expected negative CG, got {cg.Last.Value}");
     }
@@ -328,7 +328,7 @@ public class CgTests
         // Generate and store values
         for (int i = 0; i < 20; i++)
         {
-            inputs.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + i * 0.5));
+            inputs.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + (i * 0.5)));
         }
 
         // First pass

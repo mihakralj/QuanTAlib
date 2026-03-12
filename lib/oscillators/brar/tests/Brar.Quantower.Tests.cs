@@ -116,7 +116,7 @@ public sealed class BrarIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100.0 + i * 0.5;
+            double basePrice = 100.0 + (i * 0.5);
             indicator.HistoricalData.AddBar(
                 now.AddMinutes(i),
                 open: basePrice,

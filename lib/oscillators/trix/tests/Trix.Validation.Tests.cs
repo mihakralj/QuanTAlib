@@ -338,7 +338,7 @@ public sealed class TrixValidationTests(ITestOutputHelper output) : IDisposable
         // Feed a long sustained uptrend to ensure TRIX stabilizes positive
         for (int i = 0; i < 50; i++)
         {
-            trix.Update(new TValue(DateTime.UtcNow, 100 + i * 2));
+            trix.Update(new TValue(DateTime.UtcNow, 100 + (i * 2)));
         }
         double uptrendTrix = trix.Last.Value;
         Assert.True(uptrendTrix > 0, $"Sustained uptrend should produce positive TRIX, got {uptrendTrix}");
@@ -346,7 +346,7 @@ public sealed class TrixValidationTests(ITestOutputHelper output) : IDisposable
         // Feed a long sustained downtrend
         for (int i = 0; i < 50; i++)
         {
-            trix.Update(new TValue(DateTime.UtcNow, 200 - i * 2));
+            trix.Update(new TValue(DateTime.UtcNow, 200 - (i * 2)));
         }
         double downtrendTrix = trix.Last.Value;
         Assert.True(downtrendTrix < 0, $"Sustained downtrend should produce negative TRIX, got {downtrendTrix}");

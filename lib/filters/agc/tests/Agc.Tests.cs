@@ -2,7 +2,6 @@ namespace QuanTAlib;
 
 public class AgcTests
 {
-
     // Helper: generate a sine wave that oscillates around zero
     private static TSeries MakeSineWave(int count, double amplitude = 1.0, double period = 20.0)
     {

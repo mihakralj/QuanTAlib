@@ -93,7 +93,7 @@ public sealed class CoppockValidationTests(ITestOutputHelper output)
         double startPrice = 100.0;
         int n = 60;
         double[] prices = new double[n];
-        for (int i = 0; i < n; i++) { prices[i] = startPrice + i * 0.5; }
+        for (int i = 0; i < n; i++) { prices[i] = startPrice + (i * 0.5); }
 
         var spanOut = new double[n];
         Coppock.Batch(prices, spanOut, longRoc: 5, shortRoc: 4, wmaPeriod: 4);
@@ -114,7 +114,7 @@ public sealed class CoppockValidationTests(ITestOutputHelper output)
         double startPrice = 200.0;
         int n = 60;
         double[] prices = new double[n];
-        for (int i = 0; i < n; i++) { prices[i] = startPrice - i * 0.5; }
+        for (int i = 0; i < n; i++) { prices[i] = startPrice - (i * 0.5); }
 
         var spanOut = new double[n];
         Coppock.Batch(prices, spanOut, longRoc: 5, shortRoc: 4, wmaPeriod: 4);

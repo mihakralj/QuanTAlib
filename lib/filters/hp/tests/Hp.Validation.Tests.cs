@@ -54,7 +54,7 @@ public class HpValidationTests : IDisposable
         var result = new List<TValue>();
 
         double s = Math.Sqrt(lambda);
-        double alpha = (s * 0.5 - 1.0) / (s * 0.5 + 1.0);
+        double alpha = ((s * 0.5) - 1.0) / ((s * 0.5) + 1.0);
         alpha = Math.Max(alpha, 0.0001);
         alpha = Math.Min(alpha, 0.9999);
 
@@ -75,9 +75,9 @@ public class HpValidationTests : IDisposable
             }
             else
             {
-                hp_trend = (1.0 - alpha) * price +
-                           alpha * prev_trend +
-                           0.5 * alpha * (prev_trend - prev_prev_trend);
+                hp_trend = ((1.0 - alpha) * price) +
+                           (alpha * prev_trend) +
+                           (0.5 * alpha * (prev_trend - prev_prev_trend));
 
                 prev_prev_trend = prev_trend;
                 prev_trend = hp_trend;

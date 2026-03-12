@@ -147,7 +147,7 @@ public class RsquaredTests
         // Different actual values but perfect predictions
         for (int i = 0; i < 20; i++)
         {
-            double val = 100 + i * 2;
+            double val = 100 + (i * 2);
             r2.Update(new TValue(time.AddSeconds(i), val), new TValue(time.AddSeconds(i), val));
         }
 
@@ -165,8 +165,8 @@ public class RsquaredTests
         // Generate data with some error
         for (int i = 0; i < 20; i++)
         {
-            double actual = 100 + i * 2;
-            double predicted = actual + (i % 3 - 1) * 2;
+            double actual = 100 + (i * 2);
+            double predicted = actual + (((i % 3) - 1) * 2);
             r2.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), predicted));
             rse.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), predicted));
         }
@@ -210,7 +210,7 @@ public class RsquaredTests
         // Linear trend with small random noise in predictions
         for (int i = 0; i < 20; i++)
         {
-            double actual = 100 + i * 2;
+            double actual = 100 + (i * 2);
             double predicted = actual + (i % 2 == 0 ? 0.5 : -0.5); // Small systematic error
             r2.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), predicted));
         }
@@ -261,8 +261,8 @@ public class RsquaredTests
 
         for (int i = 0; i < 100; i++)
         {
-            double actual = 100 + Math.Sin(i * 0.1) * 20;
-            double predicted = actual + (i % 5 - 2); // Small systematic error
+            double actual = 100 + (Math.Sin(i * 0.1) * 20);
+            double predicted = actual + ((i % 5) - 2); // Small systematic error
             r2.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), predicted));
 
             // R² should never exceed 1

@@ -34,10 +34,10 @@ public class RmseTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(rmse.IsHot);
-            rmse.Update(i * 10, i * 10 + 5);
+            rmse.Update(i * 10, (i * 10) + 5);
         }
 
-        rmse.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        rmse.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(rmse.IsHot);
     }
 
@@ -67,8 +67,8 @@ public class RmseTests
 
         for (int i = 0; i < 20; i++)
         {
-            rmse.Update(i * 10, i * 10 + 7);
-            mse.Update(i * 10, i * 10 + 7);
+            rmse.Update(i * 10, (i * 10) + 7);
+            mse.Update(i * 10, (i * 10) + 7);
         }
 
         Assert.Equal(Math.Sqrt(mse.Last.Value), rmse.Last.Value, 10);
@@ -127,7 +127,7 @@ public class RmseTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             rmse.Update(tenthActual, tenthPredicted);
         }
 
@@ -150,7 +150,7 @@ public class RmseTests
 
         for (int i = 0; i < 10; i++)
         {
-            rmse.Update(i * 10, i * 10 + 5);
+            rmse.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(rmse.IsHot);
@@ -196,7 +196,7 @@ public class RmseTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2;
+            predicted[i] = (bar.Close * 1.05) + 2;
         }
 
         var rmse = new Rmse(period);
@@ -238,7 +238,7 @@ public class RmseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
         }
 
         var results = Rmse.Batch(actual, predicted, 3);

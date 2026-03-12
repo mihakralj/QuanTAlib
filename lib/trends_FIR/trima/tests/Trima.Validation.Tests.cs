@@ -29,7 +29,7 @@ public class TrimaValidationTests
             var qResult = trima.Update(_testData.Data);
 
             // Calculate Skender Composite TRIMA: SMA(SMA(x, p1), p2)
-            int p1 = period / 2 + 1;
+            int p1 = (period / 2) + 1;
             int p2 = (period + 1) / 2;
 
             var sma1Results = _testData.SkenderQuotes.GetSma(p1).ToList();

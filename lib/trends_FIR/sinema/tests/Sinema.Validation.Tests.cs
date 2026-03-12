@@ -230,7 +230,7 @@ public sealed class SinemaValidationTests : IDisposable
         double w3 = Math.Sin(Math.PI * 4 / 5);
         double w4 = Math.Sin(Math.PI * 5 / 5);
 
-        double expectedSum = 100 * w0 + 102 * w1 + 104 * w2 + 103 * w3 + 105 * w4;
+        double expectedSum = (100 * w0) + (102 * w1) + (104 * w2) + (103 * w3) + (105 * w4);
         double weightSum = w0 + w1 + w2 + w3 + w4;
         double expected = expectedSum / weightSum;
 
@@ -273,7 +273,7 @@ public sealed class SinemaValidationTests : IDisposable
         // w0 = sin(π*1/2) = 1, w1 = sin(π*2/2) = 0
         // Result = (100*1 + 110*0) / 1 = 100
         double r2 = sinema.Update(new TValue(DateTime.UtcNow, 110)).Value;
-        double expected2 = (100 * Math.Sin(Math.PI * 1 / 2) + 110 * Math.Sin(Math.PI * 2 / 2))
+        double expected2 = ((100 * Math.Sin(Math.PI * 1 / 2)) + (110 * Math.Sin(Math.PI * 2 / 2)))
                          / (Math.Sin(Math.PI * 1 / 2) + Math.Sin(Math.PI * 2 / 2));
         Assert.Equal(expected2, r2, 1e-10);
 

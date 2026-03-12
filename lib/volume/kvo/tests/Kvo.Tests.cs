@@ -79,8 +79,8 @@ public class KvoTests
         // Simulate uptrend with increasing prices and volume
         for (int i = 0; i < 100; i++)
         {
-            double basePrice = 100 + i * 2;
-            kvo.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 5, basePrice - 2, basePrice + 3, 1000000 + i * 100000));
+            double basePrice = 100 + (i * 2);
+            kvo.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 5, basePrice - 2, basePrice + 3, 1000000 + (i * 100000)));
         }
 
         // After warmup, KVO should have finite values
@@ -96,8 +96,8 @@ public class KvoTests
         // Simulate downtrend with decreasing prices
         for (int i = 0; i < 100; i++)
         {
-            double basePrice = 500 - i * 3;
-            kvo.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 2, basePrice - 5, basePrice - 3, 1000000 + i * 100000));
+            double basePrice = 500 - (i * 3);
+            kvo.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 2, basePrice - 5, basePrice - 3, 1000000 + (i * 100000)));
         }
 
         // After warmup, KVO should have finite values
@@ -145,7 +145,7 @@ public class KvoTests
         // Build up state
         for (int i = 0; i < 15; i++)
         {
-            kvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000), isNew: true);
+            kvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)), isNew: true);
         }
 
         // New bar
@@ -232,7 +232,7 @@ public class KvoTests
 
         for (int i = 0; i < 20; i++)
         {
-            kvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000));
+            kvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)));
         }
 
         Assert.True(double.IsFinite(kvo.Signal.Value));

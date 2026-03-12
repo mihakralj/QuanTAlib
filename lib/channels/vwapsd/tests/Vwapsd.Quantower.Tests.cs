@@ -242,7 +242,7 @@ public class VwapsdIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 5; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 105 + i, 95 + i, 102 + i, 1000 + i * 100);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 105 + i, 95 + i, 102 + i, 1000 + (i * 100));
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 
@@ -344,7 +344,7 @@ public class VwapsdIndicatorTests
         double width2 = indicator2.LinesSeries[3].GetValue(0);
 
         // Width2 should be approximately 2x Width1
-        Assert.True(Math.Abs(width2 - 2 * width1) < 0.0001,
+        Assert.True(Math.Abs(width2 - (2 * width1)) < 0.0001,
             $"Width2 ({width2}) should be ~2x Width1 ({width1})");
     }
 

@@ -46,12 +46,12 @@ public class HwmaValidationTests
             double prevV = V;
             double prevA = A;
 
-            F = alpha * series[i].Value + (1 - alpha) * (prevF + prevV + 0.5 * prevA);
-            V = beta * (F - prevF) + (1 - beta) * (prevV + prevA);
-            A = gamma * (V - prevV) + (1 - gamma) * prevA;
+            F = (alpha * series[i].Value) + ((1 - alpha) * (prevF + prevV + (0.5 * prevA)));
+            V = (beta * (F - prevF)) + ((1 - beta) * (prevV + prevA));
+            A = (gamma * (V - prevV)) + ((1 - gamma) * prevA);
         }
 
-        double expected = F + V + 0.5 * A;
+        double expected = F + V + (0.5 * A);
 
         Assert.Equal(expected, results.Last.Value, Tolerance);
     }
@@ -183,14 +183,14 @@ public class HwmaValidationTests
         // Generate uptrend
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + i * 2; // Strong uptrend
+            double price = 100 + (i * 2); // Strong uptrend
             hwma.Update(new TValue(DateTime.UtcNow, price));
             ema.Update(new TValue(DateTime.UtcNow, price));
         }
 
         // HWMA should be closer to current price than EMA in uptrend
         // (or even ahead due to velocity/acceleration extrapolation)
-        double currentPrice = 100 + 29 * 2; // 158
+        double currentPrice = 100 + (29 * 2); // 158
         double hwmaDiff = Math.Abs(hwma.Last.Value - currentPrice);
         double emaDiff = Math.Abs(ema.Last.Value - currentPrice);
 

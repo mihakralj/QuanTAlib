@@ -120,7 +120,7 @@ public class JbBasicTests
         for (int i = 0; i < 100; i++)
         {
             // Triangular wave approximating normal shape
-            double val = 50.0 + Math.Sin(i * 0.1) * 10.0;
+            double val = 50.0 + (Math.Sin(i * 0.1) * 10.0);
             jb.Update(new TValue(DateTime.UtcNow, val));
         }
         Assert.True(double.IsFinite(jb.Last.Value));

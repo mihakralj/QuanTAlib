@@ -41,7 +41,7 @@ public class CcycValidationTests
 
         for (int i = 0; i < 500; i++)
         {
-            ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + 0.5 * i), true);
+            ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (0.5 * i)), true);
         }
 
         // After warmup, should be near zero since linear trend has no cycle component
@@ -58,7 +58,7 @@ public class CcycValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double value = 100 + 10 * Math.Sin(2 * Math.PI * i / period);
+            double value = 100 + (10 * Math.Sin(2 * Math.PI * i / period));
             ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value), true);
         }
 
@@ -80,7 +80,7 @@ public class CcycValidationTests
 
         for (int i = 0; i < 300; i++)
         {
-            double value = 100 + 10 * Math.Sin(2 * Math.PI * i / period);
+            double value = 100 + (10 * Math.Sin(2 * Math.PI * i / period));
             var r = ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value), true);
 
             if (i > 20 && prev * r.Value < 0 && prev != 0)
@@ -169,7 +169,7 @@ public class CcycValidationTests
             double noiseVal = rng.Next().Close;
             ccycNoise.Update(new TValue(DateTime.UtcNow.AddMinutes(i), noiseVal), true);
 
-            double sineVal = 100 + 10 * Math.Sin(2 * Math.PI * i / 20.0);
+            double sineVal = 100 + (10 * Math.Sin(2 * Math.PI * i / 20.0));
             var sineResult = ccycSine.Update(new TValue(DateTime.UtcNow.AddMinutes(i), sineVal), true);
 
             if (i > 30)
@@ -216,7 +216,7 @@ public class CcycValidationTests
 
         for (int i = 0; i < 300; i++)
         {
-            double value = 100 + 10 * Math.Sin(2 * Math.PI * i / 20.0);
+            double value = 100 + (10 * Math.Sin(2 * Math.PI * i / 20.0));
             ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value), true);
 
             if (i > 20)
@@ -340,7 +340,7 @@ public class CcycValidationTests
 
         for (int i = 0; i < 20; i++)
         {
-            double value = 100 + 5 * Math.Sin(2 * Math.PI * i / 20.0);
+            double value = 100 + (5 * Math.Sin(2 * Math.PI * i / 20.0));
             var r = ccyc.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value), true);
             results.Add(r.Value);
         }

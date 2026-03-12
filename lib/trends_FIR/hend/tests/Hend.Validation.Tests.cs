@@ -88,12 +88,12 @@ public class HendValidationTests(ITestOutputHelper output)
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i;
+            double val = a + (b * i);
             hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - half;
-        double expected = a + b * centerIdx;
+        double expected = a + (b * centerIdx);
         _output.WriteLine($"Linear: expected={expected}, actual={hend.Last.Value}");
         Assert.Equal(expected, hend.Last.Value, 1e-6);
     }
@@ -108,12 +108,12 @@ public class HendValidationTests(ITestOutputHelper output)
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i + c * i * i;
+            double val = a + (b * i) + (c * i * i);
             hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - half;
-        double expected = a + b * centerIdx + c * centerIdx * centerIdx;
+        double expected = a + (b * centerIdx) + (c * centerIdx * centerIdx);
         _output.WriteLine($"Quadratic: expected={expected}, actual={hend.Last.Value}");
         Assert.Equal(expected, hend.Last.Value, 0.1);
     }
@@ -128,12 +128,12 @@ public class HendValidationTests(ITestOutputHelper output)
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i + c * i * i + d * i * i * i;
+            double val = a + (b * i) + (c * i * i) + (d * i * i * i);
             hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - half;
-        double expected = a + b * centerIdx + c * centerIdx * centerIdx + d * centerIdx * centerIdx * centerIdx;
+        double expected = a + (b * centerIdx) + (c * centerIdx * centerIdx) + (d * centerIdx * centerIdx * centerIdx);
         _output.WriteLine($"Cubic: expected={expected}, actual={hend.Last.Value}");
         Assert.Equal(expected, hend.Last.Value, 1.0);
     }

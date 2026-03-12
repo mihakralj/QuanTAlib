@@ -617,7 +617,7 @@ public class JbandsTests
 
         for (int i = 0; i < 100; i++)
         {
-            var val = new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.5);
+            var val = new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.5));
             src.Add(val.Time, val.Value);
             j.Update(val, isNew: true);
         }

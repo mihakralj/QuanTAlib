@@ -70,7 +70,7 @@ public class VoIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double volume = 100000 + i * 1000;
+            double volume = 100000 + (i * 1000);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, 105, volume);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -139,7 +139,7 @@ public class VoIndicatorTests
         // Volume increases over time - short MA will exceed long MA
         for (int i = 0; i < 20; i++)
         {
-            double volume = 10000 + i * 5000; // Increasing volume
+            double volume = 10000 + (i * 5000); // Increasing volume
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
 
             var args = i == 0
@@ -163,7 +163,7 @@ public class VoIndicatorTests
         // Volume decreases over time - short MA will be below long MA
         for (int i = 0; i < 20; i++)
         {
-            double volume = 100000 - i * 4000; // Decreasing volume
+            double volume = 100000 - (i * 4000); // Decreasing volume
             volume = Math.Max(volume, 1000); // Keep positive
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
 
@@ -226,7 +226,7 @@ public class VoIndicatorTests
         // Add same data to both
         for (int i = 0; i < 50; i++)
         {
-            double volume = 50000 + Math.Sin(i * 0.3) * 20000;
+            double volume = 50000 + (Math.Sin(i * 0.3) * 20000);
             shortPeriods.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
             longPeriods.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
 
@@ -286,7 +286,7 @@ public class VoIndicatorTests
         // Oscillating volume pattern
         for (int i = 0; i < 50; i++)
         {
-            double volume = 50000 + Math.Sin(i * 0.5) * 30000;
+            double volume = 50000 + (Math.Sin(i * 0.5) * 30000);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
 
             var args = i == 0

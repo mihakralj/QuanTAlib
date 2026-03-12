@@ -136,7 +136,6 @@ public class BlmaTests
 
         blma.Pub += (object? sender, in TValueEventArgs args) => timestamps.Add(args.Value.AsDateTime);
 
-
         blma.Prime(input);
 
         Assert.Equal(input.Length, timestamps.Count);
@@ -161,7 +160,6 @@ public class BlmaTests
         var timestamps = new List<DateTime>();
 
         blma.Pub += (object? sender, in TValueEventArgs args) => timestamps.Add(args.Value.AsDateTime);
-
 
         blma.Prime(input);
 

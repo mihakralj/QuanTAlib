@@ -29,8 +29,8 @@ public class CointegrationValidationTests
         {
             // Incremental log-return: truly i.i.d. noise, variance ~(0.2²·dt)
             double noise = Math.Log(bars[i].Close / bars[i - 1].Close);
-            double a = 100.0 + i * 0.5 + noise * 0.1;
-            double b = 2.0 * a + 10.0 + noise * 0.1;
+            double a = 100.0 + (i * 0.5) + (noise * 0.1);
+            double b = (2.0 * a) + 10.0 + (noise * 0.1);
             indicator.Update(a, b);
         }
 
@@ -49,7 +49,7 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.1) * 10.0;
+            double value = 100.0 + (Math.Sin(i * 0.1) * 10.0);
             indicator.Update(value, value);
         }
 
@@ -68,9 +68,9 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double a = 50.0 + i * 0.3 + Math.Sin(i * 0.2) * 5.0;
+            double a = 50.0 + (i * 0.3) + (Math.Sin(i * 0.2) * 5.0);
             double noise = GbmNoise(random) * 0.5;
-            double b = 1.5 * a + noise;
+            double b = (1.5 * a) + noise;
             indicator.Update(a, b);
         }
 
@@ -87,9 +87,9 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double a = 100.0 + i * 0.2;
+            double a = 100.0 + (i * 0.2);
             double noise = GbmNoise(random) * 0.5; // Small noise
-            double b = 25.0 + 0.8 * a + noise;
+            double b = 25.0 + (0.8 * a) + noise;
             indicator.Update(a, b);
         }
 
@@ -105,8 +105,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double a = 100.0 + i * 0.3;
-            double b = 50.0 + 0.5 * a + Math.Sin(i * 0.1);
+            double a = 100.0 + (i * 0.3);
+            double b = 50.0 + (0.5 * a) + Math.Sin(i * 0.1);
             indicator10.Update(a, b);
             indicator30.Update(a, b);
         }
@@ -128,8 +128,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double a = 100.0 + i * 0.2 + Math.Sin(i * 0.1) * 3.0;
-            double b = 30.0 + 0.7 * a + Math.Cos(i * 0.15) * 2.0;
+            double a = 100.0 + (i * 0.2) + (Math.Sin(i * 0.1) * 3.0);
+            double b = 30.0 + (0.7 * a) + (Math.Cos(i * 0.15) * 2.0);
             seriesA.Add(baseTime.AddMinutes(i), a);
             seriesB.Add(baseTime.AddMinutes(i), b);
         }
@@ -165,8 +165,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < length; i++)
         {
-            seriesA[i] = 100.0 + i * 0.2 + Math.Sin(i * 0.1) * 3.0;
-            seriesB[i] = 30.0 + 0.7 * seriesA[i] + Math.Cos(i * 0.15) * 2.0;
+            seriesA[i] = 100.0 + (i * 0.2) + (Math.Sin(i * 0.1) * 3.0);
+            seriesB[i] = 30.0 + (0.7 * seriesA[i]) + (Math.Cos(i * 0.15) * 2.0);
         }
 
         // Span calculation
@@ -198,8 +198,8 @@ public class CointegrationValidationTests
         // First run
         for (int i = 0; i < 50; i++)
         {
-            double a = 100.0 + i * 0.3;
-            double b = 50.0 + 0.5 * a;
+            double a = 100.0 + (i * 0.3);
+            double b = 50.0 + (0.5 * a);
             indicator.Update(a, b);
         }
         var firstResult = indicator.Last.Value;
@@ -209,8 +209,8 @@ public class CointegrationValidationTests
         // Second run with same data
         for (int i = 0; i < 50; i++)
         {
-            double a = 100.0 + i * 0.3;
-            double b = 50.0 + 0.5 * a;
+            double a = 100.0 + (i * 0.3);
+            double b = 50.0 + (0.5 * a);
             indicator.Update(a, b);
         }
         var secondResult = indicator.Last.Value;
@@ -259,8 +259,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 20; i++)
         {
-            double a = 100.0 + i + GbmNoise(random) * 0.1;
-            double b = 50.0 + 0.5 * a + GbmNoise(random) * 0.1;
+            double a = 100.0 + i + (GbmNoise(random) * 0.1);
+            double b = 50.0 + (0.5 * a) + (GbmNoise(random) * 0.1);
             indicator.Update(a, b);
         }
 
@@ -277,8 +277,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 150; i++)
         {
-            double a = 100.0 + i * 0.1 + GbmNoise(random) * 0.1;
-            double b = 30.0 + 0.8 * a + GbmNoise(random) * 0.1;
+            double a = 100.0 + (i * 0.1) + (GbmNoise(random) * 0.1);
+            double b = 30.0 + (0.8 * a) + (GbmNoise(random) * 0.1);
             indicator.Update(a, b);
         }
 
@@ -298,8 +298,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double a = 1e8 + i * 1e5;
-            double b = 2e8 + 2.0 * a;
+            double a = 1e8 + (i * 1e5);
+            double b = 2e8 + (2.0 * a);
             indicator.Update(a, b);
         }
 
@@ -313,8 +313,8 @@ public class CointegrationValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double a = 1e-6 + i * 1e-8;
-            double b = 2e-6 + 1.5 * a;
+            double a = 1e-6 + (i * 1e-8);
+            double b = 2e-6 + (1.5 * a);
             indicator.Update(a, b);
         }
 
@@ -329,7 +329,7 @@ public class CointegrationValidationTests
         for (int i = 0; i < 50; i++)
         {
             double a = 1000.0 + i;
-            double b = 0.001 + 0.000001 * a; // Much smaller scale
+            double b = 0.001 + (0.000001 * a); // Much smaller scale
             indicator.Update(a, b);
         }
 

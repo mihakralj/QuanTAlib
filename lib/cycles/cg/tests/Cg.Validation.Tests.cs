@@ -28,7 +28,7 @@ public class CgValidationTests
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        double maxAbsValue = (period - 1) / 2.0 + 0.5; // Allow small margin
+        double maxAbsValue = ((period - 1) / 2.0) + 0.5; // Allow small margin
 
         foreach (var bar in bars)
         {
@@ -65,7 +65,7 @@ public class CgValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 100.0 + i * 1.0; // Linear uptrend
+            double price = 100.0 + (i * 1.0); // Linear uptrend
             cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -82,7 +82,7 @@ public class CgValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 200.0 - i * 1.0; // Linear downtrend
+            double price = 200.0 - (i * 1.0); // Linear downtrend
             cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -100,7 +100,7 @@ public class CgValidationTests
         for (int i = 0; i < 50; i++)
         {
             double expPrice = 100.0 * Math.Exp(i * 0.02);
-            double linPrice = 100.0 + i * 2.0;
+            double linPrice = 100.0 + (i * 2.0);
             cgExp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), expPrice));
             cgLin.Update(new TValue(DateTime.UtcNow.AddSeconds(i), linPrice));
         }
@@ -120,7 +120,7 @@ public class CgValidationTests
         // Generate sine wave to simulate price oscillation
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.2);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.2));
             cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             if (cg.IsHot)
             {
@@ -162,9 +162,9 @@ public class CgValidationTests
         // num = 1*10 + 2*12 + 3*11 + 4*13 + 5*15 = 10 + 24 + 33 + 52 + 75 = 194
         // den = 10 + 12 + 11 + 13 + 15 = 61
         // result = 194/61 - (5+1)/2 = 3.1803... - 3 = 0.1803...
-        double expectedNum = 1 * 10 + 2 * 12 + 3 * 11 + 4 * 13 + 5 * 15;
+        double expectedNum = (1 * 10) + (2 * 12) + (3 * 11) + (4 * 13) + (5 * 15);
         double expectedDen = 10 + 12 + 11 + 13 + 15;
-        double expectedCg = (expectedNum / expectedDen) - (period + 1) / 2.0;
+        double expectedCg = (expectedNum / expectedDen) - ((period + 1) / 2.0);
 
         var cg = new Cg(period);
         for (int i = 0; i < prices.Length; i++)
@@ -287,7 +287,7 @@ public class CgValidationTests
         Assert.True(double.IsFinite(cg.Last.Value));
 
         // CG bounds check
-        double maxAbsValue = (period - 1) / 2.0 + 1.0;
+        double maxAbsValue = ((period - 1) / 2.0) + 1.0;
         Assert.True(Math.Abs(cg.Last.Value) <= maxAbsValue,
             $"CG with period {period} should be within ±{maxAbsValue}, got {cg.Last.Value}");
     }
@@ -337,7 +337,7 @@ public class CgValidationTests
         // Uptrend
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             prices.Add(price);
             if (cg.IsHot)
@@ -349,7 +349,7 @@ public class CgValidationTests
         // Plateau/slight decline
         for (int i = 30; i < 50; i++)
         {
-            double price = 115.0 - (i - 30) * 0.2;
+            double price = 115.0 - ((i - 30) * 0.2);
             cg.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             prices.Add(price);
             cgValues.Add(cg.Last.Value);

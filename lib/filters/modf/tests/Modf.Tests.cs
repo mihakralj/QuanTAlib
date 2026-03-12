@@ -118,14 +118,14 @@ public class ModfTests
         var modf = new Modf(14);
         for (int i = 0; i < 30; i++)
         {
-            modf.Update(new TValue(DateTime.UtcNow, 100.0 + i * 0.5), isNew: true);
+            modf.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 0.5)), isNew: true);
         }
 
         double before = modf.Last.Value;
         // Correct last bar multiple times
         for (int i = 0; i < 5; i++)
         {
-            modf.Update(new TValue(DateTime.UtcNow, 100.0 + 29 * 0.5), isNew: false);
+            modf.Update(new TValue(DateTime.UtcNow, 100.0 + (29 * 0.5)), isNew: false);
         }
 
         Assert.Equal(before, modf.Last.Value, 10);
@@ -312,11 +312,11 @@ public class ModfTests
         // Feed uptrend
         for (int i = 0; i < 30; i++)
         {
-            modf.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2.0));
+            modf.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2.0)));
         }
         double upResult = modf.Last.Value;
         // Output should be at or below price in uptrend (lower band tracks behind)
-        Assert.True(upResult <= 100.0 + 29 * 2.0);
+        Assert.True(upResult <= 100.0 + (29 * 2.0));
     }
 
     [Fact]

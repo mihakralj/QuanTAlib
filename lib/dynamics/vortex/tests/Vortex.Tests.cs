@@ -172,8 +172,8 @@ public class VortexTests
         // VI- = 17 / 27 ≈ 0.630
 
         Assert.True(vortex.IsHot);
-        Assert.True(Math.Abs(vortex.ViPlus.Value - 32.0 / 27.0) < 0.001);
-        Assert.True(Math.Abs(vortex.ViMinus.Value - 17.0 / 27.0) < 0.001);
+        Assert.True(Math.Abs(vortex.ViPlus.Value - (32.0 / 27.0)) < 0.001);
+        Assert.True(Math.Abs(vortex.ViMinus.Value - (17.0 / 27.0)) < 0.001);
     }
 
     [Fact]
@@ -205,8 +205,8 @@ public class VortexTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = basePrice + i * 2; // Strong uptrend
-            var bar = new TBar(baseTime + i * 60000, price, price + 1, price - 0.5, price + 0.5, 1000);
+            double price = basePrice + (i * 2); // Strong uptrend
+            var bar = new TBar(baseTime + (i * 60000), price, price + 1, price - 0.5, price + 0.5, 1000);
             vortex.Update(bar);
         }
 
@@ -225,8 +225,8 @@ public class VortexTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = basePrice - i * 2; // Strong downtrend
-            var bar = new TBar(baseTime + i * 60000, price, price + 0.5, price - 1, price - 0.5, 1000);
+            double price = basePrice - (i * 2); // Strong downtrend
+            var bar = new TBar(baseTime + (i * 60000), price, price + 0.5, price - 1, price - 0.5, 1000);
             vortex.Update(bar);
         }
 

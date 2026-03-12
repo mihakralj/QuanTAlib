@@ -101,7 +101,7 @@ public sealed class TtmScalperBasicTests
         // Monotone ascending — no pivot
         for (int i = 0; i < 3; i++)
         {
-            double price = 100.0 + i * 5;
+            double price = 100.0 + (i * 5);
             _ = ts.Update(new TBar(dt.AddMinutes(i), price, price + 2, price - 2, price + 1, 1000), isNew: true);
         }
 

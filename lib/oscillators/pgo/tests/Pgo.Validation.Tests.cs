@@ -74,7 +74,7 @@ public sealed class PgoValidationTests
         // Feed gradually rising prices
         for (int i = 0; i < 10; i++)
         {
-            double c = 100.0 + i * 2;
+            double c = 100.0 + (i * 2);
             pgo.Update(new TBar(DateTime.UtcNow, c - 1, c + 3, c - 3, c, 100));
         }
 
@@ -92,13 +92,13 @@ public sealed class PgoValidationTests
         // Feed rising prices first, then drop
         for (int i = 0; i < 7; i++)
         {
-            double c = 100.0 + i * 5;
+            double c = 100.0 + (i * 5);
             pgo.Update(new TBar(DateTime.UtcNow, c - 1, c + 3, c - 3, c, 100));
         }
         // Now drop sharply
         for (int i = 0; i < 5; i++)
         {
-            double c = 80.0 - i * 5;
+            double c = 80.0 - (i * 5);
             pgo.Update(new TBar(DateTime.UtcNow, c - 1, c + 3, c - 3, c, 100));
         }
 

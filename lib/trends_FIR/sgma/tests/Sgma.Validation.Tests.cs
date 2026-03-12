@@ -101,7 +101,7 @@ public class SgmaValidationTests
         double[] prices = new double[20];
         for (int i = 0; i < 20; i++)
         {
-            prices[i] = 100.0 + i * 10.0; // Linear: 100, 110, 120, ..., 290
+            prices[i] = 100.0 + (i * 10.0); // Linear: 100, 110, 120, ..., 290
         }
 
         var sgma0 = new Sgma(period, 0);

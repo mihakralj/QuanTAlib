@@ -104,7 +104,7 @@ public class WienerValidationTests : IDisposable
                 kp = signalVar / (signalVar + noiseVar);
             }
 
-            result[i] = mean + kp * (source[i] - mean);
+            result[i] = mean + (kp * (source[i] - mean));
         }
 
         return result;

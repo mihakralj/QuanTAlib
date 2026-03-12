@@ -169,7 +169,7 @@ public class EacpTests
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
+            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)), isNew: true);
         }
 
         eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
@@ -237,7 +237,7 @@ public class EacpTests
         // First run
         for (int i = 0; i < 200; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var firstResult = eacp.Last.Value;
 
@@ -246,7 +246,7 @@ public class EacpTests
         // Second run with same data
         for (int i = 0; i < 200; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var secondResult = eacp.Last.Value;
 
@@ -431,7 +431,7 @@ public class EacpTests
 
         for (int i = 0; i < 200; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(eacp.IsHot);
@@ -447,7 +447,7 @@ public class EacpTests
 
         for (int i = 0; i < 300; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Both should have values

@@ -167,12 +167,12 @@ public sealed class NwValidationTests : IDisposable
         // Bar 1: src[1] with w0=1.0, src[0] with w1=exp(-1/(2*1))=exp(-0.5)
         double w0 = 1.0;
         double w1 = Math.Exp(-0.5);
-        double expected1 = (w0 * 20.0 + w1 * 10.0) / (w0 + w1);
+        double expected1 = ((w0 * 20.0) + (w1 * 10.0)) / (w0 + w1);
         Assert.Equal(expected1, dst[1], 10);
 
         // Bar 2: src[2] w0=1, src[1] w1=exp(-0.5), src[0] w2=exp(-4/2)=exp(-2)
         double w2 = Math.Exp(-2.0);
-        double expected2 = (w0 * 30.0 + w1 * 20.0 + w2 * 10.0) / (w0 + w1 + w2);
+        double expected2 = ((w0 * 30.0) + (w1 * 20.0) + (w2 * 10.0)) / (w0 + w1 + w2);
         Assert.Equal(expected2, dst[2], 10);
 
         _output.WriteLine($"Manual calc: bar0={dst[0]:F6}, bar1={dst[1]:F6} (expect {expected1:F6}), bar2={dst[2]:F6} (expect {expected2:F6})");

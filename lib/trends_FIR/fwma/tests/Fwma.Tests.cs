@@ -386,7 +386,7 @@ public class FwmaTests
         double[] output = new double[count];
         for (int i = 0; i < count; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Fwma.Batch(source.AsSpan(), output.AsSpan(), 20);

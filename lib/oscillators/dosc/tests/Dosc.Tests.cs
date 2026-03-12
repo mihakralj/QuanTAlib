@@ -88,7 +88,7 @@ public class DoscTests
 
         for (int i = 0; i < 500; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         Assert.True(indicator.IsHot);
@@ -112,7 +112,7 @@ public class DoscTests
         // Warm up well past the period threshold
         for (int i = 0; i < DefaultRsi + DefaultSig + 10; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5), isNew: true);
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)), isNew: true);
         }
 
         TValue r1 = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(50), 120.0), isNew: true);
@@ -197,7 +197,7 @@ public class DoscTests
 
         for (int i = 0; i < 200; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
             if (indicator.IsHot && hotAt < 0)
             {
                 hotAt = i;
@@ -246,7 +246,7 @@ public class DoscTests
 
         for (int i = 0; i < 100; i++)
         {
-            source[i] = 100.0 + i * 0.5;
+            source[i] = 100.0 + (i * 0.5);
         }
 
         source[50] = double.NaN;
@@ -348,7 +348,7 @@ public class DoscTests
 
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Dosc.Batch(source, output, 14, 5, 3, 9);

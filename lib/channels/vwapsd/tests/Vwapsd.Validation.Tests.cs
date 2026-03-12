@@ -305,7 +305,7 @@ public sealed class VwapsdValidationTests : IDisposable
 
         // VWAP should be closer to 100 (high volume price)
         // VWAP = (100 × 10000 + 200 × 100) / (10000 + 100) = 1020000 / 10100 ≈ 100.99
-        double expectedVwap = (100.0 * 10000 + 200.0 * 100) / (10000 + 100);
+        double expectedVwap = ((100.0 * 10000) + (200.0 * 100)) / (10000 + 100);
         Assert.Equal(expectedVwap, vwapsd.Vwap.Value, precision: 10);
         Assert.True(vwapsd.Vwap.Value < 110, "VWAP should be heavily weighted toward 100");
 
@@ -466,7 +466,7 @@ public sealed class VwapsdValidationTests : IDisposable
         // Multiple zero-volume bars with different prices
         for (int i = 0; i < 5; i++)
         {
-            var zeroVolBar = new TBar(DateTime.UtcNow.AddMinutes(i + 1), 200 + i * 10, 200 + i * 10, 200 + i * 10, 200 + i * 10, 0);
+            var zeroVolBar = new TBar(DateTime.UtcNow.AddMinutes(i + 1), 200 + (i * 10), 200 + (i * 10), 200 + (i * 10), 200 + (i * 10), 0);
             vwapsd.Update(zeroVolBar);
         }
 

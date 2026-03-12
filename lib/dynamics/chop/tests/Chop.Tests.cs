@@ -34,7 +34,7 @@ public class ChopTests
         // Generate trending bars: each bar higher than the last
         for (int i = 0; i < 50; i++)
         {
-            double basePrice = 100 + i * 2; // Strong uptrend
+            double basePrice = 100 + (i * 2); // Strong uptrend
             bars.Add(new TBar(
                 time: DateTime.UtcNow.AddMinutes(i),
                 open: basePrice - 0.5,

@@ -132,7 +132,7 @@ public class VovTests
         // First phase: low volatility
         for (int i = 0; i < 20; i++)
         {
-            vov.Update(new TValue(DateTime.UtcNow, 100.0 + (i % 2) * 0.1));
+            vov.Update(new TValue(DateTime.UtcNow, 100.0 + ((i % 2) * 0.1)));
         }
         double lowVolVov = vov.Last.Value;
 
@@ -145,12 +145,12 @@ public class VovTests
             // High volatility period
             for (int j = 0; j < 5; j++)
             {
-                vov.Update(new TValue(DateTime.UtcNow, 100.0 + (j % 2) * 10.0));
+                vov.Update(new TValue(DateTime.UtcNow, 100.0 + ((j % 2) * 10.0)));
             }
             // Low volatility period
             for (int j = 0; j < 5; j++)
             {
-                vov.Update(new TValue(DateTime.UtcNow, 100.0 + (j % 2) * 0.1));
+                vov.Update(new TValue(DateTime.UtcNow, 100.0 + ((j % 2) * 0.1)));
             }
         }
         double highVolVov = vov.Last.Value;

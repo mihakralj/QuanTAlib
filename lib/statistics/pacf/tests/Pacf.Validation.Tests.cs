@@ -115,7 +115,7 @@ public class PacfValidationTests
         for (int i = 1; i < 500; i++)
         {
             double noise = Math.Log(bars[i].Close / bars[i - 1].Close); // i.i.d. incremental return
-            double newValue = phi * arProcess[^1] + noise;
+            double newValue = (phi * arProcess[^1]) + noise;
             arProcess.Add(newValue);
         }
 
@@ -152,7 +152,7 @@ public class PacfValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            pacf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5));
+            pacf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)));
         }
 
         // Trending series should have high positive PACF at lag 1

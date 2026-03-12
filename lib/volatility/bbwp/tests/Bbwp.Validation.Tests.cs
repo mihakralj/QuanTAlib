@@ -141,7 +141,7 @@ public class BbwpValidationTests
         // Feed low volatility data first
         for (int i = 0; i < 25; i++)
         {
-            bbwp.Update(new TValue(DateTime.UtcNow.Ticks + i, 100.0 + (i % 2) * 0.1));
+            bbwp.Update(new TValue(DateTime.UtcNow.Ticks + i, 100.0 + ((i % 2) * 0.1)));
         }
 
         // Then introduce a high volatility spike

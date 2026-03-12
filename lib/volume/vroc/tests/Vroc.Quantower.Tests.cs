@@ -71,7 +71,7 @@ public class VrocIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double volume = 100000 + i * 1000;
+            double volume = 100000 + (i * 1000);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, 105, volume);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -217,7 +217,7 @@ public class VrocIndicatorTests
         // Increasing volumes
         for (int i = 0; i < 20; i++)
         {
-            double volume = 1000 + i * 100;
+            double volume = 1000 + (i * 100);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
             var args = i == 0
                 ? new UpdateArgs(UpdateReason.HistoricalBar)
@@ -240,7 +240,7 @@ public class VrocIndicatorTests
         // Decreasing volumes
         for (int i = 0; i < 20; i++)
         {
-            double volume = 5000 - i * 100;
+            double volume = 5000 - (i * 100);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100, volume);
             var args = i == 0
                 ? new UpdateArgs(UpdateReason.HistoricalBar)

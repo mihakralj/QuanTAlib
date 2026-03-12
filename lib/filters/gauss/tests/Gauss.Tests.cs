@@ -45,7 +45,7 @@ public class GaussTests
         var source = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            source.Add(new TValue(DateTime.MinValue.AddSeconds(i), 100 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.MinValue.AddSeconds(i), 100 + (Math.Sin(i * 0.1) * 10)));
         }
 
         var gauss = new Gauss(1.0);

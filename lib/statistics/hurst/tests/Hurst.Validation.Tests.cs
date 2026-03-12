@@ -219,5 +219,4 @@ public sealed class HurstValidationTests
                 $"Skender Hurst value {r.HurstExponent.Value} is not finite");
         }
     }
-
 }

@@ -174,8 +174,6 @@ public class VarianceTests
         }
     }
 
-
-
     [Fact]
     public void Batch_SimdPath_Triggered()
     {
@@ -576,8 +574,6 @@ public class VarianceTests
         Assert.Equal(66.666666, outputPop[2], precision: 5); // 200/3
         Assert.Equal(100, outputSamp[2], precision: 6); // 200/2
     }
-
-
 
     [Fact]
     public void Resync_PreventsDrift_Extended()

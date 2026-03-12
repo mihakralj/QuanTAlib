@@ -158,7 +158,7 @@ public class MaenvTests
         // Actual: first bar w=9, second bar: newest w=9, oldest w=6; sum=110*9+100*6=990+600=1590; norm=15
         // WMA = 1590/15 = 106
         m.Update(new TValue(DateTime.UtcNow, 110));
-        double expected2 = (110 * 9 + 100 * 6) / 15.0;
+        double expected2 = ((110 * 9) + (100 * 6)) / 15.0;
         Assert.Equal(expected2, m.Last.Value, 1e-10);
     }
 

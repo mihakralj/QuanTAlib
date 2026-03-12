@@ -111,7 +111,7 @@ public sealed class SqueezeIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 15; i++)
         {
-            double price = 50.0 + i * 0.5;
+            double price = 50.0 + (i * 0.5);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 0.5, price - 0.5, price + 0.1);
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);

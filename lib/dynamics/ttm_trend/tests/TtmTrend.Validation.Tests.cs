@@ -64,7 +64,7 @@ public class TtmTrendValidationTests
         // Feed enough bars to warm up, then inject consistently rising prices
         for (int i = 0; i < 20; i++)
         {
-            double price = basePrice + i * 2.0;
+            double price = basePrice + (i * 2.0);
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 price - 0.5, price + 0.5, price - 0.5, price, 1000);
@@ -84,7 +84,7 @@ public class TtmTrendValidationTests
         // Feed enough bars to warm up, then inject consistently falling prices
         for (int i = 0; i < 20; i++)
         {
-            double price = basePrice - i * 2.0;
+            double price = basePrice - (i * 2.0);
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 price + 0.5, price + 0.5, price - 0.5, price, 1000);

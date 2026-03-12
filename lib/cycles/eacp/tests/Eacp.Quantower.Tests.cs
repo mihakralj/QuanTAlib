@@ -305,7 +305,7 @@ public class EacpIndicatorTests
         // Generate sine wave pattern
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -324,7 +324,7 @@ public class EacpIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -348,7 +348,7 @@ public class EacpIndicatorTests
         // Add same data to both
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             indicatorEnhanced.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicatorNormal.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicatorEnhanced.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));

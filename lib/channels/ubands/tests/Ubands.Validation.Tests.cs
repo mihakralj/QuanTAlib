@@ -409,7 +409,7 @@ public sealed class UbandsValidationTests : IDisposable
 
         _output.WriteLine($"Source variance: {sourceVar:F4}");
         _output.WriteLine($"Middle (USF) variance: {middleVar:F4}");
-        _output.WriteLine($"Noise reduction: {(1 - middleVar / sourceVar) * 100:F1}%");
+        _output.WriteLine($"Noise reduction: {(1 - (middleVar / sourceVar)) * 100:F1}%");
 
         Assert.True(middleVar < sourceVar, "Smoothed signal should have lower variance");
     }

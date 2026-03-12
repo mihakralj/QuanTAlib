@@ -128,7 +128,7 @@ public class MamaTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            data.Add(new TValue(now.AddMinutes(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            data.Add(new TValue(now.AddMinutes(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Case 1: Update all at once

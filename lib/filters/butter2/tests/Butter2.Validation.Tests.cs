@@ -117,7 +117,7 @@ public class Butter2ValidationTests
             else
             {
                 double ssrc = src;
-                filt = (b0 * ssrc + b1 * src1 + b2 * src2 - a1 * filt1 - a2 * filt2) / a0;
+                filt = ((b0 * ssrc) + (b1 * src1) + (b2 * src2) - (a1 * filt1) - (a2 * filt2)) / a0;
             }
 
             result.Add(filt);

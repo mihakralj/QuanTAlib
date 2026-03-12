@@ -204,7 +204,7 @@ public class PseudoHuberTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next();
-            pseudoHuber.Update(bar.Close, bar.Close + (i % 2 == 0 ? 1 : -1) * (i + 1));
+            pseudoHuber.Update(bar.Close, bar.Close + ((i % 2 == 0 ? 1 : -1) * (i + 1)));
             Assert.True(pseudoHuber.Last.Value >= 0, "Pseudo-Huber loss should always be non-negative");
         }
     }

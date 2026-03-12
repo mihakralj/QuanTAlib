@@ -42,7 +42,7 @@ public sealed class BetaValidationTests : IDisposable
             var noiseBar = noiseGbm.Next();
             double noise = (noiseBar.Close - noiseBar.Open) / noiseBar.Open;
 
-            double assetReturn = targetBeta * marketReturn + noise;
+            double assetReturn = (targetBeta * marketReturn) + noise;
 
             assetPrice *= (1 + assetReturn);
             assetQuotes.Add(new TBar(marketQuotes[i].Time, assetPrice, assetPrice, assetPrice, assetPrice, 1000));
@@ -117,7 +117,7 @@ public sealed class BetaValidationTests : IDisposable
             double mktReturn = (marketQuotes[i].Value - marketQuotes[i - 1].Value) / marketQuotes[i - 1].Value;
             var noiseBar = noiseGbm.Next();
             double noise = (noiseBar.Close - noiseBar.Open) / noiseBar.Open;
-            double astReturn = targetBeta * mktReturn + noise * 0.1;
+            double astReturn = (targetBeta * mktReturn) + (noise * 0.1);
             assetPrice *= (1 + astReturn);
             assetPrices[i] = assetPrice;
             marketPrices[i] = marketQuotes[i].Value;

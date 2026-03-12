@@ -43,7 +43,7 @@ public class AgcValidationTests
         double[] input = new double[T];
         for (int i = 0; i < T; i++)
         {
-            double amplitude = 1.0 + i * 0.01; // grows from 1 to 11
+            double amplitude = 1.0 + (i * 0.01); // grows from 1 to 11
             input[i] = amplitude * Math.Sin(2.0 * Math.PI * i / 20.0);
         }
 
@@ -92,7 +92,7 @@ public class AgcValidationTests
         double[] input = new double[500];
         for (int i = 0; i < input.Length; i++)
         {
-            input[i] = Math.Sin(2.0 * Math.PI * i / 25.0) * (1.0 + 0.3 * Math.Sin(2.0 * Math.PI * i / 100.0));
+            input[i] = Math.Sin(2.0 * Math.PI * i / 25.0) * (1.0 + (0.3 * Math.Sin(2.0 * Math.PI * i / 100.0)));
         }
 
         double[] out1 = new double[input.Length];

@@ -132,7 +132,7 @@ public class PvrTests
         // Build up state
         for (int i = 0; i < 10; i++)
         {
-            pvr.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000), isNew: true);
+            pvr.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)), isNew: true);
         }
 
         // New bar

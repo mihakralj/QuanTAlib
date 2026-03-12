@@ -66,7 +66,7 @@ public sealed class RainValidationTests : IDisposable
         double[] expected = new double[BarCount];
         for (int i = 0; i < BarCount; i++)
         {
-            expected[i] = (5.0 * layer0[i] + 4.0 * layer1[i] + 3.0 * layer2[i] + 2.0 * layer3[i]
+            expected[i] = ((5.0 * layer0[i]) + (4.0 * layer1[i]) + (3.0 * layer2[i]) + (2.0 * layer3[i])
                 + layer4[i] + layer5[i] + layer6[i] + layer7[i] + layer8[i] + layer9[i]) / 20.0;
         }
 

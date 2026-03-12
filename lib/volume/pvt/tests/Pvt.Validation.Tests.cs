@@ -105,11 +105,11 @@ public class PvtValidationTests
         Assert.Equal(200.0, result1.Value, 1e-10);
 
         var result2 = pvt.Update(new TBar(time.AddMinutes(2), 110, 112, 103, 105, 1500));
-        double expected2 = 200 + 1500 * (-5.0 / 110.0);  // = 131.8181818...
+        double expected2 = 200 + (1500 * (-5.0 / 110.0));  // = 131.8181818...
         Assert.Equal(expected2, result2.Value, 1e-10);
 
         var result3 = pvt.Update(new TBar(time.AddMinutes(3), 105, 118, 105, 115, 2500));
-        double expected3 = expected2 + 2500 * (10.0 / 105.0);  // = 369.9134...
+        double expected3 = expected2 + (2500 * (10.0 / 105.0));  // = 369.9134...
         Assert.Equal(expected3, result3.Value, 1e-10);
     }
 }

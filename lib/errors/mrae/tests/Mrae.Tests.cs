@@ -34,10 +34,10 @@ public class MraeTests
         for (int i = 1; i <= period - 1; i++)
         {
             Assert.False(mrae.IsHot, $"IsHot should be false at index {i}");
-            mrae.Update(i * 10, i * 10 + 5);
+            mrae.Update(i * 10, (i * 10) + 5);
         }
 
-        mrae.Update(period * 10, period * 10 + 5);
+        mrae.Update(period * 10, (period * 10) + 5);
         Assert.True(mrae.IsHot, "IsHot should be true after period updates");
     }
 
@@ -127,7 +127,7 @@ public class MraeTests
         for (int i = 1; i <= 10; i++)
         {
             tenthActual = i * 100;
-            tenthPredicted = i * 100 + 10;
+            tenthPredicted = (i * 100) + 10;
             mrae.Update(tenthActual, tenthPredicted);
         }
 
@@ -152,7 +152,7 @@ public class MraeTests
 
         for (int i = 1; i <= 10; i++)
         {
-            mrae.Update(i * 10, i * 10 + 5);
+            mrae.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(mrae.IsHot);
@@ -230,7 +230,7 @@ public class MraeTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2;
+            predicted[i] = (bar.Close * 1.05) + 2;
         }
 
         // Streaming
