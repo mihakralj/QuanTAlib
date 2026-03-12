@@ -7,12 +7,12 @@ Price transforms and fundamental building blocks. These indicators compute deriv
 | Indicator | Full Name | Description |
 | :-------- | :-------- | :---------- |
 | [AVGPRICE](avgprice/Avgprice.md) | Average Price | (O+H+L+C) * 0.25 via FMA |
+| [HA](ha/Ha.md) | Heikin-Ashi | Modified OHLC candles. Smoothed trend visualization. Output is TBar. |
 | [MEDPRICE](medprice/Medprice.md) | Median Price | (H+L) * 0.5 |
+| [MIDBODY](midbody/Midbody.md) | Open-Close Average | (O+C) * 0.5 |
 | [MIDPOINT](midpoint/Midpoint.md) | Rolling Midpoint | (Max+Min) * 0.5 over lookback window |
 | [MIDPRICE](midprice/Midprice.md) | Mid Price | (Highest High + Lowest Low) * 0.5 |
-| [MIDBODY](midbody/Midbody.md) | Open-Close Average | (O+C) * 0.5 |
 | [TYPPRICE](typprice/Typprice.md) | Typical Price | (H+L+C) * OneThird via FMA |
-| [HA](ha/Ha.md) | Heikin-Ashi | Modified OHLC candles. Smoothed trend visualization. Output is TBar. |
 | [WCLPRICE](wclprice/Wclprice.md) | Weighted Close Price | (H+L+2C) * 0.25 via FMA |
 
 ## Architecture

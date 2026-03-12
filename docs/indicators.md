@@ -43,22 +43,34 @@ Finite Impulse Response filters. Output depends only on a fixed window of inputs
 | [**BLMA**](../lib/trends_FIR/blma/Blma.md) | Blackman Window MA | Spectral leakage reduction |
 | [**BWMA**](../lib/trends_FIR/bwma/Bwma.md) | Bessel-Weighted MA | Linear phase response |
 | [**CONV**](../lib/trends_FIR/conv/Conv.md) | Convolution MA | Arbitrary kernel support |
+| [**CRMA**](../lib/trends_FIR/crma/Crma.md) | Cubic Regression MA | Higher-order polynomial trend fit |
 | [**DWMA**](../lib/trends_FIR/dwma/Dwma.md) | Double Weighted MA | WMA applied twice |
+| [**FWMA**](../lib/trends_FIR/fwma/Fwma.md) | Fibonacci Weighted MA | Golden ratio kernel convolution |
 | [**GWMA**](../lib/trends_FIR/gwma/Gwma.md) | Gaussian Weighted MA | Normal distribution weights |
 | [**HAMMA**](../lib/trends_FIR/hamma/Hamma.md) | Hamming Weighted MA | Spectral analysis window |
 | [**HANMA**](../lib/trends_FIR/hanma/Hanma.md) | Hanning Weighted MA | Cosine-based window |
+| [**HEND**](../lib/trends_FIR/hend/Hend.md) | Henderson MA | Optimized for trend extraction, minimal distortion |
 | [**HMA**](../lib/trends_FIR/hma/Hma.md) | Hull MA | Reduced lag via WMA differencing |
+| [**ILRS**](../lib/trends_FIR/ilrs/Ilrs.md) | Integral of LinReg Slope | Cumulative linear regression slope |
+| [**KAISER**](../lib/trends_FIR/kaiser/Kaiser.md) | Kaiser Window MA | Adjustable β for sidelobe control |
+| [**LANCZOS**](../lib/trends_FIR/lanczos/Lanczos.md) | Lanczos (Sinc) Window MA | Optimal frequency-domain characteristics |
+| [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) | Least Squares MA | Linear regression endpoint |
 | [**NLMA**](../lib/trends_FIR/nlma/Nlma.md) | Non-Lag MA | Damped cosine kernel FIR |
 | [**NYQMA**](../lib/trends_FIR/nyqma/Nyqma.md) | Nyquist MA | Dual LWMA cascade FIR |
+| [**PARZEN**](../lib/trends_FIR/parzen/Parzen.md) | Parzen Window MA | Piecewise cubic, good spectral leakage control |
 | [**PMA**](../lib/trends_FIR/pma/Pma.md) | Predictive Moving Average | Ehlers WMA cascade + extrapolation |
-| [**RAIN**](../lib/trends_FIR/rain/Rain.md) | Rainbow MA | 10× cascaded SMA |
-| [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) | Least Squares MA | Linear regression endpoint |
 | [**PWMA**](../lib/trends_FIR/pwma/Pwma.md) | Pascal Weighted MA | Binomial coefficient weights |
+| [**QRMA**](../lib/trends_FIR/qrma/Qrma.md) | Quadratic Regression MA | Quadratic polynomial regression endpoint |
+| [**RAIN**](../lib/trends_FIR/rain/Rain.md) | Rainbow MA | 10× cascaded SMA |
+| [**RWMA**](../lib/trends_FIR/rwma/Rwma.md) | Range Weighted MA | Volatility-adaptive FIR via bar range weights |
 | [**SGMA**](../lib/trends_FIR/sgma/Sgma.md) | Savitzky-Golay MA | Polynomial smoothing |
 | [**SINEMA**](../lib/trends_FIR/sinema/Sinema.md) | Sine-Weighted MA | Sinusoidal weight distribution |
 | [**SMA**](../lib/trends_FIR/sma/Sma.md) | Simple MA | Equal weights, the baseline |
+| [**SP15**](../lib/trends_FIR/sp15/Sp15.md) | Spencer 15-Point MA | Classic statistical smoothing filter |
+| [**SWMA**](../lib/trends_FIR/swma/Swma.md) | Symmetric Weighted MA | Equal emphasis on both tails |
 | [**TRIMA**](../lib/trends_FIR/trima/Trima.md) | Triangular MA | Double-smoothed SMA |
 | [**TSF**](../lib/trends_FIR/tsf/Tsf.md) | Time Series Forecast | Linear regression one-step-ahead projection |
+| [**TUKEY_W**](../lib/trends_FIR/tukey_w/Tukey_w.md) | Tukey Window MA | Tapered cosine with adjustable α |
 | [**WMA**](../lib/trends_FIR/wma/Wma.md) | Weighted MA | Linear weight decay |
 
 ### Trends (IIR)
@@ -67,23 +79,29 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**ADXVMA**](../lib/trends_IIR/adxvma/Adxvma.md) | ADX Variable MA | ADX-based adaptive smoothing |
+| [**AHRENS**](../lib/trends_IIR/ahrens/Ahrens.md) | Ahrens MA | Simple recursive IIR with minimal lag |
 | [**CORAL**](../lib/trends_IIR/coral/Coral.md) | Coral Trend Filter | Six-stage cascaded EMA with polynomial combination |
 | [**DECYCLER**](../lib/trends_IIR/decycler/Decycler.md) | Ehlers Decycler | Complementary HP filter subtracting high-frequency noise |
 | [**DEMA**](../lib/trends_IIR/dema/Dema.md) | Double Exponential MA | EMA of EMA with lag compensation |
 | [**DSMA**](../lib/trends_IIR/dsma/Dsma.md) | Deviation-Scaled MA | Volatility-adaptive smoothing |
 | [**EMA**](../lib/trends_IIR/ema/Ema.md) | Exponential MA | The fundamental IIR filter |
 | [**FRAMA**](../lib/trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Dimension-based adaptation |
+| [**GDEMA**](../lib/trends_IIR/gdema/Gdema.md) | Generalized DEMA | Configurable volume factor for tunable lag/smoothness |
 | [**HEMA**](../lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Hull concept with EMA |
 | [**HOLT**](../lib/trends_IIR/holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing (level + trend) |
 | [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend (also known as HT_TRENDLINE) | Dominant cycle extraction |
+| [**HWMA**](../lib/trends_IIR/hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing (IIR) |
 | [**JMA**](../lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive, low-lag, proprietary algorithm |
 | [**KAMA**](../lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Efficiency ratio adaptation |
+| [**LEMA**](../lib/trends_IIR/lema/Lema.md) | Leader EMA | Dual EMA with error-correction lag reduction |
+| [**LTMA**](../lib/trends_IIR/ltma/Ltma.md) | Linear Trend MA | Linear trend extraction via recursive IIR |
 | [**MAMA**](../lib/trends_IIR/mama/Mama.md) | Ehlers MESA Adaptive MA | Homodyne discriminator based |
 | [**MAVP**](../lib/trends_IIR/mavp/Mavp.md) | Moving Average Variable Period | Per-bar dynamic period EMA |
+| [**MCNMA**](../lib/trends_IIR/mcnma/Mcnma.md) | McNicholl EMA | Six cascaded EMA stages, inner+outer TEMA |
 | [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic | Market-speed tracking |
 | [**MMA**](../lib/trends_IIR/mma/Mma.md) | Modified MA | Smoothed EMA variant |
 | [**NMA**](../lib/trends_IIR/nma/Nma.md) | Natural MA | Volatility-weighted sqrt-kernel adaptation (Sloman) |
-| [**HWMA**](../lib/trends_IIR/hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing (IIR) |
 | [**QEMA**](../lib/trends_IIR/qema/Qema.md) | Quad Exponential MA | Four-stage exponential |
 | [**REMA**](../lib/trends_IIR/rema/Rema.md) | Regularized Exponential MA | Regularization for stability |
 | [**RGMA**](../lib/trends_IIR/rgma/Rgma.md) | Recursive Gaussian MA | Gaussian approximation |
@@ -107,12 +125,12 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**AGC**](../lib/filters/agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via peak tracking |
 | [**ALAGUERRE**](../lib/filters/alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers variable-alpha from tracking error |
 | [**BAXTERKING**](../lib/filters/baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass for cycle extraction |
-| [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
 | [**BESSEL**](../lib/filters/bessel/Bessel.md) | Bessel Filter | Maximally flat group delay |
 | [**BILATERAL**](../lib/filters/bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing |
 | [**BPF**](../lib/filters/bpf/Bpf.md) | BandPass Filter | Frequency band isolation |
 | [**BUTTER2**](../lib/filters/butter2/Butter2.md) | Ehlers 2-Pole Butterworth Filter | Maximally flat passband |
 | [**BUTTER3**](../lib/filters/butter3/Butter3.md) | Ehlers 3-Pole Butterworth Filter | Steeper rolloff, 3rd-order |
+| [**CFITZ**](../lib/filters/cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass, random-walk optimal |
 | [**CHEBY1**](../lib/filters/cheby1/Cheby1.md) | Chebyshev Type I | Steeper rolloff with passband ripple |
 | [**CHEBY2**](../lib/filters/cheby2/Cheby2.md) | Chebyshev Type II | Steeper rolloff with stopband ripple |
 | [**EDCF**](../lib/filters/edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR, distance-weighted smoothing |
@@ -124,14 +142,15 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**KALMAN**](../lib/filters/kalman/Kalman.md) | Kalman Filter | Optimal recursive estimation |
 | [**LAGUERRE**](../lib/filters/laguerre/Laguerre.md) | Ehlers Laguerre Filter | Ehlers 4-element all-pass cascade |
 | [**LMS**](../lib/filters/lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR filter |
-| [**RLS**](../lib/filters/rls/Rls.md) | Recursive Least Squares | Faster convergence than LMS |
 | [**LOESS**](../lib/filters/loess/Loess.md) | LOESS Smoothing | Local polynomial regression |
 | [**MODF**](../lib/filters/modf/Modf.md) | Modular Filter | Dual-path adaptive filter with state selection |
 | [**NOTCH**](../lib/filters/notch/Notch.md) | Notch Filter | Single frequency rejection |
 | [**NW**](../lib/filters/nw/Nw.md) | Nadaraya-Watson Estimator | Non-parametric Gaussian kernel regression smoothing |
-| [**RMED**](../lib/filters/rmed/Rmed.md) | Ehlers Recursive Median Filter | Recursive median + IIR smoothing, outlier-resistant |
 | [**ONEEURO**](../lib/filters/oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass, adaptive cutoff |
+| [**RLS**](../lib/filters/rls/Rls.md) | Recursive Least Squares | Faster convergence than LMS |
+| [**RMED**](../lib/filters/rmed/Rmed.md) | Ehlers Recursive Median Filter | Recursive median + IIR smoothing, outlier-resistant |
 | [**ROOFING**](../lib/filters/roofing/Roofing.md) | Ehlers Roofing Filter | Ehlers HP + SS bandpass cascade |
+| [**SAK**](../lib/filters/sak/Sak.md) | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS) |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
 | [**SPBF**](../lib/filters/spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
 | [**SSF2**](../lib/filters/ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers two-pole design |
@@ -151,28 +170,45 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**AO**](../lib/oscillators/ao/Ao.md) | Awesome Oscillator | Midpoint momentum |
 | [**APO**](../lib/oscillators/apo/Apo.md) | Absolute Price Oscillator | EMA difference |
 | [**BBB**](../lib/oscillators/bbb/Bbb.md) | Bollinger %B | Position within Bollinger Bands |
+| [**BBI**](../lib/oscillators/bbi/Bbi.md) | Bulls Bears Index | Multi-period SMA composite trend strength |
 | [**BBS**](../lib/oscillators/bbs/Bbs.md) | Bollinger Band Squeeze | BB inside KC squeeze detection |
+| [**BRAR**](../lib/oscillators/brar/Brar.md) | Bull-Bear Power Ratio | Open-relative bull/bear power ratio |
 | [**CFO**](../lib/oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Forecast error percentage |
+| [**COPPOCK**](../lib/oscillators/coppock/Coppock.md) | Coppock Curve | Long-term momentum via weighted ROC sum |
+| [**CRSI**](../lib/oscillators/crsi/Crsi.md) | Connors RSI | Composite RSI + streak RSI + percentile rank |
+| [**CTI**](../lib/oscillators/cti/Cti.md) | Correlation Trend Indicator | Linear regression correlation as trend strength |
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
-| [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs/lows; DeMarker's demand pressure |
+| [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 comparing sequential highs/lows |
+| [**DOSC**](../lib/oscillators/dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
-| [**DYMOI**](../lib/oscillators/dymoi/Dymoi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period; shorter in volatile markets, longer in quiet |
+| [**DYMOI**](../lib/oscillators/dymoi/Dymoi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period |
+| [**ER**](../lib/oscillators/er/Er.md) | Efficiency Ratio | Net movement / total path length |
+| [**ERI**](../lib/oscillators/eri/Eri.md) | Elder Ray Index | Bull/bear power relative to EMA |
+| [**FI**](../lib/oscillators/fi/Fi.md) | Force Index | Price change × volume buying/selling power |
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
-| [**FISHER04**](../lib/oscillators/fisher04/Fisher04.md) | Ehlers Fisher Transform (2004) | Cybernetic Analysis variant with gentler arctanh scaling |
-| [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms (upper/lower) |
+| [**FISHER04**](../lib/oscillators/fisher04/Fisher04.md) | Ehlers Fisher Transform (2004) | Cybernetic Analysis variant with gentler arctanh |
+| [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms |
 | [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
-| [**LRSI**](../lib/oscillators/lrsi/Lrsi.md) | Ehlers Laguerre RSI | Laguerre filter-based RSI; single γ parameter trades lag vs smoothness; output [0,1] |
-| [**MARKETFI**](../lib/oscillators/marketfi/Marketfi.md) | Market Facilitation Index | Bill Williams' price-range-per-unit-of-volume efficiency; no period; volume-required |
+| [**KRI**](../lib/oscillators/kri/Kri.md) | Kairi Relative Index | Percentage deviation from SMA |
+| [**KST**](../lib/oscillators/kst/Kst.md) | Know Sure Thing | Summed weighted ROCs across 4 timeframes |
+| [**LRSI**](../lib/oscillators/lrsi/Lrsi.md) | Ehlers Laguerre RSI | Laguerre filter-based RSI; output [0,1] |
+| [**MARKETFI**](../lib/oscillators/marketfi/Marketfi.md) | Market Facilitation Index | Price-range-per-unit-of-volume efficiency |
+| [**MSTOCH**](../lib/oscillators/mstoch/Mstoch.md) | Ehlers MESA Stochastic | Hilbert Transform cycle-tuned Stochastic |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |
+| [**PSL**](../lib/oscillators/psl/Psl.md) | Psychological Line | Up-period ratio crowd sentiment gauge |
+| [**QQE**](../lib/oscillators/qqe/Qqe.md) | Quantitative Qualitative Estimation | Smoothed RSI with dynamic volatility bands |
 | [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
 | [**REVERSEEMA**](../lib/oscillators/reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion oscillator |
+| [**RVGI**](../lib/oscillators/rvgi/Rvgi.md) | Relative Vigor Index | Open-close vs high-low ratio with smoothing |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
-| [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100 momentum oscillator) |
+| [**SQUEEZE**](../lib/oscillators/squeeze/Squeeze.md) | Squeeze Momentum | BB inside KC squeeze with momentum |
+| [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100) |
 | [**STOCH**](../lib/oscillators/stoch/Stoch.md) | Stochastic Oscillator | Close within N-period H/L range (%K/%D) |
-| [**STOCHF**](../lib/oscillators/stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic (%K/%D, SMA smoothing only) |
+| [**STOCHF**](../lib/oscillators/stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic (%K/%D) |
 | [**STOCHRSI**](../lib/oscillators/stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI (%K/%D) |
+| [**TD_SEQ**](../lib/oscillators/td_seq/Td_seq.md) | TD Sequential | DeMark sequential countdown exhaustion |
 | [**TRENDFLEX**](../lib/oscillators/trendflex/Trendflex.md) | Ehlers Trendflex | Zero-lag sum-of-differences trend oscillator |
 | [**TRIX**](../lib/oscillators/trix/Trix.md) | Triple Exponential Average | ROC of triple-smoothed EMA |
 | [**TTM_WAVE**](../lib/oscillators/ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (A/B/C waves) |
@@ -194,16 +230,16 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**CHOP**](../lib/dynamics/chop/Chop.md) | Choppiness Index | ATR sum vs range; trending vs choppy |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
-| [**MINUS_DI**](../lib/dynamics/minusdi/MinusDi.md) | Minus Directional Indicator | Downward DI (0-100) |
-| [**MINUS_DM**](../lib/dynamics/minusdm/MinusDm.md) | Minus Directional Movement | Smoothed downward DM |
 | [**GHLA**](../lib/dynamics/ghla/Ghla.md) | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover |
 | [**HT_TRENDMODE**](../lib/dynamics/ht_trendmode/HtTrendmode.md) | Ehlers Hilbert Transform Trend vs Cycle Mode | Cycle vs trend regime detection |
 | [**ICHIMOKU**](../lib/dynamics/ichimoku/Ichimoku.md) | Ichimoku Cloud | Multi-component trend system |
 | [**IMPULSE**](../lib/dynamics/impulse/Impulse.md) | Elder Impulse System | EMA + MACD-H trend/momentum fusion |
-| [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
+| [**MINUS_DI**](../lib/dynamics/minusdi/MinusDi.md) | Minus Directional Indicator | Downward DI (0-100) |
+| [**MINUS_DM**](../lib/dynamics/minusdm/MinusDm.md) | Minus Directional Movement | Smoothed downward DM |
 | [**PFE**](../lib/dynamics/pfe/Pfe.md) | Polarized Fractal Efficiency | Fractal path efficiency as trend strength |
 | [**PLUS_DI**](../lib/dynamics/plusdi/PlusDi.md) | Plus Directional Indicator | Upward DI (0-100) |
 | [**PLUS_DM**](../lib/dynamics/plusdm/PlusDm.md) | Plus Directional Movement | Smoothed upward DM |
+| [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
 | [**RAVI**](../lib/dynamics/ravi/Ravi.md) | Chande Range Action Verification Index | Dual-SMA divergence as trend strength |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |
 | [**TTM_SQUEEZE**](../lib/dynamics/ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze with momentum |
@@ -356,19 +392,23 @@ Mathematical and statistical computations on price series.
 | [**KENDALL**](../lib/statistics/kendall/Kendall.md) | Kendall Tau-a | Rank-based ordinal association |
 | [**KURTOSIS**](../lib/statistics/kurtosis/Kurtosis.md) | Kurtosis | Fourth-moment tail heaviness |
 | [**LINREG**](../lib/statistics/linreg/LinReg.md) | Linear Regression | Best-fit line via least squares |
+| [**MEANDEV**](../lib/statistics/meandev/MeanDev.md) | Mean Absolute Deviation | Outlier-robust dispersion, CCI core |
 | [**MEDIAN**](../lib/statistics/median/Median.md) | Rolling Median | 50th percentile |
 | [**MODE**](../lib/statistics/mode/Mode.md) | Mode | Most frequent value in window |
 | [**PACF**](../lib/statistics/pacf/Pacf.md) | Partial Autocorrelation | Direct correlation at lag k |
 | [**PERCENTILE**](../lib/statistics/percentile/Percentile.md) | Percentile | Value at given percentile rank |
+| [**POLYFIT**](../lib/statistics/polyfit/Polyfit.md) | Polynomial Fitting | Polynomial curve fitting over rolling window |
 | [**QUANTILE**](../lib/statistics/quantile/Quantile.md) | Quantile | Value at given quantile (0-1) |
 | [**SKEW**](../lib/statistics/skew/Skew.md) | Skewness | Distribution asymmetry |
 | [**SPEARMAN**](../lib/statistics/spearman/Spearman.md) | Spearman Rank Correlation | Monotonic association [-1, +1] |
 | [**STDDEV**](../lib/statistics/stddev/StdDev.md) | Standard Deviation | Dispersion measure |
+| [**STDERR**](../lib/statistics/stderr/Stderr.md) | Standard Error of Regression | OLS residual scatter over rolling window |
 | [**SUM**](../lib/statistics/sum/Sum.md) | Rolling Sum | Windowed sum |
 | [**THEIL**](../lib/statistics/theil/Theil.md) | Theil T Index | Information-theoretic inequality |
+| [**TRIM**](../lib/statistics/trim/Trim.md) | Trimmed Mean Moving Average | Outlier-excluded rolling mean |
 | [**VARIANCE**](../lib/statistics/variance/Variance.md) | Variance | Squared deviation |
-| [**MEANDEV**](../lib/statistics/meandev/MeanDev.md) | Mean Absolute Deviation | Outlier-robust dispersion, CCI core |
-| [**STDERR**](../lib/statistics/stderr/Stderr.md) | Standard Error of Regression | OLS residual scatter over rolling window |
+| [**WAVG**](../lib/statistics/wavg/Wavg.md) | Weighted Average | Weighted rolling average |
+| [**WINS**](../lib/statistics/wins/Wins.md) | Winsorized Mean Moving Average | Outlier-clamped rolling mean |
 | [**ZSCORE**](../lib/statistics/zscore/Zscore.md) | Z-Score | Standard deviations from rolling mean |
 | [**ZTEST**](../lib/statistics/ztest/Ztest.md) | Z-Test | One-sample t-statistic |
 
@@ -408,10 +448,11 @@ Price transforms and fundamental building blocks. These indicators compute deriv
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**AVGPRICE**](../lib/core/avgprice/Avgprice.md) | Average Price | (O+H+L+C) * 0.25 via FMA |
+| [**HA**](../lib/core/ha/Ha.md) | Heikin-Ashi | Modified OHLC candles; smoothed trend visualization |
 | [**MEDPRICE**](../lib/core/medprice/Medprice.md) | Median Price | (H+L) * 0.5 |
+| [**MIDBODY**](../lib/core/midbody/Midbody.md) | Open-Close Average | (O+C) * 0.5 |
 | [**MIDPOINT**](../lib/core/midpoint/Midpoint.md) | Rolling Midpoint | (Max+Min) * 0.5 over lookback window |
 | [**MIDPRICE**](../lib/core/midprice/Midprice.md) | Mid Price | (Highest High + Lowest Low) * 0.5 |
-| [**MIDBODY**](../lib/core/midbody/Midbody.md) | Open-Close Average | (O+C) * 0.5 |
 | [**TYPPRICE**](../lib/core/typprice/Typprice.md) | Typical Price | (H+L+C) * OneThird via FMA |
 | [**WCLPRICE**](../lib/core/wclprice/Wclprice.md) | Weighted Close Price | (H+L+2C) * 0.25 via FMA |
 
@@ -424,32 +465,34 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope |
 | [**BETADIST**](../lib/numerics/betadist/Betadist.md) | Beta Distribution (CDF/PDF) | Rolling Beta CDF — probability normalized observation falls below threshold |
 | [**BINOMDIST**](../lib/numerics/binomdist/Binomdist.md) | Binomial Distribution (CDF) | Rolling Binomial CDF — probability normalized observation falls below threshold |
-| [**EXPDIST**](../lib/numerics/expdist/Expdist.md) | Exponential Distribution (CDF) | Rolling Exponential CDF — probability normalized observation falls below threshold |
-| [**FDIST**](../lib/numerics/fdist/Fdist.md) | F-Distribution (CDF) | Rolling Fisher-Snedecor CDF — variance-ratio probability transform via regularized incomplete beta |
-| [**GAMMADIST**](../lib/numerics/gammadist/Gammadist.md) | Gamma Distribution (CDF) | Rolling Gamma CDF — shape/scale-parameterized probability transform via regularized incomplete gamma |
-| [**NORMDIST**](../lib/numerics/normdist/Normdist.md) | Normal Distribution (CDF) | Rolling Gaussian CDF — z-score normalized probability transform via erf approximation |
-| [**POISSONDIST**](../lib/numerics/poissondist/Poissondist.md) | Poisson Distribution (CDF) | Rolling Poisson CDF — count-based probability transform via regularized incomplete gamma |
-| [**TDIST**](../lib/numerics/tdist/Tdist.md) | Student's t-Distribution (CDF) | Rolling Student's t CDF — heavy-tailed probability transform via regularized incomplete beta |
-| [**WEIBULLDIST**](../lib/numerics/weibulldist/Weibulldist.md) | Weibull Distribution (CDF) | Rolling Weibull CDF — two-parameter closed-form probability transform via pow + exp |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement |
 | [**CWT**](../lib/numerics/cwt/Cwt.md) | Continuous Wavelet Transform | Morlet CWT magnitude at a specified scale — time-frequency decomposition |
 | [**DECAY**](../lib/numerics/decay/Decay.md) | Linear Decay | Peak envelope with linear degradation |
 | [**DWT**](../lib/numerics/dwt/Dwt.md) | Discrete Wavelet Transform | À trous Haar stationary DWT — multi-resolution approximation + detail, WarmupPeriod = 2^levels |
 | [**EDECAY**](../lib/numerics/edecay/Edecay.md) | Exponential Decay | Peak envelope with exponential degradation |
+| [**EXPDIST**](../lib/numerics/expdist/Expdist.md) | Exponential Distribution (CDF) | Rolling Exponential CDF — probability normalized observation falls below threshold |
 | [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x for log-space reversal |
+| [**FDIST**](../lib/numerics/fdist/Fdist.md) | F-Distribution (CDF) | Rolling Fisher-Snedecor CDF — variance-ratio probability transform via regularized incomplete beta |
+| [**FFT**](../lib/numerics/fft/Fft.md) | Fast Fourier Transform | Dominant cycle detection via frequency domain |
+| [**GAMMADIST**](../lib/numerics/gammadist/Gammadist.md) | Gamma Distribution (CDF) | Rolling Gamma CDF — shape/scale-parameterized probability transform via regularized incomplete gamma |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) via monotonic deque |
-| [**MAXINDEX**](../lib/numerics/maxindex/Maxindex.md) | Rolling Maximum Index | Position of max in window |
+| [**IFFT**](../lib/numerics/ifft/Ifft.md) | Inverse Fast Fourier Transform | Spectral low-pass filter via frequency domain |
 | [**JERK**](../lib/numerics/jerk/Jerk.md) | Jerk (3rd Derivative) | Change in acceleration |
 | [**LINEARTRANS**](../lib/numerics/lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling |
 | [**LOGNORMDIST**](../lib/numerics/lognormdist/Lognormdist.md) | Log-Normal Distribution | Log-normal CDF via min-max normalization |
 | [**LOGTRANS**](../lib/numerics/logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage analysis |
 | [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) via monotonic deque |
+| [**MAXINDEX**](../lib/numerics/maxindex/Maxindex.md) | Rolling Maximum Index | Position of max in window |
 | [**MININDEX**](../lib/numerics/minindex/Minindex.md) | Rolling Minimum Index | Position of min in window |
+| [**NORMDIST**](../lib/numerics/normdist/Normdist.md) | Normal Distribution (CDF) | Rolling Gaussian CDF — z-score normalized probability transform via erf approximation |
 | [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |
+| [**POISSONDIST**](../lib/numerics/poissondist/Poissondist.md) | Poisson Distribution (CDF) | Rolling Poisson CDF — count-based probability transform via regularized incomplete gamma |
 | [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x) activation |
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x) bounded [0,1] |
 | [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |
 | [**SQRTTRANS**](../lib/numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | √x variance-to-StdDev conversion |
+| [**TDIST**](../lib/numerics/tdist/Tdist.md) | Student's t-Distribution (CDF) | Rolling Student's t CDF — heavy-tailed probability transform via regularized incomplete beta |
+| [**WEIBULLDIST**](../lib/numerics/weibulldist/Weibulldist.md) | Weibull Distribution (CDF) | Rolling Weibull CDF — two-parameter closed-form probability transform via pow + exp |
 
 ### Errors
 
