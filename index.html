@@ -220,6 +220,25 @@
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md',
       },
+      // Route handler for .pine files — fetch and wrap in markdown code fence
+      routes: {
+        '/(.+\\.pine)': function(route, matched, next) {
+          var pinePath = matched;
+          var absUrl = new URL(pinePath, document.baseURI).href;
+          fetch(absUrl).then(function(r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.text();
+          }).then(function(text) {
+            if (text.trimStart().startsWith('<!DOCTYPE') || text.trimStart().startsWith('<html')) {
+              throw new Error('Server returned HTML instead of .pine file');
+            }
+            var fname = pinePath.split('/').pop();
+            next('# 📜 ' + fname + '\n\n```pine\n' + text + '\n```\n');
+          }).catch(function(err) {
+            next('# Error\n\nCould not load `' + pinePath + '`: ' + err.message);
+          });
+        },
+      },
       plugins: [
         function(hook) {
           hook.doneEach(function() {
@@ -236,20 +255,6 @@
             }, 100);
           });
         },
-        // Render .pine files as syntax-highlighted code blocks with their own URL
-        function(hook, vm) {
-          hook.beforeEach(function(content, next) {
-            var routeFile = (vm.route && vm.route.file) || '';
-            if (routeFile.endsWith('.pine')) {
-              var fname = routeFile.split('/').pop();
-              // Wrap raw pine content in markdown code fence
-              var md = '# 📜 ' + fname + '\n\n```pine\n' + content + '\n```\n';
-              next(md);
-            } else {
-              next(content);
-            }
-          });
-        }
       ],
     }
   </script>
