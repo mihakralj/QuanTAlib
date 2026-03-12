@@ -176,7 +176,8 @@ public sealed class Wrmse : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double actual, double predicted, double weight, bool isNew = true)
     {
-        return Update(new TValue(DateTime.MinValue, actual), new TValue(DateTime.MinValue, predicted), weight, isNew);
+        var now = DateTime.UtcNow;
+        return Update(new TValue(now, actual), new TValue(now, predicted), weight, isNew);
     }
 
     /// <summary>
