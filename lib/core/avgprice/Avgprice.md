@@ -1,5 +1,7 @@
 # AVGPRICE: Average Price
 
+> *The four-point average distills an entire bar into a single representative price — open, high, low, and close in equal measure.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -61,22 +63,6 @@ $O(1)$ per bar. Two additions, one FMA. No memory allocation. Always hot after t
 | Median Price | $(H+L) \times 0.5$ | `HL2` | `Medprice` |
 | Typical Price | $(H+L+C) \times \frac{1}{3}$ | `HLC3` | `Typprice` |
 | Weighted Close | $(H+L+2C) \times 0.25$ | `HLCC4` | `Wclprice` |
-
-### Pseudo-code
-
-```
-function AVGPRICE(bar):
-    o, h, l, c ← bar.Open, bar.High, bar.Low, bar.Close
-
-    // Substitute last-valid for non-finite inputs
-    if !finite(o): o ← lastValidOpen
-    if !finite(h): h ← lastValidHigh
-    if !finite(l): l ← lastValidLow
-    if !finite(c): c ← lastValidClose
-
-    result ← FMA(o + h, 0.25, (l + c) × 0.25)
-    return result
-```
 
 ### Output Interpretation
 

@@ -1,5 +1,7 @@
 # STBANDS: Super Trend Bands
 
+> *Super Trend bands fuse trend direction with volatility width, flipping their bias at each breakout.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -110,62 +112,6 @@ Streaming: $O(1)$ per bar. The TR running sum uses a ring buffer; the ratchet lo
 |--------|------|---------|------------|-------------|
 | $n$ | period | 10 | $> 0$ | ATR lookback period |
 | $k$ | multiplier | 3.0 | $> 0$ | ATR multiplier for band distance from HL2 |
-
-### Pseudo-code
-
-```
-function stbands(high[], low[], close[], period, multiplier):
-    tr_buf = ring_buffer(period)
-    tr_sum = 0, count = 0
-    prev_close = close[0]
-    final_upper = NaN, final_lower = NaN
-    trend = +1
-
-    for each bar t:
-        h = high[t], l = low[t], c = close[t]
-
-        // True Range
-        tr = max(h - l, abs(h - prev_close), abs(l - prev_close))
-
-        // ATR via running sum ring buffer
-        if tr_buf.is_full:
-            tr_sum -= tr_buf.oldest
-            count  -= 1
-        tr_buf.add(tr)
-        tr_sum += tr
-        count  += 1
-        atr = tr_sum / count
-
-        // Basic bands centered on HL2
-        hl2 = (h + l) / 2
-        basic_upper = hl2 + multiplier * atr
-        basic_lower = hl2 - multiplier * atr
-
-        if t == 0:
-            final_upper = basic_upper
-            final_lower = basic_lower
-            trend = +1
-        else:
-            // Ratchet: upper only tightens or resets on breakout
-            if basic_upper < final_upper OR prev_close > final_upper:
-                final_upper = basic_upper
-            // otherwise hold
-
-            // Ratchet: lower only tightens or resets on breakdown
-            if basic_lower > final_lower OR prev_close < final_lower:
-                final_lower = basic_lower
-            // otherwise hold
-
-            // Trend flip
-            if c <= final_lower:
-                trend = +1
-            else if c >= final_upper:
-                trend = -1
-            // otherwise hold previous trend
-
-        prev_close = c
-        emit (final_upper, final_lower, trend)
-```
 
 ### Band State Transitions
 

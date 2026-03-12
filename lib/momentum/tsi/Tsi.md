@@ -1,5 +1,7 @@
 # TSI: True Strength Index
 
+> *True Strength Index double-smooths momentum, filtering out noise while preserving the directional signal in price change.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |

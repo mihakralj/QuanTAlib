@@ -1,5 +1,7 @@
 # HOLT: Holt Exponential Moving Average
 
+> *Single smoothing tracks level. Double smoothing tracks trend. The elegance is not in complexity but in the admission that yesterday's direction matters.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Single smoothing tracks level. Double smoothing tracks trend. The elegance is not in complexity but in the admission that yesterday's direction matters." — Charles C. Holt (1957)
 
 ## Overview
 

@@ -1,5 +1,7 @@
 # BOP: Balance of Power
 
+> *The market is a tug of war between buyers and sellers. BOP tells you who's pulling harder.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `> 0` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The market is a tug of war between buyers and sellers. BOP tells you who's pulling harder."
 
 The Balance of Power measures buying versus selling pressure by comparing the body (Close minus Open) to the range (High minus Low). Created by Igor Livshin in 2001, this ratio oscillates between -1 and +1, providing instantaneous momentum readings with zero lag. A stateless indicator: each bar evaluated independently, no memory of previous values required.
 

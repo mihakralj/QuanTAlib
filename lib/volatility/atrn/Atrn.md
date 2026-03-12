@@ -1,5 +1,7 @@
 # ATRN: Average True Range Normalized
 
+> *Context is everything. A \$5 ATR means nothing until you know the \$5 ATR from last month was \$2.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Context is everything. A \$5 ATR means nothing until you know the \$5 ATR from last month was \$2."
 
 ATRN transforms the absolute ATR into a relative measure by normalizing it to a [0,1] scale using min-max scaling over a lookback window. This answers the question: "Is current volatility high or low *compared to recent history*?"
 

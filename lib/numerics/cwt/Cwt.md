@@ -1,5 +1,7 @@
 # CWT: Continuous Wavelet Transform
 
+> *The continuous wavelet transform decomposes a signal across scale and time simultaneously — frequency analysis with temporal precision.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

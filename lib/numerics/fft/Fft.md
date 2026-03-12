@@ -1,5 +1,7 @@
 # FFT: Fast Fourier Transform (Dominant Cycle Detector)
 
+> *The FFT decomposes price into its constituent frequencies, revealing how much of each cycle lives inside the data.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

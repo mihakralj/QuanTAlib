@@ -1,6 +1,6 @@
 # SMI: Stochastic Momentum Index
 
-> "The stochastic tells you where price is in the range. The SMI tells you how enthusiastically it got there." — William Blau
+> *The stochastic tells you where price is in the range. The SMI tells you how enthusiastically it got there.*
 
 | Property | Value |
 |----------|-------|

@@ -1,5 +1,7 @@
 # TTM_SQUEEZE: TTM Squeeze
 
+> *Volatility compression is the market holding its breath before screaming.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -14,8 +16,6 @@
 - Output range: Varies (see docs).
 - Requires `Math.Max(Math.Max(bbPeriod, kcPeriod), momPeriod)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volatility compression is the market holding its breath before screaming."
 
 John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside KC, a "squeeze" is on, signaling imminent breakout. The momentum component uses linear regression of price deviation from the Donchian midline to indicate direction. The indicator outputs a boolean squeeze state plus a continuous momentum histogram, requiring BB(20,2.0) and KC(20,1.5) as default parameters with a combined warmup of 20 bars.
 
@@ -84,40 +84,6 @@ The linear regression extracts the trend component of the deviation, filtering n
 | bbMult | double | 2.0 | > 0 | BB standard deviation multiplier |
 | kcLength | int | 20 | > 1 | Keltner Channel period |
 | kcMult | double | 1.5 | > 0 | KC ATR multiplier |
-
-### Pseudo-code
-
-```
-TTM_SQUEEZE(bar, bbLen=20, bbMult=2.0, kcLen=20, kcMult=1.5):
-
-  // Bollinger Bands
-  sma_val  = SMA(close, bbLen)
-  stddev   = StdDev(close, bbLen)
-  bb_upper = sma_val + bbMult * stddev
-  bb_lower = sma_val - bbMult * stddev
-
-  // Keltner Channel
-  ema_val  = EMA(close, kcLen)
-  atr_val  = ATR(bar, kcLen)
-  kc_upper = ema_val + kcMult * atr_val
-  kc_lower = ema_val - kcMult * atr_val
-
-  // Squeeze state
-  squeeze_on = (bb_lower > kc_lower) AND (bb_upper < kc_upper)
-
-  // Momentum via linear regression of deviation
-  highest_high = Highest(high, bbLen)
-  lowest_low   = Lowest(low, bbLen)
-  midline      = (highest_high + lowest_low) / 2
-  delta        = close - (midline + sma_val) / 2
-  momentum     = LinReg(delta, bbLen)
-
-  // Momentum direction
-  momentum_rising  = momentum > prev_momentum
-  momentum_positive = momentum > 0
-
-  return (momentum, squeeze_on, momentum_rising, momentum_positive)
-```
 
 ### Squeeze-Fire Signal
 

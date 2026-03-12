@@ -1,5 +1,7 @@
 # QRMA: Quadratic Regression Moving Average
 
+> *Linear regression assumes the world is a straight line. Quadratic regression admits it might curve. For parabolic price moves, that admission turns out to be worth 40% less endpoint error.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Linear regression assumes the world is a straight line. Quadratic regression admits it might curve. For parabolic price moves, that admission turns out to be worth 40% less endpoint error."
 
 QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at the endpoint (newest bar). By capturing curvature that LSMA (degree-1) misses, QRMA provides meaningfully better tracking of accelerating or decelerating price trends. The 3x3 normal-equation system is solved via Cramer's rule in O(1) after an O(N) data accumulation pass, making it computationally efficient and suitable for streaming applications.
 

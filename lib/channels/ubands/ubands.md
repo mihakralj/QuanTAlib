@@ -1,5 +1,7 @@
 # UBANDS: Ehlers Ultimate Bands
 
+> *Ehlers' ultimate bands apply cycle-aware smoothing to define an envelope that resonates with dominant frequency.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -106,47 +108,6 @@ H(z) = \frac{(1 - c_1) + (2c_1 - c_2)\,z^{-1} - (c_1 + c_3)\,z^{-2}}{1 - c_2\,z^
 $$
 
 Cutoff frequency: approximately $f_c \approx 1/(2\pi n)$ cycles per bar. Rolloff: 12 dB/octave.
-
-### Pseudo-code
-
-```
-function ubands(source[], period, multiplier):
-    // precompute USF coefficients
-    arg = sqrt(2) * pi / period
-    c2 = 2 * exp(-arg) * cos(arg)
-    c3 = -exp(-2 * arg)
-    c1 = (1 + c2 - c3) / 4
-
-    usf_prev1 = NaN, usf_prev2 = NaN
-
-    for each bar t:
-        s0 = source[t]
-        s1 = source[t-1]  // or s0 if unavailable
-        s2 = source[t-2]  // or s1 if unavailable
-
-        if usf not initialized:
-            usf = s0
-        else:
-            usf = (1 - c1)*s0 + (2*c1 - c2)*s1
-                  - (c1 + c3)*s2 + c2*usf_prev1 + c3*usf_prev2
-
-        usf_prev2 = usf_prev1
-        usf_prev1 = usf
-
-        // RMS of residuals over window
-        sum_sq = 0, count = 0
-        for i = 0 to period-1:
-            r = source[t-i] - usf_at[t-i]  // residual at bar t-i
-            if r is valid:
-                sum_sq += r * r
-                count += 1
-
-        rms = count > 0 ? sqrt(sum_sq / count) : 0
-        upper = usf + multiplier * rms
-        lower = usf - multiplier * rms
-
-        emit (upper, usf, lower)
-```
 
 ### RMS vs Standard Deviation
 

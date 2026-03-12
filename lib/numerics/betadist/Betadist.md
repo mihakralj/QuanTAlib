@@ -1,5 +1,7 @@
 # BETADIST: Beta Distribution CDF
 
+> *The Beta distribution CDF maps values onto a flexible probability curve defined by two shape parameters — versatile enough to model any bounded outcome.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

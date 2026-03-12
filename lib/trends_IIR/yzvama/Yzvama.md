@@ -1,5 +1,7 @@
 # YZVAMA: Yang-Zhang Volatility Adjusted Moving Average
 
+> *ATR tells you how much the market moved. Yang-Zhang tells you how much it *should* have moved given the gaps and intrabar action. YZVAMA uses that distinction to know when the market is lying about its volatility.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "ATR tells you how much the market moved. Yang-Zhang tells you how much it *should* have moved given the gaps and intrabar action. YZVAMA uses that distinction to know when the market is lying about its volatility."
 
 ## The Core Insight
 

@@ -1,5 +1,7 @@
 # CHANGE: Relative Price Change
 
+> *The simplest measure of movement is often the most powerful.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest measure of movement is often the most powerful."
 
 CHANGE calculates the percentage change between the current value and a value N periods ago. This fundamental indicator forms the basis for momentum analysis, rate of change calculations, and relative performance comparisons.
 

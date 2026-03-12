@@ -34,4 +34,3 @@ All Core indicators share common traits:
 | TBar | AVGPRICE, MEDPRICE, MIDPRICE, MIDBODY, TYPPRICE, WCLPRICE | OHLCV bars |
 | TValue | MIDPOINT | Single value series |
 
-

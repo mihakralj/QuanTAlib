@@ -1,6 +1,6 @@
 # PSL: Psychological Line
 
-> "Markets are crowds, and crowds have moods. Count the up days; you will know the mood." -- Japanese proverb (adapted)
+> *Markets are crowds, and crowds have moods. Count the up days; you will know the mood.*
 
 | Property | Value |
 |----------|-------|

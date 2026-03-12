@@ -1,6 +1,6 @@
 # LTMA: Linear Trend Moving Average
 
-> "Estimate the level. Estimate the slope. Project forward. It is the same trick radar operators use to track aircraft, applied to price data."
+> *Estimate the level. Estimate the slope. Project forward. It is the same trick radar operators use to track aircraft, applied to price data.*
 
 <!-- QUICK REFERENCE CARD (scan in 5 seconds) -->
 

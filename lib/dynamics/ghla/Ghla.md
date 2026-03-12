@@ -1,5 +1,7 @@
 # GHLA: Gann High-Low Activator
 
+> *The simplest indicators are the hardest to argue with. Two averages, one rule, and the market tells you which side of the fence to stand on.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest indicators are the hardest to argue with. Two averages, one rule, and the market tells you which side of the fence to stand on."
 
 The Gann High-Low Activator (GHLA) is a trend-following stop/reversal indicator that alternates between the Simple Moving Average of Highs and the Simple Moving Average of Lows based on a three-state crossover rule. Developed by Robert Krausz and published in *Technical Analysis of Stocks & Commodities* (February 1998), the indicator produces a single trailing line: SMA(Low) during uptrends (acting as dynamic support) and SMA(High) during downtrends (acting as dynamic resistance). The flip between states occurs only when price closes decisively beyond the opposing SMA, creating a hysteresis zone that filters minor whipsaws. With a default period of 3 bars, GHLA responds aggressively to trend changes while requiring just $O(N)$ additions and one comparison per bar.
 

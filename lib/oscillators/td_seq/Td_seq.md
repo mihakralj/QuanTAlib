@@ -1,5 +1,7 @@
 # TD_SEQ: TD Sequential
 
+> *TD Sequential counts consecutive closes relative to a prior bar, mapping exhaustion through the simple act of counting.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

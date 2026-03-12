@@ -1,5 +1,7 @@
 # SQRTTRANS: Square Root Transform
 
+> *The square root is nature's variance-stabilizing trick—halving the exponent space while preserving monotonicity. When price volatility scales with level, sqrt compresses the noise.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `0` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The square root is nature's variance-stabilizing trick—halving the exponent space while preserving monotonicity. When price volatility scales with level, sqrt compresses the noise."
 
 The Square Root (SQRT) transformer applies $\sqrt{x}$ to each value in a time series. This variance-stabilizing transformation compresses ranges where volatility scales with magnitude, making it useful for heteroscedastic data where standard deviation increases with price level.
 

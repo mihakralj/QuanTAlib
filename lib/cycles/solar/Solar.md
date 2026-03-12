@@ -1,5 +1,7 @@
 # SOLAR: Solar Cycle Indicator
 
+> *Solar cycles encode the Sun's rhythmic activity into a tradeable signal, bridging astrophysics and price action.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -73,36 +75,6 @@ $O(1)$ per timestamp. No state required. Zero warmup. The tropical year is appro
 | (none) | No user-configurable parameters | | |
 
 The calculation is entirely determined by the input timestamp.
-
-### Pseudo-code
-
-```
-function SOLAR(timestamp):
-    // Julian date
-    JD ← timestamp_to_unix_ms / 86400000 + 2440587.5
-    T ← (JD - 2451545.0) / 36525.0
-
-    // Geometric mean longitude
-    L0 ← FMA(T, FMA(T, 0.0003032, 36000.76983), 280.46646)
-    L0 ← mod(L0, 360)
-
-    // Mean anomaly
-    M ← FMA(T, FMA(T, -0.0001537, 35999.05029), 357.52911)
-    M ← mod(M, 360)
-
-    // Equation of center
-    C ← FMA(T, FMA(T, -0.000014, -0.004817), 1.914602) · sin(M)
-      + FMA(T, -0.000101, 0.019993) · sin(2M)
-      + 0.000289 · sin(3M)
-
-    // True ecliptic longitude
-    λ ← L0 + C
-
-    // Seasonal index
-    solar ← sin(λ · π / 180)
-
-    emit solar
-```
 
 ### Seasonal Correspondence (Northern Hemisphere)
 

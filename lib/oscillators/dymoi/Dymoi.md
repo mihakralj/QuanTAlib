@@ -1,5 +1,7 @@
 # DYMOI: Dynamic Momentum Index
 
+> *The market is not a fixed-frequency oscillator. Why would you analyze it with one?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The market is not a fixed-frequency oscillator. Why would you analyze it with one?" — Tushar Chande & Stanley Kroll, *The New Technical Trader*, 1994
 
 DYMOI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator becomes more responsive; when price action tightens, the period extends and the output smooths. The result is an oscillator that self-adjusts its sensitivity to the market's current state, avoiding both the lag of long fixed-period RSIs in trending regimes and the noise of short-period RSIs in ranging ones.
 

@@ -1,5 +1,7 @@
 # MSTOCH: Ehlers MESA Stochastic
 
+> *MESA Stochastic applies Ehlers' cycle measurement to stochastic normalization, binding the oscillator to the dominant market rhythm.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

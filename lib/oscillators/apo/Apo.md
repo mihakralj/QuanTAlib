@@ -1,6 +1,6 @@
 # APO: Absolute Price Oscillator
 
-> "Percentages are for analysts. Traders pay bills in cash. APO tells you the cash value of the trend."
+> *Percentages are for analysts. Traders pay bills in cash. APO tells you the cash value of the trend.*
 
 | Property     | Value |
 |--------------|-------|

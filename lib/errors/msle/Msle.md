@@ -1,5 +1,7 @@
 # MSLE: Mean Squared Logarithmic Error
 
+> *When your data spans orders of magnitude, MSLE keeps outliers from hijacking your loss function.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When your data spans orders of magnitude, MSLE keeps outliers from hijacking your loss function."
 
 Mean Squared Logarithmic Error transforms both actual and predicted values through logarithms before computing squared error. This compression makes MSLE robust to outliers and particularly suited for data with exponential growth patterns or wide dynamic ranges.
 

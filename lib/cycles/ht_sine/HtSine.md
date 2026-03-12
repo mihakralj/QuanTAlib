@@ -1,5 +1,7 @@
 # HT_SINE: Ehlers Hilbert Transform SineWave (also known as SINE)
 
+> *The Hilbert sine wave renders cycle timing visible — crossovers of sine and lead-sine mark turning points.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -69,27 +71,6 @@ $O(P)$ per bar where $P$ is the smoothed period (typically 6-50), due to the DFT
 | (none) | No user-configurable parameters | | |
 
 All constants are fixed by the TA-Lib specification.
-
-### Pseudo-code
-
-```
-function HT_SINE(source):
-    // Full Hilbert cascade (same as HT_DCPHASE)
-    // Produces: smoothPeriod, smoothPriceBuf, dcPhase
-
-    for each bar (after warmup):
-        // Phase from DFT accumulation (see HT_DCPHASE)
-        φ ← computeDCPhase(smoothPeriod, smoothPriceBuf)
-
-        // Convert phase to radians
-        φ_rad ← φ · (π / 180)
-
-        // Dual sine output
-        sine     ← sin(φ_rad)
-        leadSine ← sin(φ_rad + π/4)    // 45° lead
-
-        emit sine, leadSine
-```
 
 ### Crossover Signals
 

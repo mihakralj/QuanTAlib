@@ -1,5 +1,7 @@
 # LUNAR: Lunar Phase Indicator
 
+> *The lunar cycle maps the Moon's phase onto price — an ancient rhythm tested against modern markets.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -81,41 +83,6 @@ $O(1)$ per timestamp. No state required (deterministic from time). Zero warmup. 
 | (none) | No user-configurable parameters | | |
 
 The calculation is entirely determined by the input timestamp.
-
-### Pseudo-code
-
-```
-function LUNAR(timestamp):
-    // Julian date
-    JD ← timestamp_to_unix_ms / 86400000 + 2440587.5
-    T ← (JD - 2451545.0) / 36525.0
-
-    // Mean orbital elements (Horner evaluation)
-    Lp ← FMA(T, FMA(T, FMA(T, 1/538841, -0.0015786), 481267.88123421), 218.3164477)
-    D  ← FMA(T, FMA(T, FMA(T, 1/545868, -0.0018819), 445267.1114034), 297.8501921)
-    M  ← FMA(T, FMA(T, -0.0001536, 35999.0502909), 357.5291092)
-    Mp ← FMA(T, FMA(T, 0.0087414, 477198.8675055), 134.9633964)
-    F  ← FMA(T, FMA(T, -0.0036539, 483202.0175233), 93.2720950)
-
-    // Normalize to [0°, 360°)
-    Lp, D, M, Mp, F ← mod(*, 360)
-
-    // Perturbation correction (6 major terms)
-    Σ ← 6288016·sin(Mp) + 1274242·sin(2D - Mp) + 658314·sin(2D)
-       + 214818·sin(2Mp) + 186986·sin(M) + 109154·sin(2F)
-    λ_moon ← Lp + Σ / 1e6
-
-    // Solar longitude (simplified)
-    L0 ← 280.46646 + 36000.76983·T
-    M_sun ← 357.52911 + 35999.05029·T
-    λ_sun ← L0 + 1.9146·sin(M_sun) + 0.02·sin(2·M_sun)
-
-    // Phase angle and illumination
-    ψ ← λ_moon - λ_sun
-    k ← (1 - cos(ψ)) / 2
-
-    emit k      // 0.0 = New Moon, 1.0 = Full Moon
-```
 
 ### Output Interpretation
 

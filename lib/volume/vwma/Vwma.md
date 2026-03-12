@@ -1,5 +1,7 @@
 # VWMA: Volume Weighted Moving Average
 
+> *VWMA reveals where the smart money traded—not just where price went, but where conviction backed the moves.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "VWMA reveals where the smart money traded—not just where price went, but where conviction backed the moves."
 
 VWMA (Volume Weighted Moving Average) calculates a moving average where each price is weighted by its corresponding volume over a specified lookback period. Unlike VWAP which accumulates from a reset point, VWMA uses a sliding window that continuously drops old values, making it a true moving average. Bars with higher volume contribute more to the average, surfacing price levels where institutional activity concentrated.
 

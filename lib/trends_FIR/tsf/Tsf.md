@@ -1,5 +1,7 @@
 # TSF: Time Series Forecast
 
+> *The best prediction of the future is the trend that's already in motion — extended by exactly one step.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The best prediction of the future is the trend that's already in motion — extended by exactly one step."
 
 TSF projects the least-squares regression line one bar forward, providing a statistically grounded forecast of the next bar's value. Unlike simple moving averages that smooth past data, TSF answers the question: "If the current trend continues, where will price be next?" This makes it inherently leading rather than lagging, though the forecast degrades quickly beyond one step.
 

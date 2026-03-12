@@ -1,5 +1,7 @@
 # PCHANNEL: Price Channel
 
+> *Price channels frame the trading range by its own high-low extremes, defining the field of play.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -78,41 +80,6 @@ Streaming: $O(1)$ amortized per bar. Each element enters and exits each deque at
 | Symbol | Name | Constraint | Description |
 |--------|------|------------|-------------|
 | $n$ | period | $> 0$ | Lookback window size |
-
-### Pseudo-code
-
-```
-function pchannel(high[], low[], period):
-    max_deque = empty      // decreasing monotonic deque of indices
-    min_deque = empty      // increasing monotonic deque of indices
-    hbuf = circular_buffer(period)
-    lbuf = circular_buffer(period)
-
-    for each bar t:
-        hbuf[t mod period] = high[t]
-        lbuf[t mod period] = low[t]
-
-        // expire stale front entries
-        while max_deque not empty AND max_deque.front <= t - period:
-            max_deque.pop_front()
-        while min_deque not empty AND min_deque.front <= t - period:
-            min_deque.pop_front()
-
-        // remove dominated back entries
-        while max_deque not empty AND hbuf[max_deque.back mod period] <= high[t]:
-            max_deque.pop_back()
-        while min_deque not empty AND lbuf[min_deque.back mod period] >= low[t]:
-            min_deque.pop_back()
-
-        max_deque.push_back(t)
-        min_deque.push_back(t)
-
-        upper = hbuf[max_deque.front mod period]
-        lower = lbuf[min_deque.front mod period]
-        middle = (upper + lower) / 2
-
-        emit (upper, middle, lower)
-```
 
 ### Output Interpretation
 

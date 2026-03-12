@@ -1,5 +1,7 @@
 # EDECAY: Exponential Decay
 
+> *A ratchet that only moves down gradually: price can push it up instantly, but gravity pulls it back at an exponential pace — faster when far from zero, slower as it approaches.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numerics                         |
@@ -15,8 +17,6 @@
 - Output range: Same as input — this is an overlay indicator.
 - Requires `1` bar of warmup before first valid output (IsHot = true).
 - Validated against Tulip Indicators `ti_edecay` reference algorithm.
-
-> "A ratchet that only moves down gradually: price can push it up instantly, but gravity pulls it back at an exponential pace — faster when far from zero, slower as it approaches."
 
 EDECAY implements the exponential decaying function. When price is above the decayed level, output snaps to price. When price falls below, the output decays exponentially by multiplying by `(period-1)/period` per bar, creating a ceiling that gradually descends. Unlike linear DECAY which subtracts a fixed amount, EDECAY's multiplicative factor produces a proportional decay rate.
 

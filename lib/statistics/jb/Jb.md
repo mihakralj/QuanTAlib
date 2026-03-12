@@ -1,5 +1,7 @@
 # JB: Jarque-Bera Test
 
+> *The assumption of normality is the most dangerous assumption in all of statistics.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The assumption of normality is the most dangerous assumption in all of statistics." — George Box (paraphrased)
 
 The Jarque-Bera test quantifies departure from normality by combining skewness and excess kurtosis into a single chi-squared statistic. A rolling JB value near zero means the window looks Gaussian. Values exceeding 5.991 (5% significance) reject normality. Financial returns almost always fail this test, which is precisely why the test matters.
 

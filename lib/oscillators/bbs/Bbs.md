@@ -1,6 +1,6 @@
 # BBS: Bollinger Band Squeeze
 
-> "Volatility contraction precedes expansion. The squeeze tells you when to watch." -- John Carter, paraphrased
+> *Volatility contraction precedes expansion. The squeeze tells you when to watch.*
 
 | Property     | Value |
 |--------------|-------|

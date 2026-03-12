@@ -1,5 +1,7 @@
 # DSP: Ehlers Detrended Synthetic Price
 
+> *Detrended synthetic price removes the trend to expose the oscillation underneath — the signal beneath the drift.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -65,34 +67,6 @@ $O(1)$ per bar with $O(1)$ memory. Two EMA state variables plus two bias correct
 | Parameter | Description | Default | Constraint |
 |-----------|-------------|---------|------------|
 | `period` | Dominant cycle period | 40 | $\geq 4$ |
-
-### Pseudo-code
-
-```
-function DSP(source, period):
-    pFast ← max(2, round(period / 4))
-    pSlow ← max(3, round(period / 2))
-    αFast ← 2 / (pFast + 1)
-    αSlow ← 2 / (pSlow + 1)
-
-    emaFastRaw ← 0
-    emaSlowRaw ← 0
-    decayFast ← 1.0    // (1 - αFast)^n
-    decaySlow ← 1.0    // (1 - αSlow)^n
-
-    for each price in source:
-        emaFastRaw ← FMA(αFast, price, (1 - αFast) * emaFastRaw)
-        emaSlowRaw ← FMA(αSlow, price, (1 - αSlow) * emaSlowRaw)
-
-        decayFast *= (1 - αFast)
-        decaySlow *= (1 - αSlow)
-
-        emaFast ← emaFastRaw / (1 - decayFast)
-        emaSlow ← emaSlowRaw / (1 - decaySlow)
-
-        dsp ← emaFast - emaSlow
-        emit dsp
-```
 
 ### Output Interpretation
 

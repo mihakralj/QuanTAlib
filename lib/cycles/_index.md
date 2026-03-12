@@ -1,7 +1,5 @@
 # Cycles
 
-> "The market is a discounting mechanism that anticipates cycles before they complete."  Unknown
-
 Cycle analysis identifies repeating patterns in price data. John Ehlers pioneered digital signal processing techniques for financial cycles, using Hilbert transforms and autocorrelation to detect dominant periods. Cycles exist but are non-stationary: period and amplitude shift over time.
 
 ## Indicators

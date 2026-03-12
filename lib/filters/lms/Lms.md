@@ -1,5 +1,7 @@
 # LMS: Least Mean Squares Adaptive Filter
 
+> *The filter that learns from its mistakes, one gradient step at a time.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires `order + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The filter that learns from its mistakes, one gradient step at a time."
 
 The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm in signal processing. It maintains an `order`-tap weight vector that learns to predict the current input from its recent history, updating weights via the Normalized LMS (NLMS) gradient descent rule. The result is a price-following overlay filter that automatically adapts its frequency response to changing market conditions with O(order) per-bar complexity.
 

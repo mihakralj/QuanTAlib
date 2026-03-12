@@ -1,6 +1,6 @@
 # TRIX: Triple Exponential Average Oscillator
 
-> "Smooth it once, smooth it twice, smooth it thrice, then ask: is it still moving?" -- Jack Hutson, probably
+> *Smooth it once, smooth it twice, smooth it thrice, then ask: is it still moving?*
 
 | Property     | Value |
 |--------------|-------|

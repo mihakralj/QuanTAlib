@@ -1,0 +1,44 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Minus Directional Movement (-DM)", "-DM", overlay=false)
+
+//@function Calculates Wilder-smoothed -DM using compensated RMA
+//@param period Number of bars used in the calculation
+//@returns Smoothed -DM value in price units (≥0)
+//@optimized Uses Wilder's smoothing (RMA) with warmup compensation for accurate values from bar 1
+minusdm(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float alpha = 1.0 / period
+    float beta = 1.0 - alpha
+    float minus_dm = 0.0
+    if not na(low[1])
+        float upMove = high - high[1]
+        float downMove = low[1] - low
+        if downMove > upMove and downMove > 0
+            minus_dm := downMove
+    var bool warmup = true
+    var float e = 1.0
+    var float minus_dm_ema = 0.0
+    var float minus_dm_result = minus_dm
+    minus_dm_ema := alpha * (minus_dm - minus_dm_ema) + minus_dm_ema
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        minus_dm_result := c * minus_dm_ema
+        warmup := e > 1e-10
+    else
+        minus_dm_result := minus_dm_ema
+    minus_dm_result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculation
+minus_dm_value = minusdm(i_period)
+
+// Plot
+plot(minus_dm_value, "-DM", color=color.red, linewidth=2)

@@ -1,5 +1,7 @@
 # ZLDEMA: Zero-Lag Double Exponential Moving Average
 
+> *ZLDEMA combines the speed of zero-lag prediction with the smoothness of double exponential averaging. You get faster response than ZLEMA, with better trend-following than DEMA.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "ZLDEMA combines the speed of zero-lag prediction with the smoothness of double exponential averaging. You get faster response than ZLEMA, with better trend-following than DEMA."
 
 ## DEMA with lag compensation via a zero-lag signal
 

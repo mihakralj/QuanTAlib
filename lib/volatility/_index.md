@@ -1,7 +1,5 @@
 # Volatility
 
-> "Volatility is the price of admission. The question is whether the ride is worth it."
-
 Volatility measures the magnitude of price changes, independent of direction. Low volatility indicates consolidation and coiling energy; high volatility indicates explosive movement and trend development. These indicators answer "how much?" and "how fast?", not "which way?".
 
 | Indicator | Full Name | Description |

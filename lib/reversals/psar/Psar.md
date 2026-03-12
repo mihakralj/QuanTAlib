@@ -1,5 +1,7 @@
 # PSAR: Parabolic Stop And Reverse
 
+> *The trend is your friend until the end when it bends.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The trend is your friend until the end when it bends." — Ed Seykota
 
 ## Introduction
 

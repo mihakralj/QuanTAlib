@@ -1,5 +1,7 @@
 # DECAY: Linear Decay
 
+> *A ratchet that only moves down slowly: price can push it up instantly, but gravity pulls it back at a steady, linear pace.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numerics                         |
@@ -15,8 +17,6 @@
 - Output range: Same as input — this is an overlay indicator.
 - Requires `1` bar of warmup before first valid output (IsHot = true).
 - Validated against Tulip Indicators `ti_decay` reference algorithm.
-
-> "A ratchet that only moves down slowly: price can push it up instantly, but gravity pulls it back at a steady, linear pace."
 
 DECAY implements the Tulip Indicators `ti_decay` function. When price is above the decayed level, output snaps to price. When price falls below, the output decays linearly at a rate of `1/period` per bar, creating a ceiling that gradually descends. This produces a one-sided envelope that hugs price from above.
 

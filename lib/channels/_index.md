@@ -1,7 +1,5 @@
 # Channels
 
-> "In trending markets, ride the channel. In ranging markets, fade the edges."  Unknown
-
 Channels define dynamic support and resistance. Upper band shows where price tends to find resistance; lower band shows support. Width measures volatility; price position within channel measures momentum and mean-reversion potential.
 
 ## Indicators

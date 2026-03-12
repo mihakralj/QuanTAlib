@@ -1,5 +1,7 @@
 # ABERR: Aberration Bands
 
+> *Aberration measures the distance between price and its smoothed self — when the gap grows extreme, reversion whispers.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -72,23 +74,6 @@ For a normal distribution:
 $$\text{MAD} = \sigma \sqrt{\frac{2}{\pi}} \approx 0.7979\,\sigma$$
 
 Therefore ABERR with $k = 2.0$ captures approximately the same range as Bollinger Bands with $k \approx 1.596$.
-
-### Pseudo-code
-
-```
-function ABERR(source, ma_line, period, multiplier):
-    // Deviation from center line
-    deviation = |source - ma_line|
-
-    // Average absolute deviation (SMA of deviations)
-    avg_dev = SMA(deviation, period)
-
-    // Band construction
-    upper = ma_line + multiplier * avg_dev
-    lower = ma_line - multiplier * avg_dev
-
-    return [upper, lower, avg_dev]
-```
 
 ### Output Interpretation
 

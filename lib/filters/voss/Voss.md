@@ -1,5 +1,7 @@
 # VOSS: Ehlers Voss Predictive Filter
 
+> *The best filter is one that tells you what is about to happen, not what already did.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The best filter is one that tells you what is about to happen, not what already did." — paraphrasing Ehlers
 
 ## Introduction
 

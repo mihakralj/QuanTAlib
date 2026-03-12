@@ -1,5 +1,7 @@
 # BESSEL: Bessel Filter
 
+> *The Bessel filter preserves the shape of the input signal — maximum flatness in the time domain at the cost of a gentler rolloff.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

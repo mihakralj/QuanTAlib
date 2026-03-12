@@ -1,5 +1,7 @@
 # ACF: Autocorrelation Function
 
+> *The past doesn't predict the future, but it whispers patterns to those who listen.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against mathematical properties and theoretical AR-process expectations.
-
-> "The past doesn't predict the future, but it whispers patterns to those who listen."
 
 The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself. It is fundamental for identifying repeating patterns, seasonal effects, and determining the order of time series models like ARMA/ARIMA.
 

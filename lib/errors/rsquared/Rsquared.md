@@ -1,5 +1,7 @@
 # R²: Coefficient of Determination
 
+> *R² tells you how much of the variance in actual values is explained by your predictions. It's the statistician's favorite metric for good reason.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $(-\infty, 1]$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "R² tells you how much of the variance in actual values is explained by your predictions. It's the statistician's favorite metric for good reason."
 
 The Coefficient of Determination (R²) measures the proportion of variance in the actual values that is predictable from the predicted values. R² ranges from negative infinity to 1, where 1 indicates perfect predictions.
 

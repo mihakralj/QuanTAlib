@@ -1,5 +1,7 @@
 # EFI: Elder's Force Index
 
+> *Force Index combines price movement with volume to measure the power behind every move. It's the market's polygraph test.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Force Index combines price movement with volume to measure the power behind every move. It's the market's polygraph test." — Dr. Alexander Elder
 
 Elder's Force Index (EFI) quantifies the buying and selling pressure behind price movements by multiplying price change by volume. Large positive values indicate strong buying pressure (bulls in control), while large negative values reveal strong selling pressure (bears dominant).
 

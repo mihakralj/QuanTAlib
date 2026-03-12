@@ -1,5 +1,7 @@
 # PVD: Price Volume Divergence
 
+> *When price and volume disagree, one of them is lying.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When price and volume disagree, one of them is lying."
 
 Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum. The indicator identifies situations where price movement lacks volume confirmation—a classic warning signal that the current trend may be weakening or about to reverse.
 

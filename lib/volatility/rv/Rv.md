@@ -1,5 +1,7 @@
 # RV: Realized Volatility
 
+> *The sum of squared returns—a direct measure of how much the market actually moved, free from the assumptions embedded in standard deviation.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The sum of squared returns—a direct measure of how much the market actually moved, free from the assumptions embedded in standard deviation."
 
 Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing for stability. Unlike traditional Historical Volatility (HV) which calculates standard deviation of returns, RV directly accumulates squared returns—the raw building blocks of variance—providing a more direct measure of realized price variation.
 

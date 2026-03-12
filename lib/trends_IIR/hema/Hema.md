@@ -1,5 +1,7 @@
 # HEMA: Hull Exponential Moving Average
 
+> *HMA is a topology. HEMA keeps the topology and swaps the physics: windows to decay, with identical lag.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `EstimateWarmupPeriod()` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "HMA is a topology. HEMA keeps the topology and swaps the physics: windows to decay, with identical lag."
 
 ## An EMA-domain analog of HMA with WMA-lag-matched alphas
 

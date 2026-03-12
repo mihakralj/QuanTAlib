@@ -1,5 +1,7 @@
 # OneEuro — One Euro Filter
 
+> *The One Euro filter adapts its cutoff frequency to signal speed — slow movements get heavy smoothing, fast ones pass through.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

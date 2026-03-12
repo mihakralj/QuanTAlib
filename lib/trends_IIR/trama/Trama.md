@@ -1,5 +1,7 @@
 # TRAMA: Trend Regularity Adaptive Moving Average
 
+> *LuxAlgo counted how often price makes new highs and new lows within a window, squared that fraction, and used it as an EMA smoothing constant. Trending markets produce frequent HH/LLs and the filter tracks fast. Ranging markets produce few, and the filter stops moving. Simple, effective, elegant.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "LuxAlgo counted how often price makes new highs and new lows within a window, squared that fraction, and used it as an EMA smoothing constant. Trending markets produce frequent HH/LLs and the filter tracks fast. Ranging markets produce few, and the filter stops moving. Simple, effective, elegant."
 
 TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars that produce either a new highest-high (HH) or a new lowest-low (LL). This fraction is squared to create a convex penalty: low regularity (ranging) produces near-zero smoothing (filter barely moves), while high regularity (trending) produces aggressive smoothing (filter tracks closely). Developed by LuxAlgo (TradingView, December 2020).
 

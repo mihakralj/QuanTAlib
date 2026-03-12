@@ -1,5 +1,7 @@
 # CHEBY1: Chebyshev Type I Lowpass Filter
 
+> *Chebyshev Type I trades passband ripple for a steeper rolloff — sharper frequency separation at the cost of amplitude wobble.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

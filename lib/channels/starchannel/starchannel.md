@@ -1,5 +1,7 @@
 # STARCHANNEL: Stoller Average Range Channel
 
+> *Stoller channels use ATR to build a corridor around the average — a volatility-aware boundary for range traders.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -89,51 +91,6 @@ Streaming: $O(1)$ per bar. The SMA uses a running sum with circular buffer (add 
 | $n$ | period | 20 | $> 0$ | SMA and ATR lookback period |
 | $k$ | multiplier | 2.0 | $> 0$ | ATR multiplier for band width |
 | $n_{\text{atr}}$ | atr_length | 0 | $\geq 0$ | Separate ATR period (0 = same as SMA period) |
-
-### Pseudo-code
-
-```
-function starchannel(source[], high[], low[], close[], period, multiplier, atr_length):
-    effective_atr = atr_length > 0 ? atr_length : period
-    alpha = 1.0 / effective_atr
-
-    buf    = circular_buffer(period)
-    sum    = 0.0
-    count  = 0
-
-    raw_rma = 0.0
-    e       = 1.0         // warmup compensator
-    prevClose = close[0]
-    EPSILON = 1e-10
-
-    for each bar t:
-        // SMA via running sum
-        if buf.is_full:
-            sum   -= buf.oldest
-            count -= 1
-        buf.add(source[t])
-        sum   += source[t]
-        count += 1
-        middle = sum / count
-
-        // True Range
-        tr = max(high[t] - low[t],
-                 abs(high[t] - prevClose),
-                 abs(low[t] - prevClose))
-        prevClose = close[t]
-
-        // RMA with warmup compensator
-        raw_rma = (raw_rma * (effective_atr - 1) + tr) / effective_atr
-        e = (1 - alpha) * e
-        atr = e > EPSILON ? raw_rma / (1 - e) : raw_rma
-
-        // Bands
-        width = atr * multiplier
-        upper = middle + width
-        lower = middle - width
-
-        emit (middle, upper, lower)
-```
 
 ### Output Interpretation
 

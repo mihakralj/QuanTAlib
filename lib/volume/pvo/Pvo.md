@@ -1,5 +1,7 @@
 # PVO: Percentage Volume Oscillator
 
+> *Volume precedes price—PVO measures whether the market is inhaling or exhaling.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume precedes price—PVO measures whether the market is inhaling or exhaling."
 
 The Percentage Volume Oscillator (PVO) measures the difference between two exponential moving averages of volume, expressed as a percentage of the slower EMA. Essentially the MACD of volume, PVO identifies whether volume is expanding (accumulation) or contracting (distribution) relative to its recent history. This percentage normalization makes it comparable across instruments with vastly different volume profiles.
 

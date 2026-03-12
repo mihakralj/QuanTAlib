@@ -1,5 +1,7 @@
 # SINEMA: Sine-Weighted Moving Average
 
+> *Nature doesn't do straight lines, and neither should your weights.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Nature doesn't do straight lines, and neither should your weights."
 
 The Sine-Weighted Moving Average (SINEMA) applies sine-wave weighting to data points within the lookback window. Weights follow the formula $w_i = \sin(\pi \cdot (i+1) / N)$, creating a smooth bell-shaped distribution that emphasizes middle values while gracefully tapering at the edges. Unlike SMA's uniform weighting or WMA's linear ramp, sine weighting provides a natural transition that reduces high-frequency noise while preserving mid-frequency trends.
 

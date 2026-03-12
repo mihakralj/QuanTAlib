@@ -1,5 +1,7 @@
 # MdAE: Median Absolute Error
 
+> *When outliers scream but you need to hear the whisper of typical performance.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When outliers scream but you need to hear the whisper of typical performance."
 
 Median Absolute Error (MdAE) measures the middle value of all absolute errors. Unlike MAE which averages errors, MdAE finds the median, providing exceptional robustness against outliers and extreme values.
 

@@ -1,5 +1,7 @@
 # HT_DCPERIOD: Ehlers Hilbert Transform Dominant Cycle Period
 
+> *The Hilbert Transform extracts the dominant cycle period by converting price into an analytic signal and measuring its phase rate.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -67,47 +69,6 @@ $O(1)$ per bar. Fixed Hilbert cascade with circular buffers totaling approximate
 | (none) | No user-configurable parameters | | |
 
 The period range [6, 50] and all smoothing constants are fixed by the TA-Lib specification.
-
-### Pseudo-code
-
-```
-function HT_DCPERIOD(source):
-    A ← 0.0962; B ← 0.5769
-    smoothBuf ← CircularBuffer(7)
-    detBuf, q1Buf, i1Buf ← CircularBuffers
-
-    I2 ← 0; Q2 ← 0
-    Re ← 0; Im ← 0
-    period ← 15   // initial estimate
-
-    for each price in source:
-        // Step 1: WMA smooth
-        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
-
-        // Step 2: Hilbert FIR (adaptive to period)
-        adj ← A + B   // coefficient adjustment
-        det ← adj·(smooth[0] - smooth[6]) + B·(smooth[2] - smooth[4])
-        Q1 ← adj·(det[0] - det[6]) + B·(det[2] - det[4])
-        I1 ← det[3]
-        jI ← adj·(I1[0] - I1[6]) + B·(I1[2] - I1[4])
-        jQ ← adj·(Q1[0] - Q1[6]) + B·(Q1[2] - Q1[4])
-
-        // Step 3: Phasor (EMA smoothed)
-        I2 ← 0.2·(I1 - jQ) + 0.8·I2
-        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2
-
-        // Step 4: Homodyne discriminator
-        Re ← 0.2·(I2·I2_prev + Q2·Q2_prev) + 0.8·Re
-        Im ← 0.2·(I2·Q2_prev - Q2·I2_prev) + 0.8·Im
-
-        // Step 5: Period
-        if Im ≠ 0 and Re ≠ 0:
-            p ← 2π / atan(Im / Re)
-        p ← clamp(p, 6, 50)
-        period ← 0.33·p + 0.67·period
-
-        emit period
-```
 
 ### Output Interpretation
 

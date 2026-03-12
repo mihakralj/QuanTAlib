@@ -1,5 +1,7 @@
 # BPF (Bandpass Filter)
 
+> *Most market data is noise. A sliver is signal. The rest is just detailed evidence of human panic.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Oscillates around zero (bandpass extracts cyclic component).
 - Requires `Math.Max(lowerPeriod, upperPeriod)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Most market data is noise. A sliver is signal. The rest is just detailed evidence of human panic."
 
 The **BPF** (BandPass Filter) is a second-order IIR architecture designed to surgically excise specific frequency components from a time series. By cascading a HighPass Filter (to reject trend) and a LowPass Filter (to reject noise), it isolates cyclic energy within a user-defined window. Unlike simple moving average crossovers which smear data, the BPF relies on Gaussian-based coefficients to achieve steeper roll-off with deterministic phase characteristics.
 

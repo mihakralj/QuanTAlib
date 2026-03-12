@@ -1,5 +1,7 @@
 # ROOFING: Ehlers Roofing Filter
 
+> *The trend is your friend until it overwhelms the signal. The noise is your enemy until you mistake it for alpha.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Oscillates around zero (bandpass behavior).
 - Requires `hpLength` bars of warmup before first valid output (IsHot = true). Default: **48 bars**.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The trend is your friend until it overwhelms the signal. The noise is your enemy until you mistake it for alpha."
 
 The **Roofing Filter** is John Ehlers' bandpass architecture designed specifically for oscillator construction. It cascades a 2nd-order Butterworth Highpass (to strip trend) with a Super Smoother Lowpass (to strip noise), passing only the cyclic energy within a user-defined frequency band. The output oscillates around zero, with zero crossings serving as directional signals.
 

@@ -1,5 +1,7 @@
 # MAXINDEX: Rolling Maximum Index
 
+> *It's not just about the peak — it's about *when* the peak occurred.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -16,8 +18,6 @@
 - Tie-breaking: last occurrence wins (most recent bar, `>=` comparison).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Cross-validation: `source[Maxindex.Batch[i]] == Highest.Batch[i]` for all bars after warmup.
-
-> "It's not just about the peak — it's about *when* the peak occurred."
 
 MAXINDEX identifies the position of the maximum value within a rolling window. While HIGHEST tells you the peak *value*, MAXINDEX tells you *where* that peak is relative to the current bar. This is essential for pattern recognition, timing analysis, and detecting how "stale" a high is.
 

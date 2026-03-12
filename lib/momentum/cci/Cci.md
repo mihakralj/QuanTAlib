@@ -1,5 +1,7 @@
 # CCI - Commodity Channel Index
 
+> *CCI measures how far price deviates from its statistical mean, scaled by mean absolute deviation — a z-score with character.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |

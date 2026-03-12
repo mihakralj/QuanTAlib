@@ -1,5 +1,7 @@
 # ETHERM: Elder's Thermometer
 
+> *Markets run a fever before they crash. The thermometer tells you when to reach for the aspirin.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                       |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$ (same units as price).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Markets run a fever before they crash. The thermometer tells you when to reach for the aspirin."
 
 Elder's Thermometer (ETHERM) measures bar-to-bar range extension — the maximum outward protrusion of the current bar beyond the previous bar's high or low. Developed by Dr. Alexander Elder, it captures only outward expansions; inward contractions clamp to zero. An EMA signal line with bias compensation provides a smoothed reference for detecting explosive moves (temperature significantly exceeding the signal).
 

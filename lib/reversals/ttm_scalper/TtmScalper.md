@@ -1,5 +1,7 @@
 # TTM_SCALPER: TTM Scalper Alert
 
+> *TTM Scalper spots pivot reversals in real time, marking the bars where short-term direction flips.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |

@@ -1,5 +1,7 @@
 # ADOSC: Chaikin A/D Oscillator
 
+> *Momentum precedes price. Volume momentum precedes price momentum.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Momentum precedes price. Volume momentum precedes price momentum."
 
 The Chaikin Oscillator (ADOSC) is an indicator of an indicator. It applies the MACD formula to the Accumulation/Distribution Line (ADL) instead of the price.
 

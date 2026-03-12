@@ -1,5 +1,7 @@
 # SWINGS: Swing High/Low Detection
 
+> *The market tells you where it turned. You just have to listen long enough to be sure it actually meant it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The market tells you where it turned. You just have to listen long enough to be sure it actually meant it."
 
 Swing High/Low detection identifies local price extremes using a configurable lookback window. A Swing High marks a bar whose high strictly exceeds the highs of all bars within the lookback window on each side. A Swing Low marks a bar whose low is strictly less than all corresponding lows. The lookback parameter controls sensitivity: larger lookback windows require more confirmation and produce fewer, more significant signals. This generalizes Williams' fixed five-bar Fractals into a flexible structural analysis tool.
 

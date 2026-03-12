@@ -1,5 +1,7 @@
 # HAMMA: Hamming-Weighted Moving Average
 
+> *Julius von Hann picked his window function to suppress spectral leakage; we're just using it to smooth price data. Same math, different trading floor.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Julius von Hann picked his window function to suppress spectral leakage; we're just using it to smooth price data. Same math, different trading floor."
 
 HAMMA is a Finite Impulse Response (FIR) filter that applies a Hamming window to price data. The Hamming window is a raised cosine with specific coefficients (0.54 and 0.46) chosen to minimize the amplitude of the first side lobe in the frequency domain. This makes it particularly effective at separating the signal (trend) from nearby noise frequencies.
 

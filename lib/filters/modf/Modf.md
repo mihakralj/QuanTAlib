@@ -1,5 +1,7 @@
 # MODF: Modular Filter
 
+> *alexgrover designed a filter with two paths — one tracks uptrends, one tracks downtrends — and a state machine that picks between them. Add a beta knob for aggression and an optional feedback loop, and you get one of the most versatile adaptive filters on TradingView.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "alexgrover designed a filter with two paths — one tracks uptrends, one tracks downtrends — and a state machine that picks between them. Add a beta knob for aggression and an optional feedback loop, and you get one of the most versatile adaptive filters on TradingView."
 
 MODF is a dual-path adaptive filter that maintains separate upper and lower EMA bands with conditional state selection. The upper band snaps up to price when price exceeds it (tracking rallies), while the lower band snaps down when price drops below it (tracking selloffs). An oscillator state variable determines which band is active, and a beta parameter controls the blend between filter mode (smooth tracking) and trailing-stop mode (step-like following). An optional feedback loop blends the filter's output back into its input for additional smoothing. Developed by alexgrover (CPO at LuxAlgo).
 

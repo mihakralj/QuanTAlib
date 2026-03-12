@@ -1,5 +1,7 @@
 # RAIN: Rainbow Moving Average
 
+> *Mel Widner applied SMA ten times recursively, then weighted the layers like a rainbow: brightest at the top, fading toward the base. Ten colors of smoothing, one composite average that sees both fast and slow structure simultaneously.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Mel Widner applied SMA ten times recursively, then weighted the layers like a rainbow: brightest at the top, fading toward the base. Ten colors of smoothing, one composite average that sees both fast and slow structure simultaneously."
 
 RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across all layers. Layers 1-4 receive weights 5, 4, 3, 2 (emphasizing the more responsive layers), while layers 5-10 each receive weight 1, for a total divisor of 20. This multi-scale composition produces a moving average that responds to short-term price changes through the lightly smoothed upper layers while maintaining stability through the heavily smoothed lower layers.
 

@@ -1,5 +1,7 @@
 # DCHANNEL: Donchian Channels
 
+> *The highest high and lowest low over a window — Donchian's simplicity captures breakout potential in two lines.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -62,29 +64,6 @@ The bands stay flat until either a new extreme occurs or the old extreme exits t
 | Parameter | Description | Default | Constraint |
 |-----------|-------------|---------|------------|
 | `period` | Lookback window for high/low extremes ($n$) | 20 | $> 0$ |
-
-### Pseudo-code
-
-```
-function DCHANNEL(high, low, period):
-    validate: period > 0
-
-    // Monotonic deque for max (upper band)
-    while max_deque.front is outside window: pop front
-    while max_deque.back value ≤ high: pop back
-    push high to max_deque back
-    upper = max_deque.front value
-
-    // Monotonic deque for min (lower band)
-    while min_deque.front is outside window: pop front
-    while min_deque.back value ≥ low: pop back
-    push low to min_deque back
-    lower = min_deque.front value
-
-    middle = (upper + lower) / 2
-
-    return [middle, upper, lower]
-```
 
 ### Output Interpretation
 

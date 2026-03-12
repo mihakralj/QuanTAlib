@@ -1,5 +1,7 @@
 # POLYFIT: Polynomial Fitting
 
+> *Polynomial fitting bends a curve through price data, capturing nonlinear trends that a straight line cannot.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |

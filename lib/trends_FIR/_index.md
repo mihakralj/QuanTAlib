@@ -1,7 +1,5 @@
 # Trends (FIR)
 
-> "FIR filters are always stable. The question is how many coefficients you need."  Digital Signal Processing folklore
-
 Finite Impulse Response (FIR) trend indicators. These use fixed-length windows with explicit coefficients. No feedback loops, no recursion. Output depends only on current and past inputs. Always stable. Linear phase possible. SIMD-friendly batch computation.
 
 ## Indicators

@@ -1,5 +1,7 @@
 # NW: Nadaraya-Watson Kernel Regression
 
+> *Nadaraya and Watson independently discovered the same thing in 1964: weight each observation by how close it is, normalize, and average. Fifty years later, it became one of the most popular nonparametric smoothers on TradingView. The math did not change; only our ability to compute it in real time.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Nadaraya and Watson independently discovered the same thing in 1964: weight each observation by how close it is, normalize, and average. Fifty years later, it became one of the most popular nonparametric smoothers on TradingView. The math did not change; only our ability to compute it in real time."
 
 NW computes the Nadaraya-Watson kernel regression estimator with a Gaussian kernel, producing a nonparametric smooth of the price series. For each bar, every observation in the lookback window is weighted by a Gaussian function of its temporal distance, with the bandwidth parameter $h$ controlling the effective smoothing radius. Small $h$ tracks price tightly (low bias, high variance); large $h$ smooths heavily (high bias, low variance). This implementation is non-repainting (backward-looking only).
 

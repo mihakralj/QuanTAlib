@@ -1,5 +1,7 @@
 # ZTEST: One-Sample t-Test Statistic
 
+> *The purpose of hypothesis testing is not to prove what we believe, but to measure what we observe.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against manual computation, PineScript parity, and testable statistical properties.
-
-> "The purpose of hypothesis testing is not to prove what we believe, but to measure what we observe." — Adapted from R.A. Fisher
 
 ## Introduction
 

@@ -1,5 +1,7 @@
 # VROC: Volume Rate of Change
 
+> *Yesterday's volume is ancient history; what matters is how fast it's changing.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Yesterday's volume is ancient history; what matters is how fast it's changing."
 
 VROC (Volume Rate of Change) measures the percentage or absolute change in volume over a specified lookback period. Unlike moving average-based volume indicators that smooth data, VROC provides a direct comparison between current volume and historical volume, making it particularly useful for detecting sudden volume surges or contractions that may signal significant market events.
 

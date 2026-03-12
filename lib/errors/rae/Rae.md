@@ -1,5 +1,7 @@
 # RAE: Relative Absolute Error
 
+> *How much better than just guessing the mean? RAE gives you the ratio.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "How much better than just guessing the mean? RAE gives you the ratio."
 
 Relative Absolute Error (RAE) measures the total absolute error of predictions relative to the total absolute error of a simple baseline predictor that always predicts the mean of actual values. This provides a normalized performance metric.
 

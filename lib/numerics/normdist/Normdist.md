@@ -1,5 +1,7 @@
 # NORMDIST: Normal Distribution CDF
 
+> *The normal distribution CDF is the bell curve's integral — the universal reference for probabilistic reasoning.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

@@ -1,5 +1,7 @@
 # NLMA: Non-Lag Moving Average
 
+> *Igorad at TrendLaboratory built a two-phase FIR kernel that uses five times more taps than the period parameter suggests. The extra taps carry negative weights that actively cancel group delay. Most 'non-lag' indicators are marketing. This one is signal processing.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Igorad at TrendLaboratory built a two-phase FIR kernel that uses five times more taps than the period parameter suggests. The extra taps carry negative weights that actively cancel group delay. Most 'non-lag' indicators are marketing. This one is signal processing."
 
 NLMA uses a two-phase damped cosine kernel with $5P - 1$ taps (where $P$ is the user period). Phase 1 builds the initial sweep; Phase 2 extends it through multiple cosine cycles. The kernel's negative weights in the mid-section subtract lagged price components, reducing group delay well below what a positive-only SMA of the same length achieves. Normalization by the signed weight sum preserves DC gain of 1.0. The result is a trend-following filter with moderate overshoot but substantially less lag than conventional moving averages.
 
@@ -133,46 +133,6 @@ The signed-sum normalization guarantees unit DC gain regardless of the weight di
 | Cycle | 4 | fixed | Number of cosine cycles in Phase 2 |
 | Phase | $P - 1$ | derived | Boundary between Phase 1 and Phase 2 |
 | Coeff | $3\pi$ | fixed | Gain decay rate in Phase 2 |
-
-### Pseudo-code (streaming)
-
-```text
-// Constants
-Cycle = 4
-Phase = period - 1
-Coeff = 3 * PI
-flen  = 5 * period - 1
-
-// Precompute weights once
-wsum = 0
-for i = 0 to flen-1:
-    if i <= Phase - 1:
-        t = i / (Phase - 1)
-    else:
-        t = 1.0 + (i - Phase + 1) * (2*Cycle - 1) / (Cycle * period - 1)
-
-    if t <= 0.5:
-        g = 1.0
-    else:
-        g = 1.0 / (Coeff * t + 1)
-
-    w[i] = g * cos(PI * t)
-    wsum += w[i]
-
-// Per bar: insert into circular buffer of size flen
-buffer[head] = price
-head = (head + 1) % flen
-
-// Warmup: return price when count < flen
-if count < flen: return price
-
-// Full convolution
-sum = 0
-for k = 0 to flen-1:
-    sum += buffer[(head+k) % flen] * w[flen-1-k]
-
-return sum / wsum
-```
 
 ## Performance Profile
 

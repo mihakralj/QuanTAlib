@@ -1,5 +1,7 @@
 # HMA: Hull Moving Average
 
+> *Alan Hull looked at the lag in moving averages and said, 'I can fix that.' And he did, by making the math do gymnastics.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period + sqrtPeriod - 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Alan Hull looked at the lag in moving averages and said, 'I can fix that.' And he did, by making the math do gymnastics."
 
 HMA (Hull Moving Average) is a solution to the eternal struggle between smoothness and lag. Most indicators force you to choose one; HMA gives you both. It achieves this by using weighted moving averages (WMAs) in a clever configuration that cancels out lag while maintaining the smoothing properties of the WMA.
 

@@ -1,5 +1,7 @@
 # EDCF: Ehlers Distance Coefficient Filter
 
+> *Ehlers' distance coefficient filter adjusts smoothing based on how far price has traveled, blending trend-following with noise rejection.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

@@ -1,5 +1,7 @@
 # BBW: Bollinger Band Width
 
+> *Volatility breeds opportunity. The squeeze precedes the explosion.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volatility breeds opportunity. The squeeze precedes the explosion."
 
 Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band. When BBW is low, the bands are squeezing together, signaling compressed volatility and impending breakout. When BBW is high, the market is in an expanded volatility state. BBW transforms Bollinger Bands from a visual channel indicator into a quantifiable volatility oscillator, enabling algorithmic detection of "squeeze" conditions that often precede significant price moves.
 

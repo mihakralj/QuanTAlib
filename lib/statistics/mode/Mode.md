@@ -1,5 +1,7 @@
 # MODE: Statistical Mode (Most Frequent Value)
 
+> *The mode is the value that appears most frequently in a data set — the only measure of central tendency that tells you what's actually popular, not what's average.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The mode is the value that appears most frequently in a data set — the only measure of central tendency that tells you what's actually popular, not what's average."
 
 ## Introduction
 

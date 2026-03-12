@@ -1,5 +1,7 @@
 # Tukey's Biweight: Robust Loss Function
 
+> *When outliers need to be silenced, not just quieted.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When outliers need to be silenced, not just quieted."
 
 Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold. Unlike Huber loss which still penalizes large errors linearly, Tukey's biweight treats extreme outliers as if they don't exist.
 

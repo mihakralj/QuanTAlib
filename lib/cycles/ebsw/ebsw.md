@@ -1,5 +1,7 @@
 # EBSW: Ehlers Even Better Sinewave
 
+> *Even Better Sinewave refines cycle detection by combining bandpass filtering with adaptive gain normalization.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -76,45 +78,6 @@ $O(1)$ per bar. Fixed cascaded IIR filters with $O(1)$ memory (only filter state
 a  = exp(-√2·π / ssfLength)
 b  = 2·a·cos(√2·π / ssfLength)
 c₁ = (1 - b + a²) / 2
-```
-
-### Pseudo-code
-
-```
-function EBSW(source, hpLength, ssfLength):
-    // Precompute HP coefficient
-    α₁ ← (1 - sin(2π/hpLength)) / cos(2π/hpLength)
-
-    // Precompute SSF coefficients
-    a ← exp(-√2·π / ssfLength)
-    b ← 2·a·cos(√2·π / ssfLength)
-    c₁ ← (1 - b + a²) / 2
-
-    hp_prev ← 0; p_prev ← 0
-    filt_1 ← 0; filt_2 ← 0
-
-    for each price in source:
-        // High-pass filter
-        hp ← 0.5·(1 + α₁)·(price - p_prev) + α₁·hp_prev
-
-        // Super-smoother
-        filt ← c₁·(hp + hp_prev) + b·filt_1 - a²·filt_2
-
-        // Wave (3-bar average of filtered signal)
-        wave ← (filt + filt_1 + filt_2) / 3
-
-        // Power (3-bar RMS²)
-        power ← (filt² + filt_1² + filt_2²) / 3
-
-        // AGC normalization
-        ebsw ← (power > 0) ? wave / √power : 0
-        ebsw ← clamp(ebsw, -1, +1)
-
-        // Shift state
-        hp_prev ← hp; p_prev ← price
-        filt_2 ← filt_1; filt_1 ← filt
-
-        emit ebsw
 ```
 
 ### Output Interpretation

@@ -1,5 +1,7 @@
 # DMX: Directional Movement Index (Jurik)
 
+> *Jurik's directional movement applies adaptive smoothing to DI lines, reducing whipsaws in the classic DMI framework.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -69,47 +71,6 @@ Positive values indicate bullish directional dominance; negative values indicate
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 14 | $N \geq 2$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  jmaPlusDM = new JMA(period)
-  jmaMinusDM = new JMA(period)
-  jmaTR = new JMA(period)
-  prevHigh = prevLow = prevClose = NaN
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  // Wilder's directional movement decomposition
-  TR = max(high - low, |high - prevClose|, |low - prevClose|)
-
-  upMove = high - prevHigh
-  downMove = prevLow - low
-
-  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
-  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
-
-  // Jurik smoothing (replaces Wilder's RMA)
-  smoothPlusDM = jmaPlusDM.Update(+DM)
-  smoothMinusDM = jmaMinusDM.Update(-DM)
-  smoothTR = jmaTR.Update(TR)
-
-  // Directional indicators
-  if smoothTR > 0:
-    DI_plus = 100 × smoothPlusDM / smoothTR
-    DI_minus = 100 × smoothMinusDM / smoothTR
-  else:
-    DI_plus = DI_minus = 0
-
-  DMX = DI_plus - DI_minus
-
-  prevHigh = high
-  prevLow = low
-  prevClose = close
-  output = DMX
-```
 
 ### DMX vs DMI Comparison
 

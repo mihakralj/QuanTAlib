@@ -1,5 +1,7 @@
 # PPO: Percentage Price Oscillator
 
+> *MACD told you the spread in dollars. PPO tells you the spread in percent. One of those actually works across instruments.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `slowPeriod + signalPeriod` bars (35 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "MACD told you the spread in dollars. PPO tells you the spread in percent. One of those actually works across instruments."
 
 PPO (Percentage Price Oscillator) measures the percentage difference between a fast EMA and a slow EMA. It is functionally equivalent to MACD normalized by the slow EMA, producing values that are comparable across instruments with different price levels. The implementation outputs three components: the PPO line, a signal line (EMA of PPO), and a histogram (PPO minus Signal).
 

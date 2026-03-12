@@ -1,5 +1,7 @@
 # Theil's U: Theil's U Statistic
 
+> *The forecast that matters is the one that beats a naive guess.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The forecast that matters is the one that beats a naive guess."
 
 Theil's U Statistic measures forecast accuracy relative to a naive no-change forecast. A value below 1 indicates the model outperforms simply predicting that tomorrow equals today; above 1 means you'd be better off not forecasting at all.
 

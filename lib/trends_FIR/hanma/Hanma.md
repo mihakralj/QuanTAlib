@@ -1,5 +1,7 @@
 # HANMA: Hanning-Weighted Moving Average
 
+> *Julius von Hann deserves credit for the window that bears his name—even if autocomplete keeps trying to change it to 'Hamming.' The zero-edge weights aren't a bug; they're the whole point.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Julius von Hann deserves credit for the window that bears his name—even if autocomplete keeps trying to change it to 'Hamming.' The zero-edge weights aren't a bug; they're the whole point."
 
 HANMA is a Finite Impulse Response (FIR) filter that applies a Hanning (Hann) window to price data. The Hanning window is a pure raised cosine with edge weights of exactly zero, which provides excellent side lobe suppression while maintaining a narrower main lobe than Hamming. It's particularly effective when you want to eliminate boundary discontinuities entirely.
 

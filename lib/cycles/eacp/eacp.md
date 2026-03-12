@@ -1,5 +1,7 @@
 # EACP: Ehlers Autocorrelation Periodogram
 
+> *Autocorrelation periodogram scans every possible cycle length and ranks them by strength — a spectral fingerprint of the market.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -71,51 +73,6 @@ $O(N \times M)$ per bar where $N$ is the period range and $M$ is the averaging l
 | `minPeriod` | Minimum period to evaluate | 8 | $\geq 3$ |
 | `maxPeriod` | Maximum period to evaluate | 48 | $> minPeriod$ |
 | `enhance` | Apply cubic emphasis to spectral peaks | true | |
-
-### Pseudo-code
-
-```
-function EACP(source, minPeriod, maxPeriod, enhance):
-    N ← maxPeriod - minPeriod + 1
-    M ← maxPeriod        // averaging window
-    hpBuf ← HighPassFilter(source)
-    ssfBuf ← SuperSmoother(hpBuf)
-
-    power[N] ← {0}
-    smoothPower[N] ← {0}
-
-    for each bar:
-        // Autocorrelation for each lag
-        corr[0..maxPeriod] ← PearsonAutocorrelation(ssfBuf, M)
-
-        // DFT: convert autocorrelation to power spectrum
-        for p = minPeriod to maxPeriod:
-            cosPower ← 0
-            for k = 0 to M-1:
-                cosPower += corr[k] * cos(2π * k / p)
-            power[p] ← cosPower²
-
-        // Exponential smoothing of spectrum
-        for p = minPeriod to maxPeriod:
-            smoothPower[p] ← 0.2 * power[p] + 0.8 * smoothPower[p]
-
-        // Optional cubic enhancement
-        if enhance:
-            for p: smoothPower[p] ← smoothPower[p]³
-
-        // AGC normalization
-        maxPow ← max(smoothPower)
-        for p: smoothPower[p] /= maxPow   // normalize to [0, 1]
-
-        // Center-of-gravity dominant cycle
-        num ← 0; den ← 0
-        for p = minPeriod to maxPeriod:
-            num += smoothPower[p] * p
-            den += smoothPower[p]
-        dominantCycle ← (den > 0) ? num / den : (minPeriod + maxPeriod) / 2
-
-        emit dominantCycle
-```
 
 ### Output Interpretation
 

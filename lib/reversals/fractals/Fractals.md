@@ -1,5 +1,7 @@
 # FRACTALS: Williams Fractals
 
+> *Markets leave fingerprints at their turning points. Five bars is all it takes to read them.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Markets leave fingerprints at their turning points. Five bars is all it takes to read them."
 
 Williams Fractals detect local price extremes using a strict five-bar pattern: an Up Fractal marks a bar whose high exceeds the highs of the two bars before and after it; a Down Fractal marks a bar whose low undercuts the lows of the two bars before and after it. No parameters, no smoothing, no lag compensation. The pattern either exists or it does not. Developed by Bill Williams and published in *Trading Chaos* (1995).
 

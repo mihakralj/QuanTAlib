@@ -1,5 +1,7 @@
 # CHANDELIER: Chandelier Exit
 
+> *The exit is more important than the entry. Everyone knows where to get in; getting out alive is the real trick.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The exit is more important than the entry. Everyone knows where to get in; getting out alive is the real trick."
 
 The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) over a lookback period. It produces two overlay lines: ExitLong (trailing stop for long positions) and ExitShort (trailing stop for short positions). Developed by Charles Le Beau and popularized by Alexander Elder. Default parameters: period 22, multiplier 3.0.
 

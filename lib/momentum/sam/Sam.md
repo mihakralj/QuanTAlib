@@ -1,5 +1,7 @@
 # SAM: Smoothed Adaptive Momentum
 
+> *Smoothed adaptive momentum adjusts its sensitivity to volatility, amplifying signals in trending regimes and dampening them in noise.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |

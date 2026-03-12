@@ -1,5 +1,7 @@
 # LANCZOS: Lanczos (Sinc) Window Moving Average
 
+> *Cornelius Lanczos used the sinc function to reconstruct band-limited signals from discrete samples. Apply it to price data and you get a moving average that respects the Nyquist limit while your competitors are still using SMAs.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Cornelius Lanczos used the sinc function to reconstruct band-limited signals from discrete samples. Apply it to price data and you get a moving average that respects the Nyquist limit while your competitors are still using SMAs."
 
 LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near-ideal low-pass frequency characteristics. The sinc function is the impulse response of the perfect brick-wall low-pass filter; windowing it to finite length trades sharp cutoff for practical realizability. The result is a smoother with minimal Gibbs phenomenon ringing and excellent passband flatness, at the cost of small negative sidelobe weights that can cause minor overshooting on sharp price discontinuities.
 

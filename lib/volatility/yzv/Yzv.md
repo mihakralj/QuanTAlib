@@ -1,5 +1,7 @@
 # YZV: Yang-Zhang Volatility
 
+> *The best volatility estimator uses all the information the market gives you—overnight gaps, intraday swings, and everything in between.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The best volatility estimator uses all the information the market gives you—overnight gaps, intraday swings, and everything in between."
 
 Yang-Zhang Volatility is a sophisticated volatility estimator that combines overnight (close-to-open) returns with Rogers-Satchell intraday volatility to capture the full spectrum of price dynamics. Unlike simple close-to-close volatility that misses overnight gaps, or purely intraday measures that ignore opening moves, Yang-Zhang provides a theoretically unbiased estimate that remains consistent whether markets gap or drift.
 

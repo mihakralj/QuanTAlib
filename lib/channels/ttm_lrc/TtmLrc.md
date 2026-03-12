@@ -1,5 +1,7 @@
 # TTM_LRC: TTM Linear Regression Channel
 
+> *Linear regression channels project the statistical trend and drape standard deviation curtains around it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -89,50 +91,6 @@ Per bar: $O(n)$ due to two loops over the window. Memory: a ring buffer of $n$ d
 |--------|------|---------|------------|-------------|
 | $n$ | period | 100 | $> 1$ | Lookback window for regression |
 | $k$ | deviations | 2.0 | $> 0$ | Outer band stddev multiplier |
-
-### Pseudo-code
-
-```
-function ttm_lrc(source[], period, deviations):
-    buf = ring_buffer(period)
-    sum_x  = period * (period - 1) / 2
-    sum_x2 = period * (period - 1) * (2 * period - 1) / 6
-    denom  = period * sum_x2 - sum_x * sum_x
-
-    for each bar t:
-        buf.add(source[t])
-        n = buf.count
-
-        // pass 1: regression
-        sum_y = 0, sum_xy = 0
-        for i = 0 to n-1:
-            y = buf[i]
-            sum_y  += y
-            sum_xy += i * y
-
-        slope     = (n * sum_xy - sum_x * sum_y) / denom
-        intercept = (sum_y - slope * sum_x) / n
-        midline   = slope * (n - 1) + intercept
-
-        // pass 2: residuals
-        ssr = 0, sst = 0
-        mean_y = sum_y / n
-        for i = 0 to n-1:
-            predicted = slope * i + intercept
-            residual  = buf[i] - predicted
-            ssr += residual * residual
-            sst += (buf[i] - mean_y)^2
-
-        stddev   = sqrt(ssr / n)
-        r_squared = sst > 0 ? 1 - ssr / sst : 0
-
-        upper1 = midline + 1.0 * stddev
-        lower1 = midline - 1.0 * stddev
-        upper2 = midline + deviations * stddev
-        lower2 = midline - deviations * stddev
-
-        emit (midline, upper1, lower1, upper2, lower2, slope, r_squared)
-```
 
 ### Statistical Zone Interpretation
 

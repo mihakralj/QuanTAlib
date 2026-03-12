@@ -1,5 +1,7 @@
 # ADXR: Average Directional Movement Rating
 
+> *ADXR smooths ADX over time, filtering out momentary strength spikes to reveal the underlying trend conviction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -55,34 +57,6 @@ The $N-1$ lag (rather than $N$) matches TA-Lib's reference implementation exactl
 | $N$ | period | 14 | $N \geq 2$ |
 
 The period controls both the internal ADX calculation and the historical lookback depth.
-
-### Pseudo-code
-
-```
-Initialize:
-  adx = new Adx(period)
-  adxBuffer = RingBuffer(period)
-  bar_count = 0
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  // Full ADX pipeline
-  adxValue = adx.Update(high, low, close, isNew)
-
-  // Store in history
-  adxBuffer.Add(adxValue)
-  bar_count++
-
-  // ADXR = average of current and (N-1)-lagged ADX
-  if bar_count >= period:
-    historicalAdx = adxBuffer[0]   // oldest value in buffer
-    ADXR = (adxValue + historicalAdx) / 2.0
-  else:
-    ADXR = adxValue  // insufficient history
-
-  output = ADXR
-```
 
 ### Lag Analysis
 

@@ -1,5 +1,7 @@
 # MEDPRICE: Median Price
 
+> *The midpoint of high and low captures the bar's central tendency, ignoring where it opened or closed.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -61,20 +63,6 @@ $O(1)$ per bar. One addition, one multiply. No memory allocation. Always hot aft
 | TYPPRICE | H, L, C | Equal | Close-influenced |
 | AVGPRICE | O, H, L, C | Equal | Fully balanced |
 | WCLPRICE | H, L, C | C double-weighted | Close-biased |
-
-### Pseudo-code
-
-```
-function MEDPRICE(bar):
-    h, l ← bar.High, bar.Low
-
-    // Substitute last-valid for non-finite inputs
-    if !finite(h): h ← lastValidHigh
-    if !finite(l): l ← lastValidLow
-
-    result ← (h + l) × 0.5
-    return result
-```
 
 ### Output Interpretation
 

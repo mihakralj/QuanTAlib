@@ -1,7 +1,5 @@
 # Dynamics
 
-> "The trend is your friend, but only if you know its strength."  Unknown
-
 Dynamics indicators measure trend strength, speed, and direction. Unlike momentum indicators that measure rate of change, dynamics indicators answer: "Is there a trend, and how strong is it?" Critical for filtering signals and avoiding whipsaws in ranging markets.
 
 ## Indicators

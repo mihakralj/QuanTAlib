@@ -1,5 +1,7 @@
 # MIDPOINT: Rolling Range Midpoint
 
+> *The center holds, but only for the window you're watching.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The center holds, but only for the window you're watching." — Statistical folk wisdom
 
 Single-series rolling midpoint: `(Highest(V, N) + Lowest(V, N)) * 0.5`. Returns the center of the value range within a lookback window. TA-Lib compatible (`MIDPOINT` function). Unlike MIDPRICE which operates on separate High/Low bar channels, MIDPOINT operates on a single value series.
 

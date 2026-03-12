@@ -1,5 +1,7 @@
 # TYPPRICE: Typical Price
 
+> *Typical price weights high, low, and close equally — a three-point summary that drops the open and keeps the essential.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -58,23 +60,6 @@ $O(1)$ per bar. One addition, one FMA. No memory allocation. Always hot after th
 ### Why Not Divide by 3?
 
 Division by a non-power-of-two constant is 4-5x more expensive than multiplication on modern x86 CPUs (~15 cycles vs ~3 cycles). Precomputing $\frac{1}{3}$ as a `const double` and multiplying eliminates the division entirely. The compiler constant-folds `1.0 / 3.0` to the IEEE 754 double `0x3FD5555555555555` at compile time, so the hot path sees only multiply/FMA operations.
-
-### Pseudo-code
-
-```text
-function TYPPRICE(bar):
-    const OneThird ← 1.0 / 3.0   // compile-time constant
-
-    o, h, l ← bar.Open, bar.High, bar.Low
-
-    // Substitute last-valid for non-finite inputs
-    if !finite(o): o ← lastValidOpen
-    if !finite(h): h ← lastValidHigh
-    if !finite(l): l ← lastValidLow
-
-    result ← FMA(o, OneThird, (h + l) × OneThird)
-    return result
-```
 
 ### Output Interpretation
 

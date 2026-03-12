@@ -1,5 +1,7 @@
 # JVOLTYN: Normalized Jurik Volatility
 
+> *When you need to compare apples to apples, normalize your volatility—0 is calm, 100 is chaos.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When you need to compare apples to apples, normalize your volatility—0 is calm, 100 is chaos."
 
 Normalized Jurik Volatility (JVOLTYN) maps the raw JVOLTY dynamic exponent to a 0-100 scale. While JVOLTY outputs values in the range [1, logParam] (where logParam is period-dependent), JVOLTYN transforms this to a universal scale where 0 represents minimum volatility and 100 represents maximum volatility. This normalization enables direct comparison across different periods and instruments.
 

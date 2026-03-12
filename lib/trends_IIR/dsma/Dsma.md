@@ -1,5 +1,7 @@
 # DSMA: Deviation-Scaled Moving Average
 
+> *When the market screams, DSMA sprints. When it whispers, DSMA crawls. An adaptive moving average that lets volatility dictate the pace.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When the market screams, DSMA sprints. When it whispers, DSMA crawls. An adaptive moving average that lets volatility dictate the pace."
 
 DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RMS-based deviation scaling. Unlike fixed-period moving averages that treat all market conditions identically, DSMA adjusts its responsiveness based on measured volatility—accelerating when trends are strong and decelerating when prices consolidate.
 

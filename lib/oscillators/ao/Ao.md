@@ -1,6 +1,6 @@
 # AO: Awesome Oscillator
 
-> "Awesome is a marketing term. The math is just a moving average crossover. But sometimes, simple is all you need." -- Bill Williams, paraphrased
+> *Awesome is a marketing term. The math is just a moving average crossover. But sometimes, simple is all you need.*
 
 | Property     | Value |
 |--------------|-------|

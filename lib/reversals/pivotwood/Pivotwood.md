@@ -1,5 +1,7 @@
 # PIVOTWOOD: Woodie's Pivot Points
 
+> *Woodie's pivots weight the close twice, tilting the pivot toward where the session actually settled.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |

@@ -1,5 +1,7 @@
 # PIVOTFIB: Fibonacci Pivot Points
 
+> *Fibonacci pivots project support and resistance from the golden ratio, blending numerology with price structure.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |

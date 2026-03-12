@@ -1,5 +1,7 @@
 # MAPD: Mean Absolute Percentage Deviation
 
+> *Like MAPE, but divides by what you predicted instead of what actually happened.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Like MAPE, but divides by what you predicted instead of what actually happened."
 
 Mean Absolute Percentage Deviation (MAPD) measures the average absolute percentage difference between actual and predicted values, using the predicted value as the denominator. This is the key difference from MAPE, which uses the actual value.
 

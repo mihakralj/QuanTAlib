@@ -1,7 +1,5 @@
 # Filters
 
-> "All moving averages are low-pass filters. The question is which trade-offs you accept."  John Ehlers
-
 Signal processing filters adapted for financial time series. These are not indicators in the traditional sense: they are building blocks. Low-pass removes noise. High-pass isolates cycles. Band-pass extracts specific frequencies. Each filter type trades off smoothness, lag, and overshoot differently.
 
 ## Indicators

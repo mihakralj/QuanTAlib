@@ -1,5 +1,7 @@
 # Huber: Huber Loss
 
+> *The Goldilocks of loss functions: not too sensitive, not too robust, just right.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Goldilocks of loss functions: not too sensitive, not too robust, just right."
 
 Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE). For small errors, it behaves quadratically like MSE; for large errors, it behaves linearly like MAE.
 

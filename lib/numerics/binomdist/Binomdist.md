@@ -1,5 +1,7 @@
 # BINOMDIST: Binomial Distribution CDF
 
+> *Binomial distribution CDF counts the probability of success in fixed trials — discrete probability at its most fundamental.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

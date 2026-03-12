@@ -1,5 +1,7 @@
 # WMA: Weighted Moving Average
 
+> *Because yesterday matters more than last Tuesday. WMA is the linear answer to the question: 'What have you done for me lately?'*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Because yesterday matters more than last Tuesday. WMA is the linear answer to the question: 'What have you done for me lately?'"
 
 The Weighted Moving Average (WMA) assigns a linearly decreasing weight to data points. The most recent price gets weight $N$, the one before it $N-1$, down to 1. This makes it more responsive to recent price changes than an SMA, but without the infinite tail of an EMA.
 

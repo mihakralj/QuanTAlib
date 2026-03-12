@@ -1,5 +1,7 @@
 # AROON: Aroon Indicator
 
+> *Aroon measures how recently the highest high and lowest low occurred — recency as a proxy for trend vitality.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -61,51 +63,6 @@ Range: $[-100, +100]$.
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 25 | $N \geq 1$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  highBuf = RingBuffer(period + 1)
-  lowBuf = RingBuffer(period + 1)
-  bar_count = 0
-
-On each bar (high, low, isNew):
-  if !isNew: restore previous state
-
-  highBuf.Add(high)
-  lowBuf.Add(low)
-  bar_count++
-
-  // Find index of highest high in buffer
-  maxIdx = 0
-  maxVal = -∞
-  for i = 0 to min(bar_count, period):
-    if highBuf[i] >= maxVal:
-      maxVal = highBuf[i]
-      maxIdx = i
-
-  // Find index of lowest low in buffer  
-  minIdx = 0
-  minVal = +∞
-  for i = 0 to min(bar_count, period):
-    if lowBuf[i] <= minVal:
-      minVal = lowBuf[i]
-      minIdx = i
-
-  len = min(bar_count, period)
-  barsSinceHigh = len - maxIdx
-  barsSinceLow = len - minIdx
-
-  AroonUp = (len - barsSinceHigh) / len × 100
-  AroonDown = (len - barsSinceLow) / len × 100
-  AroonOsc = AroonUp - AroonDown
-
-  output:
-    Up = AroonUp
-    Down = AroonDown
-    Oscillator = AroonOsc
-```
 
 ### Interpretation
 

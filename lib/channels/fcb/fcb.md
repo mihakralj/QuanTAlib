@@ -1,5 +1,7 @@
 # FCB: Fractal Chaos Bands
 
+> *Fractal chaos bands connect swing pivots into a channel, letting the market's own geometry define containment.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -73,27 +75,6 @@ Fractal detection is $O(1)$ (3 comparisons). Deque maintenance is $O(1)$ amortiz
 | Parameter | Description | Default | Constraint |
 |-----------|-------------|---------|------------|
 | `period` | Lookback window for highest/lowest fractal values | 20 | $> 0$ |
-
-### Pseudo-code
-
-```
-function FCB(high, low, period):
-    validate: period > 0
-
-    // 3-bar fractal detection (confirmed at current bar)
-    is_fractal_high = high[1] > high[2] AND high[1] > high[0]
-    is_fractal_low  = low[1]  < low[2]  AND low[1]  < low[0]
-
-    // Update persistent fractal values
-    if is_fractal_high: hi_fractal = high[1]
-    if is_fractal_low:  lo_fractal = low[1]
-
-    // Sliding window max/min via monotonic deques
-    upper = max(hi_fractal over period)  // deque-based
-    lower = min(lo_fractal over period)  // deque-based
-
-    return [upper, lower]
-```
 
 ### Output Interpretation
 

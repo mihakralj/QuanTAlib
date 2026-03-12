@@ -1,6 +1,6 @@
 # KRI: Kairi Relative Index
 
-> "The simplest measure of overextension is the oldest: how far has price strayed from its average? The Japanese knew this before anyone had a computer." -- Anonymous
+> *The simplest measure of overextension is the oldest: how far has price strayed from its average? The Japanese knew this before anyone had a computer.*
 
 | Property | Value |
 |----------|-------|

@@ -1,5 +1,7 @@
 # KCHANNEL: Keltner Channel
 
+> *Keltner wraps an EMA in ATR-scaled bands — a volatility envelope that responds to both trend and range.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -80,33 +82,6 @@ $O(1)$ per bar: one EMA update, one True Range computation, one RMA update, and 
 | Width | ATR | ATR | StdDev |
 | Gap sensitivity | Yes (via TR) | Yes (via TR) | No |
 | Distribution assumption | None | None | Gaussian |
-
-### Pseudo-code
-
-```
-function KCHANNEL(source, high, low, close, period, multiplier):
-    validate: period > 0, multiplier > 0
-
-    // EMA center line (with warmup compensation)
-    alpha = 2 / (period + 1)
-    raw_ema = alpha * source + (1-alpha) * raw_ema
-    weight  = alpha + (1-alpha) * weight
-    ema = raw_ema / weight
-
-    // ATR (Wilder's RMA with warmup)
-    tr = max(high - low, |high - prev_close|, |low - prev_close|)
-    prev_close = close
-    raw_rma = (raw_rma * (period-1) + tr) / period
-    e *= (1 - 1/period)
-    atr = e > ε ? raw_rma / (1-e) : raw_rma
-
-    // Bands
-    width = multiplier * atr
-    upper = ema + width
-    lower = ema - width
-
-    return [ema, upper, lower]
-```
 
 ### Output Interpretation
 

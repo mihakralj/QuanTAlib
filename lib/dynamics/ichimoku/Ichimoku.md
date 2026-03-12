@@ -1,5 +1,7 @@
 # ICHIMOKU: Ichimoku Kinko Hyo
 
+> *Five lines, one cloud, and a time-shifted perspective — Ichimoku maps support, resistance, and momentum in a single glance.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -80,44 +82,6 @@ Confirms trend by comparing current price to the price from 26 bars ago.
 | $N_k$ | kijunPeriod | 26 | 1 trading month |
 | $N_s$ | senkouBPeriod | 52 | 2 trading months |
 | $d$ | displacement | 26 | 1 trading month forward/back |
-
-### Pseudo-code
-
-```
-Initialize:
-  highBuf = RingBuffer(senkouBPeriod)  // covers all windows
-  lowBuf = RingBuffer(senkouBPeriod)
-  bar_count = 0
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state (including buffer snapshots)
-
-  highBuf.Add(high)
-  lowBuf.Add(low)
-  bar_count++
-
-  // Tenkan-sen (shortest window)
-  tenkan = (Max(highBuf, tenkanPeriod) + Min(lowBuf, tenkanPeriod)) / 2
-
-  // Kijun-sen (medium window)
-  kijun = (Max(highBuf, kijunPeriod) + Min(lowBuf, kijunPeriod)) / 2
-
-  // Senkou Span A (computed now, plotted displacement bars forward)
-  senkouA = (tenkan + kijun) / 2
-
-  // Senkou Span B (longest window, plotted displacement bars forward)
-  senkouB = (Max(highBuf, senkouBPeriod) + Min(lowBuf, senkouBPeriod)) / 2
-
-  // Chikou Span (current close, plotted displacement bars backward)
-  chikou = close
-
-  output:
-    Tenkan  = tenkan         // plot at current bar
-    Kijun   = kijun          // plot at current bar
-    SenkouA = senkouA        // plot at bar + displacement
-    SenkouB = senkouB        // plot at bar + displacement
-    Chikou  = chikou         // plot at bar - displacement
-```
 
 ### Cloud (Kumo) Interpretation
 

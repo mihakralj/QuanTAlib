@@ -1,6 +1,6 @@
 # KDJ: Enhanced Stochastic Oscillator
 
-> "K leads, D confirms, J exaggerates — three perspectives on momentum condensed into one indicator."
+> *K leads, D confirms, J exaggerates — three perspectives on momentum condensed into one indicator.*
 
 | Property | Value |
 |----------|-------|

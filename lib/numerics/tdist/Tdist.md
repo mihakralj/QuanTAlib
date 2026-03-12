@@ -1,5 +1,7 @@
 # TDIST: Student's t-Distribution CDF
 
+> *Student's t-distribution CDF handles small samples with heavier tails than the normal — uncertainty acknowledged in the shape itself.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

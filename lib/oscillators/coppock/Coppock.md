@@ -1,5 +1,7 @@
 # COPPOCK: Coppock Curve
 
+> *The Coppock Curve sums two rates of change through a weighted average, designed to spot the start of long-term bull markets.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

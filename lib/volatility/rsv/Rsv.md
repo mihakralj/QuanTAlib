@@ -1,5 +1,7 @@
 # RSV: Rogers-Satchell Volatility
 
+> *The best estimator is one that extracts maximum information from all available data while remaining robust to the noise of market microstructure.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The best estimator is one that extracts maximum information from all available data while remaining robust to the noise of market microstructure."
 
 Rogers-Satchell Volatility (RSV) is a drift-adjusted OHLC-based volatility estimator that uses all four price points (Open, High, Low, Close) to provide more accurate volatility estimates than simpler range-based methods. Developed by L.C.G. Rogers and S.E. Satchell in 1991, this estimator is unique in its ability to account for price drift, making it particularly suitable for trending markets. The implementation uses SMA smoothing and optional annualization.
 

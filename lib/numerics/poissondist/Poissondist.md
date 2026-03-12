@@ -1,5 +1,7 @@
 # POISSONDIST: Poisson Distribution CDF
 
+> *Poisson distribution CDF counts rare events in fixed intervals — the mathematics of arrivals, defaults, and surprises.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

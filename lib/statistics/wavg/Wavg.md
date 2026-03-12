@@ -1,5 +1,7 @@
 # WAVG: Weighted Average
 
+> *Weighted average assigns importance by position, giving recent or central observations a louder voice in the mean.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |

@@ -1,5 +1,7 @@
 # IMPULSE: Elder Impulse System
 
+> *The Impulse System identifies inflection points where a trend speeds up or slows down.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -14,8 +16,6 @@
 - Output range: Varies (see docs).
 - Requires `Math.Max(emaPeriod, macdSlow) + macdSignal - 1` bars (default 34) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Impulse System identifies inflection points where a trend speeds up or slows down." -- Alexander Elder, *Come Into My Trading Room*
 
 The Elder Impulse System combines a 13-period EMA (trend inertia) with the MACD(12,26,9) histogram (momentum acceleration) to classify each bar as bullish (+1), bearish (-1), or neutral (0). Both EMA slope and histogram slope must agree for a directional signal; disagreement forces neutral. The system functions as a permission filter rather than a signal generator, requiring 34 bars warmup and running at O(1) per bar through composition of two child indicators.
 
@@ -79,35 +79,6 @@ Both child indicators must be warmed up and at least two comparison values must 
 | macdFast | int | 12 | > 0 | MACD fast EMA period |
 | macdSlow | int | 26 | > macdFast | MACD slow EMA period |
 | macdSignal | int | 9 | > 0 | MACD signal smoothing period |
-
-### Pseudo-code
-
-```
-IMPULSE(close, emaPeriod=13, macdFast=12, macdSlow=26, macdSignal=9):
-
-  // Child indicator updates
-  ema_val     = EMA.Update(close, emaPeriod)
-  macd_result = MACD.Update(close, macdFast, macdSlow, macdSignal)
-  hist_val    = macd_result.Histogram
-
-  // Slope computation (requires previous values)
-  ema_slope  = sign(ema_val - prev_ema)
-  hist_slope = sign(hist_val - prev_hist)
-
-  // Classification
-  if ema_slope > 0 AND hist_slope > 0:
-    signal = +1          // Bullish: both inertia and momentum rising
-  else if ema_slope < 0 AND hist_slope < 0:
-    signal = -1          // Bearish: both inertia and momentum falling
-  else:
-    signal = 0           // Neutral: disagreement between components
-
-  // State update
-  prev_ema  = ema_val
-  prev_hist = hist_val
-
-  return signal
-```
 
 ### Derivative Interpretation
 

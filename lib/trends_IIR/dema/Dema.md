@@ -1,6 +1,6 @@
 # DEMA: Double Exponential Moving Average
 
-> "EMA is good. DEMA is better. It's like an EMA that drank a double espresso and stopped lagging behind the conversation."
+> *EMA is good. DEMA is better. It's like an EMA that drank a double espresso and stopped lagging behind the conversation.*
 
 ## Quick Reference
 

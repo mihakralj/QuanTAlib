@@ -1,5 +1,7 @@
 # VR: Volatility Ratio
 
+> *When today's range dwarfs the average, pay attention—the market is telling you something unusual is happening.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When today's range dwarfs the average, pay attention—the market is telling you something unusual is happening."
 
 Volatility Ratio (VR) measures the current bar's True Range relative to its Average True Range (ATR), providing a normalized indicator of short-term volatility expansion or contraction. Values above 1.0 indicate above-average volatility (potential breakouts), while values below 1.0 suggest below-average volatility (consolidation). This simple yet powerful ratio helps traders identify when markets are moving unusually, often preceding significant price moves.
 

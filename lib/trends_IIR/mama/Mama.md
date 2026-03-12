@@ -1,5 +1,7 @@
 # MAMA: Ehlers MESA Adaptive Moving Average
 
+> *John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility—it adapts to the phase of the market cycle. It's like having a GPS for your trend.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -17,8 +19,6 @@
 - Output range: Tracks input.
 - Requires `50` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility—it adapts to the phase of the market cycle. It's like having a GPS for your trend."
 
 MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of the market cycle. It produces two outputs: MAMA (the adaptive average) and FAMA (Following Adaptive Moving Average), which acts as a slower, confirming signal.
 

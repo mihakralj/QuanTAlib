@@ -1,5 +1,7 @@
 # GDEMA: Generalized Double Exponential Moving Average
 
+> *Patrick Mulloy created DEMA to cancel first-order lag. GDEMA adds a volume knob: turn it past 1 and you cancel more lag than Mulloy thought possible. Turn it to 0 and you are back to a plain EMA. The generalization is the point.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Patrick Mulloy created DEMA to cancel first-order lag. GDEMA adds a volume knob: turn it past 1 and you cancel more lag than Mulloy thought possible. Turn it to 0 and you are back to a plain EMA. The generalization is the point."
 
 GDEMA extends the standard DEMA (Double Exponential Moving Average) with a tunable gain factor $v$ that controls the aggressiveness of lag compensation. The formula $\text{GDEMA} = (1+v) \cdot \text{EMA}_1 - v \cdot \text{EMA}_2$ reduces to plain EMA when $v=0$, standard DEMA when $v=1$, and progressively more aggressive lag removal for $v>1$. This parametric flexibility allows traders to dial in the exact smoothness-responsiveness trade-off for their application, rather than being locked into DEMA's fixed 2:1 ratio.
 

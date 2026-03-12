@@ -1,5 +1,7 @@
 # ELLIPTIC: 2nd Order Elliptic Lowpass Filter
 
+> *If you want a vertical cliff, you have to accept a few bumps on the plateau.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "If you want a vertical cliff, you have to accept a few bumps on the plateau."
 
 The Elliptic filter (or Cauer filter for the history buffs) is the uncompromising extremist of linear filtering. It offers the steepest possible roll-off for a given order, but extracts a heavy price: ripple in both the passband and the stopband. While Butterworth is polite and Chebyshev is opinionated, Elliptic is aggressive. This implementation delivers a sharp 2nd-order Lowpass response with **1dB passband ripple** and a crushing **40dB stopband attenuation**.
 

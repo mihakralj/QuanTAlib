@@ -1,7 +1,5 @@
 # Volume
 
-> "It takes volume to make prices move." — Charles Dow
-
 Volume is market fuel. Price tells what happened; volume tells how hard the market worked to make it happen. In a world of algorithmic trading and dark pools, volume analysis reveals where money actually flows.
 
 | Indicator | Full Name | Description |

@@ -1,5 +1,7 @@
 # EXPDIST: Exponential Distribution CDF
 
+> *The exponential distribution models the time between events — memoryless waiting distilled into a single rate parameter.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

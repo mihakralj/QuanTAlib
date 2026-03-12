@@ -1,5 +1,7 @@
 # ALLIGATOR: Williams Alligator
 
+> *Three displaced moving averages form jaw, teeth, and lips — when they diverge the Alligator feeds, when they converge it sleeps.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -70,40 +72,6 @@ The offsets shift plotted values forward in time for display purposes only. The 
 | $O_t$ | teethOffset | 5 | $O_t \geq 0$ |
 | $N_l$ | lipsPeriod | 5 | $N_l \geq 1$ |
 | $O_l$ | lipsOffset | 3 | $O_l \geq 0$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  α_jaw = 1 / jawPeriod
-  α_teeth = 1 / teethPeriod
-  α_lips = 1 / lipsPeriod
-  jaw = teeth = lips = first source value
-  e_jaw = e_teeth = e_lips = 1.0   // bias compensation
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  source = (high + low + close) / 3.0
-
-  // SMMA updates with bias compensation
-  jaw = FMA(jaw, 1 - α_jaw, α_jaw × source)
-  e_jaw = e_jaw × (1 - α_jaw)
-  jaw_compensated = jaw / (1 - e_jaw)
-
-  teeth = FMA(teeth, 1 - α_teeth, α_teeth × source)
-  e_teeth = e_teeth × (1 - α_teeth)
-  teeth_compensated = teeth / (1 - e_teeth)
-
-  lips = FMA(lips, 1 - α_lips, α_lips × source)
-  e_lips = e_lips × (1 - α_lips)
-  lips_compensated = lips / (1 - e_lips)
-
-  output:
-    Jaw   = jaw_compensated   (plot at bar + jawOffset)
-    Teeth = teeth_compensated (plot at bar + teethOffset)
-    Lips  = lips_compensated  (plot at bar + lipsOffset)
-```
 
 ### Market Phase Detection
 

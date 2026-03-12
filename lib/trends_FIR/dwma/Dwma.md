@@ -1,5 +1,7 @@
 # DWMA: Double Weighted Moving Average
 
+> *If one WMA is good, two must be better. DWMA is for when you want your signal so smooth it looks like it's been sanded, polished, and waxed.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `(period * 2) - 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "If one WMA is good, two must be better. DWMA is for when you want your signal so smooth it looks like it's been sanded, polished, and waxed."
 
 DWMA (Double Weighted Moving Average) is exactly what it says on the tin: a Weighted Moving Average of a Weighted Moving Average. Unlike DEMA, which tries to *remove* lag, DWMA accepts lag as the price of admission for superior noise reduction. It produces a curve that is incredibly smooth, ideal for identifying long-term trends without getting faked out by market chop.
 

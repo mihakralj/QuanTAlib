@@ -1,5 +1,7 @@
 # TRENDFLEX: Ehlers Trendflex Indicator
 
+> *The trend is your friend until it bends.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The trend is your friend until it bends." — Ed Seykota, but Ehlers actually measures the bending.
 
 ## Introduction
 

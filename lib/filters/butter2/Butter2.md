@@ -1,5 +1,7 @@
 # BUTTER2: Ehlers 2-Pole Butterworth Filter
 
+> *Maximally flat frequency response in the passband.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `4 * period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Maximally flat frequency response in the passband."
 
 The 2-Pole Butterworth Filter (BUTTER2) is a signal processing tool designed to provide maximally flat frequency response in the passband. Developed by British engineer Stephen Butterworth in 1930, it offers traders a means to smooth price data without introducing ripples in the frequency response. This implementation provides a 2nd-order low-pass filter that effectively removes high-frequency market noise while preserving lower-frequency trend components. Compared to other filters, Butterworth offers an optimal compromise between smoothing efficiency and signal fidelity, making it a versatile choice for various market conditions.
 

@@ -1,6 +1,6 @@
 # STOCHRSI: Stochastic RSI Oscillator
 
-> "RSI tells you whether momentum is overbought. Stochastic RSI tells you whether RSI itself is overbought. It's turtles all the way down." -- Anonymous quant
+> *RSI tells you whether momentum is overbought. Stochastic RSI tells you whether RSI itself is overbought. It's turtles all the way down.*
 
 | Property | Value |
 |----------|-------|

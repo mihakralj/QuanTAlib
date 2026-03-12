@@ -1,5 +1,7 @@
 # BK: Baxter-King Band-Pass Filter
 
+> *The business cycle is whatever remains after you strip away the trend and the noise. Baxter and King figured out the stripping.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Oscillates around zero (extracts cyclical component).
 - Requires `2K+1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The business cycle is whatever remains after you strip away the trend and the noise. Baxter and King figured out the stripping."
 
 The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncating the infinite sinc-like impulse response at lag $K$ and normalizing the weights to sum to zero. It extracts cyclical components with periodicities between $p_L$ (low) and $p_H$ (high) bars, rejecting both the DC trend and high-frequency noise. Output oscillates around zero with a fixed delay of $K$ bars.
 

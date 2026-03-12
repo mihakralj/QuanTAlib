@@ -1,5 +1,7 @@
 # HLV: High-Low Volatility (Parkinson)
 
+> *The simplest solution is often the most elegant. When you only need the peaks and valleys, why ask for the whole journey?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest solution is often the most elegant. When you only need the peaks and valleys, why ask for the whole journey?"
 
 *Also known as: PV (Parkinson Volatility)*
 

@@ -1,5 +1,7 @@
 # MAAPE: Mean Arctangent Absolute Percentage Error
 
+> *When percentage errors need boundaries, arctangent provides the walls.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When percentage errors need boundaries, arctangent provides the walls."
 
 Mean Arctangent Absolute Percentage Error (MAAPE) transforms percentage errors through the arctangent function, naturally bounding the metric between 0 and π/2. This eliminates the unbounded nature of MAPE while preserving its scale-independence.
 

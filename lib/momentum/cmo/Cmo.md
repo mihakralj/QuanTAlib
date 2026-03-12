@@ -1,5 +1,7 @@
 # CMO (Chande Momentum Oscillator)
 
+> *Chande's momentum oscillator compares the sum of gains to the sum of losses, yielding a symmetric measure of directional force.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |

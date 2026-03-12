@@ -1,5 +1,7 @@
 # Covariance: Covariance
 
+> *Correlation is just covariance normalized by standard deviation. But sometimes you want the raw, unadulterated relationship.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Correlation is just covariance normalized by standard deviation. But sometimes you want the raw, unadulterated relationship."
 
 Covariance measures the joint variability of two random variables. It indicates the direction of the linear relationship between variables.
 

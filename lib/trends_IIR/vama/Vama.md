@@ -1,5 +1,7 @@
 # VAMA: Volatility Adjusted Moving Average
 
+> *The market doesn't care about your moving average period. VAMA returns the favor by not caring about a fixed period either.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The market doesn't care about your moving average period. VAMA returns the favor by not caring about a fixed period either."
 
 ## The Core Insight
 

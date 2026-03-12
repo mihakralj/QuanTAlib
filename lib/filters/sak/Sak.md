@@ -1,6 +1,6 @@
 # SAK: Swiss Army Knife
 
-> "Nine filters walk into a bar. The bartender says, 'What'll it be?' They answer in unison: 'Same equation, different coefficients.'"
+> *Nine filters walk into a bar. The bartender says, 'What'll it be?' They answer in unison: 'Same equation, different coefficients.'*
 
 SAK is John Ehlers' unified second-order IIR filter framework that collapses nine distinct filter types into a single difference equation. Change five coefficients and the same code path produces EMA, SMA, Gaussian, Butterworth, FIR smoother, high-pass, two-pole high-pass, band-pass, or band-stop output. One transfer function. Nine behaviors. Zero code duplication.
 

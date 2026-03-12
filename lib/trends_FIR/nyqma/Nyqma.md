@@ -1,5 +1,7 @@
 # NYQMA: Nyquist Moving Average
 
+> *Manfred Dürschner applied the Nyquist-Shannon sampling theorem to cascaded moving averages: the second smoothing period must not exceed half the first, or you get aliasing artifacts. Respect the theorem and the ghost signals disappear.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Manfred Dürschner applied the Nyquist-Shannon sampling theorem to cascaded moving averages: the second smoothing period must not exceed half the first, or you get aliasing artifacts. Respect the theorem and the ghost signals disappear."
 
 NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\text{NYQMA} = (1+\alpha) \cdot \text{MA}_1 - \alpha \cdot \text{MA}_2$, where $\alpha = N_2 / (N_1 - N_2)$. The Nyquist constraint $N_2 \leq \lfloor N_1/2 \rfloor$ ensures the second smoothing does not introduce aliasing artifacts into the output. This produces a lag-reduced moving average grounded in sampling theory rather than ad-hoc coefficient tuning. Streaming update is O(1) per bar via composed Wma instances; batch mode uses stackalloc/ArrayPool with FMA in the extrapolation loop.
 

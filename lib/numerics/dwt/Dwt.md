@@ -1,5 +1,7 @@
 # DWT: Discrete Wavelet Transform
 
+> *The discrete wavelet transform splits a signal into approximation and detail at each scale — multiresolution analysis in action.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

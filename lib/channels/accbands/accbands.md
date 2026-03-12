@@ -1,5 +1,7 @@
 # ACCBANDS: Acceleration Bands
 
+> *Acceleration bands widen with high-low range, framing the expected reach of each bar's ambition.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -62,26 +64,6 @@ Three independent circular buffers maintain running sums for $O(1)$ streaming up
 |-----------|-------------|---------|------------|
 | `period` | Lookback period for the three SMAs ($n$) | 20 | $> 0$ |
 | `factor` | Multiplier for normalized width ($F$) | 4.0 | $> 0$ |
-
-### Pseudo-code
-
-```
-function ACCBANDS(high, low, close, period, factor):
-    // Per-bar normalized width
-    denom = high + low
-    w = denom ≠ 0 ? (high - low) / denom : 0
-
-    // Adjusted prices
-    adj_high = high * (1 + factor * w)
-    adj_low  = low  * (1 - factor * w)
-
-    // Three independent SMAs
-    upper  = SMA(adj_high, period)
-    lower  = SMA(adj_low, period)
-    middle = SMA(close, period)
-
-    return [middle, upper, lower]
-```
 
 ### Breakout Rule (Headley)
 

@@ -1,5 +1,7 @@
 # VWAD: Volume Weighted Accumulation/Distribution
 
+> *The market's memory isn't just about price—it's about who showed up with conviction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The market's memory isn't just about price—it's about who showed up with conviction."
 
 Volume Weighted Accumulation/Distribution (VWAD) takes the classic ADL concept and asks a sharper question: not just "where did the close fall in the range?" but "how significant was this bar's volume compared to recent activity?"
 

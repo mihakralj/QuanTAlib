@@ -1,5 +1,7 @@
 # III: Intraday Intensity Index
 
+> *Where the close lands within the day's range tells you who won the battle—bulls or bears. Volume tells you how hard they fought.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Where the close lands within the day's range tells you who won the battle—bulls or bears. Volume tells you how hard they fought."
 
 The Intraday Intensity Index (III) measures buying and selling pressure by analyzing where the close price falls within the high-low range, weighted by volume. Originally developed by David Bostian, this indicator quantifies whether money is flowing into or out of a security on an intraday basis. Values range from -1 (close at low, maximum selling pressure) to +1 (close at high, maximum buying pressure), multiplied by volume for magnitude.
 

@@ -1,6 +1,6 @@
 # INERTIA: Inertia Oscillator
 
-> "Price tends to keep doing what it's been doing — until it doesn't. Inertia measures the gap between reality and the regression's expectations."
+> *Price tends to keep doing what it's been doing — until it doesn't. Inertia measures the gap between reality and the regression's expectations.*
 
 | Property | Value |
 |----------|-------|

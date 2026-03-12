@@ -1,6 +1,6 @@
 # PGO: Pretty Good Oscillator
 
-> "Good enough to trade, honest enough not to pretend otherwise."
+> *Good enough to trade, honest enough not to pretend otherwise.*
 
 | Property | Value |
 |----------|-------|

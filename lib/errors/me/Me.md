@@ -1,5 +1,7 @@
 # ME: Mean Error (Mean Bias Error)
 
+> *Sometimes you need to know not just how wrong you are, but which direction you're wrong in.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Sometimes you need to know not just how wrong you are, but which direction you're wrong in."
 
 Mean Error (ME), also known as Mean Bias Error, measures the average error between actual and predicted values while preserving the sign. Unlike MAE, ME reveals systematic bias in predictions: whether a model consistently over-predicts or under-predicts.
 

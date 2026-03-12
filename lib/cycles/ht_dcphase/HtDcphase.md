@@ -1,5 +1,7 @@
 # HT_DCPHASE: Ehlers Hilbert Transform Dominant Cycle Phase
 
+> *Dominant cycle phase tracks where price sits within its current cycle — the angular position of the market's heartbeat.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -63,38 +65,6 @@ $O(P)$ per bar where $P$ is the smoothed period (typically 6-50), due to the DFT
 | (none) | No user-configurable parameters | | |
 
 All internal constants are fixed by the TA-Lib specification.
-
-### Pseudo-code
-
-```
-function HT_DCPHASE(source):
-    // Same Hilbert cascade as HT_DCPERIOD
-    // ... (WMA smooth, Hilbert FIR, phasor, homodyne)
-    // Produces: smoothPeriod, smoothPriceBuf
-
-    for each bar (after warmup):
-        P ← round(smoothPeriod)
-
-        // DFT accumulation over dominant period
-        realPart ← 0; imagPart ← 0
-        for i = 0 to P-1:
-            realPart += sin(2π·i / P) · smoothPriceBuf[t - i]
-            imagPart += cos(2π·i / P) · smoothPriceBuf[t - i]
-
-        // Phase extraction
-        if |imagPart| > 0:
-            dcPhase ← atan(realPart / imagPart) · (180/π)
-        else:
-            dcPhase ← 90 · sign(realPart)
-
-        if imagPart > 0: dcPhase -= 180
-        dcPhase += 90
-
-        // Wrap to [-45, 315]
-        if dcPhase < -45: dcPhase += 360
-
-        emit dcPhase
-```
 
 ### Phase Quadrant Interpretation
 

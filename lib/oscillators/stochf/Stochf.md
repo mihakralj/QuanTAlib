@@ -1,6 +1,6 @@
 # STOCHF: Stochastic Fast Oscillator
 
-> "Speed kills in traffic. In markets, it merely whipsaws." -- Anonymous
+> *Speed kills in traffic. In markets, it merely whipsaws.*
 
 | Property | Value |
 |----------|-------|

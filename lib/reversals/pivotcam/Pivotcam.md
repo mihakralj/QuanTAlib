@@ -1,5 +1,7 @@
 # PIVOTCAM: Camarilla Pivot Points
 
+> *The Camarilla trader does not care where the market opens. The trader cares how far price strays from yesterday's close, and whether it returns.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Camarilla trader does not care where the market opens. The trader cares how far price strays from yesterday's close, and whether it returns."
 
 Camarilla Pivot Points calculate nine horizontal support and resistance levels from the previous bar's high, low, and close. Unlike classic floor trader pivots that radiate from the PP midpoint, Camarilla levels radiate symmetrically from the previous close using fixed fractions of the prior range. The R3/S3 levels serve as the primary mean-reversion zone; breakouts beyond R4/S4 signal trend continuation. Developed by Nick Scott in 1989 using bond market data, the equation was originally distributed as a shareware Excel plugin.
 

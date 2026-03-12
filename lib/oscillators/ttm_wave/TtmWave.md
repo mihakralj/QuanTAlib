@@ -1,6 +1,6 @@
 # TTM_WAVE: TTM Wave Indicator
 
-> "The market speaks in waves. Most traders only hear the ripples." -- John Carter
+> *The market speaks in waves. Most traders only hear the ripples.*
 
 | Property | Value |
 |----------|-------|

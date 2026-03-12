@@ -1,5 +1,7 @@
 # WAD: Williams Accumulation/Distribution
 
+> *Volume is the fuel that drives price.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume is the fuel that drives price." — Larry Williams
 
 Williams Accumulation/Distribution (WAD) is Larry Williams' contribution to the volume analysis toolkit. Unlike the standard Accumulation/Distribution Line that uses the close's position within the day's range, WAD incorporates **True Range** concepts. This gives it a different perspective on buying and selling pressure.
 

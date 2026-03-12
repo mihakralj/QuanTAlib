@@ -1,5 +1,7 @@
 # NVI: Negative Volume Index
 
+> *Low volume suggests smart money is at work; high volume days are for the crowd.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Low volume suggests smart money is at work; high volume days are for the crowd." — Norman Fosback
 
 The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day. The underlying theory: institutional investors—the "smart money"—prefer to accumulate or distribute positions during quiet, low-volume periods, while retail traders drive high-volume days with more emotional, less informed decisions.
 

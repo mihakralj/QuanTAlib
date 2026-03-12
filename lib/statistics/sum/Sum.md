@@ -1,5 +1,7 @@
 # Sum: Summation with Kahan-Babuška Algorithm
 
+> *The naive approach to summation assumes all digits matter equally. They don't. When you add 1e-10 to 1e10, that small value vanishes into the rounding noise. Kahan-Babuška tracks what got lost and adds it back later. It's bookkeeping for bits that would otherwise slip through the cracks.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The naive approach to summation assumes all digits matter equally. They don't. When you add 1e-10 to 1e10, that small value vanishes into the rounding noise. Kahan-Babuška tracks what got lost and adds it back later. It's bookkeeping for bits that would otherwise slip through the cracks."
 
 The Sum indicator calculates a rolling window summation using the Kahan-Babuška algorithm (also known as "improved Kahan" or "second-order compensated summation") for maximum numerical precision. This approach captures rounding errors that even classic Kahan summation misses, making it suitable for numerical libraries, statistics, and trading applications where precision matters.
 

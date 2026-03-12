@@ -1,5 +1,7 @@
 # JVOLTY: Jurik Volatility
 
+> *The volatility measure that ignores the noise—because sometimes, the best signal comes from knowing what to throw away.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The volatility measure that ignores the noise—because sometimes, the best signal comes from knowing what to throw away."
 
 Jurik Volatility (JVOLTY) is the adaptive volatility component extracted from Mark Jurik's JMA algorithm. Unlike traditional volatility measures that treat all price movements equally, JVOLTY uses a 128-bar trimmed mean distribution to compute a robust volatility reference that rejects outliers by design. The result: a volatility measure that remains stable during flash crashes, earnings surprises, and 5-sigma events while still tracking genuine regime changes.
 

@@ -1,5 +1,7 @@
 # SQUEEZE: Squeeze Momentum
 
+> *Squeeze momentum detects compression inside Bollinger-Keltner overlap and then measures the explosive release when bands expand.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

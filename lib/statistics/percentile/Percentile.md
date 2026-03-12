@@ -1,5 +1,7 @@
 # PERCENTILE: Rolling Percentile
 
+> *There are three kinds of lies: lies, damned lies, and statistics.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "There are three kinds of lies: lies, damned lies, and statistics." — Mark Twain.
 
 > But percentiles, at least, tell you exactly where you stand.
 

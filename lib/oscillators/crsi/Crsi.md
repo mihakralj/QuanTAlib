@@ -1,5 +1,7 @@
 # CRSI: Connors RSI
 
+> *Connors RSI blends classic RSI with streak length and percentile rank, creating a multi-dimensional momentum snapshot.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

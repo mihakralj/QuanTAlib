@@ -1,5 +1,7 @@
 # CV: Conditional Volatility (GARCH(1,1))
 
+> *Volatility begets volatility—the GARCH model captures what traders have always known: calm markets stay calm, turbulent markets stay turbulent.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volatility begets volatility—the GARCH model captures what traders have always known: calm markets stay calm, turbulent markets stay turbulent."
 
 Conditional Volatility (CV) implements the GARCH(1,1) model for volatility forecasting, the most widely used time-varying volatility model in financial econometrics. Unlike simple historical volatility measures, GARCH captures two key empirical features of financial returns: volatility clustering (large moves tend to follow large moves) and mean reversion (volatility eventually returns to a long-run average). The output is annualized volatility expressed as a percentage.
 

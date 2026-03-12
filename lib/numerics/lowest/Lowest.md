@@ -1,5 +1,7 @@
 # LOWEST: Rolling Minimum
 
+> *Know your floor. Support levels are just historical minimums waiting to be tested.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Know your floor. Support levels are just historical minimums waiting to be tested."
 
 LOWEST calculates the minimum value over a rolling lookback window. This O(1) amortized streaming implementation uses a monotonic deque algorithm, enabling real-time updates without re-scanning the entire window. Validated against TA-Lib MIN and Tulip min functions.
 

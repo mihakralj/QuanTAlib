@@ -1,5 +1,7 @@
 # AMAT: Archer Moving Averages Trends
 
+> *Archer's moving average trends compare fast and slow averages, signaling when short-term momentum confirms the longer-term direction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -62,52 +64,6 @@ $$\text{Strength}_t = \frac{|\text{Fast}_t - \text{Slow}_t|}{\text{Slow}_t} \tim
 |--------|-----------|---------|------------|
 | $N_f$ | fastPeriod | 10 | $N_f \geq 1$ |
 | $N_s$ | slowPeriod | 50 | $N_s > N_f$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  α_fast = 2 / (fastPeriod + 1)
-  α_slow = 2 / (slowPeriod + 1)
-  ema_fast = ema_slow = 0
-  e_fast = e_slow = 1.0
-  prev_fast = prev_slow = 0
-  bar_count = 0
-
-On each bar (price, isNew):
-  if !isNew: restore previous state
-
-  // EMA updates
-  ema_fast = FMA(ema_fast, 1 - α_fast, α_fast × price)
-  e_fast = e_fast × (1 - α_fast)
-  fast = ema_fast / (1 - e_fast)
-
-  ema_slow = FMA(ema_slow, 1 - α_slow, α_slow × price)
-  e_slow = e_slow × (1 - α_slow)
-  slow = ema_slow / (1 - e_slow)
-
-  // Direction detection
-  fastDir = fast > prev_fast ? +1 : fast < prev_fast ? -1 : 0
-  slowDir = slow > prev_slow ? +1 : slow < prev_slow ? -1 : 0
-
-  // Triple-confirmation
-  if fast > slow AND fastDir == +1 AND slowDir == +1:
-    trend = +1
-  else if fast < slow AND fastDir == -1 AND slowDir == -1:
-    trend = -1
-  else:
-    trend = 0
-
-  // Strength
-  strength = slow > 0 ? |fast - slow| / slow × 100 : 0
-
-  prev_fast = fast
-  prev_slow = slow
-
-  output:
-    Trend = trend       // +1, -1, or 0
-    Strength = strength  // percentage
-```
 
 ### Period Selection Guidelines
 

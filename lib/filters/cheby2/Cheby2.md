@@ -1,5 +1,7 @@
 # CHEBY2 (Chebyshev Type II / Inverse Chebyshev)
 
+> *Chebyshev Type II pushes the ripple into the stopband, keeping the passband flat while still achieving a steep transition.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

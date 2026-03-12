@@ -99,7 +99,7 @@
       padding-bottom: 0.3em;
     }
 
-    .markdown-section h2, 
+    .markdown-section h2,
     .markdown-section h3,
     .markdown-section h4,
     .markdown-section h5,
@@ -111,6 +111,10 @@
     .markdown-section h2 {
       border-bottom: 1px solid #21262d;
       padding-bottom: 0.3em;
+    }
+
+    .markdown-section h3 {
+      font-size: 1.3em;
     }
 
     .markdown-section p,
@@ -196,8 +200,10 @@
     }
 
     /* Pine Script syntax highlighting — GitHub dark palette */
+    .token.comment,
+    .token.block-comment,
     .token.doctype,
-    .token.annotation { color: #8b949e; font-style: italic; }
+    .token.annotation { color: green; }
     .token.type-definition { color: #79c0ff; }
     .token.class-name { color: #d2a8ff; }
     .token.constant { color: #ffa657; }

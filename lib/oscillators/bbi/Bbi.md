@@ -1,5 +1,7 @@
 # BBI: Bulls Bears Index
 
+> *Average four moving averages of doubling periods and you get a single line that votes on whether bulls or bears own the tape. It is a committee of trends, each watching a different time horizon, forced to agree on one number.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `Math.Max(Math.Max(p1, p2), Math.Max(p3, p4))` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Average four moving averages of doubling periods and you get a single line that votes on whether bulls or bears own the tape. It is a committee of trends, each watching a different time horizon, forced to agree on one number."
 
 BBI (Bulls Bears Index) computes the arithmetic mean of four Simple Moving Averages with geometrically spaced periods (3, 6, 12, 24 by default). The result is a price-overlay line that captures trend consensus across ultra-short, short, medium, and long timeframes simultaneously. Price above BBI signals bullish dominance; price below BBI signals bearish control. The crossover point marks the regime boundary between long and short markets.
 

@@ -1,5 +1,7 @@
 # SDCHANNEL: Standard Deviation Channel
 
+> *Standard deviation channels center on a moving average and let dispersion define the expected range.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -96,44 +98,6 @@ D = n \sum i^2 - \left(\sum i\right)^2
 $$
 
 For $n \geq 2$, $D > 0$ always holds, so the slope denominator is never zero.
-
-### Pseudo-code
-
-```
-function sdchannel(source[], period, multiplier):
-    buf = ring_buffer(period)
-    sum_x  = period * (period - 1) / 2
-    sum_x2 = period * (period - 1) * (2 * period - 1) / 6
-    denom  = period * sum_x2 - sum_x * sum_x
-
-    for each bar t:
-        buf.add(source[t])
-        n = buf.count
-
-        // pass 1: regression coefficients
-        sum_y = 0, sum_xy = 0
-        for i = 0 to n-1:
-            y = buf[i]
-            sum_y  += y
-            sum_xy += i * y
-
-        slope     = (n * sum_xy - sum_x * sum_y) / denom
-        intercept = (sum_y - slope * sum_x) / n
-        middle    = slope * (n - 1) + intercept
-
-        // pass 2: residual standard deviation
-        ssr = 0
-        for i = 0 to n-1:
-            predicted = slope * i + intercept
-            residual  = buf[i] - predicted
-            ssr += residual * residual
-
-        stddev = sqrt(ssr / n)
-        upper  = middle + multiplier * stddev
-        lower  = middle - multiplier * stddev
-
-        emit (upper, middle, lower)
-```
 
 ### Slope Interpretation
 

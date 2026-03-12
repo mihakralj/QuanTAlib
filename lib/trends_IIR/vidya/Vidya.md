@@ -1,5 +1,7 @@
 # VIDYA: Variable Index Dynamic Average
 
+> *Tushar Chande asked: 'Why should I trust a moving average that treats a market crash the same as a lunch break?' VIDYA is the answer.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Tushar Chande asked: 'Why should I trust a moving average that treats a market crash the same as a lunch break?' VIDYA is the answer."
 
 The Variable Index Dynamic Average (VIDYA) is an adaptive moving average that automatically adjusts its smoothing speed based on market volatility. When the market is trending (high volatility), VIDYA speeds up to capture the move. When the market is ranging (low volatility), it slows down to filter out the noise.
 

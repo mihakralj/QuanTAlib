@@ -1,5 +1,7 @@
 # KVO: Klinger Volume Oscillator
 
+> *Volume is the fuel that drives the market train.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume is the fuel that drives the market train."
 
 The Klinger Volume Oscillator (KVO), developed by Stephen Klinger in the 1970s, measures the long-term trend of money flow while remaining sensitive to short-term fluctuations. Unlike simple volume indicators, KVO incorporates price direction and range into its volume analysis, creating a comprehensive measure of buying and selling pressure that can identify divergences before they appear in price action.
 

@@ -1,5 +1,7 @@
 # QUANTILE: Rolling Quantile
 
+> *The quantile function is the inverse of the distribution function.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The quantile function is the inverse of the distribution function." — Every probability textbook ever written, and yet somehow it still surprises people.
 
 ## Introduction
 

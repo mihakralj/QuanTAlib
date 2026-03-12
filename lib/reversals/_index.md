@@ -1,7 +1,5 @@
 # Reversals
 
-> "The market speaks in reversals. The art is hearing it above the noise."
-
 Reversal indicators identify potential turning points where price may change direction. Pivot points calculate support/resistance from prior period data. Pattern-based tools detect structural shifts in price action.
 
 | Indicator | Full Name | Description |

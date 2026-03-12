@@ -1,5 +1,7 @@
 # ZLEMA: Zero-Lag Exponential Moving Average
 
+> *ZLEMA does not erase lag. It predicts just enough to act early, then pays the price in overshoot.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "ZLEMA does not erase lag. It predicts just enough to act early, then pays the price in overshoot."
 
 ## EMA with lag compensation via a zero-lag signal
 

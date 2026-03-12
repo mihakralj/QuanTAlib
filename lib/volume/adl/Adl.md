@@ -1,5 +1,7 @@
 # ADL: Accumulation/Distribution Line
 
+> *Volume precedes price.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume precedes price." — Old Wall Street Adage
 
 The Accumulation/Distribution Line (ADL) is the bedrock of volume analysis. It attempts to answer a single, vital question: "Are the big players buying or selling?"
 

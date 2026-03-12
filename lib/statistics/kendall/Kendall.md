@@ -1,6 +1,6 @@
 # KENDALL: Kendall Tau-a Rank Correlation Coefficient
 
-> "The rank is the message." -- adapted from Marshall McLuhan
+> *The rank is the message.*
 
 <!-- QUICK REFERENCE CARD (scan in 5 seconds) -->
 

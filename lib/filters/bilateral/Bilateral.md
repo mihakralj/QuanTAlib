@@ -1,5 +1,7 @@
 # Bilateral Filter
 
+> *Smoothing without blurring edges? It's not magic, it's just math.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Smoothing without blurring edges? It's not magic, it's just math."
 
 The Bilateral Filter is a non-linear, edge-preserving, and noise-reducing smoothing filter. Unlike standard Gaussian filters that blur everything indiscriminately, the Bilateral Filter respects strong edges by weighting pixels based on both their spatial distance and their intensity difference (range).
 

@@ -1,5 +1,7 @@
 # VO: Volume Oscillator
 
+> *Volume tells us the conviction behind price moves—the oscillator reveals when that conviction is accelerating or fading.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume tells us the conviction behind price moves—the oscillator reveals when that conviction is accelerating or fading."
 
 The Volume Oscillator (VO) measures the difference between two moving averages of volume, expressed as a percentage. It helps identify changes in volume trends and potential momentum shifts by comparing short-term volume activity against longer-term volume norms.
 

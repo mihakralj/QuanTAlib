@@ -1,5 +1,7 @@
 # MACD: Moving Average Convergence Divergence
 
+> *The trend is your friend, until it bends.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `Max(fast, slow) + signal - 2` bars (33 default) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The trend is your friend, until it bends." — Ed Seykota
 
 The Moving Average Convergence Divergence measures momentum through the relationship between two exponential moving averages. Created by Gerald Appel in 1979, the indicator transforms price into a bounded oscillator that reveals trend strength, direction, and potential reversals. Standard parameters (12, 26, 9) detect monthly and biweekly cycles: the 26-period represents roughly one trading month, the 12-period half that duration.
 

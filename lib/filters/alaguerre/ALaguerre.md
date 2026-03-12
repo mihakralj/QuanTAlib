@@ -1,5 +1,7 @@
 # ALAGUERRE: Ehlers Adaptive Laguerre Filter
 
+> *The best filter is one that knows when to listen closely and when to smooth aggressively.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `max(4, length)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The best filter is one that knows when to listen closely and when to smooth aggressively." -- John F. Ehlers (paraphrased)
 
 ## Introduction
 

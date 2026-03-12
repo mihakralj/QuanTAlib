@@ -1,5 +1,7 @@
 # SKEW: Skewness
 
+> *In the land of the blind, the one-eyed man is king. In the land of the normal distribution, the skewed man is profitable.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "In the land of the blind, the one-eyed man is king. In the land of the normal distribution, the skewed man is profitable."
 
 Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean. It tells you where the "tail" of the distribution is.
 

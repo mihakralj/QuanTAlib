@@ -1,5 +1,7 @@
 # DEM: DeMarker Oscillator
 
+> *The trend is your friend — right up until DeMark starts counting against it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The trend is your friend — right up until DeMark starts counting against it."
 
 DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures sequential demand pressure by comparing each bar's high and low against the previous bar's high and low. It isolates bullish demand momentum in the numerator and bearish supply pressure in the denominator, then normalizes their ratio with SMA smoothing over a configurable period. Values near 0.7 signal overbought exhaustion; values near 0.3 signal oversold exhaustion. Neither external library in common use (TA-Lib, Skender, Tulip, Ooples) implements DeMarker, so self-consistency tests against batch/streaming/span modes serve as the primary validation.
 

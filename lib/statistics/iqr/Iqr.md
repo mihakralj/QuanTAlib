@@ -1,5 +1,7 @@
 # IQR: Interquartile Range
 
+> *The median is the most important statistic, and the interquartile range is the second most important.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The median is the most important statistic, and the interquartile range is the second most important." — John Tukey
 
 ## Introduction
 

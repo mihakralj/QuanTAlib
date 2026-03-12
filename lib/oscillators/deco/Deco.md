@@ -1,5 +1,7 @@
 # DECO: Ehlers Decycler Oscillator
 
+> *Ehlers' decycler oscillator removes the trend and isolates residual oscillation — what remains when the drift is subtracted.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

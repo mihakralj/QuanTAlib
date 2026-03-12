@@ -1,5 +1,7 @@
 # SSF2: Ehlers 2-Pole Super Smoother Filter
 
+> *Noise is the enemy of the trend follower. The Super Smooth Filter is the silencer.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Noise is the enemy of the trend follower. The Super Smooth Filter is the silencer."
 
 The 2-Pole Super Smooth Filter (SSF2) is a 2-pole Butterworth filter designed by John Ehlers. It offers superior noise reduction compared to standard moving averages while maintaining minimal lag. By using complex conjugate poles, it achieves a "maximally flat" response in the passband, meaning it preserves the trend signal with high fidelity while aggressively suppressing high-frequency noise.
 

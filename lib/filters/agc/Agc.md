@@ -1,5 +1,7 @@
 # AGC: Ehlers Automatic Gain Control
 
+> *The purpose of the AGC is to normalize the amplitude of any indicator to unity.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: [-1, +1] (normalized amplitude).
 - Requires `1` bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The purpose of the AGC is to normalize the amplitude of any indicator to unity." — John F. Ehlers, TASC January 2015
 
 ## Introduction
 

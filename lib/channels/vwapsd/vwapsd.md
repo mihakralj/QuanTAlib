@@ -1,5 +1,7 @@
 # VWAPSD: VWAP with Standard Deviation Bands
 
+> *Standard deviation bands around VWAP measure institutional consensus — proximity signals fair value, distance signals opportunity.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -83,40 +85,6 @@ Streaming: $O(1)$ per bar. Three additions to running sums, one division, one sq
 | Symbol | Name | Default | Constraint | Description |
 |--------|------|---------|------------|-------------|
 | $k$ | numDevs | 2.0 | $0.1$ – $5.0$ | Number of standard deviations for bands |
-
-### Pseudo-code
-
-```
-function vwapsd(source[], volume[], reset[], numDevs):
-    sum_pv = 0, sum_vol = 0, sum_pv2 = 0
-
-    for each bar t:
-        price = source[t]
-        vol   = volume[t]
-
-        if reset[t]:
-            if vol > 0:
-                sum_pv  = price * vol
-                sum_vol = vol
-                sum_pv2 = price * price * vol
-            else:
-                sum_pv = 0, sum_vol = 0, sum_pv2 = 0
-        else:
-            if vol > 0:
-                sum_pv  += price * vol
-                sum_vol += vol
-                sum_pv2 += price * price * vol
-
-        vwap = sum_vol > 0 ? sum_pv / sum_vol : price
-
-        variance = sum_vol > 0 ? sum_pv2 / sum_vol - vwap * vwap : 0
-        stddev = sqrt(max(0, variance))
-
-        upper = vwap + numDevs * stddev
-        lower = vwap - numDevs * stddev
-
-        emit (vwap, upper, lower)
-```
 
 ### VWAPSD vs VWAPBANDS
 

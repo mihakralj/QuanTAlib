@@ -1,5 +1,7 @@
 # TR: True Range
 
+> *The true measure of volatility isn't just where price traveled within the bar, but whether it leaped from where it was.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The true measure of volatility isn't just where price traveled within the bar, but whether it leaped from where it was."
 
 True Range (TR) is a volatility measure that captures the maximum price movement for each bar, including any gap from the previous close. Developed by J. Welles Wilder Jr. in 1978, TR forms the foundation for Average True Range (ATR) and numerous other volatility-based indicators. Unlike simple High-Low range, TR accounts for overnight gaps and opening jumps, providing a complete picture of price movement.
 

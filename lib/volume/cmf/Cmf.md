@@ -1,5 +1,7 @@
 # CMF: Chaikin Money Flow
 
+> *Money flow tells you what the big players are doing. CMF tells you if they're winning.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Money flow tells you what the big players are doing. CMF tells you if they're winning." — Marc Chaikin
 
 Chaikin Money Flow (CMF) is the normalized cousin of the Accumulation/Distribution Line. While ADL is cumulative and unbounded, CMF oscillates between -1 and +1, measuring the persistence of buying or selling pressure over a rolling window.
 

@@ -1,5 +1,7 @@
 # CHOP: Choppiness Index
 
+> *Choppiness index quantifies how range-bound a market is — high values mean sideways, low values mean trending.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -55,50 +57,6 @@ The denominator $\log_{10}(N)$ normalizes the output so that the theoretical max
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 14 | $N \geq 2$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  trBuf = RingBuffer(period)
-  highBuf = RingBuffer(period)
-  lowBuf = RingBuffer(period)
-  trSum = 0
-  prevClose = NaN
-  logPeriod = log10(period)
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  // True Range
-  if prevClose is valid:
-    TR = max(high - low, |high - prevClose|, |low - prevClose|)
-  else:
-    TR = high - low
-
-  // Rolling sum update
-  if trBuf is full:
-    trSum -= trBuf.Oldest
-  trBuf.Add(TR)
-  trSum += TR
-
-  highBuf.Add(high)
-  lowBuf.Add(low)
-
-  // Channel width
-  maxHigh = Max(highBuf)
-  minLow = Min(lowBuf)
-  channel = maxHigh - minLow
-
-  // Choppiness Index
-  if channel > 0 AND trSum > 0:
-    CHOP = 100 × log10(trSum / channel) / logPeriod
-  else:
-    CHOP = 50  // neutral fallback
-
-  prevClose = close
-  output = Clamp(CHOP, 0, 100)
-```
 
 ### Interpretation
 

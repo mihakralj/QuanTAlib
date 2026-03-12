@@ -1,5 +1,7 @@
 # PRS: Price Relative Strength
 
+> *Price relative strength ratios two instruments, revealing which one leads and which one lags in the race.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |

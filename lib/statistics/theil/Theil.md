@@ -1,5 +1,7 @@
 # THEIL: Theil's T Index
 
+> *The only useful measure of inequality is one that tells you how much redistribution would make everyone equally well off.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The only useful measure of inequality is one that tells you how much redistribution would make everyone equally well off." — Henri Theil
 
 ## Introduction
 

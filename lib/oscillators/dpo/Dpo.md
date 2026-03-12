@@ -1,6 +1,6 @@
 # DPO: Detrended Price Oscillator
 
-> "Strip the trend and what remains is the cycle." — William Blau
+> *Strip the trend and what remains is the cycle.*
 
 | Property | Value |
 |----------|-------|

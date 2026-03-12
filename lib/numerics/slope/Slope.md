@@ -1,5 +1,7 @@
 # SLOPE: First Derivative (Velocity)
 
+> *The simplest measure of change reveals the most: is it going up, or going down?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest measure of change reveals the most: is it going up, or going down?"
 
 SLOPE measures the instantaneous rate of change—the velocity of a time series. As the first derivative, it answers the fundamental question: how fast is the value changing right now? A positive slope means ascending; negative means descending; zero means flat. This O(1) streaming implementation uses SIMD optimization for batch calculations and handles bar corrections via state rollback.
 

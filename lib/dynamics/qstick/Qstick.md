@@ -1,5 +1,7 @@
 # QSTICK: Qstick Indicator
 
+> *The average candlestick body reveals the market's true conviction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The average candlestick body reveals the market's true conviction."
 
 The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying whether bars are predominantly bullish or bearish. Positive values indicate closes above opens (buying pressure); negative values indicate closes below opens (selling pressure). It supports both SMA (O(N) space via ring buffer) and EMA (O(1) space) smoothing modes and requires TBar input for open/close access.
 
@@ -60,33 +60,6 @@ EMA mode uses O(1) space but weights recent bars more heavily than SMA.
 |:----------|:-----|:--------|:-----------|:------------|
 | period | int | 14 | > 0 | Lookback period for moving average |
 | useEma | bool | false | — | Use EMA (true) or SMA (false) |
-
-### Pseudo-code
-
-```
-QSTICK(bar, period=14, useEma=false):
-
-  diff = bar.Close - bar.Open
-
-  if useEma:
-    // EMA mode
-    alpha = 2.0 / (period + 1)
-    if count == 0:
-      ema_val = diff
-    else:
-      ema_val = FMA(alpha, diff - ema_val, ema_val)   // alpha*(diff-ema)+ema
-    result = ema_val
-
-  else:
-    // SMA mode with ring buffer
-    if buffer is full:
-      running_sum -= buffer.oldest
-    buffer.add(diff)
-    running_sum += diff
-    result = running_sum / min(count, period)
-
-  return result
-```
 
 ### Zero-Crossing Interpretation
 

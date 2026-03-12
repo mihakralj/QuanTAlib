@@ -1,5 +1,7 @@
 # BLMA: Blackman Window Moving Average
 
+> *If you want to filter noise, don't just average it - window it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "If you want to filter noise, don't just average it - window it."
 
 The Blackman Window Moving Average (BLMA) applies a triple-cosine window function from digital signal processing to financial time series. Originally developed by **Ralph Beebe Blackman** at Bell Labs in the 1950s for spectral analysis, this filter provides superior noise suppression compared to standard moving averages by minimizing spectral leakage.
 

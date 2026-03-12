@@ -1,6 +1,6 @@
 # FISHER: Ehlers Fisher Transform
 
-> "The Fisher Transform turns price into a well-behaved Gaussian — because sometimes, the best way to see a reversal is to force the data to confess."
+> *The Fisher Transform turns price into a well-behaved Gaussian — because sometimes, the best way to see a reversal is to force the data to confess.*
 
 | Property | Value |
 |----------|-------|

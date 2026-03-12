@@ -1,5 +1,7 @@
 # ROCP: Rate of Change Percentage
 
+> *The percentage form of momentum: by what percent has price changed? The most intuitive momentum measure.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The percentage form of momentum: by what percent has price changed? The most intuitive momentum measure."
 
 ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago. This is the most commonly used form of rate of change, expressing change in percentage terms that are directly interpretable (e.g., 5.0 = 5% increase).
 

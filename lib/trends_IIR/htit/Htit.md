@@ -1,5 +1,7 @@
 # HTIT: Ehlers Hilbert Transform Instantaneous Trend (also known as HT_TRENDLINE)
 
+> *John Ehlers brought rocket science to trading. Literally. HTIT uses signal processing to find the trend by removing the cycle. It's not smoothing; it's extraction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -17,8 +19,6 @@
 - Output range: Tracks input.
 - Requires `12` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "John Ehlers brought rocket science to trading. Literally. HTIT uses signal processing to find the trend by removing the cycle. It's not smoothing; it's extraction."
 
 HTIT (Hilbert Transform Instantaneous Trend) is a trend-following indicator that doesn't rely on simple averaging. Instead, it uses the Hilbert Transform to measure the dominant cycle period of the market and then computes a trendline that filters out that specific cycle. It adapts to the market's rhythm rather than imposing a fixed period.
 

@@ -1,5 +1,7 @@
 # BWMA: Bessel-Weighted Moving Average
 
+> *The Bessel function appears in problems involving cylindrical symmetry—heat flow in pipes, vibration of drumheads, and apparently, the smoothing of financial time series. Mathematics doesn't care about your asset class.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Bessel function appears in problems involving cylindrical symmetry—heat flow in pipes, vibration of drumheads, and apparently, the smoothing of financial time series. Mathematics doesn't care about your asset class."
 
 BWMA is a Finite Impulse Response (FIR) filter that applies a Bessel-derived window function to weight price data. The weighting follows a parabolic (or higher-order polynomial) profile that emphasizes the center of the lookback window while smoothly tapering to zero at the edges. Unlike rectangular (SMA) or exponential (EMA) weighting, BWMA provides a mathematically smooth transition that reduces spectral leakage and Gibbs phenomenon artifacts.
 

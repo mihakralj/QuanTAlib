@@ -1,5 +1,7 @@
 # QQE: Quantitative Qualitative Estimation
 
+> *QQE smooths RSI and wraps it in dynamic trailing bands, quantifying both the quality and magnitude of momentum.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

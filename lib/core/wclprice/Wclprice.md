@@ -1,5 +1,7 @@
 # WCLPRICE: Weighted Close Price
 
+> *Weighted close doubles the closing price's vote, acknowledging that where a bar ends matters most.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -65,21 +67,6 @@ $O(1)$ per bar. One addition, one FMA. No memory allocation. Always hot after th
 | MEDPRICE | 0% | 50% | 50% | 0% |
 | TYPPRICE | 0% | 33.3% | 33.3% | 33.3% |
 | **WCLPRICE** | **0%** | **25%** | **25%** | **50%** |
-
-### Pseudo-code
-
-```
-function WCLPRICE(bar):
-    h, l, c ← bar.High, bar.Low, bar.Close
-
-    // Substitute last-valid for non-finite inputs
-    if !finite(h): h ← lastValidHigh
-    if !finite(l): l ← lastValidLow
-    if !finite(c): c ← lastValidClose
-
-    result ← FMA(c, 0.5, (h + l) × 0.25)
-    return result
-```
 
 ### Output Interpretation
 

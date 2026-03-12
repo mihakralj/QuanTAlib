@@ -1,5 +1,7 @@
 # DX: Directional Movement Index
 
+> *Directional movement captures the difference between positive and negative thrust, normalized by true range.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -71,49 +73,6 @@ When $+DI + (-DI) = 0$ (no directional movement), DX = 0.
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 14 | $N \geq 2$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  α = 1 / period
-  smoothPlusDM = smoothMinusDM = smoothTR = 0
-  prevHigh = prevLow = prevClose = NaN
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  // True Range
-  TR = max(high - low, |high - prevClose|, |low - prevClose|)
-
-  upMove = high - prevHigh
-  downMove = prevLow - low
-
-  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
-  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
-
-  // Wilder smoothing
-  smoothPlusDM = FMA(smoothPlusDM, 1 - α, α × +DM)
-  smoothMinusDM = FMA(smoothMinusDM, 1 - α, α × -DM)
-  smoothTR = FMA(smoothTR, 1 - α, α × TR)
-
-  // Directional Indicators
-  +DI = smoothTR > 0 ? 100 × smoothPlusDM / smoothTR : 0
-  -DI = smoothTR > 0 ? 100 × smoothMinusDM / smoothTR : 0
-
-  // DX (raw, no final RMA)
-  diSum = +DI + -DI
-  DX = diSum > 0 ? 100 × |+DI - -DI| / diSum : 0
-
-  prevHigh = high
-  prevLow = low
-  prevClose = close
-
-  output:
-    DX = DX          // trend strength (0-100)
-    DiPlus = +DI     // bullish directional indicator
-    DiMinus = -DI    // bearish directional indicator
-```
 
 ### DX vs ADX
 

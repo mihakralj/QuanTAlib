@@ -1,5 +1,7 @@
 # HARMEAN: Harmonic Mean
 
+> *The harmonic mean is never greater than the geometric mean, which is never greater than the arithmetic mean.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The harmonic mean is never greater than the geometric mean, which is never greater than the arithmetic mean." - The Mean Inequality, a mathematical fact older than calculus
 
 The Harmonic Mean computes the reciprocal of the arithmetic mean of reciprocals over a sliding window. It is the correct average for quantities defined in terms of rates or ratios (speed, P/E ratios, yield). For financial time series, the harmonic mean gives the largest discount to outliers, making it the most conservative of the three Pythagorean means.
 

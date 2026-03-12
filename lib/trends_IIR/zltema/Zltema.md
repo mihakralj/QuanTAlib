@@ -1,5 +1,7 @@
 # ZLTEMA: Zero-Lag Triple Exponential Moving Average
 
+> *ZLTEMA combines the speed of zero-lag prediction with the smoothness of triple exponential averaging. You get the fastest response in the zero-lag family, with the best noise rejection from the TEMA cascade.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "ZLTEMA combines the speed of zero-lag prediction with the smoothness of triple exponential averaging. You get the fastest response in the zero-lag family, with the best noise rejection from the TEMA cascade."
 
 ## TEMA with lag compensation via a zero-lag signal
 

@@ -1,5 +1,7 @@
 # VWAPBANDS: VWAP with Dual Standard Deviation Bands
 
+> *VWAP anchored by dual deviation bands reveals where volume-weighted fair value ends and excess begins.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -85,48 +87,6 @@ Streaming: $O(1)$ per bar. Three additions to running sums, one division, one sq
 | Symbol | Name | Default | Constraint | Description |
 |--------|------|---------|------------|-------------|
 | $k$ | multiplier | 1.0 | $> 0$ | Scales the standard deviation for band width |
-
-### Pseudo-code
-
-```
-function vwapbands(source[], volume[], reset[], multiplier):
-    sum_pv  = 0, sum_vol = 0, sum_pv2 = 0, count = 0
-
-    for each bar t:
-        price = source[t]
-        vol   = volume[t]
-
-        if reset[t]:
-            // session boundary: restart accumulation
-            if vol > 0:
-                sum_pv  = price * vol
-                sum_vol = vol
-                sum_pv2 = price * price * vol
-                count   = 1
-            else:
-                sum_pv = 0, sum_vol = 0, sum_pv2 = 0, count = 0
-        else:
-            if vol > 0:
-                sum_pv  += price * vol
-                sum_vol += vol
-                sum_pv2 += price * price * vol
-                count   += 1
-
-        vwap = sum_vol > 0 ? sum_pv / sum_vol : price
-
-        variance = 0
-        if sum_vol > 0 and count > 1:
-            variance = max(0, sum_pv2 / sum_vol - vwap * vwap)
-
-        stddev = sqrt(variance)
-
-        upper1 = vwap + multiplier * stddev
-        lower1 = vwap - multiplier * stddev
-        upper2 = vwap + 2 * multiplier * stddev
-        lower2 = vwap - 2 * multiplier * stddev
-
-        emit (vwap, upper1, lower1, upper2, lower2, stddev)
-```
 
 ### Statistical Zone Interpretation
 

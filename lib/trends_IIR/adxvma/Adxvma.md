@@ -1,5 +1,7 @@
 # ADXVMA: ADX Variable Moving Average
 
+> *Use ADX to measure trend strength, then feed that measurement back as the smoothing constant. When the trend is strong, track fast. When it is not, stand still. The market tells you how much to listen.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires `period * 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Use ADX to measure trend strength, then feed that measurement back as the smoothing constant. When the trend is strong, track fast. When it is not, stand still. The market tells you how much to listen."
 
 ADXVMA is an adaptive IIR filter that uses the Average Directional Index (ADX) as its smoothing constant. When ADX is high (strong trend), the smoothing factor approaches 1.0 and the filter tracks price aggressively. When ADX is low (range-bound), the smoothing factor approaches 0.0 and the filter barely moves. This creates a moving average that automatically switches between responsive trend-following and noise-immune range-holding without external regime detection.
 

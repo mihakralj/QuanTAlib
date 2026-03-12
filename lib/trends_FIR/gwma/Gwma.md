@@ -1,5 +1,7 @@
 # GWMA: Gaussian-Weighted Moving Average
 
+> *The Gaussian distribution shows up everywhere from thermal noise to the central limit theorem. Using it to weight price data isn't magic; it's just applied statistics with a trading account.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Gaussian distribution shows up everywhere from thermal noise to the central limit theorem. Using it to weight price data isn't magic; it's just applied statistics with a trading account."
 
 GWMA is a Finite Impulse Response (FIR) filter that applies a centered Gaussian window to price data. Unlike ALMA (which allows shifting the Gaussian peak via an offset parameter), GWMA centers the bell curve at the middle of the lookback window. The sigma parameter controls the width of the Gaussian, determining how sharply the weights decay from the center.
 

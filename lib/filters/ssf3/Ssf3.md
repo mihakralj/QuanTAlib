@@ -1,5 +1,7 @@
 # SSF3: Ehlers 3-Pole Super Smoother Filter
 
+> *Three poles, one sample. Maximum smoothing, minimum ceremony.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `6 * period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Three poles, one sample. Maximum smoothing, minimum ceremony."
 
 The 3-Pole Super Smoother Filter (SSF3) extends Ehlers' Super Smoother concept to third order, providing -60 dB/decade rolloff compared to -40 dB/decade for the 2-pole variant (SSF2). It shares identical pole placement with BUTTER3 but uses a single-sample feedforward (`coef1 * x`) instead of the binomial-weighted 4-sample average (`coef1 * (x + 3x1 + 3x2 + x3)`). This makes SSF3 more responsive to recent price changes while still delivering aggressive high-frequency noise suppression.
 

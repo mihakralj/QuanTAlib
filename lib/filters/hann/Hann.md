@@ -1,5 +1,7 @@
 # Hann: Hann FIR Filter
 
+> *The Hanning window whispers where the Boxcar screams. Smoothness is not just an aesthetic; it's a mathematical necessity.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `length` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Hanning window whispers where the Boxcar screams. Smoothness is not just an aesthetic; it's a mathematical necessity."
 
 Hann (Hann Filter) is a Finite Impulse Response (FIR) smoothing filter that applies a Hann window to time series data. Named after Julius von Hann, this filter uses a cosine-sum window function that tapers inputs to zero at the edges. This tapering process significantly reduces spectral leakage and provides excellent high-frequency noise attenuation compared to a Simple Moving Average (SMA).
 

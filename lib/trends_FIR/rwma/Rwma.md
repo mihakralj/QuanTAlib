@@ -1,5 +1,7 @@
 # RWMA: Range Weighted Moving Average
 
+> *Most averages weight by position: recent bars matter more. RWMA weights by volatility: volatile bars matter more. The market spoke loudest when the range was widest, so listen to those bars.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Most averages weight by position: recent bars matter more. RWMA weights by volatility: volatile bars matter more. The market spoke loudest when the range was widest, so listen to those bars."
 
 RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narrow-range, indecisive bars. The logic: a bar with a large range represents stronger price discovery and carries more informational content than a low-range doji. This produces a moving average that gravitates toward prices established during high-activity periods, naturally incorporating volatility as a relevance signal without requiring a separate volatility indicator.
 

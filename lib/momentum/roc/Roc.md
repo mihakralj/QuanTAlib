@@ -1,5 +1,7 @@
 # ROC: Rate of Change (Absolute)
 
+> *The simplest momentum measure: how far has price moved? Not percentage, not ratio - just the raw difference.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest momentum measure: how far has price moved? Not percentage, not ratio - just the raw difference."
 
 ROC (Rate of Change) calculates the absolute price difference between the current value and the value N periods ago. This is the most basic form of momentum measurement, returning the raw price change in the same units as the input data. Unlike ROCP (percentage) or ROCR (ratio), ROC preserves the original scale, making it directly interpretable in dollar/point terms.
 

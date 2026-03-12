@@ -1,5 +1,7 @@
 # TRIM: Trimmed Mean Moving Average
 
+> *Trimmed mean drops the extreme tails before averaging — robust estimation that refuses to let outliers hijack the center.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |

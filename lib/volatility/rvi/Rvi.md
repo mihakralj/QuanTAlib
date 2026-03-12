@@ -1,5 +1,7 @@
 # RVI: Relative Volatility Index
 
+> *Not all volatility is created equal—upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -16,8 +18,6 @@
 - Output range: $0$ to $100$.
 - Requires `stdevLength` bars of warmup before first valid output (IsHot = true).
 - Validated against FM Labs revised RVI specification.
-
-> "Not all volatility is created equal—upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure."
 
 The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility. Originally developed by Donald Dorsey in 1993 using close prices only, RVI was **revised in 1995** to compute separate RVI values on the High and Low price series and average them. This implementation follows the revised version: when fed OHLCV bars (TBar), it runs independent RVI channels on High and Low; when fed single prices (TValue), both channels receive the same value, reducing to the original formula.
 

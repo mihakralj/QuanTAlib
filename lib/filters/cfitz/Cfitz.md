@@ -1,5 +1,7 @@
 # CFITZ: Christiano-Fitzgerald Band-Pass Filter
 
+> *Christiano-Fitzgerald isolates a frequency band from the time series, extracting cycles of a chosen wavelength range.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

@@ -1,5 +1,7 @@
 # Notch Filter
 
+> *A notch filter surgically removes a single frequency, silencing one resonance while leaving the rest of the spectrum untouched.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |

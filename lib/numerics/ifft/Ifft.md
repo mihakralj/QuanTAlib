@@ -1,5 +1,7 @@
 # IFFT: Inverse Fast Fourier Transform (Spectral Low-Pass Filter)
 
+> *Inverse FFT reconstructs a time series from selected frequency components — a spectral scalpel for noise removal.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

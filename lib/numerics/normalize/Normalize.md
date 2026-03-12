@@ -1,5 +1,7 @@
 # NORMALIZE: Min-Max Normalization
 
+> *Normalization is the art of making apples and oranges comparable—by insisting that everything lives on the same scale from 0 to 1.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Normalization is the art of making apples and oranges comparable—by insisting that everything lives on the same scale from 0 to 1."
 
 The Normalize transformer applies min-max scaling to map any value series into the bounded range [0, 1] based on the observed minimum and maximum within a rolling lookback window. This technique is fundamental for feature scaling, creating bounded oscillators, and comparing series with different magnitudes.
 

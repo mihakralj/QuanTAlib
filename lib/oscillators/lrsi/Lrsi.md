@@ -1,5 +1,7 @@
 # LRSI: Laguerre RSI
 
+> *The Laguerre transform lets you trade off between lag and smoothness using a single parameter.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `4` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The Laguerre transform lets you trade off between lag and smoothness using a single parameter." — John Ehlers
 
 Laguerre RSI is an adaptive oscillator invented by John Ehlers that replaces standard RSI's Wilder-smoothed gain/loss averages with a 4-stage cascaded Laguerre filter. A single γ (gamma) parameter controls the entire responsiveness-smoothness trade-off. Output is dimensionless, always in [0, 1]. No period selection required.
 

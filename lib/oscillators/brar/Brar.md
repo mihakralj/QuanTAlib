@@ -1,5 +1,7 @@
 # BRAR: Bull-Bear Power Ratio
 
+> *The open is the amateur's price. The close is the professional's price. The distance between them is where the money hides.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The open is the amateur's price. The close is the professional's price. The distance between them is where the money hides."
 
 BRAR is a dual-output sentiment oscillator from the Japanese technical analysis tradition that decomposes market pressure into two independent ratios: BR (Buying Ratio), which measures upside thrust relative to the previous close, and AR (Atmosphere Ratio), which measures intraday range asymmetry relative to the open. Both outputs oscillate around an equilibrium of 100, where values above 100 signal dominance of the measured pressure and values below 100 signal weakness. The default lookback of 26 bars (one Japanese trading month) produces stable readings with 4 additions per bar in streaming mode.
 

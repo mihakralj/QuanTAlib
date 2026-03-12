@@ -1,5 +1,7 @@
 # ADX: Average Directional Index
 
+> *ADX measures trend strength without regard to direction — a compass that tells you how hard the wind blows, not where.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -77,49 +79,6 @@ $$ADX = \text{RMA}(DX, N)$$
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 14 | $N \geq 2$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  α = 1 / period
-  smoothPlusDM = smoothMinusDM = smoothTR = 0
-  adx = 0
-  prevHigh = prevLow = NaN
-  bar_count = 0
-
-On each bar (high, low, close, isNew):
-  if !isNew: restore previous state
-
-  TR = max(high - low, |high - prevClose|, |low - prevClose|)
-
-  upMove = high - prevHigh
-  downMove = prevLow - low
-
-  +DM = (upMove > downMove AND upMove > 0) ? upMove : 0
-  -DM = (downMove > upMove AND downMove > 0) ? downMove : 0
-
-  // Wilder smoothing (RMA)
-  smoothPlusDM = FMA(smoothPlusDM, 1 - α, α × +DM)
-  smoothMinusDM = FMA(smoothMinusDM, 1 - α, α × -DM)
-  smoothTR = FMA(smoothTR, 1 - α, α × TR)
-
-  // Directional Indicators
-  +DI = 100 × smoothPlusDM / smoothTR
-  -DI = 100 × smoothMinusDM / smoothTR
-
-  // Directional Index
-  diSum = +DI + -DI
-  DX = diSum > 0 ? 100 × |+DI - -DI| / diSum : 0
-
-  // Final smoothing
-  ADX = FMA(ADX, 1 - α, α × DX)
-
-  prevHigh = high
-  prevLow = low
-  prevClose = close
-  output = ADX
-```
 
 ### The Stability Problem
 

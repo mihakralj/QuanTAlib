@@ -1,6 +1,6 @@
 # FISHER04: Ehlers Fisher Transform (2004 Cybernetic Analysis)
 
-> "The Fisher Transform provides clear, unambiguous turning points that make it possible to identify trend reversals." — John Ehlers, *Cybernetic Analysis for Stocks and Futures* (2004)
+> *The Fisher Transform provides clear, unambiguous turning points that make it possible to identify trend reversals.*
 
 ## Introduction
 

@@ -1,5 +1,7 @@
 # CCYC: Ehlers Cyber Cycle
 
+> *The Cyber Cycle isolator extracts the dominant cycle component while suppressing trend — pure periodicity distilled.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -108,33 +110,6 @@ The characteristic equation of the IIR section:
 $$z^2 - 2(1-\alpha)z + (1-\alpha)^2 = 0$$
 
 has a double pole at $z = 1 - \alpha$. For $\alpha = 0.07$, the pole is at $z = 0.93$, well inside the unit circle (stable), with a $-3$ dB cutoff period of approximately $\frac{2\pi}{\alpha} \approx 90$ bars.
-
-### Pseudo-code
-
-```
-function CCYC(source, alpha):
-    validate: 0 < alpha < 1
-
-    // FIR smoother
-    smooth = (source[0] + 2*source[1] + 2*source[2] + source[3]) / 6
-
-    // IIR coefficients
-    c_hp  = (1 - 0.5*alpha)²
-    c_fb1 = 2*(1 - alpha)
-    c_fb2 = -(1 - alpha)²
-
-    if bar_count < 7:
-        // Bootstrap: second-difference of raw price
-        cycle = (source[0] - 2*source[1] + source[2]) / 4
-    else:
-        // Steady-state: 2-pole high-pass on smoothed input
-        cycle = c_hp * (smooth - 2*smooth[1] + smooth[2])
-              + c_fb1 * cycle[1] + c_fb2 * cycle[2]
-
-    trigger = cycle[1]
-
-    return [cycle, trigger]
-```
 
 ### Output Interpretation
 

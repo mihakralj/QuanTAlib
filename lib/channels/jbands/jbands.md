@@ -1,5 +1,7 @@
 # JBANDS: Jurik Adaptive Envelope Bands
 
+> *Jurik's adaptive envelope adjusts its width with price dynamics, hugging trends and releasing during consolidation.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -99,37 +101,6 @@ Dominated by the trimmed mean's partial sort: $O(n \log n)$ for the 128-element 
 | $\text{lenDiv}$ | $\text{\_LEN0} \cdot 0.9 / (\text{\_LEN0} \cdot 0.9 + 2)$ |
 | $\text{sqrtDiv}$ | $\text{\_SQRT\_PARAM} / (\text{\_SQRT\_PARAM} + 1)$ |
 | $P_{\text{exp}}$ | $\max(\text{\_LOG\_PARAM} - 2,\; 0.5)$ |
-
-### Pseudo-code
-
-```
-function JBANDS(source, period, phase):
-    precompute constants from period and phase
-
-    // 1. Local deviation
-    dLocal = max(|source - upper|, |source - lower|) + ε
-
-    // 2. Volatility: 10-bar SMA → 128-bar trimmed mean
-    highD = SMA(dLocal, 10)
-    dRef = TrimmedMean(highD_history, 128)
-
-    // 3. Dynamic exponent
-    ratio = |source - band| / dRef
-    d = clamp(ratio^P_exp, 1, LOG_PARAM)
-
-    // 4. Snap-and-decay bands
-    adapt = sqrtDiv^√d
-    if source > upper: upper = source
-    else: upper = source - (source - upper) * adapt
-    (symmetric for lower)
-
-    // 5. JMA center line (2-pole IIR)
-    alpha = lenDiv^d
-    ... (c0, c8, a8 recursion) ...
-    jma = prev_jma + a8
-
-    return [jma, upper, lower]
-```
 
 ### Output Interpretation
 

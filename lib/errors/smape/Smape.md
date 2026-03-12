@@ -1,5 +1,7 @@
 # SMAPE: Symmetric Mean Absolute Percentage Error
 
+> *MAPE punishes based on who's right; SMAPE punishes based on how different they are.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "MAPE punishes based on who's right; SMAPE punishes based on how different they are."
 
 Symmetric Mean Absolute Percentage Error addresses a fundamental asymmetry in MAPE: the fact that over-predictions and under-predictions of the same magnitude receive different penalties. SMAPE uses the average of actual and predicted values in the denominator, creating a metric that treats both directions equally.
 

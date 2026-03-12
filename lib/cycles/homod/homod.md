@@ -1,5 +1,7 @@
 # HOMOD: Ehlers Homodyne Discriminator
 
+> *The homodyne discriminator locks onto a cycle's frequency by comparing successive analytic signal rotations.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -70,60 +72,6 @@ $O(1)$ per bar with $O(1)$ memory. The pipeline consists entirely of fixed-depth
 |-----------|-------------|---------|------------|
 | `minPeriod` | Minimum detectable period | 6.0 | $> 0$ |
 | `maxPeriod` | Maximum detectable period | 50.0 | $> minPeriod$ |
-
-### Pseudo-code
-
-```
-function HOMOD(source, minPeriod, maxPeriod):
-    A ← 0.0962; B ← 0.5769
-    smoothBuf ← CircularBuffer(7)
-    detBuf ← CircularBuffer(7)
-
-    I2_prev ← 0; Q2_prev ← 0
-    Re_prev ← 0; Im_prev ← 0
-    period_prev ← (minPeriod + maxPeriod) / 2
-
-    for each price in source:
-        // 4-bar WMA
-        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
-        smoothBuf.Add(smooth)
-
-        // Detrender (Hilbert FIR)
-        det ← A·smooth[0] + B·smooth[2] - B·smooth[4] - A·smooth[6]
-        detBuf.Add(det)
-
-        // I1 = det[3], Q1 = Hilbert(det)
-        I1 ← det[3]
-        Q1 ← A·det[0] + B·det[2] - B·det[4] - A·det[6]
-
-        // Hilbert of I1 and Q1
-        jI ← HilbertFIR(I1_history)
-        jQ ← HilbertFIR(Q1_history)
-
-        // Phasor components (smoothed)
-        I2 ← 0.2·(I1 - jQ) + 0.8·I2_prev
-        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2_prev
-
-        // Homodyne mixing
-        re ← 0.2·(I2·I2_prev + Q2·Q2_prev) + 0.8·Re_prev
-        im ← 0.2·(I2·Q2_prev - Q2·I2_prev) + 0.8·Im_prev
-
-        // Period extraction
-        if im ≠ 0 and re ≠ 0:
-            period ← 2π / atan2(im, re)
-        else:
-            period ← period_prev
-
-        period ← clamp(period, minPeriod, maxPeriod)
-        period ← 0.33·period + 0.67·period_prev
-
-        // Update state
-        I2_prev ← I2; Q2_prev ← Q2
-        Re_prev ← re; Im_prev ← im
-        period_prev ← period
-
-        emit period
-```
 
 ### Output Interpretation
 

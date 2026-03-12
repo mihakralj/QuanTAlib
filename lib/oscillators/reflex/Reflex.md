@@ -1,5 +1,7 @@
 # REFLEX: Ehlers Reflex Indicator
 
+> *John Ehlers measured how much a filtered price deviates from its own linear extrapolation. The result is a zero-lag oscillator that catches reversals before they happen, because the deviation is largest precisely when the trend is bending.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "John Ehlers measured how much a filtered price deviates from its own linear extrapolation. The result is a zero-lag oscillator that catches reversals before they happen, because the deviation is largest precisely when the trend is bending."
 
 REFLEX is a zero-lag oscillator that measures the reversal tendency of price by comparing a Super-Smoother-filtered price against a linear extrapolation from $N$ bars ago. The filter computes the slope of the filtered series over the lookback window, projects a straight line, and sums the deviations of the actual filtered values from this projected line. The sum is normalized by an exponential RMS estimate to produce values in roughly $\pm \sigma$ scale. Values above 0 indicate uptrend, below 0 indicate downtrend; crossovers signal potential reversals.
 

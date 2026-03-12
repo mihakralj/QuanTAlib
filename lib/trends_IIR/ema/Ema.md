@@ -1,6 +1,6 @@
 # EMA: Exponential Moving Average
 
-> "The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?"
+> *The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?*
 
 ## Quick Reference
 

@@ -1,0 +1,55 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Plus Directional Indicator (+DI)", "+DI", overlay=false)
+
+//@function Calculates +DI using Wilder's smoothing with compensated RMA
+//@param period Number of bars used in the calculation
+//@returns +DI value (0-100)
+//@optimized Uses Wilder's smoothing (RMA) with warmup compensation for accurate values from bar 1
+plusdi(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float alpha = 1.0 / period
+    float beta = 1.0 - alpha
+    float tr = 0.0
+    float plus_dm = 0.0
+    if na(close[1])
+        tr := high - low
+    else
+        tr := math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+        float upMove = high - high[1]
+        float downMove = low[1] - low
+        if upMove > downMove and upMove > 0
+            plus_dm := upMove
+    var bool warmup = true
+    var float e = 1.0
+    var float tr_ema = 0.0
+    var float tr_result = tr
+    var float plus_dm_ema = 0.0
+    var float plus_dm_result = plus_dm
+    tr_ema := alpha * (tr - tr_ema) + tr_ema
+    plus_dm_ema := alpha * (plus_dm - plus_dm_ema) + plus_dm_ema
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        tr_result := c * tr_ema
+        plus_dm_result := c * plus_dm_ema
+        warmup := e > 1e-10
+    else
+        tr_result := tr_ema
+        plus_dm_result := plus_dm_ema
+    float plus_di = tr_result != 0.0 ? 100.0 * plus_dm_result / tr_result : 0.0
+    plus_di
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculation
+plus_di = plusdi(i_period)
+
+// Plot
+plot(plus_di, "+DI", color=color.green, linewidth=2)
+hline(25, "Threshold", color=color.gray, linestyle=hline.style_dashed)

@@ -1,5 +1,7 @@
 # SUPER: SuperTrend
 
+> *It's not an indicator; it's a trailing stop with a marketing budget.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `> period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "It's not an indicator; it's a trailing stop with a marketing budget."
 
 SuperTrend is a trend-following overlay that uses ATR-scaled bands around the HL2 midpoint, switching between upper and lower bands based on close price breakouts. A ratchet mechanism prevents the active band from moving against the trend, creating a step-like trailing stop that adapts to volatility. The indicator is a two-state machine (bullish/bearish) with O(1) per-bar updates and zero allocations in the hot path.
 
@@ -73,46 +73,6 @@ The output is the active stop level. Crossing the active band flips the state.
 |:----------|:-----|:--------|:-----------|:------------|
 | atrPeriod | int | 10 | > 0 | ATR lookback period |
 | multiplier | double | 3.0 | > 0 | ATR multiplier for band width |
-
-### Pseudo-code
-
-```
-SUPERTREND(bar, atrPeriod=10, multiplier=3.0):
-
-  // ATR update (Wilder's smoothing or SMA)
-  atr = ATR.Update(bar, atrPeriod)
-
-  // Basic bands
-  hl2 = (bar.High + bar.Low) / 2
-  upper_basic = hl2 + multiplier * atr
-  lower_basic = hl2 - multiplier * atr
-
-  // Ratchet: upper can only decrease, lower can only increase
-  if prev_close <= prev_upper_final:
-    upper_final = min(upper_basic, prev_upper_final)
-  else:
-    upper_final = upper_basic
-
-  if prev_close >= prev_lower_final:
-    lower_final = max(lower_basic, prev_lower_final)
-  else:
-    lower_final = lower_basic
-
-  // State machine transition
-  if bar.Close > upper_final:
-    is_bullish = true
-  else if bar.Close < lower_final:
-    is_bullish = false
-  // else: retain previous state (hysteresis)
-
-  // Output active stop level
-  if is_bullish:
-    supertrend = lower_final
-  else:
-    supertrend = upper_final
-
-  return supertrend
-```
 
 ### Band Behavior by State
 

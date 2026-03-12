@@ -1,5 +1,7 @@
 # BUTTER3: Ehlers 3-Pole Butterworth Filter
 
+> *Steeper rolloff demands a third pole.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `6 * period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Steeper rolloff demands a third pole."
 
 The 3-Pole Butterworth Filter (BUTTER3) extends the classic Butterworth design to third order, providing -60 dB/decade rolloff compared to -40 dB/decade for the 2-pole variant. Developed from John Ehlers' formulation in "Cybernetic Analysis for Stocks and Futures" (2004), this implementation uses the same pole placement as the 3-pole Super Smoother (SSF3) but with binomial (1,3,3,1) feedforward weights that preserve the maximally flat passband characteristic. The steeper rolloff makes BUTTER3 more effective at rejecting high-frequency noise, at the cost of slightly more lag than BUTTER2.
 

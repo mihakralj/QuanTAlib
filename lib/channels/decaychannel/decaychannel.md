@@ -1,5 +1,7 @@
 # DECAYCHANNEL: Decay Min-Max Channel
 
+> *Extremes that decay over time give recent boundaries more weight, fading yesterday's peaks gradually.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -78,43 +80,6 @@ After $T$ bars without a new extreme, the band has decayed exactly 50% of the di
 $$\text{decayRate}(T) = 1 - e^{-\lambda T} = 1 - e^{-\ln 2} = 0.5$$
 
 After $2T$ bars: 75% decay. After $3T$ bars: 87.5% decay.
-
-### Pseudo-code
-
-```
-function DECAYCHANNEL(high, low, period):
-    validate: period > 0
-    lambda = ln(2) / period
-
-    // Scan buffer for Donchian bounds
-    periodMax = max(high_buffer over period)
-    periodMin = min(low_buffer over period)
-    periodAvg = avg(midpoints over period)
-
-    // Snap or age
-    if high ≥ currentMax:
-        currentMax = high; ageMax = 0
-    else:
-        ageMax += 1
-
-    if low ≤ currentMin:
-        currentMin = low; ageMin = 0
-    else:
-        ageMin += 1
-
-    // Decay toward midpoint
-    midpoint = (currentMax + currentMin) / 2
-    maxDecay = 1 - exp(-lambda * ageMax)
-    minDecay = 1 - exp(-lambda * ageMin)
-    currentMax -= maxDecay * (currentMax - midpoint)
-    currentMin -= minDecay * (currentMin - midpoint)
-
-    // Clamp to Donchian bounds
-    currentMax = min(currentMax, periodMax)
-    currentMin = max(currentMin, periodMin)
-
-    return [currentMax, currentMin]
-```
 
 ### Output Interpretation
 

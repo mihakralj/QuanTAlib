@@ -1,5 +1,7 @@
 # FDIST: F-Distribution CDF
 
+> *The F-distribution CDF tests variance ratios — a cornerstone of hypothesis testing built from two chi-squared variables.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

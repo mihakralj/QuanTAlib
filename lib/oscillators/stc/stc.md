@@ -1,5 +1,7 @@
 # STC: Schaff Trend Cycle
 
+> *Schaff Trend Cycle applies double stochastic smoothing to MACD, compressing a trend indicator into an oscillator's bounded range.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -90,54 +92,6 @@ Smoothing options:
 | $f$ | fastLength | 23 | $f \geq 1$ |
 | $s$ | slowLength | 50 | $s > f$ |
 | — | smoothing | EMA | None / EMA / Sigmoid / Digital |
-
-### Pseudo-code
-
-```
-Initialize:
-  ema_fast = ema_slow = first price
-  α_f = 2 / (fastLength + 1)
-  α_s = 2 / (slowLength + 1)
-  α_d = 2 / (dPeriod + 1)
-  macd_buf = RingBuffer(kPeriod)
-  d1_buf = RingBuffer(kPeriod)
-  %D₁ = 0
-  bar_count = 0
-
-On each bar (price, isNew):
-  if !isNew: restore previous state
-
-  // Step 1: MACD
-  ema_fast = FMA(ema_fast, 1 - α_f, α_f × price)
-  ema_slow = FMA(ema_slow, 1 - α_s, α_s × price)
-  macd = ema_fast - ema_slow
-
-  // Step 2: First Stochastic
-  macd_buf.Add(macd)
-  macd_max = Max(macd_buf)
-  macd_min = Min(macd_buf)
-  range1 = macd_max - macd_min
-  %K₁ = range1 > 0 ? 100 × (macd - macd_min) / range1 : prev_%K₁
-
-  // Step 3: First Smoothing
-  %D₁ = FMA(%D₁, 1 - α_d, α_d × %K₁)
-
-  // Step 4: Second Stochastic
-  d1_buf.Add(%D₁)
-  d1_max = Max(d1_buf)
-  d1_min = Min(d1_buf)
-  range2 = d1_max - d1_min
-  %K₂ = range2 > 0 ? 100 × (%D₁ - d1_min) / range2 : prev_%K₂
-
-  // Step 5: Final Smoothing
-  switch smoothing:
-    None:    STC = %K₂
-    EMA:     STC = FMA(prev_STC, 1 - α_d, α_d × %K₂)
-    Sigmoid: STC = 100 / (1 + exp(-0.1 × (%K₂ - 50)))
-    Digital: STC = %K₂ ≥ 50 ? 100 : 0
-
-  output = Clamp(STC, 0, 100)
-```
 
 ### Signal Characteristics
 

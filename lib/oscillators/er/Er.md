@@ -1,5 +1,7 @@
 # ER: Efficiency Ratio
 
+> *The best trades move in a straight line. The worst ones wander. ER tells you which kind you're looking at.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                       |
@@ -15,8 +17,6 @@
 - Output of $1.0$ means price moved in a perfectly straight line (pure trend). Output of $0.0$ means all movement cancelled out (pure noise).
 - It is core component of KAMA (Kaufman's Adaptive Moving Average), where ER dynamically adjusts the smoothing constant.
 - Not available and therefore not validated against any other TA library
-
-> "The best trades move in a straight line. The worst ones wander. ER tells you which kind you're looking at." -- Perry Kaufman
 
 ## Historical Context
 

@@ -1,6 +1,6 @@
 # FI: Force Index
 
-> "Volume is the steam that makes the locomotive run. Price shows direction; volume shows conviction." -- Alexander Elder
+> *Volume is the steam that makes the locomotive run. Price shows direction; volume shows conviction.*
 
 | Property | Value |
 |----------|-------|

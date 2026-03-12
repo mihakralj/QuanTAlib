@@ -1,7 +1,5 @@
 # Trends (IIR)
 
-> "Recursion trades memory for computation. Single coefficient replaces entire window. But feedback loop carries risk: instability lurks in coefficient choices that FIR designers never face."
-
 Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive architecture uses previous outputs to compute current values, enabling lower lag with fewer coefficients than equivalent FIR filters.
 
 | Indicator | Full Name | Description |

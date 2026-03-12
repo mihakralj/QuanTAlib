@@ -1,5 +1,7 @@
 # PVI: Positive Volume Index
 
+> *High volume days reveal where retail traders swarm; smart money prefers the quiet.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "High volume days reveal where retail traders swarm; smart money prefers the quiet." — Norman Fosback
 
 The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day. The underlying theory: retail investors—the "uninformed crowd"—drive high-volume trading days, often reacting emotionally to news and price movements. Institutional investors prefer to operate during quieter periods to avoid moving markets.
 

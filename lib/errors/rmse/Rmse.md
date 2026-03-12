@@ -1,5 +1,7 @@
 # RMSE: Root Mean Squared Error
 
+> *MSE's more interpretable sibling that speaks the language of your data.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "MSE's more interpretable sibling that speaks the language of your data."
 
 Root Mean Squared Error (RMSE) is the square root of MSE, providing an error metric in the same units as the original data while retaining sensitivity to large errors.
 

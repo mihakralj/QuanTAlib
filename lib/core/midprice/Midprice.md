@@ -1,5 +1,7 @@
 # MIDPRICE: Midpoint Price over Period
 
+> *The midpoint of highest high and lowest low over a period anchors price to its range center.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -70,25 +72,6 @@ $O(N)$ per bar where $N$ is the period, due to linear scan for max/min. For typi
 | MIDPOINT | $(\max(V,N) + \min(V,N)) \times 0.5$ | Single series | Rolling window |
 | MEDPRICE | $(H + L) \times 0.5$ | TBar (single bar) | Stateless |
 | Donchian Mid | Same as MIDPRICE | TBar (H/L channels) | Rolling window |
-
-### Pseudo-code
-
-```
-function MIDPRICE(bar, period):
-    validate: period ≥ 1
-
-    h, l ← bar.High, bar.Low
-
-    // Substitute last-valid for non-finite inputs
-    if !finite(h): h ← lastValidHigh
-    if !finite(l): l ← lastValidLow
-
-    highBuffer.Add(h)
-    lowBuffer.Add(l)
-
-    result ← (highBuffer.Max() + lowBuffer.Min()) × 0.5
-    return result
-```
 
 ### Output Interpretation
 

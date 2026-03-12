@@ -1,5 +1,7 @@
 # MININDEX: Rolling Minimum Index
 
+> *Finding support isn't just about the price — it's about *when* the floor was set.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |
@@ -16,8 +18,6 @@
 - Tie-breaking: last occurrence wins (most recent bar, `<=` comparison).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Cross-validation: `source[Minindex.Batch[i]] == Lowest.Batch[i]` for all bars after warmup.
-
-> "Finding support isn't just about the price — it's about *when* the floor was set."
 
 MININDEX identifies the position of the minimum value within a rolling window. While LOWEST tells you the trough *value*, MININDEX tells you *where* that trough is relative to the current bar. This is essential for support analysis, timing studies, and detecting how "stale" a low is.
 

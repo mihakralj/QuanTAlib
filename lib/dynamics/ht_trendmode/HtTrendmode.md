@@ -1,5 +1,7 @@
 # HT_TRENDMODE: Hilbert Transform Trend vs Cycle Mode
 
+> *Hilbert trend mode classifies the market as trending or cycling — a binary answer from the analytic signal's behavior.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -88,66 +90,6 @@ Criterion 4: Price deviation override
 ### Parameters
 
 No user-configurable parameters. The algorithm self-tunes based on the detected dominant cycle period (clamped to 6-50 bars).
-
-### Pseudo-code
-
-```
-Initialize:
-  circBuffer = array for Hilbert state
-  smoothPrice = priceHistory = arrays
-  daysInTrend = 0
-  smoothPeriod = 0
-  prevDcPhase = 0
-  bar_count = 0
-
-On each bar (price, isNew):
-  if !isNew: restore previous state
-
-  // Step 1: 4-bar WMA smooth
-  smooth = (4×price[0] + 3×price[1] + 2×price[2] + price[3]) / 10
-
-  // Step 2: Hilbert Transform (FIR filters)
-  detrender = HilbertFIR(smooth) × adjustedBandwidth
-  Q1 = HilbertFIR(detrender) × adjustedBandwidth
-  I1 = detrender[3]
-
-  // Step 3: Phasor rotation
-  I2 = I1 - jQ_prev;  Q2 = Q1 + jI_prev
-  I2 = 0.2×I2 + 0.8×I2_prev;  Q2 = 0.2×Q2 + 0.8×Q2_prev
-
-  // Step 4: Homodyne discriminator → period
-  Re = 0.2×(I2×I2_prev + Q2×Q2_prev) + 0.8×Re_prev
-  Im = 0.2×(I2×Q2_prev - Q2×I2_prev) + 0.8×Im_prev
-  period = clamp(360 / (atan(Im/Re) × RAD2DEG), 6, 50)
-  smoothPeriod = 0.33×period + 0.67×smoothPeriod_prev
-
-  // Step 5: DC Phase via DFT
-  dcPeriodInt = floor(smoothPeriod + 0.5)
-  realPart = Σ sin(i × 360/dcPeriodInt) × smooth[i]  for i=0..dcPeriodInt-1
-  imagPart = Σ cos(i × 360/dcPeriodInt) × smooth[i]
-  dcPhase = atan(realPart/imagPart)×RAD2DEG + 90 + lagCompensation
-
-  // Step 6: SineWave indicators
-  sine = sin(dcPhase × DEG2RAD)
-  leadSine = sin((dcPhase + 45) × DEG2RAD)
-
-  // Step 7: Trendline (SMA smoothed with WMA)
-  sma = average(price, dcPeriodInt)
-  trendline = (4×sma[0] + 3×sma[1] + 2×sma[2] + sma[3]) / 10
-
-  // Step 8: Four-criteria trend decision
-  trend = 1
-  if sine crosses leadSine: daysInTrend = 0; trend = 0
-  daysInTrend++
-  if daysInTrend < 0.5 × smoothPeriod: trend = 0
-  phaseChange = dcPhase - prevDcPhase
-  expected = 360 / smoothPeriod
-  if phaseChange > 0.67×expected AND phaseChange < 1.5×expected: trend = 0
-  if |smooth - trendline| / trendline >= 0.015: trend = 1
-
-  prevDcPhase = dcPhase
-  output = trend  // 1 = trending, 0 = cycling
-```
 
 ### Decision Criteria Summary
 

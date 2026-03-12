@@ -1,5 +1,7 @@
 # MAE: Mean Absolute Error
 
+> *When you need to know how wrong you are on average, without the drama of squared errors.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When you need to know how wrong you are on average, without the drama of squared errors."
 
 Mean Absolute Error (MAE) measures the average magnitude of errors in a set of predictions, without considering their direction. It represents the average of the absolute differences between actual and predicted values.
 

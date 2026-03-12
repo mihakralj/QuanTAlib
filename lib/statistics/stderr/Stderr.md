@@ -1,5 +1,7 @@
 # Stderr: Standard Error of Regression
 
+> *How confident are you in your line of best fit?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: non-negative real values (or 0 during insufficient/degenerate windows).
 - Requires `period` bars of warmup before first stable output (`IsHot = true`).
 - Validated against an internal brute-force OLS reference implementation.
-
-> "How confident are you in your line of best fit?"
 
 Standard Error of Regression (also called the Standard Error of the Estimate) measures the average distance that the observed values fall from the regression line. It quantifies the typical size of the residuals, providing a direct measure of how well a linear regression model fits the data.
 

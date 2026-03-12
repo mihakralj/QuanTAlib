@@ -1,5 +1,7 @@
 # KURTOSIS: Excess Kurtosis
 
+> *Normal is getting dressed in clothes that you buy for work and driving through traffic in a car that you are still paying for, in order to get to the job you need to pay for the clothes and the car.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Normal is getting dressed in clothes that you buy for work and driving through traffic in a car that you are still paying for, in order to get to the job you need to pay for the clothes and the car." The fourth moment measures how far your returns deviate from that comforting fiction.
 
 ## Introduction
 

@@ -1,5 +1,7 @@
 # ROCR: Rate of Change Ratio
 
+> *The ratio form of momentum: how many times larger is the current price compared to the past? A multiplier view of market movement.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The ratio form of momentum: how many times larger is the current price compared to the past? A multiplier view of market movement."
 
 ROCR (Rate of Change Ratio) calculates the ratio between the current value and the value N periods ago. Values hover around 1.0, with values above 1.0 indicating price increase and values below 1.0 indicating price decrease. Unlike ROC (absolute) or ROCP (percentage), ROCR provides a dimensionless multiplier that directly shows the price ratio.
 

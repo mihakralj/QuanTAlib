@@ -1,5 +1,7 @@
 # PARZEN: Parzen (de la Vallée-Poussin) Window Moving Average
 
+> *Emanuel Parzen convolved two triangular windows and got a piecewise cubic with zero sidelobe discontinuity. When your window function is its own proof of smoothness, the spectral leakage has nowhere to hide.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Emanuel Parzen convolved two triangular windows and got a piecewise cubic with zero sidelobe discontinuity. When your window function is its own proof of smoothness, the spectral leakage has nowhere to hide."
 
 PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppression ($-24$ dB/octave rolloff) and a smooth bell-shaped kernel. The Parzen window is the self-convolution of two triangular (Bartlett) windows at half-length, which guarantees continuous first and second derivatives at all points. This makes it one of the few windows whose frequency response has no discontinuities in its first three derivatives, yielding the fastest sidelobe decay rate among common windows without requiring the computational cost of Bessel functions (Kaiser) or specialized polynomials (Henderson).
 

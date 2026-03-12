@@ -1,6 +1,6 @@
 # CFO: Chande Forecast Oscillator (also known as FOSC)
 
-> "The distance between where you are and where regression says you should be tells you everything about momentum." -- Tushar Chande, paraphrased
+> *The distance between where you are and where regression says you should be tells you everything about momentum.*
 
 | Property     | Value |
 |--------------|-------|

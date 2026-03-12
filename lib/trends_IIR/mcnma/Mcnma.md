@@ -1,5 +1,7 @@
 # MCNMA: McNicholl EMA (Zero-Lag TEMA)
 
+> *Dennis McNicholl applied TEMA to itself and subtracted the result, producing six cascaded EMA stages that cancel lag through three layers of triple-smoothing. When single TEMA is not enough, double it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Dennis McNicholl applied TEMA to itself and subtracted the result, producing six cascaded EMA stages that cancel lag through three layers of triple-smoothing. When single TEMA is not enough, double it."
 
 MCNMA computes $2 \times \text{TEMA}(x, N) - \text{TEMA}(\text{TEMA}(x, N), N)$, applying the DEMA lag-cancellation technique to TEMA itself. This requires six cascaded EMA stages: three for the inner TEMA and three for the outer TEMA of the inner TEMA's output. The result is an extremely responsive moving average that tracks fast trends with minimal lag, at the cost of significant overshoot on reversals. Published by Dennis McNicholl in "Better Bollinger Bands" (*Futures Magazine*, October 1998) as a component for improved volatility band construction.
 

@@ -1,5 +1,7 @@
 # CORR: Pearson Correlation Coefficient
 
+> *Correlation is not causation, but it sure is a hint. The market doesn't care why two instruments move together—only that they do, and whether that relationship will persist long enough for you to profit from it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TradingView reference behavior and mathematical invariants.
-
-> "Correlation is not causation, but it sure is a hint. The market doesn't care why two instruments move together—only that they do, and whether that relationship will persist long enough for you to profit from it."
 
 The Pearson Correlation Coefficient measures the linear relationship between two variables, returning a value from -1 (perfect negative correlation) to +1 (perfect positive correlation). Zero indicates no linear relationship. This implementation uses running sums for O(1) streaming updates, making it suitable for real-time analysis of price relationships.
 

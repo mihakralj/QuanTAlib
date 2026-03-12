@@ -1,6 +1,6 @@
 # ERI: Elder Ray Index
 
-> "The job of the indicator is to separate the bulls from the bears. If you can measure their power independently, you can see who is winning before the trend changes." -- Alexander Elder
+> *The job of the indicator is to separate the bulls from the bears. If you can measure their power independently, you can see who is winning before the trend changes.*
 
 | Property | Value |
 |----------|-------|

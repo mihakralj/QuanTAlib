@@ -1,5 +1,7 @@
 # APZ: Adaptive Price Zone
 
+> *The adaptive price zone contracts in calm and expands in chaos, mapping volatility into a living boundary.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -87,39 +89,6 @@ The actual smoothing period experienced by the double-EMA is much shorter than t
 $$P_{\text{effective}} = \sqrt{P} \approx \frac{2}{\alpha} - 1$$
 
 For $P = 20$: $P_{\text{eff}} \approx 4.47$. For $P = 100$: $P_{\text{eff}} \approx 10$.
-
-### Pseudo-code
-
-```
-function APZ(source, high, low, period, multiplier):
-    validate: period > 0, multiplier > 0
-
-    alpha = 2 / (√period + 1)
-    beta = 1 - alpha
-
-    // Double-smoothed EMA of price
-    ema1_price = alpha * source + beta * ema1_price
-    center     = alpha * ema1_price + beta * center
-
-    // Double-smoothed EMA of range
-    range      = high - low
-    ema1_range = alpha * range + beta * ema1_range
-    smooth_range = alpha * ema1_range + beta * smooth_range
-
-    // Warmup compensator
-    e *= beta²
-    if e > 1e-10:
-        compensator = 1 / (1 - e)
-        center *= compensator
-        smooth_range *= compensator
-
-    // Bands
-    width = multiplier * smooth_range
-    upper = center + width
-    lower = center - width
-
-    return [center, upper, lower]
-```
 
 ### Output Interpretation
 

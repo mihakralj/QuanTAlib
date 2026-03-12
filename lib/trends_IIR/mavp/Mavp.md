@@ -1,5 +1,7 @@
 # MAVP: Moving Average Variable Period
 
+> *You can't fix your moving average period because the market doesn't run at a fixed frequency. MAVP stops pretending it does.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -15,8 +17,6 @@
 - Output range: Tracks input.
 - Requires `maxPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "You can't fix your moving average period because the market doesn't run at a fixed frequency. MAVP stops pretending it does."
 
 ## Introduction
 

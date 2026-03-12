@@ -1,5 +1,7 @@
 # TTM_TREND: TTM Trend
 
+> *The simplest trend indicator is the one you actually follow.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest trend indicator is the one you actually follow."
 
 John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign. Output is a ternary trend state: +1 (bullish, EMA rising), -1 (bearish, EMA falling), or 0 (neutral, EMA unchanged). The indicator requires only 2 bars warmup, runs at O(1) per bar with O(1) space, and produces zero allocations in the hot path.
 
@@ -74,36 +74,6 @@ This percentage rate-of-change quantifies how aggressively the trend is moving. 
 | Parameter | Type | Default | Constraint | Description |
 |:----------|:-----|:--------|:-----------|:------------|
 | period | int | 6 | > 0 | EMA lookback period (very fast by default) |
-
-### Pseudo-code
-
-```
-TTM_TREND(bar, period=6):
-
-  tp = (bar.High + bar.Low + bar.Close) / 3
-  alpha = 2.0 / (period + 1)
-
-  if count == 0:
-    ema_val = tp
-  else:
-    ema_val = FMA(alpha, tp - ema_val, ema_val)
-
-  // Trend direction from slope sign
-  if count >= 1:
-    if ema_val > prev_ema:
-      trend = +1
-    else if ema_val < prev_ema:
-      trend = -1
-    else:
-      trend = 0
-
-    strength = abs(ema_val - prev_ema) / prev_ema * 100
-
-  prev_ema = ema_val
-  count += 1
-
-  return (ema_val, trend, strength)
-```
 
 ### Period Selection
 

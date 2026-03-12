@@ -1,5 +1,7 @@
 # FRAMA: Ehlers Fractal Adaptive Moving Average
 
+> *Markets do not move at one speed. FRAMA listens to the roughness and adjusts the filter.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `pe` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Markets do not move at one speed. FRAMA listens to the roughness and adjusts the filter."
 
 FRAMA is John Ehlers' fractal adaptive moving average. It estimates a fractal dimension from high and low ranges, then converts that dimension into a dynamic EMA alpha. The result is a moving average that tightens in trends and relaxes in noise.
 

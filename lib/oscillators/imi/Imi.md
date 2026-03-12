@@ -1,5 +1,7 @@
 # IMI: Intraday Momentum Index
 
+> *Intraday momentum index applies RSI logic to candle bodies — bullish closes accumulate strength, bearish closes accumulate weakness.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |
@@ -63,39 +65,6 @@ When both sums are zero (all doji bars in window), IMI defaults to 50.0 (neutral
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 14 | $N \geq 1$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  gainBuf = RingBuffer(period)
-  lossBuf = RingBuffer(period)
-  gainSum = lossSum = 0
-  bar_count = 0
-
-On each bar (open, close, isNew):
-  if !isNew: restore previous state
-
-  // Classify bar
-  diff = close - open
-  gain = diff > 0 ? diff : 0
-  loss = diff < 0 ? -diff : 0
-
-  // Update rolling sums
-  if gainBuf is full:
-    gainSum -= gainBuf.Oldest
-    lossSum -= lossBuf.Oldest
-  gainBuf.Add(gain)
-  lossBuf.Add(loss)
-  gainSum += gain
-  lossSum += loss
-
-  // IMI calculation
-  total = gainSum + lossSum
-  IMI = total > 0 ? 100 × gainSum / total : 50.0
-
-  output = IMI
-```
 
 ### IMI vs RSI Comparison
 

@@ -1,6 +1,6 @@
 # TEMA: Triple Exponential Moving Average
 
-> "Patrick Mulloy looked at the lag of an EMA and took it personally. TEMA is what happens when you apply algebra to impatience."
+> *Patrick Mulloy looked at the lag of an EMA and took it personally. TEMA is what happens when you apply algebra to impatience.*
 
 <!-- QUICK REFERENCE CARD (scan in 5 seconds) -->
 

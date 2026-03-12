@@ -1,6 +1,6 @@
 # ULTOSC: Ultimate Oscillator
 
-> "Why use one timeframe when three can save you from yourself?"
+> *Why use one timeframe when three can save you from yourself?*
 
 | Property | Value |
 |----------|-------|

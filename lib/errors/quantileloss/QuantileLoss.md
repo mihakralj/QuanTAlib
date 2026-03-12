@@ -1,5 +1,7 @@
 # Quantile Loss: Pinball Loss Function
 
+> *When over-prediction and under-prediction carry different costs, quantiles find the balance.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When over-prediction and under-prediction carry different costs, quantiles find the balance."
 
 Quantile Loss (also called Pinball Loss) measures prediction accuracy with asymmetric penalties for over-prediction versus under-prediction. It's essential for probabilistic forecasting where different quantiles of the distribution matter.
 

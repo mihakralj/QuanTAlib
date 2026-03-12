@@ -1,5 +1,7 @@
 # WINS: Winsorized Mean Moving Average
 
+> *Winsorization clamps outliers to the nearest percentile fence, preserving sample size while taming extreme values.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |

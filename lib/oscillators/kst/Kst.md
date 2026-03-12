@@ -1,5 +1,7 @@
 # KST: Know Sure Thing Oscillator
 
+> *Know Sure Thing layers four smoothed rates of change at different periods, weighting longer cycles more heavily.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

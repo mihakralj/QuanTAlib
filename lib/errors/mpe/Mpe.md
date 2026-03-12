@@ -1,5 +1,7 @@
 # MPE: Mean Percentage Error
 
+> *MAPE tells you how wrong you are; MPE tells you which direction you're wrong in.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "MAPE tells you how wrong you are; MPE tells you which direction you're wrong in."
 
 Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign. Unlike MAPE, which takes absolute values, MPE reveals systematic bias in predictions—whether a model consistently over-predicts or under-predicts.
 

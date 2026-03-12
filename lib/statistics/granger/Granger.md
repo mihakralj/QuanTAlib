@@ -1,5 +1,7 @@
 # GRANGER: Granger Causality F-Statistic
 
+> *Correlation is not causation, but Granger causality is not causation either. It is prediction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Correlation is not causation, but Granger causality is not causation either. It is prediction." -- Clive Granger
 
 ## Introduction
 

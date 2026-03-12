@@ -1,5 +1,7 @@
 # DOSC: Derivative Oscillator
 
+> *The derivative oscillator takes the derivative of a smoothed RSI, catching momentum shifts at their earliest inflection.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Oscillator                        |

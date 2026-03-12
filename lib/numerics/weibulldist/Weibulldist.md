@@ -1,5 +1,7 @@
 # WEIBULLDIST: Weibull Distribution CDF
 
+> *The Weibull distribution models failure rates that change over time — a flexible tool for reliability and survival analysis.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

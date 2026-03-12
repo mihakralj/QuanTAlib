@@ -1,5 +1,7 @@
 # WAVELET: Denoising Wavelet Filter
 
+> *The wavelet transform is to the Fourier transform what a microscope is to a telescope: same math, different scale.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -17,8 +19,6 @@
 - Output range: Tracks input.
 - Requires `2^levels` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The wavelet transform is to the Fourier transform what a microscope is to a telescope: same math, different scale."
 
 ## Introduction
 

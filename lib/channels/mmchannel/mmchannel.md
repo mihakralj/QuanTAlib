@@ -1,5 +1,7 @@
 # MMCHANNEL: Min-Max Channel
 
+> *The raw min-max channel captures absolute extremes — no smoothing, no forgiveness, just the bounds of recent history.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |

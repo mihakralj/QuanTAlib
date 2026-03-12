@@ -1,7 +1,5 @@
 # Statistics
 
-> "All models are wrong, but some are useful." — George Box
-
 Statistical tools applied to price and returns. These indicators quantify relationships, measure dispersion, test hypotheses. Unlike momentum or trend indicators, statistics describe the data itself.
 
 | Indicator | Full Name | Description |

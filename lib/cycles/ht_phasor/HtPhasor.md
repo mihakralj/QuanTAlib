@@ -1,5 +1,7 @@
 # HT_PHASOR: Ehlers Hilbert Transform Phasor Components
 
+> *Phasor components decompose price into in-phase and quadrature parts, mapping the cycle as a rotating vector.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -57,37 +59,6 @@ $O(1)$ per bar. Fixed Hilbert cascade with circular buffers. Warmup: 32 bars (TA
 | Parameter | Description | Default | Constraint |
 |-----------|-------------|---------|------------|
 | (none) | No user-configurable parameters | | |
-
-### Pseudo-code
-
-```
-function HT_PHASOR(source):
-    A ← 0.0962; B ← 0.5769
-    smoothBuf ← CircularBuffer(7)
-    detBuf, q1Buf, i1Buf ← CircularBuffers
-
-    I2 ← 0; Q2 ← 0
-
-    for each price in source:
-        // WMA smooth
-        smooth ← (4·price + 3·p[1] + 2·p[2] + p[3]) / 10
-        smoothBuf.Add(smooth)
-
-        // Hilbert FIR (adaptive)
-        det ← A·smooth[0] + B·smooth[2] - B·smooth[4] - A·smooth[6]
-        Q1 ← A·det[0] + B·det[2] - B·det[4] - A·det[6]
-        I1 ← det[3]
-
-        // Hilbert of I1 and Q1
-        jI ← A·I1[0] + B·I1[2] - B·I1[4] - A·I1[6]
-        jQ ← A·Q1[0] + B·Q1[2] - B·Q1[4] - A·Q1[6]
-
-        // Phasor components (EMA smoothed)
-        I2 ← 0.2·(I1 - jQ) + 0.8·I2
-        Q2 ← 0.2·(Q1 + jI) + 0.8·Q2
-
-        emit InPhase = I2, Quadrature = Q2
-```
 
 ### Phasor Crossover Signals
 

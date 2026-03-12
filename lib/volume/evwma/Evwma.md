@@ -1,5 +1,7 @@
 # EVWMA: Elastic Volume Weighted Moving Average
 
+> *Volume is the one technical indicator that never lies.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume is the one technical indicator that never lies." — Joe Granville
 
 ## Introduction
 

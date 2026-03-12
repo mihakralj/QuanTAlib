@@ -1,5 +1,7 @@
 # CCOR: Ehlers Correlation Cycle
 
+> *Correlation cycles reveal hidden periodicities by measuring how well price correlates with a rotating reference wave.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -93,48 +95,6 @@ $$r = \begin{cases} \frac{N \cdot S_{xy} - S_x \cdot S_y}{\sqrt{D}} & \text{if }
 Where:
 - Real: $y_k = \cos(2\pi k / N)$
 - Imaginary: $y_k = -\sin(2\pi k / N)$
-
-### Pseudo-code
-
-```
-function CCOR(source, period, threshold):
-    // Real correlation
-    Sx_r = Sy_r = Sxx_r = Sxy_r = Syy_r = 0
-    for k = 0 to period-1:
-        x = source[k]
-        y = cos(2π * k / period)
-        Sx_r += x;  Sy_r += y
-        Sxx_r += x*x;  Sxy_r += x*y;  Syy_r += y*y
-    denom_r = (N*Sxx_r - Sx_r²) * (N*Syy_r - Sy_r²)
-    real = denom_r > 0 ? (N*Sxy_r - Sx_r*Sy_r) / √denom_r : 0
-
-    // Imaginary correlation (same accumulators for x, different y)
-    Sx_i = Sy_i = Sxx_i = Sxy_i = Syy_i = 0
-    for k = 0 to period-1:
-        x = source[k]
-        y = -sin(2π * k / period)
-        Sx_i += x;  Sy_i += y
-        Sxx_i += x*x;  Sxy_i += x*y;  Syy_i += y*y
-    denom_i = (N*Sxx_i - Sx_i²) * (N*Syy_i - Sy_i²)
-    imag = denom_i > 0 ? (N*Sxy_i - Sx_i*Sy_i) / √denom_i : 0
-
-    // Phasor angle
-    angle = 0
-    if imag ≠ 0: angle = 90 + atan(real/imag) * (180/π)
-    if imag > 0: angle -= 180
-
-    // Monotonic constraint
-    angle = max(angle, prev_angle)
-    prev_angle = angle
-
-    // State detection
-    Δθ = |angle - saved_prev_angle|
-    state = 0
-    if Δθ < threshold and angle ≥ 0: state = +1
-    if Δθ < threshold and angle ≤ 0: state = -1
-
-    return [real, imag, angle, state]
-```
 
 ### Output Interpretation
 

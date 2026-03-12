@@ -1,5 +1,7 @@
 # RSI: Relative Strength Index
 
+> *Momentum is the premier anomaly.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Momentum is the premier anomaly." — Clifford Asness, AQR Capital (who actually said it, and meant it)
 
 The Relative Strength Index measures the speed and magnitude of price changes. Introduced by J. Welles Wilder Jr. in 1978, it oscillates between 0 and 100, identifying overbought and oversold conditions. The "Relative Strength" name is misleading: RSI measures internal strength (price versus itself) not relative strength (asset versus benchmark). Wilder knew this. He kept the name anyway. Marketing, perhaps.
 

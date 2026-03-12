@@ -1,5 +1,7 @@
 # MIDBODY: Open-Close Average
 
+> *The average of open and close reveals the candle body's center — where intent met execution.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Core                        |
@@ -70,13 +72,6 @@ None. OC2 is parameterless.
 | AVGPRICE | $(O+H+L+C) \times 0.25$ | O, H, L, C | Fully balanced |
 | WCLPRICE | $(H+L+2C) \times 0.25$ | H, L, C | Close double-weighted |
 
-### Pseudo-code
-
-```text
-function Midbody(bar):
-    return (bar.Open + bar.Close) * 0.5
-```
-
 ### Output Interpretation
 
 - OC2 > Close: bar closed below its midpoint (bearish lean)
@@ -119,9 +114,3 @@ The batch loop is a trivial element-wise `(a[i] + b[i]) * 0.5`. Auto-vectorizati
 
 - **Skender.Stock.Indicators** `CandlePart.OC2` enum documentation.
 - **Murphy, J.J.** *Technical Analysis of the Financial Markets*. New York Institute of Finance, 1999.
-
-
-
-
-
-

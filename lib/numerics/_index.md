@@ -1,7 +1,5 @@
 # Numerics
 
-> "Price is raw signal. Transform exposes hidden structure. Derivative reveals momentum. Normalization enables comparison."
-
 Basic mathematical transforms and utility functions for time series. These building blocks convert raw price data into forms suitable for analysis, comparison, and downstream indicator consumption.
 
 | Indicator | Full Name | Description |

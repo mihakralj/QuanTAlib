@@ -1,5 +1,7 @@
 # CORAL — Coral Trend Filter
 
+> *Coral blends multiple EMA stages with tunable smoothing, producing a trend line that bends without breaking.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |

@@ -1,5 +1,7 @@
 # HPF: Ehlers Highpass Filter
 
+> *Noise is just signal you haven't figured out how to filter yet. Or maybe, it's the only signal that matters.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -15,8 +17,6 @@
 - Output range: Oscillates around zero (detrended signal).
 - Requires `length` bars of warmup before first valid output (IsHot = true). Default: **40 bars**.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Noise is just signal you haven't figured out how to filter yet. Or maybe, it's the only signal that matters."
 
 The 2-Pole Highpass Filter (HPF) is designed to separate high-frequency components (like cycles and noise) from the underlying trend. By suppressing low-frequency movements, it acts as a "detrender," making it invaluable for oscillator construction and cycle analysis.
 

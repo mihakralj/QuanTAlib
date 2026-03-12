@@ -1,5 +1,7 @@
 # RGMA: Recursive Gaussian Moving Average
 
+> *The statisticians wanted Gaussian smoothing. The HFT folks wanted O(1) updates. RGMA splits the difference: chain enough cheap EMAs together and the impulse response starts looking suspiciously bell-shaped. It's not real Gaussian—but the market doesn't know that.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The statisticians wanted Gaussian smoothing. The HFT folks wanted O(1) updates. RGMA splits the difference: chain enough cheap EMAs together and the impulse response starts looking suspiciously bell-shaped. It's not real Gaussian—but the market doesn't know that."
 
 RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages. Each pass through an EMA filter smooths the signal further, and the mathematical magic is that cascaded low-pass filters push the impulse response toward a Gaussian-like shape. You get the desirable properties of Gaussian smoothing—smooth frequency roll-off, minimal ringing, symmetric lag—without the computational cost of a true FIR convolution.
 

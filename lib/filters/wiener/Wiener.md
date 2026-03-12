@@ -1,5 +1,7 @@
 # Wiener Filter
 
+> *The signal is the truth. The noise is just an opinion.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `Math.Max(period, smoothPeriod)` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The signal is the truth. The noise is just an opinion."
 
 The Wiener Filter is an optimal linear filter that attempts to minimize the mean square error between the estimated random process and the desired process. In the context of technical analysis, it acts as an adaptive smoothing filter that adjusts its responsiveness based on the local statistical properties of the data (signal-to-noise ratio). When the signal variance is high relative to noise variance, the filter follows the input closely. When noise dominates, it smooths aggressively.
 

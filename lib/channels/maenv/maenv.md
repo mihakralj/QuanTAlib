@@ -1,5 +1,7 @@
 # MAENV: Moving Average Envelope
 
+> *A fixed percentage above and below a moving average — the simplest envelope assumes symmetry in price behavior.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -70,25 +72,6 @@ $O(1)$ for SMA and EMA modes. $O(n)$ for WMA mode due to the weighted sum.
 | `percentage` | Band distance as percent of MA ($P$) | 1.0 | $> 0$ |
 | `ma_type` | Moving average type: 0=SMA, 1=EMA, 2=WMA | 1 (EMA) | $\{0, 1, 2\}$ |
 | `source` | Input price series | close | |
-
-### Pseudo-code
-
-```
-function MAENV(source, period, percentage, ma_type):
-    validate: period > 0, percentage > 0
-
-    // Compute center line based on MA type
-    if ma_type == 0: middle = SMA(source, period)
-    if ma_type == 1: middle = EMA(source, period)  // with warmup
-    if ma_type == 2: middle = WMA(source, period)
-
-    // Fixed percentage offset
-    dist = middle * percentage / 100
-    upper = middle + dist
-    lower = middle - dist
-
-    return [middle, upper, lower]
-```
 
 ### Output Interpretation
 

@@ -1,7 +1,5 @@
 # Momentum
 
-> "Momentum tells you how fast price is moving. Whether that movement has meaning: entirely different question."  Unknown
-
 Momentum indicators measure the velocity and acceleration of price changes. Unlike trend indicators (which answer "where is price going?"), momentum indicators answer "how fast?" and "is it slowing down?". This distinction matters: a strong trend can have weakening momentum (divergence), and a ranging market can show momentum spikes (false breakouts).
 
 ## Indicators

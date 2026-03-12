@@ -1,5 +1,7 @@
 # MFI: Money Flow Index
 
+> *Volume confirms price, but money flow confirms intent.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume confirms price, but money flow confirms intent." — Gene Quong & Avrum Soudack
 
 Money Flow Index is the volume-weighted cousin of RSI. While RSI measures the momentum of price changes alone, MFI incorporates volume to determine whether the price movement has conviction behind it. The result is an oscillator that can identify when strong hands are accumulating or distributing.
 

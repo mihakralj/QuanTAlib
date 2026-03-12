@@ -1,5 +1,7 @@
 # VOV: Volatility of Volatility
 
+> *When markets become uncertain about their own uncertainty, that's when things get interesting.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `volatilityPeriod + vovPeriod - 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When markets become uncertain about their own uncertainty, that's when things get interesting."
 
 Volatility of Volatility (VOV) measures the standard deviation of volatility itself, quantifying how much volatility fluctuates over time. While standard volatility tells you how much prices move, VOV tells you how stable or unstable that movement pattern is. High VOV indicates volatility is erratic and unpredictable; low VOV suggests volatility is relatively stable and consistent.
 

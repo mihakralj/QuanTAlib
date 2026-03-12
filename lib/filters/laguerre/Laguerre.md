@@ -1,5 +1,7 @@
 # LAGUERRE: Ehlers Laguerre Filter
 
+> *The problem with conventional filters is that they use unit delays. All-pass filters replace unit delays with frequency-dependent delays, and that changes everything.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -17,8 +19,6 @@
 - Output range: Tracks input.
 - Requires `WarmupBars` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The problem with conventional filters is that they use unit delays. All-pass filters replace unit delays with frequency-dependent delays, and that changes everything." — John F. Ehlers
 
 ## Introduction
 

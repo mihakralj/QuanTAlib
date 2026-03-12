@@ -1,5 +1,7 @@
 # QEMA: Quad Exponential Moving Average
 
+> *Four EMAs walk into a bar. The first one's slow and thoughtful. The fourth one's practically twitching. Together, they somehow produce a signal that's both smooth and responsive. The bartender asks, 'How did you achieve zero lag?' They reply, 'Constrained quadratic optimization.' The bartender pours them a free drink.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (IIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Four EMAs walk into a bar. The first one's slow and thoughtful. The fourth one's practically twitching. Together, they somehow produce a signal that's both smooth and responsive. The bartender asks, 'How did you achieve zero lag?' They reply, 'Constrained quadratic optimization.' The bartender pours them a free drink."
 
 QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them using minimum-energy weights. Unlike traditional multi-stage EMAs (DEMA, TEMA) that use fixed coefficients, QEMA solves for weights that explicitly eliminate DC lag while minimizing output variance. The result is a filter that tracks linear trends with zero group delay while suppressing high-frequency noise more effectively than standard EMA cascades.
 

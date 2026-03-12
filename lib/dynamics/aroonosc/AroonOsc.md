@@ -1,5 +1,7 @@
 # AROONOSC: Aroon Oscillator
 
+> *The Aroon oscillator subtracts Aroon Down from Aroon Up, collapsing two timing signals into a single directional gauge.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -55,36 +57,6 @@ $$\text{AroonOsc} = \text{AroonUp} - \text{AroonDown}$$
 | Symbol | Parameter | Default | Constraint |
 |--------|-----------|---------|------------|
 | $N$ | period | 25 | $N \geq 1$ |
-
-### Pseudo-code
-
-```
-Initialize:
-  highBuf = RingBuffer(period + 1)
-  lowBuf = RingBuffer(period + 1)
-  bar_count = 0
-
-On each bar (high, low, isNew):
-  if !isNew: restore previous state
-
-  highBuf.Add(high)
-  lowBuf.Add(low)
-  bar_count++
-
-  len = min(bar_count, period)
-
-  // Scan for extremes
-  maxIdx = index of maximum in highBuf over last (len + 1) entries
-  minIdx = index of minimum in lowBuf over last (len + 1) entries
-
-  barsSinceHigh = len - maxIdx
-  barsSinceLow = len - minIdx
-
-  AroonUp = (len - barsSinceHigh) / len × 100
-  AroonDown = (len - barsSinceLow) / len × 100
-
-  output = AroonUp - AroonDown
-```
 
 ### Drift Immunity
 

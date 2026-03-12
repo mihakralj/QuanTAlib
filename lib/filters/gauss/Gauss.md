@@ -1,5 +1,7 @@
 # Gauss: Gaussian Filter
 
+> *SMA smears data like cheap paint. Gaussian filtering respects the signal's soul.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -17,8 +19,6 @@
 - Output range: Tracks input.
 - Requires `2⌈3σ⌉+1` bars of warmup before first valid output (IsHot = true). Default: **7 bars** (σ=1.0).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "SMA smears data like cheap paint. Gaussian filtering respects the signal's soul."
 
 Gauss (Gaussian Filter) is a smoothing filter that applies a Gaussian kernel to time series data. Unlike Simple Moving Average (SMA), which weights all points in the window equally (boxcar function), the Gaussian filter applies weights that follow a bell curve distribution. This minimizes lag while providing superior noise reduction and significantly better preservation of signal edges.
 

@@ -1,7 +1,5 @@
 # Errors
 
-> "All models are wrong. Error metrics tell you how wrong."  Adapted from George Box
-
 Error metrics and loss functions for model/strategy evaluation. All error indicators accept two input series (actual and predicted values) and compute rolling error metrics over a configurable period.
 
 ## Indicators

@@ -1,5 +1,7 @@
 # ASI: Accumulation Swing Index
 
+> *Price tells us what is happening. The Accumulation Swing Index tells us whether to believe it.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Momentum                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Price tells us what is happening. The Accumulation Swing Index tells us whether to believe it." — J. Welles Wilder Jr.
 
 The Accumulation Swing Index is Wilder's method for separating genuine breakouts from whipsaw noise. Each bar computes a Swing Index value by comparing current OHLC prices to the previous bar, scaled by a user-supplied limit move parameter T. The cumulative sum of these SI values — the ASI — forms a "phantom" price line whose peaks and troughs can be compared directly to the price chart. A trendline break on ASI that accompanies a trendline break on price is confirmed; a price break without ASI confirmation is a probable false move. Introduced in Wilder's 1978 book, it predates most modern oscillators by a decade.
 

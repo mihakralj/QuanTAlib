@@ -1,5 +1,7 @@
 # PVT: Price Volume Trend
 
+> *Volume tells you about the intensity of price moves, but PVT tells you what volume is actually accomplishing.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Volume tells you about the intensity of price moves, but PVT tells you what volume is actually accomplishing." — Unknown
 
 Price Volume Trend refines the OBV concept by weighting volume according to the percentage price change rather than using an all-or-nothing approach. Where OBV assigns the entire bar's volume to either buyers or sellers, PVT scales the volume contribution by the relative price movement—a 1% move adds only 1% of volume to the running total.
 

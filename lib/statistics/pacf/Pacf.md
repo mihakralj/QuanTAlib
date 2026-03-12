@@ -1,5 +1,7 @@
 # PACF: Partial Autocorrelation Function
 
+> *Strip away the intermediaries, and you'll see the true direct relationship.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against mathematical properties and Durbin-Levinson recursion expectations.
-
-> "Strip away the intermediaries, and you'll see the true direct relationship."
 
 The Partial Autocorrelation Function (PACF) measures the correlation between a time series and its lagged values, after removing the effects of all intermediate lags. While ACF shows total correlation at each lag, PACF isolates the direct correlation, making it essential for AR model identification.
 

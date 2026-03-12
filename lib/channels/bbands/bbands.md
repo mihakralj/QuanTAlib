@@ -1,5 +1,7 @@
 # BBANDS: Bollinger Bands
 
+> *Standard deviation channels adapt to the market's own volatility rhythm, expanding and contracting like breathing.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -77,36 +79,6 @@ The circular buffer maintains running sums of $x$ and $x^2$, enabling $O(1)$ com
 | 1.0 | 68.3% | 0% (trivial bound) |
 | 2.0 | 95.4% | 75.0% |
 | 3.0 | 99.7% | 88.9% |
-
-### Pseudo-code
-
-```
-function BBANDS(source, period, multiplier):
-    validate: period > 0, multiplier > 0
-
-    // Circular buffer maintains running sums
-    sum += source;  sumSq += source²
-    oldest = buffer[head]
-    if oldest exists: sum -= oldest; sumSq -= oldest²
-
-    // SMA (middle band)
-    middle = sum / count
-
-    // Population standard deviation
-    variance = max(0, sumSq/count - middle²)
-    sigma = √variance
-    dev = multiplier * sigma
-
-    // Bands
-    upper = middle + dev
-    lower = middle - dev
-
-    // Derived metrics
-    bandwidth = (upper - lower) / middle
-    percentB = (source - lower) / (upper - lower)
-
-    return [middle, upper, lower, bandwidth, percentB]
-```
 
 ### Output Interpretation
 

@@ -1,5 +1,7 @@
 # VF: Volume Force
 
+> *Price without volume is like a punch without body weight behind it—VF measures the momentum of conviction.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Price without volume is like a punch without body weight behind it—VF measures the momentum of conviction." — Anonymous Quant
 
 Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with warmup compensation. The result is a momentum-style oscillator that distinguishes between genuine volume-backed moves and hollow price action.
 

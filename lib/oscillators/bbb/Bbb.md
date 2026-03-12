@@ -1,6 +1,6 @@
 # BBB: Bollinger %B
 
-> "Price oscillates, but %B tells you where it lives inside the band." -- John Bollinger, paraphrased
+> *Price oscillates, but %B tells you where it lives inside the band.*
 
 | Property     | Value |
 |--------------|-------|

@@ -1,5 +1,7 @@
 # ZSCORE: Z-Score (Population Standard Score, also known as STANDARDIZE)
 
+> *How far from normal is this?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against manual computation, PineScript parity, and statistical invariants.
-
-> "How far from normal is this?" — Every risk manager, every day.
 
 ## Introduction
 

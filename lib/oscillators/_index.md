@@ -1,7 +1,5 @@
 # Oscillators
 
-> "Oscillators tell you when to act, not which direction to trade."  Unknown
-
 Oscillators fluctuate above and below a centerline or within bounded ranges. Useful for identifying overbought/oversold conditions, momentum shifts, and divergences. Best in ranging markets; trend-following indicators work better in trending markets.
 
 | Indicator | Full Name | Description |

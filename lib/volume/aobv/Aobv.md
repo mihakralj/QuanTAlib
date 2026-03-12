@@ -1,5 +1,7 @@
 # AOBV: Archer On-Balance Volume
 
+> *OBV told me what was happening. AOBV told me when to act.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volume                        |
@@ -15,8 +17,6 @@
 - Output range: Unbounded.
 - Requires `> SlowPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "OBV told me what was happening. AOBV told me when to act." — Adapted trader wisdom
 
 Archer On-Balance Volume (AOBV) applies dual exponential smoothing to the classic On-Balance Volume indicator, creating a responsive yet noise-filtered momentum signal. The intersection of fast and slow EMAs provides actionable crossover signals while preserving OBV's core insight: volume precedes price.
 

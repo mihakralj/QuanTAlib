@@ -1,5 +1,7 @@
 # RMSLE: Root Mean Squared Logarithmic Error
 
+> *RMSLE: because sometimes your errors need to be measured in decades, not dollars.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "RMSLE: because sometimes your errors need to be measured in decades, not dollars."
 
 Root Mean Squared Logarithmic Error is the square root of MSLE, providing an error metric in log-scale units. This makes RMSLE more interpretable than MSLE while retaining all its benefits for data spanning multiple orders of magnitude.
 

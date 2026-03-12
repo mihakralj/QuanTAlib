@@ -1,6 +1,6 @@
 # WILLR: Williams %R
 
-> "The market tells you where it closed relative to where it traded. That single fact contains more information than most traders realize." -- George Lane
+> *The market tells you where it closed relative to where it traded. That single fact contains more information than most traders realize.*
 
 | Property | Value |
 |----------|-------|

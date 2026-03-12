@@ -1,5 +1,7 @@
 # CG: Ehlers Center of Gravity
 
+> *Center of Gravity locates the balance point of price over a window, anticipating turns before they arrive.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -53,31 +55,6 @@ Streaming uses running sums for both numerator and denominator: $O(1)$ per bar w
 | Parameter | Description | Default | Constraint |
 |-----------|-------------|---------|------------|
 | `period` | Lookback window length | 10 | $> 0$ |
-
-### Pseudo-code
-
-```
-function CG(source, period):
-    buffer ← RingBuffer(period)
-    runNum ← 0       // weighted sum
-    runDen ← 0       // simple sum
-
-    for each price in source:
-        buffer.Add(price)
-        if buffer.Count < period: continue
-
-        // Compute from buffer (or maintain running sums)
-        num = 0
-        den = 0
-        for i = 0 to period-1:
-            w = i + 1
-            num += w * buffer[i]
-            den += buffer[i]
-
-        cg = (den ≠ 0) ? (num / den) - (period + 1) / 2.0 : 0
-
-        emit cg
-```
 
 ### Output Interpretation
 

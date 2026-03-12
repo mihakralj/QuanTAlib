@@ -1,5 +1,7 @@
 # APCHANNEL: Adaptive Price Channel
 
+> *An adaptive channel reshapes its width in real time, tracking the market's own sense of normal.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -73,30 +75,6 @@ The number of bars for a price extreme's influence to decay by 50%:
 $$t_{1/2} = \frac{\ln 2}{\ln(1 / (1 - \alpha))}$$
 
 For $\alpha = 0.2$: $t_{1/2} \approx 3.1$ bars. For $\alpha = 0.05$: $t_{1/2} \approx 13.5$ bars.
-
-### Pseudo-code
-
-```
-function APCHANNEL(high, low, alpha):
-    validate: 0 < alpha ≤ 1
-    decay = 1 - alpha
-
-    // EMA of highs
-    if first_bar:
-        upper = high
-    else:
-        upper = decay * upper + alpha * high
-
-    // EMA of lows
-    if first_bar:
-        lower = low
-    else:
-        lower = decay * lower + alpha * low
-
-    middle = (upper + lower) / 2
-
-    return [middle, upper, lower]
-```
 
 ### Output Interpretation
 

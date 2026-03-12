@@ -1,5 +1,7 @@
 # MRAE: Mean Relative Absolute Error
 
+> *When you need to understand your error in the context of what you're predicting.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When you need to understand your error in the context of what you're predicting."
 
 Mean Relative Absolute Error (MRAE) measures the average magnitude of errors relative to the actual values. This normalization makes the metric scale-independent and easier to interpret across different datasets.
 

@@ -1,5 +1,7 @@
 # UCHANNEL: Ehlers Ultimate Channel
 
+> *The ultimate channel uses Ehlers' signal processing to carve boundaries that track the market's hidden periodicity.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -107,55 +109,6 @@ H(z) = \frac{(1 - c_1) + (2c_1 - c_2)\,z^{-1} - (c_1 + c_3)\,z^{-2}}{1 - c_2\,z^
 $$
 
 Frequency response: cutoff at approximately $f_c \approx 1/(2\pi n)$ cycles per bar; 12 dB/octave rolloff.
-
-### Pseudo-code
-
-```
-function uchannel(close[], high[], low[], strPeriod, centerPeriod, multiplier):
-    // compute USF coefficients for STR
-    arg_s = sqrt(2) * pi / strPeriod
-    c2_s = 2 * exp(-arg_s) * cos(arg_s)
-    c3_s = -exp(-2 * arg_s)
-    c1_s = (1 + c2_s - c3_s) / 4
-
-    // compute USF coefficients for centerline
-    arg_c = sqrt(2) * pi / centerPeriod
-    c2_c = 2 * exp(-arg_c) * cos(arg_c)
-    c3_c = -exp(-2 * arg_c)
-    c1_c = (1 + c2_c - c3_c) / 4
-
-    usf_str  = [NaN, NaN]   // two-element state
-    usf_cen  = [NaN, NaN]
-
-    for each bar t:
-        // True Range
-        th = max(high[t], close[t-1])
-        tl = min(low[t], close[t-1])
-        tr = th - tl
-
-        // USF for True Range → STR
-        if usf_str not initialized:
-            str_val = tr
-        else:
-            str_val = (1-c1_s)*tr + (2*c1_s-c2_s)*tr[t-1]
-                      - (c1_s+c3_s)*tr[t-2]
-                      + c2_s*usf_str[0] + c3_s*usf_str[1]
-        usf_str = [str_val, usf_str[0]]
-
-        // USF for close → centerline
-        if usf_cen not initialized:
-            center = close[t]
-        else:
-            center = (1-c1_c)*close[t] + (2*c1_c-c2_c)*close[t-1]
-                     - (c1_c+c3_c)*close[t-2]
-                     + c2_c*usf_cen[0] + c3_c*usf_cen[1]
-        usf_cen = [center, usf_cen[0]]
-
-        upper = center + multiplier * str_val
-        lower = center - multiplier * str_val
-
-        emit (upper, center, lower)
-```
 
 ### UCHANNEL vs UBANDS
 

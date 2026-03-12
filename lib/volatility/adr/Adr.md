@@ -1,5 +1,7 @@
 # ADR: Average Daily Range
 
+> *The simplest measure is often the most useful. Why complicate what doesn't need complicating?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Volatility                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `ma.WarmupPeriod` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The simplest measure is often the most useful. Why complicate what doesn't need complicating?"
 
 The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period. Unlike its cousin ATR, ADR ignores gaps entirely. It answers a straightforward question: "How much does this asset typically move within a single bar?"
 

@@ -1,5 +1,7 @@
 # Pseudo-Huber: Smooth Huber Approximation
 
+> *All the robustness of Huber, none of the discontinuities.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Error Metric                        |
@@ -15,8 +17,6 @@
 - Output range: $\geq 0$.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "All the robustness of Huber, none of the discontinuities."
 
 Pseudo-Huber Loss (also called Charbonnier Loss) is a smooth approximation to the Huber loss function. Unlike Huber which has a piecewise definition with a kink at δ, Pseudo-Huber is continuously differentiable everywhere, making it ideal for gradient-based optimization.
 

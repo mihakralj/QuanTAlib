@@ -1,5 +1,7 @@
 # PMA: Predictive Moving Average
 
+> *John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `(period * 2) - 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been."
 
 PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predict price direction. It produces two outputs: the PMA line (extrapolated trend) and a Trigger line for crossover signals. Default period is 7 per Ehlers' original specification.
 

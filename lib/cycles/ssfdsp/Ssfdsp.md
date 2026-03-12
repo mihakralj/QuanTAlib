@@ -1,5 +1,7 @@
 # SSFDSP: Ehlers SSF Detrended Synthetic Price
 
+> *SSF-based detrended synthetic price applies a super smoother before extracting cycles, achieving cleaner periodicity isolation.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Cycle                        |
@@ -69,50 +71,6 @@ $O(1)$ per bar. Two independent 2-pole IIR filters with $O(1)$ memory. Warmup: a
 ### Super-Smoother Frequency Response
 
 The SSF has $-3$ dB attenuation at the cutoff period, $-12$ dB/octave rolloff (2-pole), and zero phase lag at the cutoff. This is equivalent to a critically-damped Butterworth filter.
-
-### Pseudo-code
-
-```
-function SSFDSP(source, period):
-    pFast ← max(2, round(period / 4))
-    pSlow ← max(3, round(period / 2))
-
-    // Fast SSF coefficients
-    αf ← √2·π / pFast
-    c2f ← 2·exp(-αf)·cos(αf)
-    c3f ← -exp(-2·αf)
-    c1f ← 1 - c2f - c3f
-
-    // Slow SSF coefficients
-    αs ← √2·π / pSlow
-    c2s ← 2·exp(-αs)·cos(αs)
-    c3s ← -exp(-2·αs)
-    c1s ← 1 - c2s - c3s
-
-    ssfFast_1 ← 0; ssfFast_2 ← 0
-    ssfSlow_1 ← 0; ssfSlow_2 ← 0
-    p_prev ← 0
-
-    for each price in source:
-        // Input averaging
-        avg ← (price + p_prev) / 2
-
-        // Fast SSF update
-        ssfFast ← c1f·avg + c2f·ssfFast_1 + c3f·ssfFast_2
-
-        // Slow SSF update
-        ssfSlow ← c1s·avg + c2s·ssfSlow_1 + c3s·ssfSlow_2
-
-        // SSFDSP
-        ssfdsp ← ssfFast - ssfSlow
-
-        // Shift state
-        ssfFast_2 ← ssfFast_1; ssfFast_1 ← ssfFast
-        ssfSlow_2 ← ssfSlow_1; ssfSlow_1 ← ssfSlow
-        p_prev ← price
-
-        emit ssfdsp
-```
 
 ### DSP vs SSFDSP
 

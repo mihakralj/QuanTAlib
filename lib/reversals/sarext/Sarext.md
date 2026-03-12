@@ -1,5 +1,7 @@
 # SAREXT: Parabolic SAR Extended
 
+> *The trend is your friend — but which way it accelerates depends on whether you're long or short.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -16,8 +18,6 @@
 - Auto-detects initial direction from Directional Movement when `startValue == 0`.
 - Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib reference implementation.
-
-> "The trend is your friend — but which way it accelerates depends on whether you're long or short." — QuanTAlib
 
 ## Introduction
 

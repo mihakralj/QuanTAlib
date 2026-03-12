@@ -1,5 +1,7 @@
 # HURST: Hurst Exponent
 
+> *The past is not dead. In fact, it's not even past.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period + 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "The past is not dead. In fact, it's not even past." — William Faulkner, and also every mean-reverting time series that refuses to forget.
 
 ## Introduction
 

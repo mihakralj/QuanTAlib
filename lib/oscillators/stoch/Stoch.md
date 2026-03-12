@@ -1,6 +1,6 @@
 # STOCH: Stochastic Oscillator
 
-> "The Stochastic Oscillator doesn't follow price. It follows the speed, or momentum, of price. Momentum changes direction before price." -- George C. Lane
+> *The Stochastic Oscillator doesn't follow price. It follows the speed, or momentum, of price. Momentum changes direction before price.*
 
 | Property | Value |
 |----------|-------|

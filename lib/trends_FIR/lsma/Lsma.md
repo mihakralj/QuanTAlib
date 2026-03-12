@@ -1,5 +1,7 @@
 # LSMA: Least Squares Moving Average
 
+> *If you want to know where the price is going, draw a line through where it's been. LSMA does this for every single bar, tirelessly fitting linear regressions while you sleep.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Trend (FIR MA)                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "If you want to know where the price is going, draw a line through where it's been. LSMA does this for every single bar, tirelessly fitting linear regressions while you sleep."
 
 LSMA (Least Squares Moving Average), also known as the Moving Linear Regression or Endpoint Moving Average, calculates the least squares regression line for the preceding time periods. In plain English: it finds the "best fit" line for the data window and tells you where that line ends.
 

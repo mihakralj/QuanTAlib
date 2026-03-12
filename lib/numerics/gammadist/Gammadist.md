@@ -1,5 +1,7 @@
 # GAMMADIST: Gamma Distribution CDF
 
+> *The Gamma distribution generalizes the exponential, modeling the sum of waiting times with a shape that bends to fit.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

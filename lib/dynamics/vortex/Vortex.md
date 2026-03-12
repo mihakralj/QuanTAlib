@@ -1,5 +1,7 @@
 # VORTEX: Vortex Indicator
 
+> *When bulls and bears clash, the Vortex measures the violence.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Dynamic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "When bulls and bears clash, the Vortex measures the violence."
 
 The Vortex Indicator measures upward and downward trend momentum by computing the ratio of positive and negative vortex movements to true range over a rolling window. VI+ captures the distance from current high to previous low (upward force); VI- captures the distance from current low to previous high (downward force). Both are normalized by summed true range, producing two lines that oscillate around 1.0. Crossovers signal trend changes. The implementation uses three ring buffers with running sums for O(1) streaming updates.
 
@@ -80,45 +80,6 @@ This yields O(1) per-bar updates after the initial warmup fill.
 | Parameter | Type | Default | Constraint | Description |
 |:----------|:-----|:--------|:-----------|:------------|
 | period | int | 14 | > 0 | Rolling window for VM and TR sums |
-
-### Pseudo-code
-
-```
-VORTEX(bar, period=14):
-
-  // Vortex movements (require previous bar)
-  vm_plus  = abs(bar.High - prev_bar.Low)
-  vm_minus = abs(bar.Low  - prev_bar.High)
-
-  // True range
-  tr = max(bar.High - bar.Low,
-           abs(bar.High - prev_bar.Close),
-           abs(bar.Low  - prev_bar.Close))
-
-  // Ring buffer updates with running sums
-  if buffer_full:
-    sum_vm_plus  -= vm_plus_buffer.oldest
-    sum_vm_minus -= vm_minus_buffer.oldest
-    sum_tr       -= tr_buffer.oldest
-
-  vm_plus_buffer.add(vm_plus)
-  vm_minus_buffer.add(vm_minus)
-  tr_buffer.add(tr)
-
-  sum_vm_plus  += vm_plus
-  sum_vm_minus += vm_minus
-  sum_tr       += tr
-
-  // Vortex indicators
-  if sum_tr > 0:
-    vi_plus  = sum_vm_plus  / sum_tr
-    vi_minus = sum_vm_minus / sum_tr
-  else:
-    vi_plus  = 0
-    vi_minus = 0
-
-  return (vi_plus, vi_minus)
-```
 
 ### Reference Line at 1.0
 

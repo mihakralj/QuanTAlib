@@ -1,5 +1,7 @@
 # MeanDev: Mean Deviation (Average Absolute Deviation)
 
+> *Not all dispersion is created equal — some prefer robustness over elegance.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Statistic                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Not all dispersion is created equal — some prefer robustness over elegance."
 
 Mean Deviation (also known as Mean Absolute Deviation or Average Absolute Deviation) measures the average of the absolute deviations from the mean. Unlike Standard Deviation, it does not square the deviations, making it more robust to outliers and more intuitive to interpret.
 

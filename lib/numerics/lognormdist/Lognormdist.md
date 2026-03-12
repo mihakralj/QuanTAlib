@@ -1,5 +1,7 @@
 # LOGNORMDIST: Log-Normal Distribution CDF
 
+> *The log-normal CDF models variables whose logarithm is normal — the natural distribution of prices and multiplicative processes.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Numeric                        |

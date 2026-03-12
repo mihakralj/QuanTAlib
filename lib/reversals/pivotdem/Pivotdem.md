@@ -1,5 +1,7 @@
 # PIVOTDEM: DeMark Pivot Points
 
+> *Most pivot formulas treat every bar the same. DeMark looked at the open-close relationship and asked: why would a bearish bar predict the same levels as a bullish one?*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Reversal                        |
@@ -15,8 +17,6 @@
 - Output range: Varies (see docs).
 - Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "Most pivot formulas treat every bar the same. DeMark looked at the open-close relationship and asked: why would a bearish bar predict the same levels as a bullish one?"
 
 DeMark Pivot Points calculate three horizontal support and resistance levels from the previous bar's open, high, low, and close. The defining characteristic is a conditional intermediate value X that changes its weighting depending on whether the prior bar closed below, above, or equal to its open. Bearish bars weight the low; bullish bars weight the high; doji bars weight the close. Three levels (PP, R1, S1) emerge from this single conditional calculation. The only pivot variant that uses the open price.
 

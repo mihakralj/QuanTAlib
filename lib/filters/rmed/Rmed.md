@@ -1,5 +1,7 @@
 # RMED: Ehlers Recursive Median Filter
 
+> *John Ehlers combined two tools that rarely meet: the median (nonlinear, spike-resistant) and the EMA (smooth, recursive). The median kills the spikes, the EMA smooths the survivors. Together they produce a filter that is both resistant and smooth.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Filter                        |
@@ -16,8 +18,6 @@
 - Output range: Tracks input.
 - Requires **5 bars** of warmup (MedianWindow) before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-
-> "John Ehlers combined two tools that rarely meet: the median (nonlinear, spike-resistant) and the EMA (smooth, recursive). The median kills the spikes, the EMA smooths the survivors. Together they produce a filter that is both resistant and smooth."
 
 RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing smooth recursive tracking. The median component eliminates outliers that would corrupt any linear filter, while the EMA provides the recursive continuity that a pure median lacks. The EMA constant $\alpha$ is derived from Ehlers' cycle-period formula, connecting the smoothing rate to the dominant cycle length of the data.
 

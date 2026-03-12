@@ -1,5 +1,7 @@
 # ATRBANDS: Average True Range Bands
 
+> *True range bands let volatility itself draw the envelope — wider when uncertain, tighter when resolved.*
+
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
 | **Category**     | Channel                        |
@@ -71,33 +73,6 @@ The SMA uses a circular buffer for $O(1)$ running sums. The ATR uses recursive I
 | Intra-bar | $H_t - L_t$ | Current bar's range |
 | Gap-up | $\|H_t - C_{t-1}\|$ | Upward gap distance |
 | Gap-down | $\|L_t - C_{t-1}\|$ | Downward gap distance |
-
-### Pseudo-code
-
-```
-function ATRBANDS(source, high, low, close, period, multiplier):
-    validate: period > 0, multiplier > 0
-
-    // True Range
-    tr = max(high - low, |high - prev_close|, |low - prev_close|)
-    prev_close = close
-
-    // ATR via Wilder's smoothing (RMA)
-    alpha = 1 / period
-    raw_rma = (raw_rma * (period - 1) + tr) / period
-    e *= (1 - alpha)
-    atr = e > ε ? raw_rma / (1 - e) : raw_rma
-
-    // Center line (SMA via circular buffer)
-    middle = SMA(source, period)
-
-    // Bands
-    width = atr * multiplier
-    upper = middle + width
-    lower = middle - width
-
-    return [middle, upper, lower]
-```
 
 ### Output Interpretation
 
