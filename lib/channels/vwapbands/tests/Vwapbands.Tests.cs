@@ -120,7 +120,7 @@ public class VwapbandsTests
         // Make multiple corrections
         for (int i = 0; i < 10; i++)
         {
-            var correctionBar = new TBar(DateTime.UtcNow, 150 + i, 160 + i, 140 + i, 155 + i, 2000 + i * 100);
+            var correctionBar = new TBar(DateTime.UtcNow, 150 + i, 160 + i, 140 + i, 155 + i, 2000 + (i * 100));
             vwapbands.Update(correctionBar, isNew: false);
         }
 
@@ -359,7 +359,7 @@ public class VwapbandsTests
         vwapbands.Update(bar2);
 
         // VWAP = (100*1000 + 110*2000) / (1000+2000) = 320000/3000 = 106.666...
-        double expectedVwap = (100.0 * 1000 + 110.0 * 2000) / (1000 + 2000);
+        double expectedVwap = ((100.0 * 1000) + (110.0 * 2000)) / (1000 + 2000);
         Assert.Equal(expectedVwap, vwapbands.Vwap.Value, precision: 10);
     }
 
@@ -600,7 +600,7 @@ public class VwapbandsTests
 
         // VWAP should be closer to 100 due to higher volume
         // VWAP = (100*10000 + 200*100) / (10000+100) = 1020000/10100 ≈ 100.99
-        double expectedVwap = (100.0 * 10000 + 200.0 * 100) / (10000 + 100);
+        double expectedVwap = ((100.0 * 10000) + (200.0 * 100)) / (10000 + 100);
         Assert.Equal(expectedVwap, vwapbands.Vwap.Value, precision: 10);
         Assert.True(vwapbands.Vwap.Value < 110, "VWAP should be heavily weighted toward 100");
     }

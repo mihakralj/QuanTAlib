@@ -94,7 +94,7 @@ public sealed class DymoiIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 60; i++)
         {
-            double price = 100.0 + Math.Sin(i * 0.3) * 10.0 + i * 0.1;
+            double price = 100.0 + (Math.Sin(i * 0.3) * 10.0) + (i * 0.1);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price + 5, price + 10, price - 5, price);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -122,7 +122,7 @@ public sealed class DymoiIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price + 3, price + 6, price - 3, price);
 
             var reason = i < 49 ? UpdateReason.HistoricalBar : UpdateReason.NewBar;

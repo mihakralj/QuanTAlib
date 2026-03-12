@@ -112,14 +112,14 @@ public class YzvTests
         // Low volatility: small H-L range
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + (i % 2) * 0.1;
+            double price = 100.0 + ((i % 2) * 0.1);
             yzvLow.Update(new TBar(DateTime.UtcNow, price, price + 0.05, price - 0.05, price, 1000));
         }
 
         // High volatility: large H-L range
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + (i % 2) * 5.0;
+            double price = 100.0 + ((i % 2) * 5.0);
             yzvHigh.Update(new TBar(DateTime.UtcNow, price, price + 5.0, price - 5.0, price + 2.0, 1000));
         }
 

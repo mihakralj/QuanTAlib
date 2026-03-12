@@ -174,7 +174,7 @@ public class IchimokuIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100 + i * 2;
+            double basePrice = 100 + (i * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 5, basePrice - 5, basePrice);
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);

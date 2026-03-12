@@ -209,7 +209,7 @@ public class CviIndicatorTests
         for (int i = 20; i < 35; i++)
         {
             double basePrice = 100;
-            double range = 1 + (i - 20) * 0.5; // Gradually increasing range
+            double range = 1 + ((i - 20) * 0.5); // Gradually increasing range
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + range, basePrice - range, basePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -240,7 +240,7 @@ public class CviIndicatorTests
         for (int i = 20; i < 35; i++)
         {
             double basePrice = 100;
-            double range = Math.Max(1, 10 - (i - 20) * 0.5); // Gradually decreasing range
+            double range = Math.Max(1, 10 - ((i - 20) * 0.5)); // Gradually decreasing range
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + range, basePrice - range, basePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

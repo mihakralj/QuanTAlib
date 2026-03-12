@@ -57,7 +57,7 @@ public class RvIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5 + Math.Sin(i * 0.3) * 2;
+            double closePrice = 100 + (i * 0.5) + (Math.Sin(i * 0.3) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -78,7 +78,7 @@ public class RvIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.3;
+            double closePrice = 100 + (i * 0.3);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
         }
 
@@ -103,7 +103,7 @@ public class RvIndicatorTests
             var now = DateTime.UtcNow;
             for (int i = 0; i < 50; i++)
             {
-                double closePrice = 100 + i * 0.2 + Math.Sin(i * 0.5) * 3;
+                double closePrice = 100 + (i * 0.2) + (Math.Sin(i * 0.5) * 3);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -188,7 +188,7 @@ public class RvIndicatorTests
         // Low volatility
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.01;
+            double closePrice = 100 + (i * 0.01);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 0.5, closePrice + 0.5, closePrice - 0.5, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -196,7 +196,7 @@ public class RvIndicatorTests
         // High volatility
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + Math.Sin(i * 0.5) * 10;
+            double closePrice = 100 + (Math.Sin(i * 0.5) * 10);
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 2, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicator2.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -221,7 +221,7 @@ public class RvIndicatorTests
 
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5 + Math.Sin(i * 0.3) * 2;
+            double closePrice = 100 + (i * 0.5) + (Math.Sin(i * 0.3) * 2);
             indicatorRaw.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicatorRaw.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
@@ -254,7 +254,7 @@ public class RvIndicatorTests
 
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5;
+            double closePrice = 100 + (i * 0.5);
             // Narrow range
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -303,7 +303,7 @@ public class RvIndicatorTests
         for (int i = 0; i < 30; i++)
         {
             double rate = (i % 2 == 0) ? 1.02 : 1.005;
-            double closePrice = 100 * Math.Pow(rate, i / 2 + 1) * (i % 2 == 0 ? 1.0 : rate);
+            double closePrice = 100 * Math.Pow(rate, (i / 2) + 1) * (i % 2 == 0 ? 1.0 : rate);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -326,7 +326,7 @@ public class RvIndicatorTests
 
         for (int i = 0; i < 50; i++)
         {
-            double closePrice = 100 + Math.Sin(i * 0.3) * 5;
+            double closePrice = 100 + (Math.Sin(i * 0.3) * 5);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 

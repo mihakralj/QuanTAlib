@@ -125,7 +125,7 @@ public class VossTests
         // Feed enough bars past warmup (Count > 5) so Filt is not clamped to 0
         for (int i = 0; i < 10; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow, 100 + i * 2), isNew: true);
+            ind.Update(new TValue(DateTime.UtcNow, 100 + (i * 2)), isNew: true);
         }
         double val1 = ind.Last.Value;
 
@@ -141,7 +141,7 @@ public class VossTests
         // Feed enough bars past warmup (Count > 5) so Filt is not clamped to 0
         for (int i = 0; i < 10; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow, 100 + i * 3), isNew: true);
+            ind.Update(new TValue(DateTime.UtcNow, 100 + (i * 3)), isNew: true);
         }
         double val1 = ind.Last.Value;
 

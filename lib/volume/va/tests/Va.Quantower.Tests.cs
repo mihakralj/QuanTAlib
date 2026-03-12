@@ -52,7 +52,7 @@ public class VaIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 + i * 0.5;
+            double close = 100 + (i * 0.5);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), close - 2, close + 2, close - 3, close, 100000);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);

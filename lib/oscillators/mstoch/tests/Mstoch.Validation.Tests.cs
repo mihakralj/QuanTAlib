@@ -178,7 +178,7 @@ public sealed class MstochValidationTests
         // Feed 50 strongly rising bars
         for (int i = 0; i < 50; i++)
         {
-            mstoch.Update(new TValue(t0.AddSeconds(100 + i), 100.0 + i * 2.0));
+            mstoch.Update(new TValue(t0.AddSeconds(100 + i), 100.0 + (i * 2.0)));
         }
         double risingVal = mstoch.Last.Value;
 
@@ -190,7 +190,7 @@ public sealed class MstochValidationTests
         }
         for (int i = 0; i < 50; i++)
         {
-            mstoch.Update(new TValue(t0.AddSeconds(100 + i), 100.0 - i * 2.0));
+            mstoch.Update(new TValue(t0.AddSeconds(100 + i), 100.0 - (i * 2.0)));
         }
         double fallingVal = mstoch.Last.Value;
 

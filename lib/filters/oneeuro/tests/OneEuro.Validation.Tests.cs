@@ -56,7 +56,7 @@ public class OneEuroValidationTests
         double[] output = new double[N];
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            src[i] = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
         }
 
         // With beta=0, cutoff is always minCutoff regardless of speed
@@ -83,7 +83,7 @@ public class OneEuroValidationTests
         double[] src = new double[N];
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + 5.0 * Math.Sin(2.0 * Math.PI * i / 10.0);
+            src[i] = 100.0 + (5.0 * Math.Sin(2.0 * Math.PI * i / 10.0));
         }
 
         double[] smoothOut = new double[N];
@@ -137,7 +137,7 @@ public class OneEuroValidationTests
         double[] src = new double[N];
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + (closes[i + 1] / closes[i] - 1.0) * 100.0; // ±pct jitter around 100
+            src[i] = 100.0 + (((closes[i + 1] / closes[i]) - 1.0) * 100.0); // ±pct jitter around 100
         }
 
         double[] output = new double[N];
@@ -161,7 +161,7 @@ public class OneEuroValidationTests
         double[] src = new double[N];
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + 20.0 * Math.Sin(2.0 * Math.PI * i / 30.0);
+            src[i] = 100.0 + (20.0 * Math.Sin(2.0 * Math.PI * i / 30.0));
         }
 
         double[] output = new double[N];
@@ -187,7 +187,7 @@ public class OneEuroValidationTests
         double[] src = new double[N];
         for (int i = 0; i < N; i++)
         {
-            src[i] = 100.0 + 5.0 * Math.Sin(2.0 * Math.PI * i / 20.0) + (i % 3 == 0 ? 1.0 : -1.0);
+            src[i] = 100.0 + (5.0 * Math.Sin(2.0 * Math.PI * i / 20.0)) + (i % 3 == 0 ? 1.0 : -1.0);
         }
 
         // Batch
@@ -252,6 +252,6 @@ public class OneEuroValidationTests
             sumSq += v * v;
         }
         double mean = sum / data.Length;
-        return sumSq / data.Length - mean * mean;
+        return (sumSq / data.Length) - (mean * mean);
     }
 }

@@ -211,8 +211,8 @@ public sealed class CorrelationValidationTests : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            double x = 10.0 + i * 2.5;
-            double y = 5.0 + 3.0 * x; // y = 5 + 3x
+            double x = 10.0 + (i * 2.5);
+            double y = 5.0 + (3.0 * x); // y = 5 + 3x
             indicator.Update(x, y);
         }
 
@@ -227,8 +227,8 @@ public sealed class CorrelationValidationTests : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            double x = 10.0 + i * 2.5;
-            double y = 100.0 - 2.0 * x; // y = 100 - 2x
+            double x = 10.0 + (i * 2.5);
+            double y = 100.0 - (2.0 * x); // y = 100 - 2x
             indicator.Update(x, y);
         }
 
@@ -272,7 +272,7 @@ public sealed class CorrelationValidationTests : IDisposable
             double x = gbmX.Next().Close;
             double y = gbmY.Next().Close;
             indicator1.Update(x, y);
-            indicator2.Update(a * x + b, c * y + d);
+            indicator2.Update((a * x) + b, (c * y) + d);
         }
 
         // Relax tolerance due to floating point precision with large transformations
@@ -526,8 +526,8 @@ public sealed class CorrelationValidationTests : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            double x = 1e8 + i * 1e5;
-            double y = 2e8 + 2.0 * (i * 1e5); // Linear relationship
+            double x = 1e8 + (i * 1e5);
+            double y = 2e8 + (2.0 * (i * 1e5)); // Linear relationship
             indicator.Update(x, y);
         }
 
@@ -543,8 +543,8 @@ public sealed class CorrelationValidationTests : IDisposable
         // Use values that are small but not so small they cause numerical issues
         for (int i = 0; i < 50; i++)
         {
-            double x = 0.001 + i * 0.0001;
-            double y = 0.002 + 1.5 * (i * 0.0001); // Linear relationship
+            double x = 0.001 + (i * 0.0001);
+            double y = 0.002 + (1.5 * (i * 0.0001)); // Linear relationship
             indicator.Update(x, y);
         }
 
@@ -581,8 +581,8 @@ public sealed class CorrelationValidationTests : IDisposable
         // Use deterministic data that creates high correlation
         for (int i = 0; i < 100; i++)
         {
-            double x = 100.0 + i + (i % 3) * 0.1; // Small variation
-            double y = 0.9 * x + (i % 5) * 0.2; // High correlation with small noise
+            double x = 100.0 + i + ((i % 3) * 0.1); // Small variation
+            double y = (0.9 * x) + ((i % 5) * 0.2); // High correlation with small noise
             indicator.Update(x, y);
         }
 
@@ -598,8 +598,8 @@ public sealed class CorrelationValidationTests : IDisposable
 
         for (int i = 0; i < 100; i++)
         {
-            double x = 100.0 + i + Math.Log(random.Next().Close / 100.0) * 2;
-            double y = 200.0 - 0.8 * i + Math.Log(random.Next().Close / 100.0) * 2; // Negative relationship
+            double x = 100.0 + i + (Math.Log(random.Next().Close / 100.0) * 2);
+            double y = 200.0 - (0.8 * i) + (Math.Log(random.Next().Close / 100.0) * 2); // Negative relationship
             indicator.Update(x, y);
         }
 

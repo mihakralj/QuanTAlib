@@ -21,7 +21,7 @@ public sealed class PslTests
         var p = new Psl(5);
         for (int i = 0; i < 20; i++)
         {
-            p.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2));
+            p.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)));
         }
         Assert.True(p.Last.Value > 50, "Rising prices should produce PSL > 50");
     }
@@ -31,7 +31,7 @@ public sealed class PslTests
         var p = new Psl(5);
         for (int i = 0; i < 20; i++)
         {
-            p.Update(new TValue(DateTime.UtcNow, 200.0 - i * 2));
+            p.Update(new TValue(DateTime.UtcNow, 200.0 - (i * 2)));
         }
         Assert.True(p.Last.Value < 50, "Falling prices should produce PSL < 50");
     }
@@ -67,7 +67,7 @@ public sealed class PslTests
         double[] data = new double[15];
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = 100 + i * 2;
+            data[i] = 100 + (i * 2);
         }
         for (int i = 0; i < data.Length; i++)
         {

@@ -178,7 +178,7 @@ public class AdxvmaValidationTests
         // Strong uptrend: each bar H > prev H, L > prev L, consistent +DM
         for (int i = 0; i < 100; i++)
         {
-            double basePrice = 100 + i * 1.5;
+            double basePrice = 100 + (i * 1.5);
             var bar = new TBar(time.AddMinutes(i), basePrice, basePrice + 2, basePrice - 1, basePrice + 1, 1000);
             adxvma.Update(bar, isNew: true);
         }
@@ -208,7 +208,7 @@ public class AdxvmaValidationTests
         // Feed choppy bars: alternating up/down moves cancel out → ADX stays low
         for (int i = 50; i < 150; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 2; // oscillating around 100
+            double price = 100 + (Math.Sin(i * 0.5) * 2); // oscillating around 100
             var bar = new TBar(time.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             adxvma.Update(bar, isNew: true);
         }

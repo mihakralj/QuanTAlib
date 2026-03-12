@@ -85,12 +85,12 @@ public class Sp15Tests
         const int n = 30;
         for (int i = 0; i < n; i++)
         {
-            double val = intercept + slope * i;
+            double val = intercept + (slope * i);
             sp15.Update(new TValue(DateTime.UtcNow.AddMinutes(i).Ticks, val));
         }
         // Centered at lag 7: output at bar n-1 matches polynomial at bar (n-1)-7
         int centerIdx = n - 1 - 7;
-        double expected = intercept + slope * centerIdx;
+        double expected = intercept + (slope * centerIdx);
         Assert.Equal(expected, sp15.Last.Value, 1e-6);
     }
 
@@ -101,11 +101,11 @@ public class Sp15Tests
         const int n = 40;
         for (int i = 0; i < n; i++)
         {
-            double val = 0.1 * i * i + 2.0 * i + 5.0;
+            double val = (0.1 * i * i) + (2.0 * i) + 5.0;
             sp15.Update(new TValue(DateTime.UtcNow.AddMinutes(i).Ticks, val));
         }
         int k = n - 1 - 7;
-        double expected = 0.1 * k * k + 2.0 * k + 5.0;
+        double expected = (0.1 * k * k) + (2.0 * k) + 5.0;
         Assert.Equal(expected, sp15.Last.Value, 1e-4);
     }
 
@@ -116,11 +116,11 @@ public class Sp15Tests
         const int n = 40;
         for (int i = 0; i < n; i++)
         {
-            double val = 0.001 * i * i * i + 0.1 * i * i + 2.0 * i + 5.0;
+            double val = (0.001 * i * i * i) + (0.1 * i * i) + (2.0 * i) + 5.0;
             sp15.Update(new TValue(DateTime.UtcNow.AddMinutes(i).Ticks, val));
         }
         int k = n - 1 - 7;
-        double expected = 0.001 * k * k * k + 0.1 * k * k + 2.0 * k + 5.0;
+        double expected = (0.001 * k * k * k) + (0.1 * k * k) + (2.0 * k) + 5.0;
         Assert.Equal(expected, sp15.Last.Value, 1e-2);
     }
 
@@ -174,7 +174,7 @@ public class Sp15Tests
         // Multiple corrections
         for (int c = 0; c < 5; c++)
         {
-            sp15.Update(new TValue(DateTime.UtcNow.Ticks, 500.0 + c * 10), isNew: false);
+            sp15.Update(new TValue(DateTime.UtcNow.Ticks, 500.0 + (c * 10)), isNew: false);
         }
         // Restore
         sp15.Update(series[19], isNew: false);
@@ -527,7 +527,7 @@ public class Sp15Tests
         // All 100 contributes: 100 * sum(weights) = 100
         // Extra 100 at center contributes: 100 * (74/320) = 23.125
         // Total = 100 + 23.125 = 123.125
-        double expected = 100.0 + 100.0 * 74.0 / 320.0;
+        double expected = 100.0 + (100.0 * 74.0 / 320.0);
         Assert.Equal(expected, sp15.Last.Value, 1e-10);
     }
 }

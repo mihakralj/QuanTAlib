@@ -174,10 +174,10 @@ public sealed class InertiaValidationTests : IDisposable
             sumX2 += x * x;
         }
 
-        double denom = n * sumX2 - sumX * sumX;
-        double slope = (n * sumXY - sumX * sumY) / denom;
-        double intercept = (sumY - slope * sumX) / n;
-        double tsf = slope * (n - 1) + intercept;
+        double denom = (n * sumX2) - (sumX * sumX);
+        double slope = ((n * sumXY) - (sumX * sumY)) / denom;
+        double intercept = (sumY - (slope * sumX)) / n;
+        double tsf = (slope * (n - 1)) + intercept;
         double expected = raw[^1] - tsf;
 
         _output.WriteLine($"Manual Inertia: {expected:F12}");

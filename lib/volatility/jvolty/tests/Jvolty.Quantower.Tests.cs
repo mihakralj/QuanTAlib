@@ -57,7 +57,7 @@ public class JvoltyIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100 + i * 2 + (i % 2 == 0 ? 5 : -5); // Add some volatility
+            double basePrice = 100 + (i * 2) + (i % 2 == 0 ? 5 : -5); // Add some volatility
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 5, basePrice - 5, basePrice + 2, 1000);
 
             // Process update for each bar to simulate history loading

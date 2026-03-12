@@ -264,7 +264,7 @@ public class PvdValidationTests
         // Mix of zero and non-zero volumes
         for (int i = 0; i < 20; i++)
         {
-            double volume = i % 3 == 0 ? 0.0 : 1000.0 + i * 10;
+            double volume = i % 3 == 0 ? 0.0 : 1000.0 + (i * 10);
             bars.Add(new TBar(time.AddMinutes(i), 100.0 + i, 101.0 + i, 99.0 + i, 100.5 + i, volume));
         }
 

@@ -90,7 +90,7 @@ public class RegchannelTests
         // Feed perfect linear data: y = 100 + 2*i (slope = 2)
         for (int i = 0; i < 20; i++)
         {
-            ind.Update(new TValue(now.AddMinutes(i), 100 + 2 * i));
+            ind.Update(new TValue(now.AddMinutes(i), 100 + (2 * i)));
         }
 
         // Slope should be 2
@@ -107,13 +107,13 @@ public class RegchannelTests
         // Low volatility: close to linear
         for (int i = 0; i < 20; i++)
         {
-            ind1.Update(new TValue(now.AddMinutes(i), 100 + i + 0.1 * Math.Sin(i)));
+            ind1.Update(new TValue(now.AddMinutes(i), 100 + i + (0.1 * Math.Sin(i))));
         }
 
         // High volatility: large deviations from linear
         for (int i = 0; i < 20; i++)
         {
-            ind2.Update(new TValue(now.AddMinutes(i), 100 + i + 5 * Math.Sin(i)));
+            ind2.Update(new TValue(now.AddMinutes(i), 100 + i + (5 * Math.Sin(i))));
         }
 
         double width1 = ind1.Upper.Value - ind1.Lower.Value;
@@ -130,7 +130,7 @@ public class RegchannelTests
 
         for (int i = 0; i < 20; i++)
         {
-            ind.Update(new TValue(now.AddMinutes(i), 100 + i + Math.Sin(i) * 3));
+            ind.Update(new TValue(now.AddMinutes(i), 100 + i + (Math.Sin(i) * 3)));
         }
 
         double upperDist = ind.Upper.Value - ind.Last.Value;
@@ -148,7 +148,7 @@ public class RegchannelTests
 
         for (int i = 0; i < 20; i++)
         {
-            double val = 100 + i + Math.Sin(i) * 3;
+            double val = 100 + i + (Math.Sin(i) * 3);
             ind1.Update(new TValue(now.AddMinutes(i), val));
             ind2.Update(new TValue(now.AddMinutes(i), val));
         }
@@ -465,7 +465,7 @@ public class RegchannelTests
 
         for (int i = 0; i < 10000; i++)
         {
-            double val = 100 + Math.Sin(i * 0.01) * 10 + i * 0.001;
+            double val = 100 + (Math.Sin(i * 0.01) * 10) + (i * 0.001);
             ind.Update(new TValue(now.AddMinutes(i), val));
         }
 

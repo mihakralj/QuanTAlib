@@ -64,7 +64,7 @@ public sealed class PivotdemIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 10; i++)
         {
-            double basePrice = 100 + i * 2;
+            double basePrice = 100 + (i * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 5, basePrice - 5, basePrice + 2);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);

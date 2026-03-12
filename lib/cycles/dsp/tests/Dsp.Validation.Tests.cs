@@ -69,7 +69,7 @@ public class DspValidationTests
         // Generate sine wave to simulate price oscillation
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.1);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.1));
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             if (dsp.IsHot)
             {
@@ -310,7 +310,7 @@ public class DspValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 0.0001 + i * 0.00001;
+            double price = 0.0001 + (i * 0.00001);
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -325,7 +325,7 @@ public class DspValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 1e10 + i * 1e8;
+            double price = 1e10 + (i * 1e8);
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -363,7 +363,7 @@ public class DspValidationTests
         // Strong uptrend with some noise
         for (int i = 0; i < 300; i++)
         {
-            double trend = 100.0 + i * 0.5;
+            double trend = 100.0 + (i * 0.5);
             double noise = Math.Sin(i * 0.3) * 2.0;
             double price = trend + noise;
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));

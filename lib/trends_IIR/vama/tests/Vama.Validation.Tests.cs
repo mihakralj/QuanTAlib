@@ -124,14 +124,14 @@ public class VamaValidationTests
         // Feed low volatility bars first
         for (int i = 0; i < 100; i++)
         {
-            var bar = new TBar(time.AddMinutes(i), 100 + i * 0.1, 100.5 + i * 0.1, 99.5 + i * 0.1, 100 + i * 0.1, 1000);
+            var bar = new TBar(time.AddMinutes(i), 100 + (i * 0.1), 100.5 + (i * 0.1), 99.5 + (i * 0.1), 100 + (i * 0.1), 1000);
             vamaLowVol.Update(bar, isNew: true);
         }
 
         // Feed high volatility bars
         for (int i = 0; i < 100; i++)
         {
-            var bar = new TBar(time.AddMinutes(i), 100 + i * 0.1, 110 + i * 0.1, 90 + i * 0.1, 100 + i * 0.1, 1000);
+            var bar = new TBar(time.AddMinutes(i), 100 + (i * 0.1), 110 + (i * 0.1), 90 + (i * 0.1), 100 + (i * 0.1), 1000);
             vamaHighVol.Update(bar, isNew: true);
         }
 

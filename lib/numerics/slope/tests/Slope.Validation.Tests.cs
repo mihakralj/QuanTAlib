@@ -155,7 +155,7 @@ public class SlopeValidationTests
         double[] data = new double[count];
         for (int i = 0; i < count; i++)
         {
-            data[i] = 100.0 + i * 0.5;
+            data[i] = 100.0 + (i * 0.5);
         }
 
         var slope = new Slope();

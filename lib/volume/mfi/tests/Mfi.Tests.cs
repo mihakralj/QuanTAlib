@@ -69,7 +69,7 @@ public class MfiTests
         // Consistent uptrend should push MFI toward higher values
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100 + i * 5; // Consistent price increase
+            double basePrice = 100 + (i * 5); // Consistent price increase
             mfi.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 2, basePrice - 1, basePrice + 1, 100000));
         }
 
@@ -86,7 +86,7 @@ public class MfiTests
         // Consistent downtrend should push MFI toward lower values
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 500 - i * 5; // Consistent price decrease
+            double basePrice = 500 - (i * 5); // Consistent price decrease
             mfi.Update(new TBar(time.AddMinutes(i), basePrice, basePrice + 1, basePrice - 2, basePrice - 1, 100000));
         }
 

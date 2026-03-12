@@ -89,7 +89,7 @@ public class EbswValidationTests
         // Generate sine wave to simulate price oscillation
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.1);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.1));
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             if (ebsw.IsHot)
             {
@@ -186,7 +186,7 @@ public class EbswValidationTests
         // Larger amplitude oscillation to ensure EBSW detects cycles
         for (int i = 0; i < 300; i++)
         {
-            double trend = 100.0 + i * 0.5;
+            double trend = 100.0 + (i * 0.5);
             double oscillation = Math.Sin(i * 0.15) * 10.0; // Larger amplitude, longer period
             double price = trend + oscillation;
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
@@ -252,7 +252,7 @@ public class EbswValidationTests
         double frequency = 2.0 * Math.PI / 40.0;
         for (int i = 0; i < 500; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * frequency);
+            double price = 100.0 + (10.0 * Math.Sin(i * frequency));
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             if (ebsw.IsHot)
             {
@@ -405,7 +405,7 @@ public class EbswValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 0.0001 + i * 0.00001;
+            double price = 0.0001 + (i * 0.00001);
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -421,7 +421,7 @@ public class EbswValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 1e10 + i * 1e8;
+            double price = 1e10 + (i * 1e8);
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 

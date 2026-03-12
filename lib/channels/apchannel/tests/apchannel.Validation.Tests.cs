@@ -39,7 +39,6 @@ public sealed class ApchannelValidationTests : IDisposable
     /// we validate against mathematical correctness by comparing the span and streaming results
     /// with manually calculated EMA values for high and low prices.
     /// </summary>
-
     [Fact]
     public void Validate_AllModes_ProduceSameResult()
     {

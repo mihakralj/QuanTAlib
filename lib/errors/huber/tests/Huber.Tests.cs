@@ -39,10 +39,10 @@ public class HuberTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(huber.IsHot, $"IsHot should be false at index {i}");
-            huber.Update(i * 10, i * 10 + 5);
+            huber.Update(i * 10, (i * 10) + 5);
         }
 
-        huber.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        huber.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(huber.IsHot, "IsHot should be true after period updates");
     }
 
@@ -70,7 +70,7 @@ public class HuberTests
 
         // Error = 10 (large), Huber = delta * |error| - 0.5 * delta^2 = 1 * 10 - 0.5 = 9.5
         var res1 = huber.Update(110, 100);
-        Assert.Equal(delta * 10 - halfDeltaSquared, res1.Value, 10);
+        Assert.Equal((delta * 10) - halfDeltaSquared, res1.Value, 10);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class HuberTests
         var aboveDelta = huber2.Update(105.1, 100);
         // Should be very close to quadratic at transition
         // delta * 5.1 - 0.5 * delta^2 = 5 * 5.1 - 12.5 = 25.5 - 12.5 = 13
-        double expected = delta * 5.1 - 0.5 * delta * delta;
+        double expected = (delta * 5.1) - (0.5 * delta * delta);
         Assert.Equal(expected, aboveDelta.Value, 5);
     }
 
@@ -163,7 +163,7 @@ public class HuberTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             huber.Update(tenthActual, tenthPredicted);
         }
 
@@ -188,7 +188,7 @@ public class HuberTests
 
         for (int i = 0; i < 10; i++)
         {
-            huber.Update(i * 10, i * 10 + 5);
+            huber.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(huber.IsHot);
@@ -267,7 +267,7 @@ public class HuberTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2; // Offset prediction
+            predicted[i] = (bar.Close * 1.05) + 2; // Offset prediction
         }
 
         // Streaming

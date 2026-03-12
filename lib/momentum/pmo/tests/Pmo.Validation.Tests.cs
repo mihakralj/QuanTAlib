@@ -232,7 +232,7 @@ public sealed class PmoValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 100 + i * 5; // Strong uptrend
+            double price = 100 + (i * 5); // Strong uptrend
             pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price), true);
         }
 
@@ -247,7 +247,7 @@ public sealed class PmoValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 200 - i * 3; // Strong downtrend
+            double price = 200 - (i * 3); // Strong downtrend
             pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price), true);
         }
 

@@ -116,8 +116,8 @@ public class DecoValidationTests
         for (int i = 0; i < 60; i++)
         {
             double phase = 2.0 * Math.PI * i / 20.0; // period=20 bars
-            var rUp = decoUp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + 10.0 * Math.Sin(phase)));
-            var rDown = decoDown.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 - 10.0 * Math.Sin(phase)));
+            var rUp = decoUp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (10.0 * Math.Sin(phase))));
+            var rDown = decoDown.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 - (10.0 * Math.Sin(phase))));
             lastUp = rUp.Value;
             lastDown = rDown.Value;
         }

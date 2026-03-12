@@ -142,7 +142,7 @@ public sealed class FiValidationTests : IDisposable
 
         // Monotonically increasing force values
         double[] force = new double[N];
-        for (int i = 0; i < N; i++) { force[i] = 100.0 + i * 10.0; }
+        for (int i = 0; i < N; i++) { force[i] = 100.0 + (i * 10.0); }
 
         var output = new double[N];
         Fi.Calculate(force.AsSpan(), output.AsSpan(), period);

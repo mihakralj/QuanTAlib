@@ -88,7 +88,7 @@ public class PrsTests
         for (int i = 0; i < 20; i++)
         {
             double basePrice = 200.0 + i;
-            double compPrice = 100.0 + i * 0.5;
+            double compPrice = 100.0 + (i * 0.5);
             prs.Update(basePrice, compPrice);
             results.Add(prs.Last.Value);
         }
@@ -382,8 +382,8 @@ public class PrsTests
         // Base grows faster than comparison
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 2;   // +2 per bar
-            double compPrice = 100.0 + i * 1;   // +1 per bar
+            double basePrice = 100.0 + (i * 2);   // +2 per bar
+            double compPrice = 100.0 + (i * 1);   // +1 per bar
             prs.Update(basePrice, compPrice);
         }
 
@@ -399,8 +399,8 @@ public class PrsTests
         // Base grows slower than comparison
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 1;   // +1 per bar
-            double compPrice = 100.0 + i * 2;   // +2 per bar
+            double basePrice = 100.0 + (i * 1);   // +1 per bar
+            double compPrice = 100.0 + (i * 2);   // +2 per bar
             prs.Update(basePrice, compPrice);
         }
 
@@ -416,8 +416,8 @@ public class PrsTests
         // Both grow at same rate
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 2;
-            double compPrice = 50.0 + i * 1;
+            double basePrice = 100.0 + (i * 2);
+            double compPrice = 50.0 + (i * 1);
             prs.Update(basePrice, compPrice);
         }
 

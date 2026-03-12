@@ -27,7 +27,7 @@ public class HtDcperiodTests
         // Feed data through publisher
         for (int i = 0; i < 40; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + Math.Sin(i * 0.3) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (Math.Sin(i * 0.3) * 10)));
         }
 
         Assert.True(ht.IsHot);
@@ -144,7 +144,7 @@ public class HtDcperiodTests
         // Prime with data
         for (int i = 0; i < 50; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.1) * 10));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(ht.IsHot);
@@ -203,7 +203,7 @@ public class HtDcperiodTests
         // Feed valid data to warm up
         for (int i = 0; i < 50; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
 
         Assert.True(ht.IsHot);
@@ -221,7 +221,7 @@ public class HtDcperiodTests
 
         for (int i = 0; i < 50; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + i * 0.5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (i * 0.5)));
         }
 
         var result = ht.Update(new TValue(now.AddMinutes(50), double.PositiveInfinity));
@@ -255,7 +255,7 @@ public class HtDcperiodTests
         // First use
         for (int i = 0; i < 50; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
         Assert.True(ht.IsHot);
         var firstResult = ht.Last.Value;
@@ -266,7 +266,7 @@ public class HtDcperiodTests
 
         for (int i = 0; i < 50; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + Math.Sin(i * 0.2) * 5));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (Math.Sin(i * 0.2) * 5)));
         }
         Assert.True(ht.IsHot);
         Assert.Equal(firstResult, ht.Last.Value);
@@ -387,7 +387,7 @@ public class HtDcperiodTests
         var values = new double[50];
         for (int i = 0; i < 50; i++)
         {
-            values[i] = 100 + Math.Sin(i * 0.2) * 5;
+            values[i] = 100 + (Math.Sin(i * 0.2) * 5);
         }
 
         ht.Prime(values, TimeSpan.FromMinutes(5));
@@ -443,7 +443,7 @@ public class HtDcperiodTests
 
         for (int i = 0; i < 300; i++)
         {
-            ht.Update(new TValue(now.AddMinutes(i), 100 + 10 * Math.Sin(omega * i)));
+            ht.Update(new TValue(now.AddMinutes(i), 100 + (10 * Math.Sin(omega * i))));
         }
 
         // After sufficient data, the detected period should be

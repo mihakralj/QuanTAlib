@@ -127,14 +127,14 @@ public class VovValidationTests
         // Low volatility period
         for (int i = 0; i < 10; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 0.5; // Small oscillations
+            double price = 100 + (Math.Sin(i * 0.3) * 0.5); // Small oscillations
             vov.Update(new TValue(time.AddSeconds(i), price));
         }
 
         // High volatility period
         for (int i = 10; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 10; // Large oscillations
+            double price = 100 + (Math.Sin(i * 0.3) * 10); // Large oscillations
             vov.Update(new TValue(time.AddSeconds(i), price));
         }
 
@@ -299,7 +299,7 @@ public class VovValidationTests
         // Multiple corrections on same bar
         for (int j = 0; j < 5; j++)
         {
-            vov.Update(new TValue(time.AddSeconds(9), 100 + j * 5), isNew: false);
+            vov.Update(new TValue(time.AddSeconds(9), 100 + (j * 5)), isNew: false);
         }
 
         // Final correction back to original
@@ -535,7 +535,7 @@ public class VovValidationTests
         // Stable volatility regime
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 2; // Consistent amplitude
+            double price = 100 + (Math.Sin(i * 0.5) * 2); // Consistent amplitude
             vov.Update(new TValue(time.AddSeconds(i), price));
         }
         double stableVov = vov.Last.Value;
@@ -543,7 +543,7 @@ public class VovValidationTests
         // Transition to higher volatility
         for (int i = 20; i < 35; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * (2 + (i - 20) * 0.5); // Increasing amplitude
+            double price = 100 + (Math.Sin(i * 0.5) * (2 + ((i - 20) * 0.5))); // Increasing amplitude
             vov.Update(new TValue(time.AddSeconds(i), price));
         }
         double transitionVov = vov.Last.Value;

@@ -86,7 +86,7 @@ public class PvoTests
         // Then increasing volume - fast EMA will be higher than slow
         for (int i = 50; i < 100; i++)
         {
-            pvo.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 100000 + (i - 50) * 50000));
+            pvo.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 100000 + ((i - 50) * 50000)));
         }
 
         // Fast EMA responds quicker to volume increase, should be positive
@@ -108,7 +108,7 @@ public class PvoTests
         // Then decreasing volume - fast EMA will be lower than slow
         for (int i = 50; i < 100; i++)
         {
-            pvo.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 1000000 - (i - 50) * 15000));
+            pvo.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 1000000 - ((i - 50) * 15000)));
         }
 
         // Fast EMA responds quicker to volume decrease, should be negative
@@ -156,7 +156,7 @@ public class PvoTests
         // Build up state
         for (int i = 0; i < 15; i++)
         {
-            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000), isNew: true);
+            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)), isNew: true);
         }
 
         // New bar
@@ -227,7 +227,7 @@ public class PvoTests
 
         for (int i = 0; i < 20; i++)
         {
-            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000));
+            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)));
         }
 
         Assert.True(double.IsFinite(pvo.Signal.Value));
@@ -242,7 +242,7 @@ public class PvoTests
 
         for (int i = 0; i < 20; i++)
         {
-            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + i * 10000));
+            pvo.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 + (i * 10000)));
         }
 
         Assert.True(double.IsFinite(pvo.Histogram.Value));

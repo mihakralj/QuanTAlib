@@ -67,7 +67,7 @@ public class KalmanValidationTests : IDisposable
             double k = p_pred / denom;
 
             // Update
-            x = x + k * (input[i] - x);
+            x = x + (k * (input[i] - x));
 
             // p = (1 - k) * pPred
             // But implementation uses: p = (pPred * r) / denom

@@ -361,7 +361,7 @@ public class TukeyBiweightTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
-            tukey.Update(bar.Close, bar.Close * (1 + (i % 3 - 1) * 0.2));
+            tukey.Update(bar.Close, bar.Close * (1 + (((i % 3) - 1) * 0.2)));
             Assert.True(tukey.Last.Value >= 0, $"Loss should be non-negative, got {tukey.Last.Value}");
             Assert.True(tukey.Last.Value <= maxLoss, $"Loss should be <= {maxLoss}, got {tukey.Last.Value}");
         }

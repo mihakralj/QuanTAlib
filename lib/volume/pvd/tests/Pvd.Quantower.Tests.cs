@@ -74,7 +74,7 @@ public class PvdIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 + i * 0.5;
+            double close = 100 + (i * 0.5);
             double volume = 100000 + (i % 3 == 0 ? 20000 : -10000);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), close - 1, close + 1, close - 2, close, volume);
 
@@ -213,7 +213,7 @@ public class PvdIndicatorTests
         for (int i = 0; i < 20; i++)
         {
             double close = 100 + i;
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), close - 1, close + 2, close - 2, close, 100000 + i * 1000);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), close - 1, close + 2, close - 2, close, 100000 + (i * 1000));
             indicator.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 

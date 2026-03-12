@@ -425,7 +425,7 @@ public class CcycTests
 
         for (int i = 0; i < 200; i++)
         {
-            double value = 100 + 10 * Math.Sin(2 * Math.PI * i / period);
+            double value = 100 + (10 * Math.Sin(2 * Math.PI * i / period));
             ccyc.Update(new TValue(DateTime.UtcNow.AddDays(i), value), true);
         }
 
@@ -459,7 +459,7 @@ public class CcycTests
         double[] primeData = new double[50];
         for (int i = 0; i < 50; i++)
         {
-            primeData[i] = 100 + 5 * Math.Sin(2 * Math.PI * i / 20.0);
+            primeData[i] = 100 + (5 * Math.Sin(2 * Math.PI * i / 20.0));
         }
 
         ccyc.Prime(primeData.AsSpan());

@@ -383,7 +383,7 @@ public class HammaTests
         double weightSum = 0;
         for (int i = 0; i < period; i++)
         {
-            weights[i] = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * i);
+            weights[i] = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * i));
             weightSum += weights[i];
         }
 

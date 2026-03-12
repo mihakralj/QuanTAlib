@@ -127,7 +127,7 @@ public sealed class HarmeanValidationTests
         var h = new Harmean(10);
         for (int i = 0; i < 20; i++)
         {
-            h.Update(new TValue(DateTime.UtcNow, 100.0 + i * 0.001));
+            h.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 0.001)));
         }
         Assert.True(Math.Abs(h.Last.Value - 100.01) < 0.1,
             $"Expected near 100.01, got {h.Last.Value}");

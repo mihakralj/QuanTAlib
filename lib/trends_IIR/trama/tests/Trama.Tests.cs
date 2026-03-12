@@ -416,7 +416,7 @@ public class TramaTests
         // Fill with simple incrementing values
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.01;
+            source[i] = 100.0 + (i * 0.01);
         }
 
         Trama.Batch(source, output, DefaultPeriod);

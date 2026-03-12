@@ -102,12 +102,12 @@ public class TsfTests
 
         for (int i = 0; i < 30; i++)
         {
-            double y = 2.0 * i + 5.0;
+            double y = (2.0 * i) + 5.0;
             var result = tsf.Update(new TValue(DateTime.UtcNow, y));
 
             if (i >= period)
             {
-                double expected = 2.0 * (i + 1) + 5.0;
+                double expected = (2.0 * (i + 1)) + 5.0;
                 Assert.Equal(expected, result.Value, 1e-9);
             }
         }

@@ -36,10 +36,10 @@ public sealed class PivotfibValidationTests
             double range = pH - pL;
 
             Assert.Equal(expectedPP, ind.PP, 10);
-            Assert.Equal(expectedPP + 0.382 * range, ind.R1, 10);
-            Assert.Equal(expectedPP - 0.382 * range, ind.S1, 10);
-            Assert.Equal(expectedPP + 0.618 * range, ind.R2, 10);
-            Assert.Equal(expectedPP - 0.618 * range, ind.S2, 10);
+            Assert.Equal(expectedPP + (0.382 * range), ind.R1, 10);
+            Assert.Equal(expectedPP - (0.382 * range), ind.S1, 10);
+            Assert.Equal(expectedPP + (0.618 * range), ind.R2, 10);
+            Assert.Equal(expectedPP - (0.618 * range), ind.S2, 10);
             Assert.Equal(expectedPP + range, ind.R3, 10);
             Assert.Equal(expectedPP - range, ind.S3, 10);
         }
@@ -245,5 +245,4 @@ public sealed class PivotfibValidationTests
             Assert.Equal(ind.R3 - ind.PP, ind.PP - ind.S3, 10);
         }
     }
-
 }

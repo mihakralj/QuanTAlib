@@ -333,7 +333,7 @@ public class SamValidationTests
 
         for (int i = 0; i < 300; i++)
         {
-            var result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 3.0), true);
+            var result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 3.0)), true);
             if (sam.IsHot)
             {
                 hotCount++;
@@ -359,7 +359,7 @@ public class SamValidationTests
 
         for (int i = 0; i < 300; i++)
         {
-            var result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 500.0 - i * 3.0), true);
+            var result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 500.0 - (i * 3.0)), true);
             if (sam.IsHot)
             {
                 hotCount++;

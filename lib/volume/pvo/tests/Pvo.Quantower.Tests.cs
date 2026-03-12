@@ -156,7 +156,7 @@ public class PvoIndicatorTests
         for (int i = 0; i < 15; i++)
         {
             // Start high and decrease
-            double volume = 10000 / (1.0 + i * 0.3);
+            double volume = 10000 / (1.0 + (i * 0.3));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, 105, volume);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

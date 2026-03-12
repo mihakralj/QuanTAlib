@@ -516,8 +516,8 @@ public class WaveletTests
 
         for (int i = 0; i < len; i++)
         {
-            double signal = 100 + 10 * Math.Sin(2 * Math.PI * i / 40.0);
-            double noise = 2.0 * Math.Sin(17.3 * i) + 1.5 * Math.Cos(31.7 * i);
+            double signal = 100 + (10 * Math.Sin(2 * Math.PI * i / 40.0));
+            double noise = (2.0 * Math.Sin(17.3 * i)) + (1.5 * Math.Cos(31.7 * i));
             input[i] = signal + noise;
         }
 
@@ -563,7 +563,7 @@ public class WaveletTests
         double[] input = new double[len];
         for (int i = 0; i < len; i++)
         {
-            input[i] = 100 + 10 * Math.Sin(2 * Math.PI * i / 40.0) + 5 * Math.Sin(73.1 * i);
+            input[i] = 100 + (10 * Math.Sin(2 * Math.PI * i / 40.0)) + (5 * Math.Sin(73.1 * i));
         }
 
         double[] lowThresh = new double[len];
@@ -596,6 +596,6 @@ public class WaveletTests
             sum2 += data[i] * data[i];
         }
         double mean = sum / data.Length;
-        return sum2 / data.Length - mean * mean;
+        return (sum2 / data.Length) - (mean * mean);
     }
 }

@@ -154,7 +154,7 @@ public sealed class EntropyValidationTests
         for (int i = 0; i < 20; i++)
         {
             // All values within 1e-12 of each other
-            e.Update(new TValue(DateTime.UtcNow, 100.0 + i * 1e-12));
+            e.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 1e-12)));
         }
 
         // Range ≈ 19e-12, which is > epsilon but all values collapse into same bin

@@ -102,7 +102,7 @@ public class PmoTests
         var pmo = new Pmo(5, 3, 3);
         for (int i = 0; i < 30; i++)
         {
-            pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0), true);
+            pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)), true);
         }
         Assert.True(pmo.Last.Value > 0,
             $"PMO should be positive with rising prices, got {pmo.Last.Value}");
@@ -114,7 +114,7 @@ public class PmoTests
         var pmo = new Pmo(5, 3, 3);
         for (int i = 0; i < 30; i++)
         {
-            pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 200.0 - i * 2.0), true);
+            pmo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 200.0 - (i * 2.0)), true);
         }
         Assert.True(pmo.Last.Value < 0,
             $"PMO should be negative with falling prices, got {pmo.Last.Value}");
@@ -178,7 +178,7 @@ public class PmoTests
         // Build up state
         for (int i = 0; i < 20; i++)
         {
-            pmo.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.5), true);
+            pmo.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.5)), true);
         }
 
         var baseline = pmo.Update(new TValue(time.AddSeconds(20), 120.0), true);
@@ -195,7 +195,7 @@ public class PmoTests
 
         for (int i = 0; i < 20; i++)
         {
-            pmo.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.5), true);
+            pmo.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.5)), true);
         }
 
         var baseline = pmo.Update(new TValue(time.AddSeconds(20), 120.0), true);
@@ -366,7 +366,7 @@ public class PmoTests
 
         for (int i = 0; i < largeSize; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Pmo.Batch(source, output, TestTimePeriods, TestSmoothPeriods, TestSignalPeriods);

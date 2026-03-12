@@ -179,8 +179,8 @@ public class AccBandsTests
         // SMA(3) of adjLow: (54 + 58.80952 + 63.63636) / 3 ≈ 58.81529
         // SMA(3) of Close: (100+105+110)/3 = 105
 
-        double expectedUpper = (154.0 + 115.0 * (1.0 + 4.0 * 20.0 / 210.0) + 120.0 * (1.0 + 4.0 * 20.0 / 220.0)) / 3.0;
-        double expectedLower = (54.0 + 95.0 * (1.0 - 4.0 * 20.0 / 210.0) + 100.0 * (1.0 - 4.0 * 20.0 / 220.0)) / 3.0;
+        double expectedUpper = (154.0 + (115.0 * (1.0 + (4.0 * 20.0 / 210.0))) + (120.0 * (1.0 + (4.0 * 20.0 / 220.0)))) / 3.0;
+        double expectedLower = (54.0 + (95.0 * (1.0 - (4.0 * 20.0 / 210.0))) + (100.0 * (1.0 - (4.0 * 20.0 / 220.0)))) / 3.0;
 
         Assert.Equal(105.0, accBands.Last.Value, 1e-10);
         Assert.Equal(expectedUpper, accBands.Upper.Value, 1e-10);
@@ -399,8 +399,8 @@ public class AccBandsTests
         // adjLow = 100*(1-4*0.090909) = 100*0.636364 ≈ 63.63636
         accBands.Update(new TBar(DateTime.UtcNow, 110, 120, 100, 110, 1000));
         Assert.Equal(110.0, accBands.Last.Value, 1e-10);
-        Assert.Equal(120.0 * (1.0 + 4.0 * 20.0 / 220.0), accBands.Upper.Value, 1e-10);
-        Assert.Equal(100.0 * (1.0 - 4.0 * 20.0 / 220.0), accBands.Lower.Value, 1e-10);
+        Assert.Equal(120.0 * (1.0 + (4.0 * 20.0 / 220.0)), accBands.Upper.Value, 1e-10);
+        Assert.Equal(100.0 * (1.0 - (4.0 * 20.0 / 220.0)), accBands.Lower.Value, 1e-10);
     }
 
     // ============== Span API Tests ==============
@@ -496,12 +496,12 @@ public class AccBandsTests
         // Bar 2: H=120, L=100 => w=20/220, adjH=120*(1+4*20/220), adjL=100*(1-4*20/220)
         // SMA(3) of Close: (100+105+110)/3 = 105
 
-        double adjH0 = 110.0 * (1.0 + 4.0 * 20.0 / 200.0);
-        double adjH1 = 115.0 * (1.0 + 4.0 * 20.0 / 210.0);
-        double adjH2 = 120.0 * (1.0 + 4.0 * 20.0 / 220.0);
-        double adjL0 = 90.0 * (1.0 - 4.0 * 20.0 / 200.0);
-        double adjL1 = 95.0 * (1.0 - 4.0 * 20.0 / 210.0);
-        double adjL2 = 100.0 * (1.0 - 4.0 * 20.0 / 220.0);
+        double adjH0 = 110.0 * (1.0 + (4.0 * 20.0 / 200.0));
+        double adjH1 = 115.0 * (1.0 + (4.0 * 20.0 / 210.0));
+        double adjH2 = 120.0 * (1.0 + (4.0 * 20.0 / 220.0));
+        double adjL0 = 90.0 * (1.0 - (4.0 * 20.0 / 200.0));
+        double adjL1 = 95.0 * (1.0 - (4.0 * 20.0 / 210.0));
+        double adjL2 = 100.0 * (1.0 - (4.0 * 20.0 / 220.0));
 
         Assert.Equal(105.0, middle[2], 1e-10);
         Assert.Equal((adjH0 + adjH1 + adjH2) / 3.0, upper[2], 1e-10);
@@ -657,12 +657,12 @@ public class AccBandsTests
         // Bar 2: H=120,L=100,C=110 -> w=20/220, adjH=120*(1+80/220), adjL=100*(1-80/220)
         // Bar 3: H=125,L=105,C=115 -> w=20/230, adjH=125*(1+80/230), adjL=105*(1-80/230)
         // Bar 4: H=130,L=110,C=120 -> w=20/240, adjH=130*(1+80/240), adjL=110*(1-80/240)
-        double adjH2 = 120.0 * (1.0 + 4.0 * 20.0 / 220.0);
-        double adjL2 = 100.0 * (1.0 - 4.0 * 20.0 / 220.0);
-        double adjH3 = 125.0 * (1.0 + 4.0 * 20.0 / 230.0);
-        double adjL3 = 105.0 * (1.0 - 4.0 * 20.0 / 230.0);
-        double adjH4 = 130.0 * (1.0 + 4.0 * 20.0 / 240.0);
-        double adjL4 = 110.0 * (1.0 - 4.0 * 20.0 / 240.0);
+        double adjH2 = 120.0 * (1.0 + (4.0 * 20.0 / 220.0));
+        double adjL2 = 100.0 * (1.0 - (4.0 * 20.0 / 220.0));
+        double adjH3 = 125.0 * (1.0 + (4.0 * 20.0 / 230.0));
+        double adjL3 = 105.0 * (1.0 - (4.0 * 20.0 / 230.0));
+        double adjH4 = 130.0 * (1.0 + (4.0 * 20.0 / 240.0));
+        double adjL4 = 110.0 * (1.0 - (4.0 * 20.0 / 240.0));
 
         Assert.Equal(115.0, accBands.Last.Value, 1e-10);
         Assert.Equal((adjH2 + adjH3 + adjH4) / 3.0, accBands.Upper.Value, 1e-10);
@@ -672,8 +672,8 @@ public class AccBandsTests
         accBands.Update(new TBar(DateTime.UtcNow, 125, 135, 115, 125, 1000));
         // New window: bars [3,4,5]
         // Bar 5: H=135,L=115,C=125 -> w=20/250, adjH=135*(1+80/250), adjL=115*(1-80/250)
-        double adjH5 = 135.0 * (1.0 + 4.0 * 20.0 / 250.0);
-        double adjL5 = 115.0 * (1.0 - 4.0 * 20.0 / 250.0);
+        double adjH5 = 135.0 * (1.0 + (4.0 * 20.0 / 250.0));
+        double adjL5 = 115.0 * (1.0 - (4.0 * 20.0 / 250.0));
 
         Assert.Equal(120.0, accBands.Last.Value, 1e-10);
         Assert.Equal((adjH3 + adjH4 + adjH5) / 3.0, accBands.Upper.Value, 1e-10);

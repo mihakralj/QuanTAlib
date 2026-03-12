@@ -32,16 +32,16 @@ public sealed class PivotwoodValidationTests
             double pL = bars[i - 1].Low;
             double pC = bars[i - 1].Close;
 
-            double expectedPP = (pH + pL + 2.0 * pC) / 4.0;
+            double expectedPP = (pH + pL + (2.0 * pC)) / 4.0;
             double range = pH - pL;
 
             Assert.Equal(expectedPP, ind.PP, 10);
-            Assert.Equal(2.0 * expectedPP - pL, ind.R1, 10);
-            Assert.Equal(2.0 * expectedPP - pH, ind.S1, 10);
+            Assert.Equal((2.0 * expectedPP) - pL, ind.R1, 10);
+            Assert.Equal((2.0 * expectedPP) - pH, ind.S1, 10);
             Assert.Equal(expectedPP + range, ind.R2, 10);
             Assert.Equal(expectedPP - range, ind.S2, 10);
-            Assert.Equal(pH + 2.0 * (expectedPP - pL), ind.R3, 10);
-            Assert.Equal(pL - 2.0 * (pH - expectedPP), ind.S3, 10);
+            Assert.Equal(pH + (2.0 * (expectedPP - pL)), ind.R3, 10);
+            Assert.Equal(pL - (2.0 * (pH - expectedPP)), ind.S3, 10);
         }
     }
 
@@ -253,5 +253,4 @@ public sealed class PivotwoodValidationTests
             }
         }
     }
-
 }

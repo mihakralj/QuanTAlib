@@ -354,7 +354,7 @@ public class CvTests
         // Stable prices (small changes)
         for (int i = 0; i < 20; i++)
         {
-            cvStable.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.01));
+            cvStable.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.01)));
         }
 
         // Volatile prices (alternating)
@@ -399,7 +399,7 @@ public class CvTests
         // Low volatility period
         for (int i = 0; i < 15; i++)
         {
-            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.1));
+            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.1)));
         }
         double lowVolResult = cv.Last.Value;
 
@@ -420,7 +420,7 @@ public class CvTests
         // Establish long-run variance
         for (int i = 0; i < 15; i++)
         {
-            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.5));
+            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.5)));
         }
 
         // Introduce shock
@@ -430,7 +430,7 @@ public class CvTests
         // Let it decay
         for (int i = 16; i < 50; i++)
         {
-            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i - 16) * 0.1));
+            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + ((i - 16) * 0.1)));
         }
         double decayedVol = cv.Last.Value;
 

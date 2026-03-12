@@ -143,7 +143,7 @@ public class EvwmaValidationTests
         // prevResult = 4775/45
         // result = (35 * (4775/45) + 25 * 120) / 60
         double prev = 4775.0 / 45.0;
-        double expected = (35.0 * prev + 25.0 * 120.0) / 60.0;
+        double expected = ((35.0 * prev) + (25.0 * 120.0)) / 60.0;
         Assert.Equal(expected, r3.Value, 10);
     }
 
@@ -171,7 +171,7 @@ public class EvwmaValidationTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            bars.Add(new TBar(now.AddMinutes(i), 42.0, 42.0, 42.0, 42.0, 100 + i * 10));
+            bars.Add(new TBar(now.AddMinutes(i), 42.0, 42.0, 42.0, 42.0, 100 + (i * 10)));
         }
 
         var result = Evwma.Batch(bars, period);

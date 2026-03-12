@@ -113,7 +113,7 @@ public sealed class UsfValidationTests : IDisposable
             usfLinear.Update(new TValue(DateTime.UtcNow, 100.0 + i));
         }
         // After warmup on a linear trend, USF should be close to the current value
-        double expectedLinear = 100.0 + (period * 5 - 1);
+        double expectedLinear = 100.0 + ((period * 5) - 1);
         Assert.True(Math.Abs(usfLinear.Last.Value - expectedLinear) < period,
             $"USF should track linear trend closely. Expected ~{expectedLinear}, got {usfLinear.Last.Value}");
 

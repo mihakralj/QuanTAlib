@@ -387,7 +387,7 @@ public class RocrTests
 
         for (int i = 0; i < largeSize; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         // Should not throw

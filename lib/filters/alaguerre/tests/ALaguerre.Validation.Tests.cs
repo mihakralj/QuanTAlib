@@ -173,7 +173,7 @@ public sealed class ALaguerreValidationTests : IDisposable
         Assert.True(filteredVariance < sourceVariance,
             $"Filtered variance ({filteredVariance:F6}) should be less than source variance ({sourceVariance:F6})");
 
-        _output.WriteLine($"Variance: source={sourceVariance:F6}, filtered={filteredVariance:F6}, reduction={1 - filteredVariance / sourceVariance:P2}");
+        _output.WriteLine($"Variance: source={sourceVariance:F6}, filtered={filteredVariance:F6}, reduction={1 - (filteredVariance / sourceVariance):P2}");
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public sealed class ALaguerreValidationTests : IDisposable
         var trendSeries = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            trendSeries.Add(DateTime.UtcNow.Ticks + i, 100.0 + i * 5.0);
+            trendSeries.Add(DateTime.UtcNow.Ticks + i, 100.0 + (i * 5.0));
         }
 
         foreach (var item in trendSeries)

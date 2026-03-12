@@ -198,7 +198,7 @@ public class VoTests
         // Add several bars
         for (int i = 0; i < 10; i++)
         {
-            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 500 + i * 10);
+            var bar = new TBar(now.AddMinutes(i), 100, 100, 100, 100, 500 + (i * 10));
             vo.Update(bar, isNew: true);
         }
 
@@ -207,7 +207,7 @@ public class VoTests
         // Apply multiple corrections
         for (int j = 0; j < 5; j++)
         {
-            var correctionBar = new TBar(now.AddMinutes(9), 100, 100, 100, 100, 700 + j * 10);
+            var correctionBar = new TBar(now.AddMinutes(9), 100, 100, 100, 100, 700 + (j * 10));
             vo.Update(correctionBar, isNew: false);
         }
 

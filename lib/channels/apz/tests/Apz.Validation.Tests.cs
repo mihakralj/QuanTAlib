@@ -383,7 +383,7 @@ public sealed class ApzValidationTests : IDisposable
             }
             else
             {
-                ema = alpha * bar.Close + (1 - alpha) * ema;
+                ema = (alpha * bar.Close) + ((1 - alpha) * ema);
             }
 
             emaResults.Add(ema);

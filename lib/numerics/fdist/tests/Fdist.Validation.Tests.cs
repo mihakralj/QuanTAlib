@@ -213,7 +213,7 @@ public class FdistValidationTests
     public void FdistCdf_ParameterCombos_OutputBounded(int d1, int d2, int period)
     {
         int count = period + 50;
-        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 66004 + d1 * 100 + d2);
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 66004 + (d1 * 100) + d2);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         var indicator = new Fdist(d1, d2, period);

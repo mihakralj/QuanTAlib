@@ -102,7 +102,7 @@ public sealed class SwingsValidationTests
         int lookback = 3;
         Swings.Batch(bars.HighValues, bars.LowValues, spanHigh, spanLow, lookback);
 
-        int windowSize = 2 * lookback + 1;
+        int windowSize = (2 * lookback) + 1;
         for (int i = windowSize - 1; i < bars.Count; i++)
         {
             if (double.IsNaN(spanHigh[i]))
@@ -139,7 +139,7 @@ public sealed class SwingsValidationTests
         int lookback = 3;
         Swings.Batch(bars.HighValues, bars.LowValues, spanHigh, spanLow, lookback);
 
-        int windowSize = 2 * lookback + 1;
+        int windowSize = (2 * lookback) + 1;
         for (int i = windowSize - 1; i < bars.Count; i++)
         {
             if (double.IsNaN(spanLow[i]))

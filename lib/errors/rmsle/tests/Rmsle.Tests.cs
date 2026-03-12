@@ -362,7 +362,7 @@ public class RmsleTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
-            var result = rmsle.Update(bar.Close, bar.Close * (0.8 + 0.4 * (i % 2)));
+            var result = rmsle.Update(bar.Close, bar.Close * (0.8 + (0.4 * (i % 2))));
             Assert.True(result.Value >= 0, $"RMSLE should always be non-negative, got {result.Value}");
         }
     }

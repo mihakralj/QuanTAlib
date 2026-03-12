@@ -34,14 +34,14 @@ public class McnmaTests
             e1 = Math.FusedMultiplyAdd(e1, decay, alpha * val);
             e2 = Math.FusedMultiplyAdd(e2, decay, alpha * e1);
             e3 = Math.FusedMultiplyAdd(e3, decay, alpha * e2);
-            double tema1 = 3.0 * e1 - 3.0 * e2 + e3;
+            double tema1 = (3.0 * e1) - (3.0 * e2) + e3;
 
             e4 = Math.FusedMultiplyAdd(e4, decay, alpha * tema1);
             e5 = Math.FusedMultiplyAdd(e5, decay, alpha * e4);
             e6 = Math.FusedMultiplyAdd(e6, decay, alpha * e5);
-            double tema2 = 3.0 * e4 - 3.0 * e5 + e6;
+            double tema2 = (3.0 * e4) - (3.0 * e5) + e6;
 
-            double expected = 2.0 * tema1 - tema2;
+            double expected = (2.0 * tema1) - tema2;
             Assert.Equal(expected, mVal.Value, 1e-9);
         }
     }

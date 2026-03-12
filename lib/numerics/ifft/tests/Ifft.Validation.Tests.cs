@@ -91,7 +91,7 @@ public class IfftValidationTests
         var values = new List<TValue>(count);
         for (int i = 0; i < count; i++)
         {
-            values.Add(new TValue(time.AddMinutes(i), 100.0 + 30.0 * Math.Sin(twoPiOverN * 1 * i)));
+            values.Add(new TValue(time.AddMinutes(i), 100.0 + (30.0 * Math.Sin(twoPiOverN * 1 * i))));
         }
 
         var indH1 = new Ifft(windowSize, numHarmonics: 1);
@@ -294,7 +294,7 @@ public class IfftValidationTests
 
         for (int i = 0; i < count; i++)
         {
-            double v = 100.0 + 25.0 * Math.Sin(twoPiOverN * 1 * i);
+            double v = 100.0 + (25.0 * Math.Sin(twoPiOverN * 1 * i));
             indH1.Update(new TValue(time.AddMinutes(i), v));
             if (indH1.IsHot)
             {

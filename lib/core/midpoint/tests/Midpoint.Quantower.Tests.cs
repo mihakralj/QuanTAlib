@@ -100,10 +100,10 @@ public class MidpointIndicatorTests
         {
             indicator.HistoricalData.AddBar(
                 now.AddMinutes(i),
-                100 + i * 2,
-                105 + i * 2,
-                95 + i * 2,
-                102 + i * 2);
+                100 + (i * 2),
+                105 + (i * 2),
+                95 + (i * 2),
+                102 + (i * 2));
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 

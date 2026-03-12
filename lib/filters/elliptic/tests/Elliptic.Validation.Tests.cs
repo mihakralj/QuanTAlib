@@ -30,7 +30,7 @@ public sealed class EllipticValidationTests : IDisposable
         var noisySignal = new List<double>(N);
         for (int i = 0; i < N; i++)
         {
-            noisySignal.Add(100.0 + (closes[i + 1] / closes[i] - 1.0) * 1000.0); // amplified jitter around 100
+            noisySignal.Add(100.0 + (((closes[i + 1] / closes[i]) - 1.0) * 1000.0)); // amplified jitter around 100
         }
 
         var output = new List<double>();

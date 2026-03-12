@@ -150,12 +150,12 @@ public sealed class PsarBasicTests
         // Steady uptrend - SAR should trail below
         for (int i = 0; i < 20; i++)
         {
-            double price = 100.0 + i * 2;
+            double price = 100.0 + (i * 2);
             _ = psar.Update(new TBar(DateTime.UtcNow.AddMinutes(i),
                 price + 1, price - 1, price + 0.5, price, 1000));
         }
 
-        double lastClose = 100.0 + 19 * 2;
+        double lastClose = 100.0 + (19 * 2);
         Assert.True(psar.Sar < lastClose, "SAR should be below price in uptrend");
         Assert.True(psar.IsLong, "Should be in long mode during uptrend");
     }
@@ -168,12 +168,12 @@ public sealed class PsarBasicTests
         // Steady downtrend - SAR should trail above
         for (int i = 0; i < 20; i++)
         {
-            double price = 200.0 - i * 2;
+            double price = 200.0 - (i * 2);
             _ = psar.Update(new TBar(DateTime.UtcNow.AddMinutes(i),
                 price + 1, price - 1, price + 0.5, price, 1000));
         }
 
-        double lastClose = 200.0 - 19 * 2;
+        double lastClose = 200.0 - (19 * 2);
         Assert.True(psar.Sar > lastClose, "SAR should be above price in downtrend");
         Assert.False(psar.IsLong, "Should be in short mode during downtrend");
     }
@@ -423,7 +423,7 @@ public sealed class PsarConsistencyTests
         // Continue uptrend
         for (int i = 1; i <= 5; i++)
         {
-            double price = 105 + i * 2;
+            double price = 105 + (i * 2);
             _ = psar.Update(new TBar(dt.AddMinutes(i),
                 price + 1, price - 1, price + 0.5, price, 1000), isNew: true);
         }

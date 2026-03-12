@@ -88,7 +88,7 @@ public class MavpTests
             var bar = gbm.Next(isNew: true);
             series.Add(bar.Time, bar.Close);
             // Variable period: oscillate between 5 and 20
-            double p = 5 + 15.0 * (0.5 + 0.5 * Math.Sin(i * 0.1));
+            double p = 5 + (15.0 * (0.5 + (0.5 * Math.Sin(i * 0.1))));
             periodSeries.Add(bar.Time, p);
         }
 
@@ -343,7 +343,7 @@ public class MavpTests
         {
             var bar = gbm.Next(isNew: true);
             var tv = new TValue(bar.Time, bar.Close);
-            double period = 5 + 15.0 * (0.5 + 0.5 * Math.Sin(i * 0.1));
+            double period = 5 + (15.0 * (0.5 + (0.5 * Math.Sin(i * 0.1))));
 
             // Method 1: Set period, then call Update
             mavp1.Period = period;

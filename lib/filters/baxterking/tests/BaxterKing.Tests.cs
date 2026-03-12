@@ -246,7 +246,7 @@ public class BaxterKingTests
         var ind = new BaxterKing(6, 32, 5); // filterLen = 11
         for (int i = 0; i < 10; i++)
         {
-            double v = ind.Update(new TValue(DateTime.UtcNow, 100 + i * 0.5)).Value;
+            double v = ind.Update(new TValue(DateTime.UtcNow, 100 + (i * 0.5))).Value;
             Assert.Equal(0.0, v, 15);
         }
     }

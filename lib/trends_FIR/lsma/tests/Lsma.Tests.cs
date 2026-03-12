@@ -70,12 +70,12 @@ public class LsmaTests
 
         for (int i = 0; i < 20; i++)
         {
-            double y = 2 * i + 1;
+            double y = (2 * i) + 1;
             var result = lsma.Update(new TValue(DateTime.UtcNow, y));
 
             if (i >= period)
             {
-                double expected = 2 * (i + offset) + 1;
+                double expected = (2 * (i + offset)) + 1;
                 Assert.Equal(expected, result.Value, 1e-9);
             }
         }

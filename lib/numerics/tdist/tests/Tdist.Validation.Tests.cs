@@ -249,7 +249,7 @@ public class TdistValidationTests
         // Cauchy (ν=1): CDF(100; 1) = 0.5 + arctan(100)/π ≈ 0.99681...
         // Heavy tails — does NOT approach 1 quickly
         double cdf = Tdist.StaticCdf(100.0, 1);
-        double expected = 0.5 + Math.Atan(100.0) / Math.PI;
+        double expected = 0.5 + (Math.Atan(100.0) / Math.PI);
         Assert.Equal(expected, cdf, 1e-9);
         Assert.True(cdf > 0.99 && cdf < 1.0, $"Cauchy CDF(100) = {cdf} should be in (0.99, 1.0)");
     }
@@ -269,7 +269,7 @@ public class TdistValidationTests
     {
         // Cauchy (ν=1): CDF(-100; 1) = 0.5 - arctan(100)/π ≈ 0.00319...
         double cdf = Tdist.StaticCdf(-100.0, 1);
-        double expected = 0.5 - Math.Atan(100.0) / Math.PI;
+        double expected = 0.5 - (Math.Atan(100.0) / Math.PI);
         Assert.Equal(expected, cdf, 1e-9);
         Assert.True(cdf > 0.0 && cdf < 0.01, $"Cauchy CDF(-100) = {cdf} should be in (0, 0.01)");
     }

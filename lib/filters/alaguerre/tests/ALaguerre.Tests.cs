@@ -561,7 +561,7 @@ public class ALaguerreTests
         // Trending input: 100, 110, 120, ...
         for (int i = 0; i < 30; i++)
         {
-            alTrend.Update(new TValue(DateTime.UtcNow, 100 + i * 10.0));
+            alTrend.Update(new TValue(DateTime.UtcNow, 100 + (i * 10.0)));
         }
 
         // Flat input: constant 100

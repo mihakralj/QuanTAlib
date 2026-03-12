@@ -284,7 +284,7 @@ public class CmoTests
         var prices = new TSeries();
         for (int i = 0; i < 20; i++)
         {
-            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + Math.Sin(i) * 10));
+            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + (Math.Sin(i) * 10)));
         }
 
         var results = Cmo.Batch(prices, 5);
@@ -298,7 +298,7 @@ public class CmoTests
         var prices = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + Math.Sin(i * 0.5) * 20));
+            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + (Math.Sin(i * 0.5) * 20)));
         }
 
         var batchResults = Cmo.Batch(prices, 14);
@@ -362,7 +362,7 @@ public class CmoTests
         double smallChange = 1e-10;
         for (int i = 0; i < 6; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, baseVal + i * smallChange));
+            cmo.Update(new TValue(DateTime.Now.Ticks + i, baseVal + (i * smallChange)));
         }
 
         // All tiny up moves, should still be 100

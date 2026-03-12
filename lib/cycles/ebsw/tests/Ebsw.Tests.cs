@@ -137,7 +137,7 @@ public class EbswTests
 
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * frequency);
+            double price = 100.0 + (10.0 * Math.Sin(i * frequency));
             ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -235,7 +235,7 @@ public class EbswTests
         // First run
         for (int i = 0; i < 100; i++)
         {
-            ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var firstResult = ebsw.Last.Value;
 
@@ -244,7 +244,7 @@ public class EbswTests
         // Second run with same data
         for (int i = 0; i < 100; i++)
         {
-            ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            ebsw.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var secondResult = ebsw.Last.Value;
 
@@ -451,7 +451,7 @@ public class EbswTests
 
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(ebsw.IsHot);
@@ -467,7 +467,7 @@ public class EbswTests
 
         for (int i = 0; i < 200; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Both should have values

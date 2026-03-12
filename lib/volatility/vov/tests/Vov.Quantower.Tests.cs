@@ -58,7 +58,7 @@ public class VovIndicatorTests
         for (int i = 0; i < 50; i++)
         {
             // Create price movement that generates volatility
-            double basePrice = 100 + Math.Sin(i * 0.3) * (5 + i * 0.1);
+            double basePrice = 100 + (Math.Sin(i * 0.3) * (5 + (i * 0.1)));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
 
             // Process update for each bar to simulate history loading
@@ -108,7 +108,7 @@ public class VovIndicatorTests
             for (int i = 0; i < 60; i++)
             {
                 // Create price movement with varying amplitude
-                double basePrice = 100 + Math.Sin(i * 0.2) * 5;
+                double basePrice = 100 + (Math.Sin(i * 0.2) * 5);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -197,7 +197,7 @@ public class VovIndicatorTests
         // Low volatility period
         for (int i = 0; i < 15; i++)
         {
-            double price = 100 + (i % 2) * 0.5; // Small oscillations
+            double price = 100 + ((i % 2) * 0.5); // Small oscillations
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 0.5, price - 0.5, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -205,7 +205,7 @@ public class VovIndicatorTests
         // High volatility period
         for (int i = 15; i < 30; i++)
         {
-            double price = 100 + (i % 2) * 10; // Large oscillations
+            double price = 100 + ((i % 2) * 10); // Large oscillations
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -227,7 +227,7 @@ public class VovIndicatorTests
         // Price with varying close but constant OHLC range
         for (int i = 0; i < 20; i++)
         {
-            double close = 100 + Math.Sin(i * 0.5) * 5; // Varying close
+            double close = 100 + (Math.Sin(i * 0.5) * 5); // Varying close
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, close, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -252,7 +252,7 @@ public class VovIndicatorTests
 
         for (int i = 0; i < 60; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 5;
+            double price = 100 + (Math.Sin(i * 0.3) * 5);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -303,7 +303,7 @@ public class VovIndicatorTests
         // Stable volatility regime
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 2;
+            double price = 100 + (Math.Sin(i * 0.5) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -313,8 +313,8 @@ public class VovIndicatorTests
         // Transition to variable volatility
         for (int i = 20; i < 40; i++)
         {
-            double amplitude = 2 + (i - 20) * 0.5; // Increasing amplitude
-            double price = 100 + Math.Sin(i * 0.5) * amplitude;
+            double amplitude = 2 + ((i - 20) * 0.5); // Increasing amplitude
+            double price = 100 + (Math.Sin(i * 0.5) * amplitude);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + amplitude, price - amplitude, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

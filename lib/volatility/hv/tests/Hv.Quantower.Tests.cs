@@ -58,7 +58,7 @@ public class HvIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5 + Math.Sin(i * 0.3) * 2; // Trending with variation
+            double closePrice = 100 + (i * 0.5) + (Math.Sin(i * 0.3) * 2); // Trending with variation
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
 
             // Process update for each bar to simulate history loading
@@ -81,7 +81,7 @@ public class HvIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.3;
+            double closePrice = 100 + (i * 0.3);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
         }
 
@@ -107,7 +107,7 @@ public class HvIndicatorTests
             var now = DateTime.UtcNow;
             for (int i = 0; i < 50; i++)
             {
-                double closePrice = 100 + i * 0.2 + Math.Sin(i * 0.5) * 3;
+                double closePrice = 100 + (i * 0.2) + (Math.Sin(i * 0.5) * 3);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -191,7 +191,7 @@ public class HvIndicatorTests
         // Indicator 1: low volatility (small price changes)
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.01; // Small consistent changes
+            double closePrice = 100 + (i * 0.01); // Small consistent changes
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 0.5, closePrice + 0.5, closePrice - 0.5, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -199,7 +199,7 @@ public class HvIndicatorTests
         // Indicator 2: high volatility (large price swings)
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + Math.Sin(i * 0.5) * 10; // Large swings
+            double closePrice = 100 + (Math.Sin(i * 0.5) * 10); // Large swings
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 2, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicator2.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -225,7 +225,7 @@ public class HvIndicatorTests
         // Same data for both - trending with variation
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5 + Math.Sin(i * 0.3) * 2;
+            double closePrice = 100 + (i * 0.5) + (Math.Sin(i * 0.3) * 2);
             indicatorRaw.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicatorRaw.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
@@ -261,7 +261,7 @@ public class HvIndicatorTests
         // Same close prices but different high/low
         for (int i = 0; i < 30; i++)
         {
-            double closePrice = 100 + i * 0.5;
+            double closePrice = 100 + (i * 0.5);
             // Indicator 1: narrow range
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -314,7 +314,7 @@ public class HvIndicatorTests
         for (int i = 0; i < 30; i++)
         {
             double rate = (i % 2 == 0) ? 1.02 : 1.005;
-            double closePrice = 100 * Math.Pow(rate, i / 2 + 1) * (i % 2 == 0 ? 1.0 : rate);
+            double closePrice = 100 * Math.Pow(rate, (i / 2) + 1) * (i % 2 == 0 ? 1.0 : rate);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

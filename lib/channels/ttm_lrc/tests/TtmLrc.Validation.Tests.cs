@@ -74,8 +74,8 @@ public sealed class TtmLrcValidationTests : IDisposable
         Assert.Equal(115.0 - expectedStdDev, ind.Lower1.Value, 1e-10);
 
         // Verify ±2σ bands
-        Assert.Equal(115.0 + 2.0 * expectedStdDev, ind.Upper2.Value, 1e-10);
-        Assert.Equal(115.0 - 2.0 * expectedStdDev, ind.Lower2.Value, 1e-10);
+        Assert.Equal(115.0 + (2.0 * expectedStdDev), ind.Upper2.Value, 1e-10);
+        Assert.Equal(115.0 - (2.0 * expectedStdDev), ind.Lower2.Value, 1e-10);
 
         _output.WriteLine("TtmLrc manual calculation validated");
     }
@@ -89,7 +89,7 @@ public sealed class TtmLrcValidationTests : IDisposable
         // Perfect linear trend: 100, 110, 120, 130, 140
         for (int i = 0; i < 5; i++)
         {
-            series.Add(new TValue(t0.AddMinutes(i), 100 + i * 10));
+            series.Add(new TValue(t0.AddMinutes(i), 100 + (i * 10)));
         }
 
         var ind = new TtmLrc(5);
@@ -362,7 +362,7 @@ public sealed class TtmLrcValidationTests : IDisposable
         // Feed perfect linear data
         for (int i = 0; i < 10; i++)
         {
-            ind.Update(new TValue(t0.AddMinutes(i), 100 + i * 5));
+            ind.Update(new TValue(t0.AddMinutes(i), 100 + (i * 5)));
         }
 
         Assert.Equal(1.0, ind.RSquared, 1e-9);
@@ -481,7 +481,7 @@ public sealed class TtmLrcValidationTests : IDisposable
         var t0 = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            uptrend.Add(new TValue(t0.AddMinutes(i), 100 + i * 2 + (i % 3))); // Noisy uptrend
+            uptrend.Add(new TValue(t0.AddMinutes(i), 100 + (i * 2) + (i % 3))); // Noisy uptrend
         }
 
         var indUp = new TtmLrc(10);
@@ -495,7 +495,7 @@ public sealed class TtmLrcValidationTests : IDisposable
         var downtrend = new TSeries();
         for (int i = 0; i < 20; i++)
         {
-            downtrend.Add(new TValue(t0.AddMinutes(i), 200 - i * 2 + (i % 3))); // Noisy downtrend
+            downtrend.Add(new TValue(t0.AddMinutes(i), 200 - (i * 2) + (i % 3))); // Noisy downtrend
         }
 
         var indDown = new TtmLrc(10);

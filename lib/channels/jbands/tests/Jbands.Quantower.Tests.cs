@@ -22,7 +22,7 @@ public class JbandsIndicatorTests
     public void MinHistoryDepths_MatchesWarmupFormula()
     {
         var ind = new JbandsIndicator { Period = 14 };
-        int expected = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(14, 0.36));
+        int expected = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(14, 0.36)));
         Assert.Equal(expected, ind.MinHistoryDepths);
     }
 
@@ -155,7 +155,7 @@ public class JbandsIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 10;
+            double price = 100 + (Math.Sin(i * 0.3) * 10);
             indZero.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
             indPos.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
             indZero.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
@@ -185,7 +185,7 @@ public class JbandsIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 10;
+            double price = 100 + (Math.Sin(i * 0.3) * 10);
             indPos.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
             indNeg.HistoricalData.AddBar(now.AddMinutes(i), price - 1, price + 2, price - 2, price);
             indPos.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));

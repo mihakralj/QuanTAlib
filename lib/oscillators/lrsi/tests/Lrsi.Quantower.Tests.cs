@@ -66,7 +66,7 @@ public sealed class LrsiIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + Math.Sin(i * 0.3) * 10.0 + i * 0.1;
+            double price = 100.0 + (Math.Sin(i * 0.3) * 10.0) + (i * 0.1);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price + 5, price + 10, price - 5, price);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -87,7 +87,7 @@ public sealed class LrsiIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price + 3, price + 6, price - 3, price);
 
             var reason = i < 19 ? UpdateReason.HistoricalBar : UpdateReason.NewBar;
@@ -138,7 +138,7 @@ public sealed class LrsiIndicatorTests
         // Feed a volatile sine wave to exercise full range
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + Math.Sin(i * 0.2) * 20.0;
+            double price = 100.0 + (Math.Sin(i * 0.2) * 20.0);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price + 5, price + 10, price - 5, price);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);

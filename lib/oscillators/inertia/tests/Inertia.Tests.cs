@@ -381,7 +381,7 @@ public sealed class InertiaTests
         var inertia = new Inertia(period: 5);
         for (int i = 0; i < 10; i++)
         {
-            inertia.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2.0));
+            inertia.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2.0)));
         }
         // Perfect linear trend → regression fits perfectly → residual = 0
         Assert.Equal(0.0, inertia.Last.Value, precision: 10);

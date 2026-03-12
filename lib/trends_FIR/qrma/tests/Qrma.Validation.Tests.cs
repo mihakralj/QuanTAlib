@@ -101,7 +101,7 @@ public class QrmaValidationTests
 
         for (int i = 0; i < count; i++)
         {
-            values[i] = 2.0 * i + 5.0;
+            values[i] = (2.0 * i) + 5.0;
         }
 
         global::QuanTAlib.Qrma.Batch(values, output, period);
@@ -125,7 +125,7 @@ public class QrmaValidationTests
 
         for (int i = 0; i < count; i++)
         {
-            values[i] = 0.5 * i * i + i + 3.0;
+            values[i] = (0.5 * i * i) + i + 3.0;
         }
 
         global::QuanTAlib.Qrma.Batch(values, output, period);

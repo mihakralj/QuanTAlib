@@ -56,7 +56,7 @@ public class MapdTests
 
         // |50 - 60| / 60 * 100 = 16.666...%
         var res3 = mapd.Update(50, 60);
-        double expected = (100.0 * 10 / 110 + 100.0 * 20 / 220 + 100.0 * 10 / 60) / 3;
+        double expected = ((100.0 * 10 / 110) + (100.0 * 20 / 220) + (100.0 * 10 / 60)) / 3;
         Assert.Equal(expected, res3.Value, 10);
     }
 
@@ -130,7 +130,7 @@ public class MapdTests
         for (int i = 1; i <= 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             mapd.Update(tenthActual, tenthPredicted);
         }
 
@@ -155,7 +155,7 @@ public class MapdTests
 
         for (int i = 1; i <= 10; i++)
         {
-            mapd.Update(i * 10, i * 10 + 5);
+            mapd.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(mapd.IsHot);
@@ -233,7 +233,7 @@ public class MapdTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2; // Offset prediction
+            predicted[i] = (bar.Close * 1.05) + 2; // Offset prediction
         }
 
         // Streaming

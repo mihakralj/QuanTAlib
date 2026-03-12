@@ -122,7 +122,7 @@ public class HpfValidationTests : IDisposable
         {
             double ssrc = src[i];
 
-            double term1 = coeff1 * (ssrc - 2.0 * src1 + src2);
+            double term1 = coeff1 * (ssrc - (2.0 * src1) + src2);
             double term2 = coeff2 * hp1;
             double term3 = coeff3 * hp2;
 

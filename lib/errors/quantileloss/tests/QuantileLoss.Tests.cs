@@ -381,7 +381,7 @@ public class QuantileLossTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
-            quantileLoss.Update(bar.Close, bar.Close * (1 + (i % 3 - 1) * 0.1));
+            quantileLoss.Update(bar.Close, bar.Close * (1 + (((i % 3) - 1) * 0.1)));
             Assert.True(quantileLoss.Last.Value >= 0, $"QuantileLoss should be non-negative, got {quantileLoss.Last.Value}");
         }
     }

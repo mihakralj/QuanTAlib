@@ -467,7 +467,7 @@ public sealed class DymoiTests
         var t = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            source.Add(new TValue(t.AddMinutes(i), 100.0 + i * 0.5));
+            source.Add(new TValue(t.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         Assert.Equal(30, output.Count);
