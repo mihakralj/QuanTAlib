@@ -223,7 +223,7 @@
       // Route handler for .pine files — fetch and wrap in markdown code fence
       routes: {
         '/(.+\\.pine)': function(route, matched, next) {
-          var pinePath = matched;
+          var pinePath = matched[1];
           var absUrl = new URL(pinePath, document.baseURI).href;
           fetch(absUrl).then(function(r) {
             if (!r.ok) throw new Error(r.status);
