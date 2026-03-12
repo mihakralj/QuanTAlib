@@ -113,5 +113,3 @@ Finance code is a target. Always has been. The firms that consume open-source ma
 Apache 2.0 does not restrict freedom. Anyone can use, modify, distribute, sell, and build empires on QuanTAlib. It restricts one specific behavior: using the legal system to attack the people who wrote the code you are profiting from.
 
 That seems reasonable. Even to a curmudgeon.
-
-Full license text: [LICENSE](../LICENSE)

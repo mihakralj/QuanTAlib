@@ -210,6 +210,53 @@
     .token.property { color: #c9d1d9; }
     .token.function { color: #d2a8ff; }
     .token.boolean { color: #ff7b72; }
+
+    /* Search box styling */
+    .sidebar .search {
+      margin-bottom: 10px;
+      padding: 6px;
+      border-bottom: 1px solid #30363d;
+    }
+    .sidebar .search .input-wrap {
+      display: flex;
+      align-items: center;
+    }
+    .sidebar .search input {
+      outline: none;
+      border: 1px solid #30363d;
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 14px;
+      color: #c9d1d9 !important;
+      background-color: #161b22 !important;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+    .sidebar .search input::placeholder {
+      color: #8b949e;
+    }
+    .sidebar .search input:focus {
+      border-color: #58a6ff;
+    }
+    .sidebar .search .results-panel {
+      background-color: #0d1117;
+    }
+    .sidebar .search .matching-post {
+      border-bottom: 1px solid #21262d;
+    }
+    .sidebar .search .matching-post .search-keyword {
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    .sidebar .search a {
+      color: #c9d1d9 !important;
+    }
+    .sidebar .search a:hover {
+      color: #58a6ff !important;
+    }
+    .sidebar .search .clear-btn {
+      color: #8b949e;
+    }
   </style>
 </head>
 <body>
@@ -223,6 +270,14 @@
       auto2top: true,
       homepage: 'README.md',
       relativePath: true,
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Search indicators...',
+        noData: 'No results',
+        depth: 3,
+        hideOtherSidebarContent: false,
+      },
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md',
       },
@@ -266,6 +321,8 @@
   </script>
   <!-- Docsify v4 -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- Search Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <!-- Sidebar Collapse Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
   <!-- MathJax -->

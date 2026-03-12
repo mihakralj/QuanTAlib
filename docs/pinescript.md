@@ -252,7 +252,7 @@ These are the heavy artillery. Kalman filters, Butterworth filters, wavelets. If
 Every script follows the same structure. Understanding this structure is optional but occasionally useful when things do not look right on your chart.
 
 ```pine
-// The MIT License (MIT)
+// Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
 indicator("Exponential Moving Average (EMA)", "EMA", overlay=true)

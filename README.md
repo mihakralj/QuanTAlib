@@ -17,28 +17,42 @@
 
 # QuanTAlib
 
-**393 technical indicators. One library. Brutal architectural trade-offs for absolute speed.**
+393 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
 
-QuanTAlib grinds through half a million bars of SMA in 328 microseconds. Faster than an L1 cache miss. The same indicators run in C#, Python, and PineScript. Cross-validated against TA-Lib, Tulip, Skender, and every other implementation worth testing. 
+[⭐ Documentation pages →](mihakralj.github.io/QuanTAlib/)
 
-We achieve this by trading object allocation for contiguous memory spans and forcing SIMD vectorization. You want speed? We dictate the heap.
+QuanTAlib exists because I got tired of validating other people's indicators. Every implementation is cross-checked against TA-Lib, Tulip, Skender, and Pandas-TA. Where they disagree, we went to the original papers. Where the papers disagree, we picked the math that doesn't lie.
 
-Pick your weapon:
+Same indicators, same results: **C#**, **Python**, and **PineScript**.
+
+### How Fast?
+
+C# native AOT-compiled code spits out half a million bars of SMA in 328 microseconds. That is faster (per value) than a single L1 cache miss on any fancy new CPU. Achieved by trading object allocation for contiguous memory spans, slapping Fused Multiply-Add (FMA) on everything, and forcing SIMD vectorized paths. You want speed? We dictate the heap.
+
+| Library | SMA (500K bars) | Allocations | Reality Check |
+| :--- | ---: | ---: | :--- |
+| **QuanTAlib** | **328 μs** | **0 B** | baseline |
+| TA-Lib (C++)| 365 μs | 32 B | 1.1× slower |
+| Tulip (C++)| 370 μs | 0 B | 1.1× slower |
+| Skender (C#)| 68,436 μs | 42 MB | 209× slower |
+| Ooples (c#)| 347,453 μs | 151 MB | 1,060× slower |
+[Full benchmarks →](docs/benchmarks.md)
+
+## Install
 
 | Platform | Install | Guide |
 | :--- | :--- | :--- |
-| **C# / .NET 10** | `dotnet add package QuanTAlib` | [Architecture](docs/architecture.md) . [API Reference](docs/api.md) |
-| **Python** | `pip install quantalib` | [**Python Guide**](docs/python.md) |
-| **PineScript v6** | Copy-paste from `lib/` | [**PineScript Guide**](docs/pinescript.md) |
+| **.net** | `dotnet add package QuanTAlib` | [Architecture](docs/architecture.md) . [API Reference](docs/api.md) |
+| **Python** | `pip install quantalib` | [Python Guide](docs/python.md) |
+| **PineScript v6** | Copy-paste to TradingView | [PineScript Guide](docs/pinescript.md) |
 
-## Quick Start
+## Show Me the Code
 
-### C# Streaming (Real-time incoming data)
+### C# Streaming (Real-time incoming data, value by value)
 
 ```csharp
 using QuanTAlib;
 
-// No allocations in the update loop. State is maintained internally.
 var sma = new Sma(period: 14);
 var result = sma.Update(110.4);
 
@@ -46,17 +60,19 @@ if (result.IsHot)
     Console.WriteLine($"SMA: {result.Value}");
 ```
 
+State lives inside the indicator. No list of historic bars. No LINQ chains allocating their way to thermal throttling. Call `.Update()`, get answer.
+
 ### C# — batch (500K bars in microseconds)
 
 ```csharp
-// We evaluate code, not promises.
-// This processes as contiguous memory using AVX-512 vectorization.
-// Zero allocations. The Garbage Collector sleeps.
 double[] prices = LoadHistoricalData();
 double[] results = new double[prices.Length];
 
 Sma.Batch(prices.AsSpan(), results.AsSpan(), period: 14);
 ```
+
+Contiguous memory. AVX-512 vectorization. The Garbage Collector sleeps through the whole thing and nobody wakes it.
+
 
 ### Python
 
@@ -68,11 +84,13 @@ prices = np.random.default_rng(42).normal(100, 2, size=500_000)
 sma = qtl.sma(prices, period=14)       # 393 indicators, similar syntax
 ```
 
-Works with NumPy, pandas, polars, and PyArrow. [Full Python guide →](docs/python.md)
+Works with NumPy, pandas, polars, and PyArrow. NativeAOT compiled, ships as a binary. No CLR runtime dragged along for the ride.  
+[Full Python guide →](docs/python.md)
 
 ### PineScript
 
-Every indicator ships as a standalone .pine file. Open it. Copy it. Paste it into TradingView. No magic, just math. [Full PineScript guide →](docs/pinescript.md)
+Every indicator ships as a standalone .pine file. Open it. Copy it. Paste it into TradingView. No magic, no dependencies, just math that matches the C# and Python versions to the 10th decimal.  
+[Full PineScript guide →](docs/pinescript.md)
 
 ---
 
@@ -99,56 +117,38 @@ Every indicator ships as a standalone .pine file. Open it. Copy it. Paste it int
 
 **[Browse all 393 indicators →](lib/_index.md)**
 
----
+## Architecture (the short version)
 
-## Performance
+**Streaming mode:** O(1) per update. Fixed memory. State maintained internally. Feed it ticks, get answers. No history buffer, no lookback window allocation, no *please pass me the last 200 bars so I can waarm-up* nonsense.
 
-500,000 bars. Period 220. .NET 10.0, AVX-512. Zero allocations.
+**Batch mode:** Structure-of-Arrays memory layout. SIMD vectorized. FMA everywhere the hardware allows. Processes contiguous `Span<double>` with zero heap allocation. Your profiler will be confused by the absence of GC pressure.
 
-| Library | SMA Time | Allocations | vs QuanTAlib |
-| :--- | ---: | ---: | :--- |
-| **QuanTAlib** | **328 μs** | **0 B** | — |
-| TA-Lib | 365 μs | 32 B | 1.1× slower |
-| Tulip | 370 μs | 0 B | 1.1× slower |
-| Skender | 68,436 μs | 42 MB | **209× slower** |
-| Ooples | 347,453 μs | 151 MB | **1,060× slower** |
+**Dual-state management:** Bars can be corrected mid-stream (because real-time feeds are liars). The indicator tracks both confirmed and pending state so corrections don't require a full recalculation.
 
-That is 0.66 nanoseconds per value — faster than a single L1 cache miss. [Full benchmarks →](docs/benchmarks.md)
+[Full architecture docs →](docs/architecture.md)
 
----
+## Validation
+
+Every indicator is cross-validated against reference implementations using Geometric Brownian Motion (GBM) generated test data. Not cherry-picked sine waves. Geometric Brownian Motion with realistic drift and volatility, because indicators that only work on textbook inputs are not indicators: they are demos.
+
+[Validation matrices →](docs/validation.md)  
+[Error metrics →](docs/errors.md)  
+[Trend comparison →](docs/trendcomparison.md)
 
 ## Documentation
 
-### Architecture & API
+**Architecture & API:** [Architecture](docs/architecture.md) · [API Reference](docs/api.md) · [Usage Patterns](docs/usage.md) · [Integration](docs/integration.md) (Quantower, *NinjaTrader*, *QuantConnect*)
 
-- [**Architecture**](docs/architecture.md) — SoA memory layout, SIMD vectorization, O(1) streaming, [design philosophy](docs/architecture.md#design-philosophy)
-- [**API Reference**](docs/api.md) — Batch, Streaming, and Priming modes
-- [**Usage Patterns**](docs/usage.md) — Span, Streaming, Batch, Eventing examples
-- [**Integration**](docs/integration.md) — Quantower, NinjaTrader, QuantConnect
+**Analysis:** [Benchmarks](docs/benchmarks.md) · [Validation](docs/validation.md) · [MA Qualities](docs/ma-qualities.md) · [Glossary](docs/glossary.md)
 
-### Analysis & Validation
-
-- [**Benchmarks**](docs/benchmarks.md) — SMA, EMA, RSI, MACD, Bollinger, Chaikin results
-- [**Validation**](docs/validation.md) — Cross-library verification matrices
-- [**Error Metrics**](docs/errors.md) — 26 error and loss functions
-- [**Trend Comparison**](docs/trendcomparison.md) — Lag, smoothness, accuracy across MAs
-- [**MA Qualities**](docs/ma-qualities.md) — Theoretical framework for MA evaluation
-- [**Glossary**](docs/glossary.md) — Core concepts and terminology
-
-### Code Quality
-
-Static analysis: [NDepend](https://www.ndepend.com/) · [Codacy](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard) · [SonarCloud](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib) · [CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
+**Code Quality Assurance:** [NDepend](https://www.ndepend.com/) · [Codacy](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard) · [SonarCloud](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib) · [CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
 
 ## ⚠️ Fair Warning
 
-This library is **not yet 1.0.0**. There is exactly **one** grumpy engineer behind it, fueled by mass amounts of caffeine and an irrational belief that all technical indicators should be correct down to the 10th decimal place.
+Not yet 1.0.0. There is exactly one engineer behind this, running on mass amounts of caffeine and an irrational conviction that all technical indicators should be correct to the 9th decimal place. APIs will change. Things will break. Some indicators might produce values that make your quantitative models question the meaning of existence.
 
-Implemented indicators are not yet complete. Things **will** break. APIs **will** change. Some indicators might produce values that make your quantitative models question the meaning of life. If you find something broken and don't [open an issue](https://github.com/mihakralj/QuanTAlib/issues), the grumpy dev will have absolutely no idea what needs fixing — and the backlog of things to fix, improve, and add is already longer than a Bollinger Band on a meme stock.
-
-Your bug reports make this library better. Your silence makes the dev mass more coffee.
+If you find something broken and don't [open an issue](https://github.com/mihakralj/QuanTAlib/issues), it will stay broken - I will have no idea. The backlog of things to fix is already longer than a Bollinger Band on a meme stock. Your bug reports make this library better. Your silence makes me brew more coffee.
 
 ## License
 
-Licensed under [Apache 2.0](LICENSE). Not MIT. Not BSD. Deliberately.
-
-**[Full rationale →](docs/license.md)**
+[Apache 2.0](LICENSE). Not MIT. Not BSD. [Deliberately →](docs/license.md)
