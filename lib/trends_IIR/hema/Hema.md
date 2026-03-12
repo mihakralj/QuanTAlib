@@ -21,7 +21,6 @@
 
 ## An EMA-domain analog of HMA with WMA-lag-matched alphas
 
-
 HEMA is a Hull-style moving average built entirely from **exponential smoothers**. It preserves the classic HMA pipeline (fast minus slow, then smooth) but replaces WMA sub-filters with EMAs whose alphas are tuned to produce **identical lag** to the WMA stages they replace. At period $N$: HEMA($N$) and HMA($N$) have the same theoretical group delay, but HEMA has infinite memory and smoother transient behavior.
 
 ## Historical Context
@@ -217,91 +216,6 @@ HEMA is not commonly available in mainstream TA libraries. Validation uses a **r
 - PineScript reference is authoritative (included in repo).
 - Cross-check via invariant tests: DC gain, step response monotonicity, no NaN propagation after first finite sample.
 - Streaming vs batch vs span consistency verified in unit tests.
-
-## C# Implementation Considerations
-
-### State Management
-
-HEMA uses a comprehensive State struct tracking three EMA stages and warmup:
-
-```csharp
-[StructLayout(LayoutKind.Sequential)]
-private struct State
-{
-    public double EmaSlowRaw;
-    public double EmaFastRaw;
-    public double EmaSmoothRaw;
-    public double DecaySlow;
-    public double DecayFast;
-    public double DecaySmooth;
-    public bool IsHot;
-    public bool Warmup;
-}
-```
-
-Bar correction uses full state copy plus last-valid tracking:
-
-```csharp
-if (isNew) { _p_state = _state; _p_lastValidValue = _lastValidValue; }
-else { _state = _p_state; _lastValidValue = _p_lastValidValue; }
-```
-
-### Precomputed Constants
-
-Constructor calculates all alpha/beta pairs and the lag ratio once using integer floor sub-periods:
-
-```csharp
-int halfPeriod = period / 2;                          // integer floor, same as HMA
-int sqrtPeriod = Math.Max((int)Math.Sqrt(period), 1); // integer floor, same as HMA
-
-_alphaSlow   = AlphaFromWmaLag(period);
-_alphaFast   = AlphaFromWmaLag(Math.Max(halfPeriod, 1));
-_alphaSmooth = AlphaFromWmaLag(Math.Max(sqrtPeriod, 1));
-_betaSlow    = 1.0 - _alphaSlow;
-_ratio       = Math.Clamp(lagFast / lagSlow, 0.0, MaxRatio);
-_invOneMinusRatio = 1.0 / Math.Max(1.0 - _ratio, MinDenominator);
-```
-
-### WMA-Lag-Matched Alpha Calculation
-
-A single division replaces the old half-life exponential mapping:
-
-```csharp
-private static double AlphaFromWmaLag(int period)
-{
-    // WMA-lag-matched alpha: EMA lag = (1-a)/a = (P-1)/3
-    // Solving: a = 3/(P+2)
-    return 3.0 / (Math.Max(period, 1) + 2.0);
-}
-```
-
-### FMA Usage
-
-All EMA updates use FusedMultiplyAdd for precision and performance:
-
-```csharp
-state.EmaSlowRaw = Math.FusedMultiplyAdd(state.EmaSlowRaw, _betaSlow, _alphaSlow * input);
-state.EmaFastRaw = Math.FusedMultiplyAdd(state.EmaFastRaw, _betaFast, _alphaFast * input);
-double deLag = Math.FusedMultiplyAdd(-_ratio, emaSlow, emaFast) * _invOneMinusRatio;
-```
-
-### Memory Layout
-
-| Field | Type | Size | Purpose |
-| :--- | :--- | :---: | :--- |
-| `_alphaSlow` | double | 8B | Slow EMA alpha |
-| `_alphaFast` | double | 8B | Fast EMA alpha |
-| `_alphaSmooth` | double | 8B | Smooth stage alpha |
-| `_betaSlow` | double | 8B | 1 - alphaSlow |
-| `_betaFast` | double | 8B | 1 - alphaFast |
-| `_betaSmooth` | double | 8B | 1 - alphaSmooth |
-| `_ratio` | double | 8B | Lag ratio for de-lag |
-| `_invOneMinusRatio` | double | 8B | Precomputed divisor |
-| `_state` | State | ~56B | Current calculation state |
-| `_p_state` | State | ~56B | Previous state for rollback |
-| `_lastValidValue` | double | 8B | NaN substitution |
-| `_p_lastValidValue` | double | 8B | Previous valid value |
-| **Total** | | **~192B** | Per indicator instance |
 
 ## Common Pitfalls
 

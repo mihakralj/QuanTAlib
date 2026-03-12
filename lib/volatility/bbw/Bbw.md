@@ -219,50 +219,6 @@ var bbw = new Bbw(source, period: 20, multiplier: 2.0);
 // BBW updates automatically when prices are added to source
 ```
 
-## C# Implementation Considerations
-
-### Delegation to SMA and StdDev
-
-BBW composes two internal indicators:
-
-```csharp
-private readonly Sma _sma;
-private readonly Stddev _stddev;
-private readonly double _mult;
-```
-
-This reuses existing SMA and StdDev implementations with their warmup and state management.
-
-### Core Calculation
-
-```csharp
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-public TValue Update(TValue input, bool isNew = true)
-{
-    _sma.Update(input, isNew);
-    _stddev.Update(input, isNew);
-    
-    double smaValue = _sma.Last.Value;
-    double stdValue = _stddev.Last.Value;
-    
-    // Guard against division by zero
-    double bbw = smaValue > 0 ? (2.0 * _mult * stdValue) / smaValue : 0.0;
-    
-    return new TValue(input.Time, bbw);
-}
-```
-
-### Memory Layout
-
-| Component | Size | Purpose |
-| :-------- | ---: | :------ |
-| `_sma` (Sma) | ~48 + N×8 bytes | SMA with circular buffer |
-| `_stddev` (Stddev) | ~48 + N×8 bytes | StdDev with circular buffer |
-| `_mult` | 8 bytes | Multiplier constant |
-| **Total per instance** | **~104 + 2N×8 bytes** | Period-dependent |
-
-For default N=20: approximately 424 bytes per instance.
-
 ## References
 
 - Bollinger, J. (2001). *Bollinger on Bollinger Bands*. McGraw-Hill. (Original Bollinger Band methodology)

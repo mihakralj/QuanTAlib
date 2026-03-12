@@ -240,54 +240,6 @@ var dec = new Decycler(source, period: 60);
 var (results, indicator) = Decycler.Calculate(series, period: 60);
 ```
 
-## C# Implementation Considerations
-
-### State Record Struct with Auto Layout
-
-All IIR filter state is packed into a `record struct` with `LayoutKind.Auto` for compiler-optimized field ordering:
-
-```csharp
-[StructLayout(LayoutKind.Auto)]
-private record struct State
-{
-    public double Hp;
-    public double Hp1;
-    public double Src1;
-    public double Src2;
-    public bool IsInitialized;
-}
-```
-
-Five fields, ~40 bytes. Minimal footprint per instance.
-
-### FusedMultiplyAdd for IIR Recurrence
-
-The HP recurrence uses nested `Math.FusedMultiplyAdd` calls to minimize rounding error and exploit hardware FMA instructions:
-
-```csharp
-double hp = Math.FusedMultiplyAdd(_a1, src - 2.0 * _state.Src1 + _state.Src2,
-             Math.FusedMultiplyAdd(_b1, _state.Hp, _c1 * _state.Hp1));
-```
-
-### Precomputed Coefficients
-
-The trigonometric operations ($\cos$, $\sin$) execute once in the constructor. The hot path uses only the three precomputed coefficients `_a1`, `_b1`, `_c1`.
-
-### Bar Correction via State Snapshots
-
-The `_state` / `_p_state` pattern enables bar correction:
-
-```csharp
-if (isNew) { _p_state = _state; }
-else       { _state = _p_state; }
-```
-
-### Memory Layout
-
-- **State struct**: ~40 bytes (4 doubles + 1 bool + padding)
-- **Precomputed coefficients**: 24 bytes (3 doubles)
-- **Total per instance**: ~120 bytes including base class overhead
-
 ## References
 
 - Ehlers, J. F. (2015). "Decyclers." *Technical Analysis of Stocks & Commodities*, September 2015.
