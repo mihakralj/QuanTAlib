@@ -14,8 +14,6 @@
 
 - AVGPRICE computes the arithmetic mean of a bar's four canonical prices: Open, High, Low, and Close.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 AVGPRICE computes the arithmetic mean of a bar's four canonical prices: Open, High, Low, and Close. The formula $\frac{O + H + L + C}{4}$ produces a single representative price that weights all four price components equally, unlike Typical Price (which excludes Open) or Weighted Close (which double-weights Close). This equal weighting makes AVGPRICE the least biased single-bar summary statistic, useful as a neutral input to downstream indicators when no particular price component deserves emphasis. The calculation is stateless, requires no warmup, and costs a single FMA instruction per bar.

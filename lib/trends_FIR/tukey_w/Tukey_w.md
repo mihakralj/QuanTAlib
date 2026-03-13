@@ -14,9 +14,7 @@
 | **Signature**    | [tukey_w_signature](tukey_w_signature.md) |
 
 - TUKEY_W applies the Tukey (tapered cosine) window as FIR filter weights, offering a single parameter $\alpha$ that controls the fraction of the win...
-- Parameterized by `period` (default 20), `alpha` (default 0.5).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HanMA](../hanma/hanma.md), [BWMA](../bwma/Bwma.md) | **Trading note:** Tukey-window MA; adjustable taper parameter between rectangular and Hann.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 TUKEY_W applies the Tukey (tapered cosine) window as FIR filter weights, offering a single parameter $\alpha$ that controls the fraction of the window that is cosine-tapered. At $\alpha = 0$, the window is rectangular (SMA). At $\alpha = 1$, it becomes the Hann window. The default $\alpha = 0.5$ tapers 25% at each edge while keeping the central 50% flat at unity, combining the passband efficiency of the rectangular window with the sidelobe suppression of cosine tapering. This makes Tukey the default "when in doubt" window in spectral analysis, and by extension, a sensible default for window-based moving averages.

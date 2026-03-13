@@ -14,8 +14,6 @@
 
 - Volume Accumulation (VA) measures the cumulative flow of volume weighted by where price closes relative to the bar's midpoint.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Unbounded.
-- Requires `> 1` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Volume Accumulation (VA) measures the cumulative flow of volume weighted by where price closes relative to the bar's midpoint. When price closes above the midpoint, volume is considered buying pressure; when below, selling pressure. The cumulative sum reveals the net directional conviction of market participants over time.

@@ -13,9 +13,7 @@
 | **PineScript**   | [adr.pine](adr.pine)                       |
 
 - The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period.
-- Parameterized by `period`, `method` (default adrmethod.sma).
-- Output range: $\geq 0$.
-- Requires `ma.WarmupPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ATR](../atr/atr.md) | **Complementary:** Session range targets | **Trading note:** Average Daily Range; intraday range expectation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period. Unlike its cousin ATR, ADR ignores gaps entirely. It answers a straightforward question: "How much does this asset typically move within a single bar?"

@@ -14,9 +14,7 @@
 | **Signature**    | [ahrens_signature](ahrens_signature.md) |
 
 - AHRENS is a recursive IIR filter that adjusts toward the source price minus the midpoint of its current and lagged (by one period) states.
-- Parameterized by `period` (default 9).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../ema/ema.md) | **Complementary:** Trend filters | **Trading note:** Ahrens MA; modified exponential averaging for reduced noise.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 AHRENS is a recursive IIR filter that adjusts toward the source price minus the midpoint of its current and lagged (by one period) states. The formula $\text{AHRENS}_t = \text{AHRENS}_{t-1} + (\text{source} - \frac{\text{AHRENS}_{t-1} + \text{AHRENS}_{t-N}}{2}) / N$ creates a self-dampening feedback loop: the correction term shrinks as the current and lagged states converge, producing a smoother approach to equilibrium than a standard EMA with less tendency to overshoot on reversals.

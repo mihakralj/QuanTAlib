@@ -14,8 +14,6 @@
 
 - HT_DCPHASE measures the instantaneous phase angle of the dominant market cycle using Ehlers' Hilbert Transform cascade.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `LOOKBACK` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HT_DCPHASE measures the instantaneous phase angle of the dominant market cycle using Ehlers' Hilbert Transform cascade. The output ranges from $-45°$ to $315°$, with phase discontinuities at cycle completions marking the transition from one cycle to the next. Compatible with TA-Lib's `HT_DCPHASE` function, the indicator enables cycle-position timing for entries and exits based on where price currently sits within the dominant cycle.

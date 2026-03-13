@@ -13,9 +13,7 @@
 | **PineScript**   | [cg.pine](cg.pine)                       |
 
 - CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window.
-- Parameterized by `period` (default 10).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Ccyc](../ccyc/Ccyc.md), [EACP](../eacp/eacp.md) | **Complementary:** RSI for momentum confirmation | **Trading note:** Center of Gravity oscillator by Ehlers; leads price turns with minimal lag.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CG identifies potential turning points using the physics concept of weighted center of mass applied to a price window. Developed by John Ehlers, the oscillator measures where the "weight" of prices is concentrated within a lookback period, producing a leading indicator that oscillates around zero with minimal lag compared to traditional moving average crossover systems.

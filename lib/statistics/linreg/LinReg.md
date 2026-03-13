@@ -13,9 +13,7 @@
 | **PineScript**   | [linreg.pine](linreg.pine)                       |
 
 - The Linear Regression Curve plots the end point of the linear regression line for each bar.
-- Parameterized by `period`, `offset` (default 0).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Polyfit](../polyfit/Polyfit.md), [TSF](../../trends_FIR/tsf/Tsf.md) | **Trading note:** Linear regression; slope = trend direction/speed, R² = trend strength. Foundation of many indicators.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Linear Regression Curve plots the end point of the linear regression line for each bar. It fits a straight line $y = mx + b$ to the data points using the least squares method, providing a smoothed representation of the price trend that is more responsive than a Simple Moving Average (SMA).

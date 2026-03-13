@@ -15,9 +15,7 @@
 
 
 - The Laguerre Filter is a four-element IIR (Infinite Impulse Response) filter designed by John F.
-- Parameterized by `gamma` (default 0.8).
-- Output range: Tracks input.
-- Requires `WarmupBars` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ALaguerre](../alaguerre/ALaguerre.md), [SSF2](../ssf2/Ssf2.md) | **Complementary:** RSI for momentum | **Trading note:** Laguerre filter by Ehlers; FIR-like response from IIR structure. Damping factor 0–1 controls smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

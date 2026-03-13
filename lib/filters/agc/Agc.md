@@ -13,9 +13,7 @@
 | **PineScript**   | [agc.pine](agc.pine)                       |
 
 - The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking.
-- Parameterized by `decay` (default 0.991).
-- Output range: [-1, +1] (normalized amplitude).
-- Requires `1` bar of warmup before first valid output (IsHot = true).
+- **Similar:** [Kalman](../kalman/Kalman.md), [LMS](../lms/Lms.md) | **Complementary:** ATR for volatility context | **Trading note:** Automatic Gain Control; normalizes signal amplitude adaptively.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

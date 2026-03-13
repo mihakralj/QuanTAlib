@@ -14,9 +14,7 @@
 | **Signature**    | [nw_signature](nw_signature.md) |
 
 - NW computes the Nadaraya-Watson kernel regression estimator with a Gaussian kernel, producing a nonparametric smooth of the price series.
-- Parameterized by `period` (default 64), `bandwidth` (default 8.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Loess](../loess/Loess.md), [SGF](../sgf/Sgf.md) | **Complementary:** Bandwidth selection via cross-validation | **Trading note:** Nadaraya-Watson kernel regression; non-parametric smoother with Gaussian kernel.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 NW computes the Nadaraya-Watson kernel regression estimator with a Gaussian kernel, producing a nonparametric smooth of the price series. For each bar, every observation in the lookback window is weighted by a Gaussian function of its temporal distance, with the bandwidth parameter $h$ controlling the effective smoothing radius. Small $h$ tracks price tightly (low bias, high variance); large $h$ smooths heavily (high bias, low variance). This implementation is non-repainting (backward-looking only).

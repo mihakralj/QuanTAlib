@@ -14,8 +14,6 @@
 
 - Price Volume Rank distills the price-volume relationship into a simple categorical indicator.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Unbounded.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Price Volume Rank distills the price-volume relationship into a simple categorical indicator. Rather than producing a continuous value, PVR returns one of five discrete states (0-4) that classify the current bar's price and volume behavior relative to the previous bar. This creates an instant "market condition" snapshot.

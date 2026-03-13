@@ -13,9 +13,7 @@
 | **PineScript**   | [vwapbands.pine](vwapbands.pine)                       |
 
 - VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-l...
-- Parameterized by `multiplier` (default defaultmultiplier).
-- Output range: Tracks input.
-- Requires `2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [VwapSD](../vwapsd/vwapsd.md), [BBands](../bbands/bbands.md) | **Complementary:** Volume profile | **Trading note:** VWAP with deviation bands; institutional benchmark for intraday fair value.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-line channel system anchored to volume-weighted fair value. Three running sums (cumulative price×volume, cumulative volume, cumulative price²×volume) enable O(1) streaming updates per bar. A session reset mechanism clears accumulations at configurable intervals, keeping the indicator anchored to current market structure.

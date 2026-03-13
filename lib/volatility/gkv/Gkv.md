@@ -13,9 +13,7 @@
 | **PineScript**   | [gkv.pine](gkv.pine)                       |
 
 - Garman-Klass Volatility (GKV) is a range-based volatility estimator that uses all four OHLC prices to provide more efficient volatility estimates t...
-- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [YZV](../yzv/yzv.md), [HV](../hv/hv.md) | **Complementary:** Options pricing | **Trading note:** Garman-Klass; full OHLC, more efficient than close-to-close.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Garman-Klass Volatility (GKV) is a range-based volatility estimator that uses all four OHLC prices to provide more efficient volatility estimates than traditional close-to-close methods. Developed by Mark Garman and Michael Klass in 1980, this estimator achieves theoretical efficiency gains of 7-8x over simple close-to-close variance by incorporating intraday price information. The implementation includes RMA (Wilder's) smoothing with bias correction and optional annualization.

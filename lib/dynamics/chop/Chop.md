@@ -13,9 +13,7 @@
 | **PineScript**   | [chop.pine](chop.pine)                       |
 
 - The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways.
-- Parameterized by `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ADX](../adx/Adx.md), [VHF](../vhf/Vhf.md) | **Complementary:** BBands for range boundaries | **Trading note:** Choppiness Index; high values = choppy/ranging, low values = trending. Range 0–100.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways. It compares total price movement (sum of True Range) to net price movement (high-low channel width) using a logarithmic ratio, producing a bounded value where high readings indicate choppy/consolidating conditions and low readings indicate trending conditions. CHOP does not indicate direction — only whether directional strategies are likely to succeed. The logarithmic scaling normalizes the output to approximately 0-100 regardless of price level or volatility magnitude.

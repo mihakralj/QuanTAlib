@@ -13,9 +13,7 @@
 | **PineScript**   | [decaychannel.pine](decaychannel.pine)                       |
 
 - Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that exp...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DChannel](../dchannel/dchannel.md), [PChannel](../pchannel/pchannel.md) | **Complementary:** Trend indicators like ADX | **Trading note:** Bands decay toward price when no new extremes form, reducing lag compared to traditional channels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that expands instantly on new volatility but contracts smoothly during consolidation. While Donchian Channels hold their width until an extreme exits the lookback window, Decay Channel allows the bands to "forget" old extremes over time using a half-life model. The period parameter serves as the half-life: after that many bars without a new extreme, the band has decayed 50% of the distance back toward center. The decayed values are always clamped within Donchian bounds, ensuring they never extrapolate beyond actual price history.

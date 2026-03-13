@@ -14,9 +14,7 @@
 | **Signature**    | [bilateral_signature](bilateral_signature.md) |
 
 - The Bilateral Filter is a non-linear, edge-preserving, and noise-reducing smoothing filter.
-- Parameterized by `period`, `sigmasratio` (default 0.5), `sigmarmult` (default 1.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Kalman](../kalman/Kalman.md), [RMed](../rmed/Rmed.md) | **Complementary:** Volume for weight adjustment | **Trading note:** Bilateral filter; preserves edges (sudden price moves) while smoothing noise.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Bilateral Filter is a non-linear, edge-preserving, and noise-reducing smoothing filter. Unlike standard Gaussian filters that blur everything indiscriminately, the Bilateral Filter respects strong edges by weighting pixels based on both their spatial distance and their intensity difference (range).

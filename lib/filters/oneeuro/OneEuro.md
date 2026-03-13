@@ -15,9 +15,7 @@
 
 
 - The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness.
-- Parameterized by `mincutoff` (default 1.0), `beta` (default 0.007), `dcutoff` (default 1.0).
-- Output range: Tracks input.
-- Requires `1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Kalman](../kalman/Kalman.md), [LMS](../lms/Lms.md) | **Complementary:** ATR for cutoff tuning | **Trading note:** One Euro filter; adaptive low-pass that reduces jitter while preserving quick movements.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The **One Euro Filter** (1€ Filter) is a speed-adaptive first-order low-pass filter designed to balance jitter removal against responsiveness. It uses an adaptive cutoff frequency: at low signal speed, a low cutoff stabilizes the signal by reducing jitter; as speed increases, the cutoff rises to reduce lag.

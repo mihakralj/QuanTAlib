@@ -13,9 +13,7 @@
 | **PineScript**   | [geomean.pine](geomean.pine)                       |
 
 - The Geometric Mean computes the nth root of the product of n positive values over a sliding window.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Harmean](../harmean/Harmean.md), [CMA](../cma/Cma.md) | **Trading note:** Geometric mean; proper average for returns/growth rates. Accounts for compounding.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Geometric Mean computes the nth root of the product of n positive values over a sliding window. Unlike the arithmetic mean, it captures multiplicative relationships and is the correct average for growth rates, ratios, and log-normally distributed data. For financial time series, this means it properly accounts for compounding.

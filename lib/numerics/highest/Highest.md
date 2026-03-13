@@ -13,9 +13,7 @@
 | **PineScript**   | [highest.pine](highest.pine)                       |
 
 - HIGHEST calculates the maximum value over a rolling lookback window.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Lowest](../lowest/Lowest.md), [MaxIndex](../maxindex/Maxindex.md) | **Trading note:** Rolling maximum; identifies resistance levels and breakout points.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HIGHEST calculates the maximum value over a rolling lookback window. This O(1) amortized streaming implementation uses a monotonic deque algorithm, enabling real-time updates without re-scanning the entire window. Validated against TA-Lib MAX and Tulip max functions.

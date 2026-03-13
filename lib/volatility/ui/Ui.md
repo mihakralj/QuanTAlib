@@ -13,9 +13,7 @@
 | **PineScript**   | [ui.pine](ui.pine)                       |
 
 - Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs.
-- Parameterized by `period` (default 14).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HV](../hv/hv.md) | **Complementary:** Martin ratio | **Trading note:** Ulcer Index; measures drawdown depth and duration.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs. Developed by Peter G. Martin in 1987, UI captures what most volatility measures miss: the pain of being underwater. Unlike standard deviation or ATR that treat upside and downside moves equally, UI measures only the decline from peaks—the psychological stress that keeps investors awake at night.

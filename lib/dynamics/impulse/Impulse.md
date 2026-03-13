@@ -12,9 +12,6 @@
 | **Warmup**       | `Math.Max(emaPeriod, macdSlow) + macdSignal - 1` bars (default 34)                          |
 
 - The Elder Impulse System combines a 13-period EMA (trend inertia) with the MACD(12,26,9) histogram (momentum acceleration) to classify each bar as ...
-- Parameterized by `emaperiod` (default 13), `macdfast` (default 12), `macdslow` (default 26), `macdsignal` (default 9).
-- Output range: Varies (see docs).
-- Requires `Math.Max(emaPeriod, macdSlow) + macdSignal - 1` bars (default 34) of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Elder Impulse System combines a 13-period EMA (trend inertia) with the MACD(12,26,9) histogram (momentum acceleration) to classify each bar as bullish (+1), bearish (-1), or neutral (0). Both EMA slope and histogram slope must agree for a directional signal; disagreement forces neutral. The system functions as a permission filter rather than a signal generator, requiring 34 bars warmup and running at O(1) per bar through composition of two child indicators.

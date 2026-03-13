@@ -13,9 +13,7 @@
 | **PineScript**   | [logcosh.pine](logcosh.pine)                       |
 
 - Log-Cosh Loss combines the best properties of L1 (absolute) and L2 (squared) error metrics through the logarithm of the hyperbolic cosine function.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [Huber](../huber/Huber.md), [MSE](../mse/Mse.md) | **Trading note:** Log-cosh loss; smooth approximation to MAE. Twice differentiable; preferred for gradient-based optimization.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Log-Cosh Loss combines the best properties of L1 (absolute) and L2 (squared) error metrics through the logarithm of the hyperbolic cosine function. It provides smooth gradients everywhere while remaining robust to outliers.

@@ -13,9 +13,7 @@
 | **PineScript**   | [eacp.pine](eacp.pine)                       |
 
 - EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result i...
-- Parameterized by `minperiod` (default 8), `maxperiod` (default 48), `avglength` (default 3), `enhance` (default true).
-- Output range: Varies (see docs).
-- Requires `maxPeriod * 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CG](../cg/cg.md), [HT_DCPeriod](../ht_dcperiod/ht_dcperiod.md) | **Complementary:** EBSW for trend/cycle classification | **Trading note:** Ehlers Autocorrelation Periodogram; identifies dominant cycle length adaptively.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem. The output is a continuously updating cycle period measurement (in bars) that can adaptively tune other indicators to the market's current rhythm, making fixed-period assumptions unnecessary.

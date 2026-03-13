@@ -13,9 +13,7 @@
 | **PineScript**   | [cmf.pine](cmf.pine)                       |
 
 - Chaikin Money Flow (CMF) is the normalized cousin of the Accumulation/Distribution Line.
-- Parameterized by `period` (default 20).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Adosc](../adosc/Adosc.md), [MFI](../mfi/Mfi.md) | **Complementary:** RSI | **Trading note:** Chaikin Money Flow; volume-weighted close location within H-L range. +/− indicates buying/selling pressure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Chaikin Money Flow (CMF) is the normalized cousin of the Accumulation/Distribution Line. While ADL is cumulative and unbounded, CMF oscillates between -1 and +1, measuring the persistence of buying or selling pressure over a rolling window.

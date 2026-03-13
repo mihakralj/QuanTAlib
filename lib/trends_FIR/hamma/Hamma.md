@@ -14,9 +14,7 @@
 | **Signature**    | [hamma_signature](hamma_signature.md) |
 
 - HAMMA is a Finite Impulse Response (FIR) filter that applies a Hamming window to price data.
-- Parameterized by `period` (default 10).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HanMA](../hanma/hanma.md), [BWMA](../bwma/Bwma.md) | **Complementary:** ATR for bands | **Trading note:** Hamming-Window MA; FIR filter minimizing sidelobe amplitude. Balance of main lobe width vs leakage.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HAMMA is a Finite Impulse Response (FIR) filter that applies a Hamming window to price data. The Hamming window is a raised cosine with specific coefficients (0.54 and 0.46) chosen to minimize the amplitude of the first side lobe in the frequency domain. This makes it particularly effective at separating the signal (trend) from nearby noise frequencies.

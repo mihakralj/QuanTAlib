@@ -14,8 +14,6 @@
 
 - SOLAR models Earth's seasonal position relative to the Sun using astronomical ephemeris calculations.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `0` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 SOLAR models Earth's seasonal position relative to the Sun using astronomical ephemeris calculations. Output oscillates continuously from $-1.0$ (Winter Solstice) through $0.0$ (Equinoxes) to $+1.0$ (Summer Solstice), providing a smooth, mathematically precise seasonal phase for econometric modeling. Like LUNAR, the indicator is purely time-based, requires no price data, and has zero warmup since the calculation is deterministic from any timestamp.

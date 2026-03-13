@@ -13,9 +13,7 @@
 | **PineScript**   | [pvd.pine](pvd.pine)                       |
 
 - Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum.
-- Parameterized by `priceperiod` (default 14), `volumeperiod` (default 14), `smoothingperiod` (default 3).
-- Output range: Unbounded.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [PVI](../pvi/Pvi.md), [NVI](../nvi/Nvi.md) | **Complementary:** Volume | **Trading note:** Price-Volume Divergence; measures disagreement between price and volume trends.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum. The indicator identifies situations where price movement lacks volume confirmation—a classic warning signal that the current trend may be weakening or about to reverse.

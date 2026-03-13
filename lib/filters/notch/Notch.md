@@ -14,9 +14,7 @@
 | **Signature**    | [notch_signature](notch_signature.md) |
 
 - The Notch Filter is a band-stop filter with a narrow bandwidth.
-- Parameterized by `period`, `q` (default 1.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BPF](../bpf/Bpf.md), [Roofing](../roofing/Roofing.md) | **Complementary:** Cycle period detection | **Trading note:** Notch filter; removes a specific frequency. Useful for eliminating known periodic noise.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > Sometimes the best way to improved signal clarity isn't amplification, but rather the surgical removal of a specific annoyance.

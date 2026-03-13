@@ -13,9 +13,7 @@
 | **PineScript**   | [iqr.pine](iqr.pine)                       |
 
 - The Interquartile Range measures the spread of the middle 50% of a sorted dataset within a rolling window.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [StdDev](../stddev/StdDev.md), [Percentile](../percentile/Percentile.md) | **Trading note:** Interquartile Range; robust dispersion measure (Q3−Q1). Identifies outlier moves.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

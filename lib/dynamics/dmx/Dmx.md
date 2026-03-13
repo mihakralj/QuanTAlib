@@ -13,9 +13,7 @@
 | **PineScript**   | [dmx.pine](dmx.pine)                       |
 
 - The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Ave...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ADX](../adx/Adx.md), [DX](../dx/Dx.md) | **Complementary:** +DI/-DI for direction | **Trading note:** Directional Movement extended; enhanced version of Wilder's DM system.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement system, replacing the sluggish RMA smoothing with the Jurik Moving Average (JMA) to achieve faster trend detection with superior noise rejection. The core directional movement logic (+DM, -DM, True Range) is preserved faithfully from Wilder, but the three parallel smoothing passes use JMA's adaptive bandwidth instead of RMA's fixed $\alpha = 1/N$. The result is a directional indicator that reacts 3-5 bars earlier to trend changes than standard DMI while filtering out more noise during consolidation. Output is the difference between smoothed directional indicators: $DMX = DI^+ - DI^-$, positive for uptrends and negative for downtrends.

@@ -13,9 +13,7 @@
 | **PineScript**   | [massi.pine](massi.pine)                       |
 
 - The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue of *Technical Analysis of Stocks & Commodities*, identifies potent...
-- Parameterized by `emalength` (default 9), `sumlength` (default 25).
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [BBW](../bbw/bbw.md) | **Complementary:** Reversal signals | **Trading note:** Mass Index; detects range bulges signaling reversals (>27 = reversal setup).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue of *Technical Analysis of Stocks & Commodities*, identifies potential trend reversals by measuring the narrowing and widening of the range between high and low prices. Unlike directional indicators, MASSI focuses on the *pattern* of range expansion and contraction, particularly the characteristic "reversal bulge" that often precedes significant market turns.

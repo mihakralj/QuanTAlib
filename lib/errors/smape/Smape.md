@@ -13,9 +13,7 @@
 | **PineScript**   | [smape.pine](smape.pine)                       |
 
 - Symmetric Mean Absolute Percentage Error addresses a fundamental asymmetry in MAPE: the fact that over-predictions and under-predictions of the sam...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MAPE](../mape/Mape.md), [MAAPE](../maape/Maape.md) | **Trading note:** Symmetric MAPE; bounded 0–200%, handles zeros better than MAPE. Common in forecasting competitions.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Symmetric Mean Absolute Percentage Error addresses a fundamental asymmetry in MAPE: the fact that over-predictions and under-predictions of the same magnitude receive different penalties. SMAPE uses the average of actual and predicted values in the denominator, creating a metric that treats both directions equally.

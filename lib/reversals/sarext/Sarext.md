@@ -16,7 +16,6 @@
 - Sign-encoded output: positive = long (SAR below price), negative = short (SAR above price).
 - Matches TA-Lib `TA_SAREXT` specification with 8 parameters.
 - Auto-detects initial direction from Directional Movement when `startValue == 0`.
-- Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib reference implementation.
 
 ## Introduction

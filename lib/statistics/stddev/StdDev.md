@@ -13,9 +13,7 @@
 | **PineScript**   | [stddev.pine](stddev.pine)                       |
 
 - Standard Deviation measures the amount of variation or dispersion of a set of values.
-- Parameterized by `period`, `ispopulation` (default false).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Variance](../variance/Variance.md), [MeanDev](../meandev/MeanDev.md) | **Trading note:** Standard deviation; foundational volatility measure. Used in Bollinger Bands, VaR, and Sharpe ratio.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Standard Deviation measures the amount of variation or dispersion of a set of values. A low standard deviation indicates that the values tend to be close to the mean (also called the expected value) of the set, while a high standard deviation indicates that the values are spread out over a wider range.

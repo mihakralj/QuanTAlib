@@ -14,9 +14,7 @@
 | **Signature**    | [rmed_signature](rmed_signature.md) |
 
 - RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing sm...
-- Parameterized by `period` (default 12).
-- Output range: Tracks input.
-- Requires **5 bars** of warmup (MedianWindow) before first valid output (IsHot = true).
+- **Similar:** [Bilateral](../bilateral/Bilateral.md), [Loess](../loess/Loess.md) | **Complementary:** ATR for volatility | **Trading note:** Running median filter; non-linear, completely removes impulse noise. Preserves edges.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing smooth recursive tracking. The median component eliminates outliers that would corrupt any linear filter, while the EMA provides the recursive continuity that a pure median lacks. The EMA constant $\alpha$ is derived from Ehlers' cycle-period formula, connecting the smoothing rate to the dominant cycle length of the data.

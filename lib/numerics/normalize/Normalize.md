@@ -13,9 +13,7 @@
 | **PineScript**   | [normalize.pine](normalize.pine)                       |
 
 - The Normalize transformer applies min-max scaling to map any value series into the bounded range [0, 1] based on the observed minimum and maximum w...
-- Parameterized by `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Min-max normalization to [0,1]; makes indicators comparable across different scales.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Normalize transformer applies min-max scaling to map any value series into the bounded range [0, 1] based on the observed minimum and maximum within a rolling lookback window. This technique is fundamental for feature scaling, creating bounded oscillators, and comparing series with different magnitudes.

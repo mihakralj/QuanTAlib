@@ -13,9 +13,7 @@
 | **PineScript**   | [twap.pine](twap.pine)                       |
 
 - Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume.
-- Parameterized by `period` (default defaultperiod).
-- Output range: Unbounded.
-- Requires `> 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [VWAP](../vwap/Vwap.md) | **Complementary:** Volume | **Trading note:** Time-Weighted Average Price; equal time weighting vs volume weighting. Algorithmic execution benchmark.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume. Unlike VWAP which emphasizes high-volume periods, TWAP treats every moment as equally important. This makes it a pure temporal benchmark—ideal for evaluating execution quality when volume patterns could bias the analysis.

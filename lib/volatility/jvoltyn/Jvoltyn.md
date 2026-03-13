@@ -13,9 +13,7 @@
 | **PineScript**   | [jvoltyn.pine](jvoltyn.pine)                       |
 
 - Normalized Jurik Volatility (JVOLTYN) maps the raw JVOLTY dynamic exponent to a 0-100 scale.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [JVolty](../jvolty/jvolty.md) | **Complementary:** Normalized comparison | **Trading note:** Normalized Jurik Volatility; percentage-based.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Normalized Jurik Volatility (JVOLTYN) maps the raw JVOLTY dynamic exponent to a 0-100 scale. While JVOLTY outputs values in the range [1, logParam] (where logParam is period-dependent), JVOLTYN transforms this to a universal scale where 0 represents minimum volatility and 100 represents maximum volatility. This normalization enables direct comparison across different periods and instruments.

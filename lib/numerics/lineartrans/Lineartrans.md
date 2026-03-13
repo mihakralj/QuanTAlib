@@ -13,9 +13,7 @@
 | **PineScript**   | [lineartrans.pine](lineartrans.pine)                       |
 
 - The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series.
-- Parameterized by `slope` (default 1.0), `intercept` (default 0.0).
-- Output range: Varies (see docs).
-- Requires `0` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Linear transformation; scales and shifts values. Used for indicator normalization and rescaling.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series. This fundamental operation enables scaling, offsetting, unit conversion, and normalization—the building blocks for preparing data for analysis or combining signals from different sources.

@@ -13,9 +13,7 @@
 | **PineScript**   | [bbw.pine](bbw.pine)                       |
 
 - Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band.
-- Parameterized by `period`, `multiplier` (default 2.0).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../../channels/bbands/bbands.md) | **Complementary:** Squeeze detection | **Trading note:** Bollinger BandWidth; quantifies band expansion/contraction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Bollinger Band Width measures the distance between upper and lower Bollinger Bands, normalized by the middle band. When BBW is low, the bands are squeezing together, signaling compressed volatility and impending breakout. When BBW is high, the market is in an expanded volatility state. BBW transforms Bollinger Bands from a visual channel indicator into a quantifiable volatility oscillator, enabling algorithmic detection of "squeeze" conditions that often precede significant price moves.

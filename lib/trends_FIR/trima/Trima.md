@@ -14,9 +14,7 @@
 | **Signature**    | [trima_signature](trima_signature.md) |
 
 - The Triangular Moving Average (TRIMA) places the majority of its weight on the middle of the data window, tapering off linearly towards the ends.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `p1 + p2 - 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [SMA](../../trends_IIR/sma/sma.md) | **Complementary:** Volume analysis | **Trading note:** Triangular MA; double-smoothed SMA with triangle-shaped weights peaking at center.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Triangular Moving Average (TRIMA) places the majority of its weight on the middle of the data window, tapering off linearly towards the ends. This creates a triangular weight distribution (hence the name). It is mathematically equivalent to a double-smoothed SMA.

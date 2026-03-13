@@ -13,9 +13,7 @@
 | **PineScript**   | [psar.pine](psar.pine)                       |
 
 - The Parabolic Stop And Reverse (PSAR) is a trend-following overlay indicator created by J.
-- Parameterized by `afStart` (default 0.02), `afIncrement` (default 0.02), `afMax` (default 0.20).
-- Output range: Varies (see docs).
-- Requires `1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Super](../../dynamics/super/Super.md), [Chandelier](../chandelier/Chandelier.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Wilder's Parabolic SAR; trailing stop that accelerates. Dots flip on reversal. Classic trend-following exit.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

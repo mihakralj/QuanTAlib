@@ -14,9 +14,7 @@
 | **Signature**    | [htit_signature](htit_signature.md) |
 
 - HTIT (Hilbert Transform Instantaneous Trend) is a trend-following indicator that doesn't rely on simple averaging.
-- No configurable parameters; computation is stateless per bar.
-- Output range: Tracks input.
-- Requires `12` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MAMA](../mama/mama.md), [DEMA](../dema/dema.md) | **Complementary:** HT_DCPeriod | **Trading note:** Hilbert Transform trendline; cycle-adaptive smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HTIT (Hilbert Transform Instantaneous Trend) is a trend-following indicator that doesn't rely on simple averaging. Instead, it uses the Hilbert Transform to measure the dominant cycle period of the market and then computes a trendline that filters out that specific cycle. It adapts to the market's rhythm rather than imposing a fixed period.

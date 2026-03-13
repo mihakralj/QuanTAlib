@@ -13,9 +13,7 @@
 | **PineScript**   | [plusdm.pine](plusdm.pine)                       |
 
 - Plus Directional Movement outputs the Wilder-smoothed upward directional movement in price units.
-- Parameterized by `period` (default 14).
-- Output range: ≥ 0 (price units, scales with instrument).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MinusDm](../minusdm/MinusDm.md), [DX](../dx/Dx.md) | **Complementary:** ATR for normalization | **Trading note:** Plus Directional Movement; raw upward price expansion before smoothing.
 - Validated against TA-Lib and Dx equivalence.
 
 Plus Directional Movement (+DM) measures the magnitude of upward price movement, smoothed using Wilder's method. Unlike +DI which normalizes by true range to produce a percentage, +DM outputs raw smoothed values in price units. +DM captures when the current bar's high exceeds the previous bar's high by more than the previous bar's low exceeds the current bar's low. It is the raw building block of the Directional Movement System — the unnormalized signal before division by True Range converts it to +DI.

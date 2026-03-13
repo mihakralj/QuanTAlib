@@ -14,9 +14,7 @@
 | **Signature**    | [pma_signature](pma_signature.md) |
 
 - PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predi...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `(period * 2) - 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LSMA](../lsma/lsma.md), [Polyfit](../../statistics/polyfit/Polyfit.md) | **Complementary:** R² for trend quality | **Trading note:** Polynomial MA; fits nth-degree polynomial. Captures curves better than linear regression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predict price direction. It produces two outputs: the PMA line (extrapolated trend) and a Trigger line for crossover signals. Default period is 7 per Ehlers' original specification.

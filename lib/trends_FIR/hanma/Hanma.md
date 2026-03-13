@@ -14,9 +14,7 @@
 | **Signature**    | [hanma_signature](hanma_signature.md) |
 
 - HANMA is a Finite Impulse Response (FIR) filter that applies a Hanning (Hann) window to price data.
-- Parameterized by `period` (default 10).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [SinEma](../sinema/sinema.md) | **Complementary:** Trend following | **Trading note:** Hann-Windowed MA; cosine-bell window for smooth spectral characteristics.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HANMA is a Finite Impulse Response (FIR) filter that applies a Hanning (Hann) window to price data. The Hanning window is a pure raised cosine with edge weights of exactly zero, which provides excellent side lobe suppression while maintaining a narrower main lobe than Hamming. It's particularly effective when you want to eliminate boundary discontinuities entirely.

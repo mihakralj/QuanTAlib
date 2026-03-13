@@ -13,9 +13,7 @@
 | **PineScript**   | [rmse.pine](rmse.pine)                       |
 
 - Root Mean Squared Error (RMSE) is the square root of MSE, providing an error metric in the same units as the original data while retaining sensitiv...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MSE](../mse/Mse.md), [MAE](../mae/Mae.md) | **Trading note:** Root Mean Squared Error; same units as input, emphasizes large deviations. Most common accuracy metric.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Root Mean Squared Error (RMSE) is the square root of MSE, providing an error metric in the same units as the original data while retaining sensitivity to large errors.

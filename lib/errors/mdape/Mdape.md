@@ -13,9 +13,7 @@
 | **PineScript**   | [mdape.pine](mdape.pine)                       |
 
 - Median Absolute Percentage Error (MdAPE) combines the scale-independence of percentage errors with the robustness of median statistics.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MAPE](../mape/Mape.md), [MdAE](../mdae/Mdae.md) | **Trading note:** Median Absolute Percentage Error; robust version of MAPE for skewed error distributions.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Median Absolute Percentage Error (MdAPE) combines the scale-independence of percentage errors with the robustness of median statistics. It provides a measure of typical relative prediction accuracy that remains stable even when some predictions are dramatically wrong.

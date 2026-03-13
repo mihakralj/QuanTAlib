@@ -13,9 +13,7 @@
 | **PineScript**   | [conv.pine](conv.pine)                       |
 
 - CONV (Convolution Moving Average) is the ultimate tool for the signal processing purist.
-- Parameterized by double[] kernel.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SMA](../sma/Sma.md), [ALMA](../alma/alma.md) | **Trading note:** Convolution operator; applies custom kernel to price. Foundation of all FIR moving averages.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CONV (Convolution Moving Average) is the ultimate tool for the signal processing purist. It doesn't presume to know what kind of smoothing you need; it simply asks for a kernel (a set of weights) and applies it to the data. Want a Gaussian filter? A Sinc filter? A custom edge-detection filter? CONV runs them all.

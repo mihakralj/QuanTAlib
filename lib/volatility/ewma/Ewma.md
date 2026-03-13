@@ -13,9 +13,7 @@
 | **PineScript**   | [ewma.pine](ewma.pine)                       |
 
 - EWMA Volatility calculates market volatility using an exponentially weighted moving average of squared log returns with bias correction.
-- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HV](../hv/hv.md), [ATR](../atr/atr.md) | **Complementary:** Risk management | **Trading note:** Exponentially-Weighted Moving Average volatility; RiskMetrics standard.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 EWMA Volatility calculates market volatility using an exponentially weighted moving average of squared log returns with bias correction. Unlike simple historical volatility that weights all observations equally, EWMA gives more weight to recent observations while still considering historical data, making it more responsive to current market conditions.

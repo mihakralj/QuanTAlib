@@ -13,9 +13,7 @@
 | **PineScript**   | [ccor.pine](ccor.pine)                       |
 
 - CCOR extracts cycle phase by computing Pearson correlation of a price window against cosine (Real) and negative-sine (Imaginary) reference waves of...
-- Parameterized by `period` (default 20), `threshold` (default 9.0).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Ccyc](../ccyc/Ccyc.md), [CG](../cg/cg.md) | **Complementary:** Hilbert Transform for phase analysis | **Trading note:** Cycle correlation; detects dominant cycle period in price data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CCOR extracts cycle phase by computing Pearson correlation of a price window against cosine (Real) and negative-sine (Imaginary) reference waves of a presumed fixed period, converting the resulting phasor to an angle with a monotonic constraint, and classifying the market state as trending or cycling based on the angle rate of change. Unlike Hilbert Transform approaches that rely on analytic signal construction, CCOR uses the statistical machinery of correlation to measure how well price "fits" each quadrature component, yielding bounded $[-1, +1]$ outputs that double as confidence measures. The method was introduced to address the instability of Hilbert-based phasors during trend-dominated regimes.

@@ -15,9 +15,7 @@
 
 
 - Gauss (Gaussian Filter) is a smoothing filter that applies a Gaussian kernel to time series data.
-- Parameterized by `sigma` (default 1.0).
-- Output range: Tracks input.
-- Requires `2⌈3σ⌉+1` bars of warmup before first valid output (IsHot = true). Default: **7 bars** (σ=1.0).
+- **Similar:** [Bessel](../bessel/Bessel.md), [SSF2](../ssf2/Ssf2.md) | **Complementary:** ATR for volatility bands | **Trading note:** Gaussian filter; IIR approximation of the Gaussian window. Smooth with minimal overshoot.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Gauss (Gaussian Filter) is a smoothing filter that applies a Gaussian kernel to time series data. Unlike Simple Moving Average (SMA), which weights all points in the window equally (boxcar function), the Gaussian filter applies weights that follow a bell curve distribution. This minimizes lag while providing superior noise reduction and significantly better preservation of signal edges.

@@ -13,9 +13,7 @@
 | **PineScript**   | [tvi.pine](tvi.pine)                       |
 
 - Trade Volume Index refines the relationship between price and volume by introducing a threshold filter.
-- Parameterized by `mintick` (default 0.125).
-- Output range: Unbounded.
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [OBV](../vwad/Vwad.md), [CMF](../cmf/Cmf.md) | **Complementary:** Price trend | **Trading note:** Trade Volume Index; tick-based volume accumulation. Directional volume flow.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Trade Volume Index refines the relationship between price and volume by introducing a threshold filter. Unlike OBV which responds to any price change, TVI only changes direction when price movement exceeds a minimum tick threshold. This "sticky direction" behavior filters out noise from insignificant price fluctuations, allowing the indicator to better capture genuine accumulation and distribution.

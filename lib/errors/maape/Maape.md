@@ -13,9 +13,7 @@
 | **PineScript**   | [maape.pine](maape.pine)                       |
 
 - Mean Arctangent Absolute Percentage Error (MAAPE) transforms percentage errors through the arctangent function, naturally bounding the metric betwe...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MAPE](../mape/Mape.md), [SMAPE](../smape/Smape.md) | **Trading note:** Mean Arctangent Absolute Percentage Error; bounded and symmetric, handles zero values unlike MAPE.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Arctangent Absolute Percentage Error (MAAPE) transforms percentage errors through the arctangent function, naturally bounding the metric between 0 and π/2. This eliminates the unbounded nature of MAPE while preserving its scale-independence.

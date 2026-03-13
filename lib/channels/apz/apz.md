@@ -13,9 +13,7 @@
 | **PineScript**   | [apz.pine](apz.pine)                       |
 
 - APZ constructs a volatility-adaptive envelope using double-smoothed exponential moving averages with an aggressive smoothing factor derived from $\...
-- Parameterized by `period`, `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../bbands/bbands.md), [KChannel](../kchannel/kchannel.md) | **Complementary:** RSI for overbought/oversold confirmation | **Trading note:** EMA-based deviation adapts faster than standard deviation bands; responsive to recent volatility changes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 APZ constructs a volatility-adaptive envelope using double-smoothed exponential moving averages with an aggressive smoothing factor derived from $\sqrt{\text{period}}$, making it significantly faster than standard EMA-based channels. The center line is a double-EMA of price; the band width is a double-EMA of the high-low range, scaled by a multiplier. Designed specifically for mean-reversion trading in non-trending markets, APZ identifies overbought/oversold extremes where price is likely to reverse rather than continue. A closing price outside the zone signals an immediate overshoot, not a breakout.

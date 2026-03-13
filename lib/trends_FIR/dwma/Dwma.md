@@ -14,9 +14,7 @@
 | **Signature**    | [dwma_signature](dwma_signature.md) |
 
 - DWMA (Double Weighted Moving Average) is exactly what it says on the tin: a Weighted Moving Average of a Weighted Moving Average.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `(period * 2) - 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [FWMA](../fwma/fwma.md) | **Complementary:** Volume confirmation | **Trading note:** Distance-Weighted MA; assigns weights based on distance from current bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 DWMA (Double Weighted Moving Average) is exactly what it says on the tin: a Weighted Moving Average of a Weighted Moving Average. Unlike DEMA, which tries to *remove* lag, DWMA accepts lag as the price of admission for superior noise reduction. It produces a curve that is incredibly smooth, ideal for identifying long-term trends without getting faked out by market chop.

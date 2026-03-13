@@ -13,9 +13,7 @@
 | **PineScript**   | [lrsi.pine](lrsi.pine)                       |
 
 - Laguerre RSI is an adaptive oscillator invented by John Ehlers that replaces standard RSI's Wilder-smoothed gain/loss averages with a 4-stage casca...
-- Parameterized by `gamma` (default 0.5).
-- Output range: Varies (see docs).
-- Requires `4` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../../momentum/rsi/Rsi.md), [Fisher](../fisher/Fisher.md) | **Complementary:** Volume | **Trading note:** Laguerre RSI by Ehlers; applies Laguerre filter to RSI calculation. Faster response, fewer whipsaws.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Laguerre RSI is an adaptive oscillator invented by John Ehlers that replaces standard RSI's Wilder-smoothed gain/loss averages with a 4-stage cascaded Laguerre filter. A single γ (gamma) parameter controls the entire responsiveness-smoothness trade-off. Output is dimensionless, always in [0, 1]. No period selection required.

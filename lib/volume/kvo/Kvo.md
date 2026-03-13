@@ -13,9 +13,7 @@
 | **PineScript**   | [kvo.pine](kvo.pine)                       |
 
 - The Klinger Volume Oscillator (KVO), developed by Stephen Klinger in the 1970s, measures the long-term trend of money flow while remaining sensitiv...
-- Parameterized by `fastperiod` (default 34), `slowperiod` (default 55), `signalperiod` (default 13).
-- Output range: Unbounded.
-- Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CMF](../cmf/Cmf.md), [Adosc](../adosc/Adosc.md) | **Complementary:** MACD | **Trading note:** Klinger Volume Oscillator; volume-based trend indicator. Signal line crossovers for entries.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Klinger Volume Oscillator (KVO), developed by Stephen Klinger in the 1970s, measures the long-term trend of money flow while remaining sensitive to short-term fluctuations. Unlike simple volume indicators, KVO incorporates price direction and range into its volume analysis, creating a comprehensive measure of buying and selling pressure that can identify divergences before they appear in price action.

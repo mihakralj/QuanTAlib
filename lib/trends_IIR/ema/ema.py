@@ -1,25 +1,9 @@
-"""Exponential Moving Average — bias-compensated, NaN-safe.
-
-Algorithm (mirrors Ema.cs):
-
-    alpha  = 2 / (period + 1)
-    decay  = 1 - alpha
-
-    For each bar:
-        ema   = ema * decay + alpha * value
-        E    *= decay
-        result = ema / (1 - E)      while E > epsilon
-        result = ema                 after warmup
-"""
-
 import math
-
 import numpy as np
 
 __all__ = ["ema"]
 
 EPSILON = 1e-10  # bias-compensator cutoff
-
 
 def ema(source, period: int = 10, *, alpha: float | None = None) -> np.ndarray:
     """Bias-compensated EMA.

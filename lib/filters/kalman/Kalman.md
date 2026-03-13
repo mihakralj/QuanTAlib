@@ -15,9 +15,7 @@
 
 
 - The **Kalman Filter** is a recursive algorithm that estimates the state of a dynamic system from a series of incomplete and noisy measurements.
-- Parameterized by `q` (default 0.01), `r` (default 0.1).
-- Output range: Tracks input.
-- Requires `10` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LMS](../lms/Lms.md), [RLS](../rls/Rls.md) | **Complementary:** ATR for measurement noise estimation | **Trading note:** Kalman filter; optimal linear estimator. Adapts to changing market dynamics. Widely used in quant finance.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The **Kalman Filter** is a recursive algorithm that estimates the state of a dynamic system from a series of incomplete and noisy measurements. In technical analysis, it acts as a sophisticated smoothing filter that adapts to price changes based on specified noise covariances. Unlike simple moving averages that treat all past data equally or with fixed weights, the Kalman Filter dynamically adjusts its "trust" between its own prediction and the new price data.

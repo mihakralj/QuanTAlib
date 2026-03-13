@@ -13,9 +13,7 @@
 | **PineScript**   | [dymoi.pine](dymoi.pine)                       |
 
 - DYMOI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator be...
-- Parameterized by `baseperiod` (default 14), `shortperiod` (default 5), `longperiod` (default 10), `minperiod` (default 3), `maxperiod` (default 30).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../../momentum/rsi/Rsi.md), [Stoch](../stoch/Stoch.md) | **Complementary:** ATR | **Trading note:** Dynamic Momentum Index; RSI with variable lookback based on volatility. Faster in calm, slower in volatile markets.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 DYMOI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator becomes more responsive; when price action tightens, the period extends and the output smooths. The result is an oscillator that self-adjusts its sensitivity to the market's current state, avoiding both the lag of long fixed-period RSIs in trending regimes and the noise of short-period RSIs in ranging ones.

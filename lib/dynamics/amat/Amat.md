@@ -13,9 +13,7 @@
 | **PineScript**   | [amat.pine](amat.pine)                       |
 
 - The Archer Moving Averages Trends indicator is a triple-confirmation trend identification system that uses dual EMAs to produce discrete directiona...
-- Parameterized by `fastperiod` (default 10), `slowperiod` (default 50).
-- Output range: Varies (see docs).
-- Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Alligator](../alligator/Alligator.md), [Ichimoku](../ichimoku/Ichimoku.md) | **Complementary:** ADX for trend strength | **Trading note:** Archer Moving Average Trend; uses MA crossover zones to classify trend phases.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Archer Moving Averages Trends indicator is a triple-confirmation trend identification system that uses dual EMAs to produce discrete directional signals (+1 bullish, -1 bearish, 0 neutral). Unlike simple crossover systems that trigger on any intersection, AMAT requires alignment of three conditions: relative position (fast above/below slow), fast EMA direction (rising/falling), and slow EMA direction (rising/falling). This triple gate filters out the whipsaw endemic to single-condition crossover systems in ranging markets. A secondary output quantifies trend strength as the percentage separation between EMAs, providing a conviction metric for position sizing.

@@ -14,9 +14,7 @@
 | **Signature**    | [cheby1_signature](cheby1_signature.md) |
 
 - The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with...
-- Parameterized by `period`, `ripple` (default 1.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Cheby2](../cheby2/Cheby2.md), [Elliptic](../elliptic/Elliptic.md) | **Complementary:** ATR for stop distance | **Trading note:** Chebyshev Type I; passband ripple for sharper transition. Steeper than Butterworth.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with ripples in the passband. This type of filter has a steeper rolloff and more passband ripple (type I) or stopband ripple (type II) than Butterworth filters.

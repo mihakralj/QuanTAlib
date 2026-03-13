@@ -13,9 +13,7 @@
 | **PineScript**   | [mfi.pine](mfi.pine)                       |
 
 - Money Flow Index is the volume-weighted cousin of RSI.
-- Parameterized by `period` (default 14).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../../momentum/rsi/Rsi.md), [CMF](../cmf/Cmf.md) | **Complementary:** Volume | **Trading note:** Money Flow Index; volume-weighted RSI. 80/20 overbought/oversold. Divergence signals are powerful.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Money Flow Index is the volume-weighted cousin of RSI. While RSI measures the momentum of price changes alone, MFI incorporates volume to determine whether the price movement has conviction behind it. The result is an oscillator that can identify when strong hands are accumulating or distributing.

@@ -13,9 +13,7 @@
 | **PineScript**   | [median.pine](median.pine)                       |
 
 - The Rolling Median is a robust statistic that represents the middle value of a dataset within a moving window.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Mode](../mode/Mode.md), [Percentile](../percentile/Percentile.md) | **Trading note:** Rolling median; robust central tendency resistant to outliers. Good for support/resistance identification.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Rolling Median is a robust statistic that represents the middle value of a dataset within a moving window. Unlike the Simple Moving Average (SMA), which can be skewed by extreme values, the Median provides a more stable measure of central tendency, making it particularly useful for filtering noise in volatile markets.

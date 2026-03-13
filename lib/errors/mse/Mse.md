@@ -13,9 +13,7 @@
 | **PineScript**   | [mse.pine](mse.pine)                       |
 
 - Mean Squared Error (MSE) measures the average of the squares of the errors between actual and predicted values.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [RMSE](../rmse/Rmse.md), [MAE](../mae/Mae.md) | **Trading note:** Mean Squared Error; penalizes large errors quadratically. Standard loss function in regression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Squared Error (MSE) measures the average of the squares of the errors between actual and predicted values. By squaring errors, MSE penalizes large deviations more heavily than small ones.

@@ -13,9 +13,7 @@
 | **PineScript**   | [reverseema.pine](reverseema.pine)                       |
 
 - The Reverse EMA applies an 8-stage cascaded Z-transform inversion to a compensated EMA, progressively extracting and subtracting the accumulated la...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../../trends_IIR/ema/ema.md), [Zlema](../../trends_IIR/zlema/zlema.md) | **Complementary:** StdDev | **Trading note:** Reverse-engineers price from EMA; finds the price that would produce a given EMA value. Useful for target levels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

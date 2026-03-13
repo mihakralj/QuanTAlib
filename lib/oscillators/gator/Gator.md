@@ -13,9 +13,7 @@
 | **PineScript**   | [gator.pine](gator.pine)                       |
 
 - The Williams Gator Oscillator is a dual-histogram visualization of the Alligator indicator's convergence and divergence.
-- Parameterized by `jawperiod` (default 13), `jawshift` (default 8), `teethperiod` (default 8), `teethshift` (default 5), `lipsperiod` (default 5), `lipsshift` (default 3).
-- Output range: Varies (see docs).
-- Requires `Math.Max(jawPeriod + jawShift, Math.Max(teethPeriod + teethShift, lipsPeriod + lipsShift))` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Alligator](../../dynamics/alligator/Alligator.md), [AO](../ao/Ao.md) | **Complementary:** Fractal indicator | **Trading note:** Bill Williams' Gator Oscillator; visualizes Alligator's jaw/teeth/lips convergence as histogram.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Williams Gator Oscillator is a dual-histogram visualization of the Alligator indicator's convergence and divergence. It strips the Alligator's three SMMA lines down to two absolute differences: upper (Jaw minus Teeth) and lower (negative of Teeth minus Lips). The result is a zero-centered oscillator where expanding bars signal trend acceleration and contracting bars signal trend exhaustion. Because it operates on pre-computed SMMA values, the Gator adds zero computational overhead beyond two subtractions, two absolute values, and one sign flip per bar.

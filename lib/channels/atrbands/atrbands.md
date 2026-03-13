@@ -13,9 +13,7 @@
 | **PineScript**   | [atrbands.pine](atrbands.pine)                       |
 
 - ATR Bands create a volatility-adaptive envelope by projecting Wilder's Average True Range above and below a central Simple Moving Average.
-- Parameterized by `period`, `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KChannel](../kchannel/kchannel.md), [STBands](../stbands/stbands.md) | **Complementary:** ADX to distinguish trend vs range | **Trading note:** Volatility-normalized symmetric bands using ATR; adapts to true volatility including gaps.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ATR Bands create a volatility-adaptive envelope by projecting Wilder's Average True Range above and below a central Simple Moving Average. Unlike fixed-percentage envelopes or standard-deviation bands, ATR Bands use True Range to measure volatility, making them robust for assets with gaps, pre-market moves, and 24/7 trading where the "hidden" volatility between bars is significant. The True Range captures the maximum of intra-bar range, gap-up distance, and gap-down distance, ensuring that overnight gaps contribute fully to band width even when the current bar's open-to-close range is narrow.

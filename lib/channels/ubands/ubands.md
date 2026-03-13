@@ -13,9 +13,7 @@
 | **PineScript**   | [ubands.pine](ubands.pine)                       |
 
 - Ehlers Ultimate Bands replace the conventional SMA foundation of Bollinger Bands with the Ultrasmooth Filter (USF), a 2-pole IIR filter with zero o...
-- Parameterized by `period` (default defaultperiod), `multiplier` (default defaultmultiplier).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../bbands/bbands.md), [SDChannel](../sdchannel/sdchannel.md) | **Complementary:** RSI for overbought/oversold | **Trading note:** Uncertainty bands; statistical confidence intervals around a moving average.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Ehlers Ultimate Bands replace the conventional SMA foundation of Bollinger Bands with the Ultrasmooth Filter (USF), a 2-pole IIR filter with zero overshoot and minimal lag. Band width is determined by the RMS (Root Mean Square) of residuals between price and the smoothed centerline, providing a mathematically rigorous deviation measure that makes no assumptions about the distribution of returns. The USF is a recursive filter requiring O(1) computation per bar, while the RMS calculation scans the lookback window at O(n) per bar.

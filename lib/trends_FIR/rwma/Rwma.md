@@ -13,9 +13,7 @@
 | **PineScript**   | [rwma.pine](rwma.pine)                       |
 
 - RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narr...
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [EMA](../../trends_IIR/ema/ema.md) | **Trading note:** Right-weighted MA; concentrates weight on recent data while maintaining FIR structure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narrow-range, indecisive bars. The logic: a bar with a large range represents stronger price discovery and carries more informational content than a low-range doji. This produces a moving average that gravitates toward prices established during high-activity periods, naturally incorporating volatility as a relevance signal without requiring a separate volatility indicator.

@@ -13,9 +13,7 @@
 | **PineScript**   | [plusdi.pine](plusdi.pine)                       |
 
 - The Plus Directional Indicator measures the strength of upward price movement relative to true range.
-- Parameterized by `period` (default 14).
-- Output range: 0 to 100.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MinusDi](../minusdi/MinusDi.md), [ADX](../adx/Adx.md) | **Complementary:** ADX for trend strength | **Trading note:** Plus Directional Indicator; measures upward movement strength. Part of Wilder's DM system.
 - Validated against TA-Lib, Skender, and Dx equivalence.
 
 The Plus Directional Indicator (+DI) is one component of J. Welles Wilder Jr.'s Directional Movement System. It quantifies the fraction of recent true range attributable to upward price extension. The computation smooths both +DM (plus directional movement) and TR (true range) with Wilder's RMA ($\alpha = 1/N$), then divides: $+DI = 100 \times \text{Smooth}(+DM) / \text{Smooth}(TR)$. When +DI rises, upward price pressure is increasing. When +DI crosses above -DI, it signals a potential bullish trend. The +DI line is commonly plotted alongside -DI to visualize directional balance.

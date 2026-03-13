@@ -13,9 +13,7 @@
 | **PineScript**   | [weibulldist.pine](weibulldist.pine)                       |
 
 - The Weibull Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the Weibull distribution, producing...
-- Parameterized by `k` (default 1.5), `lambda` (default 1.0), `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Weibull distribution; flexible lifetime/reliability model. Used for drawdown duration analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Weibull Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the Weibull distribution, producing an output in $[0, 1]$. The Weibull distribution is a flexible two-parameter family that subsumes the exponential distribution ($k = 1$) and approximates the normal distribution ($k \approx 3.6$) as special cases. Its closed-form CDF requires only `pow` and `exp`, making it the computationally cheapest distribution indicator after EXPDIST. The shape parameter $k$ controls the CDF curvature: $k < 1$ produces a concave curve (rapid initial rise), $k = 1$ gives the exponential, $k = 2$ produces the Rayleigh distribution, and $k > 3$ creates an S-shaped curve approaching Gaussian behavior.

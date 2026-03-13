@@ -13,9 +13,7 @@
 | **PineScript**   | [lms.pine](lms.pine)                       |
 
 - The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm i...
-- Parameterized by `order` (default 16), `mu` (default 0.5).
-- Output range: Tracks input.
-- Requires `order + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RLS](../rls/Rls.md), [Kalman](../kalman/Kalman.md) | **Complementary:** Error metrics for convergence monitoring | **Trading note:** Least Mean Squares adaptive filter; tracks changing signal statistics. Low computational cost.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm in signal processing. It maintains an `order`-tap weight vector that learns to predict the current input from its recent history, updating weights via the Normalized LMS (NLMS) gradient descent rule. The result is a price-following overlay filter that automatically adapts its frequency response to changing market conditions with O(order) per-bar complexity.

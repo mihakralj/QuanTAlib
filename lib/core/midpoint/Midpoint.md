@@ -13,9 +13,7 @@
 | **PineScript**   | [midpoint.pine](midpoint.pine)                       |
 
 - Single-series rolling midpoint: `(Highest(V, N) + Lowest(V, N)) * 0.5`.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MidPrice](../midprice/Midprice.md), [Midbody](../midbody/Midbody.md) | **Trading note:** (Highest+Lowest)/2 over period; simple support/resistance level.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Single-series rolling midpoint: `(Highest(V, N) + Lowest(V, N)) * 0.5`. Returns the center of the value range within a lookback window. TA-Lib compatible (`MIDPOINT` function). Unlike MIDPRICE which operates on separate High/Low bar channels, MIDPOINT operates on a single value series.

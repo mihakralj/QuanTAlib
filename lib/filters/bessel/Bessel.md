@@ -14,9 +14,7 @@
 | **Signature**    | [bessel_signature](bessel_signature.md) |
 
 - The Bessel Filter is a 2nd-order low-pass IIR filter designed to preserve the **shape** and **timing** of price moves.
-- Parameterized by `length`.
-- Output range: Tracks input.
-- Requires `length` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Butter2](../butter2/Butter2.md), [Gauss](../gauss/Gauss.md) | **Complementary:** ATR for volatility | **Trading note:** Bessel filter; maximally flat group delay (linear phase). Best for preserving waveform shape.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > When you care more about *when* the market turns than how aggressively you can torture the noise, you reach for a Bessel.

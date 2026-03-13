@@ -14,9 +14,7 @@
 | **Signature**    | [qrma_signature](qrma_signature.md) |
 
 - QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at t...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LSMA](../lsma/lsma.md), [PMA](../pma/Pma.md) | **Complementary:** Trend indicators | **Trading note:** Quadratic Regression MA; 2nd-order polynomial fit. Captures parabolic acceleration.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at the endpoint (newest bar). By capturing curvature that LSMA (degree-1) misses, QRMA provides meaningfully better tracking of accelerating or decelerating price trends. The 3x3 normal-equation system is solved via Cramer's rule in O(1) after an O(N) data accumulation pass, making it computationally efficient and suitable for streaming applications.

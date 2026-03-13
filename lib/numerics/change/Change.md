@@ -13,9 +13,7 @@
 | **PineScript**   | [change.pine](change.pine)                       |
 
 - CHANGE calculates the percentage change between the current value and a value N periods ago.
-- Parameterized by `period` (default 1).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Simple price change (difference); foundation for momentum and rate-of-change calculations.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CHANGE calculates the percentage change between the current value and a value N periods ago. This fundamental indicator forms the basis for momentum analysis, rate of change calculations, and relative performance comparisons.

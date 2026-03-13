@@ -13,9 +13,7 @@
 | **PineScript**   | [midprice.pine](midprice.pine)                       |
 
 - MIDPRICE computes the center of a rolling price channel by averaging the highest High and lowest Low over the past $N$ bars: $(\text{Highest}(H, N)...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MidPoint](../midpoint/Midpoint.md), [TypPrice](../typprice/typprice.md) | **Trading note:** (High+Low)/2; common price proxy for indicators avoiding close bias.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MIDPRICE computes the center of a rolling price channel by averaging the highest High and lowest Low over the past $N$ bars: $(\text{Highest}(H, N) + \text{Lowest}(L, N)) \times 0.5$. Unlike the stateless price transforms (AVGPRICE, MEDPRICE, TYPPRICE, WCLPRICE) that operate on a single bar, MIDPRICE maintains a lookback window and produces a rolling estimate of the price range's midpoint. This makes it a simplified channel center line, equivalent to the midpoint of a Donchian Channel. The calculation uses two internal RingBuffers for $O(N)$ max/min computation per bar. TA-Lib compatible via `TA_MIDPRICE`.

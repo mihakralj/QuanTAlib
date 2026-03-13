@@ -13,10 +13,8 @@
 | **PineScript**   | [fft.pine](fft.pine)                       |
 
 - The FFT indicator computes the dominant cycle period in a price series using a radix-2 Cooley-Tukey Fast Fourier Transform with a Hanning window.
-- Parameterized by `windowSize` (default 64), `minPeriod` (default 4), `maxPeriod` (default 32).
-- Output range: [minPeriod, maxPeriod] bars.
-- Requires windowSize bars of warmup before first valid output (IsHot = true).
 - True $O(N \log N)$ radix-2 FFT with bit-reversal permutation and Cooley-Tukey butterflies.
+- **Similar:** [IFFT](../ifft/Ifft.md), [CWT](../cwt/Cwt.md) | **Trading note:** Fast Fourier Transform; identifies dominant frequencies/cycles in price data. Foundation of spectral analysis.
 
 The FFT indicator computes the dominant cycle period in a price series using a true radix-2 Cooley-Tukey Fast Fourier Transform with a Hanning window. Rather than outputting frequency-domain magnitudes, it returns the estimated dominant cycle period in bars, making it directly usable as an adaptive period input for other indicators. The implementation uses an in-place iterative radix-2 FFT with bit-reversal permutation and Cooley-Tukey butterfly operations, achieving $O(N \log N)$ complexity. Parabolic interpolation on the magnitude spectrum provides sub-bin frequency resolution. With window sizes restricted to powers of two (32, 64, or 128), the indicator achieves precise cycle detection within user-specified period bounds with pre-allocated work arrays for zero-allocation streaming.
 

@@ -13,9 +13,7 @@
 | **PineScript**   | [coppock.pine](coppock.pine)                       |
 
 - The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at differ...
-- Parameterized by `longRoc` (default 14), `shortRoc` (default 11), `wmaPeriod` (default 10).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MACD](../../momentum/macd/Macd.md), [KST](../kst/Kst.md) | **Complementary:** Trend confirmation | **Trading note:** Coppock Curve; designed for monthly S&P 500 buy signals. WMA of summed ROCs. Zero-line crossover.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Coppock Curve is a long-term momentum oscillator that applies a Weighted Moving Average to the sum of two Rate of Change calculations at different lookback periods. Originally designed for monthly charts to identify major market bottoms, it produces a single oscillating line where zero-line crossovers from below signal long-term buying opportunities. The dual-ROC architecture captures both intermediate and longer-term momentum dynamics in a single smoothed output.

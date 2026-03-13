@@ -13,9 +13,7 @@
 | **PineScript**   | [afirma.pine](afirma.pine)                       |
 
 - AFIRMA is a Windowed Weighted Moving Average that replaces standard linear weighting with weights derived from signal processing window functions (...
-- Parameterized by `period`, `window` (default windowtype.blackmanharris), `leastsquares` (default false).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [TSF](../../trends_FIR/tsf/Tsf.md), [LinReg](../../statistics/linreg/LinReg.md) | **Complementary:** Error metrics for accuracy | **Trading note:** Adaptive FIR Moving Average for forecasting; projects price using optimized FIR coefficients.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 AFIRMA is a Windowed Weighted Moving Average that replaces standard linear weighting with weights derived from signal processing window functions (Hanning, Hamming, Blackman, Blackman-Harris). This approach achieves specific frequency response characteristics tailored to noise reduction.

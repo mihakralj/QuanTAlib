@@ -13,9 +13,7 @@
 | **PineScript**   | [stc.pine](stc.pine)                       |
 
 - The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden withi...
-- Parameterized by `kperiod` (default 10), `dperiod` (default 3), `fastlength` (default 23), `slowlength` (default 50), `smoothing` (default stcsmoothing.ema).
-- Output range: $0$ to $100$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MACD](../../momentum/macd/Macd.md), [Stoch](../stoch/Stoch.md) | **Complementary:** ADX | **Trading note:** Schaff Trend Cycle; double Stochastic of MACD. Faster trend detection. 25/75 signal levels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden within the trend itself. The recursive normalization produces a bounded 0–100 output that reaches extremes earlier than raw MACD while suppressing Stochastic jitter. Developed for currency markets, STC's tendency to flatline at 0 or 100 during strong trends signals continuation rather than reversal — a feature that distinguishes it from conventional momentum oscillators. Output converges toward a square wave in steady-state trending conditions.

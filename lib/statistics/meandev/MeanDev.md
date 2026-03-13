@@ -13,9 +13,7 @@
 | **PineScript**   | [meandev.pine](meandev.pine)                       |
 
 - ````markdown
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [StdDev](../stddev/StdDev.md), [IQR](../iqr/Iqr.md) | **Trading note:** Mean deviation (average absolute deviation); more robust than StdDev. Used in CCI calculation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Deviation (also known as Mean Absolute Deviation or Average Absolute Deviation) measures the average of the absolute deviations from the mean. Unlike Standard Deviation, it does not square the deviations, making it more robust to outliers and more intuitive to interpret.

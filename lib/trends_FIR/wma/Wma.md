@@ -14,9 +14,7 @@
 | **Signature**    | [wma_signature](wma_signature.md) |
 
 - The Weighted Moving Average (WMA) assigns a linearly decreasing weight to data points.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [FWMA](../fwma/fwma.md), [TRIMA](../trima/trima.md) | **Complementary:** WMA crossover systems | **Trading note:** Linearly weighted MA; recent prices get higher weight, faster response than SMA.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Weighted Moving Average (WMA) assigns a linearly decreasing weight to data points. The most recent price gets weight $N$, the one before it $N-1$, down to 1. This makes it more responsive to recent price changes than an SMA, but without the infinite tail of an EMA.

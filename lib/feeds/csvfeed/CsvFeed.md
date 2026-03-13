@@ -10,9 +10,6 @@
 | **Warmup**       | 1 bar                          |
 
 - `CsvFeed` is a file-based feed implementation that loads historical OHLCV data from CSV files.
-- Parameterized by `filepath`.
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 `CsvFeed` is a file-based feed implementation that loads historical OHLCV data from CSV files. It supports both streaming access (simulating real-time playback) and batch retrieval.

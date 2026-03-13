@@ -14,8 +14,6 @@
 
 - TYPPRICE computes the equal-weighted average of Open, High, and Low: $(O + H + L) \times \frac{1}{3}$.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `1` bars of warmup before first valid output (IsHot = true).
 - Equivalent to `TBar.OHL3` computed property.
 
 TYPPRICE computes the equal-weighted average of Open, High, and Low: $(O + H + L) \times \frac{1}{3}$. This three-component mean captures the opening price and the full intra-bar range without including the settlement (Close). By excluding Close, Typical Price isolates the session's initial positioning and range extremes, making it useful as an input where you want a price representative that is independent of closing action. The calculation is stateless and costs a single FMA instruction per bar.

@@ -14,9 +14,7 @@
 | **Signature**    | [rema_signature](rema_signature.md) |
 
 - REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous...
-- Parameterized by `period`, `lambda` (default 0.5).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../ema/ema.md), [DEMA](../dema/dema.md) | **Complementary:** Volatility filters | **Trading note:** Regularized EMA; lambda term reduces whipsaws.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous trend direction. The result is a filter that responds to genuine price movements while suppressing noise-induced oscillations. Think of it as an EMA with momentum awareness: it knows where it was heading and applies a penalty for sudden course corrections.

@@ -14,9 +14,7 @@
 | **Signature**    | [sinema_signature](sinema_signature.md) |
 
 - The Sine-Weighted Moving Average (SINEMA) applies sine-wave weighting to data points within the lookback window.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ALMA](../alma/alma.md), [BLMA](../blma/blma.md) | **Complementary:** Cycle indicators | **Trading note:** Sine-weighted MA; half-sine kernel for naturally smooth bell-shaped weights.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Sine-Weighted Moving Average (SINEMA) applies sine-wave weighting to data points within the lookback window. Weights follow the formula $w_i = \sin(\pi \cdot (i+1) / N)$, creating a smooth bell-shaped distribution that emphasizes middle values while gracefully tapering at the edges. Unlike SMA's uniform weighting or WMA's linear ramp, sine weighting provides a natural transition that reduces high-frequency noise while preserving mid-frequency trends.

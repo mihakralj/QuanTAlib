@@ -13,9 +13,7 @@
 | **PineScript**   | [ravi.pine](ravi.pine)                       |
 
 - RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a lon...
-- Parameterized by `shortperiod` (default 7), `longperiod` (default 65).
-- Output range: Varies (see docs).
-- Requires `longPeriod` bars (default 65) of warmup before first valid output (IsHot = true).
+- **Similar:** [ADX](../adx/Adx.md), [Chop](../chop/Chop.md) | **Complementary:** Moving average crossover for entries | **Trading note:** Range Action Verification Index; ratio of fast/slow MA difference to slow MA. Trend filter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a long-period SMA. Created by Tushar Chande and published in *Beyond Technical Analysis* (Wiley, 2001), the indicator classifies markets into trending (RAVI > 3%) and ranging (RAVI < 3%) regimes using a single threshold. With default parameters (short=7, long=65), RAVI requires 65 bars of warmup for the first valid reading. The core computation is three operations per bar in streaming mode: two running-sum updates and one division. No square roots, no exponentials, no recursion. The entire indicator reduces to normalized SMA spread, making it one of the cheapest dynamics classifiers available.

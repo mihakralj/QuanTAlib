@@ -13,9 +13,7 @@
 | **PineScript**   | [nvi.pine](nvi.pine)                       |
 
 - The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day.
-- Parameterized by `startvalue` (default 100.0).
-- Output range: Unbounded.
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [PVI](../pvi/Pvi.md), [OBV](../vwad/Vwad.md) | **Complementary:** 255-day MA of NVI | **Trading note:** Negative Volume Index; tracks price on low-volume days where smart money operates.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day. The underlying theory: institutional investors—the "smart money"—prefer to accumulate or distribute positions during quiet, low-volume periods, while retail traders drive high-volume days with more emotional, less informed decisions.

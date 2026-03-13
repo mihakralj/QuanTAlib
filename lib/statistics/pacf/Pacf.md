@@ -13,9 +13,7 @@
 | **PineScript**   | [pacf.pine](pacf.pine)                       |
 
 - The Partial Autocorrelation Function (PACF) measures the correlation between a time series and its lagged values, after removing the effects of all...
-- Parameterized by `period`, `lag` (default 1).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ACF](../acf/Acf.md), [LinReg](../linreg/LinReg.md) | **Trading note:** Partial autocorrelation; isolates direct lag relationships. Used for ARIMA model order selection.
 - Validated against mathematical properties and Durbin-Levinson recursion expectations.
 
 The Partial Autocorrelation Function (PACF) measures the correlation between a time series and its lagged values, after removing the effects of all intermediate lags. While ACF shows total correlation at each lag, PACF isolates the direct correlation, making it essential for AR model identification.

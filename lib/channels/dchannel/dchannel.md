@@ -13,9 +13,7 @@
 | **PineScript**   | [dchannel.pine](dchannel.pine)                       |
 
 - Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset ...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [PChannel](../pchannel/pchannel.md), [UChannel](../uchannel/uchannel.md) | **Complementary:** Volume on breakouts; ATR for position sizing | **Trading note:** Pure price-based highest high/lowest low; used in the original Turtle Trading system.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Donchian Channels track the highest high and lowest low over a fixed lookback period, defining the absolute price boundaries within which an asset has traded. Unlike volatility-based bands that compute statistical dispersion, Donchian Channels represent actual historical extremes — the literal "price box." The implementation uses monotonic deques for $O(1)$ amortized sliding-window max/min, ensuring that computing a 500-period channel costs no more than a 20-period one. The midpoint of the upper and lower bands serves as a simple trend bias indicator.

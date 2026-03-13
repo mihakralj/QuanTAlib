@@ -13,9 +13,7 @@
 | **PineScript**   | [mpe.pine](mpe.pine)                       |
 
 - Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [ME](../me/Me.md), [MAPE](../mape/Mape.md) | **Trading note:** Mean Percentage Error; reveals directional bias as percentage. Positive/negative cancellation is a feature.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign. Unlike MAPE, which takes absolute values, MPE reveals systematic bias in predictions—whether a model consistently over-predicts or under-predicts.

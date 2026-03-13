@@ -13,9 +13,7 @@
 | **PineScript**   | [maenv.pine](maenv.pine)                       |
 
 - Moving Average Envelope (MA Envelope) constructs symmetric bands at a fixed percentage distance above and below a moving average center line.
-- Parameterized by `period` (default 20), `percentage` (default 1.0), `matype` (default maenvtype.ema).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../bbands/bbands.md), [APZ](../apz/apz.md) | **Complementary:** RSI at envelope extremes | **Trading note:** Fixed-percentage bands around a moving average; simplest channel indicator, useful as a baseline comparison.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Moving Average Envelope (MA Envelope) constructs symmetric bands at a fixed percentage distance above and below a moving average center line. Unlike volatility-adaptive channels (Bollinger, Keltner, ATR Bands) where band width varies with market conditions, MA Envelope uses a constant percentage offset, creating bands whose absolute width scales only with price level. The indicator supports configurable moving average types (SMA, EMA, WMA) for the center line, allowing users to trade off between lag, smoothness, and responsiveness.

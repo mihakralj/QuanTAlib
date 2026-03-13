@@ -13,9 +13,7 @@
 | **PineScript**   | [mae.pine](mae.pine)                       |
 
 - Mean Absolute Error (MAE) measures the average magnitude of errors in a set of predictions, without considering their direction.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MSE](../mse/Mse.md), [MdAE](../mdae/Mdae.md) | **Trading note:** Mean Absolute Error; simple, interpretable forecast accuracy metric. Same units as input.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Absolute Error (MAE) measures the average magnitude of errors in a set of predictions, without considering their direction. It represents the average of the absolute differences between actual and predicted values.

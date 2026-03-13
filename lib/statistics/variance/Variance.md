@@ -13,9 +13,7 @@
 | **PineScript**   | [variance.pine](variance.pine)                       |
 
 - Variance measures how far a set of numbers is spread out from their average value.
-- Parameterized by `period`, `ispopulation` (default false).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [StdDev](../stddev/StdDev.md), [MeanDev](../meandev/MeanDev.md) | **Trading note:** Rolling variance; squared deviation from mean. Foundation of portfolio risk calculations.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Variance measures how far a set of numbers is spread out from their average value. In finance, it is a key measure of volatility and risk.

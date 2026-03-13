@@ -14,9 +14,7 @@
 | **Signature**    | [fwma_signature](fwma_signature.md) |
 
 - The Fibonacci Weighted Moving Average applies the Fibonacci sequence as FIR filter weights, assigning exponentially growing importance to recent bars.
-- Parameterized by `period` (default 10).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [DWMA](../dwma/dwma.md) | **Complementary:** Trend strength indicators | **Trading note:** Fibonacci-Weighted MA; weights follow Fibonacci sequence, naturally emphasizing recent data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Fibonacci Weighted Moving Average applies the Fibonacci sequence as FIR filter weights, assigning exponentially growing importance to recent bars. Where WMA uses linear weights (1, 2, 3, ..., N) and PWMA uses parabolic weights ($1^2, 2^2, ..., N^2$), FWMA uses F(1), F(2), ..., F(N). The Fibonacci growth rate ($\phi \approx 1.618$) produces a weighting profile between exponential and parabolic, giving FWMA a distinctive "golden ratio decay" that concentrates roughly 61.8% of total weight in the most recent third of the window.

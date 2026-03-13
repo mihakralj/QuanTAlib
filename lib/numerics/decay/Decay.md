@@ -13,9 +13,7 @@
 | **PineScript**   | [decay.pine](decay.pine)                       |
 
 - DECAY (Linear Decay) tracks the maximum of the current input and the previous output minus a fixed absolute step of `1/period`.
-- Parameterized by `period` (default 5).
-- Output range: Same as input — this is an overlay indicator.
-- Requires `1` bar of warmup before first valid output (IsHot = true).
+- **Similar:** [EDecay](../edecay/Edecay.md) | **Trading note:** Linear decay function; models signal fading over time. Used for recency-weighted calculations.
 - Validated against Tulip Indicators `ti_decay` reference algorithm.
 
 DECAY implements the Tulip Indicators `ti_decay` function. When price is above the decayed level, output snaps to price. When price falls below, the output decays linearly at a rate of `1/period` per bar, creating a ceiling that gradually descends. This produces a one-sided envelope that hugs price from above.

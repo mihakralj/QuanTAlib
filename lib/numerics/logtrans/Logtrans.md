@@ -14,8 +14,6 @@
 
 - The LOG transformer applies the natural logarithm function $\ln(x)$ to input values.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `0` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The LOG transformer applies the natural logarithm function $\ln(x)$ to input values. This point-wise transformation compresses large values and expands small ones, making it essential for analyzing multiplicative processes like compounded returns.

@@ -13,11 +13,12 @@
 | **PineScript**   | [gwma.pine](gwma.pine)                       |
 | **Signature**    | [gwma_signature](gwma_signature.md) |
 
-- GWMA is a Finite Impulse Response (FIR) filter that applies a centered Gaussian window to price data.
-- Parameterized by `period`, `sigma` (default 0.4).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- GWMA is a symmetric FIR filter applying a centered Gaussian window to price data, providing optimal noise reduction with zero phase distortion at the cost of fixed lag equal to half the window length.
+- Similar to [ALMA](../alma/Alma.md) (offset Gaussian), [SINEMA](../sinema/Sinema.md) (sine window), and [Kaiser](../kaiser/Kaiser.md) — all windowed FIR filters with different smoothing profiles.
+- Pair with RSI or Stochastic to confirm trend strength; GWMA excels at defining trend direction but not momentum.
+- The sigma parameter controls weight concentration: lower sigma sharpens the center peak for cycle detection, higher sigma broadens toward SMA-like behavior.
+- **Similar:** [ALMA](../alma/alma.md), [WMA](../wma/wma.md) | **Complementary:** Volume indicators | **Trading note:** Gaussian-Weighted MA; bell-curve weights for symmetric smoothing.
+- Validated against mathematical definition and PineScript reference implementation.
 
 GWMA is a Finite Impulse Response (FIR) filter that applies a centered Gaussian window to price data. Unlike ALMA (which allows shifting the Gaussian peak via an offset parameter), GWMA centers the bell curve at the middle of the lookback window. The sigma parameter controls the width of the Gaussian, determining how sharply the weights decay from the center.
 

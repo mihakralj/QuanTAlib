@@ -13,9 +13,7 @@
 | **PineScript**   | [sdchannel.pine](sdchannel.pine)                       |
 
 - Standard Deviation Channel plots a linear regression line through price data with parallel bands at a specified number of standard deviations of re...
-- Parameterized by `period` (default 20), `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../bbands/bbands.md), [RegChannel](../regchannel/regchannel.md) | **Complementary:** LinReg slope for trend direction | **Trading note:** Standard deviation channel around linear regression; tighter than Bollinger for trending markets.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Standard Deviation Channel plots a linear regression line through price data with parallel bands at a specified number of standard deviations of residuals above and below. Unlike Bollinger Bands which measure deviation from a moving average, SDCHANNEL measures deviation from the best-fit trend line, capturing how much price wanders from its underlying trajectory rather than from its simple average. The algorithm is identical to REGCHANNEL; the distinction is purely a naming convention found across different platforms and literature.

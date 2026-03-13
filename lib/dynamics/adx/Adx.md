@@ -13,9 +13,7 @@
 | **PineScript**   | [adx.pine](adx.pine)                       |
 
 - The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price exp...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period * 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ADXR](../adxr/Adxr.md), [DX](../dx/Dx.md) | **Complementary:** Moving averages for direction | **Trading note:** Wilder's trend strength gauge; >25 trending, <20 ranging. Does not indicate direction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price expansion. Wilder's pipeline decomposes range into directional movement (+DM, -DM), normalizes against True Range to produce directional indicators (+DI, -DI), derives a directional index (DX) from their ratio, then smooths DX with a final RMA pass. The double-smoothed architecture creates significant lag but exceptional noise rejection, making ADX a regime filter rather than a timing tool. Output is unbounded above 0, with readings above 25 conventionally indicating trending conditions and below 20 indicating choppy markets.

@@ -13,10 +13,8 @@
 | **PineScript**   | [ifft.pine](ifft.pine)                       |
 
 - The IFFT indicator reconstructs a smoothed version of the price series using a true forward FFT → spectral truncation → inverse FFT pipeline.
-- Parameterized by `windowSize` (default 64), `numHarmonics` (default 5).
-- Output range: Varies (overlays on price chart).
-- Requires windowSize bars of warmup before first valid output (IsHot = true).
 - True $O(N \log N)$ radix-2 FFT/IFFT with bit-reversal permutation and Cooley-Tukey butterflies.
+- **Similar:** [FFT](../fft/Fft.md) | **Trading note:** Inverse FFT; reconstructs filtered time-domain signal from frequency domain. Used with FFT for spectral filtering.
 
 The IFFT indicator reconstructs a smoothed version of the price series by performing a true radix-2 forward FFT, zeroing frequency bins above the specified number of harmonics (spectral truncation), then applying a true inverse FFT to reconstruct the filtered time-domain signal. The result is a spectral low-pass filter that preserves the dominant cyclical components while discarding high-frequency noise. By controlling the number of retained harmonics $H$, the user adjusts the smoothness/responsiveness trade-off: $H = 1$ yields a near-sinusoidal trend, while $H = N/2$ reproduces the original (windowed) signal. The indicator overlays on price and provides a frequency-domain alternative to conventional moving averages.
 

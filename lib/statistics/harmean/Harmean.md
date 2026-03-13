@@ -13,9 +13,7 @@
 | **PineScript**   | [harmean.pine](harmean.pine)                       |
 
 - The Harmonic Mean computes the reciprocal of the arithmetic mean of reciprocals over a sliding window.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Geomean](../geomean/Geomean.md), [CMA](../cma/Cma.md) | **Trading note:** Harmonic mean; appropriate for averaging rates/ratios. Always ≤ geometric mean ≤ arithmetic mean.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Harmonic Mean computes the reciprocal of the arithmetic mean of reciprocals over a sliding window. It is the correct average for quantities defined in terms of rates or ratios (speed, P/E ratios, yield). For financial time series, the harmonic mean gives the largest discount to outliers, making it the most conservative of the three Pythagorean means.

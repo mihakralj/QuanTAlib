@@ -13,9 +13,7 @@
 | **PineScript**   | [bbwp.pine](bbwp.pine)                       |
 
 - BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the res...
-- Parameterized by `period`, `multiplier` (default 2.0), `lookback` (default 252).
-- Output range: $\geq 0$.
-- Requires `period + lookback` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBW](../bbw/bbw.md) | **Complementary:** Percentile rank | **Trading note:** BandWidth Percentile; ranks current width in historical context.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the result as a percentile rank between 0 and 1. Unlike BBWN which normalizes using min/max values, BBWP uses percentile ranking which is more robust to outliers.

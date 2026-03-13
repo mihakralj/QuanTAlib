@@ -13,9 +13,7 @@
 | **PineScript**   | [mstoch.pine](mstoch.pine)                       |
 
 - The MESA Stochastic applies John Ehlers' Roofing Filter as a preprocessing stage before computing a stochastic oscillator, then smooths the stochas...
-- Parameterized by `stochlength` (default 20), `hplength` (default 48), `sslength` (default 10).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [Stoch](../stoch/Stoch.md), [KDJ](../kdj/Kdj.md) | **Complementary:** MACD | **Trading note:** Modified Stochastic; enhanced stochastic oscillator with additional smoothing or lookback variation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The MESA Stochastic applies John Ehlers' Roofing Filter as a preprocessing stage before computing a stochastic oscillator, then smooths the stochastic output with a Super Smoother. The Roofing Filter removes both low-frequency trend components (via highpass) and high-frequency noise (via Super Smoother), isolating the dominant cycle. The stochastic calculation on this filtered data produces a clean 0-to-1 oscillator that responds to cycle turning points rather than trend or noise, with substantially reduced whipsaw compared to conventional stochastic indicators.

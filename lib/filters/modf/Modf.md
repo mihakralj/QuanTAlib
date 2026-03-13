@@ -14,9 +14,7 @@
 | **Signature**    | [modf_signature](modf_signature.md) |
 
 - MODF is a dual-path adaptive filter that maintains separate upper and lower EMA bands with conditional state selection.
-- Parameterized by `period`, `beta` (default 0.8), `feedback` (default false), `fbweight` (default 0.5).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HP](../hp/Hp.md), [BaxterKing](../baxterking/BaxterKing.md) | **Complementary:** Trend indicators | **Trading note:** Mode decomposition filter; separates signal into trend, cyclical, and noise components.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MODF is a dual-path adaptive filter that maintains separate upper and lower EMA bands with conditional state selection. The upper band snaps up to price when price exceeds it (tracking rallies), while the lower band snaps down when price drops below it (tracking selloffs). An oscillator state variable determines which band is active, and a beta parameter controls the blend between filter mode (smooth tracking) and trailing-stop mode (step-like following). An optional feedback loop blends the filter's output back into its input for additional smoothing. Developed by alexgrover (CPO at LuxAlgo).

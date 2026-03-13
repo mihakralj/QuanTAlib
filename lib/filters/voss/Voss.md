@@ -13,9 +13,7 @@
 | **PineScript**   | [voss.pine](voss.pine)                       |
 
 - The Voss Predictive Filter is a two-stage signal processing pipeline that extracts a dominant cycle from noisy price data and then predicts its fut...
-- Parameterized by `period` (default 20), `predict` (default 3), `bandwidth` (default 0.25).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BPF](../bpf/Bpf.md), [Roofing](../roofing/Roofing.md) | **Complementary:** Cycle period indicators | **Trading note:** Voss predictive filter; attempts to predict the next cycle value. Zero-lag by design.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

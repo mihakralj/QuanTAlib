@@ -13,9 +13,7 @@
 | **PineScript**   | [mom.pine](mom.pine)                       |
 
 - MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago.
-- Parameterized by `period` (default 10).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROC](../roc/Roc.md), [Vel](../vel/Vel.md) | **Complementary:** Moving average for smoothing | **Trading note:** Raw momentum: Price(t) − Price(t−n). Simplest momentum measure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago. It is the purest expression of directional price movement, returning a signed value in the same units as the input. Positive MOM indicates rising prices; negative indicates falling. This is functionally identical to ROC but with a configurable lookback period (default 10 vs ROC's convention), and maps directly to TA-Lib's `MOM` function.

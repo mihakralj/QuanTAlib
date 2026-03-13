@@ -14,9 +14,7 @@
 | **Signature**    | [hann_signature](hann_signature.md) |
 
 - Hann (Hann Filter) is a Finite Impulse Response (FIR) smoothing filter that applies a Hann window to time series data.
-- Parameterized by `length`.
-- Output range: Tracks input.
-- Requires `length` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Gauss](../gauss/Gauss.md), [Bessel](../bessel/Bessel.md) | **Complementary:** Cycle analysis tools | **Trading note:** Hann window filter; smooth taper to zero at edges. Good spectral properties.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Hann (Hann Filter) is a Finite Impulse Response (FIR) smoothing filter that applies a Hann window to time series data. Named after Julius von Hann, this filter uses a cosine-sum window function that tapers inputs to zero at the edges. This tapering process significantly reduces spectral leakage and provides excellent high-frequency noise attenuation compared to a Simple Moving Average (SMA).

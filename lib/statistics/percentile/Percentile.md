@@ -13,9 +13,7 @@
 | **PineScript**   | [percentile.pine](percentile.pine)                       |
 
 - The Rolling Percentile computes the value below which a given percentage of observations fall within a sliding window.
-- Parameterized by `period`, `percent` (default 50.0).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Quantile](../quantile/Quantile.md), [Median](../median/Median.md) | **Trading note:** Percentile rank of current value; 90th+ = historically elevated, 10th−  = historically depressed.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > But percentiles, at least, tell you exactly where you stand.

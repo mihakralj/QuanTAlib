@@ -13,9 +13,7 @@
 | **PineScript**   | [cmo.pine](cmo.pine)                       |
 
 - The Chande Momentum Oscillator (CMO) is a momentum indicator developed by Tushar Chande.
-- Parameterized by `period` (default 14).
-- Output range: $-100$ to $+100$.
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../rsi/Rsi.md), [Stoch](../../oscillators/stoch/Stoch.md) | **Complementary:** Moving average crossover | **Trading note:** Chande Momentum Oscillator; like RSI but uses up−down/up+down formula. Range ±100.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chande Momentum Oscillator (CMO) is a momentum indicator developed by Tushar Chande. Unlike RSI which uses smoothed averages of gains and losses, CMO uses raw sums of up and down movements, making it more responsive to price changes. The indicator oscillates between -100 and +100.

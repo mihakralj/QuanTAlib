@@ -14,9 +14,7 @@
 | **Signature**    | [holt_signature](holt_signature.md) |
 
 - Holt's exponential smoothing extends simple exponential smoothing (EMA) by adding a second equation that explicitly tracks the local trend.
-- Parameterized by `period`, `gamma` (default 0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DEMA](../dema/dema.md), [KAMA](../kama/kama.md) | **Complementary:** Forecast accuracy metrics | **Trading note:** Holt exponential smoothing; level + trend components for forecasting.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

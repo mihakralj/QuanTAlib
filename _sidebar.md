@@ -1,3 +1,5 @@
+* [<span style="color: gold;">**All indicators**</span>](/lib/_index.md)
+
 * [Core](/lib/core/_index.md)
   * [AVGPRICE - Average Price](/lib/core/avgprice/Avgprice.md)
   * [HA - Heikin-Ashi](/lib/core/ha/Ha.md)

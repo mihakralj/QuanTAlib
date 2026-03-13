@@ -13,9 +13,7 @@
 | **PineScript**   | [trendflex.pine](trendflex.pine)                       |
 
 - The Trendflex indicator combines a 2-pole Butterworth low-pass pre-filter (Super Smoother) with an O(1) cumulative slope measurement and exponentia...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Reflex](../reflex/Reflex.md), [Deco](../deco/Deco.md) | **Complementary:** ADX | **Trading note:** Ehlers' Trendflex; trend-mode companion to Reflex. Positive = uptrend, negative = downtrend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

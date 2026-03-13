@@ -14,9 +14,7 @@
 | **Signature**    | [trama_signature](trama_signature.md) |
 
 - TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars th...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** Volatility filters | **Trading note:** Triangular Adaptive MA; uses triangular window in adaptive mode.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars that produce either a new highest-high (HH) or a new lowest-low (LL). This fraction is squared to create a convex penalty: low regularity (ranging) produces near-zero smoothing (filter barely moves), while high regularity (trending) produces aggressive smoothing (filter tracks closely). Developed by LuxAlgo (TradingView, December 2020).

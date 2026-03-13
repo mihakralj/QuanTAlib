@@ -13,9 +13,7 @@
 | **PineScript**   | [skew.pine](skew.pine)                       |
 
 - Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean.
-- Parameterized by `period`, `ispopulation` (default false).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Kurtosis](../kurtosis/Kurtosis.md), [JB](../jb/Jb.md) | **Trading note:** Skewness; positive = right tail, negative = left tail. Negative skew in equity returns = crash risk.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Skewness measures the asymmetry of the probability distribution of a real-valued random variable about its mean. It tells you where the "tail" of the distribution is.

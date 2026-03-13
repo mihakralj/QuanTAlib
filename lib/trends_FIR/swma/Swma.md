@@ -14,9 +14,7 @@
 | **Signature**    | [swma_signature](swma_signature.md) |
 
 - SWMA applies triangular (symmetric) weights that peak at the center of the window and taper linearly to the edges.
-- Parameterized by `period` (default 4).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [WMA](../wma/wma.md), [SMA](../sma/Sma.md) | **Trading note:** Symmetric-Weighted MA; bell-shaped weight profile centered on middle. Reduces end-point bias.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 SWMA applies triangular (symmetric) weights that peak at the center of the window and taper linearly to the edges. For period $N$, the weight at position $i$ is $w(i) = (N/2 + 1) - |i - N/2|$, producing a tent-shaped kernel. This is mathematically equivalent to convolving two rectangular windows (SMA of SMA), giving SWMA a frequency response that is the square of the SMA's sinc-like response. The result is smoother than SMA with better sidelobe suppression, at the cost of slightly more lag.

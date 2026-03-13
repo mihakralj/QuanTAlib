@@ -13,9 +13,7 @@
 | **PineScript**   | [stderr.pine](stderr.pine)                       |
 
 - `Stderr` computes the standard error of an OLS regression fit over a rolling window.
-- Parameterized by `period`.
-- Output range: non-negative real values (or 0 during insufficient/degenerate windows).
-- Requires `period` bars of warmup before first stable output (`IsHot = true`).
+- **Similar:** [StdDev](../stddev/StdDev.md), [LinReg](../linreg/LinReg.md) | **Trading note:** Standard error; precision of the mean estimate. Decreases with sample size.
 - Validated against an internal brute-force OLS reference implementation.
 
 Standard Error of Regression (also called the Standard Error of the Estimate) measures the average distance that the observed values fall from the regression line. It quantifies the typical size of the residuals, providing a direct measure of how well a linear regression model fits the data.

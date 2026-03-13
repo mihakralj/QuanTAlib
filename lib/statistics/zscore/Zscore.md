@@ -13,9 +13,7 @@
 | **PineScript**   | [zscore.pine](zscore.pine)                       |
 
 - The Z-Score measures how many population standard deviations a value lies from the rolling mean over a lookback window.
-- Parameterized by `period` (default 14).
-- Output range: Unbounded.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Normalize](../../numerics/normalize/Normalize.md), [StdDev](../stddev/StdDev.md) | **Trading note:** Z-score; number of standard deviations from mean. ±2σ indicates unusual move. Mean-reversion signal.
 - Validated against manual computation, PineScript parity, and statistical invariants.
 
 ## Introduction

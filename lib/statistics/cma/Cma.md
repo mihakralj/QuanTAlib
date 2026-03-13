@@ -13,9 +13,7 @@
 | **PineScript**   | [cma.pine](cma.pine)                       |
 
 - The Cumulative Moving Average (CMA) calculates the arithmetic mean of ALL data points seen so far, not just a fixed window.
-- Parameterized by `source`.
-- Output range: Varies (see docs).
-- Requires `1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SMA](../../trends_FIR/sma/Sma.md), [EMA](../../trends_IIR/ema/ema.md) | **Trading note:** Cumulative Moving Average; running mean of all data points. Anchored VWAP without volume weighting.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Cumulative Moving Average (CMA) calculates the arithmetic mean of ALL data points seen so far, not just a fixed window. Unlike SMA or EMA which use a sliding window, CMA treats every historical value with equal weight. As the sample size grows, each new value has diminishing impact on the average.

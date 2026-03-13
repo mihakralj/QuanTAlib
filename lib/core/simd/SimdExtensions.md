@@ -11,8 +11,6 @@
 
 - `SimdExtensions` provides high-performance, SIMD-accelerated extension methods for `ReadOnlySpan<double>`.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 `SimdExtensions` provides high-performance, SIMD-accelerated extension methods for `ReadOnlySpan<double>`. It leverages .NET's `Vector<T>` to achieve 4-8x speedups on supported hardware (AVX2, AVX-512) while automatically falling back to scalar implementations on older hardware.

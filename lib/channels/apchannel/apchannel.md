@@ -13,9 +13,7 @@
 | **PineScript**   | [apchannel.pine](apchannel.pine)                       |
 
 - APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes wh...
-- Parameterized by `alpha` (default 0.2).
-- Output range: Tracks input.
-- Requires `⌈3/alpha⌉` bars (default 15) of warmup before first valid output (IsHot = true).
+- **Similar:** [RegChannel](../regchannel/regchannel.md), [PChannel](../pchannel/pchannel.md) | **Complementary:** Volume for breakout confirmation | **Trading note:** Based on pivot points; useful for identifying median price paths and potential support/resistance.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes while gradually fading their influence over time. Unlike rigid Donchian channels that drop price extremes abruptly when they exit the lookback window (the "cliff effect"), APCHANNEL decays them smoothly through leaky integration. The result is a channel with continuously sloping boundaries that responds to volatility without the discontinuous jumps that plague fixed-window approaches. The algorithm is $O(1)$ per bar with only two state variables and no buffers.

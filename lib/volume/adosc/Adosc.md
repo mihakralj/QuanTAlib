@@ -13,9 +13,7 @@
 | **PineScript**   | [adosc.pine](adosc.pine)                       |
 
 - The Chaikin Oscillator (ADOSC) is an indicator of an indicator.
-- Parameterized by `fastperiod` (default 3), `slowperiod` (default 10).
-- Output range: Unbounded.
-- Requires `slowPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CMF](../cmf/Cmf.md), [OBV](../vwad/Vwad.md) | **Complementary:** MACD for price confirmation | **Trading note:** Accumulation/Distribution Oscillator; MACD of A/D Line. Divergence with price = potential reversal.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chaikin Oscillator (ADOSC) is an indicator of an indicator. It applies the MACD formula to the Accumulation/Distribution Line (ADL) instead of the price.

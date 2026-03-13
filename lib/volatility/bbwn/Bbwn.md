@@ -13,9 +13,7 @@
 | **PineScript**   | [bbwn.pine](bbwn.pine)                       |
 
 - Bollinger Band Width Normalized (BBWN) extends the standard BBW by normalizing it to a [0,1] range based on historical minimum and maximum values o...
-- Parameterized by `period`, `multiplier` (default 2.0), `lookback` (default 252).
-- Output range: $\geq 0$.
-- Requires `period + lookback` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBW](../bbw/bbw.md) | **Complementary:** Cross-asset comparison | **Trading note:** Normalized BandWidth for cross-asset comparison.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Bollinger Band Width Normalized (BBWN) extends the standard BBW by normalizing it to a [0,1] range based on historical minimum and maximum values over a lookback period. This normalization enables better comparison across different timeframes, instruments, and market conditions, making it easier to identify relative volatility levels consistently.

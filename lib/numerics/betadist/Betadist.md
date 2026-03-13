@@ -13,9 +13,7 @@
 | **PineScript**   | [betadist.pine](betadist.pine)                       |
 
 - BETADIST computes the cumulative distribution function of the Beta distribution applied to a min-max normalized price series.
-- Parameterized by `period` (default 50), `alpha` (default 2.0), `beta` (default 2.0).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Beta distribution; models bounded random variables. Used for win-rate analysis and position sizing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 BETADIST computes the cumulative distribution function of the Beta distribution applied to a min-max normalized price series. The source price is first normalized to $[0, 1]$ over a lookback window, then passed through the regularized incomplete beta function $I_x(\alpha, \beta)$ to produce a probability-mapped oscillator. The two shape parameters $\alpha$ and $\beta$ control the nonlinear mapping: symmetric parameters ($\alpha = \beta$) produce a sigmoid-like transformation centered at 0.5, while asymmetric parameters skew the mapping to emphasize extremes in either direction.

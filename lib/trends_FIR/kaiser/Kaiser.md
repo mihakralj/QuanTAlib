@@ -14,9 +14,7 @@
 | **Signature**    | [kaiser_signature](kaiser_signature.md) |
 
 - KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade...
-- Parameterized by `period` (default 14), `beta` (default 3.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ALMA](../alma/alma.md), [BLMA](../blma/blma.md) | **Complementary:** Cycle analysis | **Trading note:** Kaiser-windowed MA; adjustable sidelobe suppression via beta parameter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade-off between main lobe width (transition band sharpness) and sidelobe attenuation (stopband rejection). At $\beta = 0$ it degenerates to a rectangular window (SMA); at $\beta \approx 5.65$ it approximates the Blackman window; at $\beta \approx 8.6$ it matches the Hamming window's sidelobe profile. This makes KAISER the most flexible single-parameter window-based moving average, allowing traders to tune frequency selectivity without changing the window length.

@@ -13,9 +13,7 @@
 | **PineScript**   | [polyfit.pine](polyfit.pine)                       |
 
 - Polynomial Fitting computes a rolling polynomial regression of configurable degree over a lookback window, returning the fitted value at the curren...
-- Parameterized by `period`, `degree` (default 2).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LinReg](../linreg/LinReg.md), [TSF](../../trends_FIR/tsf/Tsf.md) | **Trading note:** Polynomial curve fitting; captures non-linear trends. Higher order = more responsive but risk of overfitting.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Polynomial Fitting computes a rolling polynomial regression of configurable degree over a lookback window, returning the fitted value at the current bar. Degree 1 produces a linear regression endpoint (identical to LSQR), degree 2 produces a quadratic fit that captures curvature, and degree 3 produces a cubic fit that captures inflection points. The implementation solves the normal equations $\mathbf{X}^T\mathbf{X}\mathbf{a} = \mathbf{X}^T\mathbf{y}$ via Gauss-Jordan elimination with partial pivoting, evaluating the resulting polynomial at $x = 1$ (the current bar position). With $O(Nd + d^3)$ complexity per bar where $N$ is the period and $d$ is the degree, POLYFIT provides a general-purpose curve-fitting tool that subsumes linear regression and extends it to arbitrary polynomial order.

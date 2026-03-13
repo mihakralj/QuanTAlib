@@ -13,9 +13,7 @@
 | **PineScript**   | [rae.pine](rae.pine)                       |
 
 - Relative Absolute Error (RAE) measures the total absolute error of predictions relative to the total absolute error of a simple baseline predictor ...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MASE](../mase/Mase.md), [MRAE](../mrae/Mrae.md) | **Trading note:** Relative Absolute Error; total absolute error relative to naïve model. <1 = outperforms naïve.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Relative Absolute Error (RAE) measures the total absolute error of predictions relative to the total absolute error of a simple baseline predictor that always predicts the mean of actual values. This provides a normalized performance metric.

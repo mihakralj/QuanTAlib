@@ -13,9 +13,7 @@
 | **PineScript**   | [edecay.pine](edecay.pine)                       |
 
 - EDECAY (Exponential Decay) tracks the maximum of the current input and the previous output multiplied by a decay factor of `(period-1)/period`.
-- Parameterized by `period` (default 5).
-- Output range: Same as input — this is an overlay indicator.
-- Requires `1` bar of warmup before first valid output (IsHot = true).
+- **Similar:** [Decay](../decay/Decay.md) | **Trading note:** Exponential decay; faster initial fading than linear. Natural half-life model for signal importance.
 - Validated against Tulip Indicators `ti_edecay` reference algorithm.
 
 EDECAY implements the exponential decaying function. When price is above the decayed level, output snaps to price. When price falls below, the output decays exponentially by multiplying by `(period-1)/period` per bar, creating a ceiling that gradually descends. Unlike linear DECAY which subtracts a fixed amount, EDECAY's multiplicative factor produces a proportional decay rate.
