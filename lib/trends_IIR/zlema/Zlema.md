@@ -14,9 +14,7 @@
 | **Signature**    | [zlema_signature](zlema_signature.md) |
 
 - ZLEMA takes a standard EMA and feeds it a **zero-lag signal**: current price minus a lagged price.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DEMA](../dema/dema.md), [HMA](../../trends_FIR/hma/hma.md) | **Complementary:** Momentum confirmation | **Trading note:** Zero-Lag EMA; pre-adjusts input to remove delay.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## EMA with lag compensation via a zero-lag signal

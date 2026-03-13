@@ -13,9 +13,7 @@
 | **PineScript**   | [aroonosc.pine](aroonosc.pine)                       |
 
 - The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$.
-- Parameterized by `period`.
-- Output range: $-100$ to $+100$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Aroon](../aroon/Aroon.md), [CMO](../../momentum/cmo/Cmo.md) | **Complementary:** ADX for trend strength | **Trading note:** Aroon Up minus Aroon Down; positive = uptrend, negative = downtrend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$. This distills the temporal battle between fresh highs and fresh lows into a bounded $[-100, +100]$ metric where positive values indicate bullish recency dominance and negative values indicate bearish. Unlike recursive indicators that accumulate floating-point drift, the Aroon Oscillator is purely windowed — its value depends only on data within the lookback period, making it stateless in the long term and immune to initialization poisoning. The step-function output reflects discrete events (new extremes appearing or aging out) rather than smooth price trajectories.

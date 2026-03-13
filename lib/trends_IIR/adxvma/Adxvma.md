@@ -13,9 +13,7 @@
 | **PineScript**   | [adxvma.pine](adxvma.pine)                       |
 
 - ADXVMA is an adaptive IIR filter that uses the Average Directional Index (ADX) as its smoothing constant.
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `period * 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** ADX for trend strength | **Trading note:** ADX-based Variable MA; adapts smoothing using ADX measurement.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ADXVMA is an adaptive IIR filter that uses the Average Directional Index (ADX) as its smoothing constant. When ADX is high (strong trend), the smoothing factor approaches 1.0 and the filter tracks price aggressively. When ADX is low (range-bound), the smoothing factor approaches 0.0 and the filter barely moves. This creates a moving average that automatically switches between responsive trend-following and noise-immune range-holding without external regime detection.

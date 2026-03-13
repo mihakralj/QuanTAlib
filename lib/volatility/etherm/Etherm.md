@@ -13,9 +13,7 @@
 | **PineScript**   | [etherm.pine](etherm.pine)                       |
 
 - Elder's Thermometer (ETHERM) measures how far today's price bar protrudes beyond yesterday's range, capturing the maximum outward extension in either direction.
-- Parameterized by `period` (default 22) for the EMA signal line.
-- Output range: $\geq 0$ (same units as price).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ATR](../atr/atr.md) | **Complementary:** Trend detection | **Trading note:** Elder Thermometer; measures current bar's range vs previous.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Elder's Thermometer (ETHERM) measures bar-to-bar range extension — the maximum outward protrusion of the current bar beyond the previous bar's high or low. Developed by Dr. Alexander Elder, it captures only outward expansions; inward contractions clamp to zero. An EMA signal line with bias compensation provides a smoothed reference for detecting explosive moves (temperature significantly exceeding the signal).

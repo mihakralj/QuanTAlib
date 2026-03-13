@@ -13,9 +13,7 @@
 | **PineScript**   | [cfitz.pine](cfitz.pine)                       |
 
 - The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-var...
-- Parameterized by `plow` (default 6), `phigh` (default 32).
-- Output range: Oscillates around zero (extracts cyclical component).
-- Requires `2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BaxterKing](../baxterking/BaxterKing.md), [HP](../hp/Hp.md) | **Complementary:** Trend indicators | **Trading note:** Christiano-Fitzgerald bandpass filter; asymmetric, optimal for finite samples.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

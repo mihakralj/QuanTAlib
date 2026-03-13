@@ -14,9 +14,7 @@
 | **Signature**    | [frama_signature](frama_signature.md) |
 
 - FRAMA is John Ehlers' fractal adaptive moving average.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `pe` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** ADX for trend context | **Trading note:** Fractal Adaptive MA; uses fractal dimension to adjust smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 FRAMA is John Ehlers' fractal adaptive moving average. It estimates a fractal dimension from high and low ranges, then converts that dimension into a dynamic EMA alpha. The result is a moving average that tightens in trends and relaxes in noise.

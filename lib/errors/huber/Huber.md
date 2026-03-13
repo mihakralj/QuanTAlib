@@ -13,9 +13,7 @@
 | **PineScript**   | [huber.pine](huber.pine)                       |
 
 - Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE).
-- Parameterized by `period`, `delta` (default 1.345).
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [PseudoHuber](../pseudohuber/PseudoHuber.md), [MAE](../mae/Mae.md) | **Trading note:** Huber loss; robust to outliers — quadratic for small errors, linear for large. Used in ML-based trading models.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE). For small errors, it behaves quadratically like MSE; for large errors, it behaves linearly like MAE.

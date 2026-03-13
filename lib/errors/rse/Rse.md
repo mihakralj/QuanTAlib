@@ -13,9 +13,7 @@
 | **PineScript**   | [rse.pine](rse.pine)                       |
 
 - Relative Squared Error (RSE) measures the total squared error of predictions relative to the total squared error of a simple baseline predictor tha...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RMSE](../rmse/Rmse.md), [Rsquared](../rsquared/Rsquared.md) | **Trading note:** Relative Squared Error; normalized by variance of actuals. >1 = worse than mean prediction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Relative Squared Error (RSE) measures the total squared error of predictions relative to the total squared error of a simple baseline predictor that always predicts the mean. RSE is directly related to the coefficient of determination (R²).

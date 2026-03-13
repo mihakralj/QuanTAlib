@@ -13,9 +13,7 @@
 | **PineScript**   | [rsx.pine](rsx.pine)                       |
 
 - Mark Jurik's RSX represents the pinnacle of bounded momentum oscillator design.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../rsi/Rsi.md), [CMO](../cmo/Cmo.md) | **Complementary:** Bollinger Bands for volatility | **Trading note:** Jurik RSX; smoother version of RSI with less noise. Same 0–100 scale.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mark Jurik's RSX represents the pinnacle of bounded momentum oscillator design. Standard RSI suffers from a fundamental paradox: raw RSI produces jagged noise triggering false signals at overbought/oversold boundaries, but smoothing introduces unacceptable lag that delays turning points. RSX solves this through cascaded IIR filter topology that eliminates high-frequency noise while preserving linear phase response. The result: output so smooth it resembles a sine wave, yet turns precisely at market extrema with zero effective lag.

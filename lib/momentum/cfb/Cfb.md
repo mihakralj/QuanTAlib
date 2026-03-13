@@ -13,9 +13,7 @@
 | **PineScript**   | [cfb.pine](cfb.pine)                       |
 
 - The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars...
-- Parameterized by int[]? lengths = null.
-- Output range: Varies (see docs).
-- Requires `maxLen` bars (192 default) of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../rsi/Rsi.md), [CMO](../cmo/Cmo.md) | **Complementary:** Volume for confirmation | **Trading note:** Composite Force Index; combines price change magnitude and direction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars by default). Rather than asking "how strong is the trend," CFB asks "how long has the market been moving efficiently." The answer: a single integer representing the dominant trending timeframe. Use CFB to dynamically tune other indicators: instead of RSI(14), use RSI(CFB).

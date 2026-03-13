@@ -13,9 +13,7 @@
 | **PineScript**   | [hpf.pine](hpf.pine)                       |
 
 - The 2-Pole Highpass Filter (HPF) is designed to separate high-frequency components (like cycles and noise) from the underlying trend.
-- Parameterized by `length` (default 40).
-- Output range: Oscillates around zero (detrended signal).
-- Requires `length` bars of warmup before first valid output (IsHot = true). Default: **40 bars**.
+- **Similar:** [HP](../hp/Hp.md), [Roofing](../roofing/Roofing.md) | **Complementary:** SSF for low-pass | **Trading note:** High-pass filter; removes trend, isolates cycles and noise. Ehlers' 1-pole design.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The 2-Pole Highpass Filter (HPF) is designed to separate high-frequency components (like cycles and noise) from the underlying trend. By suppressing low-frequency movements, it acts as a "detrender," making it invaluable for oscillator construction and cycle analysis.

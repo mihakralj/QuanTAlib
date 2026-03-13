@@ -13,9 +13,7 @@
 | **PineScript**   | [rv.pine](rv.pine)                       |
 
 - Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing ...
-- Parameterized by `period` (default 5), `smoothingperiod` (default 20), `annualize` (default true), `annualperiods` (default 252).
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [HV](../hv/hv.md), [EWMA](../ewma/ewma.md) | **Complementary:** High-frequency analysis | **Trading note:** Realized Volatility; sum of squared returns.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing for stability. Unlike traditional Historical Volatility (HV) which calculates standard deviation of returns, RV directly accumulates squared returns—the raw building blocks of variance—providing a more direct measure of realized price variation.

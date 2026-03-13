@@ -14,9 +14,7 @@
 | **Signature**    | [sgf_signature](sgf_signature.md) |
 
 - SGF (Savitzky-Golay Filter) is a digital signal processing technique that smoothes data by fitting successive sub-sets of adjacent data points with...
-- Parameterized by `period`, `polyorder` (default 2).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Loess](../loess/Loess.md), [NW](../nw/Nw.md) | **Complementary:** Polynomial order selection | **Trading note:** Savitzky-Golay filter; polynomial smoothing preserving higher moments. Good for derivative estimation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 SGF (Savitzky-Golay Filter) is a digital signal processing technique that smoothes data by fitting successive sub-sets of adjacent data points with a low-degree polynomial by the method of linear least squares. Unlike standard moving averages that simply average the points, SGF preserves higher moments of the data distribution, such as the area, center of gravity, and line width. This makes it exceptionally good at preserving features of the distribution such as relative maxima and minima and width, which are usually flattened by other smoothing techniques.

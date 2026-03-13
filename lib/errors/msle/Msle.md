@@ -13,9 +13,7 @@
 | **PineScript**   | [msle.pine](msle.pine)                       |
 
 - Mean Squared Logarithmic Error transforms both actual and predicted values through logarithms before computing squared error.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [RMSLE](../rmsle/Rmsle.md), [MSE](../mse/Mse.md) | **Trading note:** Mean Squared Log Error; penalizes under-prediction more than over-prediction. Good for growth rates.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Squared Logarithmic Error transforms both actual and predicted values through logarithms before computing squared error. This compression makes MSLE robust to outliers and particularly suited for data with exponential growth patterns or wide dynamic ranges.

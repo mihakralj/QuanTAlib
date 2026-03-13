@@ -13,9 +13,7 @@
 | **PineScript**   | [ttmscalper.pine](ttmscalper.pine)                       |
 
 - John Carter designed TTM Scalper Alert for quick identification of potential reversal points using a simple three-bar pattern recognition.
-- Parameterized by `usecloses` (default false).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [TTM_Trend](../../dynamics/ttm_trend/TtmTrend.md), [Super](../../dynamics/super/Super.md) | **Complementary:** TTM Squeeze | **Trading note:** John Carter's scalper; short-term reversal signals based on pivot analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 > **Pending Implementation** - Placeholder for John Carter's TTM Scalper Alert indicator

@@ -13,9 +13,7 @@
 | **PineScript**   | [natr.pine](natr.pine)                       |
 
 - NATR normalizes the Average True Range (ATR) as a percentage of the closing price.
-- Parameterized by `period` (default 14).
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [ATR](../atr/atr.md), [ATRN](../atrn/atrn.md) | **Complementary:** Cross-asset comparison | **Trading note:** Normalized ATR as percentage of close.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 NATR normalizes the Average True Range (ATR) as a percentage of the closing price. This is mathematically identical to ATRP (Average True Range Percent)—both compute `(ATR / Close) × 100`. The difference is purely nomenclature: NATR is the term used in TA-Lib and many charting platforms.

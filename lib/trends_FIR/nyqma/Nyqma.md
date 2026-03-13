@@ -14,9 +14,7 @@
 | **Signature**    | [nyqma_signature](nyqma_signature.md) |
 
 - NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\...
-- Parameterized by `period` (default 89), `nyquistperiod` (default 21).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [Lanczos](../lanczos/Lanczos.md), [SinEma](../sinema/sinema.md) | **Complementary:** Cycle detection | **Trading note:** Nyquist MA; designed around Nyquist frequency. Optimal for eliminating aliased cycles.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\text{NYQMA} = (1+\alpha) \cdot \text{MA}_1 - \alpha \cdot \text{MA}_2$, where $\alpha = N_2 / (N_1 - N_2)$. The Nyquist constraint $N_2 \leq \lfloor N_1/2 \rfloor$ ensures the second smoothing does not introduce aliasing artifacts into the output. This produces a lag-reduced moving average grounded in sampling theory rather than ad-hoc coefficient tuning. Streaming update is O(1) per bar via composed Wma instances; batch mode uses stackalloc/ArrayPool with FMA in the extrapolation loop.

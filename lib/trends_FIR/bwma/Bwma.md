@@ -14,9 +14,7 @@
 | **Signature**    | [bwma_signature](bwma_signature.md) |
 
 - BWMA is a Finite Impulse Response (FIR) filter that applies a Bessel-derived window function to weight price data.
-- Parameterized by `period`, `order` (default 0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [GWMA](../gwma/gwma.md), [HanMA](../hanma/hanma.md) | **Complementary:** ATR for volatility | **Trading note:** Blackman-Window MA; FIR filter with Blackman taper. Good spectral leakage suppression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 BWMA is a Finite Impulse Response (FIR) filter that applies a Bessel-derived window function to weight price data. The weighting follows a parabolic (or higher-order polynomial) profile that emphasizes the center of the lookback window while smoothly tapering to zero at the edges. Unlike rectangular (SMA) or exponential (EMA) weighting, BWMA provides a mathematically smooth transition that reduces spectral leakage and Gibbs phenomenon artifacts.

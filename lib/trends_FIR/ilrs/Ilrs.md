@@ -14,9 +14,7 @@
 | **Signature**    | [ilrs_signature](ilrs_signature.md) |
 
 - ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smooth...
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LSMA](../lsma/lsma.md), [LinReg](../../statistics/linreg/LinReg.md) | **Complementary:** R² for fit quality | **Trading note:** Integral of Linear Regression Slope; smoothed trend derived from cumulative regression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smoothed price-level signal. By differentiating (slope extraction) and reintegrating, ILRS acts as a low-pass filter that preserves trend direction while suppressing high-frequency noise more aggressively than LSMA. The integration step introduces a natural momentum quality: the output continues rising even as slope magnitude diminishes, making ILRS particularly effective for trend-following systems that need early exit signals based on slope deceleration.

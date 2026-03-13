@@ -13,9 +13,7 @@
 | **PineScript**   | [mode.pine](mode.pine)                       |
 
 - The **Mode** is a rolling statistical indicator that identifies the most frequently occurring value within a sliding window of recent observations.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Median](../median/Median.md), [Percentile](../percentile/Percentile.md) | **Trading note:** Statistical mode; most frequent value in window. Identifies price levels with highest activity (value area).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

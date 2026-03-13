@@ -14,8 +14,6 @@
 
 - HT_DCPERIOD estimates the period of the dominant market cycle using Ehlers' Hilbert Transform cascade.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `LOOKBACK` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HT_DCPERIOD estimates the period of the dominant market cycle using Ehlers' Hilbert Transform cascade. The algorithm extracts In-Phase and Quadrature components from price, computes instantaneous phase via homodyne discrimination, and derives the period from the phase rate of change. Output is a continuously varying period (typically 6-50 bars) compatible with TA-Lib's `HT_DCPERIOD` function. The indicator enables dynamic tuning of other indicators to the market's actual rhythm rather than fixed-parameter assumptions.

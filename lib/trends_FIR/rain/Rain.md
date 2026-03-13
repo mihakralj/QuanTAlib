@@ -14,9 +14,7 @@
 | **Signature**    | [rain_signature](rain_signature.md) |
 
 - RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across ...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [ALMA](../alma/alma.md), [FWMA](../fwma/fwma.md) | **Complementary:** ATR | **Trading note:** Raised-cosine MA; smooth taper at edges. Good sidelobe suppression for noise reduction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across all layers. Layers 1-4 receive weights 5, 4, 3, 2 (emphasizing the more responsive layers), while layers 5-10 each receive weight 1, for a total divisor of 20. This multi-scale composition produces a moving average that responds to short-term price changes through the lightly smoothed upper layers while maintaining stability through the heavily smoothed lower layers.

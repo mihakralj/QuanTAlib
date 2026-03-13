@@ -13,9 +13,7 @@
 | **PineScript**   | [dsp.pine](dsp.pine)                       |
 
 - DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price...
-- Parameterized by `period` (default 40).
-- Output range: Varies (see docs).
-- Requires `slowPeriod * 3` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SSFDSP](../ssfdsp/Ssfdsp.md), [Ccyc](../ccyc/Ccyc.md) | **Complementary:** ATR for volatility filter | **Trading note:** Digital Signal Processing filter; separates signal from noise in price data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price while cancelling longer-term trends. Developed by John Ehlers, the indicator is grounded in cycle theory rather than arbitrary period selection, making it a principled alternative to MACD for cycle-aware trading. Bias-corrected EMAs ensure accurate amplitude during warmup.

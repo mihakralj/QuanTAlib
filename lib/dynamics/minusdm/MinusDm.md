@@ -13,9 +13,7 @@
 | **PineScript**   | [minusdm.pine](minusdm.pine)                       |
 
 - Minus Directional Movement outputs the Wilder-smoothed downward directional movement in price units.
-- Parameterized by `period` (default 14).
-- Output range: ≥ 0 (price units, scales with instrument).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [PlusDm](../plusdm/PlusDm.md), [DX](../dx/Dx.md) | **Complementary:** ATR for normalization | **Trading note:** Minus Directional Movement; raw downward price expansion before smoothing.
 - Validated against TA-Lib and Dx equivalence.
 
 Minus Directional Movement (-DM) measures the magnitude of downward price movement, smoothed using Wilder's method. Unlike -DI which normalizes by true range to produce a percentage, -DM outputs raw smoothed values in price units. -DM captures when the previous bar's low exceeds the current bar's low by more than the current bar's high exceeds the previous bar's high. It is the raw building block of the Directional Movement System — the unnormalized signal before division by True Range converts it to -DI.

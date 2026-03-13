@@ -14,8 +14,6 @@
 
 - On Balance Volume distills the relationship between price and volume into a single cumulative indicator.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Unbounded.
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 On Balance Volume distills the relationship between price and volume into a single cumulative indicator. The premise is elegantly simple: volume flows into a security when it closes higher, and flows out when it closes lower. OBV tracks this flow as a running total, creating a momentum indicator that often leads price movements.

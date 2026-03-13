@@ -14,9 +14,7 @@
 | **Signature**    | [mgdi_signature](mgdi_signature.md) |
 
 - MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle.
-- Parameterized by `period` (default 14), `k` (default 0.6).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [JMA](../jma/jma.md), [KAMA](../kama/kama.md) | **Complementary:** Momentum oscillators | **Trading note:** McGinley Dynamic; self-adjusts to market speed.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle. Rather than using a fixed smoothing factor, it dynamically adjusts based on the ratio between price and the indicator's current value. The result is a filter that accelerates to catch breakouts while decelerating to avoid overshooting reversals—a behavior that fixed-alpha filters cannot achieve.

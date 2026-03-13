@@ -13,9 +13,7 @@
 | **PineScript**   | [qstick.pine](qstick.pine)                       |
 
 - The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying ...
-- Parameterized by `period` (default defaultperiod), `useema` (default defaultuseema).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CMO](../../momentum/cmo/Cmo.md), [Impulse](../impulse/Impulse.md) | **Complementary:** Volume for confirmation | **Trading note:** Qstick averages (Close−Open); positive = buying pressure, negative = selling pressure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying whether bars are predominantly bullish or bearish. Positive values indicate closes above opens (buying pressure); negative values indicate closes below opens (selling pressure). It supports both SMA (O(N) space via ring buffer) and EMA (O(1) space) smoothing modes and requires TBar input for open/close access.

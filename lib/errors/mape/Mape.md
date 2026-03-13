@@ -13,9 +13,7 @@
 | **PineScript**   | [mape.pine](mape.pine)                       |
 
 - Mean Absolute Percentage Error (MAPE) measures the average absolute percentage difference between actual and predicted values.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [SMAPE](../smape/Smape.md), [MAAPE](../maape/Maape.md) | **Trading note:** Mean Absolute Percentage Error; scale-independent accuracy. Undefined when actuals are zero.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Absolute Percentage Error (MAPE) measures the average absolute percentage difference between actual and predicted values. It expresses accuracy as a percentage, making it scale-independent and easy to interpret.

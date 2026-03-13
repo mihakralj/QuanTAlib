@@ -13,9 +13,7 @@
 | **PineScript**   | [pvi.pine](pvi.pine)                       |
 
 - The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day.
-- Parameterized by `startvalue` (default 100.0).
-- Output range: Unbounded.
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [NVI](../nvi/Nvi.md), [OBV](../vwad/Vwad.md) | **Complementary:** MA crossover | **Trading note:** Positive Volume Index; tracks price on high-volume days. Used with NVI for smart/uninformed money.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day. The underlying theory: retail investors—the "uninformed crowd"—drive high-volume trading days, often reacting emotionally to news and price movements. Institutional investors prefer to operate during quieter periods to avoid moving markets.

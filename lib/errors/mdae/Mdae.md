@@ -13,9 +13,7 @@
 | **PineScript**   | [mdae.pine](mdae.pine)                       |
 
 - Median Absolute Error (MdAE) measures the middle value of all absolute errors.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MAE](../mae/Mae.md), [MdAPE](../mdape/Mdape.md) | **Trading note:** Median Absolute Error; robust central-tendency error metric, resistant to outliers.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Median Absolute Error (MdAE) measures the middle value of all absolute errors. Unlike MAE which averages errors, MdAE finds the median, providing exceptional robustness against outliers and extreme values.

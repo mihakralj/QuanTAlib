@@ -13,9 +13,7 @@
 | **PineScript**   | [roc.pine](roc.pine)                       |
 
 - ROC (Rate of Change) calculates the absolute price difference between the current value and the value N periods ago.
-- Parameterized by `period` (default 9).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROCP](../rocp/Rocp.md), [MOM](../mom/Mom.md) | **Complementary:** Moving average for smoothing | **Trading note:** Rate of Change; percentage price change over n periods. Unbounded oscillator.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ROC (Rate of Change) calculates the absolute price difference between the current value and the value N periods ago. This is the most basic form of momentum measurement, returning the raw price change in the same units as the input data. Unlike ROCP (percentage) or ROCR (ratio), ROC preserves the original scale, making it directly interpretable in dollar/point terms.

@@ -13,9 +13,7 @@
 | **PineScript**   | [vwad.pine](vwad.pine)                       |
 
 - Volume Weighted Accumulation/Distribution (VWAD) takes the classic ADL concept and asks a sharper question: not just "where did the close fall in t...
-- Parameterized by `period` (default 20).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CMF](../cmf/Cmf.md), [OBV](../vwad/Vwad.md) | **Complementary:** MACD | **Trading note:** Volume-Weighted A/D; running sum of volume-weighted price position. Classic accumulation/distribution.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Volume Weighted Accumulation/Distribution (VWAD) takes the classic ADL concept and asks a sharper question: not just "where did the close fall in the range?" but "how significant was this bar's volume compared to recent activity?"

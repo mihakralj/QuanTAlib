@@ -13,9 +13,7 @@
 | **PineScript**   | [kchannel.pine](kchannel.pine)                       |
 
 - Keltner Channel constructs a volatility-adaptive envelope by projecting Average True Range above and below an Exponential Moving Average center line.
-- Parameterized by `period` (default 20), `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period * 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBands](../bbands/bbands.md), [APZ](../apz/apz.md) | **Complementary:** Bollinger Band squeeze (BBands inside KChannel signals compression); MACD for trend direction | **Trading note:** ATR-based width adapts to true volatility including gaps; Chester Keltner's 1960 original used typical price and average range.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Keltner Channel constructs a volatility-adaptive envelope by projecting Average True Range above and below an Exponential Moving Average center line. The channel differs from ATR Bands solely in the center line: Keltner uses EMA (faster, more responsive) while ATR Bands use SMA (more stable, more lag). The EMA center combined with ATR width creates a channel that both tracks trend and adapts to volatility, making it one of the most widely used channel indicators for trend-following and mean-reversion strategies. The implementation uses EMA with warmup compensation for accurate early values and Wilder's smoothing (RMA) for ATR.

@@ -14,8 +14,6 @@
 
 - Fibonacci Pivot Points apply Fibonacci retracement ratios (38.2%, 61.8%, 100%) to the standard pivot point formula.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

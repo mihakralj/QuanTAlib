@@ -14,9 +14,7 @@
 | **Signature**    | [qema_signature](qema_signature.md) |
 
 - QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them us...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DEMA](../dema/dema.md), [TEMA](../tema/tema.md) | **Complementary:** Signal line crossovers | **Trading note:** Quadruple EMA; 4th-order lag reduction with overshoot risk.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them using minimum-energy weights. Unlike traditional multi-stage EMAs (DEMA, TEMA) that use fixed coefficients, QEMA solves for weights that explicitly eliminate DC lag while minimizing output variance. The result is a filter that tracks linear trends with zero group delay while suppressing high-frequency noise more effectively than standard EMA cascades.

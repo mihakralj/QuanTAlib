@@ -14,9 +14,7 @@
 | **Signature**    | [rgma_signature](rgma_signature.md) |
 
 - RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages.
-- Parameterized by `period`, `passes` (default 3).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DEMA](../dema/dema.md), [TEMA](../tema/tema.md) | **Complementary:** Trend confirmation | **Trading note:** Recursive Gaussian MA; Gaussian IIR approximation for smooth trend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages. Each pass through an EMA filter smooths the signal further, and the mathematical magic is that cascaded low-pass filters push the impulse response toward a Gaussian-like shape. You get the desirable properties of Gaussian smoothing—smooth frequency roll-off, minimal ringing, symmetric lag—without the computational cost of a true FIR convolution.

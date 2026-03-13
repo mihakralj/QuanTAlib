@@ -14,9 +14,7 @@
 | **Signature**    | [tsf_signature](tsf_signature.md) |
 
 - TSF projects the least-squares regression line one bar forward, providing a statistically grounded forecast of the next bar's value.
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LSMA](../lsma/lsma.md), [LinReg](../../statistics/linreg/LinReg.md) | **Complementary:** R² for forecast reliability | **Trading note:** Time Series Forecast; linear regression extrapolated one bar ahead. Predictive MA.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 TSF projects the least-squares regression line one bar forward, providing a statistically grounded forecast of the next bar's value. Unlike simple moving averages that smooth past data, TSF answers the question: "If the current trend continues, where will price be next?" This makes it inherently leading rather than lagging, though the forecast degrades quickly beyond one step.

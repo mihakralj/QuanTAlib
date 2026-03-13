@@ -13,9 +13,7 @@
 | **PineScript**   | [kurtosis.pine](kurtosis.pine)                       |
 
 - Kurtosis measures the **tailedness** of a probability distribution.
-- Parameterized by `period`, `ispopulation` (default false).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Skew](../skew/Skew.md), [JB](../jb/Jb.md) | **Trading note:** Excess kurtosis; >0 = fat tails (leptokurtic), <0 = thin tails. Measures tail risk in returns.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

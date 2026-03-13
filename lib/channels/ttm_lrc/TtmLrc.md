@@ -12,9 +12,6 @@
 | **Warmup**       | `period` bars                          |
 
 - TTM Linear Regression Channel plots a least-squares regression line through price data with dual standard deviation bands at $\pm 1\sigma$ and $\pm...
-- Parameterized by `period` (default 100).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 TTM Linear Regression Channel plots a least-squares regression line through price data with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$. Developed by John Carter as part of his TTM (Trade The Markets) indicator suite, it extends the standard regression channel by providing two band levels that create statistically meaningful trading zones. The algorithm is identical to REGCHANNEL/SDCHANNEL in its regression and residual computation, but uses a longer default period (100) and emits four bands instead of two.

@@ -13,9 +13,7 @@
 | **PineScript**   | [granger.pine](granger.pine)                       |
 
 - The Granger Causality test asks a precise, falsifiable question: does knowing the history of series X improve your ability to predict series Y, bey...
-- Parameterized by `period` (default 20).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Cointegration](../cointegration/Cointegration.md), [Correlation](../correlation/Correlation.md) | **Trading note:** Granger causality test; determines if one time series can forecast another. Lead-lag detection.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

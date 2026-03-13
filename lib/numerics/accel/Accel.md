@@ -14,8 +14,6 @@
 
 - ACCEL measures the rate of change of velocity—the acceleration of a time series.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `3` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ACCEL measures the rate of change of velocity—the acceleration of a time series. As the second derivative, it reveals momentum shifts before they manifest in price direction. Positive acceleration means velocity is increasing (trend strengthening); negative means velocity is decreasing (trend weakening). This O(1) streaming implementation uses FMA optimization and SIMD batch processing.

@@ -14,8 +14,6 @@
 
 - Woodie's Pivot Points weight the closing price twice in the pivot calculation, biasing the central pivot toward where the market actually settled r...
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `2` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

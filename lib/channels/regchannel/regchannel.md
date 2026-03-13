@@ -13,9 +13,7 @@
 | **PineScript**   | [regchannel.pine](regchannel.pine)                       |
 
 - Linear Regression Channel plots a best-fit line through price data over a specified period with parallel bands at a configurable standard deviation...
-- Parameterized by `period` (default 20), `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SDChannel](../sdchannel/sdchannel.md), [BBands](../bbands/bbands.md) | **Complementary:** R-squared for trend strength | **Trading note:** Linear regression channel; mean-reversion trades at band extremes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Linear Regression Channel plots a best-fit line through price data over a specified period with parallel bands at a configurable standard deviation of residuals. Unlike moving average envelopes that offset from a smoothed price, regression channels adapt their slope to the underlying trend and their width to actual dispersion around that trend. The algorithm uses ordinary least squares with precomputed index sums, requiring two passes per bar: one for the regression coefficients and one for the residual standard deviation.

@@ -13,9 +13,7 @@
 | **PineScript**   | [wmape.pine](wmape.pine)                       |
 
 - Weighted Mean Absolute Percentage Error (WMAPE) adjusts MAPE by weighting each error by the magnitude of the actual value.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MAPE](../mape/Mape.md), [MAPD](../mapd/Mapd.md) | **Trading note:** Weighted MAPE; weights errors by actual values. More stable than MAPE for intermittent demand.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Weighted Mean Absolute Percentage Error (WMAPE) adjusts MAPE by weighting each error by the magnitude of the actual value. This produces a single, interpretable percentage that represents overall accuracy weighted by importance.

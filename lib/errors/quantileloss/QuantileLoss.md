@@ -13,9 +13,7 @@
 | **PineScript**   | [quantileloss.pine](quantileloss.pine)                       |
 
 - Quantile Loss (also called Pinball Loss) measures prediction accuracy with asymmetric penalties for over-prediction versus under-prediction.
-- Parameterized by `period`, `quantile` (default 0.5).
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MAE](../mae/Mae.md), [Huber](../huber/Huber.md) | **Trading note:** Asymmetric loss for quantile regression; set tau to penalize over/under-prediction differently.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Quantile Loss (also called Pinball Loss) measures prediction accuracy with asymmetric penalties for over-prediction versus under-prediction. It's essential for probabilistic forecasting where different quantiles of the distribution matter.

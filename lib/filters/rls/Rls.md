@@ -15,9 +15,7 @@
 
 
 - The Recursive Least Squares (RLS) adaptive filter is the Rolls-Royce of adaptive FIR filters.
-- Parameterized by `order` (default 16), `lambda` (default 0.99).
-- Output range: Tracks input.
-- Requires `order + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LMS](../lms/Lms.md), [Kalman](../kalman/Kalman.md) | **Complementary:** Error metrics | **Trading note:** Recursive Least Squares; faster convergence than LMS but higher computational cost. Forgetting factor adapts to regime changes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

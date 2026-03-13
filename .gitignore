@@ -36,8 +36,9 @@ bld/
 *.coverage
 *.coveragexml
 
-# NDepend (entire directory — tooling + generated output)
-ndepend/
+# NDepend generated output (analysis results + coverage data)
+ndepend/NDependOut/
+ndepend/coverage/
 
 # BenchmarkDotNet
 BenchmarkDotNet.Artifacts/
@@ -110,3 +111,12 @@ $null
 
 # Local secrets
 .secrets
+
+# Temp utility scripts (not shipped)
+NOT
+_fix_bullets.ps1
+_indicator_md_list.txt
+affected_files.txt
+fix-bullets.ps1
+fix_bullets.py
+fix_read.py

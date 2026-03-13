@@ -14,8 +14,6 @@
 
 - The Exponential (EXP) transformer applies the natural exponential function $e^x$ to each value in a time series.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires `0` bars of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Exponential (EXP) transformer applies the natural exponential function $e^x$ to each value in a time series. As the inverse of the natural logarithm, it converts additive relationships back to multiplicative ones, making it essential for reconstructing price levels from log-returns and implementing models that assume log-normal distributions.

@@ -14,9 +14,7 @@
 | **Signature**    | [nlma_signature](nlma_signature.md) |
 
 - NLMA uses a two-phase damped cosine kernel with $5P - 1$ taps (where $P$ is the user period).
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [ALMA](../alma/alma.md), [GWMA](../gwma/gwma.md) | **Complementary:** ATR for volatility | **Trading note:** Non-Linear MA; adapts weight profile to price behavior.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 NLMA uses a two-phase damped cosine kernel with $5P - 1$ taps (where $P$ is the user period). Phase 1 builds the initial sweep; Phase 2 extends it through multiple cosine cycles. The kernel's negative weights in the mid-section subtract lagged price components, reducing group delay well below what a positive-only SMA of the same length achieves. Normalization by the signed weight sum preserves DC gain of 1.0. The result is a trend-following filter with moderate overshoot but substantially less lag than conventional moving averages.

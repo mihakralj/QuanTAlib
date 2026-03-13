@@ -13,9 +13,7 @@
 | **PineScript**   | [macd.pine](macd.pine)                       |
 
 - The Moving Average Convergence Divergence measures momentum through the relationship between two exponential moving averages.
-- Parameterized by `fastperiod` (default 12), `slowperiod` (default 26), `signalperiod` (default 9).
-- Output range: Varies (see docs).
-- Requires `Max(fast, slow) + signal - 2` bars (33 default) of warmup before first valid output (IsHot = true).
+- **Similar:** [PPO](../ppo/Ppo.md), [APO](../../oscillators/apo/Apo.md) | **Complementary:** RSI for divergence confirmation | **Trading note:** Moving Average Convergence Divergence; signal line crossovers and histogram for momentum. Most widely used momentum indicator.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Moving Average Convergence Divergence measures momentum through the relationship between two exponential moving averages. Created by Gerald Appel in 1979, the indicator transforms price into a bounded oscillator that reveals trend strength, direction, and potential reversals. Standard parameters (12, 26, 9) detect monthly and biweekly cycles: the 26-period represents roughly one trading month, the 12-period half that duration.

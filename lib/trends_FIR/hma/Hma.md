@@ -14,9 +14,7 @@
 | **Signature**    | [hma_signature](hma_signature.md) |
 
 - HMA (Hull Moving Average) is a solution to the eternal struggle between smoothness and lag.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period + sqrtPeriod - 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DEMA](../../trends_IIR/dema/dema.md), [TEMA](../../trends_IIR/tema/tema.md) | **Complementary:** Signal line crossover | **Trading note:** Alan Hulls MA; cascades WMAs to nearly eliminate lag while maintaining smoothness.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HMA (Hull Moving Average) is a solution to the eternal struggle between smoothness and lag. Most indicators force you to choose one; HMA gives you both. It achieves this by using weighted moving averages (WMAs) in a clever configuration that cancels out lag while maintaining the smoothing properties of the WMA.

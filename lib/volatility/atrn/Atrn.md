@@ -13,9 +13,7 @@
 | **PineScript**   | [atrn.pine](atrn.pine)                       |
 
 - ATRN transforms the absolute ATR into a relative measure by normalizing it to a [0,1] scale using min-max scaling over a lookback window.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [ATR](../atr/atr.md), [NATR](../natr/natr.md) | **Complementary:** Position sizing | **Trading note:** Normalized ATR; percentage-based for cross-asset comparison.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ATRN transforms the absolute ATR into a relative measure by normalizing it to a [0,1] scale using min-max scaling over a lookback window. This answers the question: "Is current volatility high or low *compared to recent history*?"

@@ -13,9 +13,7 @@
 | **PineScript**   | [dx.pine](dx.pine)                       |
 
 - The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system.
-- Parameterized by `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ADX](../adx/Adx.md), [ADXR](../adxr/Adxr.md) | **Complementary:** +DI/-DI for direction | **Trading note:** Directional Index; unsmoothed ADX. More responsive but noisier.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance — making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.

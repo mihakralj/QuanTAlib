@@ -13,9 +13,7 @@
 | **PineScript**   | [hlv.pine](hlv.pine)                       |
 
 - *Also known as: PV (Parkinson Volatility)*
-- Parameterized by `period` (default 20), `annualize` (default true), `annualperiods` (default 252).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [GKV](../gkv/gkv.md), [ATR](../atr/atr.md) | **Complementary:** ATR comparison | **Trading note:** Parkinson high-low volatility; ~5x more efficient than close-to-close.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 *Also known as: PV (Parkinson Volatility)*

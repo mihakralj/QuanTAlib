@@ -14,9 +14,7 @@
 | **Signature**    | [parzen_signature](parzen_signature.md) |
 
 - PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppre...
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [GWMA](../gwma/gwma.md), [BWMA](../bwma/Bwma.md) | **Complementary:** ATR | **Trading note:** Parzen-window MA; piecewise-cubic taper. Very smooth with low spectral leakage.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppression ($-24$ dB/octave rolloff) and a smooth bell-shaped kernel. The Parzen window is the self-convolution of two triangular (Bartlett) windows at half-length, which guarantees continuous first and second derivatives at all points. This makes it one of the few windows whose frequency response has no discontinuities in its first three derivatives, yielding the fastest sidelobe decay rate among common windows without requiring the computational cost of Bessel functions (Kaiser) or specialized polynomials (Henderson).

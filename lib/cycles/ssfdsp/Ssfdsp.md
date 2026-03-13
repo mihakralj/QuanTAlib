@@ -13,9 +13,7 @@
 | **PineScript**   | [ssfdsp.pine](ssfdsp.pine)                       |
 
 - SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscill...
-- Parameterized by `period` (default 40).
-- Output range: Varies (see docs).
-- Requires `slowPeriod * 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DSP](../dsp/dsp.md), [SSF2](../../filters/ssf2/Ssf2.md) | **Complementary:** Roofing filter for preprocessing | **Trading note:** Super Smoother with DSP; combines Ehlers' smoothing with signal processing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 SSFDSP isolates the dominant cycle by subtracting a half-cycle Super-Smoother from a quarter-cycle Super-Smoother, producing a zero-centered oscillator with superior noise rejection compared to the EMA-based DSP. The 2-pole Butterworth characteristic of the Super-Smoother filter provides zero phase lag at the cutoff frequency and sharper rolloff than exponential smoothing, making SSFDSP the preferred variant for cycle-aware trading when the approximate dominant period is known.

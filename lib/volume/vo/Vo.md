@@ -13,9 +13,7 @@
 | **PineScript**   | [vo.pine](vo.pine)                       |
 
 - The Volume Oscillator (VO) measures the difference between two moving averages of volume, expressed as a percentage.
-- Parameterized by `shortperiod` (default 5), `longperiod` (default 10), `signalperiod` (default 10).
-- Output range: Unbounded.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [PVO](../pvo/Pvo.md), [VROC](../vroc/Vroc.md) | **Complementary:** Price confirmation | **Trading note:** Volume Oscillator; difference of two volume MAs. Confirms price moves with volume expansion.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Volume Oscillator (VO) measures the difference between two moving averages of volume, expressed as a percentage. It helps identify changes in volume trends and potential momentum shifts by comparing short-term volume activity against longer-term volume norms.

@@ -13,9 +13,7 @@
 | **PineScript**   | [rsi.pine](rsi.pine)                       |
 
 - The Relative Strength Index measures the speed and magnitude of price changes.
-- Parameterized by `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [CMO](../cmo/Cmo.md), [Stoch](../../oscillators/stoch/Stoch.md) | **Complementary:** MACD for trend confirmation | **Trading note:** Wilder's RSI; 70/30 overbought/oversold. Divergences signal reversals. 14-period standard.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Relative Strength Index measures the speed and magnitude of price changes. Introduced by J. Welles Wilder Jr. in 1978, it oscillates between 0 and 100, identifying overbought and oversold conditions. The "Relative Strength" name is misleading: RSI measures internal strength (price versus itself) not relative strength (asset versus benchmark). Wilder knew this. He kept the name anyway. Marketing, perhaps.

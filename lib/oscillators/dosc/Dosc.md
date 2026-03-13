@@ -13,9 +13,7 @@
 | **PineScript**   | [dosc.pine](dosc.pine)                       |
 
 - The Derivative Oscillator applies a four-stage signal processing pipeline to extract momentum inflection points: RSI via Wilder's smoothing, double...
-- Parameterized by `rsiperiod` (default 14), `ema1period` (default 5), `ema2period` (default 3), `sigperiod` (default 9).
-- Output range: Varies (see docs).
-- Requires `rsiPeriod + sigPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MACD](../../momentum/macd/Macd.md), [PPO](../../momentum/ppo/Ppo.md) | **Complementary:** Volume | **Trading note:** Derivative Oscillator; RSI smoothed with EMA, then differenced. Catches RSI turning points early.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Derivative Oscillator applies a four-stage signal processing pipeline to extract momentum inflection points: RSI via Wilder's smoothing, double EMA smoothing of the RSI, an SMA signal line of the double-smoothed result, and finally the difference between the smoothed RSI and its signal. The histogram output crosses zero at momentum turning points, offering earlier signals than raw RSI by isolating the rate of change of the smoothed momentum rather than the momentum level itself.

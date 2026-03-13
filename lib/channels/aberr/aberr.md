@@ -12,11 +12,11 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [aberr.pine](aberr.pine)                       |
 
-- ABERR measures price deviation from a central moving average using mean absolute deviation rather than standard deviation, producing dynamic bands ...
-- Parameterized by `period`, `multiplier` (default 2.0).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- ABERR measures price deviation from a central moving average using mean absolute deviation rather than standard deviation, producing dynamic bands that are more robust to outliers than Bollinger Bands.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- **Similar indicators:** [BBands](../bbands/bbands.md) (standard deviation bands), [SDChannel](../sdchannel/sdchannel.md) (standard deviation channel), [STBands](../stbands/stbands.md) (Stoller bands using ATR).
+- **Complementary indicators:** Pair with a momentum oscillator such as RSI or Stochastic to confirm overbought/oversold signals when price touches the bands; volume indicators help distinguish genuine breakouts from false band penetrations.
+- **Trading note:** Because MAD ≈ 0.80σ, ABERR bands are tighter than equivalently-scaled Bollinger Bands and produce fewer false signals during fat-tailed moves like earnings gaps or flash crashes.
 
 ABERR measures price deviation from a central moving average using mean absolute deviation rather than standard deviation, producing dynamic bands that adapt to volatility while remaining robust against extreme outliers. Where Bollinger Bands amplify outliers through squaring (the $L^2$ norm), ABERR uses raw absolute differences (the $L^1$ norm), so bands respond to typical price behavior rather than the occasional spike that yanks everything sideways. For a 20-period window with a 2.0 multiplier, ABERR contains approximately 89% of normally-distributed price action, but its real advantage emerges with fat-tailed distributions where standard deviation overreacts to single-bar anomalies.
 

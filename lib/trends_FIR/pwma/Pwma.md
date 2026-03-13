@@ -14,9 +14,7 @@
 | **Signature**    | [pwma_signature](pwma_signature.md) |
 
 - PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [FWMA](../fwma/fwma.md), [WMA](../wma/wma.md) | **Complementary:** Trend filters | **Trading note:** Pascal-Weighted MA; weights from Pascals triangle for smooth, symmetric kernel.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window. This assigns massive importance to the most recent data points while still technically including the older data. It's like a WMA on steroids.

@@ -13,9 +13,7 @@
 | **PineScript**   | [ccv.pine](ccv.pine)                       |
 
 - Close-to-Close Volatility (CCV) calculates the annualized standard deviation of logarithmic returns using only closing prices.
-- Parameterized by `period`, `method` (default 1).
-- Output range: $\geq 0$.
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HV](../hv/hv.md) | **Complementary:** Close-to-close analysis | **Trading note:** Close-to-Close volatility; simplest vol estimator.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Close-to-Close Volatility (CCV) calculates the annualized standard deviation of logarithmic returns using only closing prices. This is the foundational volatility measure in quantitative finance, serving as a benchmark against which more sophisticated estimators are compared. The implementation supports three smoothing methods (SMA, EMA, WMA) and annualizes using the standard √252 factor for daily data.

@@ -13,9 +13,7 @@
 | **PineScript**   | [prs.pine](prs.pine)                       |
 
 - **Category:** Momentum **Also known as:** Relative Strength Comparison, Price Ratio, Performance Ratio
-- Parameterized by `smoothperiod` (default 1).
-- Output range: Varies (see docs).
-- Requires `smoothPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROC](../roc/Roc.md), [Bias](../bias/Bias.md) | **Complementary:** Relative strength vs benchmark | **Trading note:** Price Relative Strength; ratio or spread between two series. Sector rotation tool.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 **Category:** Momentum  

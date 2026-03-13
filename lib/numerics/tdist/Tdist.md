@@ -13,9 +13,7 @@
 | **PineScript**   | [tdist.pine](tdist.pine)                       |
 
 - The Student's t-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of Student's t-distribution, produ...
-- Parameterized by `nu` (default 10), `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Student's t-distribution; used for hypothesis testing with small samples. Fatter tails than normal.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Student's t-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of Student's t-distribution, producing an output in $[0, 1]$. The t-distribution is the normal distribution's heavier-tailed cousin: as degrees of freedom $\nu$ increase, it converges to the Gaussian; at low $\nu$ it accommodates extreme values that the normal distribution would assign negligible probability. The implementation normalizes price to $[0, 1]$, maps to a t-statistic via linear scaling to $[-3, +3]$, then evaluates the CDF through the regularized incomplete beta function. This makes TDIST a robust percentile ranking that is less sensitive to outliers than NORMDIST.

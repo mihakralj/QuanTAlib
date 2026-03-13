@@ -13,9 +13,7 @@
 | **PineScript**   | [tukeybiweight.pine](tukeybiweight.pine)                       |
 
 - Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold.
-- Parameterized by `period`, `c` (default defaultc).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Huber](../huber/Huber.md), [PseudoHuber](../pseudohuber/PseudoHuber.md) | **Trading note:** Tukey's biweight loss; completely rejects extreme outliers beyond tuning constant c.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Tukey's Biweight (also called Bisquare) is a redescending M-estimator that completely ignores errors beyond a threshold. Unlike Huber loss which still penalizes large errors linearly, Tukey's biweight treats extreme outliers as if they don't exist.

@@ -14,9 +14,7 @@
 | **Signature**    | [mma_signature](mma_signature.md) |
 
 - MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the ...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SMMA](../smma/smma.md), [EMA](../ema/ema.md) | **Complementary:** RSI/ATR (use MMA internally) | **Trading note:** Modified MA (identical to SMMA/RMA); Wilders smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the buffer. The weighting tilts toward newer bars without fully discarding older ones, creating a filter that sits between SMA (equal weights) and WMA (linear weights) in both lag and smoothness characteristics.

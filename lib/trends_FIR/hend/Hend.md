@@ -14,9 +14,7 @@
 | **Signature**    | [hend_signature](hend_signature.md) |
 
 - HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without disto...
-- Parameterized by `period` (default 7).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [LSMA](../lsma/lsma.md), [TSF](../tsf/Tsf.md) | **Complementary:** StdDev | **Trading note:** Henderson MA; used by Australian Bureau of Statistics. Optimal for extracting smooth trend from noisy data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without distortion while maximally suppressing irregular noise. Used as the core smoother in the X-11 and X-13ARIMA-SEATS seasonal adjustment frameworks by statistical agencies worldwide, HEND achieves the theoretically optimal trade-off between smoothness (measured by the sum of squared third differences of the weights) and fidelity for cubic trends. Weights can be negative at the edges, giving the filter a bandpass-like property that sharpens trend-cycle extraction.

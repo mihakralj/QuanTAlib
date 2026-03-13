@@ -13,9 +13,7 @@
 | **PineScript**   | [vama.pine](vama.pine)                       |
 
 - Most moving averages use a fixed lookback period.
-- Parameterized by `baselength` (default 20), `shortatrperiod` (default 10), `longatrperiod` (default 50), `minlength` (default 5), `maxlength` (default 100).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [VIDYA](../vidya/vidya.md), [KAMA](../kama/kama.md) | **Complementary:** Volatility analysis | **Trading note:** Volatility-Adjusted MA; scales smoothing by relative volatility.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## The Core Insight

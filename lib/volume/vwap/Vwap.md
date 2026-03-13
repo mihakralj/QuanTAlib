@@ -13,9 +13,7 @@
 | **PineScript**   | [vwap.pine](vwap.pine)                       |
 
 - VWAP (Volume Weighted Average Price) calculates the cumulative average price weighted by trading volume, typically reset at session boundaries.
-- Parameterized by `period` (default 0).
-- Output range: Unbounded.
-- Requires `> 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [TWAP](../twap/Twap.md), [EVWMA](../evwma/Evwma.md) | **Complementary:** VWAP bands | **Trading note:** Volume-Weighted Average Price; institutional benchmark. Above VWAP = favorable fill for buyers.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 VWAP (Volume Weighted Average Price) calculates the cumulative average price weighted by trading volume, typically reset at session boundaries. It represents the true average price at which a security has traded throughout the period, giving more weight to prices where higher volume occurred. This implementation supports flexible period-based resets rather than traditional session-based anchoring.

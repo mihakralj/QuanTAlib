@@ -13,9 +13,7 @@
 | **PineScript**   | [mrae.pine](mrae.pine)                       |
 
 - Mean Relative Absolute Error (MRAE) measures the average magnitude of errors relative to the actual values.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [RAE](../rae/Rae.md), [MASE](../mase/Mase.md) | **Trading note:** Mean Relative Absolute Error; ratio of errors to benchmark errors. Scale-free comparison metric.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Relative Absolute Error (MRAE) measures the average magnitude of errors relative to the actual values. This normalization makes the metric scale-independent and easier to interpret across different datasets.

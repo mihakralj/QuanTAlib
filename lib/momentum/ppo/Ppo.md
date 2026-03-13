@@ -13,9 +13,7 @@
 | **PineScript**   | [ppo.pine](ppo.pine)                       |
 
 - PPO (Percentage Price Oscillator) measures the percentage difference between a fast EMA and a slow EMA.
-- Parameterized by `fastPeriod` (default 12), `slowPeriod` (default 26), `signalPeriod` (default 9).
-- Output range: Varies (see docs).
-- Requires `slowPeriod + signalPeriod` bars (35 default) of warmup before first valid output (IsHot = true).
+- **Similar:** [MACD](../macd/Macd.md), [APO](../../oscillators/apo/Apo.md) | **Complementary:** Volume oscillator | **Trading note:** Percentage Price Oscillator; MACD expressed as percentage. Comparable across instruments.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 PPO (Percentage Price Oscillator) measures the percentage difference between a fast EMA and a slow EMA. It is functionally equivalent to MACD normalized by the slow EMA, producing values that are comparable across instruments with different price levels. The implementation outputs three components: the PPO line, a signal line (EMA of PPO), and a histogram (PPO minus Signal).

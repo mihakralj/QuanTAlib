@@ -13,9 +13,7 @@
 | **PineScript**   | [theilu.pine](theilu.pine)                       |
 
 - Theil's U Statistic measures forecast accuracy relative to a naive no-change forecast.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MASE](../mase/Mase.md), [Rsquared](../rsquared/Rsquared.md) | **Trading note:** Theil's U statistic; <1 = forecast beats naïve, >1 = worse than naïve random walk.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Theil's U Statistic measures forecast accuracy relative to a naive no-change forecast. A value below 1 indicates the model outperforms simply predicting that tomorrow equals today; above 1 means you'd be better off not forecasting at all.

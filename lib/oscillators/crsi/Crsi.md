@@ -13,9 +13,7 @@
 | **PineScript**   | [crsi.pine](crsi.pine)                       |
 
 - Connors RSI is a composite momentum oscillator that combines three independent measurements of price behavior into a single bounded (0-100) output:...
-- Parameterized by `rsiperiod` (default 3), `streakperiod` (default 2), `rankperiod` (default 100).
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../../momentum/rsi/Rsi.md), [StochRSI](../stochrsi/Stochrsi.md) | **Complementary:** Volume | **Trading note:** Connors RSI; combines RSI, streak RSI, and percentile rank. Short-term mean-reversion signal.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Connors RSI is a composite momentum oscillator that combines three independent measurements of price behavior into a single bounded (0-100) output: a short-term RSI of price, an RSI of the consecutive up/down streak length, and a percentile rank of the current rate of change within its recent history. The equal-weighted average of these three components produces a mean-reverting oscillator where extreme readings (above 90 or below 10) identify statistically overbought or oversold conditions with higher reliability than single-component RSI alone.

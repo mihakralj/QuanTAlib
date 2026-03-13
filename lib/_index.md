@@ -1,29 +1,5 @@
 # QuanTAlib Indicators
 
-## Categories
-
-| Category                             |  Count  | Description                                      |
-| :----------------------------------- | :-----: | :----------------------------------------------- |
-| [Core](core/_index.md)               |    8    | Price transforms and fundamental building blocks |
-| [Trends (FIR)](trends_FIR/_index.md) |   33    | Finite Impulse Response moving averages          |
-| [Trends (IIR)](trends_IIR/_index.md) |   36    | Infinite Impulse Response moving averages        |
-| [Filters](filters/_index.md)         |   37    | Signal processing filters                        |
-| [Oscillators](oscillators/_index.md) |   48    | Indicators that fluctuate around a center line   |
-| [Dynamics](dynamics/_index.md)       |   21    | Trend strength and direction indicators          |
-| [Momentum](momentum/_index.md)       |   19    | Momentum-based indicators                        |
-| [Volatility](volatility/_index.md)   |   26    | Volatility estimators and indicators             |
-| [Volume](volume/_index.md)           |   27    | Volume-based indicators                          |
-| [Statistics](statistics/_index.md)   |   35    | Statistical measures and tests                   |
-| [Channels](channels/_index.md)       |   23    | Price channels and bands                         |
-| [Cycles](cycles/_index.md)           |   14    | Cycle analysis and signal processing             |
-| [Reversals](reversals/_index.md)     |   12    | Pattern recognition and reversal detection       |
-| [Forecasts](forecasts/_index.md)     |    1    | Predictive indicators                            |
-| [Errors](errors/_index.md)           |   26    | Error metrics and loss functions                 |
-| [Numerics](numerics/_index.md)       |   27    | Mathematical transformations                     |
-| **Total**                            | **393** |                                                  |
-
-## All Indicators
-
 | Indicator                                                  | Full Name                                                                 | Category     |
 | :--------------------------------------------------------- | :------------------------------------------------------------------------ | :----------- |
 | [ABERR](channels/aberr/Aberr.md)                           | Aberration Bands                                                          | Channels     |

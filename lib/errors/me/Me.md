@@ -13,9 +13,7 @@
 | **PineScript**   | [me.pine](me.pine)                       |
 
 - Mean Error (ME), also known as Mean Bias Error, measures the average error between actual and predicted values while preserving the sign.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MAE](../mae/Mae.md), [MPE](../mpe/Mpe.md) | **Trading note:** Mean Error (bias); positive = systematic overprediction, negative = underprediction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Error (ME), also known as Mean Bias Error, measures the average error between actual and predicted values while preserving the sign. Unlike MAE, ME reveals systematic bias in predictions: whether a model consistently over-predicts or under-predicts.

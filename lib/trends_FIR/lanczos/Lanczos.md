@@ -14,9 +14,7 @@
 | **Signature**    | [lanczos_signature](lanczos_signature.md) |
 
 - LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near...
-- Parameterized by `period` (default 14).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SinEma](../sinema/sinema.md), [NyqMA](../nyqma/Nyqma.md) | **Complementary:** FFT for frequency analysis | **Trading note:** Lanczos filter; sinc function with Lanczos window. Near-ideal low-pass with sharp cutoff.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near-ideal low-pass frequency characteristics. The sinc function is the impulse response of the perfect brick-wall low-pass filter; windowing it to finite length trades sharp cutoff for practical realizability. The result is a smoother with minimal Gibbs phenomenon ringing and excellent passband flatness, at the cost of small negative sidelobe weights that can cause minor overshooting on sharp price discontinuities.

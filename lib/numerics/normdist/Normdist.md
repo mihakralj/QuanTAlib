@@ -13,9 +13,7 @@
 | **PineScript**   | [normdist.pine](normdist.pine)                       |
 
 - The Normal Distribution CDF transforms a z-score normalized price into the cumulative distribution function of the Gaussian distribution, producing...
-- Parameterized by `mu` (default 0.0), `sigma` (default 1.0), `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Normal (Gaussian) distribution; foundational for z-scores, confidence intervals, and VaR calculations.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Normal Distribution CDF transforms a z-score normalized price into the cumulative distribution function of the Gaussian distribution, producing an output in $[0, 1]$. Unlike other distribution indicators in this library that use min-max normalization, NORMDIST computes a rolling mean and standard deviation over the lookback window, converting the raw price to a z-score, then applies optional $\mu$ and $\sigma$ parameters for further shaping. The result represents the probability that a standard normal random variable would fall at or below the observed z-score. This makes NORMDIST a direct percentile ranking under the assumption of normally distributed returns, with the output naturally centered at 0.5 when the price is at its rolling mean.

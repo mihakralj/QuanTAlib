@@ -13,9 +13,7 @@
 | **PineScript**   | [vwapsd.pine](vwapsd.pine)                       |
 
 - VWAP with Standard Deviation Bands combines the Volume Weighted Average Price with a single configurable standard deviation band pair, providing a ...
-- Parameterized by `numdevs` (default defaultnumdevs).
-- Output range: Tracks input.
-- Requires `2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [VwapBands](../vwapbands/vwapbands.md), [BBands](../bbands/bbands.md) | **Complementary:** Cumulative volume delta | **Trading note:** VWAP standard deviation bands; 1σ/2σ/3σ levels used for institutional mean-reversion.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 VWAP with Standard Deviation Bands combines the Volume Weighted Average Price with a single configurable standard deviation band pair, providing a simpler alternative to VWAPBANDS (which uses dual $\pm 1\sigma$ and $\pm 2\sigma$ levels). Three running sums enable O(1) streaming updates. A session reset mechanism clears accumulations at configurable intervals, keeping the indicator anchored to current market structure. The configurable deviation parameter allows traders to select their desired confidence level ($1\sigma$ ≈ 68%, $2\sigma$ ≈ 95%, $3\sigma$ ≈ 99.7%).

@@ -13,9 +13,7 @@
 | **PineScript**   | [rmsle.pine](rmsle.pine)                       |
 
 - Root Mean Squared Logarithmic Error is the square root of MSLE, providing an error metric in log-scale units.
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MSLE](../msle/Msle.md), [RMSE](../rmse/Rmse.md) | **Trading note:** Root Mean Squared Log Error; measures relative error magnitude. Useful for price ratios.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Root Mean Squared Logarithmic Error is the square root of MSLE, providing an error metric in log-scale units. This makes RMSLE more interpretable than MSLE while retaining all its benefits for data spanning multiple orders of magnitude.

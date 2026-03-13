@@ -13,9 +13,7 @@
 | **PineScript**   | [asi.pine](asi.pine)                       |
 
 - The Accumulation Swing Index is Wilder's method for separating genuine breakouts from whipsaw noise.
-- Parameterized by `limitmove` (default 3.0).
-- Output range: Varies (see docs).
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MOM](../mom/Mom.md), [ROC](../roc/Roc.md) | **Complementary:** Volume for confirmation | **Trading note:** Accumulation Swing Index; Wilder's cumulative swing index. Confirms breakouts from chart patterns.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Accumulation Swing Index is Wilder's method for separating genuine breakouts from whipsaw noise. Each bar computes a Swing Index value by comparing current OHLC prices to the previous bar, scaled by a user-supplied limit move parameter T. The cumulative sum of these SI values — the ASI — forms a "phantom" price line whose peaks and troughs can be compared directly to the price chart. A trendline break on ASI that accompanies a trendline break on price is confirmed; a price break without ASI confirmation is a probable false move. Introduced in Wilder's 1978 book, it predates most modern oscillators by a decade.

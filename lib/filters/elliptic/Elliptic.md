@@ -14,9 +14,7 @@
 | **Signature**    | [elliptic_signature](elliptic_signature.md) |
 
 - The Elliptic filter (or Cauer filter for the history buffs) is the uncompromising extremist of linear filtering.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Cheby1](../cheby1/Cheby1.md), [Butter2](../butter2/Butter2.md) | **Complementary:** Phase analysis | **Trading note:** Elliptic (Cauer) filter; sharpest transition of all IIR filters but has ripple in both bands.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Elliptic filter (or Cauer filter for the history buffs) is the uncompromising extremist of linear filtering. It offers the steepest possible roll-off for a given order, but extracts a heavy price: ripple in both the passband and the stopband. While Butterworth is polite and Chebyshev is opinionated, Elliptic is aggressive. This implementation delivers a sharp 2nd-order Lowpass response with **1dB passband ripple** and a crushing **40dB stopband attenuation**.

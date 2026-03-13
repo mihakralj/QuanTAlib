@@ -13,9 +13,7 @@
 | **PineScript**   | [pfe.pine](pfe.pine)                       |
 
 - Polarized Fractal Efficiency (PFE) quantifies trend strength by comparing the Euclidean distance a price series actually travels bar-to-bar against...
-- Parameterized by `period` (default 10), `smoothperiod` (default 5).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ADX](../adx/Adx.md), [VHF](../vhf/Vhf.md) | **Complementary:** Moving average for trend direction | **Trading note:** Polarized Fractal Efficiency; measures how efficiently price travels. ±100 scale.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Polarized Fractal Efficiency (PFE) quantifies trend strength by comparing the Euclidean distance a price series actually travels bar-to-bar against the straight-line distance between the endpoints over the same window. The ratio, scaled to [-100, +100] and smoothed with an EMA, distinguishes efficient trending motion (values near ±100) from fractal, self-similar noise (values near 0). Created by Hans Hannula and published in *Technical Analysis of Stocks & Commodities* (January 1994), PFE applies fractal geometry to price action without requiring Hurst exponent estimation or rescaled-range analysis. With default parameters (period=10, smooth=5), the indicator needs 11 close values for the first raw reading plus 5 bars of EMA convergence, totaling ~16 bars of warmup. The core loop executes $N$ square roots per bar, making it $O(N)$ per update in streaming mode.

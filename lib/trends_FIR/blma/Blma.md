@@ -13,11 +13,10 @@
 | **PineScript**   | [blma.pine](blma.pine)                       |
 | **Signature**    | [blma_signature](blma_signature.md) |
 
-- The Blackman Window Moving Average (BLMA) applies a triple-cosine window function from digital signal processing to financial time series.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- BLMA is a FIR filter that applies a triple-cosine Blackman window function from digital signal processing to financial time series.
+- Best suited as a long-term trend filter due to its superior noise suppression (-58 dB sidelobes) at the cost of ~N/2 lag.
+- **Similar:** [WMA](../wma/wma.md), [TRIMA](../trima/trima.md) | **Complementary:** Trend confirmation | **Trading note:** Blackman-windowed MA; low sidelobe leakage for clean spectral response.
+- Validated against reference implementations using the standard Blackman window formula.
 
 The Blackman Window Moving Average (BLMA) applies a triple-cosine window function from digital signal processing to financial time series. Originally developed by **Ralph Beebe Blackman** at Bell Labs in the 1950s for spectral analysis, this filter provides superior noise suppression compared to standard moving averages by minimizing spectral leakage.
 

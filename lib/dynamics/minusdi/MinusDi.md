@@ -13,9 +13,7 @@
 | **PineScript**   | [minusdi.pine](minusdi.pine)                       |
 
 - The Minus Directional Indicator measures the strength of downward price movement relative to true range.
-- Parameterized by `period` (default 14).
-- Output range: 0 to 100.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [PlusDi](../plusdi/PlusDi.md), [ADX](../adx/Adx.md) | **Complementary:** ADX for trend strength | **Trading note:** Minus Directional Indicator; measures downward movement strength. Part of Wilder's DM system.
 - Validated against TA-Lib, Skender, and Dx equivalence.
 
 The Minus Directional Indicator (-DI) is one component of J. Welles Wilder Jr.'s Directional Movement System. It quantifies the fraction of recent true range attributable to downward price extension. The computation smooths both -DM (minus directional movement) and TR (true range) with Wilder's RMA ($\alpha = 1/N$), then divides: $-DI = 100 \times \text{Smooth}(-DM) / \text{Smooth}(TR)$. When -DI rises, downward price pressure is increasing. When -DI crosses above +DI, it signals a potential bearish trend. The -DI line is commonly plotted alongside +DI to visualize directional balance.

@@ -13,9 +13,7 @@
 | **PineScript**   | [quantile.pine](quantile.pine)                       |
 
 - The Rolling Quantile computes the value below which a given fraction of observations fall within a sliding window.
-- Parameterized by `period`, `quantilelevel` (default 0.25).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Percentile](../percentile/Percentile.md), [IQR](../iqr/Iqr.md) | **Trading note:** Value at specified quantile; Q(0.5) = median, Q(0.95) = 95th percentile for risk analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

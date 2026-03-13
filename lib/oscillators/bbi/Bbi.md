@@ -13,9 +13,7 @@
 | **PineScript**   | [bbi.pine](bbi.pine)                       |
 
 - BBI (Bulls Bears Index) computes the arithmetic mean of four Simple Moving Averages with geometrically spaced periods (3, 6, 12, 24 by default).
-- Parameterized by `p1` (default defaultp1), `p2` (default defaultp2), `p3` (default defaultp3), `p4` (default defaultp4).
-- Output range: Varies (see docs).
-- Requires `Math.Max(Math.Max(p1, p2), Math.Max(p3, p4))` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [BBB](../bbb/Bbb.md), [BBS](../bbs/Bbs.md) | **Complementary:** RSI for overbought/oversold | **Trading note:** Bollinger Band %B indicator; position within bands. >1 = above upper, <0 = below lower.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 BBI (Bulls Bears Index) computes the arithmetic mean of four Simple Moving Averages with geometrically spaced periods (3, 6, 12, 24 by default). The result is a price-overlay line that captures trend consensus across ultra-short, short, medium, and long timeframes simultaneously. Price above BBI signals bullish dominance; price below BBI signals bearish control. The crossover point marks the regime boundary between long and short markets.

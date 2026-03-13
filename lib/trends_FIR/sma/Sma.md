@@ -14,9 +14,7 @@
 | **Signature**    | [sma_signature](sma_signature.md) |
 
 - The Simple Moving Average (SMA) is the unweighted arithmetic mean of the last $N$ data points.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../../trends_IIR/ema/ema.md), [WMA](../wma/wma.md) | **Complementary:** ATR for Keltner-style bands | **Trading note:** Simple Moving Average; equal-weight FIR filter. Most basic and widely used MA. Foundation of many composite indicators.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Simple Moving Average (SMA) is the unweighted arithmetic mean of the last $N$ data points. It acts as a low-pass filter, smoothing out high-frequency noise to reveal the underlying trend. While conceptually simple, efficient implementation on modern hardware requires careful attention to memory access patterns and vectorization.

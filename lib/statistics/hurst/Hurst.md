@@ -13,9 +13,7 @@
 | **PineScript**   | [hurst.pine](hurst.pine)                       |
 
 - The Hurst Exponent ($H$) quantifies long-range dependence in a time series through Rescaled Range (R/S) analysis.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ACF](../acf/Acf.md), [Entropy](../entropy/Entropy.md) | **Trading note:** Hurst exponent; H>0.5 = trending (persistent), H<0.5 = mean-reverting, H=0.5 = random walk.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

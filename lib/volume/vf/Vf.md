@@ -13,9 +13,7 @@
 | **PineScript**   | [vf.pine](vf.pine)                       |
 
 - Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with wa...
-- Parameterized by `period` (default 14).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MFI](../mfi/Mfi.md), [CMF](../cmf/Cmf.md) | **Complementary:** RSI | **Trading note:** Volume Force; measures directional volume pressure. Positive = buyers dominant.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with warmup compensation. The result is a momentum-style oscillator that distinguishes between genuine volume-backed moves and hollow price action.

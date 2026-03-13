@@ -13,9 +13,7 @@
 | **PineScript**   | [ccyc.pine](ccyc.pine)                       |
 
 - CCYC isolates the dominant cycle component from price data using a 2-pole high-pass IIR filter applied to a 4-tap FIR-smoothed input, producing an ...
-- Parameterized by `alpha` (default 0.07).
-- Output range: Varies (see docs).
-- Requires `7` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Ccor](../ccor/Ccor.md), [CG](../cg/cg.md) | **Complementary:** EBSW for trend/cycle mode | **Trading note:** Cyber Cycle; Ehlers' bandpass approach to isolate dominant market cycles.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CCYC isolates the dominant cycle component from price data using a 2-pole high-pass IIR filter applied to a 4-tap FIR-smoothed input, producing an oscillator that strips trend while preserving cyclical content with minimal lag. The companion trigger line (one-bar delay of the cycle output) provides crossover signals for timing entries and exits. Unlike band-pass approaches that require specifying a center frequency, CCYC's high-pass architecture extracts whatever cyclic energy exists above a cutoff controlled by a single $\alpha$ damping parameter, making it adaptive to the dominant period present in the data.

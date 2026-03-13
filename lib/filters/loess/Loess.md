@@ -14,9 +14,7 @@
 | **Signature**    | [loess_signature](loess_signature.md) |
 
 - Locally Estimated Scatterplot Smoothing (LOESS) applies a weighted linear regression over a localized window of nearest neighbors.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `Period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SGF](../sgf/Sgf.md), [NW](../nw/Nw.md) | **Complementary:** Lin reg for trend | **Trading note:** Locally Estimated Scatterplot Smoothing; non-parametric regression. Adapts to local data structure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Locally Estimated Scatterplot Smoothing (LOESS) applies a weighted linear regression over a localized window of nearest neighbors. Unlike simple averaging or global linear regression, LOESS estimates the deterministic trend point-by-point, giving maximum influence to recent data and decaying elegantly at the edges.

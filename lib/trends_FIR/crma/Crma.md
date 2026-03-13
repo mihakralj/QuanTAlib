@@ -14,9 +14,7 @@
 | **Signature**    | [crma_signature](crma_signature.md) |
 
 - CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitt...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SMA](../sma/Sma.md), [TrIMA](../trima/trima.md) | **Complementary:** Trend strength indicators | **Trading note:** Cubic-Root weighted MA; gentle weighting profile between uniform (SMA) and triangular (TrIMA).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitted endpoint value $a_0$. By capturing inflection and curvature that linear and quadratic models miss, CRMA tracks S-shaped reversals and accelerating trends with measurably lower endpoint error than LSMA or QRMA on non-stationary price series. The cost is a 4x4 linear system solve per bar, which is O(1) once power sums are accumulated in O(N).

@@ -13,9 +13,7 @@
 | **PineScript**   | [sum.pine](sum.pine)                       |
 
 - The Sum indicator calculates a rolling window summation using the Kahan-Babuška algorithm (also known as "improved Kahan" or "second-order compensa...
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Trading note:** Rolling sum; cumulative total over lookback window. Building block for many indicators (e.g., OBV, A/D).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Sum indicator calculates a rolling window summation using the Kahan-Babuška algorithm (also known as "improved Kahan" or "second-order compensated summation") for maximum numerical precision. This approach captures rounding errors that even classic Kahan summation misses, making it suitable for numerical libraries, statistics, and trading applications where precision matters.

@@ -13,9 +13,7 @@
 | **PineScript**   | [pmo.pine](pmo.pine)                       |
 
 - PMO (Price Momentum Oscillator), developed by Carl Swenlin at DecisionPoint, is a double-smoothed 1-bar rate of change.
-- Parameterized by `timeperiods` (default defaulttimeperiods), `smoothperiods` (default defaultsmoothperiods), `signalperiods` (default defaultsignalperiods).
-- Output range: Varies (see docs).
-- Requires `timePeriods + smoothPeriods` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [MACD](../macd/Macd.md), [TSI](../tsi/Tsi.md) | **Complementary:** Signal line for crossovers | **Trading note:** Price Momentum Oscillator; double-smoothed ROC. Decisionpoint.com creation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 PMO (Price Momentum Oscillator), developed by Carl Swenlin at DecisionPoint, is a double-smoothed 1-bar rate of change. It applies two custom EMA passes to a percentage ROC, producing a momentum oscillator that is smoother than raw ROC yet more responsive than triple-smoothed alternatives like TRIX. The custom EMA uses $\alpha = 2/N$ rather than the standard $2/(N+1)$, and seeds with the SMA of the first N values. PMO oscillates around zero: positive values indicate upward momentum, negative values indicate downward momentum.

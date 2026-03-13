@@ -14,9 +14,7 @@
 
 - The Relative Volatility Index (RVI) implements Dorsey's **revised (1995)** version: computes original RVI separately on High and Low series, then averages.
 - When fed single-price data (TValue), both channels receive the same value, reducing to the original (1993) formula.
-- Parameterized by `stdevLength` (default 10), `rmaLength` (default 14).
-- Output range: $0$ to $100$.
-- Requires `stdevLength` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HV](../hv/hv.md), [ATR](../atr/atr.md) | **Complementary:** Bollinger Bands | **Trading note:** Relative Volatility Index; direction of volatility.
 - Validated against FM Labs revised RVI specification.
 
 The Relative Volatility Index (RVI) is a directional volatility oscillator that distinguishes between upward and downward price volatility. Originally developed by Donald Dorsey in 1993 using close prices only, RVI was **revised in 1995** to compute separate RVI values on the High and Low price series and average them. This implementation follows the revised version: when fed OHLCV bars (TBar), it runs independent RVI channels on High and Low; when fed single prices (TValue), both channels receive the same value, reducing to the original formula.

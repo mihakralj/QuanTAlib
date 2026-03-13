@@ -13,9 +13,7 @@
 | **PineScript**   | [yzvama.pine](yzvama.pine)                       |
 
 - Most adaptive moving averages measure volatility using close-to-close changes (standard deviation) or high-low ranges (ATR).
-- Parameterized by `yzvshortperiod` (default 3), `yzvlongperiod` (default 50), `percentilelookback` (default 100), `minlength` (default 5), `maxlength` (default 100).
-- Output range: Tracks input.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [VAMA](../vama/vama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** Yang-Zhang volatility | **Trading note:** Yang-Zhang Volatility-Adjusted MA; adapts using YZ volatility estimator.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## The Core Insight

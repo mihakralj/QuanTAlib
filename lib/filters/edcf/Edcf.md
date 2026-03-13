@@ -14,9 +14,7 @@
 | **Signature**    | [edcf_signature](edcf_signature.md) |
 
 - The **Ehlers Distance Coefficient Filter (EDCF)** is a nonlinear adaptive FIR filter created by John F.
-- Parameterized by `length` (default 15).
-- Output range: Tracks input.
-- Requires `length` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [HP](../hp/Hp.md), [SSF2](../ssf2/Ssf2.md) | **Complementary:** Cycle period detection | **Trading note:** Ehlers Distance Coefficient Filter; adapts to dominant cycle period.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

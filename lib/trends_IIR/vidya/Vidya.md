@@ -14,9 +14,7 @@
 | **Signature**    | [vidya_signature](vidya_signature.md) |
 
 - The Variable Index Dynamic Average (VIDYA) is an adaptive moving average that automatically adjusts its smoothing speed based on market volatility.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KAMA](../kama/kama.md), [FRAMA](../frama/frama.md) | **Complementary:** CMO (used internally) | **Trading note:** Chandes Variable Index Dynamic Average; adapts via CMO ratio.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Variable Index Dynamic Average (VIDYA) is an adaptive moving average that automatically adjusts its smoothing speed based on market volatility. When the market is trending (high volatility), VIDYA speeds up to capture the move. When the market is ranging (low volatility), it slows down to filter out the noise.

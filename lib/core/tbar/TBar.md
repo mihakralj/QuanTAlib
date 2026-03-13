@@ -11,8 +11,6 @@
 
 - `TBar` is a lightweight, immutable struct representing a single OHLCV (Open, High, Low, Close, Volume) bar.
 - No configurable parameters; computation is stateless per bar.
-- Output range: Varies (see docs).
-- Requires 1 bar of warmup before first valid output (IsHot = true).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## What It Does

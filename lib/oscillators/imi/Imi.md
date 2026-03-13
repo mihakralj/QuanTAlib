@@ -13,9 +13,7 @@
 | **PineScript**   | [imi.pine](imi.pine)                       |
 
 - The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-clo...
-- Parameterized by `period` (default 14).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../../momentum/rsi/Rsi.md), [MFI](../../volume/mfi/Mfi.md) | **Complementary:** Volume | **Trading note:** Intraday Momentum Index; RSI variant using open-close relationship. Measures intrabar conviction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-close changes used by RSI. Each bar is classified as a gain (close > open) or loss (close < open), with the magnitude being the absolute open-close difference. Rolling sums of gains and losses over the lookback period produce an RSI-like ratio scaled to 0-100. This bridges Japanese candlestick analysis with Western oscillator theory: bullish candles contribute to the gain sum, bearish candles contribute to the loss sum. Unlike RSI, IMI does not require a previous close and uses simple rolling sums rather than exponential smoothing, making it more responsive but noisier. Output is bounded 0-100 with conventional overbought (>70) and oversold (<30) zones.

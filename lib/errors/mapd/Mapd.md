@@ -13,9 +13,7 @@
 | **PineScript**   | [mapd.pine](mapd.pine)                       |
 
 - Mean Absolute Percentage Deviation (MAPD) measures the average absolute percentage difference between actual and predicted values, using the predic...
-- Parameterized by `period`.
-- Output range: $\geq 0$.
-- Requires 1 bar of warmup before first valid output (IsHot = true).
+- **Similar:** [MAPE](../mape/Mape.md), [WMAPE](../wmape/Wmape.md) | **Trading note:** Mean Absolute Percentage Deviation; total absolute error divided by total actual values.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Mean Absolute Percentage Deviation (MAPD) measures the average absolute percentage difference between actual and predicted values, using the predicted value as the denominator. This is the key difference from MAPE, which uses the actual value.

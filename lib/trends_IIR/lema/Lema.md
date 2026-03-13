@@ -14,9 +14,7 @@
 | **Signature**    | [lema_signature](lema_signature.md) |
 
 - LEMA (Leader EMA) adds a smoothed error correction to the standard EMA, creating a moving average that anticipates price movement.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../ema/ema.md) | **Complementary:** Trend following | **Trading note:** Leading EMA; forward-shifted to reduce lag.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 LEMA (Leader EMA) adds a smoothed error correction to the standard EMA, creating a moving average that anticipates price movement. The formula $\text{LEMA} = \text{EMA}(x, N) + \text{EMA}(x - \text{EMA}(x, N), N)$ decomposes price into a smooth component (EMA) and an error component (residual), then re-smooths the error and adds it back. The re-smoothed error represents the systematic part of the EMA's tracking deficit, and adding it back shifts the output toward where the next price is likely to be.

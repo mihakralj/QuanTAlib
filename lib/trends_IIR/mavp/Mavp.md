@@ -13,9 +13,7 @@
 | **PineScript**   | [mavp.pine](mavp.pine)                       |
 
 - MAVP applies an EMA-style exponential smoothing where the period -- and therefore the smoothing constant alpha -- changes on every bar.
-- Parameterized by `minperiod` (default 2), `maxperiod` (default 30).
-- Output range: Tracks input.
-- Requires `maxPeriod` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** Adaptive period selection | **Trading note:** MA with Variable Period; dynamically adjusts lookback period.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

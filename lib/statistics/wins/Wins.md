@@ -13,9 +13,7 @@
 | **PineScript**   | [wins.pine](wins.pine)                       |
 
 - The Winsorized Mean Moving Average computes a rolling average after replacing (not discarding) the most extreme values in each tail with the bounda...
-- Parameterized by `period`, `winpct` (default 10.0).
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Trim](../trim/Trim.md), [Percentile](../percentile/Percentile.md) | **Trading note:** Winsorized mean; replaces extreme values instead of removing them. Preserves sample size.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Winsorized Mean Moving Average computes a rolling average after replacing (not discarding) the most extreme values in each tail with the boundary values at the trim point. Unlike the trimmed mean (TRIM) which removes outliers entirely, Winsorization preserves the full sample size by clamping extreme values to the nearest non-extreme observation. At `winPct = 0` it degenerates to the SMA; at `winPct = 50` all values equal the median pair. The default 10% Winsorization provides a robust central tendency estimator that dampens outlier impact while maintaining the statistical efficiency advantages of the full sample size.

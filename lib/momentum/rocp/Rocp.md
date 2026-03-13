@@ -13,9 +13,7 @@
 | **PineScript**   | [rocp.pine](rocp.pine)                       |
 
 - ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago.
-- Parameterized by `period` (default 9).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROC](../roc/Roc.md), [ROCR](../rocr/Rocr.md) | **Complementary:** Volume ROC | **Trading note:** Rate of Change Percentage; decimal form of ROC (0.05 = 5%).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago. This is the most commonly used form of rate of change, expressing change in percentage terms that are directly interpretable (e.g., 5.0 = 5% increase).

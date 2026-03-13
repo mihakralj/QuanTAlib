@@ -13,9 +13,7 @@
 | **PineScript**   | [bias.pine](bias.pine)                       |
 
 - The Bias indicator measures the percentage difference between the current price and its Simple Moving Average (SMA).
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROC](../roc/Roc.md), [CFO](../../oscillators/cfo/Cfo.md) | **Complementary:** Moving average for signal | **Trading note:** Price bias from moving average; (Price−MA)/MA × 100. Mean-reversion signal at extremes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Bias indicator measures the percentage difference between the current price and its Simple Moving Average (SMA). A positive bias indicates price is above the average (potentially overbought), while negative bias suggests price is below average (potentially oversold). This is one of the simplest yet most effective tools for identifying mean-reversion opportunities.

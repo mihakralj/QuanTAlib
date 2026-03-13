@@ -14,9 +14,7 @@
 | **Signature**    | [zltema_signature](zltema_signature.md) |
 
 - ZLTEMA takes a standard TEMA and feeds it a **zero-lag signal**: current price minus a lagged price.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `Math.Max(lag + 1, EstimateWarmupPeriod(beta))` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ZLEMA](../zlema/zlema.md), [TEMA](../tema/tema.md) | **Complementary:** Signal line crossovers | **Trading note:** Zero-Lag TEMA; combines zero-lag with triple-exponential.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## TEMA with lag compensation via a zero-lag signal

@@ -13,9 +13,7 @@
 | **PineScript**   | [theil.pine](theil.pine)                       |
 
 - The Theil T Index is an information-theoretic measure of inequality (or concentration) within a distribution of positive values.
-- Parameterized by `period`.
-- Output range: Varies (see docs).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Correlation](../correlation/Correlation.md), [LinReg](../linreg/LinReg.md) | **Trading note:** Theil–Sen estimator; robust slope calculation using medians of pairwise slopes. Resistant to outliers.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction

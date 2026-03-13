@@ -13,9 +13,7 @@
 | **PineScript**   | [rocr.pine](rocr.pine)                       |
 
 - ROCR (Rate of Change Ratio) calculates the ratio between the current value and the value N periods ago.
-- Parameterized by `period` (default 9).
-- Output range: Varies (see docs).
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [ROC](../roc/Roc.md), [ROCP](../rocp/Rocp.md) | **Complementary:** Trend filters | **Trading note:** Rate of Change Ratio; Price(t)/Price(t−n). Ratio form centered on 1.0.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ROCR (Rate of Change Ratio) calculates the ratio between the current value and the value N periods ago. Values hover around 1.0, with values above 1.0 indicating price increase and values below 1.0 indicating price decrease. Unlike ROC (absolute) or ROCP (percentage), ROCR provides a dimensionless multiplier that directly shows the price ratio.

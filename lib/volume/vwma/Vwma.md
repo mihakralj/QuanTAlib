@@ -13,9 +13,7 @@
 | **PineScript**   | [vwma.pine](vwma.pine)                       |
 
 - VWMA (Volume Weighted Moving Average) calculates a moving average where each price is weighted by its corresponding volume over a specified lookbac...
-- Parameterized by `period` (default 20).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EVWMA](../evwma/Evwma.md), [SMA](../../trends_FIR/sma/Sma.md) | **Complementary:** OBV | **Trading note:** Volume-Weighted MA; weights price by volume. More responsive during high-volume bars.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 VWMA (Volume Weighted Moving Average) calculates a moving average where each price is weighted by its corresponding volume over a specified lookback period. Unlike VWAP which accumulates from a reset point, VWMA uses a sliding window that continuously drops old values, making it a true moving average. Bars with higher volume contribute more to the average, surfacing price levels where institutional activity concentrated.

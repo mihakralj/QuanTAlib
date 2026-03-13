@@ -13,9 +13,7 @@
 | **PineScript**   | [efi.pine](efi.pine)                       |
 
 - Elder's Force Index (EFI) quantifies the buying and selling pressure behind price movements by multiplying price change by volume.
-- Parameterized by `period` (default 13).
-- Output range: Unbounded.
-- Requires `> period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [FI](../../oscillators/fi/Fi.md), [MFI](../mfi/Mfi.md) | **Complementary:** EMA for smoothing | **Trading note:** Elder Force Index; price change × volume. Smoothed version identifies trend changes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Elder's Force Index (EFI) quantifies the buying and selling pressure behind price movements by multiplying price change by volume. Large positive values indicate strong buying pressure (bulls in control), while large negative values reveal strong selling pressure (bears dominant).

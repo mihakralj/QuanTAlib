@@ -13,9 +13,7 @@
 | **PineScript**   | [pchannel.pine](pchannel.pine)                       |
 
 - Price Channel tracks the highest high and lowest low over a lookback period with a midpoint average, creating a three-line price envelope that defi...
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [DChannel](../dchannel/dchannel.md), [MMChannel](../mmchannel/mmchannel.md) | **Complementary:** Volume confirmation on breakouts | **Trading note:** Price channel based on percentage offset from midpoint.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Price Channel tracks the highest high and lowest low over a lookback period with a midpoint average, creating a three-line price envelope that defines where the market has been. Functionally identical to Donchian Channels, the indicator uses actual price extremes rather than volatility estimates, producing bands that represent real support and resistance levels. This implementation uses monotonic deques for O(1) amortized updates instead of the naive O(n) rescan that most platforms use internally.

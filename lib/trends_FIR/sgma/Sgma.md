@@ -14,9 +14,7 @@
 | **Signature**    | [sgma_signature](sgma_signature.md) |
 
 - SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inf...
-- Parameterized by `period` (default 9), `degree` (default 2).
-- Output range: Tracks input.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SGF](../../filters/sgf/Sgf.md), [LSMA](../lsma/lsma.md) | **Trading note:** Savitzky-Golay MA; polynomial smoothing that preserves higher moments. Good for derivative estimation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inflection points). Unlike the Simple Moving Average (which flattens everything) or the Exponential Moving Average (which introduces phase lag), SGMA uses polynomial weighting to maintain the original signal's shape characteristics.

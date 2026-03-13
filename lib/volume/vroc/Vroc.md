@@ -13,9 +13,7 @@
 | **PineScript**   | [vroc.pine](vroc.pine)                       |
 
 - VROC (Volume Rate of Change) measures the percentage or absolute change in volume over a specified lookback period.
-- Parameterized by `period` (default 12), `usepercent` (default true).
-- Output range: Unbounded.
-- Requires `> period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [VO](../vo/Vo.md), [PVO](../pvo/Pvo.md) | **Complementary:** Price ROC | **Trading note:** Volume Rate of Change; percentage change in volume. Spikes indicate potential breakouts.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 VROC (Volume Rate of Change) measures the percentage or absolute change in volume over a specified lookback period. Unlike moving average-based volume indicators that smooth data, VROC provides a direct comparison between current volume and historical volume, making it particularly useful for detecting sudden volume surges or contractions that may signal significant market events.

@@ -13,9 +13,7 @@
 | **PineScript**   | [cci.pine](cci.pine)                       |
 
 - The Commodity Channel Index (CCI) is a versatile momentum-based oscillator developed by Donald Lambert in 1980.
-- Parameterized by `period` (default 20).
-- Output range: Varies (see docs).
-- Requires `period` bars (20 default) of warmup before first valid output (IsHot = true).
+- **Similar:** [RSI](../rsi/Rsi.md), [Stoch](../../oscillators/stoch/Stoch.md) | **Complementary:** ADX for trend filter | **Trading note:** Commodity Channel Index; measures deviation from statistical mean. ±100 = overbought/oversold.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Overview

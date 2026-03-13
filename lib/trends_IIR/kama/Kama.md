@@ -14,9 +14,7 @@
 | **Signature**    | [kama_signature](kama_signature.md) |
 
 - KAMA (Kaufman's Adaptive Moving Average) is an intelligent moving average that adjusts its smoothing speed based on market noise.
-- Parameterized by `period` (default 10), `fastperiod` (default 2), `slowperiod` (default 30).
-- Output range: Tracks input.
-- Requires `period + 1` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [FRAMA](../frama/frama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** ADX to confirm trend | **Trading note:** Kaufmans Adaptive MA; efficiency ratio adjusts speed.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 KAMA (Kaufman's Adaptive Moving Average) is an intelligent moving average that adjusts its smoothing speed based on market noise. When the price is moving steadily (high signal-to-noise ratio), KAMA speeds up to capture the trend. When the price is chopping sideways (low signal-to-noise ratio), KAMA slows down to filter out the noise.

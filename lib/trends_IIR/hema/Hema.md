@@ -14,9 +14,7 @@
 | **Signature**    | [hema_signature](hema_signature.md) |
 
 - HEMA is a Hull-style moving average built entirely from **exponential smoothers**.
-- Parameterized by `period`.
-- Output range: Tracks input.
-- Requires `EstimateWarmupPeriod()` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [EMA](../ema/ema.md), [DEMA](../dema/dema.md) | **Complementary:** Trend following | **Trading note:** Hull-style EMA; applies Hulls lag-reduction technique to EMA.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## An EMA-domain analog of HMA with WMA-lag-matched alphas

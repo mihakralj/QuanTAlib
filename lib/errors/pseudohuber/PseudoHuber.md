@@ -13,9 +13,7 @@
 | **PineScript**   | [pseudohuber.pine](pseudohuber.pine)                       |
 
 - Pseudo-Huber Loss (also called Charbonnier Loss) is a smooth approximation to the Huber loss function.
-- Parameterized by `period`, `delta` (default 1.0).
-- Output range: $\geq 0$.
-- Requires `period` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Huber](../huber/Huber.md), [LogCosh](../logcosh/LogCosh.md) | **Trading note:** Smooth approximation to Huber loss; continuously differentiable with tunable delta parameter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Pseudo-Huber Loss (also called Charbonnier Loss) is a smooth approximation to the Huber loss function. Unlike Huber which has a piecewise definition with a kink at δ, Pseudo-Huber is continuously differentiable everywhere, making it ideal for gradient-based optimization.

@@ -12,11 +12,9 @@
 | **Warmup**       | `period` bars                          |
 
 - MAXINDEX finds the position (index) of the maximum value within a rolling lookback window.
-- Parameterized by `period` (minimum 2).
 - Streaming mode outputs bars-ago offset (0 = current bar holds the max, period-1 = oldest bar).
 - Batch span mode outputs absolute array indices (TA-Lib MAXINDEX compatible).
 - Tie-breaking: last occurrence wins (most recent bar, `>=` comparison).
-- Requires `period` bars of warmup before first valid output (IsHot = true).
 - Cross-validation: `source[Maxindex.Batch[i]] == Highest.Batch[i]` for all bars after warmup.
 
 MAXINDEX identifies the position of the maximum value within a rolling window. While HIGHEST tells you the peak *value*, MAXINDEX tells you *where* that peak is relative to the current bar. This is essential for pattern recognition, timing analysis, and detecting how "stale" a high is.

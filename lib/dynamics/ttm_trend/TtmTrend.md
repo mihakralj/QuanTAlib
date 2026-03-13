@@ -13,9 +13,7 @@
 | **PineScript**   | [TtmTrend.pine](TtmTrend.pine)                       |
 
 - John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign.
-- Parameterized by `period` (default defaultperiod).
-- Output range: Varies (see docs).
-- Requires `> 2` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [Impulse](../impulse/Impulse.md), [AMAT](../amat/Amat.md) | **Complementary:** TTM Squeeze for timing | **Trading note:** John Carter's trend indicator; colors bars based on close vs midpoint of prior 5-bar range.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 John Carter's TTM Trend uses a fast EMA (default period 6) applied to typical price (HLC/3) to determine short-term trend direction via slope sign. Output is a ternary trend state: +1 (bullish, EMA rising), -1 (bearish, EMA falling), or 0 (neutral, EMA unchanged). The indicator requires only 2 bars warmup, runs at O(1) per bar with O(1) space, and produces zero allocations in the hot path.

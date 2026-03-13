@@ -13,9 +13,7 @@
 | **PineScript**   | [roofing.pine](roofing.pine)                       |
 
 - The **Roofing Filter** is John Ehlers' bandpass architecture designed specifically for oscillator construction.
-- Parameterized by `hplength` (default 48), `sslength` (default 10).
-- Output range: Oscillates around zero (bandpass behavior).
-- Requires `hpLength` bars of warmup before first valid output (IsHot = true). Default: **48 bars**.
+- **Similar:** [HPF](../hpf/Hpf.md), [SSF2](../ssf2/Ssf2.md) | **Complementary:** Cycle indicators | **Trading note:** Ehlers' roofing filter; combines high-pass + super smoother. Isolates tradeable cycle band.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The **Roofing Filter** is John Ehlers' bandpass architecture designed specifically for oscillator construction. It cascades a 2nd-order Butterworth Highpass (to strip trend) with a Super Smoother Lowpass (to strip noise), passing only the cyclic energy within a user-defined frequency band. The output oscillates around zero, with zero crossings serving as directional signals.

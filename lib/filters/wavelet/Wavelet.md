@@ -15,9 +15,7 @@
 
 
 - The Wavelet Denoising Filter applies an *à trous* (with holes) Haar wavelet decomposition with soft thresholding to remove high-frequency noise fro...
-- Parameterized by `levels` (default 4), `threshmult` (default 1.0).
-- Output range: Tracks input.
-- Requires `2^levels` bars of warmup before first valid output (IsHot = true).
+- **Similar:** [SGF](../sgf/Sgf.md), [Modf](../modf/Modf.md) | **Complementary:** Multi-timeframe analysis | **Trading note:** Wavelet denoising; multi-resolution analysis separates signal at different time scales.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ## Introduction
