@@ -32,13 +32,12 @@ public sealed class Cfo : AbstractBase
     private record struct State(
         double SumY,
         double SumXY,
+        double SumYComp,
+        double SumXYComp,
         int Count,
         double LastValid);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
-    private int _tickCount;
 
     /// <summary>
     /// Creates CFO with specified period.
@@ -100,29 +99,50 @@ public sealed class Cfo : AbstractBase
         {
             _p_state = _state;
 
-            // O(1) incremental sumXY maintenance (PineScript algorithm)
+            // Kahan compensated O(1) incremental sumXY maintenance
             if (_buffer.Count == _buffer.Capacity)
             {
                 double oldest = _buffer.Oldest;
-                _state.SumY -= oldest;
-                _state.SumXY -= _state.SumY;
-                _state.SumXY += (_period - 1) * value;
+                // Kahan delta for SumY
+                {
+                    double delta = value - oldest;
+                    double y = delta - _state.SumYComp;
+                    double t = _state.SumY + y;
+                    _state.SumYComp = (t - _state.SumY) - y;
+                    _state.SumY = t;
+                }
+                // SumXY: net delta = -(SumY_old - oldest) + (period-1)*value
+                // Since SumY already updated: SumY_old - oldest = SumY_new - value
+                // So net delta = -(SumY_new - value) + (period-1)*value = -SumY_new + period*value
+                {
+                    double netDelta = -_state.SumY + (_period * value);
+                    double y = netDelta - _state.SumXYComp;
+                    double t = _state.SumXY + y;
+                    _state.SumXYComp = (t - _state.SumXY) - y;
+                    _state.SumXY = t;
+                }
             }
             else
             {
-                _state.SumXY += _state.Count * value;
+                // Warmup: Kahan addition for SumY
+                {
+                    double y = value - _state.SumYComp;
+                    double t = _state.SumY + y;
+                    _state.SumYComp = (t - _state.SumY) - y;
+                    _state.SumY = t;
+                }
+                // Kahan addition for SumXY
+                {
+                    double addXY = _state.Count * value;
+                    double y = addXY - _state.SumXYComp;
+                    double t = _state.SumXY + y;
+                    _state.SumXYComp = (t - _state.SumXY) - y;
+                    _state.SumXY = t;
+                }
                 _state.Count++;
             }
 
-            _state.SumY += value;
             _buffer.Add(value);
-
-            _tickCount++;
-            if (_buffer.IsFull && _tickCount >= ResyncInterval)
-            {
-                _tickCount = 0;
-                RecalculateSums();
-            }
         }
         else
         {
@@ -199,7 +219,6 @@ public sealed class Cfo : AbstractBase
         _buffer.Clear();
         _state = default;
         _p_state = default;
-        _tickCount = 0;
         Last = default;
     }
 

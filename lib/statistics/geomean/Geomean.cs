@@ -13,8 +13,8 @@ namespace QuanTAlib;
 /// multiplying many values directly.
 ///
 /// The running sum of logs enables O(1) updates: add ln(new), subtract ln(old).
-/// Kahan-Babuška summation prevents floating-point drift in the log accumulator.
-/// Periodic resync (every 1000 ticks) guards against long-running drift.
+/// Kahan-Babuška compensated summation prevents floating-point drift in the log accumulator,
+/// eliminating the need for periodic resynchronization.
 ///
 /// Non-positive values are replaced with the last valid positive value, since
 /// ln(x) is undefined for x ≤ 0. For price series (always positive), this
@@ -23,7 +23,6 @@ namespace QuanTAlib;
 /// Key Features:
 /// - O(1) time complexity per update via running sum of logs
 /// - Kahan-Babuška compensated summation for numerical stability
-/// - Periodic resync every 1000 ticks to limit FP drift
 /// - NaN/Infinity/non-positive substitution with last valid value
 ///
 /// IsHot:
@@ -43,13 +42,10 @@ public sealed class Geomean : AbstractBase
         public double C;              // Kahan primary compensation
         public double Cc;             // Kahan secondary compensation (Babuška)
         public double LastValidValue;
-        public int TickCount;
     }
 
     private State _s;
     private State _ps;
-
-    private const int ResyncInterval = 1000;
 
     public Geomean(int period)
     {
@@ -208,13 +204,6 @@ public sealed class Geomean : AbstractBase
 
             _buffer.Add(val);
             KahanAdd(logVal);
-
-            _s.TickCount++;
-            if (_buffer.IsFull && _s.TickCount >= ResyncInterval)
-            {
-                _s.TickCount = 0;
-                RecalculateSumLog();
-            }
         }
         else
         {
@@ -295,8 +284,9 @@ public sealed class Geomean : AbstractBase
             return;
         }
 
-        // Use simple sliding-window log sum for batch
+        // Use Kahan compensated sliding-window log sum for batch
         double sumLog = 0;
+        double sumLogComp = 0;     // Kahan compensation
         double lastValid = double.NaN;
         int count = 0;
 
@@ -344,7 +334,11 @@ public sealed class Geomean : AbstractBase
 
                 if (count == period)
                 {
-                    sumLog -= ring[head];
+                    // Kahan subtract old log
+                    double ys = -ring[head] - sumLogComp;
+                    double ts = sumLog + ys;
+                    sumLogComp = (ts - sumLog) - ys;
+                    sumLog = ts;
                 }
                 else
                 {
@@ -352,7 +346,15 @@ public sealed class Geomean : AbstractBase
                 }
 
                 ring[head] = logVal;
-                sumLog += logVal;
+
+                // Kahan add new log
+                {
+                    double ys = logVal - sumLogComp;
+                    double ts = sumLog + ys;
+                    sumLogComp = (ts - sumLog) - ys;
+                    sumLog = ts;
+                }
+
                 head = (head + 1) % period;
 
                 output[i] = Math.Exp(sumLog / count);

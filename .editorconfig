@@ -63,6 +63,7 @@ resharper_generic_enumerator_not_disposed_highlighting = hint
 # Sonar rule suppressions (synced from sonar-suppressions.json)
 # See sonar-suppressions.json for detailed justifications
 dotnet_diagnostic.S107.severity = none
+dotnet_diagnostic.S1199.severity = none
 dotnet_diagnostic.S109.severity = none
 dotnet_diagnostic.S122.severity = none
 dotnet_diagnostic.S134.severity = none

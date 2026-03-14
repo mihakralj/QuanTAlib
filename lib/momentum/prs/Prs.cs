@@ -148,14 +148,17 @@ public sealed class Prs : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double baseValue, double compValue, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, baseValue), new TValue(DateTime.UtcNow, compValue), isNew);
+        DateTime now = DateTime.UtcNow;
+        return Update(new TValue(now, baseValue), new TValue(now, compValue), isNew);
     }
-    /// <remarks>Not supported for bi-input indicator. Use Update(baseValue, compValue) instead.</remarks>
+    /// <summary>Not supported for bi-input indicator. Use Update(baseValue, compValue) instead.</summary>
+    /// <remarks>PRS requires paired base/comparison inputs; single-input updates are invalid.</remarks>
     public override TValue Update(TValue input, bool isNew = true)
     {
         throw new NotSupportedException("PRS requires two inputs (base and comparison). Use Update(baseValue, compValue).");
     }
-    /// <remarks>Not supported for bi-input indicator. Use Calculate(baseSeries, compSeries, period) instead.</remarks>
+    /// <summary>Not supported for bi-input indicator. Use Calculate(baseSeries, compSeries, period) instead.</summary>
+    /// <remarks>PRS requires paired base/comparison series; single-series updates are invalid.</remarks>
     public override TSeries Update(TSeries source)
     {
         throw new NotSupportedException("PRS requires two inputs. Use Batch(baseSeries, compSeries, period).");

@@ -10,6 +10,8 @@ namespace QuanTAlib;
 /// <remarks>
 /// The Linear Regression Curve plots the end point of the linear regression line for each bar.
 /// It fits a straight line y = mx + b to the data points using the least squares method.
+/// Uses Kahan compensated summation for numerical stability of running sums,
+/// eliminating the need for periodic resynchronization.
 ///
 /// Calculation:
 /// Uses linear regression y = mx + b where x=0 is the current bar and x increases into the past.
@@ -37,13 +39,13 @@ public sealed class LinReg : AbstractBase
     private readonly double _denominator;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumY, double SumXY, double SumY2, double LastVal, double LastValidValue);
+    private record struct State(
+        double SumY, double SumXY, double SumY2, double LastVal, double LastValidValue,
+        double SumYComp, double SumXYComp, double SumY2Comp);
     private State _state;
     private State _p_state;
     private readonly TValuePublishedHandler _handler;
 
-    private int _tickCount;
-    private const int ResyncInterval = 1000;
     private const double MinDenominator = 1e-10;
 
     /// <summary>
@@ -125,27 +127,59 @@ public sealed class LinReg : AbstractBase
             double oldest = _buffer.Oldest;
             double prev_sum_y = _state.SumY;
 
-            // O(1) update for sum_xy
+            // O(1) update for sum_xy with Kahan compensation
             // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-            _state.SumXY = _state.SumXY + prev_sum_y - _period * oldest;
+            {
+                double delta = prev_sum_y - _period * oldest;
+                double y = delta - _state.SumXYComp;
+                double t = _state.SumXY + y;
+                _state.SumXYComp = (t - _state.SumXY) - y;
+                _state.SumXY = t;
+            }
 
-            // O(1) update for sum_y
-            _state.SumY = _state.SumY - oldest + val;
+            // O(1) update for sum_y with Kahan: subtract oldest, add val
+            {
+                double delta = val - oldest;
+                double y = delta - _state.SumYComp;
+                double t = _state.SumY + y;
+                _state.SumYComp = (t - _state.SumY) - y;
+                _state.SumY = t;
+            }
 
-            // O(1) update for sum_y2
-            _state.SumY2 = Math.FusedMultiplyAdd(-oldest, oldest, _state.SumY2);
-            _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
+            // O(1) update for sum_y2 with Kahan: subtract oldest², add val²
+            {
+                double delta = val * val - oldest * oldest;
+                double y = delta - _state.SumY2Comp;
+                double t = _state.SumY2 + y;
+                _state.SumY2Comp = (t - _state.SumY2) - y;
+                _state.SumY2 = t;
+            }
 
             _buffer.Add(val);
         }
         else
         {
             _buffer.Add(val);
-            _state.SumY += val;
-            _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
+
+            // Kahan add val to SumY
+            {
+                double y = val - _state.SumYComp;
+                double t = _state.SumY + y;
+                _state.SumYComp = (t - _state.SumY) - y;
+                _state.SumY = t;
+            }
+
+            // Kahan add val² to SumY2
+            {
+                double y = (val * val) - _state.SumY2Comp;
+                double t = _state.SumY2 + y;
+                _state.SumY2Comp = (t - _state.SumY2) - y;
+                _state.SumY2 = t;
+            }
 
             // Recalculate sum_xy from scratch during warmup
             _state.SumXY = 0;
+            _state.SumXYComp = 0;
             var span = _buffer.GetSpan();
             for (int i = 0; i < span.Length; i++)
             {
@@ -153,29 +187,6 @@ public sealed class LinReg : AbstractBase
                 int x = span.Length - 1 - i;
                 _state.SumXY = Math.FusedMultiplyAdd(x, span[i], _state.SumXY);
             }
-        }
-
-        _tickCount++;
-        if (_buffer.IsFull && _tickCount >= ResyncInterval)
-        {
-            _tickCount = 0;
-            Resync();
-        }
-    }
-
-    private void Resync()
-    {
-        _state.SumY = _buffer.Sum;
-        _state.SumXY = 0;
-        var span = _buffer.GetSpan();
-
-        // Vectorized SumY2
-        _state.SumY2 = span.DotProduct(span);
-
-        for (int i = 0; i < span.Length; i++)
-        {
-            int x = span.Length - 1 - i;
-            _state.SumXY = Math.FusedMultiplyAdd(x, span[i], _state.SumXY);
         }
     }
 
@@ -196,9 +207,12 @@ public sealed class LinReg : AbstractBase
             double val = GetValidValue(input.Value);
 
             _state.SumY = _p_state.SumY - _p_state.LastVal + val;
+            _state.SumYComp = _p_state.SumYComp;
             _state.SumY2 = Math.FusedMultiplyAdd(-_p_state.LastVal, _p_state.LastVal, _p_state.SumY2);
             _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
+            _state.SumY2Comp = _p_state.SumY2Comp;
             _state.SumXY = _p_state.SumXY; // Unchanged: newest value at x=0 contributes 0 to sum_xy
+            _state.SumXYComp = _p_state.SumXYComp;
 
             _buffer.UpdateNewest(val);
             _state.LastVal = val;
@@ -368,6 +382,8 @@ public sealed class LinReg : AbstractBase
 
             double sum_y = 0;
             double sum_xy = 0;
+            double sumYComp = 0;        // Kahan compensation for sum_y
+            double sumXYComp = 0;       // Kahan compensation for sum_xy
             double lastValid = initialLastValid;
             int bufferIndex = 0;
             int count = 0;
@@ -426,6 +442,9 @@ public sealed class LinReg : AbstractBase
                     if (count == period)
                     {
                         bufferIndex = 0;
+                        // Reset Kahan compensation at transition to sliding window
+                        sumYComp = 0;
+                        sumXYComp = 0;
                     }
                 }
                 else
@@ -433,8 +452,24 @@ public sealed class LinReg : AbstractBase
                     double oldest = buffer[bufferIndex];
                     double prev_sum_y = sum_y;
 
-                    sum_xy = sum_xy + prev_sum_y - period * oldest;
-                    sum_y = sum_y - oldest + val;
+                    // Kahan compensated update for sum_xy
+                    {
+                        double delta = prev_sum_y - period * oldest;
+                        double y = delta - sumXYComp;
+                        double t = sum_xy + y;
+                        sumXYComp = (t - sum_xy) - y;
+                        sum_xy = t;
+                    }
+
+                    // Kahan compensated update for sum_y
+                    {
+                        double delta = val - oldest;
+                        double y = delta - sumYComp;
+                        double t = sum_y + y;
+                        sumYComp = (t - sum_y) - y;
+                        sum_y = t;
+                    }
+
                     buffer[bufferIndex] = val;
 
                     bufferIndex++;
@@ -471,7 +506,6 @@ public sealed class LinReg : AbstractBase
         _state = default;
         _p_state = default;
         Last = default;
-        _tickCount = 0;
         Slope = 0;
         Intercept = 0;
         RSquared = 0;

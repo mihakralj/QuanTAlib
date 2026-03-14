@@ -39,17 +39,17 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     private TBarSeries? _source;
     private bool _disposed;
 
-    private const int ResyncInterval = 1000;
-
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double SumAdjHigh,
         double SumAdjLow,
         double SumClose,
+        double SumAdjHighComp,
+        double SumAdjLowComp,
+        double SumCloseComp,
         double LastValidHigh,
         double LastValidLow,
-        double LastValidClose,
-        int TickCount
+        double LastValidClose
     );
     private State _state;
     private State _p_state;
@@ -208,22 +208,27 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         double removedAdjLow = _adjLowBuffer.Count == _adjLowBuffer.Capacity ? _adjLowBuffer.Oldest : 0.0;
         double removedClose = _closeBuffer.Count == _closeBuffer.Capacity ? _closeBuffer.Oldest : 0.0;
 
-        _state.SumAdjHigh = _state.SumAdjHigh - removedAdjHigh + adjHigh;
-        _state.SumAdjLow = _state.SumAdjLow - removedAdjLow + adjLow;
-        _state.SumClose = _state.SumClose - removedClose + close;
+        // Kahan compensated summation for SumAdjHigh
+        double ahDelta = adjHigh - removedAdjHigh - _state.SumAdjHighComp;
+        double ahNewSum = _state.SumAdjHigh + ahDelta;
+        _state.SumAdjHighComp = (ahNewSum - _state.SumAdjHigh) - ahDelta;
+        _state.SumAdjHigh = ahNewSum;
+
+        // Kahan compensated summation for SumAdjLow
+        double alDelta = adjLow - removedAdjLow - _state.SumAdjLowComp;
+        double alNewSum = _state.SumAdjLow + alDelta;
+        _state.SumAdjLowComp = (alNewSum - _state.SumAdjLow) - alDelta;
+        _state.SumAdjLow = alNewSum;
+
+        // Kahan compensated summation for SumClose
+        double clDelta = close - removedClose - _state.SumCloseComp;
+        double clNewSum = _state.SumClose + clDelta;
+        _state.SumCloseComp = (clNewSum - _state.SumClose) - clDelta;
+        _state.SumClose = clNewSum;
 
         _adjHighBuffer.Add(adjHigh);
         _adjLowBuffer.Add(adjLow);
         _closeBuffer.Add(close);
-
-        _state.TickCount++;
-        if (_closeBuffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            _state.SumAdjHigh = _adjHighBuffer.RecalculateSum();
-            _state.SumAdjLow = _adjLowBuffer.RecalculateSum();
-            _state.SumClose = _closeBuffer.RecalculateSum();
-        }
     }
 
     /// <summary>
@@ -264,6 +269,9 @@ public sealed class AccBands : ITValuePublisher, IDisposable
                 SumAdjHigh = _adjHighBuffer.Sum,
                 SumAdjLow = _adjLowBuffer.Sum,
                 SumClose = _closeBuffer.Sum,
+                SumAdjHighComp = 0,
+                SumAdjLowComp = 0,
+                SumCloseComp = 0,
             };
         }
 
@@ -448,15 +456,7 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         _adjHighBuffer.Clear();
         _adjLowBuffer.Clear();
         _closeBuffer.Clear();
-        _state = new State(
-            SumAdjHigh: 0,
-            SumAdjLow: 0,
-            SumClose: 0,
-            LastValidHigh: double.NaN,
-            LastValidLow: double.NaN,
-            LastValidClose: double.NaN,
-            TickCount: 0
-        );
+        _state = default;
         _p_state = _state;
         Last = default;
         Upper = default;
@@ -552,6 +552,11 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         public static bool operator !=(BatchInputs left, BatchInputs right) => !left.Equals(right);
     }
 #pragma warning restore MA0077
+
+    /// <summary>
+    /// Resync interval for batch path only (streaming uses Kahan compensation).
+    /// </summary>
+    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Internal state for scalar calculation.

@@ -11,6 +11,8 @@ namespace QuanTAlib;
 /// <summary>
 /// ZTEST: One-Sample t-Test — computes the t-statistic measuring how many
 /// standard errors the rolling sample mean deviates from a hypothesized mean μ₀.
+/// Uses Kahan compensated summation for numerical stability of the running sum-of-squares,
+/// eliminating the need for periodic resynchronization.
 /// </summary>
 /// <remarks>
 /// Key properties:
@@ -31,8 +33,8 @@ public sealed class Ztest : AbstractBase
     private double _lastValidValue;
     private double _sumSq;
     private double _p_sumSq;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _sumSqComp;     // Kahan compensation for _sumSq
+    private double _p_sumSqComp;
 
     public override bool IsHot => _buffer.Count >= _period;
 
@@ -55,6 +57,8 @@ public sealed class Ztest : AbstractBase
         WarmupPeriod = period;
         _sumSq = 0.0;
         _p_sumSq = 0.0;
+        _sumSqComp = 0.0;
+        _p_sumSqComp = 0.0;
         _handler = Handle;
     }
 
@@ -86,30 +90,34 @@ public sealed class Ztest : AbstractBase
         if (isNew)
         {
             _p_sumSq = _sumSq;
+            _p_sumSqComp = _sumSqComp;
             _buffer.Snapshot();
         }
         else
         {
             _sumSq = _p_sumSq;
+            _sumSqComp = _p_sumSqComp;
             _buffer.Restore();
         }
 
         if (_buffer.IsFull)
         {
             double oldVal = _buffer.Oldest;
-            _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+            // Kahan subtract old²
+            double y = -(oldVal * oldVal) - _sumSqComp;
+            double t = _sumSq + y;
+            _sumSqComp = (t - _sumSq) - y;
+            _sumSq = t;
         }
 
         _buffer.Add(value);
-        _sumSq = Math.FusedMultiplyAdd(value, value, _sumSq);
 
-        if (isNew)
+        // Kahan add new²
         {
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
+            double y = (value * value) - _sumSqComp;
+            double t = _sumSq + y;
+            _sumSqComp = (t - _sumSq) - y;
+            _sumSq = t;
         }
 
         double result;
@@ -188,20 +196,9 @@ public sealed class Ztest : AbstractBase
         _lastValidValue = 0;
         _sumSq = 0.0;
         _p_sumSq = 0.0;
-        _updateCount = 0;
+        _sumSqComp = 0.0;
+        _p_sumSqComp = 0.0;
         Last = default;
-    }
-
-    private void Resync()
-    {
-        var span = _buffer.GetSpan();
-        double sumSq = 0;
-        for (int i = 0; i < span.Length; i++)
-        {
-            sumSq += span[i] * span[i];
-        }
-        _sumSq = sumSq;
-        _buffer.RecalculateSum();
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -262,6 +259,8 @@ public sealed class Ztest : AbstractBase
             double lastValid = 0.0;
             double sum = 0.0;
             double sumSq = 0.0;
+            double sumComp = 0.0;      // Kahan compensation for sum
+            double sumSqComp = 0.0;    // Kahan compensation for sumSq
 
             for (int i = 0; i < source.Length; i++)
             {
@@ -279,33 +278,43 @@ public sealed class Ztest : AbstractBase
                 if (count == ringSize)
                 {
                     double oldVal = ring[head];
-                    sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + val);
-                    sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
+
+                    // Kahan subtract old from sum
+                    double ys = -oldVal - sumComp;
+                    double ts = sum + ys;
+                    sumComp = (ts - sum) - ys;
+                    sum = ts;
+
+                    // Kahan subtract old² from sumSq
+                    double ysq = -(oldVal * oldVal) - sumSqComp;
+                    double tsq = sumSq + ysq;
+                    sumSqComp = (tsq - sumSq) - ysq;
+                    sumSq = tsq;
                 }
                 else
                 {
                     count++;
-                    sum += val;
                 }
 
                 ring[head] = val;
-                sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
+
+                // Kahan add val to sum
+                {
+                    double ys = val - sumComp;
+                    double ts = sum + ys;
+                    sumComp = (ts - sum) - ys;
+                    sum = ts;
+                }
+
+                // Kahan add val² to sumSq
+                {
+                    double ysq = (val * val) - sumSqComp;
+                    double tsq = sumSq + ysq;
+                    sumSqComp = (tsq - sumSq) - ysq;
+                    sumSq = tsq;
+                }
 
                 head = (head + 1) % ringSize;
-
-                if ((i + 1) % 1000 == 0 && count == ringSize)
-                {
-                    double resyncSum = 0;
-                    double resyncSumSq = 0;
-                    for (int j = 0; j < ringSize; j++)
-                    {
-                        double v = ring[j];
-                        resyncSum += v;
-                        resyncSumSq += v * v;
-                    }
-                    sum = resyncSum;
-                    sumSq = resyncSumSq;
-                }
 
                 if (count < 2)
                 {

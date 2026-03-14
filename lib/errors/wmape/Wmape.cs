@@ -20,6 +20,8 @@ namespace QuanTAlib;
 /// - Weights larger actual values more heavily
 /// - More stable than MAPE for intermittent data
 /// - Industry standard for demand forecasting
+///
+/// Uses Kahan compensated summation to prevent floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Wmape : AbstractBase
@@ -28,11 +30,10 @@ public sealed class Wmape : AbstractBase
     private readonly RingBuffer _absActualBuffer;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double AbsErrorSum, double AbsActualSum, double LastValidActual, double LastValidPredicted, int TickCount);
+    private record struct State(double AbsErrorSum, double AbsActualSum, double AbsErrorComp, double AbsActualComp, double LastValidActual, double LastValidPredicted);
     private State _state;
     private State _p_state;
 
-    private const int ResyncInterval = 1000;
     private const int StackAllocThreshold = 256;
 
     public Wmape(int period)
@@ -90,26 +91,28 @@ public sealed class Wmape : AbstractBase
         if (isNew)
         {
             double removedError = _absErrorBuffer.Count == _absErrorBuffer.Capacity ? _absErrorBuffer.Oldest : 0.0;
-            _state.AbsErrorSum = _state.AbsErrorSum - removedError + absError;
+            {
+                double delta = absError - removedError;
+                double y = delta - _state.AbsErrorComp;
+                double t = _state.AbsErrorSum + y;
+                _state.AbsErrorComp = (t - _state.AbsErrorSum) - y;
+                _state.AbsErrorSum = t;
+            }
             _absErrorBuffer.Add(absError);
 
             double removedActual = _absActualBuffer.Count == _absActualBuffer.Capacity ? _absActualBuffer.Oldest : 0.0;
-            _state.AbsActualSum = _state.AbsActualSum - removedActual + absActual;
-            _absActualBuffer.Add(absActual);
-
-            _state.TickCount++;
-            if (_absErrorBuffer.IsFull && _state.TickCount >= ResyncInterval)
             {
-                _state.TickCount = 0;
-                _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
-                _state.AbsActualSum = _absActualBuffer.RecalculateSum();
+                double delta = absActual - removedActual;
+                double y = delta - _state.AbsActualComp;
+                double t = _state.AbsActualSum + y;
+                _state.AbsActualComp = (t - _state.AbsActualSum) - y;
+                _state.AbsActualSum = t;
             }
+            _absActualBuffer.Add(absActual);
         }
         else
         {
             // Bar correction: update buffer and recalculate sums
-            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
-            // So we update newest and recalculate to ensure consistency
             _absErrorBuffer.UpdateNewest(absError);
             _absActualBuffer.UpdateNewest(absActual);
 
@@ -277,7 +280,6 @@ public sealed class Wmape : AbstractBase
                 output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
             }
 
-            int tickCount = 0;
             for (; i < len; i++)
             {
                 double act = actual[i];
@@ -316,20 +318,6 @@ public sealed class Wmape : AbstractBase
                 }
 
                 output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
-
-                tickCount++;
-                if (tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    double recalcError = 0, recalcActual = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        recalcError += absErrorBuffer[k];
-                        recalcActual += absActualBuffer[k];
-                    }
-                    absErrorSum = recalcError;
-                    absActualSum = recalcActual;
-                }
             }
         }
         finally

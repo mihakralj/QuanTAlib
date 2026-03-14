@@ -21,6 +21,8 @@ namespace QuanTAlib;
 /// - MASE = 1 means same as naive forecast
 /// - MASE &gt; 1 means worse than naive forecast
 /// - Robust to zero actual values (unlike MAPE)
+///
+/// Uses Kahan compensated summation to prevent floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Mase : AbstractBase
@@ -32,14 +34,14 @@ public sealed class Mase : AbstractBase
     private record struct State(
         double ErrorSum,
         double ScaleSum,
+        double ErrorComp,
+        double ScaleComp,
         double LastValidActual,
         double LastValidPredicted,
         double PrevActual,
         int TickCount);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     public Mase(int period)
     {
@@ -50,8 +52,8 @@ public sealed class Mase : AbstractBase
 
         _errorBuffer = new RingBuffer(period);
         _scaleBuffer = new RingBuffer(period);
-        _state = new State(0, 0, 0, 0, double.NaN, 0);
-        _p_state = new State(0, 0, 0, 0, double.NaN, 0);
+        _state = new State(0, 0, 0, 0, 0, 0, double.NaN, 0);
+        _p_state = new State(0, 0, 0, 0, 0, 0, double.NaN, 0);
         Name = $"Mase({period})";
         WarmupPeriod = period + 1; // Need one extra for scale calculation
     }
@@ -89,34 +91,36 @@ public sealed class Mase : AbstractBase
         {
             _p_state = _state;
 
-            // Update error buffer
+            // Update error buffer — Kahan compensated
             double removedError = _errorBuffer.Count == _errorBuffer.Capacity ? _errorBuffer.Oldest : 0.0;
-            _state.ErrorSum = _state.ErrorSum - removedError + absError;
+            {
+                double delta = absError - removedError;
+                double y = delta - _state.ErrorComp;
+                double t = _state.ErrorSum + y;
+                _state.ErrorComp = (t - _state.ErrorSum) - y;
+                _state.ErrorSum = t;
+            }
             _errorBuffer.Add(absError);
 
-            // Update scale buffer
+            // Update scale buffer — Kahan compensated
             double removedScale = _scaleBuffer.Count == _scaleBuffer.Capacity ? _scaleBuffer.Oldest : 0.0;
-            _state.ScaleSum = _state.ScaleSum - removedScale + naiveDiff;
+            {
+                double delta = naiveDiff - removedScale;
+                double y = delta - _state.ScaleComp;
+                double t = _state.ScaleSum + y;
+                _state.ScaleComp = (t - _state.ScaleSum) - y;
+                _state.ScaleSum = t;
+            }
             _scaleBuffer.Add(naiveDiff);
 
             _state.PrevActual = actualVal;
-
             _state.TickCount++;
-            if (_state.TickCount >= ResyncInterval)
-            {
-                // Keep TickCount > period to maintain post-warmup state
-                _state.TickCount = _errorBuffer.Capacity + 1;
-                _state.ErrorSum = _errorBuffer.RecalculateSum();
-                _state.ScaleSum = _scaleBuffer.RecalculateSum();
-            }
         }
         else
         {
             _state = _p_state;
 
             // Bar correction: update buffer and recalculate sums
-            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
-            // So we update newest and recalculate to ensure consistency
             _errorBuffer.UpdateNewest(absError);
             _scaleBuffer.UpdateNewest(naiveDiff);
 
@@ -174,8 +178,8 @@ public sealed class Mase : AbstractBase
     {
         _errorBuffer.Clear();
         _scaleBuffer.Clear();
-        _state = new State(0, 0, 0, 0, double.NaN, 0);
-        _p_state = new State(0, 0, 0, 0, double.NaN, 0);
+        _state = new State(0, 0, 0, 0, 0, 0, double.NaN, 0);
+        _p_state = new State(0, 0, 0, 0, 0, 0, double.NaN, 0);
         Last = default;
     }
 
@@ -293,7 +297,6 @@ public sealed class Mase : AbstractBase
             prevActual = act;
         }
 
-        int tickCount = 0;
         for (; i < len; i++)
         {
             double act = actual[i];
@@ -336,20 +339,6 @@ public sealed class Mase : AbstractBase
             output[i] = scale > 1e-10 ? mae / scale : mae;
 
             prevActual = act;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcError = 0, recalcScale = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcError += errorBuffer[k];
-                    recalcScale += scaleBuffer[k];
-                }
-                errorSum = recalcError;
-                scaleSum = recalcScale;
-            }
         }
     }
 

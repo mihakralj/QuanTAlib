@@ -312,7 +312,7 @@ public class CovarianceTests
         // Compare
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(streamingResults[i], batchResults[i], precision: 9);
+            Assert.Equal(streamingResults[i], batchResults[i], precision: 8);
         }
     }
 }

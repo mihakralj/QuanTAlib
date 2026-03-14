@@ -20,8 +20,8 @@ namespace QuanTAlib;
 ///         EK = excess kurtosis = (m₄ / m₂²) − 3
 ///         mₖ = k-th central moment = Σ(xᵢ − x̄)ᵏ / n
 ///
-/// O(1) streaming via running sums of x, x², x³, x⁴ with periodic resync
-/// to limit floating-point drift.
+/// O(1) streaming via running sums of x, x², x³, x⁴ with Kahan compensated
+/// summation for numerical stability over long streams.
 ///
 /// Critical values (χ² with 2 df):
 ///   10% → 4.605, 5% → 5.991, 1% → 9.210
@@ -46,11 +46,17 @@ public sealed class Jb : AbstractBase
     private double _p_sumSq;
     private double _p_sumCu;
     private double _p_sumQu;
+    private double _sumComp;
+    private double _sumSqComp;
+    private double _sumCuComp;
+    private double _sumQuComp;
+    private double _p_sumComp;
+    private double _p_sumSqComp;
+    private double _p_sumCuComp;
+    private double _p_sumQuComp;
     private double _lastValidValue;
     private double _p_lastValidValue;
-    private int _updateCount;
 
-    private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
     public override bool IsHot => _buffer.IsFull;
@@ -103,9 +109,12 @@ public sealed class Jb : AbstractBase
         _sumSq = 0;
         _sumCu = 0;
         _sumQu = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
 
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
         int startIndex = source.Length - warmupLength;
@@ -142,29 +151,29 @@ public sealed class Jb : AbstractBase
             _p_sumSq = _sumSq;
             _p_sumCu = _sumCu;
             _p_sumQu = _sumQu;
+            _p_sumComp = _sumComp;
+            _p_sumSqComp = _sumSqComp;
+            _p_sumCuComp = _sumCuComp;
+            _p_sumQuComp = _sumQuComp;
 
             if (_buffer.IsFull)
             {
                 double old = _buffer.Oldest;
                 double oldSq = old * old;
-                _sum -= old;
-                _sumSq -= oldSq;
-                _sumCu -= oldSq * old;
-                _sumQu -= oldSq * oldSq;
+                // Kahan subtract old values
+                { double y = -old - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
+                { double y = -oldSq - _sumSqComp; double t = _sumSq + y; _sumSqComp = (t - _sumSq) - y; _sumSq = t; }
+                { double y = -(oldSq * old) - _sumCuComp; double t = _sumCu + y; _sumCuComp = (t - _sumCu) - y; _sumCu = t; }
+                { double y = -(oldSq * oldSq) - _sumQuComp; double t = _sumQu + y; _sumQuComp = (t - _sumQu) - y; _sumQu = t; }
             }
 
             _buffer.Add(value);
             double vSq = value * value;
-            _sum += value;
-            _sumSq += vSq;
-            _sumCu += vSq * value;
-            _sumQu += vSq * vSq;
-
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
+            // Kahan add new values
+            { double y = value - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
+            { double y = vSq - _sumSqComp; double t = _sumSq + y; _sumSqComp = (t - _sumSq) - y; _sumSq = t; }
+            { double y = (vSq * value) - _sumCuComp; double t = _sumCu + y; _sumCuComp = (t - _sumCu) - y; _sumCu = t; }
+            { double y = (vSq * vSq) - _sumQuComp; double t = _sumQu + y; _sumQuComp = (t - _sumQu) - y; _sumQu = t; }
         }
         else
         {
@@ -174,20 +183,25 @@ public sealed class Jb : AbstractBase
             _sumSq = _p_sumSq;
             _sumCu = _p_sumCu;
             _sumQu = _p_sumQu;
+            _sumComp = _p_sumComp;
+            _sumSqComp = _p_sumSqComp;
+            _sumCuComp = _p_sumCuComp;
+            _sumQuComp = _p_sumQuComp;
 
             if (_buffer.Count > 0)
             {
                 _buffer.UpdateNewest(value);
-                Resync();
+                // Recalculate sums from buffer (O(N)) for perfect accuracy on correction
+                RecalculateSums();
             }
             else
             {
                 _buffer.Add(value);
                 double vSq = value * value;
-                _sum += value;
-                _sumSq += vSq;
-                _sumCu += vSq * value;
-                _sumQu += vSq * vSq;
+                { double y = value - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
+                { double y = vSq - _sumSqComp; double t = _sumSq + y; _sumSqComp = (t - _sumSq) - y; _sumSq = t; }
+                { double y = (vSq * value) - _sumCuComp; double t = _sumCu + y; _sumCuComp = (t - _sumCu) - y; _sumCu = t; }
+                { double y = (vSq * vSq) - _sumQuComp; double t = _sumQu + y; _sumQuComp = (t - _sumQu) - y; _sumQu = t; }
             }
 
             // Re-apply NaN guard for corrected value
@@ -229,9 +243,12 @@ public sealed class Jb : AbstractBase
         _sumSq = 0;
         _sumCu = 0;
         _sumQu = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
 
         // Prime the state
         int primeStart = Math.Max(0, len - _period);
@@ -298,9 +315,16 @@ public sealed class Jb : AbstractBase
         _p_sumSq = 0;
         _p_sumCu = 0;
         _p_sumQu = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
+        _p_sumComp = 0;
+        _p_sumSqComp = 0;
+        _p_sumCuComp = 0;
+        _p_sumQuComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
         Last = default;
     }
 
@@ -332,7 +356,7 @@ public sealed class Jb : AbstractBase
         double mean = sum / n;
         double meanSq = mean * mean;
 
-        // m₂ = (ΣxÌ² - Σx²/n) / n
+        // m₂ = (Σx² - Σx²/n) / n
         double m2Numerator = sumSq - (sum * sum) / n;
         if (m2Numerator < Epsilon)
         {
@@ -365,7 +389,7 @@ public sealed class Jb : AbstractBase
         return (n / 6.0) * Math.FusedMultiplyAdd(skewness, skewness, excessKurtosis * excessKurtosis / 4.0);
     }
 
-    private void Resync()
+    private void RecalculateSums()
     {
         double sum = 0, sumSq = 0, sumCu = 0, sumQu = 0;
         var span = _buffer.GetSpan();
@@ -382,6 +406,10 @@ public sealed class Jb : AbstractBase
         _sumSq = sumSq;
         _sumCu = sumCu;
         _sumQu = sumQu;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -422,6 +450,7 @@ public sealed class Jb : AbstractBase
             }
 
             double sum = 0, sumSq = 0, sumCu = 0, sumQu = 0;
+            double sumComp = 0, sumSqComp = 0, sumCuComp = 0, sumQuComp = 0;
             int i = 0;
 
             // Warmup phase
@@ -430,16 +459,16 @@ public sealed class Jb : AbstractBase
             {
                 double val = sanitized[i];
                 double vSq = val * val;
-                sum += val;
-                sumSq += vSq;
-                sumCu += vSq * val;
-                sumQu += vSq * vSq;
+                // Kahan add
+                { double y = val - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
+                { double y = vSq - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
+                { double y = (vSq * val) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
+                { double y = (vSq * vSq) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
 
                 output[i] = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, i + 1);
             }
 
             // Sliding window phase
-            int tickCount = period;
             for (; i < len; i++)
             {
                 double val = sanitized[i];
@@ -447,19 +476,13 @@ public sealed class Jb : AbstractBase
 
                 double vSq = val * val;
                 double oSq = oldVal * oldVal;
-                sum = sum - oldVal + val;
-                sumSq = sumSq - oSq + vSq;
-                sumCu = sumCu - (oSq * oldVal) + (vSq * val);
-                sumQu = sumQu - (oSq * oSq) + (vSq * vSq);
+                // Kahan subtract old, add new
+                { double y = (val - oldVal) - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
+                { double y = (vSq - oSq) - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
+                { double y = (vSq * val - oSq * oldVal) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
+                { double y = (vSq * vSq - oSq * oSq) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
 
                 output[i] = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, period);
-
-                tickCount++;
-                if (tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    ResyncFromSanitized(sanitized, i, period, ref sum, ref sumSq, ref sumCu, ref sumQu);
-                }
             }
         }
         finally
@@ -469,27 +492,6 @@ public sealed class Jb : AbstractBase
                 ArrayPool<double>.Shared.Return(rented);
             }
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ResyncFromSanitized(ReadOnlySpan<double> sanitized, int endIndex, int period,
-        ref double sum, ref double sumSq, ref double sumCu, ref double sumQu)
-    {
-        double s = 0, sSq = 0, sCu = 0, sQu = 0;
-        int startIdx = endIndex - period + 1;
-        for (int k = 0; k < period; k++)
-        {
-            double v = sanitized[startIdx + k];
-            double vSq = v * v;
-            s += v;
-            sSq += vSq;
-            sCu += vSq * v;
-            sQu += vSq * vSq;
-        }
-        sum = s;
-        sumSq = sSq;
-        sumCu = sCu;
-        sumQu = sQu;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -539,7 +541,6 @@ public sealed class Jb : AbstractBase
         var vZero = Vector256<double>.Zero;
 
         int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -655,27 +656,6 @@ public sealed class Jb : AbstractBase
             sumSq = vSumSqs.GetElement(3);
             sumCu = vSumCus.GetElement(3);
             sumQu = vSumQus.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double s = 0, sSq = 0, sCu = 0, sQu = 0;
-                int startIdx = i + VectorWidth - period;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    double v2 = v * v;
-                    s += v;
-                    sSq += v2;
-                    sCu += v2 * v;
-                    sQu += v2 * v2;
-                }
-                sum = s;
-                sumSq = sSq;
-                sumCu = sCu;
-                sumQu = sQu;
-            }
         }
 
         // Scalar tail

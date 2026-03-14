@@ -31,6 +31,8 @@ namespace QuanTAlib;
 /// For non-stationary processes, ACF decays slowly.
 /// For MA(q) processes, ACF cuts off after lag q.
 /// For AR(p) processes, ACF decays exponentially or sinusoidally.
+///
+/// Uses Kahan compensated summation for numerical stability over long streams.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Acf : AbstractBase
@@ -43,12 +45,15 @@ public sealed class Acf : AbstractBase
     private double _sum;
     private double _sumSq;
 
+    // Kahan compensation terms
+    private double _sumComp;
+    private double _sumSqComp;
+
     // Snapshot state for bar correction
     private double _p_sum;
     private double _p_sumSq;
-
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _p_sumComp;
+    private double _p_sumSqComp;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -108,6 +113,8 @@ public sealed class Acf : AbstractBase
             // Snapshot state for rollback
             _p_sum = _sum;
             _p_sumSq = _sumSq;
+            _p_sumComp = _sumComp;
+            _p_sumSqComp = _sumSqComp;
             _buffer.Snapshot();
         }
         else
@@ -115,6 +122,8 @@ public sealed class Acf : AbstractBase
             // Restore state from snapshot
             _sum = _p_sum;
             _sumSq = _p_sumSq;
+            _sumComp = _p_sumComp;
+            _sumSqComp = _p_sumSqComp;
             _buffer.Restore();
         }
 
@@ -122,23 +131,18 @@ public sealed class Acf : AbstractBase
         if (_buffer.IsFull)
         {
             double oldVal = _buffer.Oldest;
-            _sum -= oldVal;
-            _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+            // Kahan subtract oldVal from _sum
+            { double y = -oldVal - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
+            // Kahan subtract oldVal² from _sumSq
+            { double y = -(oldVal * oldVal) - _sumSqComp; double t = _sumSq + y; _sumSqComp = (t - _sumSq) - y; _sumSq = t; }
         }
 
         // Add new value
         _buffer.Add(value);
-        _sum += value;
-        _sumSq = Math.FusedMultiplyAdd(value, value, _sumSq);
-
-        if (isNew)
-        {
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
-        }
+        // Kahan add value to _sum
+        { double y = value - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
+        // Kahan add value² to _sumSq
+        { double y = (value * value) - _sumSqComp; double t = _sumSq + y; _sumSqComp = (t - _sumSq) - y; _sumSq = t; }
 
         // Calculate ACF
         double acf = CalculateAcf();
@@ -233,27 +237,17 @@ public sealed class Acf : AbstractBase
         return sum / n; // Biased estimator (divide by n, not n-k, for consistency with variance)
     }
 
-    private void Resync()
-    {
-        int n = _buffer.Count;
-        _sum = 0;
-        _sumSq = 0;
-        for (int i = 0; i < n; i++)
-        {
-            double val = _buffer[i];
-            _sum += val;
-            _sumSq += val * val;
-        }
-    }
-
     public override void Reset()
     {
         _buffer.Clear();
         _sum = 0;
         _sumSq = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
         _p_sum = 0;
         _p_sumSq = 0;
-        _updateCount = 0;
+        _p_sumComp = 0;
+        _p_sumSqComp = 0;
         Last = default;
     }
 

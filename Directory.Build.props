@@ -44,6 +44,20 @@
     <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
   </PropertyGroup>
 
+  <!-- Stamp lib/VERSION into README.md replacing the <version> placeholder -->
+  <Target Name="StampReadmeVersion" BeforeTargets="CoreCompile"
+          Condition="Exists('$(QtaVersionFile)') AND Exists('$(MSBuildThisFileDirectory)README.md')">
+    <PropertyGroup>
+      <ReadmeFile>$(MSBuildThisFileDirectory)README.md</ReadmeFile>
+    </PropertyGroup>
+    <Exec Command="pwsh -NoProfile -Command &quot;(Get-Content '$(ReadmeFile)' -Raw) -replace '# QuanTAlib .*','# QuanTAlib $(QtaVersion)' | Set-Content '$(ReadmeFile)' -NoNewline&quot;"
+          Condition="$([MSBuild]::IsOSPlatform('Windows'))"
+          IgnoreExitCode="true" />
+    <Exec Command="sed -i 's/# QuanTAlib .*/# QuanTAlib $(QtaVersion)/' '$(ReadmeFile)'"
+          Condition="!$([MSBuild]::IsOSPlatform('Windows'))"
+          IgnoreExitCode="true" />
+  </Target>
+
   <Target Name="CreateSarifDir" BeforeTargets="CoreCompile">
     <MakeDir Directories="$(SarifOutputDir)" />
     <Message Importance="High" Text="SARIF output directory: $(SarifOutputDir)" />

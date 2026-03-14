@@ -6,7 +6,8 @@ using System.Runtime.Intrinsics.X86;
 namespace QuanTAlib;
 
 /// <summary>
-/// Skew: Measures the asymmetry of the probability distribution of a real-valued random variable about its mean.
+/// Skew: Measures the asymmetry of the probability distribution of a real-valued
+/// random variable about its mean using Kahan compensated summation.
 /// </summary>
 /// <remarks>
 /// Skewness value interpretation:
@@ -15,6 +16,7 @@ namespace QuanTAlib;
 /// - Zero skew: The tails on both sides of the mean balance out (e.g. symmetric distribution).
 ///
 /// This implementation uses O(1) running sums of powers (x, x^2, x^3) to calculate moments.
+/// Kahan compensated summation eliminates the need for periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Skew : AbstractBase
@@ -25,8 +27,9 @@ public sealed class Skew : AbstractBase
     private double _sum;
     private double _sumSq;
     private double _sumCu;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _sumComp;   // Kahan compensation for _sum
+    private double _sumSqComp; // Kahan compensation for _sumSq
+    private double _sumCuComp; // Kahan compensation for _sumCu
     private const double Epsilon = 1e-10;
 
     public override bool IsHot => _buffer.IsFull;
@@ -56,27 +59,60 @@ public sealed class Skew : AbstractBase
         double p_sum = _sum;
         double p_sumSq = _sumSq;
         double p_sumCu = _sumCu;
+        double p_sumComp = _sumComp;
+        double p_sumSqComp = _sumSqComp;
+        double p_sumCuComp = _sumCuComp;
 
         if (isNew)
         {
             if (_buffer.IsFull)
             {
                 double oldVal = _buffer.Oldest;
-                _sum -= oldVal;
-                _sumSq -= oldVal * oldVal;
-                _sumCu -= oldVal * oldVal * oldVal;
+                // Kahan subtract from _sum
+                {
+                    double y = -oldVal - _sumComp;
+                    double t = _sum + y;
+                    _sumComp = (t - _sum) - y;
+                    _sum = t;
+                }
+                // Kahan subtract from _sumSq
+                {
+                    double y = -(oldVal * oldVal) - _sumSqComp;
+                    double t = _sumSq + y;
+                    _sumSqComp = (t - _sumSq) - y;
+                    _sumSq = t;
+                }
+                // Kahan subtract from _sumCu
+                {
+                    double y = -(oldVal * oldVal * oldVal) - _sumCuComp;
+                    double t = _sumCu + y;
+                    _sumCuComp = (t - _sumCu) - y;
+                    _sumCu = t;
+                }
             }
 
             _buffer.Add(input.Value);
             double val = input.Value;
-            _sum += val;
-            _sumSq += val * val;
-            _sumCu += val * val * val;
-
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
+            // Kahan add to _sum
             {
-                Resync();
+                double y = val - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
+            }
+            // Kahan add to _sumSq
+            {
+                double y = (val * val) - _sumSqComp;
+                double t = _sumSq + y;
+                _sumSqComp = (t - _sumSq) - y;
+                _sumSq = t;
+            }
+            // Kahan add to _sumCu
+            {
+                double y = (val * val * val) - _sumCuComp;
+                double t = _sumCu + y;
+                _sumCuComp = (t - _sumCu) - y;
+                _sumCu = t;
             }
         }
         else
@@ -85,14 +121,33 @@ public sealed class Skew : AbstractBase
             _sum = p_sum;
             _sumSq = p_sumSq;
             _sumCu = p_sumCu;
+            _sumComp = p_sumComp;
+            _sumSqComp = p_sumSqComp;
+            _sumCuComp = p_sumCuComp;
 
             double oldNewest = _buffer.Newest;
             _buffer.UpdateNewest(input.Value);
 
             double val = input.Value;
-            _sum = _sum - oldNewest + val;
-            _sumSq = _sumSq - (oldNewest * oldNewest) + (val * val);
-            _sumCu = _sumCu - (oldNewest * oldNewest * oldNewest) + (val * val * val);
+            // Kahan sliding: sum = sum - oldNewest + val
+            {
+                double delta = (val - oldNewest) - _sumComp;
+                double t = _sum + delta;
+                _sumComp = (t - _sum) - delta;
+                _sum = t;
+            }
+            {
+                double delta = ((val * val) - (oldNewest * oldNewest)) - _sumSqComp;
+                double t = _sumSq + delta;
+                _sumSqComp = (t - _sumSq) - delta;
+                _sumSq = t;
+            }
+            {
+                double delta = ((val * val * val) - (oldNewest * oldNewest * oldNewest)) - _sumCuComp;
+                double t = _sumCu + delta;
+                _sumCuComp = (t - _sumCu) - delta;
+                _sumCu = t;
+            }
         }
 
         double skew = 0;
@@ -101,8 +156,6 @@ public sealed class Skew : AbstractBase
             double n = _buffer.Count;
             double mean = _sum / n;
 
-            // Calculate 2nd moment (Variance)
-            // m2 = Sum((x-mean)^2) / n = (SumSq - Sum^2/n) / n
             double m2Numerator = _sumSq - ((_sum * _sum) / n);
             if (m2Numerator < Epsilon)
             {
@@ -111,20 +164,11 @@ public sealed class Skew : AbstractBase
 
             double m2 = m2Numerator / n;
 
-            // Calculate 3rd moment
-            // m3 = Sum((x-mean)^3) / n
-            // Sum((x-mean)^3) = Sum(x^3 - 3x^2*mean + 3x*mean^2 - mean^3)
-            // = Sum(x^3) - 3*mean*Sum(x^2) + 3*mean^2*Sum(x) - n*mean^3
-            // = SumCu - 3*mean*SumSq + 3*mean^2*Sum - n*mean^3
-            // Since Sum = n*mean:
-            // = SumCu - 3*mean*SumSq + 2*n*mean^3
-
             double m3Numerator = Math.FusedMultiplyAdd(-3 * mean, _sumSq, Math.FusedMultiplyAdd(2 * n * mean, mean * mean, _sumCu));
             double m3 = m3Numerator / n;
 
             if (m2 > Epsilon)
             {
-                // Population Skewness = m3 / m2^(3/2)
                 double g1 = m3 / (m2 * Math.Sqrt(m2));
 
                 if (_isPopulation)
@@ -133,7 +177,6 @@ public sealed class Skew : AbstractBase
                 }
                 else
                 {
-                    // Sample Skewness = [sqrt(n(n-1)) / (n-2)] * g1
                     double correction = Math.Sqrt(n * (n - 1)) / (n - 2);
                     skew = correction * g1;
                 }
@@ -169,7 +212,9 @@ public sealed class Skew : AbstractBase
         _sum = 0;
         _sumSq = 0;
         _sumCu = 0;
-        _updateCount = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
 
         // Prime the state
         int primeStart = Math.Max(0, len - _period);
@@ -187,26 +232,10 @@ public sealed class Skew : AbstractBase
         _sum = 0;
         _sumSq = 0;
         _sumCu = 0;
-        _updateCount = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
         Last = default;
-    }
-
-    private void Resync()
-    {
-        double sum = 0;
-        double sumSq = 0;
-        double sumCu = 0;
-        var span = _buffer.GetSpan();
-        for (int i = 0; i < span.Length; i++)
-        {
-            double val = span[i];
-            sum += val;
-            sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            sumCu = Math.FusedMultiplyAdd(val * val, val, sumCu);
-        }
-        _sum = sum;
-        _sumSq = sumSq;
-        _sumCu = sumCu;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -248,7 +277,6 @@ public sealed class Skew : AbstractBase
         }
 
         // Try SIMD path for large, clean datasets
-        // SIMD overhead amortizes well for datasets >= 256 elements
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && Avx2.IsSupported && !source.ContainsNonFinite())
         {
@@ -274,6 +302,9 @@ public sealed class Skew : AbstractBase
         double sum = 0;
         double sumSq = 0;
         double sumCu = 0;
+        double sumComp = 0;
+        double sumSqComp = 0;
+        double sumCuComp = 0;
 
         int i = 0;
 
@@ -287,16 +318,33 @@ public sealed class Skew : AbstractBase
                 val = 0;
             }
 
-            sum += val;
-            sumSq += val * val;
-            sumCu += val * val * val;
+            // Kahan add to sum
+            {
+                double y = val - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+            }
+            // Kahan add to sumSq
+            {
+                double y = (val * val) - sumSqComp;
+                double t = sumSq + y;
+                sumSqComp = (t - sumSq) - y;
+                sumSq = t;
+            }
+            // Kahan add to sumCu
+            {
+                double y = (val * val * val) - sumCuComp;
+                double t = sumCu + y;
+                sumCuComp = (t - sumCu) - y;
+                sumCu = t;
+            }
 
             double n = i + 1;
             output[i] = (n >= 3) ? CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation) : 0;
         }
 
         // Sliding window phase
-        int tickCount = period;
         for (; i < len; i++)
         {
             double val = source[i];
@@ -311,36 +359,27 @@ public sealed class Skew : AbstractBase
                 oldVal = 0;
             }
 
-            sum = sum - oldVal + val;
-            sumSq = sumSq - (oldVal * oldVal) + (val * val);
-            sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
+            // Kahan sliding window: sum += (val - oldVal)
+            {
+                double delta = (val - oldVal) - sumComp;
+                double t = sum + delta;
+                sumComp = (t - sum) - delta;
+                sum = t;
+            }
+            {
+                double delta = ((val * val) - (oldVal * oldVal)) - sumSqComp;
+                double t = sumSq + delta;
+                sumSqComp = (t - sumSq) - delta;
+                sumSq = t;
+            }
+            {
+                double delta = ((val * val * val) - (oldVal * oldVal * oldVal)) - sumCuComp;
+                double t = sumCu + delta;
+                sumCuComp = (t - sumCu) - delta;
+                sumCu = t;
+            }
 
             output[i] = CalculateSkewFromSums(sum, sumSq, sumCu, period, isPopulation);
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                double recalcSumCu = 0;
-                int startIdx = i - period + 1;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = source[startIdx + k];
-                    if (!double.IsFinite(v))
-                    {
-                        v = 0;
-                    }
-
-                    recalcSum += v;
-                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
-                    recalcSumCu = Math.FusedMultiplyAdd(v * v, v, recalcSumCu);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-                sumCu = recalcSumCu;
-            }
         }
     }
 
@@ -423,7 +462,6 @@ public sealed class Skew : AbstractBase
         var vZero = Vector256<double>.Zero;
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -444,12 +482,10 @@ public sealed class Skew : AbstractBase
             var vDeltaCu = Avx.Subtract(vNewCu, vOldCu);
 
             // Prefix sum for Sum
-            // Shift 1: [0, d0, d1, d2]
             var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
             var vP1 = Avx.Add(vDelta, vShift1);
 
-            // Shift 2: [0, 0, d0, d0+d1]
             var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
             vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
             var vP2 = Avx.Add(vP1, vShift2);
@@ -520,26 +556,6 @@ public sealed class Skew : AbstractBase
             sum = vSums.GetElement(3);
             sumSq = vSumSqs.GetElement(3);
             sumCu = vSumCus.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                double recalcSumCu = 0;
-                int startIdx = i + VectorWidth - period;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    recalcSum += v;
-                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
-                    recalcSumCu = Math.FusedMultiplyAdd(v * v, v, recalcSumCu);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-                sumCu = recalcSumCu;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)

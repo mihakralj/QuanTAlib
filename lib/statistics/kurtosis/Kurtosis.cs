@@ -28,8 +28,9 @@ namespace QuanTAlib;
 /// Sample excess kurtosis applies Fisher's correction:
 ///   G₂ = ((n-1)/((n-2)(n-3))) * ((n+1)*g₂ + 6)
 ///
-/// Implementation uses O(1) running sums of powers (x, x², x³, x⁴) to avoid
-/// recomputing from the buffer each tick.
+/// Implementation uses O(1) running sums of powers (x, x², x³, x⁴) with Kahan
+/// compensated summation for numerical stability over long streams, eliminating
+/// the need for periodic resynchronization.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Kurtosis : AbstractBase
@@ -41,8 +42,14 @@ public sealed class Kurtosis : AbstractBase
     private double _sumSq;
     private double _sumCu;
     private double _sumQu;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _sumComp;
+    private double _sumSqComp;
+    private double _sumCuComp;
+    private double _sumQuComp;
+    private double _p_sumComp;
+    private double _p_sumSqComp;
+    private double _p_sumCuComp;
+    private double _p_sumQuComp;
     private const double Epsilon = 1e-10;
 
     public override bool IsHot => _buffer.IsFull;
@@ -91,6 +98,10 @@ public sealed class Kurtosis : AbstractBase
         double p_sumSq = _sumSq;
         double p_sumCu = _sumCu;
         double p_sumQu = _sumQu;
+        _p_sumComp = _sumComp;
+        _p_sumSqComp = _sumSqComp;
+        _p_sumCuComp = _sumCuComp;
+        _p_sumQuComp = _sumQuComp;
 
         if (isNew)
         {
@@ -98,10 +109,30 @@ public sealed class Kurtosis : AbstractBase
             {
                 double oldVal = _buffer.Oldest;
                 double oldSq = oldVal * oldVal;
-                _sum -= oldVal;
-                _sumSq -= oldSq;
-                _sumCu -= oldSq * oldVal;
-                _sumQu -= oldSq * oldSq;
+
+                // Kahan subtract oldVal from _sum
+                double y = -oldVal - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
+
+                // Kahan subtract oldSq from _sumSq
+                y = -oldSq - _sumSqComp;
+                t = _sumSq + y;
+                _sumSqComp = (t - _sumSq) - y;
+                _sumSq = t;
+
+                // Kahan subtract oldCu from _sumCu
+                y = -(oldSq * oldVal) - _sumCuComp;
+                t = _sumCu + y;
+                _sumCuComp = (t - _sumCu) - y;
+                _sumCu = t;
+
+                // Kahan subtract oldQu from _sumQu
+                y = -(oldSq * oldSq) - _sumQuComp;
+                t = _sumQu + y;
+                _sumQuComp = (t - _sumQu) - y;
+                _sumQu = t;
             }
 
             double val = input.Value;
@@ -111,15 +142,37 @@ public sealed class Kurtosis : AbstractBase
             }
             _buffer.Add(val);
             double valSq = val * val;
-            _sum += val;
-            _sumSq += valSq;
-            _sumCu += valSq * val;
-            _sumQu += valSq * valSq;
 
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
+            // Kahan add val to _sum
             {
-                Resync();
+                double y = val - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
+            }
+
+            // Kahan add valSq to _sumSq
+            {
+                double y = valSq - _sumSqComp;
+                double t = _sumSq + y;
+                _sumSqComp = (t - _sumSq) - y;
+                _sumSq = t;
+            }
+
+            // Kahan add valCu to _sumCu
+            {
+                double y = (valSq * val) - _sumCuComp;
+                double t = _sumCu + y;
+                _sumCuComp = (t - _sumCu) - y;
+                _sumCu = t;
+            }
+
+            // Kahan add valQu to _sumQu
+            {
+                double y = (valSq * valSq) - _sumQuComp;
+                double t = _sumQu + y;
+                _sumQuComp = (t - _sumQu) - y;
+                _sumQu = t;
             }
         }
         else
@@ -129,6 +182,10 @@ public sealed class Kurtosis : AbstractBase
             _sumSq = p_sumSq;
             _sumCu = p_sumCu;
             _sumQu = p_sumQu;
+            _sumComp = _p_sumComp;
+            _sumSqComp = _p_sumSqComp;
+            _sumCuComp = _p_sumCuComp;
+            _sumQuComp = _p_sumQuComp;
 
             double oldNewest = _buffer.Newest;
             _buffer.UpdateNewest(input.Value);
@@ -136,10 +193,38 @@ public sealed class Kurtosis : AbstractBase
             double val = input.Value;
             double valSq = val * val;
             double oldSq = oldNewest * oldNewest;
-            _sum = _sum - oldNewest + val;
-            _sumSq = _sumSq - oldSq + valSq;
-            _sumCu = _sumCu - (oldSq * oldNewest) + (valSq * val);
-            _sumQu = _sumQu - (oldSq * oldSq) + (valSq * valSq);
+
+            // Kahan subtract old + add new for _sum
+            {
+                double y = (-oldNewest + val) - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
+            }
+
+            // Kahan subtract old + add new for _sumSq
+            {
+                double y = (-oldSq + valSq) - _sumSqComp;
+                double t = _sumSq + y;
+                _sumSqComp = (t - _sumSq) - y;
+                _sumSq = t;
+            }
+
+            // Kahan subtract old + add new for _sumCu
+            {
+                double y = (-(oldSq * oldNewest) + (valSq * val)) - _sumCuComp;
+                double t = _sumCu + y;
+                _sumCuComp = (t - _sumCu) - y;
+                _sumCu = t;
+            }
+
+            // Kahan subtract old + add new for _sumQu
+            {
+                double y = (-(oldSq * oldSq) + (valSq * valSq)) - _sumQuComp;
+                double t = _sumQu + y;
+                _sumQuComp = (t - _sumQu) - y;
+                _sumQu = t;
+            }
         }
 
         double kurtosis = 0;
@@ -220,7 +305,10 @@ public sealed class Kurtosis : AbstractBase
         _sumSq = 0;
         _sumCu = 0;
         _sumQu = 0;
-        _updateCount = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
 
         // Prime the state
         int primeStart = Math.Max(0, len - _period);
@@ -239,30 +327,11 @@ public sealed class Kurtosis : AbstractBase
         _sumSq = 0;
         _sumCu = 0;
         _sumQu = 0;
-        _updateCount = 0;
+        _sumComp = 0;
+        _sumSqComp = 0;
+        _sumCuComp = 0;
+        _sumQuComp = 0;
         Last = default;
-    }
-
-    private void Resync()
-    {
-        double sum = 0;
-        double sumSq = 0;
-        double sumCu = 0;
-        double sumQu = 0;
-        var span = _buffer.GetSpan();
-        for (int i = 0; i < span.Length; i++)
-        {
-            double val = span[i];
-            double valSq = val * val;
-            sum += val;
-            sumSq += valSq;
-            sumCu = Math.FusedMultiplyAdd(valSq, val, sumCu);
-            sumQu = Math.FusedMultiplyAdd(valSq, valSq, sumQu);
-        }
-        _sum = sum;
-        _sumSq = sumSq;
-        _sumCu = sumCu;
-        _sumQu = sumQu;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -372,6 +441,7 @@ public sealed class Kurtosis : AbstractBase
         double sumSq = 0;
         double sumCu = 0;
         double sumQu = 0;
+        double sumC = 0, sqC = 0, cuC = 0, quC = 0; // Kahan compensation
 
         int i = 0;
 
@@ -395,8 +465,7 @@ public sealed class Kurtosis : AbstractBase
             output[i] = (n >= 4) ? CalculateKurtosisFromSums(sum, sumSq, sumCu, sumQu, n, isPopulation) : 0;
         }
 
-        // Sliding window phase
-        int tickCount = period;
+        // Sliding window phase — Kahan compensated
         for (; i < len; i++)
         {
             double val = source[i];
@@ -413,41 +482,37 @@ public sealed class Kurtosis : AbstractBase
 
             double valSq = val * val;
             double oldSq = oldVal * oldVal;
-            sum = sum - oldVal + val;
-            sumSq = sumSq - oldSq + valSq;
-            sumCu = sumCu - (oldSq * oldVal) + (valSq * val);
-            sumQu = sumQu - (oldSq * oldSq) + (valSq * valSq);
+
+            // Kahan sum
+            {
+                double y = (val - oldVal) - sumC;
+                double t = sum + y;
+                sumC = (t - sum) - y;
+                sum = t;
+            }
+            // Kahan sumSq
+            {
+                double y = (valSq - oldSq) - sqC;
+                double t = sumSq + y;
+                sqC = (t - sumSq) - y;
+                sumSq = t;
+            }
+            // Kahan sumCu
+            {
+                double y = ((valSq * val) - (oldSq * oldVal)) - cuC;
+                double t = sumCu + y;
+                cuC = (t - sumCu) - y;
+                sumCu = t;
+            }
+            // Kahan sumQu
+            {
+                double y = ((valSq * valSq) - (oldSq * oldSq)) - quC;
+                double t = sumQu + y;
+                quC = (t - sumQu) - y;
+                sumQu = t;
+            }
 
             output[i] = CalculateKurtosisFromSums(sum, sumSq, sumCu, sumQu, period, isPopulation);
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                double recalcSumCu = 0;
-                double recalcSumQu = 0;
-                int startIdx = i - period + 1;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = source[startIdx + k];
-                    if (!double.IsFinite(v))
-                    {
-                        v = 0;
-                    }
-
-                    double vSq = v * v;
-                    recalcSum += v;
-                    recalcSumSq += vSq;
-                    recalcSumCu = Math.FusedMultiplyAdd(vSq, v, recalcSumCu);
-                    recalcSumQu = Math.FusedMultiplyAdd(vSq, vSq, recalcSumQu);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-                sumCu = recalcSumCu;
-                sumQu = recalcSumQu;
-            }
         }
     }
 
@@ -508,7 +573,6 @@ public sealed class Kurtosis : AbstractBase
         var vFisherAdd = Vector256.Create(fisherAdd);
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -617,30 +681,6 @@ public sealed class Kurtosis : AbstractBase
             sumSq = vSumSqs.GetElement(3);
             sumCu = vSumCus.GetElement(3);
             sumQu = vSumQus.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                double recalcSumCu = 0;
-                double recalcSumQu = 0;
-                int startIdx = i + VectorWidth - period;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    double vSq = v * v;
-                    recalcSum += v;
-                    recalcSumSq += vSq;
-                    recalcSumCu = Math.FusedMultiplyAdd(vSq, v, recalcSumCu);
-                    recalcSumQu = Math.FusedMultiplyAdd(vSq, vSq, recalcSumQu);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-                sumCu = recalcSumCu;
-                sumQu = recalcSumQu;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)

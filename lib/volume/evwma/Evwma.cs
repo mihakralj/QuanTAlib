@@ -25,16 +25,10 @@ namespace QuanTAlib;
 public sealed class Evwma : ITValuePublisher
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumVol, double Result, int Index, int Head, int Count, int SyncCounter)
+    private record struct State(double SumVol, double SumVolComp, double Result, int Index, int Head, int Count)
     {
-        public static State New() => new() { SumVol = 0, Result = double.NaN, Index = 0, Head = 0, Count = 0, SyncCounter = 0 };
+        public static State New() => new() { SumVol = 0, SumVolComp = 0, Result = double.NaN, Index = 0, Head = 0, Count = 0 };
     }
-
-    /// <summary>
-    /// Resync interval to limit floating-point drift in running volume sum.
-    /// Full recalculation every N bars.
-    /// </summary>
-    private const int ResyncInterval = 1000;
 
     private readonly int _period;
     private readonly double[] _volBuffer;
@@ -118,25 +112,6 @@ public sealed class Evwma : ITValuePublisher
         return lastValid;
     }
 
-    /// <summary>
-    /// Recalculates running volume sum from buffer to eliminate accumulated floating-point drift.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ResyncRunningTotals(ref State s)
-    {
-        double sumVol = 0;
-
-        for (int i = 0; i < _period; i++)
-        {
-            double v = _volBuffer[i];
-            if (v > 0)
-            {
-                sumVol += v;
-            }
-        }
-
-        s.SumVol = sumVol;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public TValue Update(TBar input, bool isNew = true)
@@ -203,6 +178,8 @@ public sealed class Evwma : ITValuePublisher
             _lastValidVolume = _p_lastValidVolume;
             // Restore buffer value at head position
             _volBuffer[s.Head] = _p_bufferVol;
+            // Reset Kahan compensation on re-entry
+            s.SumVolComp = 0;
         }
 
         // Get valid values
@@ -210,16 +187,13 @@ public sealed class Evwma : ITValuePublisher
         double currentVol = GetValidValue(volume, ref _lastValidVolume);
         currentVol = Math.Max(0.0, currentVol);
 
-        // Remove oldest volume from circular buffer
+        // Kahan-compensated delta update for SumVol
         double oldVol = _volBuffer[s.Head];
-
-        if (s.Count >= _period)
-        {
-            s.SumVol -= oldVol;
-        }
-
-        // Add current volume to running sum
-        s.SumVol += currentVol;
+        double delta = currentVol - (s.Count >= _period ? oldVol : 0);
+        double y = delta - s.SumVolComp;
+        double t = s.SumVol + y;
+        s.SumVolComp = (t - s.SumVol) - y;
+        s.SumVol = t;
 
         // Store in circular buffer
         _volBuffer[s.Head] = currentVol;
@@ -233,14 +207,6 @@ public sealed class Evwma : ITValuePublisher
             if (s.Count < _period)
             {
                 s.Count++;
-            }
-
-            // Periodic resync to limit floating-point drift
-            s.SyncCounter++;
-            if (s.SyncCounter >= ResyncInterval && s.Count >= _period)
-            {
-                s.SyncCounter = 0;
-                ResyncRunningTotals(ref s);
             }
         }
 
@@ -384,6 +350,7 @@ public sealed class Evwma : ITValuePublisher
             volBuffer.Clear();
 
             double sumVol = 0;
+            double sumVolComp = 0;
             double result = double.NaN;
             double lastValidPrice = 0;
             double lastValidVolume = 0;
@@ -408,8 +375,6 @@ public sealed class Evwma : ITValuePublisher
                 }
             }
 
-            int syncCounter = 0;
-
             for (int i = 0; i < len; i++)
             {
                 // Get valid values with NaN substitution
@@ -426,16 +391,13 @@ public sealed class Evwma : ITValuePublisher
                     lastValidVolume = volume[i];
                 }
 
-                // Remove oldest volume from circular buffer
+                // Kahan-compensated delta update for SumVol
                 double oldVol = volBuffer[head];
-
-                if (count >= period)
-                {
-                    sumVol -= oldVol;
-                }
-
-                // Add current volume to running sum
-                sumVol += currentVol;
+                double delta = currentVol - (count >= period ? oldVol : 0);
+                double y = delta - sumVolComp;
+                double t = sumVol + y;
+                sumVolComp = (t - sumVol) - y;
+                sumVol = t;
 
                 // Store in circular buffer
                 volBuffer[head] = currentVol;
@@ -446,22 +408,6 @@ public sealed class Evwma : ITValuePublisher
                 if (count < period)
                 {
                     count++;
-                }
-
-                // Periodic resync to limit floating-point drift
-                syncCounter++;
-                if (syncCounter >= ResyncInterval && count >= period)
-                {
-                    syncCounter = 0;
-                    sumVol = 0;
-                    for (int j = 0; j < period; j++)
-                    {
-                        double vj = volBuffer[j];
-                        if (vj > 0)
-                        {
-                            sumVol += vj;
-                        }
-                    }
                 }
 
                 // EVWMA calculation

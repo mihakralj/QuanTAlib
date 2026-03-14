@@ -27,6 +27,8 @@ namespace QuanTAlib;
 /// Key Insight:
 /// Unlike ACF which shows total correlation, PACF shows direct correlation,
 /// making it crucial for identifying the true order of autoregressive processes.
+///
+/// Uses Kahan compensated summation for numerical stability over long streams.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Pacf : AbstractBase
@@ -37,10 +39,9 @@ public sealed class Pacf : AbstractBase
 
     // Running sums for O(1) mean calculation
     private double _sum;
+    private double _sumComp;
     private double _p_sum;
-
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _p_sumComp;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -98,32 +99,28 @@ public sealed class Pacf : AbstractBase
         if (isNew)
         {
             _p_sum = _sum;
+            _p_sumComp = _sumComp;
             _buffer.Snapshot();
         }
         else
         {
             _sum = _p_sum;
+            _sumComp = _p_sumComp;
             _buffer.Restore();
         }
 
         // Remove oldest value if buffer is full
         if (_buffer.IsFull)
         {
-            _sum -= _buffer.Oldest;
+            double oldVal = _buffer.Oldest;
+            // Kahan subtract oldVal from _sum
+            { double y = -oldVal - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
         }
 
         // Add new value
         _buffer.Add(value);
-        _sum += value;
-
-        if (isNew)
-        {
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
-        }
+        // Kahan add value to _sum
+        { double y = value - _sumComp; double t = _sum + y; _sumComp = (t - _sum) - y; _sum = t; }
 
         // Calculate PACF using Durbin-Levinson recursion
         double pacf = CalculatePacf();
@@ -274,21 +271,13 @@ public sealed class Pacf : AbstractBase
         return Math.Clamp(phi[targetLag], -1.0, 1.0);
     }
 
-    private void Resync()
-    {
-        _sum = 0;
-        for (int i = 0; i < _buffer.Count; i++)
-        {
-            _sum += _buffer[i];
-        }
-    }
-
     public override void Reset()
     {
         _buffer.Clear();
         _sum = 0;
+        _sumComp = 0;
         _p_sum = 0;
-        _updateCount = 0;
+        _p_sumComp = 0;
         Last = default;
     }
 

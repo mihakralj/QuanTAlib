@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// Weights each bar's contribution by its price range (high - low), giving
 /// greater influence to volatile bars and less to narrow-range bars.
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 /// <c>RWMA = Σ(close_i × range_i) / Σ(range_i)</c> where <c>range_i = max(high_i - low_i, 0)</c>.
 ///
 /// Requires TBar (OHLC) inputs. When all bars have zero range the output
@@ -21,16 +22,10 @@ namespace QuanTAlib;
 public sealed class Rwma : ITValuePublisher
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumCR, double SumR, int Index, int Head, int Count, int SyncCounter)
+    private record struct State(double SumCR, double SumR, double SumCRComp, double SumRComp, int Index, int Head, int Count)
     {
-        public static State New() => new() { SumCR = 0, SumR = 0, Index = 0, Head = 0, Count = 0, SyncCounter = 0 };
+        public static State New() => new() { SumCR = 0, SumR = 0, SumCRComp = 0, SumRComp = 0, Index = 0, Head = 0, Count = 0 };
     }
-
-    /// <summary>
-    /// Resync interval to limit floating-point drift in running sums.
-    /// Full recalculation every N bars.
-    /// </summary>
-    private const int ResyncInterval = 1000;
 
     private readonly int _period;
     private readonly double[] _closeBuffer;
@@ -120,27 +115,6 @@ public sealed class Rwma : ITValuePublisher
     }
 
     /// <summary>
-    /// Recalculates running sums from buffer to eliminate accumulated floating-point drift.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ResyncRunningTotals(ref State s)
-    {
-        double sumCR = 0;
-        double sumR = 0;
-
-        for (int i = 0; i < _period; i++)
-        {
-            double c = _closeBuffer[i];
-            double r = _rangeBuffer[i];
-            sumCR = Math.FusedMultiplyAdd(c, r, sumCR);
-            sumR += r;
-        }
-
-        s.SumCR = sumCR;
-        s.SumR = sumR;
-    }
-
-    /// <summary>
     /// Updates RWMA with a TBar input (uses close, high, low).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -222,13 +196,35 @@ public sealed class Rwma : ITValuePublisher
 
         if (s.Count >= _period)
         {
-            s.SumCR = Math.FusedMultiplyAdd(-oldClose, oldRange, s.SumCR);
-            s.SumR -= oldRange;
-        }
+            // Kahan compensated update for SumCR: sumCR += (close*range - oldClose*oldRange)
+            double deltaCR = Math.FusedMultiplyAdd(currentClose, currentRange, -oldClose * oldRange);
+            double yCR = deltaCR - s.SumCRComp;
+            double tCR = s.SumCR + yCR;
+            s.SumCRComp = (tCR - s.SumCR) - yCR;
+            s.SumCR = tCR;
 
-        // Add new values
-        s.SumCR = Math.FusedMultiplyAdd(currentClose, currentRange, s.SumCR);
-        s.SumR += currentRange;
+            // Kahan compensated update for SumR: sumR += (currentRange - oldRange)
+            double deltaR = currentRange - oldRange;
+            double yR = deltaR - s.SumRComp;
+            double tR = s.SumR + yR;
+            s.SumRComp = (tR - s.SumR) - yR;
+            s.SumR = tR;
+        }
+        else
+        {
+            // Kahan compensated addition for SumCR
+            double crVal = currentClose * currentRange;
+            double yCR = crVal - s.SumCRComp;
+            double tCR = s.SumCR + yCR;
+            s.SumCRComp = (tCR - s.SumCR) - yCR;
+            s.SumCR = tCR;
+
+            // Kahan compensated addition for SumR
+            double yR = currentRange - s.SumRComp;
+            double tR = s.SumR + yR;
+            s.SumRComp = (tR - s.SumR) - yR;
+            s.SumR = tR;
+        }
 
         // Store in circular buffer
         _closeBuffer[s.Head] = currentClose;
@@ -243,14 +239,6 @@ public sealed class Rwma : ITValuePublisher
             if (s.Count < _period)
             {
                 s.Count++;
-            }
-
-            // Periodic resync to limit floating-point drift
-            s.SyncCounter++;
-            if (s.SyncCounter >= ResyncInterval && s.Count >= _period)
-            {
-                s.SyncCounter = 0;
-                ResyncRunningTotals(ref s);
             }
         }
 
@@ -392,7 +380,8 @@ public sealed class Rwma : ITValuePublisher
                 if (double.IsFinite(low[k])) { lastValidLow = low[k]; break; }
             }
 
-            int syncCounter = 0;
+            double sumCRComp = 0;
+            double sumRComp = 0;
 
             for (int i = 0; i < len; i++)
             {
@@ -421,13 +410,35 @@ public sealed class Rwma : ITValuePublisher
 
                 if (count >= period)
                 {
-                    sumCR = Math.FusedMultiplyAdd(-oldClose, oldRange, sumCR);
-                    sumR -= oldRange;
-                }
+                    // Kahan compensated update for SumCR
+                    double deltaCR = Math.FusedMultiplyAdd(currentClose, currentRange, -oldClose * oldRange);
+                    double yCR = deltaCR - sumCRComp;
+                    double tCR = sumCR + yCR;
+                    sumCRComp = (tCR - sumCR) - yCR;
+                    sumCR = tCR;
 
-                // Add new values
-                sumCR = Math.FusedMultiplyAdd(currentClose, currentRange, sumCR);
-                sumR += currentRange;
+                    // Kahan compensated update for SumR
+                    double deltaR = currentRange - oldRange;
+                    double yR = deltaR - sumRComp;
+                    double tR = sumR + yR;
+                    sumRComp = (tR - sumR) - yR;
+                    sumR = tR;
+                }
+                else
+                {
+                    // Kahan compensated addition for SumCR
+                    double crVal = currentClose * currentRange;
+                    double yCR = crVal - sumCRComp;
+                    double tCR = sumCR + yCR;
+                    sumCRComp = (tCR - sumCR) - yCR;
+                    sumCR = tCR;
+
+                    // Kahan compensated addition for SumR
+                    double yR = currentRange - sumRComp;
+                    double tR = sumR + yR;
+                    sumRComp = (tR - sumR) - yR;
+                    sumR = tR;
+                }
 
                 // Store in circular buffer
                 closeBuffer[head] = currentClose;
@@ -438,20 +449,6 @@ public sealed class Rwma : ITValuePublisher
                 if (count < period)
                 {
                     count++;
-                }
-
-                // Periodic resync
-                syncCounter++;
-                if (syncCounter >= ResyncInterval && count >= period)
-                {
-                    syncCounter = 0;
-                    sumCR = 0;
-                    sumR = 0;
-                    for (int j = 0; j < period; j++)
-                    {
-                        sumCR = Math.FusedMultiplyAdd(closeBuffer[j], rangeBuffer[j], sumCR);
-                        sumR += rangeBuffer[j];
-                    }
                 }
 
                 output[i] = sumR > double.Epsilon ? sumCR / sumR : currentClose;

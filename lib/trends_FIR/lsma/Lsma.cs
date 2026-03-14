@@ -8,6 +8,7 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Linear regression endpoint with O(1) updates using running sums.
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 /// Projects trend line value at current bar (or offset position).
 ///
 /// Calculation: <c>LSMA = b - m × offset</c> where <c>m = (n×Σxy - Σx×Σy) / denom</c>.
@@ -27,14 +28,11 @@ public sealed class Lsma : AbstractBase
     private int _disposed;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
+    private record struct State(double SumY, double SumXY, double SumYComp, double SumXYComp, double LastVal, double LastValidValue);
     private State _state;
     private State _p_state;
 
-    private int _tickCount;
     private bool _isNew;
-
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
     public bool IsNew => _isNew;
@@ -97,12 +95,19 @@ public sealed class Lsma : AbstractBase
             double oldest = _buffer.Oldest;
             double prev_sum_y = _state.SumY;
 
-            // O(1) update for sum_xy
-            // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-            _state.SumXY = Math.FusedMultiplyAdd(-_period, oldest, _state.SumXY + prev_sum_y);
+            // Kahan compensated update for SumXY: sumXY += (prev_sum_y - period * oldest)
+            double deltaXY = Math.FusedMultiplyAdd(-_period, oldest, prev_sum_y);
+            double yXY = deltaXY - _state.SumXYComp;
+            double tXY = _state.SumXY + yXY;
+            _state.SumXYComp = (tXY - _state.SumXY) - yXY;
+            _state.SumXY = tXY;
 
-            // O(1) update for sum_y
-            _state.SumY = _state.SumY - oldest + val;
+            // Kahan compensated update for SumY: sumY += (val - oldest)
+            double deltaY = val - oldest;
+            double yY = deltaY - _state.SumYComp;
+            double tY = _state.SumY + yY;
+            _state.SumYComp = (tY - _state.SumY) - yY;
+            _state.SumY = tY;
 
             _buffer.Add(val);
         }
@@ -110,29 +115,20 @@ public sealed class Lsma : AbstractBase
         {
             if (_buffer.Count > 0)
             {
-                _state.SumXY += _state.SumY;
+                // Kahan compensated addition for SumXY: sumXY += sumY (shift existing values)
+                double yXY = _state.SumY - _state.SumXYComp;
+                double tXY = _state.SumXY + yXY;
+                _state.SumXYComp = (tXY - _state.SumXY) - yXY;
+                _state.SumXY = tXY;
             }
-            _state.SumY += val;
+
+            // Kahan compensated addition for SumY
+            double yY = val - _state.SumYComp;
+            double tY = _state.SumY + yY;
+            _state.SumYComp = (tY - _state.SumY) - yY;
+            _state.SumY = tY;
+
             _buffer.Add(val);
-        }
-
-        _tickCount++;
-        if (_buffer.IsFull && _tickCount >= ResyncInterval)
-        {
-            _tickCount = 0;
-            Resync();
-        }
-    }
-
-    private void Resync()
-    {
-        _state.SumY = _buffer.Sum;
-        _state.SumXY = 0;
-        var span = _buffer.GetSpan();
-        for (int i = 0; i < span.Length; i++)
-        {
-            int x = span.Length - 1 - i;
-            _state.SumXY = Math.FusedMultiplyAdd(x, span[i], _state.SumXY);
         }
     }
 
@@ -412,7 +408,6 @@ public sealed class Lsma : AbstractBase
         _state.LastValidValue = double.NaN;
         _p_state = default;
         Last = default;
-        _tickCount = 0;
     }
 
     /// <summary>

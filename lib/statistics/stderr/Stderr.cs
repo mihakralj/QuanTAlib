@@ -12,6 +12,8 @@ namespace QuanTAlib;
 /// regression line fitted to the rolling window. Equivalent to the root mean
 /// square of the residuals, scaled by N-2 degrees of freedom (one per
 /// regression coefficient: slope and intercept).
+/// Uses Kahan compensated summation for numerical stability of running regression sums,
+/// eliminating the need for periodic resynchronization.
 ///
 /// Formula:
 ///   SE = sqrt( SSR / (N - 2) )
@@ -41,17 +43,19 @@ public sealed class Stderr : AbstractBase
 #pragma warning restore S2933
     private bool _disposed;
 
-    // O(1) running regression sums
+    // O(1) running regression sums with Kahan compensation
     private double _sumY;
     private double _sumXY;
     private double _p_sumY;
     private double _p_sumXY;
+    private double _sumYComp;      // Kahan compensation for _sumY
+    private double _sumXYComp;     // Kahan compensation for _sumXY
+    private double _p_sumYComp;
+    private double _p_sumXYComp;
     private double _lastVal;
     private double _p_lastVal;
     private double _lastValidValue;
     private double _p_lastValidValue;
-    private int _tickCount;
-    private const int ResyncInterval = 1000;
 
     // Precomputed constants (depend only on period)
     private readonly double _sumX;   // 0+1+…+(N-1) = N(N-1)/2
@@ -112,6 +116,8 @@ public sealed class Stderr : AbstractBase
             UpdateStateNew(val);
             _p_sumY = _sumY;
             _p_sumXY = _sumXY;
+            _p_sumYComp = _sumYComp;
+            _p_sumXYComp = _sumXYComp;
             _p_lastVal = _lastVal;
             _p_lastValidValue = _lastValidValue;
             _lastVal = val;
@@ -121,20 +127,26 @@ public sealed class Stderr : AbstractBase
             _lastValidValue = _p_lastValidValue;
             double val = GetValidValue(input.Value);
 
+            // Restore compensations
+            _sumYComp = _p_sumYComp;
+            _sumXYComp = _p_sumXYComp;
+
             // Correct running sums for newest bar change
             _sumY = _p_sumY - _p_lastVal + val;
             _sumXY = _p_sumXY - (_period - 1) * (_p_lastVal - val);
-            // Re-derive sumXY correctly via resync to avoid drift on bar corrections
+            // Re-derive sumXY correctly via recalculation to avoid drift on bar corrections
             if (_buffer.Count > 0)
             {
                 _buffer.UpdateNewest(val);
-                ResyncSums();
+                RecalculateSums();
             }
             else
             {
                 _buffer.Add(val);
                 _sumY = val;
+                _sumYComp = 0;
                 _sumXY = 0;
+                _sumXYComp = 0;
             }
 
             _lastVal = val;
@@ -172,10 +184,11 @@ public sealed class Stderr : AbstractBase
         _buffer.Clear();
         _sumY = 0;
         _sumXY = 0;
+        _sumYComp = 0;
+        _sumXYComp = 0;
         _lastVal = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _tickCount = 0;
 
         int primeStart = Math.Max(0, len - _period);
         for (int i = primeStart; i < len; i++)
@@ -195,36 +208,50 @@ public sealed class Stderr : AbstractBase
             double oldest = _buffer.Oldest;
             double prevSumY = _sumY;
 
-            // O(1) update derivation (x_i = 0..N-1, oldest=0, newest=N-1):
+            // O(1) update for sumXY with Kahan compensation
             // ΣXY_new = ΣXY_old - ΣY_old + oldest + (N-1)*val
-            _sumXY = _sumXY - prevSumY + oldest + (_period - 1) * val;
-            _sumY = prevSumY - oldest + val;
+            {
+                double delta = -prevSumY + oldest + (_period - 1) * val;
+                double y = delta - _sumXYComp;
+                double t = _sumXY + y;
+                _sumXYComp = (t - _sumXY) - y;
+                _sumXY = t;
+            }
+
+            // O(1) update for sumY with Kahan compensation
+            {
+                double delta = val - oldest;
+                double y = delta - _sumYComp;
+                double t = _sumY + y;
+                _sumYComp = (t - _sumY) - y;
+                _sumY = t;
+            }
         }
         else
         {
             _buffer.Add(val);
-            _sumY += val;
+
+            // Kahan add val to sumY
+            {
+                double y = val - _sumYComp;
+                double t = _sumY + y;
+                _sumYComp = (t - _sumY) - y;
+                _sumY = t;
+            }
 
             // Recalculate sumXY from scratch during warmup (buffer not yet full)
             _sumXY = 0;
+            _sumXYComp = 0;
             var span = _buffer.GetSpan();
             for (int i = 0; i < span.Length; i++)
             {
                 // x=0 is oldest (index 0 in ordered span), x=count-1 is newest
                 _sumXY = Math.FusedMultiplyAdd(i, span[i], _sumXY);
             }
-            _tickCount++;
             return;
         }
 
         _buffer.Add(val);
-
-        _tickCount++;
-        if (_tickCount >= ResyncInterval)
-        {
-            _tickCount = 0;
-            ResyncSums();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -263,18 +290,23 @@ public sealed class Stderr : AbstractBase
         return Math.Sqrt(ssr / (n - 2.0));
     }
 
-    private void ResyncSums()
+    private void RecalculateSums()
     {
-        double sumY = 0;
-        double sumXY = 0;
+        _sumY = 0;
+        _sumYComp = 0;
+        _sumXY = 0;
+        _sumXYComp = 0;
         var span = _buffer.GetSpan();
         for (int i = 0; i < span.Length; i++)
         {
-            sumY += span[i];
-            sumXY = Math.FusedMultiplyAdd(i, span[i], sumXY);
+            // Kahan add to sumY
+            double y = span[i] - _sumYComp;
+            double t = _sumY + y;
+            _sumYComp = (t - _sumY) - y;
+            _sumY = t;
+
+            _sumXY = Math.FusedMultiplyAdd(i, span[i], _sumXY);
         }
-        _sumY = sumY;
-        _sumXY = sumXY;
     }
 
     /// <summary>Creates a Stderr from a TSeries source and returns result series.</summary>
@@ -323,10 +355,11 @@ public sealed class Stderr : AbstractBase
         _buffer.Clear();
         _sumY = 0;
         _sumXY = 0;
+        _sumYComp = 0;
+        _sumXYComp = 0;
         _lastVal = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _tickCount = 0;
 
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
         int startIndex = source.Length - warmupLength;
@@ -344,11 +377,14 @@ public sealed class Stderr : AbstractBase
         _sumXY = 0;
         _p_sumY = 0;
         _p_sumXY = 0;
+        _sumYComp = 0;
+        _sumXYComp = 0;
+        _p_sumYComp = 0;
+        _p_sumXYComp = 0;
         _lastVal = 0;
         _p_lastVal = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _tickCount = 0;
         Last = default;
     }
 
@@ -406,13 +442,22 @@ public sealed class Stderr : AbstractBase
 
             double sumY = 0;
             double sumXY = 0;
+            double sumYComp = 0;     // Kahan compensation for sumY
+            double sumXYComp = 0;    // Kahan compensation for sumXY
             int i = 0;
 
             // Warmup: growing window, recompute sums from scratch each bar
             int warmupEnd = Math.Min(period, len);
             for (; i < warmupEnd; i++)
             {
-                sumY += sanitized[i];
+                // Kahan add to sumY
+                {
+                    double y = sanitized[i] - sumYComp;
+                    double t = sumY + y;
+                    sumYComp = (t - sumY) - y;
+                    sumY = t;
+                }
+
                 // Recalculate sumXY with new element appended (oldest=0, newest=i)
                 sumXY = 0;
                 for (int k = 0; k <= i; k++)
@@ -424,16 +469,32 @@ public sealed class Stderr : AbstractBase
                 output[i] = (n >= 3) ? CalcStderrFromSums(sanitized, 0, n, sumY, sumXY) : 0;
             }
 
+            // Reset compensation at transition to sliding window
+            sumXYComp = 0;
+
             // Sliding window: O(1) sum updates + O(N) residuals
             for (; i < len; i++)
             {
                 double oldest = sanitized[i - period];
                 double newest = sanitized[i];
 
-                // O(1) derivation (x_i = 0..N-1, drop oldest at x=0, add newest at x=N-1):
-                // ΣXY_new = ΣXY_old - ΣY_old + oldest + (period-1)*newest
-                sumXY = sumXY - sumY + oldest + (period - 1) * newest;
-                sumY = sumY - oldest + newest;
+                // O(1) Kahan compensated update for sumXY
+                {
+                    double delta = -sumY + oldest + (period - 1) * newest;
+                    double y = delta - sumXYComp;
+                    double t = sumXY + y;
+                    sumXYComp = (t - sumXY) - y;
+                    sumXY = t;
+                }
+
+                // O(1) Kahan compensated update for sumY
+                {
+                    double delta = newest - oldest;
+                    double y = delta - sumYComp;
+                    double t = sumY + y;
+                    sumYComp = (t - sumY) - y;
+                    sumY = t;
+                }
 
                 double slope = (period * sumXY - sumXFull * sumY) / denomFull;
                 double intercept = (sumY - slope * sumXFull) / period;

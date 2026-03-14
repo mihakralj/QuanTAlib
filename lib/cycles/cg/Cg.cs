@@ -43,8 +43,6 @@ public sealed class Cg : AbstractBase
     private double _p_weightedSum;
     private double _p_sum;
 
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -114,14 +112,6 @@ public sealed class Cg : AbstractBase
         // after each update (or track differential updates which is complex)
         RecalculateSums();
 
-        if (isNew)
-        {
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                RecalculateSums(); // Already done above, but keeps pattern consistent
-            }
-        }
 
         // Calculate CG
         double cg = CalculateCg();
@@ -198,7 +188,6 @@ public sealed class Cg : AbstractBase
         _sum = 0;
         _p_weightedSum = 0;
         _p_sum = 0;
-        _updateCount = 0;
         Last = default;
     }
 

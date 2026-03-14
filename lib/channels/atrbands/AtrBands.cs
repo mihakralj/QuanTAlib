@@ -39,24 +39,23 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     private bool _disposed;
 
     private const double ConvergenceThreshold = 1e-10;
-    private const int ResyncInterval = 1000;
-
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double SumSource,
+        double SumSourceComp,
         double RawRma,
         double E,
         double PrevClose,
         double LastValidSource,
         double LastValidHigh,
         double LastValidLow,
-        double LastValidClose,
-        int TickCount
+        double LastValidClose
     )
     {
         public static State New() => new()
         {
             SumSource = 0,
+            SumSourceComp = 0,
             RawRma = 0,
             E = 1.0,
             PrevClose = double.NaN,
@@ -64,7 +63,6 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
             LastValidHigh = double.NaN,
             LastValidLow = double.NaN,
             LastValidClose = double.NaN,
-            TickCount = 0,
         };
     }
 
@@ -266,20 +264,19 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
         if (isNew)
         {
             double removed = _sourceBuffer.Count == _sourceBuffer.Capacity ? _sourceBuffer.Oldest : 0.0;
-            _state.SumSource = _state.SumSource - removed + source;
-            _sourceBuffer.Add(source);
 
-            _state.TickCount++;
-            if (_sourceBuffer.IsFull && _state.TickCount >= ResyncInterval)
-            {
-                _state.TickCount = 0;
-                _state.SumSource = _sourceBuffer.RecalculateSum();
-            }
+            // Kahan compensated summation for SumSource
+            double delta = source - removed - _state.SumSourceComp;
+            double newSum = _state.SumSource + delta;
+            _state.SumSourceComp = (newSum - _state.SumSource) - delta;
+            _state.SumSource = newSum;
+            _sourceBuffer.Add(source);
         }
         else
         {
             _sourceBuffer.UpdateNewest(source);
             _state.SumSource = _sourceBuffer.Sum;
+            _state.SumSourceComp = 0;
         }
 
         // Calculate ATR using RMA with warmup compensation

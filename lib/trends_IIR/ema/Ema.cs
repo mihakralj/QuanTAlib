@@ -20,9 +20,9 @@ namespace QuanTAlib;
 public sealed class Ema : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double Ema, double E, bool IsHot, bool IsCompensated, int TickCount)
+    private record struct State(double Ema, double E, bool IsHot, bool IsCompensated)
     {
-        public static State New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false, TickCount = 0 };
+        public static State New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
     }
 
     private readonly double _alpha;
@@ -31,12 +31,6 @@ public sealed class Ema : AbstractBase
     private State _p_state = State.New();
     private double _lastValidValue;
     private double _p_lastValidValue;
-
-    /// <summary>
-    /// Interval for periodic resync to prevent floating-point drift accumulation.
-    /// After this many updates, the EMA state is recalculated from a checkpoint.
-    /// </summary>
-    private const int ResyncInterval = 10000;
 
     /// <summary>
     /// Creates EMA with specified period.
@@ -286,7 +280,7 @@ public sealed class Ema : AbstractBase
 
     /// <summary>
     /// Core EMA calculation with bias compensation and NaN handling.
-    /// Uses FMA for precision and includes periodic resync for long streams.
+    /// Uses FMA for precision. IIR filters are inherently self-correcting.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateCore(ReadOnlySpan<double> source, Span<double> output, double alpha, ref State state, ref double lastValidValue)
@@ -319,7 +313,6 @@ public sealed class Ema : AbstractBase
                 }
 
                 output[i] = state.Ema / (1.0 - state.E);
-                state.TickCount++;
             }
             if (state.E <= COMPENSATOR_THRESHOLD)
             {
@@ -389,17 +382,6 @@ public sealed class Ema : AbstractBase
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v3);
             Unsafe.Add(ref outRef, i + 3) = state.Ema;
 
-            state.TickCount += 4;
-
-            // Periodic resync to prevent floating-point drift
-            if (state.TickCount >= ResyncInterval)
-            {
-                state.TickCount = 0;
-                // For EMA, resync means recalculating from a known good state
-                // Since we don't store history, we accept the current state as truth
-                // The drift is typically < 1e-14 per operation, so after 10000 ops
-                // it's still well within double precision tolerance
-            }
         }
 
         // Scalar remainder
@@ -417,7 +399,6 @@ public sealed class Ema : AbstractBase
 
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
             Unsafe.Add(ref outRef, i) = state.Ema;
-            state.TickCount++;
         }
     }
 

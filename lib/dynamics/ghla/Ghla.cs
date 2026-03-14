@@ -34,17 +34,16 @@ public sealed class Ghla : AbstractBase
     private record struct State(
         double HighSum,
         double LowSum,
+        double HighSumComp,
+        double LowSumComp,
         int Trend,
         double LastValidHigh,
         double LastValidLow,
-        double LastValidClose,
-        int TickCount
+        double LastValidClose
     );
 
     private State _s;
     private State _ps;
-
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates GHLA with specified SMA period.
@@ -61,7 +60,7 @@ public sealed class Ghla : AbstractBase
         _lowBuffer = new RingBuffer(period);
         Name = $"Ghla({period})";
         WarmupPeriod = period;
-        _s = new State(0, 0, 0, 0, 0, 0, 0);
+        _s = default;
         _ps = _s;
     }
 
@@ -178,7 +177,7 @@ public sealed class Ghla : AbstractBase
     {
         _highBuffer.Clear();
         _lowBuffer.Clear();
-        _s = new State(0, 0, 0, 0, 0, 0, 0);
+        _s = default;
         _ps = _s;
         Last = default;
     }
@@ -291,33 +290,32 @@ public sealed class Ghla : AbstractBase
         // Update running SMA sums via ring buffers
         if (isNew)
         {
-            // High buffer
+            // High buffer — Kahan compensated
             double highRemoved = _highBuffer.Count == _highBuffer.Capacity ? _highBuffer.Oldest : 0.0;
-            s.HighSum = s.HighSum - highRemoved + high;
+            double hDelta = high - highRemoved - s.HighSumComp;
+            double hNewSum = s.HighSum + hDelta;
+            s.HighSumComp = (hNewSum - s.HighSum) - hDelta;
+            s.HighSum = hNewSum;
             _highBuffer.Add(high);
 
-            // Low buffer
+            // Low buffer — Kahan compensated
             double lowRemoved = _lowBuffer.Count == _lowBuffer.Capacity ? _lowBuffer.Oldest : 0.0;
-            s.LowSum = s.LowSum - lowRemoved + low;
+            double lDelta = low - lowRemoved - s.LowSumComp;
+            double lNewSum = s.LowSum + lDelta;
+            s.LowSumComp = (lNewSum - s.LowSum) - lDelta;
+            s.LowSum = lNewSum;
             _lowBuffer.Add(low);
-
-            // Periodic resync to limit floating-point drift
-            s.TickCount++;
-            if (_highBuffer.IsFull && s.TickCount >= ResyncInterval)
-            {
-                s.TickCount = 0;
-                s.HighSum = _highBuffer.RecalculateSum();
-                s.LowSum = _lowBuffer.RecalculateSum();
-            }
         }
         else
         {
             // Bar correction: update newest value in both buffers
             _highBuffer.UpdateNewest(high);
             s.HighSum = _highBuffer.Sum;
+            s.HighSumComp = 0;
 
             _lowBuffer.UpdateNewest(low);
             s.LowSum = _lowBuffer.Sum;
+            s.LowSumComp = 0;
         }
 
         // Compute SMAs
@@ -390,7 +388,9 @@ public sealed class Ghla : AbstractBase
         try
         {
             double highSum = 0;
+            double highSumComp = 0;
             double lowSum = 0;
+            double lowSumComp = 0;
             double lastValidHigh = 0;
             double lastValidLow = 0;
             double lastValidClose = 0;
@@ -398,7 +398,6 @@ public sealed class Ghla : AbstractBase
             int lowIdx = 0;
             int filled = 0;
             int trend = 0;
-            int tickCount = 0;
 
             // Seed lastValid values
             for (int k = 0; k < len; k++)
@@ -459,12 +458,14 @@ public sealed class Ghla : AbstractBase
                     c = lastValidClose;
                 }
 
-                // Update high buffer
-                if (filled >= period)
+                // Kahan-compensated update for high buffer
                 {
-                    highSum -= highBuf[highIdx];
+                    double deltaH = h - (filled >= period ? highBuf[highIdx] : 0);
+                    double yH = deltaH - highSumComp;
+                    double tH = highSum + yH;
+                    highSumComp = (tH - highSum) - yH;
+                    highSum = tH;
                 }
-                highSum += h;
                 highBuf[highIdx] = h;
                 highIdx++;
                 if (highIdx >= period)
@@ -472,12 +473,14 @@ public sealed class Ghla : AbstractBase
                     highIdx = 0;
                 }
 
-                // Update low buffer
-                if (filled >= period)
+                // Kahan-compensated update for low buffer
                 {
-                    lowSum -= lowBuf[lowIdx];
+                    double deltaL = l - (filled >= period ? lowBuf[lowIdx] : 0);
+                    double yL = deltaL - lowSumComp;
+                    double tL = lowSum + yL;
+                    lowSumComp = (tL - lowSum) - yL;
+                    lowSum = tL;
                 }
-                lowSum += l;
                 lowBuf[lowIdx] = l;
                 lowIdx++;
                 if (lowIdx >= period)
@@ -488,22 +491,6 @@ public sealed class Ghla : AbstractBase
                 if (filled < period)
                 {
                     filled++;
-                }
-
-                // Resync
-                tickCount++;
-                if (filled >= period && tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    double recalcH = 0;
-                    double recalcL = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        recalcH += highBuf[k];
-                        recalcL += lowBuf[k];
-                    }
-                    highSum = recalcH;
-                    lowSum = recalcL;
                 }
 
                 double smaH = highSum / filled;

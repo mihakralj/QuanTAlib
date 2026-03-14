@@ -38,16 +38,13 @@ public sealed class Ccv : AbstractBase
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double Sum,
-        double SumSq,
+        double SumComp,
         double PrevClose,
         double LastValid,
         double RawRma,
         double E);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
-    private int _tickCount;
     private const double Epsilon = 1e-10;
 
     /// <summary>
@@ -133,22 +130,25 @@ public sealed class Ccv : AbstractBase
 
         if (isNew)
         {
-            // Store the log return in buffer
+            // Kahan compensated sliding window update for Sum
             if (_returnBuffer.Count == _returnBuffer.Capacity)
             {
                 double oldest = _returnBuffer.Oldest;
-                _state.Sum -= oldest;
+                double delta = logReturn - oldest;
+                double y = delta - _state.SumComp;
+                double t = _state.Sum + y;
+                _state.SumComp = (t - _state.Sum) - y;
+                _state.Sum = t;
             }
-            _state.Sum += logReturn;
+            else
+            {
+                double y = logReturn - _state.SumComp;
+                double t = _state.Sum + y;
+                _state.SumComp = (t - _state.Sum) - y;
+                _state.Sum = t;
+            }
             _returnBuffer.Add(logReturn);
             _state.PrevClose = close;
-
-            _tickCount++;
-            if (_returnBuffer.IsFull && _tickCount >= ResyncInterval)
-            {
-                _tickCount = 0;
-                RecalculateSums();
-            }
         }
         else
         {
@@ -284,7 +284,6 @@ public sealed class Ccv : AbstractBase
         _returnBuffer.Clear();
         _state = new State(0.0, 0.0, double.NaN, 0.0, 0.0, 1.0);
         _p_state = _state;
-        _tickCount = 0;
         Last = default;
     }
 

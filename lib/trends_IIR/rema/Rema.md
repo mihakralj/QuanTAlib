@@ -121,7 +121,7 @@ REMA is inherently recursive due to state dependency on previous two values. SIM
 | **Throughput (Streaming)** | ~2 ns/bar | Single Update() call |
 | **Allocations (Hot Path)** | 0 bytes | Verified via BenchmarkDotNet |
 | **Complexity** | O(1) | Two FMA operations per bar |
-| **State Size** | 48 bytes | REMA, PrevRema, E, flags, counter |
+| **State Size** | 44 bytes | REMA, PrevRema, E, flags |
 
 ### Quality Metrics
 

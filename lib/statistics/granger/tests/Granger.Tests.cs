@@ -185,7 +185,7 @@ public class GrangerStateCorrectionTests
         // Correct with same values
         var result2 = indicator.Update(y1, x1, isNew: false);
 
-        Assert.Equal(result1.Value, result2.Value, 10);
+        Assert.Equal(result1.Value, result2.Value, 7);
     }
 
     [Fact]

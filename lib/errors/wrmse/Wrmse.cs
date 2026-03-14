@@ -14,7 +14,7 @@ namespace QuanTAlib;
 /// Formula:
 /// WRMSE = √(Σ(w_i * (actual_i - predicted_i)²) / Σ(w_i))
 ///
-/// Uses dual RingBuffers for O(1) streaming updates with running sums.
+/// Uses dual RingBuffers for O(1) streaming updates with Kahan compensated running sums.
 ///
 /// Key properties:
 /// - Always non-negative (WRMSE ≥ 0)
@@ -22,6 +22,8 @@ namespace QuanTAlib;
 /// - Weights allow emphasizing important observations
 /// - Reduces to RMSE when all weights are equal
 /// - WRMSE = 0 indicates perfect prediction
+///
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Wrmse : AbstractBase
@@ -33,14 +35,14 @@ public sealed class Wrmse : AbstractBase
     private record struct State(
         double WeightedErrorSum,
         double WeightSum,
+        double WeightedErrorComp,
+        double WeightComp,
         double LastValidActual,
         double LastValidPredicted,
-        double LastValidWeight,
-        int TickCount);
+        double LastValidWeight);
     private State _state;
     private State _p_state;
 
-    private const int ResyncInterval = 1000;
     private const double DefaultWeight = 1.0;
 
     /// <summary>
@@ -124,21 +126,25 @@ public sealed class Wrmse : AbstractBase
 
             double removedWeightedError = _weightedErrorBuffer.Count == _weightedErrorBuffer.Capacity
                 ? _weightedErrorBuffer.Oldest : 0.0;
-            _state.WeightedErrorSum = _state.WeightedErrorSum - removedWeightedError + weightedError;
+            {
+                double delta = weightedError - removedWeightedError;
+                double y = delta - _state.WeightedErrorComp;
+                double t = _state.WeightedErrorSum + y;
+                _state.WeightedErrorComp = (t - _state.WeightedErrorSum) - y;
+                _state.WeightedErrorSum = t;
+            }
             _weightedErrorBuffer.Add(weightedError);
 
             double removedWeight = _weightBuffer.Count == _weightBuffer.Capacity
                 ? _weightBuffer.Oldest : 0.0;
-            _state.WeightSum = _state.WeightSum - removedWeight + weight;
-            _weightBuffer.Add(weight);
-
-            _state.TickCount++;
-            if (_weightedErrorBuffer.IsFull && _state.TickCount >= ResyncInterval)
             {
-                _state.TickCount = 0;
-                _state.WeightedErrorSum = _weightedErrorBuffer.RecalculateSum();
-                _state.WeightSum = _weightBuffer.RecalculateSum();
+                double delta = weight - removedWeight;
+                double y = delta - _state.WeightComp;
+                double t = _state.WeightSum + y;
+                _state.WeightComp = (t - _state.WeightSum) - y;
+                _state.WeightSum = t;
             }
+            _weightBuffer.Add(weight);
         }
         else
         {

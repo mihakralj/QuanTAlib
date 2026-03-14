@@ -39,12 +39,12 @@ public sealed class Cti : AbstractBase
         double SumY,
         double SumY2,
         double SumXY,
+        double SumYComp,
+        double SumY2Comp,
+        double SumXYComp,
         int Count,
         double LastValid);
     private State _s, _ps;
-
-    private const int ResyncInterval = 1000;
-    private int _tickCount;
 
     /// <summary>
     /// Creates CTI with the specified lookback period.
@@ -102,30 +102,60 @@ public sealed class Cti : AbstractBase
 
             if (_buffer.Count == _buffer.Capacity)
             {
-                // Full window: O(1) incremental update
+                // Full window: Kahan compensated O(1) update
                 double oldest = _buffer.Oldest;
-                _s.SumY -= oldest;
-                _s.SumY2 -= oldest * oldest;
-                _s.SumXY -= _s.SumY;                            // shift all indices down by 1
-                _s.SumXY += (_period - 1) * value;             // new value at position (n-1)
+                // Kahan delta for SumY
+                {
+                    double delta = value - oldest;
+                    double y = delta - _s.SumYComp;
+                    double t = _s.SumY + y;
+                    _s.SumYComp = (t - _s.SumY) - y;
+                    _s.SumY = t;
+                }
+                // Kahan delta for SumY2
+                {
+                    double deltaSq = (value * value) - (oldest * oldest);
+                    double y = deltaSq - _s.SumY2Comp;
+                    double t = _s.SumY2 + y;
+                    _s.SumY2Comp = (t - _s.SumY2) - y;
+                    _s.SumY2 = t;
+                }
+                // SumXY net delta = -SumY_new + period*value
+                {
+                    double netDelta = -_s.SumY + (_period * value);
+                    double y = netDelta - _s.SumXYComp;
+                    double t = _s.SumXY + y;
+                    _s.SumXYComp = (t - _s.SumXY) - y;
+                    _s.SumXY = t;
+                }
             }
             else
             {
-                // Growing window during warmup
-                _s.SumXY += _s.Count * value;
+                // Growing window: Kahan additions
+                {
+                    double y = value - _s.SumYComp;
+                    double t = _s.SumY + y;
+                    _s.SumYComp = (t - _s.SumY) - y;
+                    _s.SumY = t;
+                }
+                {
+                    double sq = value * value;
+                    double y = sq - _s.SumY2Comp;
+                    double t = _s.SumY2 + y;
+                    _s.SumY2Comp = (t - _s.SumY2) - y;
+                    _s.SumY2 = t;
+                }
+                {
+                    double addXY = _s.Count * value;
+                    double y = addXY - _s.SumXYComp;
+                    double t = _s.SumXY + y;
+                    _s.SumXYComp = (t - _s.SumXY) - y;
+                    _s.SumXY = t;
+                }
                 _s.Count++;
             }
 
-            _s.SumY += value;
-            _s.SumY2 = Math.FusedMultiplyAdd(value, value, _s.SumY2);
             _buffer.Add(value);
-
-            _tickCount++;
-            if (_buffer.IsFull && _tickCount >= ResyncInterval)
-            {
-                _tickCount = 0;
-                Resync();
-            }
         }
         else
         {
@@ -213,7 +243,6 @@ public sealed class Cti : AbstractBase
         _buffer.Clear();
         _s = default;
         _ps = default;
-        _tickCount = 0;
         Last = default;
     }
 

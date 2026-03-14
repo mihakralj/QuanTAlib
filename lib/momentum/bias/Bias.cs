@@ -34,15 +34,13 @@ public sealed class Bias : AbstractBase
     private record struct State
     {
         public double Sum;
+        public double SumComp;
         public double LastInput;
         public double LastValidValue;
-        public int TickCount;
     }
 
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
     /// <summary>
@@ -158,20 +156,15 @@ public sealed class Bias : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateState(double val)
     {
-        if (_buffer.Count == _buffer.Capacity)
-        {
-            _state.Sum -= _buffer.Oldest;
-        }
+        double removed = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
+
+        // Kahan compensated summation
+        double delta = val - removed - _state.SumComp;
+        double newSum = _state.Sum + delta;
+        _state.SumComp = (newSum - _state.Sum) - delta;
+        _state.Sum = newSum;
 
         _buffer.Add(val);
-        _state.Sum += val;
-
-        _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            _state.Sum = _buffer.GetSpan().SumSIMD();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -292,6 +285,7 @@ public sealed class Bias : AbstractBase
             : bufferArray!.AsSpan(0, period);
 
         double sum = 0;
+        double sumComp = 0;
         double lastValid = double.NaN;
 
         // Find first valid value
@@ -307,7 +301,6 @@ public sealed class Bias : AbstractBase
         try
         {
             int bufferIndex = 0;
-            int tickCount = 0;
 
             // Warmup phase
             int warmupEnd = Math.Min(period, len);
@@ -344,8 +337,13 @@ public sealed class Bias : AbstractBase
                     val = lastValid;
                 }
 
+                // Kahan-compensated delta update for sum
                 double oldVal = buffer[bufferIndex];
-                sum = sum - oldVal + val;
+                double delta = val - oldVal;
+                double y = delta - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
 
                 buffer[bufferIndex] = val;
                 bufferIndex++;
@@ -356,18 +354,6 @@ public sealed class Bias : AbstractBase
 
                 double sma = sum / period;
                 output[i] = Math.Abs(sma) > Epsilon ? (val - sma) / sma : 0;
-
-                // Periodic resync for long sequences
-                tickCount++;
-                if (tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    sum = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        sum += buffer[k];
-                    }
-                }
             }
         }
         finally

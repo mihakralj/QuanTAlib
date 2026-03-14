@@ -21,6 +21,8 @@ namespace QuanTAlib;
 /// - U = 1: Forecast as good as naive (no-change) forecast
 /// - U > 1: Forecast worse than naive forecast
 /// - Useful for comparing forecasting methods
+///
+/// Uses Kahan compensated summation to prevent floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class TheilU : AbstractBase
@@ -30,11 +32,9 @@ public sealed class TheilU : AbstractBase
     private readonly RingBuffer _sqPredBuffer;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SqErrorSum, double SqActualSum, double SqPredSum, double LastValidActual, double LastValidPredicted, int TickCount);
+    private record struct State(double SqErrorSum, double SqActualSum, double SqPredSum, double SqErrorComp, double SqActualComp, double SqPredComp, double LastValidActual, double LastValidPredicted);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     public TheilU(int period)
     {
@@ -109,34 +109,40 @@ public sealed class TheilU : AbstractBase
             _p_state = _state;
 
             double removedSqError = _sqErrorBuffer.Count == _sqErrorBuffer.Capacity ? _sqErrorBuffer.Oldest : 0.0;
-            // Use FMA: sum = sum - removed + new = FMA(1.0, new, FMA(-1.0, removed, sum))
-            _state.SqErrorSum = Math.FusedMultiplyAdd(1.0, sqError, Math.FusedMultiplyAdd(-1.0, removedSqError, _state.SqErrorSum));
+            {
+                double delta = sqError - removedSqError;
+                double y = delta - _state.SqErrorComp;
+                double t = _state.SqErrorSum + y;
+                _state.SqErrorComp = (t - _state.SqErrorSum) - y;
+                _state.SqErrorSum = t;
+            }
             _sqErrorBuffer.Add(sqError);
 
             double removedSqActual = _sqActualBuffer.Count == _sqActualBuffer.Capacity ? _sqActualBuffer.Oldest : 0.0;
-            _state.SqActualSum = Math.FusedMultiplyAdd(1.0, sqActual, Math.FusedMultiplyAdd(-1.0, removedSqActual, _state.SqActualSum));
+            {
+                double delta = sqActual - removedSqActual;
+                double y = delta - _state.SqActualComp;
+                double t = _state.SqActualSum + y;
+                _state.SqActualComp = (t - _state.SqActualSum) - y;
+                _state.SqActualSum = t;
+            }
             _sqActualBuffer.Add(sqActual);
 
             double removedSqPred = _sqPredBuffer.Count == _sqPredBuffer.Capacity ? _sqPredBuffer.Oldest : 0.0;
-            _state.SqPredSum = Math.FusedMultiplyAdd(1.0, sqPred, Math.FusedMultiplyAdd(-1.0, removedSqPred, _state.SqPredSum));
-            _sqPredBuffer.Add(sqPred);
-
-            _state.TickCount++;
-            if (_sqErrorBuffer.IsFull && _state.TickCount >= ResyncInterval)
             {
-                _state.TickCount = 0;
-                _state.SqErrorSum = _sqErrorBuffer.RecalculateSum();
-                _state.SqActualSum = _sqActualBuffer.RecalculateSum();
-                _state.SqPredSum = _sqPredBuffer.RecalculateSum();
+                double delta = sqPred - removedSqPred;
+                double y = delta - _state.SqPredComp;
+                double t = _state.SqPredSum + y;
+                _state.SqPredComp = (t - _state.SqPredSum) - y;
+                _state.SqPredSum = t;
             }
+            _sqPredBuffer.Add(sqPred);
         }
         else
         {
             _state = _p_state;
 
             // Bar correction: update buffer and recalculate sums
-            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
-            // So we update newest and recalculate to ensure consistency
             _sqErrorBuffer.UpdateNewest(sqError);
             _sqActualBuffer.UpdateNewest(sqActual);
             _sqPredBuffer.UpdateNewest(sqPred);
@@ -288,7 +294,6 @@ public sealed class TheilU : AbstractBase
             output[i] = denom > 1e-10 ? Math.Sqrt(sqErrorSum) / denom : 0.0;
         }
 
-        int tickCount = 0;
         for (; i < len; i++)
         {
             double act = actual[i];
@@ -334,22 +339,6 @@ public sealed class TheilU : AbstractBase
 
             double denom = Math.Sqrt(sqActualSum + sqPredSum);
             output[i] = denom > 1e-10 ? Math.Sqrt(sqErrorSum) / denom : 0.0;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSqError = 0, recalcSqActual = 0, recalcSqPred = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSqError += sqErrorBuffer[k];
-                    recalcSqActual += sqActualBuffer[k];
-                    recalcSqPred += sqPredBuffer[k];
-                }
-                sqErrorSum = recalcSqError;
-                sqActualSum = recalcSqActual;
-                sqPredSum = recalcSqPred;
-            }
         }
     }
 

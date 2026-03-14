@@ -14,8 +14,8 @@ namespace QuanTAlib;
 /// ratios, and price/earnings multiples.
 ///
 /// The running sum of reciprocals enables O(1) updates: add 1/new, subtract 1/old.
-/// Kahan-Babuška summation prevents floating-point drift in the reciprocal accumulator.
-/// Periodic resync (every 1000 ticks) guards against long-running drift.
+/// Kahan-Babuška compensated summation prevents floating-point drift in the reciprocal accumulator,
+/// eliminating the need for periodic resynchronization.
 ///
 /// Non-positive values are replaced with the last valid positive value, since
 /// 1/x is undefined for x = 0 and negative reciprocals break the mean.
@@ -24,7 +24,6 @@ namespace QuanTAlib;
 /// Key Features:
 /// - O(1) time complexity per update via running sum of reciprocals
 /// - Kahan-Babuška compensated summation for numerical stability
-/// - Periodic resync every 1000 ticks to limit FP drift
 /// - NaN/Infinity/non-positive substitution with last valid value
 ///
 /// IsHot:
@@ -46,13 +45,10 @@ public sealed class Harmean : AbstractBase
         public double C;              // Kahan primary compensation
         public double Cc;             // Kahan secondary compensation (Babuška)
         public double LastValidValue;
-        public int TickCount;
     }
 
     private State _s;
     private State _ps;
-
-    private const int ResyncInterval = 1000;
 
     public Harmean(int period)
     {
@@ -215,13 +211,6 @@ public sealed class Harmean : AbstractBase
 
             _buffer.Add(val);
             KahanAdd(reciprocal);
-
-            _s.TickCount++;
-            if (_buffer.IsFull && _s.TickCount >= ResyncInterval)
-            {
-                _s.TickCount = 0;
-                RecalculateSumReciprocal();
-            }
         }
         else
         {
@@ -304,8 +293,9 @@ public sealed class Harmean : AbstractBase
             return;
         }
 
-        // Use simple sliding-window reciprocal sum for batch
+        // Use Kahan compensated sliding-window reciprocal sum for batch
         double sumReciprocal = 0;
+        double sumReciprocalComp = 0;  // Kahan compensation
         double lastValid = double.NaN;
         int count = 0;
 
@@ -353,7 +343,11 @@ public sealed class Harmean : AbstractBase
 
                 if (count == period)
                 {
-                    sumReciprocal -= ring[head];
+                    // Kahan subtract old reciprocal
+                    double ys = -ring[head] - sumReciprocalComp;
+                    double ts = sumReciprocal + ys;
+                    sumReciprocalComp = (ts - sumReciprocal) - ys;
+                    sumReciprocal = ts;
                 }
                 else
                 {
@@ -361,7 +355,15 @@ public sealed class Harmean : AbstractBase
                 }
 
                 ring[head] = reciprocal;
-                sumReciprocal += reciprocal;
+
+                // Kahan add new reciprocal
+                {
+                    double ys = reciprocal - sumReciprocalComp;
+                    double ts = sumReciprocal + ys;
+                    sumReciprocalComp = (ts - sumReciprocal) - ys;
+                    sumReciprocal = ts;
+                }
+
                 head = (head + 1) % period;
 
                 output[i] = (sumReciprocal > 1e-300) ? count / sumReciprocal : double.NaN;

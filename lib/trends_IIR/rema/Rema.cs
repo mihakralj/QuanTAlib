@@ -19,7 +19,7 @@ namespace QuanTAlib;
 public sealed class Rema : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double Rema, double PrevRema, double E, bool IsHot, bool IsCompensated, int TickCount, bool IsInitialized)
+    private record struct State(double Rema, double PrevRema, double E, bool IsHot, bool IsCompensated, bool IsInitialized)
     {
         public static State New() => new()
         {
@@ -28,7 +28,6 @@ public sealed class Rema : AbstractBase
             E = 1.0,
             IsHot = false,
             IsCompensated = false,
-            TickCount = 0,
             IsInitialized = false
         };
     }
@@ -41,7 +40,6 @@ public sealed class Rema : AbstractBase
     private double _lastValidValue;
     private double _p_lastValidValue;
 
-    private const int ResyncInterval = 10000;
     private const double COVERAGE_THRESHOLD = 0.05;
     private const double COMPENSATOR_THRESHOLD = 1e-10;
 
@@ -229,7 +227,6 @@ public sealed class Rema : AbstractBase
             state.Rema = input;
             state.PrevRema = input;
             state.IsInitialized = true;
-            state.TickCount = 1;
             state.E *= decay;
 
             if (state.E <= COVERAGE_THRESHOLD)
@@ -256,7 +253,6 @@ public sealed class Rema : AbstractBase
             // When lambda=0: REMA = reg_component (pure momentum)
             state.Rema = Math.FusedMultiplyAdd(lambda, emaComponent - regComponent, regComponent);
             state.PrevRema = prevRema;
-            state.TickCount++;
 
             if (!state.IsCompensated)
             {
@@ -318,7 +314,6 @@ public sealed class Rema : AbstractBase
                 state.Rema = val;
                 state.PrevRema = val;
                 state.IsInitialized = true;
-                state.TickCount = 1;
                 state.E *= decay;
 
                 if (state.E <= COVERAGE_THRESHOLD)
@@ -336,7 +331,6 @@ public sealed class Rema : AbstractBase
                 double regComponent = state.Rema + (state.Rema - state.PrevRema);
                 state.Rema = Math.FusedMultiplyAdd(lambda, emaComponent - regComponent, regComponent);
                 state.PrevRema = prevRema;
-                state.TickCount++;
 
                 if (!state.IsCompensated)
                 {
@@ -365,10 +359,6 @@ public sealed class Rema : AbstractBase
 
             Unsafe.Add(ref outRef, i) = result;
 
-            if (state.TickCount >= ResyncInterval)
-            {
-                state.TickCount = 0;
-            }
         }
     }
 

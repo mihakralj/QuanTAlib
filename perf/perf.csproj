@@ -13,6 +13,12 @@
     <!-- BenchmarkDotNet creates optimized JIT processes for benchmarking -->
   </PropertyGroup>
 
+  <!-- Exclude sibling progressive benchmark (belongs to progressive.csproj) -->
+  <ItemGroup>
+    <Compile Remove="Progressive.cs" />
+    <Compile Remove="obj\progressive\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\lib\quantalib.csproj" />
   </ItemGroup>

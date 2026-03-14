@@ -23,9 +23,9 @@ namespace QuanTAlib;
 public sealed class Rgma : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double E, bool IsHot, bool IsInitialized, int TickCount)
+    private record struct State(double E, bool IsHot, bool IsInitialized)
     {
-        public static State New() => new() { E = 1.0, IsHot = false, IsInitialized = false, TickCount = 0 };
+        public static State New() => new() { E = 1.0, IsHot = false, IsInitialized = false };
     }
 
     private readonly int _passes;
@@ -45,7 +45,6 @@ public sealed class Rgma : AbstractBase
     private bool _disposed;
 
     private const double COVERAGE_THRESHOLD = 0.05;
-    private const int ResyncInterval = 10000;
     private const int StackAllocThreshold = 512;
     public override bool IsHot => _state.IsHot;
 
@@ -272,7 +271,6 @@ public sealed class Rgma : AbstractBase
         {
             filters.Fill(input);
             state.IsInitialized = true;
-            state.TickCount = 1;
             state.E *= decay;
             if (state.E <= COVERAGE_THRESHOLD)
             {
@@ -289,17 +287,12 @@ public sealed class Rgma : AbstractBase
             filters[i] = Math.FusedMultiplyAdd(alpha, filters[i - 1] - filters[i], filters[i]);
         }
 
-        state.TickCount++;
         state.E *= decay;
         if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
         {
             state.IsHot = true;
         }
 
-        if (state.TickCount >= ResyncInterval)
-        {
-            state.TickCount = 0;
-        }
 
         return filters[^1];
     }
@@ -332,7 +325,6 @@ public sealed class Rgma : AbstractBase
             {
                 filters.Fill(x);
                 state.IsInitialized = true;
-                state.TickCount = 1;
                 state.E *= decay;
                 if (state.E <= COVERAGE_THRESHOLD)
                 {
@@ -349,17 +341,12 @@ public sealed class Rgma : AbstractBase
                     filters[p] = Math.FusedMultiplyAdd(alpha, filters[p - 1] - filters[p], filters[p]);
                 }
 
-                state.TickCount++;
                 state.E *= decay;
                 if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
                 {
                     state.IsHot = true;
                 }
 
-                if (state.TickCount >= ResyncInterval)
-                {
-                    state.TickCount = 0;
-                }
 
                 y = filters[^1];
             }

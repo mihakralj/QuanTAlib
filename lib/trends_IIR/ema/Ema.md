@@ -308,7 +308,7 @@ ema.Prime(historicalPrices);  // Ready for live data
 ### State Structure
 
 ```csharp
-private record struct State(double Ema, double E, bool IsHot, bool IsCompensated, int TickCount);
+private record struct State(double Ema, double E, bool IsHot, bool IsCompensated);
 ```
 
 | Field | Size | Purpose |
@@ -317,9 +317,8 @@ private record struct State(double Ema, double E, bool IsHot, bool IsCompensated
 | `E` | 8 bytes | Compensator factor $(1-\alpha)^n$ |
 | `IsHot` | 1 byte | Warmup complete flag |
 | `IsCompensated` | 1 byte | True when E < 1e-10 |
-| `TickCount` | 4 bytes | Bars processed |
 
-**Total state:** ~32 bytes per instance. No buffers required regardless of period.
+**Total state:** ~18 bytes per instance. No buffers required regardless of period. IIR filters are inherently self-correcting and do not require periodic resynchronization.
 
 ### FMA Optimization
 

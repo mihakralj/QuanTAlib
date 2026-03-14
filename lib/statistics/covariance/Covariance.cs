@@ -18,7 +18,8 @@ namespace QuanTAlib;
 /// Cov(X, Y) = Sum((x - mean(x)) * (y - mean(y))) / n (Population)
 /// Cov(X, Y) = Sum((x - mean(x)) * (y - mean(y))) / (n - 1) (Sample)
 ///
-/// This implementation uses the O(1) running sum formula:
+/// This implementation uses the O(1) running sum formula with Kahan compensated
+/// summation for numerical stability over long streams:
 /// Cov(X, Y) = (Sum(xy) - Sum(x)*Sum(y)/n) / n (or n-1)
 /// </remarks>
 [SkipLocalsInit]
@@ -31,8 +32,12 @@ public sealed class Covariance : AbstractBase
     private double _sumX;
     private double _sumY;
     private double _sumXY;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _sumXComp;
+    private double _sumYComp;
+    private double _sumXYComp;
+    private double _p_sumXComp;
+    private double _p_sumYComp;
+    private double _p_sumXYComp;
 
     public override bool IsHot => _bufferX.IsFull;
 
@@ -66,16 +71,33 @@ public sealed class Covariance : AbstractBase
     {
         if (isNew)
         {
-            // Save state for potential rollback AFTER modifications
-            // This captures state that can be restored by replacing newest value
+            // Save compensation state for potential rollback
+            _p_sumXComp = _sumXComp;
+            _p_sumYComp = _sumYComp;
+            _p_sumXYComp = _sumXYComp;
+
             if (_bufferX.IsFull)
             {
                 double oldX = _bufferX.Oldest;
                 double oldY = _bufferY.Oldest;
 
-                _sumX -= oldX;
-                _sumY -= oldY;
-                _sumXY -= oldX * oldY;
+                // Kahan subtract oldX from _sumX
+                double yx = -oldX - _sumXComp;
+                double tx = _sumX + yx;
+                _sumXComp = (tx - _sumX) - yx;
+                _sumX = tx;
+
+                // Kahan subtract oldY from _sumY
+                double yy = -oldY - _sumYComp;
+                double ty = _sumY + yy;
+                _sumYComp = (ty - _sumY) - yy;
+                _sumY = ty;
+
+                // Kahan subtract oldX*oldY from _sumXY
+                double yxy = -(oldX * oldY) - _sumXYComp;
+                double txy = _sumXY + yxy;
+                _sumXYComp = (txy - _sumXY) - yxy;
+                _sumXY = txy;
             }
 
             _bufferX.Add(x.Value);
@@ -84,20 +106,38 @@ public sealed class Covariance : AbstractBase
             double valX = x.Value;
             double valY = y.Value;
 
-            _sumX += valX;
-            _sumY += valY;
-            _sumXY += valX * valY;
-
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
+            // Kahan add valX to _sumX
             {
-                Resync();
+                double yk = valX - _sumXComp;
+                double tk = _sumX + yk;
+                _sumXComp = (tk - _sumX) - yk;
+                _sumX = tk;
+            }
+
+            // Kahan add valY to _sumY
+            {
+                double yk = valY - _sumYComp;
+                double tk = _sumY + yk;
+                _sumYComp = (tk - _sumY) - yk;
+                _sumY = tk;
+            }
+
+            // Kahan add valX*valY to _sumXY
+            {
+                double yk = (valX * valY) - _sumXYComp;
+                double tk = _sumXY + yk;
+                _sumXYComp = (tk - _sumXY) - yk;
+                _sumXY = tk;
             }
         }
         else
         {
+            // Restore compensation state
+            _sumXComp = _p_sumXComp;
+            _sumYComp = _p_sumYComp;
+            _sumXYComp = _p_sumXYComp;
+
             // For bar correction: replace the newest value
-            // We need to adjust sums by removing the old newest and adding the new value
             double oldX = _bufferX.Newest;
             double oldY = _bufferY.Newest;
 
@@ -107,9 +147,29 @@ public sealed class Covariance : AbstractBase
             double valX = x.Value;
             double valY = y.Value;
 
-            _sumX = _sumX - oldX + valX;
-            _sumY = _sumY - oldY + valY;
-            _sumXY = _sumXY - (oldX * oldY) + (valX * valY);
+            // Kahan subtract old + add new for _sumX
+            {
+                double yk = (-oldX + valX) - _sumXComp;
+                double tk = _sumX + yk;
+                _sumXComp = (tk - _sumX) - yk;
+                _sumX = tk;
+            }
+
+            // Kahan subtract old + add new for _sumY
+            {
+                double yk = (-oldY + valY) - _sumYComp;
+                double tk = _sumY + yk;
+                _sumYComp = (tk - _sumY) - yk;
+                _sumY = tk;
+            }
+
+            // Kahan subtract old + add new for _sumXY
+            {
+                double yk = (-(oldX * oldY) + (valX * valY)) - _sumXYComp;
+                double tk = _sumXY + yk;
+                _sumXYComp = (tk - _sumXY) - yk;
+                _sumXY = tk;
+            }
         }
 
         double cov = 0;
@@ -154,29 +214,10 @@ public sealed class Covariance : AbstractBase
         _sumX = 0;
         _sumY = 0;
         _sumXY = 0;
-        _updateCount = 0;
+        _sumXComp = 0;
+        _sumYComp = 0;
+        _sumXYComp = 0;
         Last = default;
-    }
-
-    private void Resync()
-    {
-        double sumX = 0;
-        double sumY = 0;
-        double sumXY = 0;
-
-        for (int i = 0; i < _bufferX.Count; i++)
-        {
-            double x = _bufferX[i];
-            double y = _bufferY[i];
-
-            sumX += x;
-            sumY += y;
-            sumXY += x * y;
-        }
-
-        _sumX = sumX;
-        _sumY = sumY;
-        _sumXY = sumXY;
     }
 
     public static TSeries Batch(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
@@ -289,7 +330,6 @@ public sealed class Covariance : AbstractBase
         }
 
         // Sliding window
-        int tickCount = period;
         for (; i < len; i++)
         {
             double x = sourceX[i];
@@ -323,26 +363,6 @@ public sealed class Covariance : AbstractBase
             double numerator = sumXY - ((sumX * sumY) / n);
             double denominator = isPopulation ? n : (n - 1);
             output[i] = numerator / denominator;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSumX = 0;
-                double recalcSumY = 0;
-                double recalcSumXY = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    double bx = bufferX[k];
-                    double by = bufferY[k];
-                    recalcSumX += bx;
-                    recalcSumY += by;
-                    recalcSumXY = Math.FusedMultiplyAdd(bx, by, recalcSumXY);
-                }
-                sumX = recalcSumX;
-                sumY = recalcSumY;
-                sumXY = recalcSumXY;
-            }
         }
     }
 
@@ -401,7 +421,6 @@ public sealed class Covariance : AbstractBase
         var vZero = Vector256<double>.Zero;
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -462,27 +481,6 @@ public sealed class Covariance : AbstractBase
             sumX = vSumsX.GetElement(3);
             sumY = vSumsY.GetElement(3);
             sumXY = vSumsXY.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSumX = 0;
-                double recalcSumY = 0;
-                double recalcSumXY = 0;
-                int startIdx = i + VectorWidth - period;
-                for (int k = 0; k < period; k++)
-                {
-                    double x = Unsafe.Add(ref srcXRef, startIdx + k);
-                    double y = Unsafe.Add(ref srcYRef, startIdx + k);
-                    recalcSumX += x;
-                    recalcSumY += y;
-                    recalcSumXY = Math.FusedMultiplyAdd(x, y, recalcSumXY);
-                }
-                sumX = recalcSumX;
-                sumY = recalcSumY;
-                sumXY = recalcSumXY;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)

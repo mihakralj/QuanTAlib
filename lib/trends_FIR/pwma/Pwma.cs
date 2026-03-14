@@ -8,6 +8,7 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Quadratic weighting (w[i]=i²) emphasizing recent values via O(1) triple running sums.
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 ///
 /// Calculation: <c>PWMA = Σ(i²×P_i) / Σ(i²)</c> with efficient incremental updates.
 /// </remarks>
@@ -21,11 +22,9 @@ public sealed class Pwma : AbstractBase
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double Sum, double WSum, double PSum, double LastInput, double LastValidValue, int TickCount);
+    private record struct State(double Sum, double WSum, double PSum, double SumComp, double WSumComp, double PSumComp, double LastInput, double LastValidValue);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -77,39 +76,53 @@ public sealed class Pwma : AbstractBase
             double oldWSum = _state.WSum;
             double oldest = _buffer.Oldest;
 
-            _state.Sum = _state.Sum - oldest + val;
-            _state.WSum = Math.FusedMultiplyAdd(_period, val, _state.WSum - oldSum);
-            _state.PSum = Math.FusedMultiplyAdd((double)_period * _period, val, _state.PSum - 2 * oldWSum + oldSum);
+            // Kahan compensated update for Sum: sum += (val - oldest)
+            double deltaS = val - oldest;
+            double yS = deltaS - _state.SumComp;
+            double tS = _state.Sum + yS;
+            _state.SumComp = (tS - _state.Sum) - yS;
+            _state.Sum = tS;
+
+            // Kahan compensated update for WSum: wsum += (period * val - oldSum)
+            double deltaW = Math.FusedMultiplyAdd(_period, val, -oldSum);
+            double yW = deltaW - _state.WSumComp;
+            double tW = _state.WSum + yW;
+            _state.WSumComp = (tW - _state.WSum) - yW;
+            _state.WSum = tW;
+
+            // Kahan compensated update for PSum: psum += (period² * val - 2 * oldWSum + oldSum)
+            double deltaP = Math.FusedMultiplyAdd((double)_period * _period, val, -2 * oldWSum + oldSum);
+            double yP = deltaP - _state.PSumComp;
+            double tP = _state.PSum + yP;
+            _state.PSumComp = (tP - _state.PSum) - yP;
+            _state.PSum = tP;
         }
         else
         {
             int count = _buffer.Count + 1;
-            _state.Sum += val;
-            _state.WSum = Math.FusedMultiplyAdd(count, val, _state.WSum);
-            _state.PSum = Math.FusedMultiplyAdd((double)count * count, val, _state.PSum);
+
+            // Kahan compensated addition for Sum
+            double yS = val - _state.SumComp;
+            double tS = _state.Sum + yS;
+            _state.SumComp = (tS - _state.Sum) - yS;
+            _state.Sum = tS;
+
+            // Kahan compensated addition for WSum
+            double wVal = count * val;
+            double yW = wVal - _state.WSumComp;
+            double tW = _state.WSum + yW;
+            _state.WSumComp = (tW - _state.WSum) - yW;
+            _state.WSum = tW;
+
+            // Kahan compensated addition for PSum
+            double pVal = (double)count * count * val;
+            double yP = pVal - _state.PSumComp;
+            double tP = _state.PSum + yP;
+            _state.PSumComp = (tP - _state.PSum) - yP;
+            _state.PSum = tP;
         }
 
         _buffer.Add(val);
-
-        _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            double recalcSum = 0;
-            double recalcWsum = 0;
-            double recalcPsum = 0;
-            int i = 1;
-            foreach (double item in _buffer)
-            {
-                recalcSum += item;
-                recalcWsum = Math.FusedMultiplyAdd(i, item, recalcWsum);
-                recalcPsum = Math.FusedMultiplyAdd((double)i * i, item, recalcPsum);
-                i++;
-            }
-            _state.Sum = recalcSum;
-            _state.WSum = recalcWsum;
-            _state.PSum = recalcPsum;
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -203,7 +216,9 @@ public sealed class Pwma : AbstractBase
         _state.Sum = 0;
         _state.WSum = 0;
         _state.PSum = 0;
-        _state.TickCount = 0;
+        _state.SumComp = 0;
+        _state.WSumComp = 0;
+        _state.PSumComp = 0;
 
         for (int i = startIndex; i < len; i++)
         {
@@ -270,12 +285,16 @@ public sealed class Pwma : AbstractBase
         double sum = 0;
         double wsum = 0;
         double psum = 0;
+        double sumComp = 0;
+        double wsumComp = 0;
+        double psumComp = 0;
         double lastValid = 0;
 
         Span<double> buffer = period <= 512 ? stackalloc double[period] : new double[period];
         int bufferIdx = 0;
         int i = 0;
 
+        // Warmup phase with Kahan compensated additions
         int warmupEnd = Math.Min(period, len);
         for (; i < warmupEnd; i++)
         {
@@ -289,16 +308,33 @@ public sealed class Pwma : AbstractBase
                 val = lastValid;
             }
 
-            sum += val;
-            wsum = Math.FusedMultiplyAdd(i + 1, val, wsum);
-            psum = Math.FusedMultiplyAdd((double)(i + 1) * (i + 1), val, psum);
+            // Kahan compensated addition for sum
+            double yS = val - sumComp;
+            double tS = sum + yS;
+            sumComp = (tS - sum) - yS;
+            sum = tS;
+
+            // Kahan compensated addition for wsum
+            double wVal = (i + 1) * val;
+            double yW = wVal - wsumComp;
+            double tW = wsum + yW;
+            wsumComp = (tW - wsum) - yW;
+            wsum = tW;
+
+            // Kahan compensated addition for psum
+            double pVal = (double)(i + 1) * (i + 1) * val;
+            double yP = pVal - psumComp;
+            double tP = psum + yP;
+            psumComp = (tP - psum) - yP;
+            psum = tP;
+
             buffer[i] = val;
 
             double currentDivisor = ((double)i + 1.0) * ((double)i + 2.0) * (2.0 * ((double)i + 1.0) + 1.0) / 6.0;
             output[i] = psum / currentDivisor;
         }
 
-        int tickCount = period;
+        // Steady-state: sliding window with Kahan compensated triple sums
         for (; i < len; i++)
         {
             double val = source[i];
@@ -315,41 +351,32 @@ public sealed class Pwma : AbstractBase
             double oldWSum = wsum;
             double oldest = buffer[bufferIdx];
 
-            sum = sum - oldest + val;
-            wsum = Math.FusedMultiplyAdd(period, val, wsum - oldSum);
-            psum = Math.FusedMultiplyAdd((double)period * period, val, psum - 2 * oldWSum + oldSum);
+            // Kahan compensated update for Sum: sum += (val - oldest)
+            double deltaS = val - oldest;
+            double yS = deltaS - sumComp;
+            double tS = sum + yS;
+            sumComp = (tS - sum) - yS;
+            sum = tS;
+
+            // Kahan compensated update for WSum: wsum += (period * val - oldSum)
+            double deltaW = Math.FusedMultiplyAdd(period, val, -oldSum);
+            double yW = deltaW - wsumComp;
+            double tW = wsum + yW;
+            wsumComp = (tW - wsum) - yW;
+            wsum = tW;
+
+            // Kahan compensated update for PSum: psum += (period² * val - 2 * oldWSum + oldSum)
+            double deltaP = Math.FusedMultiplyAdd((double)period * period, val, -2 * oldWSum + oldSum);
+            double yP = deltaP - psumComp;
+            double tP = psum + yP;
+            psumComp = (tP - psum) - yP;
+            psum = tP;
 
             buffer[bufferIdx] = val;
             bufferIdx++;
             if (bufferIdx >= period)
             {
                 bufferIdx = 0;
-            }
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                double recalcWsum = 0;
-                double recalcPsum = 0;
-
-                for (int k = 0; k < period; k++)
-                {
-                    int idx = bufferIdx + k;
-                    if (idx >= period)
-                    {
-                        idx -= period;
-                    }
-
-                    double v = buffer[idx];
-                    recalcSum += v;
-                    recalcWsum = Math.FusedMultiplyAdd(k + 1, v, recalcWsum);
-                    recalcPsum = Math.FusedMultiplyAdd((double)(k + 1) * (k + 1), v, recalcPsum);
-                }
-                sum = recalcSum;
-                wsum = recalcWsum;
-                psum = recalcPsum;
             }
 
             output[i] = psum / divisor;

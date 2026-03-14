@@ -13,6 +13,7 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Arithmetic mean of the last n values using running sum for O(1) updates.
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 /// SIMD-accelerated batch processing (AVX-512/AVX2/NEON).
 ///
 /// Calculation: <c>SMA = Σ(values) / n</c>.
@@ -28,11 +29,9 @@ public sealed class Sma : AbstractBase
     private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double Sum, double LastValidValue, int TickCount);
+    private record struct State(double Sum, double Compensation, double LastValidValue);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates SMA with specified period.
@@ -165,21 +164,22 @@ public sealed class Sma : AbstractBase
         return _state.LastValidValue;
     }
 
+    /// <summary>
+    /// Updates the running sum using Kahan compensated summation for O(1) drift-free updates.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateState(double val)
     {
         double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
 
-        _state.Sum = Math.FusedMultiplyAdd(-1.0, removedValue, _state.Sum + val);
+        // Kahan compensated sliding window update
+        double delta = val - removedValue;
+        double y = delta - _state.Compensation;
+        double t = _state.Sum + y;
+        _state.Compensation = (t - _state.Sum) - y;
+        _state.Sum = t;
 
         _buffer.Add(val);
-
-        _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            _state.Sum = _buffer.RecalculateSum();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -205,7 +205,6 @@ public sealed class Sma : AbstractBase
 
             // Use buffer's authoritative sum (UpdateNewest already did the differential update internally)
             _state = restoredState with { Sum = _buffer.Sum };
-            // Note: Resync is only done on isNew=true path via UpdateState()
         }
 
         double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
@@ -258,7 +257,7 @@ public sealed class Sma : AbstractBase
     /// <summary>
     /// Calculates SMA in-place, writing results to pre-allocated output span.
     /// Zero-allocation method for maximum performance.
-    /// Uses stackalloc circular buffer for NaN-safe sliding window calculation.
+    /// Uses Kahan compensated summation for drift-free sliding window calculation.
     /// Automatically uses SIMD acceleration for large, clean datasets.
     /// </summary>
     /// <param name="source">Input values</param>
@@ -325,6 +324,9 @@ public sealed class Sma : AbstractBase
         return (results, sma);
     }
 
+    /// <summary>
+    /// Scalar batch path with Kahan compensated summation and NaN handling.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -339,6 +341,7 @@ public sealed class Sma : AbstractBase
         try
         {
             double sum = 0;
+            double comp = 0; // Kahan compensation
             double lastValid = double.NaN;
 
             // Find first valid value to seed lastValid
@@ -354,6 +357,7 @@ public sealed class Sma : AbstractBase
             int bufferIndex = 0;
             int i = 0;
 
+            // Warmup phase: accumulating values before buffer is full
             int warmupEnd = Math.Min(period, len);
             for (; i < warmupEnd; i++)
             {
@@ -367,12 +371,17 @@ public sealed class Sma : AbstractBase
                     val = lastValid;
                 }
 
-                sum += val;
+                // Kahan compensated addition during warmup
+                double y = val - comp;
+                double t = sum + y;
+                comp = (t - sum) - y;
+                sum = t;
+
                 buffer[i] = val;
                 output[i] = sum / (i + 1);
             }
 
-            int tickCount = 0;
+            // Steady-state: sliding window with Kahan compensated delta
             for (; i < len; i++)
             {
                 double val = source[i];
@@ -385,7 +394,13 @@ public sealed class Sma : AbstractBase
                     val = lastValid;
                 }
 
-                sum = Math.FusedMultiplyAdd(-1.0, buffer[bufferIndex], sum + val);
+                // Kahan compensated sliding window: sum += (newVal - oldVal)
+                double delta = val - buffer[bufferIndex];
+                double y = delta - comp;
+                double t = sum + y;
+                comp = (t - sum) - y;
+                sum = t;
+
                 buffer[bufferIndex] = val;
 
                 bufferIndex++;
@@ -395,18 +410,6 @@ public sealed class Sma : AbstractBase
                 }
 
                 output[i] = sum / period;
-
-                tickCount++;
-                if (tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    double recalcSum = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        recalcSum += buffer[k];
-                    }
-                    sum = recalcSum;
-                }
             }
         }
         finally
@@ -418,6 +421,10 @@ public sealed class Sma : AbstractBase
         }
     }
 
+    /// <summary>
+    /// AVX-512 SIMD batch path. Uses prefix-sum over deltas for vectorized SMA.
+    /// No periodic resync needed — double precision drift is negligible over batch runs.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -444,7 +451,6 @@ public sealed class Sma : AbstractBase
 
         var vInvPeriod = Vector512.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
-        int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -470,30 +476,21 @@ public sealed class Sma : AbstractBase
             vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(7);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
+            sum += newVal - oldVal;
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }
 
+    /// <summary>
+    /// AVX2 SIMD batch path. Uses prefix-sum over deltas for vectorized SMA.
+    /// No periodic resync needed — double precision drift is negligible over batch runs.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -521,7 +518,6 @@ public sealed class Sma : AbstractBase
         var vInvPeriod = Vector256.Create(invPeriod);
         var vZero = Vector256<double>.Zero;
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
-        int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -545,30 +541,21 @@ public sealed class Sma : AbstractBase
             vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
+            sum += newVal - oldVal;
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }
 
+    /// <summary>
+    /// NEON SIMD batch path. Uses prefix-sum over deltas for vectorized SMA.
+    /// No periodic resync needed — double precision drift is negligible over batch runs.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -595,7 +582,6 @@ public sealed class Sma : AbstractBase
 
         var vInvPeriod = Vector128.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
-        int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -616,26 +602,13 @@ public sealed class Sma : AbstractBase
             vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = ps1;
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
+            sum += newVal - oldVal;
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }

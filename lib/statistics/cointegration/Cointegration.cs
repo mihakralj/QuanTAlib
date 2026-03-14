@@ -24,6 +24,8 @@ namespace QuanTAlib;
 /// - More negative ADF values indicate stronger evidence of cointegration
 /// - Critical values (approx): -3.43 (1%), -2.86 (5%), -2.57 (10%)
 /// - Values more negative than critical values reject null hypothesis of no cointegration
+///
+/// Uses Kahan compensated summation for numerical stability over long streams.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Cointegration : AbstractBase
@@ -36,6 +38,11 @@ public sealed class Cointegration : AbstractBase
     private double _sumA2, _sumB2;
     private double _sumAB;
 
+    // Kahan compensation for main sums
+    private double _sumAComp, _sumBComp;
+    private double _sumA2Comp, _sumB2Comp;
+    private double _sumABComp;
+
     // Residual tracking
     private double _prevResidual;
     private double _p_prevResidual;
@@ -47,12 +54,19 @@ public sealed class Cointegration : AbstractBase
     private readonly RingBuffer _laggedResiduals;
     private double _sumDeltaLagged, _sumLagged2, _sumDelta2;
 
+    // Kahan compensation for ADF sums
+    private double _sumDeltaLaggedComp, _sumLagged2Comp, _sumDelta2Comp;
+
+    // Previous compensation state for rollback
+    private double _p_sumAComp, _p_sumBComp;
+    private double _p_sumA2Comp, _p_sumB2Comp;
+    private double _p_sumABComp;
+    private double _p_sumDeltaLaggedComp, _p_sumLagged2Comp, _p_sumDelta2Comp;
+
     // Last valid values for NaN handling
     private double _lastValidA, _lastValidB;
     private double _p_lastValidA, _p_lastValidB;
 
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
     /// <inheritdoc />
@@ -118,7 +132,8 @@ public sealed class Cointegration : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesA, double seriesB, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesA), new TValue(DateTime.UtcNow, seriesB), isNew);
+        DateTime now = DateTime.UtcNow;
+        return Update(new TValue(now, seriesA), new TValue(now, seriesB), isNew);
     }
     /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesA, seriesB) instead.</remarks>
@@ -163,27 +178,46 @@ public sealed class Cointegration : AbstractBase
         _p_lastValidB = _lastValidB;
         _p_prevResidual = _prevResidual;
         _p_hasPrevResidual = _hasPrevResidual;
+        _p_sumAComp = _sumAComp;
+        _p_sumBComp = _sumBComp;
+        _p_sumA2Comp = _sumA2Comp;
+        _p_sumB2Comp = _sumB2Comp;
+        _p_sumABComp = _sumABComp;
+        _p_sumDeltaLaggedComp = _sumDeltaLaggedComp;
+        _p_sumLagged2Comp = _sumLagged2Comp;
+        _p_sumDelta2Comp = _sumDelta2Comp;
 
         // Update main buffers
         if (_bufferA.IsFull)
         {
             double oldA = _bufferA.Oldest;
             double oldB = _bufferB.Oldest;
-            _sumA -= oldA;
-            _sumB -= oldB;
-            _sumA2 = FusedMultiplyAdd(-oldA, oldA, _sumA2);
-            _sumB2 = FusedMultiplyAdd(-oldB, oldB, _sumB2);
-            _sumAB = FusedMultiplyAdd(-oldA, oldB, _sumAB);
+
+            // Kahan subtract oldA from _sumA
+            { double y = -oldA - _sumAComp; double t = _sumA + y; _sumAComp = (t - _sumA) - y; _sumA = t; }
+            // Kahan subtract oldB from _sumB
+            { double y = -oldB - _sumBComp; double t = _sumB + y; _sumBComp = (t - _sumB) - y; _sumB = t; }
+            // Kahan subtract oldA² from _sumA2
+            { double y = -(oldA * oldA) - _sumA2Comp; double t = _sumA2 + y; _sumA2Comp = (t - _sumA2) - y; _sumA2 = t; }
+            // Kahan subtract oldB² from _sumB2
+            { double y = -(oldB * oldB) - _sumB2Comp; double t = _sumB2 + y; _sumB2Comp = (t - _sumB2) - y; _sumB2 = t; }
+            // Kahan subtract oldA*oldB from _sumAB
+            { double y = -(oldA * oldB) - _sumABComp; double t = _sumAB + y; _sumABComp = (t - _sumAB) - y; _sumAB = t; }
         }
 
         _bufferA.Add(a);
         _bufferB.Add(b);
 
-        _sumA += a;
-        _sumB += b;
-        _sumA2 = FusedMultiplyAdd(a, a, _sumA2);
-        _sumB2 = FusedMultiplyAdd(b, b, _sumB2);
-        _sumAB = FusedMultiplyAdd(a, b, _sumAB);
+        // Kahan add a to _sumA
+        { double y = a - _sumAComp; double t = _sumA + y; _sumAComp = (t - _sumA) - y; _sumA = t; }
+        // Kahan add b to _sumB
+        { double y = b - _sumBComp; double t = _sumB + y; _sumBComp = (t - _sumB) - y; _sumB = t; }
+        // Kahan add a² to _sumA2
+        { double y = (a * a) - _sumA2Comp; double t = _sumA2 + y; _sumA2Comp = (t - _sumA2) - y; _sumA2 = t; }
+        // Kahan add b² to _sumB2
+        { double y = (b * b) - _sumB2Comp; double t = _sumB2 + y; _sumB2Comp = (t - _sumB2) - y; _sumB2 = t; }
+        // Kahan add a*b to _sumAB
+        { double y = (a * b) - _sumABComp; double t = _sumAB + y; _sumABComp = (t - _sumAB) - y; _sumAB = t; }
 
         // Calculate current residual
         double residual = CalculateResidual(a, b);
@@ -198,27 +232,23 @@ public sealed class Cointegration : AbstractBase
             {
                 double oldDelta = _deltaResiduals.Oldest;
                 double oldLagged = _laggedResiduals.Oldest;
-                _sumDeltaLagged = FusedMultiplyAdd(-oldDelta, oldLagged, _sumDeltaLagged);
-                _sumLagged2 = FusedMultiplyAdd(-oldLagged, oldLagged, _sumLagged2);
-                _sumDelta2 = FusedMultiplyAdd(-oldDelta, oldDelta, _sumDelta2);
+                // Kahan subtract from ADF sums
+                { double y = -(oldDelta * oldLagged) - _sumDeltaLaggedComp; double t = _sumDeltaLagged + y; _sumDeltaLaggedComp = (t - _sumDeltaLagged) - y; _sumDeltaLagged = t; }
+                { double y = -(oldLagged * oldLagged) - _sumLagged2Comp; double t = _sumLagged2 + y; _sumLagged2Comp = (t - _sumLagged2) - y; _sumLagged2 = t; }
+                { double y = -(oldDelta * oldDelta) - _sumDelta2Comp; double t = _sumDelta2 + y; _sumDelta2Comp = (t - _sumDelta2) - y; _sumDelta2 = t; }
             }
 
             _deltaResiduals.Add(delta);
             _laggedResiduals.Add(lagged);
 
-            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
-            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
-            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
+            // Kahan add to ADF sums
+            { double y = (delta * lagged) - _sumDeltaLaggedComp; double t = _sumDeltaLagged + y; _sumDeltaLaggedComp = (t - _sumDeltaLagged) - y; _sumDeltaLagged = t; }
+            { double y = (lagged * lagged) - _sumLagged2Comp; double t = _sumLagged2 + y; _sumLagged2Comp = (t - _sumLagged2) - y; _sumLagged2 = t; }
+            { double y = (delta * delta) - _sumDelta2Comp; double t = _sumDelta2 + y; _sumDelta2Comp = (t - _sumDelta2) - y; _sumDelta2 = t; }
         }
 
         _prevResidual = residual;
         _hasPrevResidual = true;
-
-        _updateCount++;
-        if (_updateCount % ResyncInterval == 0)
-        {
-            Resync();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -229,6 +259,14 @@ public sealed class Cointegration : AbstractBase
         _lastValidB = _p_lastValidB;
         _prevResidual = _p_prevResidual;
         _hasPrevResidual = _p_hasPrevResidual;
+        _sumAComp = _p_sumAComp;
+        _sumBComp = _p_sumBComp;
+        _sumA2Comp = _p_sumA2Comp;
+        _sumB2Comp = _p_sumB2Comp;
+        _sumABComp = _p_sumABComp;
+        _sumDeltaLaggedComp = _p_sumDeltaLaggedComp;
+        _sumLagged2Comp = _p_sumLagged2Comp;
+        _sumDelta2Comp = _p_sumDelta2Comp;
 
         // Update newest values in main buffers
         if (_bufferA.Count == 0)
@@ -240,11 +278,12 @@ public sealed class Cointegration : AbstractBase
         double oldA = _bufferA.Newest;
         double oldB = _bufferB.Newest;
 
-        _sumA += a - oldA;
-        _sumB += b - oldB;
-        _sumA2 = FusedMultiplyAdd(a, a, FusedMultiplyAdd(-oldA, oldA, _sumA2));
-        _sumB2 = FusedMultiplyAdd(b, b, FusedMultiplyAdd(-oldB, oldB, _sumB2));
-        _sumAB = FusedMultiplyAdd(a, b, FusedMultiplyAdd(-oldA, oldB, _sumAB));
+        // Kahan subtract old + add new for main sums
+        { double y = (-oldA + a) - _sumAComp; double t = _sumA + y; _sumAComp = (t - _sumA) - y; _sumA = t; }
+        { double y = (-oldB + b) - _sumBComp; double t = _sumB + y; _sumBComp = (t - _sumB) - y; _sumB = t; }
+        { double y = (-(oldA * oldA) + (a * a)) - _sumA2Comp; double t = _sumA2 + y; _sumA2Comp = (t - _sumA2) - y; _sumA2 = t; }
+        { double y = (-(oldB * oldB) + (b * b)) - _sumB2Comp; double t = _sumB2 + y; _sumB2Comp = (t - _sumB2) - y; _sumB2 = t; }
+        { double y = (-(oldA * oldB) + (a * b)) - _sumABComp; double t = _sumAB + y; _sumABComp = (t - _sumAB) - y; _sumAB = t; }
 
         _bufferA.UpdateNewest(a);
         _bufferB.UpdateNewest(b);
@@ -267,9 +306,10 @@ public sealed class Cointegration : AbstractBase
             double oldDelta = _deltaResiduals.Newest;
             double oldLagged = _laggedResiduals.Newest;
 
-            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, FusedMultiplyAdd(-oldDelta, oldLagged, _sumDeltaLagged));
-            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, FusedMultiplyAdd(-oldLagged, oldLagged, _sumLagged2));
-            _sumDelta2 = FusedMultiplyAdd(delta, delta, FusedMultiplyAdd(-oldDelta, oldDelta, _sumDelta2));
+            // Kahan subtract old + add new for ADF sums
+            { double y = (-(oldDelta * oldLagged) + (delta * lagged)) - _sumDeltaLaggedComp; double t = _sumDeltaLagged + y; _sumDeltaLaggedComp = (t - _sumDeltaLagged) - y; _sumDeltaLagged = t; }
+            { double y = (-(oldLagged * oldLagged) + (lagged * lagged)) - _sumLagged2Comp; double t = _sumLagged2 + y; _sumLagged2Comp = (t - _sumLagged2) - y; _sumLagged2 = t; }
+            { double y = (-(oldDelta * oldDelta) + (delta * delta)) - _sumDelta2Comp; double t = _sumDelta2 + y; _sumDelta2Comp = (t - _sumDelta2) - y; _sumDelta2 = t; }
 
             _deltaResiduals.UpdateNewest(delta);
             _laggedResiduals.UpdateNewest(lagged);
@@ -349,63 +389,6 @@ public sealed class Cointegration : AbstractBase
         return gamma / seGamma;
     }
 
-    private void Resync()
-    {
-        // Resync main buffer sums using span access to avoid per-element modulo in indexer.
-        // Both buffers are always updated together so their sequenced spans align element-by-element.
-        _sumA = 0;
-        _sumB = 0;
-        _sumA2 = 0;
-        _sumB2 = 0;
-        _sumAB = 0;
-
-        _bufferA.GetSequencedSpans(out var aFirst, out var aSecond);
-        _bufferB.GetSequencedSpans(out var bFirst, out var bSecond);
-
-        for (int i = 0; i < aFirst.Length; i++)
-        {
-            double a = aFirst[i], b = bFirst[i];
-            _sumA += a;
-            _sumB += b;
-            _sumA2 = FusedMultiplyAdd(a, a, _sumA2);
-            _sumB2 = FusedMultiplyAdd(b, b, _sumB2);
-            _sumAB = FusedMultiplyAdd(a, b, _sumAB);
-        }
-
-        for (int i = 0; i < aSecond.Length; i++)
-        {
-            double a = aSecond[i], b = bSecond[i];
-            _sumA += a;
-            _sumB += b;
-            _sumA2 = FusedMultiplyAdd(a, a, _sumA2);
-            _sumB2 = FusedMultiplyAdd(b, b, _sumB2);
-            _sumAB = FusedMultiplyAdd(a, b, _sumAB);
-        }
-
-        // Resync ADF regression sums (delta/lagged buffers also always updated together).
-        _sumDeltaLagged = 0;
-        _sumLagged2 = 0;
-        _sumDelta2 = 0;
-
-        _deltaResiduals.GetSequencedSpans(out var dFirst, out var dSecond);
-        _laggedResiduals.GetSequencedSpans(out var lFirst, out var lSecond);
-
-        for (int i = 0; i < dFirst.Length; i++)
-        {
-            double delta = dFirst[i], lagged = lFirst[i];
-            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
-            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
-            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
-        }
-
-        for (int i = 0; i < dSecond.Length; i++)
-        {
-            double delta = dSecond[i], lagged = lSecond[i];
-            _sumDeltaLagged = FusedMultiplyAdd(delta, lagged, _sumDeltaLagged);
-            _sumLagged2 = FusedMultiplyAdd(lagged, lagged, _sumLagged2);
-            _sumDelta2 = FusedMultiplyAdd(delta, delta, _sumDelta2);
-        }
-    }
     /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
@@ -426,9 +409,19 @@ public sealed class Cointegration : AbstractBase
         _sumB2 = 0;
         _sumAB = 0;
 
+        _sumAComp = 0;
+        _sumBComp = 0;
+        _sumA2Comp = 0;
+        _sumB2Comp = 0;
+        _sumABComp = 0;
+
         _sumDeltaLagged = 0;
         _sumLagged2 = 0;
         _sumDelta2 = 0;
+
+        _sumDeltaLaggedComp = 0;
+        _sumLagged2Comp = 0;
+        _sumDelta2Comp = 0;
 
         _prevResidual = 0;
         _p_prevResidual = 0;
@@ -440,7 +433,6 @@ public sealed class Cointegration : AbstractBase
         _p_lastValidA = 0;
         _p_lastValidB = 0;
 
-        _updateCount = 0;
         Last = default;
     }
 

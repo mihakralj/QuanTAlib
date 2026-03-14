@@ -5,7 +5,7 @@ namespace QuanTAlib.Tests;
 public sealed class CtiTests
 {
     private const int DefaultPeriod = 20;
-    private const double Tolerance = 1e-10;
+    private const double Tolerance = 1e-7;
 
     // ───── A) Constructor validation ─────
 

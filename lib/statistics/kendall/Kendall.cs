@@ -97,7 +97,8 @@ public sealed class Kendall : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesX, double seriesY, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesX), new TValue(DateTime.UtcNow, seriesY), isNew);
+        DateTime now = DateTime.UtcNow;
+        return Update(new TValue(now, seriesX), new TValue(now, seriesY), isNew);
     }
     /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for dual-input indicator. Use Update(seriesX, seriesY) instead.</remarks>

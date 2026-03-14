@@ -17,7 +17,8 @@ namespace QuanTAlib;
 /// Ra = Return of Asset
 /// Rm = Return of Market
 ///
-/// This implementation uses the O(1) slope formula for linear regression of Ra vs Rm:
+/// This implementation uses the O(1) slope formula for linear regression of Ra vs Rm
+/// with Kahan compensated summation for numerical stability over long streams:
 /// Beta = (N * Sum(Ra*Rm) - Sum(Ra) * Sum(Rm)) / (N * Sum(Rm^2) - Sum(Rm)^2)
 /// </remarks>
 [SkipLocalsInit]
@@ -37,9 +38,19 @@ public sealed class Beta : AbstractBase
     private double _sumRaRm;
     private double _sumRm2;
 
+    // Kahan compensation terms
+    private double _sumRaComp;
+    private double _sumRmComp;
+    private double _sumRaRmComp;
+    private double _sumRm2Comp;
+
+    // Previous compensation state for rollback
+    private double _p_sumRaComp;
+    private double _p_sumRmComp;
+    private double _p_sumRaRmComp;
+    private double _p_sumRm2Comp;
+
     private const double Epsilon = 1e-10;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _returnsAsset.IsFull;
 
@@ -78,6 +89,10 @@ public sealed class Beta : AbstractBase
 
             _p_prevAsset = _prevAsset;
             _p_prevMarket = _prevMarket;
+            _p_sumRaComp = _sumRaComp;
+            _p_sumRmComp = _sumRmComp;
+            _p_sumRaRmComp = _sumRaRmComp;
+            _p_sumRm2Comp = _sumRm2Comp;
 
             // Calculate returns with division-by-zero and NaN/Infinity guards
             double ra, rm;
@@ -116,25 +131,21 @@ public sealed class Beta : AbstractBase
                 double oldRa = _returnsAsset.Oldest;
                 double oldRm = _returnsMarket.Oldest;
 
-                _sumRa -= oldRa;
-                _sumRm -= oldRm;
-                _sumRaRm = FusedMultiplyAdd(-oldRa, oldRm, _sumRaRm);
-                _sumRm2 = FusedMultiplyAdd(-oldRm, oldRm, _sumRm2);
+                // Kahan subtract old values
+                { double y = -oldRa - _sumRaComp; double t = _sumRa + y; _sumRaComp = (t - _sumRa) - y; _sumRa = t; }
+                { double y = -oldRm - _sumRmComp; double t = _sumRm + y; _sumRmComp = (t - _sumRm) - y; _sumRm = t; }
+                { double y = -(oldRa * oldRm) - _sumRaRmComp; double t = _sumRaRm + y; _sumRaRmComp = (t - _sumRaRm) - y; _sumRaRm = t; }
+                { double y = -(oldRm * oldRm) - _sumRm2Comp; double t = _sumRm2 + y; _sumRm2Comp = (t - _sumRm2) - y; _sumRm2 = t; }
             }
 
             _returnsAsset.Add(ra);
             _returnsMarket.Add(rm);
 
-            _sumRa += ra;
-            _sumRm += rm;
-            _sumRaRm = FusedMultiplyAdd(ra, rm, _sumRaRm);
-            _sumRm2 = FusedMultiplyAdd(rm, rm, _sumRm2);
-
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
+            // Kahan add new values
+            { double y = ra - _sumRaComp; double t = _sumRa + y; _sumRaComp = (t - _sumRa) - y; _sumRa = t; }
+            { double y = rm - _sumRmComp; double t = _sumRm + y; _sumRmComp = (t - _sumRm) - y; _sumRm = t; }
+            { double y = (ra * rm) - _sumRaRmComp; double t = _sumRaRm + y; _sumRaRmComp = (t - _sumRaRm) - y; _sumRaRm = t; }
+            { double y = (rm * rm) - _sumRm2Comp; double t = _sumRm2 + y; _sumRm2Comp = (t - _sumRm2) - y; _sumRm2 = t; }
         }
         else
         {
@@ -154,6 +165,12 @@ public sealed class Beta : AbstractBase
                 _p_prevMarket = market.Value;
                 return new TValue(asset.Time, 0);
             }
+
+            // Restore compensation state
+            _sumRaComp = _p_sumRaComp;
+            _sumRmComp = _p_sumRmComp;
+            _sumRaRmComp = _p_sumRaRmComp;
+            _sumRm2Comp = _p_sumRm2Comp;
 
             double oldRa = _returnsAsset.Newest;
             double oldRm = _returnsMarket.Newest;
@@ -192,11 +209,11 @@ public sealed class Beta : AbstractBase
             _returnsAsset.UpdateNewest(newRa);
             _returnsMarket.UpdateNewest(newRm);
 
-            // Use FMA for better precision: _sumRa = _sumRa - oldRa + newRa
-            _sumRa = FusedMultiplyAdd(1.0, newRa, FusedMultiplyAdd(-1.0, oldRa, _sumRa));
-            _sumRm = FusedMultiplyAdd(1.0, newRm, FusedMultiplyAdd(-1.0, oldRm, _sumRm));
-            _sumRaRm = FusedMultiplyAdd(newRa, newRm, FusedMultiplyAdd(-oldRa, oldRm, _sumRaRm));
-            _sumRm2 = FusedMultiplyAdd(newRm, newRm, FusedMultiplyAdd(-oldRm, oldRm, _sumRm2));
+            // Kahan subtract old + add new
+            { double y = (-oldRa + newRa) - _sumRaComp; double t = _sumRa + y; _sumRaComp = (t - _sumRa) - y; _sumRa = t; }
+            { double y = (-oldRm + newRm) - _sumRmComp; double t = _sumRm + y; _sumRmComp = (t - _sumRm) - y; _sumRm = t; }
+            { double y = (-(oldRa * oldRm) + (newRa * newRm)) - _sumRaRmComp; double t = _sumRaRm + y; _sumRaRmComp = (t - _sumRaRm) - y; _sumRaRm = t; }
+            { double y = (-(oldRm * oldRm) + (newRm * newRm)) - _sumRm2Comp; double t = _sumRm2 + y; _sumRm2Comp = (t - _sumRm2) - y; _sumRm2 = t; }
         }
 
         double beta = 0;
@@ -247,31 +264,14 @@ public sealed class Beta : AbstractBase
         _sumRm = 0;
         _sumRaRm = 0;
         _sumRm2 = 0;
+        _sumRaComp = 0;
+        _sumRmComp = 0;
+        _sumRaRmComp = 0;
+        _sumRm2Comp = 0;
         _isInitialized = false;
         _prevAsset = 0;
         _prevMarket = 0;
         _p_prevAsset = 0;
         _p_prevMarket = 0;
-        _updateCount = 0;
-    }
-
-    private void Resync()
-    {
-        _sumRa = 0;
-        _sumRm = 0;
-        _sumRaRm = 0;
-        _sumRm2 = 0;
-
-        for (int i = 0; i < _returnsAsset.Count; i++)
-        {
-            double ra = _returnsAsset[i];
-            double rm = _returnsMarket[i];
-
-            _sumRa += ra;
-            _sumRm += rm;
-            // Use FMA for better precision in cross-term and squared-term
-            _sumRaRm = FusedMultiplyAdd(ra, rm, _sumRaRm);
-            _sumRm2 = FusedMultiplyAdd(rm, rm, _sumRm2);
-        }
     }
 }

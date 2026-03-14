@@ -31,16 +31,14 @@ public sealed class Vhf : AbstractBase
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double DiffSum,
+        double DiffSumComp,
         double PrevClose,
         double LastValidValue,
-        int TickCount,
         bool HasPrevClose
     );
 
     private State _s;
     private State _ps;
-
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates VHF with specified lookback period.
@@ -58,7 +56,7 @@ public sealed class Vhf : AbstractBase
         _diffBuffer = new RingBuffer(period);        // period absolute differences
         Name = $"Vhf({period})";
         WarmupPeriod = period + 1;
-        _s = new State(0, 0, 0, 0, false);
+        _s = default;
         _ps = _s;
     }
 
@@ -116,11 +114,14 @@ public sealed class Vhf : AbstractBase
                 absDiff = Math.Abs(val - s.PrevClose);
             }
 
-            // Update diff buffer running sum
+            // Update diff buffer running sum — Kahan compensated
             if (s.HasPrevClose)
             {
                 double diffRemoved = _diffBuffer.Count == _diffBuffer.Capacity ? _diffBuffer.Oldest : 0.0;
-                s.DiffSum = s.DiffSum - diffRemoved + absDiff;
+                double delta = absDiff - diffRemoved - s.DiffSumComp;
+                double newSum = s.DiffSum + delta;
+                s.DiffSumComp = (newSum - s.DiffSum) - delta;
+                s.DiffSum = newSum;
                 _diffBuffer.Add(absDiff);
             }
 
@@ -129,14 +130,6 @@ public sealed class Vhf : AbstractBase
 
             s.PrevClose = val;
             s.HasPrevClose = true;
-
-            // Resync to prevent floating-point drift
-            s.TickCount++;
-            if (_diffBuffer.IsFull && s.TickCount >= ResyncInterval)
-            {
-                s.TickCount = 0;
-                s.DiffSum = _diffBuffer.RecalculateSum();
-            }
         }
         else
         {
@@ -151,6 +144,7 @@ public sealed class Vhf : AbstractBase
                 double newAbsDiff = Math.Abs(val - prevCloseForDiff);
                 _diffBuffer.UpdateNewest(newAbsDiff);
                 s.DiffSum = _diffBuffer.Sum;
+                s.DiffSumComp = 0;
             }
         }
 
@@ -327,6 +321,7 @@ public sealed class Vhf : AbstractBase
         try
         {
             double diffSum = 0;
+            double diffSumComp = 0;
             double lastValid = 0;
             double prevClose = 0;
             bool hasPrevClose = false;
@@ -334,7 +329,6 @@ public sealed class Vhf : AbstractBase
             int closeFilled = 0;
             int diffIdx = 0;
             int diffFilled = 0;
-            int tickCount = 0;
 
             // Find first valid value to seed lastValid
             for (int k = 0; k < len; k++)
@@ -363,12 +357,14 @@ public sealed class Vhf : AbstractBase
                 {
                     double absDiff = Math.Abs(val - prevClose);
 
-                    // Update diff buffer
-                    if (diffFilled >= period)
+                    // Kahan-compensated update for diff buffer
                     {
-                        diffSum -= diffBuf[diffIdx];
+                        double deltaD = absDiff - (diffFilled >= period ? diffBuf[diffIdx] : 0);
+                        double yD = deltaD - diffSumComp;
+                        double tD = diffSum + yD;
+                        diffSumComp = (tD - diffSum) - yD;
+                        diffSum = tD;
                     }
-                    diffSum += absDiff;
                     diffBuf[diffIdx] = absDiff;
                     if (diffFilled < period)
                     {
@@ -396,18 +392,6 @@ public sealed class Vhf : AbstractBase
                 prevClose = val;
                 hasPrevClose = true;
 
-                // Resync diff sum
-                tickCount++;
-                if (diffFilled >= period && tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    double recalc = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        recalc += diffBuf[k];
-                    }
-                    diffSum = recalc;
-                }
 
                 // Calculate VHF
                 if (closeFilled >= closeBufSize && diffFilled >= period)

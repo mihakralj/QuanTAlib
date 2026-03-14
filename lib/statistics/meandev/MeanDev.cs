@@ -11,6 +11,8 @@ namespace QuanTAlib;
 /// Measures the average of the absolute differences between each value and the
 /// arithmetic mean over a rolling window. Unlike Standard Deviation, deviations
 /// are not squared, making MeanDev more robust to outliers.
+/// Uses Kahan compensated summation for numerical stability of the running sum,
+/// eliminating the need for periodic resynchronization.
 ///
 /// Formula:
 ///   MD = (1/N) * Σ|xᵢ - x̄|
@@ -37,13 +39,13 @@ public sealed class MeanDev : AbstractBase
 #pragma warning restore S2933
     private bool _disposed;
 
-    // Running sum for O(1) mean computation; re-accumulated in Resync
+    // Running sum for O(1) mean computation; Kahan compensated for numerical stability
     private double _sum;
     private double _p_sum;
+    private double _sumComp;       // Kahan compensation for _sum
+    private double _p_sumComp;
     private double _lastValidValue;
     private double _p_lastValidValue;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -97,19 +99,26 @@ public sealed class MeanDev : AbstractBase
         {
             // Save state snapshot for rollback
             _p_sum = _sum;
+            _p_sumComp = _sumComp;
 
             if (_buffer.IsFull)
             {
-                _sum -= _buffer.Oldest;
+                // Kahan subtract oldest
+                double oldest = _buffer.Oldest;
+                double y = -oldest - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
             }
 
             _buffer.Add(value);
-            _sum += value;
 
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
+            // Kahan add new value
             {
-                ResyncSum();
+                double y = value - _sumComp;
+                double t = _sum + y;
+                _sumComp = (t - _sum) - y;
+                _sum = t;
             }
         }
         else
@@ -117,16 +126,19 @@ public sealed class MeanDev : AbstractBase
             // Rollback to previous state
             _lastValidValue = _p_lastValidValue;
             _sum = _p_sum;
+            _sumComp = _p_sumComp;
 
             if (_buffer.Count > 0)
             {
                 _buffer.UpdateNewest(value);
-                ResyncSum();
+                // Recalculate sum from scratch for !isNew path (same as before but with Kahan)
+                RecalculateSum();
             }
             else
             {
                 _buffer.Add(value);
                 _sum = value;
+                _sumComp = 0;
             }
 
             if (double.IsFinite(input.Value))
@@ -166,9 +178,9 @@ public sealed class MeanDev : AbstractBase
         // Reset and prime the streaming state from tail of source
         _buffer.Clear();
         _sum = 0;
+        _sumComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
 
         int primeStart = Math.Max(0, len - _period);
         for (int i = primeStart; i < len; i++)
@@ -202,15 +214,18 @@ public sealed class MeanDev : AbstractBase
         return devSum / n;
     }
 
-    private void ResyncSum()
+    private void RecalculateSum()
     {
-        double sum = 0;
+        _sum = 0;
+        _sumComp = 0;
         var span = _buffer.GetSpan();
         for (int i = 0; i < span.Length; i++)
         {
-            sum += span[i];
+            double y = span[i] - _sumComp;
+            double t = _sum + y;
+            _sumComp = (t - _sum) - y;
+            _sum = t;
         }
-        _sum = sum;
     }
 
     /// <summary>Creates a MeanDev from a TSeries source and returns result series.</summary>
@@ -258,9 +273,9 @@ public sealed class MeanDev : AbstractBase
 
         _buffer.Clear();
         _sum = 0;
+        _sumComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
 
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
         int startIndex = source.Length - warmupLength;
@@ -276,9 +291,10 @@ public sealed class MeanDev : AbstractBase
         _buffer.Clear();
         _sum = 0;
         _p_sum = 0;
+        _sumComp = 0;
+        _p_sumComp = 0;
         _lastValidValue = 0;
         _p_lastValidValue = 0;
-        _updateCount = 0;
         Last = default;
     }
 
@@ -332,13 +348,19 @@ public sealed class MeanDev : AbstractBase
             }
 
             double sum = 0;
+            double sumComp = 0;    // Kahan compensation for sum
             int i = 0;
 
             // Warmup phase: growing window
             int warmupEnd = Math.Min(period, len);
             for (; i < warmupEnd; i++)
             {
-                sum += sanitized[i];
+                // Kahan add
+                double y = sanitized[i] - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+
                 double n = i + 1;
                 double mean = sum / n;
                 double devSum = 0;
@@ -352,7 +374,13 @@ public sealed class MeanDev : AbstractBase
             // Sliding window phase: full period
             for (; i < len; i++)
             {
-                sum = sum - sanitized[i - period] + sanitized[i];
+                // Kahan subtract oldest, add newest
+                double delta = sanitized[i] - sanitized[i - period];
+                double y = delta - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+
                 double mean = sum / period;
                 double devSum = 0;
                 int start = i - period + 1;
