@@ -56,7 +56,7 @@ public sealed class Usf : AbstractBase
 
         // Precompute coefficients for FMA optimization
         _k0 = 1.0 - _c1;           // coefficient for val
-        _k1 = 2.0 * _c1 - _c2;     // coefficient for PrevInput1
+        _k1 = (2.0 * _c1) - _c2;     // coefficient for PrevInput1
         _k2 = -(_c1 + _c3);        // coefficient for PrevInput2
 
         Name = $"Usf({period})";
@@ -281,7 +281,7 @@ public sealed class Usf : AbstractBase
 
         // Precompute coefficients for FMA (outside loop)
         double k0 = 1.0 - c1;
-        double k1 = 2.0 * c1 - c2;
+        double k1 = (2.0 * c1) - c2;
         double k2 = -(c1 + c3);
 
         for (; i < len; i++)

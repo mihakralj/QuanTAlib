@@ -135,7 +135,7 @@ public sealed class Mstoch : ITValuePublisher
         // === Stage 1: Highpass (2-pole Butterworth, removes trend) ===
         // HP = c1*(src - 2*src1 + src2) + c2*hp1 + c3*hp2
         double hp = Math.FusedMultiplyAdd(
-            _hpC1, src - 2.0 * s.Src1 + s.Src2,
+            _hpC1, src - (2.0 * s.Src1) + s.Src2,
             Math.FusedMultiplyAdd(_hpC2, s.Hp1, _hpC3 * s.Hp2));
 
         // === Stage 1: Super Smoother of HP =>  Filt ===
@@ -332,7 +332,7 @@ public sealed class Mstoch : ITValuePublisher
                 }
 
                 double hp = Math.FusedMultiplyAdd(
-                    hpC1, s - 2.0 * prevSrc1 + prevSrc2,
+                    hpC1, s - (2.0 * prevSrc1) + prevSrc2,
                     Math.FusedMultiplyAdd(hpC2, prevHp1, hpC3 * prevHp2));
 
                 double filtIn = (hp + prevHp1) * 0.5;

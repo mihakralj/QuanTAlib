@@ -255,7 +255,7 @@ public sealed class Kst : ITValuePublisher
 
         // ── KST composite (weighted sum, FMA for w1..w3) ─────────────────────
         double kstVal = Math.FusedMultiplyAdd(3.0, sm3, Math.FusedMultiplyAdd(2.0, sm2, sm1))
-                      + 4.0 * sm4;
+                      + (4.0 * sm4);
 
         // ── Signal line (SMA of KST) ──────────────────────────────────────────
         double sigVal = StepSma(_sigBuf, ref sigSum, ref sigH, ref sigC, kstVal, _sigPeriod, isNew, out double prevSig);
@@ -458,7 +458,7 @@ public sealed class Kst : ITValuePublisher
                 double sm4 = BatchStepSma(sm4b, s4, ref sum4, ref sh4, ref sc4, roc4);
 
                 double kstVal = Math.FusedMultiplyAdd(3.0, sm3, Math.FusedMultiplyAdd(2.0, sm2, sm1))
-                              + 4.0 * sm4;
+                              + (4.0 * sm4);
 
                 sigOut[i] = BatchStepSma(sigb, sigPeriod, ref sumSig, ref shSig, ref scSig, kstVal);
                 kstOut[i] = kstVal;

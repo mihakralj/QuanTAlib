@@ -170,7 +170,7 @@ public sealed class Rsx : ITValuePublisher
         double rsx;
         if (smoothedAbsMomentum > 1e-10)
         {
-            double v4 = (smoothedMomentum / smoothedAbsMomentum + 1.0) * 50.0;
+            double v4 = ((smoothedMomentum / smoothedAbsMomentum) + 1.0) * 50.0;
             rsx = Math.Clamp(v4, 0.0, 100.0);
         }
         else
@@ -213,7 +213,6 @@ public sealed class Rsx : ITValuePublisher
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
-
 
     /// <summary>
     /// Initializes the indicator state using the provided series history.
@@ -328,7 +327,7 @@ public sealed class Rsx : ITValuePublisher
             double rsx;
             if (smoothedAbsMomentum > 1e-10)
             {
-                double v4 = (smoothedMomentum / smoothedAbsMomentum + 1.0) * 50.0;
+                double v4 = ((smoothedMomentum / smoothedAbsMomentum) + 1.0) * 50.0;
                 rsx = Math.Clamp(v4, 0.0, 100.0);
             }
             else

@@ -189,7 +189,6 @@ public sealed class Granger : AbstractBase
                 double oldY = _windowY.Oldest;
                 double oldYLag = _windowYLag.Oldest;
                 double oldXLag = _windowXLag.Oldest;
-
                 { double yk = -oldY - _sumYComp; double t = _sumY + yk; _sumYComp = (t - _sumY) - yk; _sumY = t; }
                 { double yk = -oldYLag - _sumYLagComp; double t = _sumYLag + yk; _sumYLagComp = (t - _sumYLag) - yk; _sumYLag = t; }
                 { double yk = -oldXLag - _sumXLagComp; double t = _sumXLag + yk; _sumXLagComp = (t - _sumXLag) - yk; _sumXLag = t; }
@@ -205,7 +204,6 @@ public sealed class Granger : AbstractBase
             _windowY.Add(y);
             _windowYLag.Add(yLag);
             _windowXLag.Add(xLag);
-
             { double yk = y - _sumYComp; double t = _sumY + yk; _sumYComp = (t - _sumY) - yk; _sumY = t; }
             { double yk = yLag - _sumYLagComp; double t = _sumYLag + yk; _sumYLagComp = (t - _sumYLag) - yk; _sumYLag = t; }
             { double yk = xLag - _sumXLagComp; double t = _sumXLag + yk; _sumXLagComp = (t - _sumXLag) - yk; _sumXLag = t; }

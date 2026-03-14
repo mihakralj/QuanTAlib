@@ -98,7 +98,7 @@ public sealed class Jvolty : AbstractBase
         _sqrtDivider = sqrtParam / (sqrtParam + 1.0);
 
         // same warmup heuristic used in JMA
-        WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
+        WarmupPeriod = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(period, 0.36)));
 
         _handler = Handle;
         Name = $"Jvolty({period})";

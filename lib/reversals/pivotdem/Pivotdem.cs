@@ -179,15 +179,15 @@ public sealed class Pivotdem : ITValuePublisher
         double x;
         if (pC < pO)
         {
-            x = pH + 2.0 * pL + pC;       // Bearish: weight Low
+            x = pH + (2.0 * pL) + pC;       // Bearish: weight Low
         }
         else if (pC > pO)
         {
-            x = 2.0 * pH + pL + pC;       // Bullish: weight High
+            x = (2.0 * pH) + pL + pC;       // Bullish: weight High
         }
         else
         {
-            x = pH + pL + 2.0 * pC;       // Doji: weight Close
+            x = pH + pL + (2.0 * pC);       // Doji: weight Close
         }
 
         double halfX = x * 0.5;
@@ -331,9 +331,9 @@ public sealed class Pivotdem : ITValuePublisher
             double pC = close[i - 1];
 
             double x;
-            if (pC < pO) { x = pH + 2.0 * pL + pC; }
-            else if (pC > pO) { x = 2.0 * pH + pL + pC; }
-            else { x = pH + pL + 2.0 * pC; }
+            if (pC < pO) { x = pH + (2.0 * pL) + pC; }
+            else if (pC > pO) { x = (2.0 * pH) + pL + pC; }
+            else { x = pH + pL + (2.0 * pC); }
 
             ppOutput[i] = x * 0.25;
         }
@@ -403,9 +403,9 @@ public sealed class Pivotdem : ITValuePublisher
             double pC = close[i - 1];
 
             double x;
-            if (pC < pO) { x = pH + 2.0 * pL + pC; }
-            else if (pC > pO) { x = 2.0 * pH + pL + pC; }
-            else { x = pH + pL + 2.0 * pC; }
+            if (pC < pO) { x = pH + (2.0 * pL) + pC; }
+            else if (pC > pO) { x = (2.0 * pH) + pL + pC; }
+            else { x = pH + pL + (2.0 * pC); }
 
             double halfX = x * 0.5;
             ppOut[i] = x * 0.25;

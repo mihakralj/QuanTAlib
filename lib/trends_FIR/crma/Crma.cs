@@ -120,10 +120,10 @@ public sealed class Crma : AbstractBase
         {
             // Find pivot row
             int pivotRow = col;
-            double pivotMax = Math.Abs(m[col * 5 + col]);
+            double pivotMax = Math.Abs(m[(col * 5) + col]);
             for (int row = col + 1; row < 4; row++)
             {
-                double absVal = Math.Abs(m[row * 5 + col]);
+                double absVal = Math.Abs(m[(row * 5) + col]);
                 if (absVal > pivotMax)
                 {
                     pivotMax = absVal;
@@ -148,13 +148,13 @@ public sealed class Crma : AbstractBase
             }
 
             // Eliminate below
-            double diag = m[col * 5 + col];
+            double diag = m[(col * 5) + col];
             for (int row = col + 1; row < 4; row++)
             {
-                double factor = m[row * 5 + col] / diag;
+                double factor = m[(row * 5) + col] / diag;
                 for (int k = col; k < 5; k++)
                 {
-                    m[row * 5 + k] = Math.FusedMultiplyAdd(-factor, m[col * 5 + k], m[row * 5 + k]);
+                    m[(row * 5) + k] = Math.FusedMultiplyAdd(-factor, m[(col * 5) + k], m[(row * 5) + k]);
                 }
             }
         }
@@ -163,12 +163,12 @@ public sealed class Crma : AbstractBase
         Span<double> a = stackalloc double[4];
         for (int row = 3; row >= 0; row--)
         {
-            double val = m[row * 5 + 4];
+            double val = m[(row * 5) + 4];
             for (int k = row + 1; k < 4; k++)
             {
-                val = Math.FusedMultiplyAdd(-m[row * 5 + k], a[k], val);
+                val = Math.FusedMultiplyAdd(-m[(row * 5) + k], a[k], val);
             }
-            a[row] = val / m[row * 5 + row];
+            a[row] = val / m[(row * 5) + row];
         }
 
         return a[0]; // Fitted value at x=0 (newest bar)

@@ -145,7 +145,7 @@ public sealed class Kvo : ITValuePublisher
         double cm = 0.0;
         if (range > 0)
         {
-            cm = Math.Abs(2.0 * ((range - (close - low)) / range) - 1.0);
+            cm = Math.Abs((2.0 * ((range - (close - low)) / range)) - 1.0);
         }
 
         // Calculate direction multiplier (DM)
@@ -295,7 +295,6 @@ public sealed class Kvo : ITValuePublisher
         Signal = default;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>
@@ -440,7 +439,7 @@ public sealed class Kvo : ITValuePublisher
 
             // Calculate CM
             double range = h - l;
-            double cm = range > 0 ? Math.Abs(2.0 * ((range - (c - l)) / range) - 1.0) : 0.0;
+            double cm = range > 0 ? Math.Abs((2.0 * ((range - (c - l)) / range)) - 1.0) : 0.0;
 
             // Calculate DM
             double dm = trend * vol * cm;

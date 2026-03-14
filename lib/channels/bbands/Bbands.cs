@@ -223,7 +223,7 @@ public sealed class Bbands : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -367,5 +367,4 @@ public sealed class Bbands : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

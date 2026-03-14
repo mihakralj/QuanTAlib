@@ -78,7 +78,7 @@ public sealed class Tema : AbstractBase
         _alpha = alpha;
         _decay = 1.0 - alpha;
         Name = $"Tema(α={alpha:F4})";
-        WarmupPeriod = (int)(3 * (2.0 / alpha - 1.0));
+        WarmupPeriod = (int)(3 * ((2.0 / alpha) - 1.0));
         _handler = Handle;
     }
 

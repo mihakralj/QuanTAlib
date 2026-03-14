@@ -43,7 +43,6 @@ public sealed class Cg : AbstractBase
     private double _p_weightedSum;
     private double _p_sum;
 
-
     public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
@@ -111,7 +110,6 @@ public sealed class Cg : AbstractBase
         // Since the weights change position as we add values, we need to recalculate
         // after each update (or track differential updates which is complex)
         RecalculateSums();
-
 
         // Calculate CG
         double cg = CalculateCg();

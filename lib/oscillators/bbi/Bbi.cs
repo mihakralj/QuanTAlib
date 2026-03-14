@@ -339,8 +339,8 @@ public sealed class Bbi : AbstractBase
                 double old4 = b4[h4]; sum4 = c4 < p4 ? sum4 + val - old4 : sum4 - old4 + val; if (c4 < p4) { c4++; }
                 b4[h4] = val; h4 = (h4 + 1) % p4;
 
-                output[i] = (sum1 / Math.Max(1, c1) + sum2 / Math.Max(1, c2)
-                           + sum3 / Math.Max(1, c3) + sum4 / Math.Max(1, c4)) * 0.25;
+                output[i] = ((sum1 / Math.Max(1, c1)) + (sum2 / Math.Max(1, c2))
+                           + (sum3 / Math.Max(1, c3)) + (sum4 / Math.Max(1, c4))) * 0.25;
             }
         }
         finally

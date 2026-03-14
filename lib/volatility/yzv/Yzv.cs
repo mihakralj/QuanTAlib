@@ -137,7 +137,7 @@ public sealed class Yzv : AbstractBase
         // Component variances
         double sOSq = ro * ro;                            // Overnight variance
         double sCSq = rc * rc;                            // Close-to-close variance
-        double sRsSq = rh * (rh - rc) + rl * (rl - rc);   // Rogers-Satchell variance
+        double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));   // Rogers-Satchell variance
 
         // Yang-Zhang weighting factor
         double ratioN = _period <= 1 ? 1.0 : (double)(_period + 1) / (_period - 1);
@@ -160,7 +160,7 @@ public sealed class Yzv : AbstractBase
         else
         {
             // RMA update: (prev * (period-1) + value) / period
-            rawRma = (s.RawRma * (_period - 1) + sSqDaily) / _period;
+            rawRma = ((s.RawRma * (_period - 1)) + sSqDaily) / _period;
             eComp = (1.0 - alpha) * s.ECompensator;
         }
 
@@ -329,7 +329,7 @@ public sealed class Yzv : AbstractBase
             // Component variances
             double sOSq = ro * ro;
             double sCSq = rc * rc;
-            double sRsSq = rh * (rh - rc) + rl * (rl - rc);
+            double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));
 
             // Combined daily variance
             double sSqDaily = Math.FusedMultiplyAdd(kYz, sCSq, Math.FusedMultiplyAdd(1.0 - kYz, sRsSq, sOSq));
@@ -342,7 +342,7 @@ public sealed class Yzv : AbstractBase
             }
             else
             {
-                rawRma = (rawRma * (period - 1) + sSqDaily) / period;
+                rawRma = ((rawRma * (period - 1)) + sSqDaily) / period;
                 eComp = (1.0 - alpha) * eComp;
             }
 
@@ -409,7 +409,7 @@ public sealed class Yzv : AbstractBase
 
             double sOSq = ro * ro;
             double sCSq = rc * rc;
-            double sRsSq = rh * (rh - rc) + rl * (rl - rc);
+            double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));
 
             double sSqDaily = Math.FusedMultiplyAdd(kYz, sCSq, Math.FusedMultiplyAdd(1.0 - kYz, sRsSq, sOSq));
 
@@ -420,7 +420,7 @@ public sealed class Yzv : AbstractBase
             }
             else
             {
-                rawRma = (rawRma * (period - 1) + sSqDaily) / period;
+                rawRma = ((rawRma * (period - 1)) + sSqDaily) / period;
                 eComp = (1.0 - alpha) * eComp;
             }
 
@@ -442,5 +442,4 @@ public sealed class Yzv : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

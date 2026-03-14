@@ -63,7 +63,7 @@ public sealed class Cti : AbstractBase
         WarmupPeriod = period;
 
         _sx = period * (period - 1) / 2.0;
-        _sxx = period * (period - 1.0) * (2 * period - 1) / 6.0;
+        _sxx = period * (period - 1.0) * ((2 * period) - 1) / 6.0;
         _denomX = Math.FusedMultiplyAdd(period, _sxx, -_sx * _sx);
     }
 
@@ -287,7 +287,7 @@ public sealed class Cti : AbstractBase
         }
 
         double sx = period * (period - 1) / 2.0;
-        double sxx = period * (period - 1.0) * (2 * period - 1) / 6.0;
+        double sxx = period * (period - 1.0) * ((2 * period) - 1) / 6.0;
         double denomX = Math.FusedMultiplyAdd(period, sxx, -sx * sx);
 
         double sumY = 0.0;

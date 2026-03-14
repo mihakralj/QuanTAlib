@@ -32,7 +32,7 @@ public sealed class Trima : AbstractBase
 
         _period = period;
         int p1 = (period + 1) / 2;
-        int p2 = period / 2 + 1;
+        int p2 = (period / 2) + 1;
 
         _sma1 = new Sma(p1);
         _sma2 = new Sma(p2);
@@ -150,7 +150,7 @@ public sealed class Trima : AbstractBase
         }
 
         int p1 = (period + 1) / 2;
-        int p2 = period / 2 + 1;
+        int p2 = (period / 2) + 1;
 
         double[] tempArray = ArrayPool<double>.Shared.Rent(source.Length);
         Span<double> tempSpan = tempArray.AsSpan(0, source.Length);

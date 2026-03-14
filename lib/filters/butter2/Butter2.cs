@@ -93,7 +93,7 @@ public sealed class Butter2 : AbstractBase
         DateTime baseTime = DateTime.UtcNow;
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(baseTime + interval * i, source[i]));
+            Update(new TValue(baseTime + (interval * i), source[i]));
         }
     }
 

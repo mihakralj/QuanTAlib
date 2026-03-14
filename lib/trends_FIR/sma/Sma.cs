@@ -450,7 +450,7 @@ public sealed class Sma : AbstractBase
         }
 
         var vInvPeriod = Vector512.Create(invPeriod);
-        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
+        int simdEnd = period + ((len - period) / VectorWidth * VectorWidth);
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -517,7 +517,7 @@ public sealed class Sma : AbstractBase
 
         var vInvPeriod = Vector256.Create(invPeriod);
         var vZero = Vector256<double>.Zero;
-        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
+        int simdEnd = period + ((len - period) / VectorWidth * VectorWidth);
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -581,7 +581,7 @@ public sealed class Sma : AbstractBase
         }
 
         var vInvPeriod = Vector128.Create(invPeriod);
-        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
+        int simdEnd = period + ((len - period) / VectorWidth * VectorWidth);
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {

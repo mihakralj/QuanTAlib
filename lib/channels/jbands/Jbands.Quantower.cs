@@ -23,7 +23,7 @@ public sealed class JbandsIndicator : Indicator, IWatchlistIndicator
 
     private Jbands? _indicator;
 
-    public int MinHistoryDepths => (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(Period, 0.36));
+    public int MinHistoryDepths => (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(Period, 0.36)));
     public override string ShortName => $"Jbands({Period},{Phase})";
 
     public JbandsIndicator()

@@ -98,8 +98,8 @@ public sealed class Lognormdist : AbstractBase
         double az = Math.Abs(z);
         double t = 1.0 / Math.FusedMultiplyAdd(P, az, 1.0);
         double phi = Math.Exp(-0.5 * az * az) * (1.0 / Math.Sqrt(2.0 * Math.PI));
-        double poly = ((((Math.FusedMultiplyAdd(B5, t, B4) * t) + B3) * t + B2) * t + B1) * t;
-        double cdf = 1.0 - phi * poly;
+        double poly = ((((((Math.FusedMultiplyAdd(B5, t, B4) * t) + B3) * t) + B2) * t) + B1) * t;
+        double cdf = 1.0 - (phi * poly);
         return z >= 0.0 ? cdf : 1.0 - cdf;
     }
 

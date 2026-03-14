@@ -356,8 +356,8 @@ public sealed class Nma : AbstractBase
                 double denom = 0;
                 for (int j = 0; j < bars; j++)
                 {
-                    int idx0 = ((head - 1 - j) % bufSize + bufSize) % bufSize;
-                    int idx1 = ((head - 2 - j) % bufSize + bufSize) % bufSize;
+                    int idx0 = (((head - 1 - j) % bufSize) + bufSize) % bufSize;
+                    int idx1 = (((head - 2 - j) % bufSize) + bufSize) % bufSize;
                     double oi = Math.Abs(lnBuf[idx0] - lnBuf[idx1]);
                     num += oi * sqrtW[j];
                     denom += oi;

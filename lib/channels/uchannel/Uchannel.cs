@@ -217,7 +217,7 @@ public sealed class Uchannel : AbstractBase
         {
             // USF: (1-c1)*s0 + (2*c1-c2)*s1 - (c1+c3)*s2 + c2*usf1 + c3*usf2
             strValue = Math.FusedMultiplyAdd(1 - _c1_str, str_s0,
-                Math.FusedMultiplyAdd(2 * _c1_str - _c2_str, str_s1,
+                Math.FusedMultiplyAdd((2 * _c1_str) - _c2_str, str_s1,
                 Math.FusedMultiplyAdd(-(_c1_str + _c3_str), str_s2,
                 Math.FusedMultiplyAdd(_c2_str, usStr1, _c3_str * usStr2))));
         }
@@ -237,7 +237,7 @@ public sealed class Uchannel : AbstractBase
         else
         {
             cenValue = Math.FusedMultiplyAdd(1 - _c1_cen, cen_s0,
-                Math.FusedMultiplyAdd(2 * _c1_cen - _c2_cen, cen_s1,
+                Math.FusedMultiplyAdd((2 * _c1_cen) - _c2_cen, cen_s1,
                 Math.FusedMultiplyAdd(-(_c1_cen + _c3_cen), cen_s2,
                 Math.FusedMultiplyAdd(_c2_cen, usCen1, _c3_cen * usCen2))));
         }
@@ -337,7 +337,7 @@ public sealed class Uchannel : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             // Treat as close price only
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -471,7 +471,7 @@ public sealed class Uchannel : AbstractBase
             else
             {
                 strValue = Math.FusedMultiplyAdd(1 - c1_str, str_s0,
-                    Math.FusedMultiplyAdd(2 * c1_str - c2_str, str_s1,
+                    Math.FusedMultiplyAdd((2 * c1_str) - c2_str, str_s1,
                     Math.FusedMultiplyAdd(-(c1_str + c3_str), str_s2,
                     Math.FusedMultiplyAdd(c2_str, usStr1, c3_str * usStr2))));
             }
@@ -489,7 +489,7 @@ public sealed class Uchannel : AbstractBase
             else
             {
                 cenValue = Math.FusedMultiplyAdd(1 - c1_cen, cen_s0,
-                    Math.FusedMultiplyAdd(2 * c1_cen - c2_cen, cen_s1,
+                    Math.FusedMultiplyAdd((2 * c1_cen) - c2_cen, cen_s1,
                     Math.FusedMultiplyAdd(-(c1_cen + c3_cen), cen_s2,
                     Math.FusedMultiplyAdd(c2_cen, usCen1, c3_cen * usCen2))));
             }

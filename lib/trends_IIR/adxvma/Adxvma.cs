@@ -211,7 +211,7 @@ public sealed class Adxvma : AbstractBase
         double sc = Math.Max(0.0, Math.Min(adxVal / 100.0, 1.0));
 
         // Adaptive EMA
-        double result = double.IsNaN(_state.Result) ? sourceValue : _state.Result + sc * (sourceValue - _state.Result);
+        double result = double.IsNaN(_state.Result) ? sourceValue : _state.Result + (sc * (sourceValue - _state.Result));
 
         // Update state
         _state = new AdxvmaState(

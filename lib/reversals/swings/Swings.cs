@@ -101,7 +101,7 @@ public sealed class Swings : ITValuePublisher
         }
 
         _lookback = lookback;
-        _windowSize = 2 * lookback + 1;
+        _windowSize = (2 * lookback) + 1;
 
         _hBuf = new double[_windowSize];
         _lBuf = new double[_windowSize];
@@ -361,7 +361,7 @@ public sealed class Swings : ITValuePublisher
             return;
         }
 
-        int windowSize = 2 * lookback + 1;
+        int windowSize = (2 * lookback) + 1;
 
         // Fill warmup bars with NaN
         int warmup = Math.Min(windowSize - 1, len);

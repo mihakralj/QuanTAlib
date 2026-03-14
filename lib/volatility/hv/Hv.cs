@@ -491,5 +491,4 @@ public sealed class Hv : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

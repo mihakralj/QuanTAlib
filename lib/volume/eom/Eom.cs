@@ -201,7 +201,6 @@ public sealed class Eom : ITValuePublisher
         Last = default;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

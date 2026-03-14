@@ -299,7 +299,6 @@ public sealed class Cfb : ITValuePublisher, IDisposable
         return new TSeries(t, v);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided value series history.
     /// </summary>

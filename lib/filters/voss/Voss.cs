@@ -102,7 +102,7 @@ public sealed class Voss : AbstractBase
         double twoPiOverPeriod = 2.0 * Math.PI / period;
         _f1 = Math.Cos(twoPiOverPeriod);
         double g1 = Math.Cos(bandwidth * twoPiOverPeriod);
-        _s1 = 1.0 / g1 - Math.Sqrt(1.0 / (g1 * g1) - 1.0);
+        _s1 = (1.0 / g1) - Math.Sqrt((1.0 / (g1 * g1)) - 1.0);
 
         _vossRing = new double[_order + 1];
         _s.LastValid = double.NaN;
@@ -203,11 +203,11 @@ public sealed class Voss : AbstractBase
         for (int count = 0; count < _order; count++)
         {
             int idx = _order - count; // lookback distance
-            int ringPos = (_vossIdx - idx + ringLen * 2) % ringLen;
+            int ringPos = (_vossIdx - idx + (ringLen * 2)) % ringLen;
             sumC += (double)(count + 1) / _order * _vossRing[ringPos];
         }
 
-        double vossVal = (double)(3 + _order) / 2.0 * filt - sumC;
+        double vossVal = ((double)(3 + _order) / 2.0 * filt) - sumC;
 
         // State shifts for next bar
         if (isNew)
@@ -261,7 +261,7 @@ public sealed class Voss : AbstractBase
         double twoPiOverPeriod = 2.0 * Math.PI / period;
         double f1 = Math.Cos(twoPiOverPeriod);
         double g1 = Math.Cos(bandwidth * twoPiOverPeriod);
-        double s1 = 1.0 / g1 - Math.Sqrt(1.0 / (g1 * g1) - 1.0);
+        double s1 = (1.0 / g1) - Math.Sqrt((1.0 / (g1 * g1)) - 1.0);
 
         int order = 3 * predict;
         double[] vossHistory = new double[source.Length];
@@ -319,7 +319,7 @@ public sealed class Voss : AbstractBase
                 }
             }
 
-            double vossVal = (double)(3 + order) / 2.0 * filt - sumC;
+            double vossVal = ((double)(3 + order) / 2.0 * filt) - sumC;
             vossHistory[i] = vossVal;
             output[i] = vossVal;
 

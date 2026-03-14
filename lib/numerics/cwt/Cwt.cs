@@ -60,7 +60,7 @@ public sealed class Cwt : AbstractBase
         }
 
         int halfWindow = (int)Math.Round(3.0 * scale);
-        _windowSize = 2 * halfWindow + 1;
+        _windowSize = (2 * halfWindow) + 1;
         _normFactor = 1.0 / Math.Sqrt(scale);
 
         // Precompute kernel: ψ(k/s) = exp(-k²/(2s²)) * (cos(ω₀k/s) - i·sin(ω₀k/s))
@@ -104,7 +104,7 @@ public sealed class Cwt : AbstractBase
         double[] kernelReal, double[] kernelImag,
         int halfWindow, double scale, double omega0)
     {
-        int windowSize = 2 * halfWindow + 1;
+        int windowSize = (2 * halfWindow) + 1;
         double invScale = 1.0 / scale;
         for (int j = 0; j < windowSize; j++)
         {
@@ -245,7 +245,7 @@ public sealed class Cwt : AbstractBase
         }
 
         int halfWindow = (int)Math.Round(3.0 * scale);
-        int windowSize = 2 * halfWindow + 1;
+        int windowSize = (2 * halfWindow) + 1;
         double normFactor = 1.0 / Math.Sqrt(scale);
         double lastValid = 0.0;
 

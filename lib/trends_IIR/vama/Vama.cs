@@ -384,7 +384,6 @@ public sealed class Vama : AbstractBase
         return (results, indicator);
     }
 
-
     /// <summary>
     /// Resets the VAMA state.
     /// </summary>

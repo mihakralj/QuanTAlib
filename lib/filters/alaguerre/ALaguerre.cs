@@ -400,7 +400,7 @@ public sealed class ALaguerre : AbstractBase
         s.LastValid = input;
 
         // Filt = (L0 + 2*L1 + 2*L2 + L3) / 6
-        double result = (s.L0 + 2.0 * s.L1 + 2.0 * s.L2 + s.L3) / 6.0;
+        double result = (s.L0 + (2.0 * s.L1) + (2.0 * s.L2) + s.L3) / 6.0;
         s.LastResult = result;
         return result;
     }

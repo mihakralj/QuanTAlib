@@ -463,5 +463,4 @@ public sealed class Vov : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

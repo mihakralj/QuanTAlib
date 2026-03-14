@@ -251,7 +251,7 @@ public sealed class Hpf : AbstractBase
         double a = (cosW + sinW - 1.0) / cosW;
         double oneMinusA = 1.0 - a;
 
-        double t = 1.0 - 0.5 * a;
+        double t = 1.0 - (0.5 * a);
         double c1 = t * t;
         double c2 = 2.0 * oneMinusA;
         double c3 = oneMinusA * oneMinusA;
@@ -315,7 +315,6 @@ public sealed class Hpf : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 
     /// <summary>
     /// Unsubscribes from the source publisher if one was provided during construction.

@@ -98,7 +98,7 @@ public sealed class Normdist : AbstractBase
         double poly = Math.FusedMultiplyAdd(a3, t, a2);
         poly = Math.FusedMultiplyAdd(poly, t, a1);
         poly *= t;
-        double val = 1.0 - poly * Math.Exp(-(ax * ax));
+        double val = 1.0 - (poly * Math.Exp(-(ax * ax)));
         return x >= 0.0 ? val : -val;
     }
 
@@ -153,7 +153,7 @@ public sealed class Normdist : AbstractBase
         }
 
         double mean = sum / count;
-        double variance = sumSq / count - mean * mean;
+        double variance = (sumSq / count) - (mean * mean);
         double stddev = variance > 0.0 ? Math.Sqrt(variance) : 0.0;
         return (mean, stddev, count);
     }
@@ -305,7 +305,7 @@ public sealed class Normdist : AbstractBase
             else
             {
                 double mean = sum / count;
-                double variance = sumSq / count - mean * mean;
+                double variance = (sumSq / count) - (mean * mean);
                 double stddev = variance > 0.0 ? Math.Sqrt(variance) : 0.0;
                 double z = stddev > 0.0 ? (val - mean) / stddev : 0.0;
                 double zFinal = (z - mu) * invSigmaSqrt2;

@@ -36,7 +36,7 @@ public sealed class Pwma : AbstractBase
         }
 
         _period = period;
-        _divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
+        _divisor = (double)period * ((double)period + 1.0) * ((2.0 * (double)period) + 1.0) / 6.0;
         _buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
         WarmupPeriod = period;
@@ -91,7 +91,7 @@ public sealed class Pwma : AbstractBase
             _state.WSum = tW;
 
             // Kahan compensated update for PSum: psum += (period² * val - 2 * oldWSum + oldSum)
-            double deltaP = Math.FusedMultiplyAdd((double)_period * _period, val, -2 * oldWSum + oldSum);
+            double deltaP = Math.FusedMultiplyAdd((double)_period * _period, val, (-2 * oldWSum) + oldSum);
             double yP = deltaP - _state.PSumComp;
             double tP = _state.PSum + yP;
             _state.PSumComp = (tP - _state.PSum) - yP;
@@ -166,7 +166,7 @@ public sealed class Pwma : AbstractBase
         }
 
         double count = _buffer.Count;
-        double currentDivisor = _buffer.IsFull ? _divisor : count * (count + 1.0) * (2.0 * count + 1.0) / 6.0;
+        double currentDivisor = _buffer.IsFull ? _divisor : count * (count + 1.0) * ((2.0 * count) + 1.0) / 6.0;
         Last = new TValue(input.Time, _state.PSum / currentDivisor);
         PubEvent(Last, isNew);
         return Last;
@@ -281,7 +281,7 @@ public sealed class Pwma : AbstractBase
     private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        double divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
+        double divisor = (double)period * ((double)period + 1.0) * ((2.0 * (double)period) + 1.0) / 6.0;
         double sum = 0;
         double wsum = 0;
         double psum = 0;
@@ -330,7 +330,7 @@ public sealed class Pwma : AbstractBase
 
             buffer[i] = val;
 
-            double currentDivisor = ((double)i + 1.0) * ((double)i + 2.0) * (2.0 * ((double)i + 1.0) + 1.0) / 6.0;
+            double currentDivisor = ((double)i + 1.0) * ((double)i + 2.0) * ((2.0 * ((double)i + 1.0)) + 1.0) / 6.0;
             output[i] = psum / currentDivisor;
         }
 
@@ -366,7 +366,7 @@ public sealed class Pwma : AbstractBase
             wsum = tW;
 
             // Kahan compensated update for PSum: psum += (period² * val - 2 * oldWSum + oldSum)
-            double deltaP = Math.FusedMultiplyAdd((double)period * period, val, -2 * oldWSum + oldSum);
+            double deltaP = Math.FusedMultiplyAdd((double)period * period, val, (-2 * oldWSum) + oldSum);
             double yP = deltaP - psumComp;
             double tP = psum + yP;
             psumComp = (tP - psum) - yP;

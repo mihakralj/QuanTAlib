@@ -159,7 +159,7 @@ public sealed class Roofing : AbstractBase
 
         // Stage 1: Highpass Filter (removes trend)
         // hp = hpC1 * (val - 2*src1 + src2) + hpC2 * hp1 + hpC3 * hp2
-        double hpInput = _hpC1 * (val - 2.0 * _state.Src1 + _state.Src2);
+        double hpInput = _hpC1 * (val - (2.0 * _state.Src1) + _state.Src2);
         double hp = Math.FusedMultiplyAdd(_hpC2, _state.Hp1, Math.FusedMultiplyAdd(_hpC3, _state.Hp2, hpInput));
 
         // Stage 2: Super Smoother (removes noise from HP output)
@@ -238,7 +238,7 @@ public sealed class Roofing : AbstractBase
             }
 
             // Highpass
-            double hpInput = hpC1 * (val - 2.0 * src1 + src2);
+            double hpInput = hpC1 * (val - (2.0 * src1) + src2);
             double hp = Math.FusedMultiplyAdd(hpC2, hp1, Math.FusedMultiplyAdd(hpC3, hp2, hpInput));
 
             // Super Smoother

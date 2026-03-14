@@ -92,7 +92,7 @@ public sealed class Iii : ITValuePublisher
 
         // Calculate position multiplier: where close falls in the range
         // +1 when close = high, -1 when close = low, 0 when close = midpoint
-        double positionMultiplier = range > 0 ? (2.0 * close - high - low) / range : 0.0;
+        double positionMultiplier = range > 0 ? ((2.0 * close) - high - low) / range : 0.0;
 
         // Calculate raw III
         double rawIii = positionMultiplier * volume;
@@ -204,7 +204,6 @@ public sealed class Iii : ITValuePublisher
         Last = default;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>
@@ -309,7 +308,7 @@ public sealed class Iii : ITValuePublisher
             {
                 double range = high[i] - low[i];
                 double vol = Math.Max(volume[i], 1.0);
-                double positionMultiplier = range > 0 ? (2.0 * close[i] - high[i] - low[i]) / range : 0.0;
+                double positionMultiplier = range > 0 ? ((2.0 * close[i]) - high[i] - low[i]) / range : 0.0;
                 rawIii[i] = positionMultiplier * vol;
 
                 if (!double.IsFinite(rawIii[i]))

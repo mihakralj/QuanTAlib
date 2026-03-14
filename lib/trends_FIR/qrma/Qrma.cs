@@ -86,9 +86,9 @@ public sealed class Qrma : AbstractBase
 
         // Faulhaber closed-form power sums (O(1))
         double s1 = n * (n - 1.0) * 0.5;                                   // Σx
-        double s2 = n * (n - 1.0) * (2.0 * n - 1.0) / 6.0;                // Σx²
+        double s2 = n * (n - 1.0) * ((2.0 * n) - 1.0) / 6.0;                // Σx²
         double s3 = s1 * s1;                                                // Σx³ = [N(N-1)/2]²
-        double s4 = n * (n - 1.0) * (2.0 * n - 1.0) * Math.FusedMultiplyAdd(3.0 * n, n - 1.0, -1.0) / 30.0; // Σx⁴
+        double s4 = n * (n - 1.0) * ((2.0 * n) - 1.0) * Math.FusedMultiplyAdd(3.0 * n, n - 1.0, -1.0) / 30.0; // Σx⁴
 
         // Cross-products in O(N)
         double r0 = 0, r1 = 0, r2 = 0;
@@ -109,9 +109,9 @@ public sealed class Qrma : AbstractBase
         //   [ S2  S3  S4 ] [c]   [r2]
 
         // Cramer's rule: det of coefficient matrix
-        double det = Math.FusedMultiplyAdd(n, s2 * s4 - s3 * s3,
-                     Math.FusedMultiplyAdd(-s1, s1 * s4 - s3 * s2,
-                                           s2 * (s1 * s3 - s2 * s2)));
+        double det = Math.FusedMultiplyAdd(n, (s2 * s4) - (s3 * s3),
+                     Math.FusedMultiplyAdd(-s1, (s1 * s4) - (s3 * s2),
+                                           s2 * ((s1 * s3) - (s2 * s2))));
 
         if (Math.Abs(det) < 1e-20)
         {
@@ -121,19 +121,19 @@ public sealed class Qrma : AbstractBase
         double invDet = 1.0 / det;
 
         // det_a: replace column 0 with [r0, r1, r2]
-        double detA = Math.FusedMultiplyAdd(r0, s2 * s4 - s3 * s3,
-                      Math.FusedMultiplyAdd(-s1, r1 * s4 - r2 * s3,
-                                            s2 * (r1 * s3 - r2 * s2)));
+        double detA = Math.FusedMultiplyAdd(r0, (s2 * s4) - (s3 * s3),
+                      Math.FusedMultiplyAdd(-s1, (r1 * s4) - (r2 * s3),
+                                            s2 * ((r1 * s3) - (r2 * s2))));
 
         // det_b: replace column 1 with [r0, r1, r2]
-        double detB = Math.FusedMultiplyAdd(n, r1 * s4 - r2 * s3,
-                      Math.FusedMultiplyAdd(-r0, s1 * s4 - s3 * s2,
-                                            s2 * (s1 * r2 - s2 * r1)));
+        double detB = Math.FusedMultiplyAdd(n, (r1 * s4) - (r2 * s3),
+                      Math.FusedMultiplyAdd(-r0, (s1 * s4) - (s3 * s2),
+                                            s2 * ((s1 * r2) - (s2 * r1))));
 
         // det_c: replace column 2 with [r0, r1, r2]
-        double detC = Math.FusedMultiplyAdd(n, s2 * r2 - s3 * r1,
-                      Math.FusedMultiplyAdd(-s1, s1 * r2 - s2 * r1,
-                                            r0 * (s1 * s3 - s2 * s2)));
+        double detC = Math.FusedMultiplyAdd(n, (s2 * r2) - (s3 * r1),
+                      Math.FusedMultiplyAdd(-s1, (s1 * r2) - (s2 * r1),
+                                            r0 * ((s1 * s3) - (s2 * s2))));
 
         double a = detA * invDet;
         double b = detB * invDet;

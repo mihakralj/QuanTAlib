@@ -306,7 +306,7 @@ public sealed class Variance : AbstractBase
             }
             // Kahan sliding window for sumSq: sumSq += (val² - oldVal²)
             {
-                double delta = (val * val - oldVal * oldVal) - sumSqComp;
+                double delta = ((val * val) - (oldVal * oldVal)) - sumSqComp;
                 double t = sumSq + delta;
                 sumSqComp = (t - sumSq) - delta;
                 sumSq = t;

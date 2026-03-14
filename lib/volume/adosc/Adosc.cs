@@ -139,7 +139,6 @@ public sealed class Adosc : ITValuePublisher
     // EMA compensator threshold (same as in Ema.cs)
     private const double COMPENSATOR_THRESHOLD = 1e-10;
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

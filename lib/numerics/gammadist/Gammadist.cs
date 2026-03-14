@@ -123,7 +123,7 @@ public sealed class Gammadist : AbstractBase
         }
 
         double t = z + 7.5;
-        return Math.FusedMultiplyAdd(z + 0.5, Math.Log(t), 0.5 * Math.Log(2.0 * Math.PI) - t + Math.Log(x));
+        return Math.FusedMultiplyAdd(z + 0.5, Math.Log(t), (0.5 * Math.Log(2.0 * Math.PI)) - t + Math.Log(x));
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ public sealed class Gammadist : AbstractBase
             }
         }
 
-        return sum * Math.Exp(-x + a * Math.Log(x) - lnGammaA);
+        return sum * Math.Exp(-x + (a * Math.Log(x)) - lnGammaA);
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public sealed class Gammadist : AbstractBase
                 d = FpMin;
             }
 
-            c = b + an / c;
+            c = b + (an / c);
             if (Math.Abs(c) < FpMin)
             {
                 c = FpMin;
@@ -195,7 +195,7 @@ public sealed class Gammadist : AbstractBase
             }
         }
 
-        return Math.Exp(-x + a * Math.Log(x) - lnGammaA) * h;
+        return Math.Exp(-x + (a * Math.Log(x)) - lnGammaA) * h;
     }
 
     /// <summary>

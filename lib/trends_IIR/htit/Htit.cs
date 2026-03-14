@@ -244,7 +244,7 @@ public sealed class Htit : AbstractBase
         if (_state.Index >= 12)
         {
             // NaN will propagate if IT buffer contains NaN
-            return (4.0 * _itBuffer[^1] + 3.0 * _itBuffer[^2] + 2.0 * _itBuffer[^3] + _itBuffer[^4]) * 0.1;
+            return ((4.0 * _itBuffer[^1]) + (3.0 * _itBuffer[^2]) + (2.0 * _itBuffer[^3]) + _itBuffer[^4]) * 0.1;
         }
 
         return price; // May be NaN if no valid input yet

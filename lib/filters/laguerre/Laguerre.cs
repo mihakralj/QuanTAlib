@@ -263,7 +263,7 @@ public sealed class Laguerre : AbstractBase
         s.LastValid = input;
 
         // Filt = (L0 + 2*L1 + 2*L2 + L3) / 6
-        return (s.L0 + 2.0 * s.L1 + 2.0 * s.L2 + s.L3) / 6.0;
+        return (s.L0 + (2.0 * s.L1) + (2.0 * s.L2) + s.L3) / 6.0;
     }
 
     /// <summary>

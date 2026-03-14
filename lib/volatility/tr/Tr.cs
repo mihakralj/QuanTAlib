@@ -413,5 +413,4 @@ public sealed class Tr : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

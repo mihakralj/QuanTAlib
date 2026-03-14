@@ -80,14 +80,14 @@ public sealed class Hend : AbstractBase
         double n2 = n * n;
         double nm1_2 = (n - 1) * (n - 1);
         double np1_2 = (n + 1) * (n + 1);
-        double denom = 8.0 * n * (n2 - 1) * (4 * n2 - 1) * (4 * n2 - 9) * (4 * n2 - 25);
+        double denom = 8.0 * n * (n2 - 1) * ((4 * n2) - 1) * ((4 * n2) - 9) * ((4 * n2) - 25);
 
         double wsum = 0.0;
         for (int i = 0; i < period; i++)
         {
             int k = i - half;
             double k2 = (double)(k * k);
-            double w = 315.0 * (nm1_2 - k2) * (n2 - k2) * (np1_2 - k2) * (3 * n2 - 16 - 11 * k2) / denom;
+            double w = 315.0 * (nm1_2 - k2) * (n2 - k2) * (np1_2 - k2) * ((3 * n2) - 16 - (11 * k2)) / denom;
             weights[i] = w;
             wsum += w;
         }

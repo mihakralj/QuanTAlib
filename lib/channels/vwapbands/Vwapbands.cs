@@ -206,9 +206,9 @@ public sealed class Vwapbands : AbstractBase
             {
                 _state = _state with
                 {
-                    SumPV = _state.SumPV + price * vol,
+                    SumPV = _state.SumPV + (price * vol),
                     SumVol = _state.SumVol + vol,
-                    SumPV2 = _state.SumPV2 + price * price * vol,
+                    SumPV2 = _state.SumPV2 + (price * price * vol),
                     Count = _state.Count + 1
                 };
             }
@@ -228,10 +228,10 @@ public sealed class Vwapbands : AbstractBase
         double stdev = Math.Sqrt(variance);
 
         // Calculate bands
-        double upper1 = vwap + _multiplier * stdev;
-        double lower1 = vwap - _multiplier * stdev;
-        double upper2 = vwap + 2.0 * _multiplier * stdev;
-        double lower2 = vwap - 2.0 * _multiplier * stdev;
+        double upper1 = vwap + (_multiplier * stdev);
+        double lower1 = vwap - (_multiplier * stdev);
+        double upper2 = vwap + (2.0 * _multiplier * stdev);
+        double lower2 = vwap - (2.0 * _multiplier * stdev);
 
         // Update output values
         Vwap = new TValue(input.Time, vwap);
@@ -316,7 +316,7 @@ public sealed class Vwapbands : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), 1.0, isNew: true, reset: false);
+            Update(new TValue(startTime + (i * step.Value), source[i]), 1.0, isNew: true, reset: false);
         }
     }
 
@@ -423,10 +423,10 @@ public sealed class Vwapbands : AbstractBase
 
             vwap[i] = vwapVal;
             stdDev[i] = stdev;
-            upper1[i] = vwapVal + multiplier * stdev;
-            lower1[i] = vwapVal - multiplier * stdev;
-            upper2[i] = vwapVal + 2.0 * multiplier * stdev;
-            lower2[i] = vwapVal - 2.0 * multiplier * stdev;
+            upper1[i] = vwapVal + (multiplier * stdev);
+            lower1[i] = vwapVal - (multiplier * stdev);
+            upper2[i] = vwapVal + (2.0 * multiplier * stdev);
+            lower2[i] = vwapVal - (2.0 * multiplier * stdev);
         }
     }
 }

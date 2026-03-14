@@ -399,5 +399,4 @@ public sealed class Ui : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

@@ -53,7 +53,7 @@ public sealed class Decycler : AbstractBase
         double arg = 0.707 * 2.0 * Math.PI / period;
         double cosArg = Math.Cos(arg);
         double alpha = (cosArg + Math.Sin(arg) - 1.0) / cosArg;
-        double halfAlpha = 1.0 - alpha * 0.5;
+        double halfAlpha = 1.0 - (alpha * 0.5);
         _a1 = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         _b1 = 2.0 * oneMinusAlpha;
@@ -147,7 +147,7 @@ public sealed class Decycler : AbstractBase
         }
 
         // HP recurrence: hp = a1*(src - 2*src1 + src2) + b1*hp + c1*hp1
-        double hp = Math.FusedMultiplyAdd(_a1, src - 2.0 * _state.Src1 + _state.Src2,
+        double hp = Math.FusedMultiplyAdd(_a1, src - (2.0 * _state.Src1) + _state.Src2,
                      Math.FusedMultiplyAdd(_b1, _state.Hp, _c1 * _state.Hp1));
 
         // Decycler = source - high-pass
@@ -238,7 +238,7 @@ public sealed class Decycler : AbstractBase
         double arg = 0.707 * 2.0 * Math.PI / period;
         double cosArg = Math.Cos(arg);
         double alpha = (cosArg + Math.Sin(arg) - 1.0) / cosArg;
-        double halfAlpha = 1.0 - alpha * 0.5;
+        double halfAlpha = 1.0 - (alpha * 0.5);
         double a1 = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         double b1 = 2.0 * oneMinusAlpha;
@@ -258,7 +258,7 @@ public sealed class Decycler : AbstractBase
 
         for (int i = 2; i < source.Length; i++)
         {
-            double newHp = Math.FusedMultiplyAdd(a1, source[i] - 2.0 * source[i - 1] + source[i - 2],
+            double newHp = Math.FusedMultiplyAdd(a1, source[i] - (2.0 * source[i - 1]) + source[i - 2],
                             Math.FusedMultiplyAdd(b1, hp, c1 * hp1));
             output[i] = source[i] - newHp;
             hp1 = hp;

@@ -194,7 +194,7 @@ public sealed class Dymoi : AbstractBase
 
         int nShort = s.CountShort;
         double meanShort = s.SumShort / nShort;
-        double varShort = s.SumSqShort / nShort - meanShort * meanShort;
+        double varShort = (s.SumSqShort / nShort) - (meanShort * meanShort);
         double sdShort = varShort > 0.0 ? Math.Sqrt(varShort) : 0.0;
 
         // ── Stage 1: StdDev long window (O(1) update) ──
@@ -216,7 +216,7 @@ public sealed class Dymoi : AbstractBase
 
         int nLong = s.CountLong;
         double meanLong = s.SumLong / nLong;
-        double varLong = s.SumSqLong / nLong - meanLong * meanLong;
+        double varLong = (s.SumSqLong / nLong) - (meanLong * meanLong);
         double sdLong = varLong > 0.0 ? Math.Sqrt(varLong) : 0.0;
 
         // ── Stage 2: dynamic period ──
@@ -442,7 +442,7 @@ public sealed class Dymoi : AbstractBase
                 }
 
                 double meanS = sumShort / countShort;
-                double varS = sumSqShort / countShort - meanS * meanS;
+                double varS = (sumSqShort / countShort) - (meanS * meanS);
                 double sdShort = varS > 0.0 ? Math.Sqrt(varS) : 0.0;
 
                 // Long StdDev update
@@ -463,7 +463,7 @@ public sealed class Dymoi : AbstractBase
                 }
 
                 double meanL = sumLong / countLong;
-                double varL = sumSqLong / countLong - meanL * meanL;
+                double varL = (sumSqLong / countLong) - (meanL * meanL);
                 double sdLong = varL > 0.0 ? Math.Sqrt(varL) : 0.0;
 
                 // Dynamic period

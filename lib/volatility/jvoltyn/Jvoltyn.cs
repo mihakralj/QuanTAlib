@@ -108,7 +108,7 @@ public sealed class Jvoltyn : AbstractBase
         _normFactor = Math.Abs(_logParam - 1.0) > 1e-10 ? 100.0 / (_logParam - 1.0) : 0.0;
 
         // same warmup heuristic used in JMA
-        WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
+        WarmupPeriod = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(period, 0.36)));
 
         _handler = Handle;
         Name = $"Jvoltyn({period})";

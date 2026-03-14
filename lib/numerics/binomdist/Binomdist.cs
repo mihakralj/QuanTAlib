@@ -108,8 +108,8 @@ public sealed class Binomdist : AbstractBase
             ser += LanczosCoeff[k] / (x + k);
         }
 
-        return 0.5 * Math.Log(2.0 * Math.PI)
-             + (x + 0.5) * Math.Log(t)
+        return (0.5 * Math.Log(2.0 * Math.PI))
+             + ((x + 0.5) * Math.Log(t))
              - t
              + Math.Log(ser);
     }

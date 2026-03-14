@@ -197,7 +197,7 @@ public sealed class Kchannel : ITValuePublisher
         double trueRange = Math.Max(tr1, Math.Max(tr2, tr3));
 
         // ATR using RMA with warmup compensation
-        double newRawRma = (_state.RawRma * (_period - 1) + trueRange) / _period;
+        double newRawRma = ((_state.RawRma * (_period - 1)) + trueRange) / _period;
         double newE = (1.0 - _atrAlpha) * _state.E;
         double atrValue = newE > Epsilon ? newRawRma / (1.0 - newE) : newRawRma;
 
@@ -360,7 +360,7 @@ public sealed class Kchannel : ITValuePublisher
             double tr = Math.Max(tr1, Math.Max(tr2, tr3));
 
             // ATR (RMA with warmup)
-            rawRma = (rawRma * (period - 1) + tr) / period;
+            rawRma = ((rawRma * (period - 1)) + tr) / period;
             e = (1.0 - atrAlpha) * e;
             double atr = e > Epsilon ? rawRma / (1.0 - e) : rawRma;
 

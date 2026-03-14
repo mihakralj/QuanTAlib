@@ -87,7 +87,6 @@ public sealed class Efi : ITValuePublisher
         _ps = _s;
     }
 
-
     /// <summary>
     /// Resets the indicator state.
     /// </summary>
@@ -224,7 +223,6 @@ public sealed class Efi : ITValuePublisher
 
         return new TSeries(t, v);
     }
-
 
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.

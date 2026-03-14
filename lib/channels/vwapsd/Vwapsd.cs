@@ -200,9 +200,9 @@ public sealed class Vwapsd : AbstractBase
             {
                 _state = _state with
                 {
-                    SumPV = _state.SumPV + price * vol,
+                    SumPV = _state.SumPV + (price * vol),
                     SumVol = _state.SumVol + vol,
-                    SumPV2 = _state.SumPV2 + price * price * vol,
+                    SumPV2 = _state.SumPV2 + (price * price * vol),
                     Count = _state.Count + 1
                 };
             }
@@ -222,8 +222,8 @@ public sealed class Vwapsd : AbstractBase
         double stdev = Math.Sqrt(variance);
 
         // Calculate bands
-        double upper = vwap + _numDevs * stdev;
-        double lower = vwap - _numDevs * stdev;
+        double upper = vwap + (_numDevs * stdev);
+        double lower = vwap - (_numDevs * stdev);
 
         // Update output values
         Vwap = new TValue(input.Time, vwap);
@@ -302,7 +302,7 @@ public sealed class Vwapsd : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), 1.0, isNew: true, reset: false);
+            Update(new TValue(startTime + (i * step.Value), source[i]), 1.0, isNew: true, reset: false);
         }
     }
 
@@ -405,8 +405,8 @@ public sealed class Vwapsd : AbstractBase
 
             vwap[i] = vwapVal;
             stdDev[i] = stdev;
-            upper[i] = vwapVal + numDevs * stdev;
-            lower[i] = vwapVal - numDevs * stdev;
+            upper[i] = vwapVal + (numDevs * stdev);
+            lower[i] = vwapVal - (numDevs * stdev);
         }
     }
 }

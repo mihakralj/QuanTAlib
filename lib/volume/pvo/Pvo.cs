@@ -260,7 +260,6 @@ public sealed class Pvo : ITValuePublisher
         Histogram = default;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

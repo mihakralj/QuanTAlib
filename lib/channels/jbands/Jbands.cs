@@ -99,7 +99,7 @@ public sealed class Jbands : ITValuePublisher, IDisposable
         _logLengthDivider = Math.Log(Math.Max(_lengthDivider, 1e-12));
         _logSqrtDivider = Math.Log(Math.Max(sqrtDivider, 1e-12));
 
-        WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
+        WarmupPeriod = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(period, 0.36)));
 
         _handler = Handle;
         Name = $"Jbands({period},{phase})";

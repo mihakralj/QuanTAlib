@@ -169,7 +169,6 @@ public sealed class Pvr : ITValuePublisher
         IsHot = false;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

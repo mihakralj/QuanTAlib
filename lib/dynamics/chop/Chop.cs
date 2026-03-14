@@ -240,7 +240,6 @@ public sealed class Chop : ITValuePublisher
         return Math.Clamp(chop, 0.0, 100.0);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>
@@ -282,5 +281,4 @@ public sealed class Chop : ITValuePublisher
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

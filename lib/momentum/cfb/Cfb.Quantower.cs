@@ -48,11 +48,11 @@ public sealed class CfbIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         // Generate lengths array
-        int count = (MaxLength - MinLength) / Step + 1;
+        int count = ((MaxLength - MinLength) / Step) + 1;
         int[] lengths = new int[count];
         for (int i = 0; i < count; i++)
         {
-            lengths[i] = MinLength + i * Step;
+            lengths[i] = MinLength + (i * Step);
         }
 
         _cfb = new Cfb(lengths);

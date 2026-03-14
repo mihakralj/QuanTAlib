@@ -178,21 +178,21 @@ public sealed class Asi : ITValuePublisher
             double R;
             if (absHC >= absLC && absHC >= absHL)
             {
-                R = Math.FusedMultiplyAdd(-0.5, absLC, absHC) + 0.25 * absC1O1;
+                R = Math.FusedMultiplyAdd(-0.5, absLC, absHC) + (0.25 * absC1O1);
             }
             else if (absLC >= absHC && absLC >= absHL)
             {
-                R = Math.FusedMultiplyAdd(-0.5, absHC, absLC) + 0.25 * absC1O1;
+                R = Math.FusedMultiplyAdd(-0.5, absHC, absLC) + (0.25 * absC1O1);
             }
             else
             {
-                R = absHL + 0.25 * absC1O1;
+                R = absHL + (0.25 * absC1O1);
             }
 
             if (R > 0.0)
             {
                 // SI = 50 * [(C-C1) + 0.5*(C-O) + 0.25*(C1-O1)] / R * (K/T)
-                double numerator = Math.FusedMultiplyAdd(0.5, close - open, close - prevClose) + 0.25 * (prevClose - prevOpen);
+                double numerator = Math.FusedMultiplyAdd(0.5, close - open, close - prevClose) + (0.25 * (prevClose - prevOpen));
                 si = 50.0 * numerator / R * (K / _limitMove);
             }
         }
@@ -348,20 +348,20 @@ public sealed class Asi : ITValuePublisher
                 double R;
                 if (absHC >= absLC && absHC >= absHL)
                 {
-                    R = Math.FusedMultiplyAdd(-0.5, absLC, absHC) + 0.25 * absC1O1;
+                    R = Math.FusedMultiplyAdd(-0.5, absLC, absHC) + (0.25 * absC1O1);
                 }
                 else if (absLC >= absHC && absLC >= absHL)
                 {
-                    R = Math.FusedMultiplyAdd(-0.5, absHC, absLC) + 0.25 * absC1O1;
+                    R = Math.FusedMultiplyAdd(-0.5, absHC, absLC) + (0.25 * absC1O1);
                 }
                 else
                 {
-                    R = absHL + 0.25 * absC1O1;
+                    R = absHL + (0.25 * absC1O1);
                 }
 
                 if (R > 0.0)
                 {
-                    double numerator = Math.FusedMultiplyAdd(0.5, c - o, c - pc) + 0.25 * (pc - po);
+                    double numerator = Math.FusedMultiplyAdd(0.5, c - o, c - pc) + (0.25 * (pc - po));
                     si = 50.0 * numerator / R * (K / limitMove);
                 }
             }

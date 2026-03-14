@@ -63,8 +63,8 @@ public sealed class Ilrs : AbstractBase
 
         // Precompute constants (reversed-x convention: x=0=newest, x=n-1=oldest)
         _sumX = 0.5 * period * (period - 1);
-        double sumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        _denominator = period * sumX2 - _sumX * _sumX;
+        double sumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        _denominator = (period * sumX2) - (_sumX * _sumX);
         _s.LastValidValue = double.NaN;
     }
 
@@ -239,8 +239,8 @@ public sealed class Ilrs : AbstractBase
         {
             double nd = n;
             sx = 0.5 * nd * (nd - 1);
-            double sx2 = (nd - 1.0) * nd * (2.0 * nd - 1.0) / 6.0;
-            denom = nd * sx2 - sx * sx;
+            double sx2 = (nd - 1.0) * nd * ((2.0 * nd) - 1.0) / 6.0;
+            denom = (nd * sx2) - (sx * sx);
         }
 
         if (Math.Abs(denom) < 1e-10)
@@ -305,8 +305,8 @@ public sealed class Ilrs : AbstractBase
 
         // Precalculate constants for full period
         double fullSumX = 0.5 * period * (period - 1);
-        double fullSumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        double fullDenom = period * fullSumX2 - fullSumX * fullSumX;
+        double fullSumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        double fullDenom = (period * fullSumX2) - (fullSumX * fullSumX);
 
         for (int i = 0; i < len; i++)
         {
@@ -345,8 +345,8 @@ public sealed class Ilrs : AbstractBase
                 {
                     double n = count;
                     double sx = 0.5 * n * (n - 1);
-                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                    double denom = n * sx2 - sx * sx;
+                    double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                    double denom = (n * sx2) - (sx * sx);
 
                     if (Math.Abs(denom) < 1e-10)
                     {

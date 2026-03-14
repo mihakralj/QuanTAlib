@@ -181,7 +181,6 @@ public sealed class Nvi : ITValuePublisher
         return new TSeries(t, v);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

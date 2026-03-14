@@ -142,8 +142,8 @@ public sealed class HtPhasor : AbstractBase
         double input1 = buffer[KEY_Q1];
         DoHilbertTransform(buffer, KEY_JQ, input1, true, hilbertIdx, adjustedPrevPeriod);
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForOddPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForOddPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         i1ForEvenPrev3 = i1ForEvenPrev2;
         i1ForEvenPrev2 = buffer[KEY_DETRENDER];
@@ -167,8 +167,8 @@ public sealed class HtPhasor : AbstractBase
             hilbertIdx = 0;
         }
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         i1ForOddPrev3 = i1ForOddPrev2;
         i1ForOddPrev2 = buffer[KEY_DETRENDER];
@@ -178,8 +178,8 @@ public sealed class HtPhasor : AbstractBase
     private static void CalcSmoothedPeriod(
         ref double re, double i2, double q2, ref double prevI2, ref double prevQ2, ref double im, ref double period)
     {
-        re = Math.FusedMultiplyAdd(0.2, i2 * prevI2 + q2 * prevQ2, 0.8 * re);
-        im = Math.FusedMultiplyAdd(0.2, i2 * prevQ2 - q2 * prevI2, 0.8 * im);
+        re = Math.FusedMultiplyAdd(0.2, (i2 * prevI2) + (q2 * prevQ2), 0.8 * re);
+        im = Math.FusedMultiplyAdd(0.2, (i2 * prevQ2) - (q2 * prevI2), 0.8 * im);
 
         prevQ2 = q2;
         prevI2 = i2;
@@ -228,7 +228,7 @@ public sealed class HtPhasor : AbstractBase
         double p2 = Get(priceHistory, historyIdx, 2);
         double p3 = Get(priceHistory, historyIdx, 3);
 
-        double smoothedValue = (4.0 * p0 + 3.0 * p1 + 2.0 * p2 + p3) * 0.1;
+        double smoothedValue = ((4.0 * p0) + (3.0 * p1) + (2.0 * p2) + p3) * 0.1;
 
         s.PeriodWMASub = p0 + p1 + p2 + p3;
         s.PeriodWMASum = smoothedValue * 10.0;
@@ -306,7 +306,7 @@ public sealed class HtPhasor : AbstractBase
         double prevQ2 = s.PrevQ2;
         double period = s.Period;
 
-        double adjustedPrevPeriod = 0.075 * period + 0.54;
+        double adjustedPrevPeriod = (0.075 * period) + 0.54;
         _smoothPrice[s.SmoothPriceIdx] = smoothedValue;
 
         double q2, i2;

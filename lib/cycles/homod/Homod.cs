@@ -162,10 +162,10 @@ public sealed class Homod : AbstractBase
         double price0 = price;
 
         // Calculate bandwidth based on smooth period
-        double bandwidth = 0.075 * s.SmoothPeriod + 0.54;
+        double bandwidth = (0.075 * s.SmoothPeriod) + 0.54;
 
         // 4-bar weighted moving average: (4*p0 + 3*p1 + 2*p2 + p3) / 10
-        double smoothPrice = (4.0 * price0 + 3.0 * price1 + 2.0 * price2 + price3) / 10.0;
+        double smoothPrice = ((4.0 * price0) + (3.0 * price1) + (2.0 * price2) + price3) / 10.0;
 
         // Shift smooth price history
         double sp6 = s.Sp5;
@@ -177,7 +177,7 @@ public sealed class Homod : AbstractBase
         double sp0 = smoothPrice;
 
         // Hilbert Transform detrender: coefficients [0.0962, 0, 0.5769, 0, -0.5769, 0, -0.0962] * bandwidth
-        double detrender = (0.0962 * sp0 + 0.5769 * sp2 - 0.5769 * sp4 - 0.0962 * sp6) * bandwidth;
+        double detrender = ((0.0962 * sp0) + (0.5769 * sp2) - (0.5769 * sp4) - (0.0962 * sp6)) * bandwidth;
 
         // Shift detrender history
         double det6 = s.Det5;
@@ -189,7 +189,7 @@ public sealed class Homod : AbstractBase
         double det0 = detrender;
 
         // Q1 via Hilbert Transform of detrender
-        double q1 = (0.0962 * det0 + 0.5769 * det2 - 0.5769 * det4 - 0.0962 * det6) * bandwidth;
+        double q1 = ((0.0962 * det0) + (0.5769 * det2) - (0.5769 * det4) - (0.0962 * det6)) * bandwidth;
 
         // I1 is detrender delayed by 3 bars
         double i1 = det3;
@@ -213,10 +213,10 @@ public sealed class Homod : AbstractBase
         double q1_0 = q1;
 
         // JI = Hilbert Transform of I1
-        double ji = (0.0962 * i1_0 + 0.5769 * i1_2 - 0.5769 * i1_4 - 0.0962 * i1_6) * bandwidth;
+        double ji = ((0.0962 * i1_0) + (0.5769 * i1_2) - (0.5769 * i1_4) - (0.0962 * i1_6)) * bandwidth;
 
         // JQ = Hilbert Transform of Q1
-        double jq = (0.0962 * q1_0 + 0.5769 * q1_2 - 0.5769 * q1_4 - 0.0962 * q1_6) * bandwidth;
+        double jq = ((0.0962 * q1_0) + (0.5769 * q1_2) - (0.5769 * q1_4) - (0.0962 * q1_6)) * bandwidth;
 
         // Calculate I2 and Q2 (phasor rotation)
         double i2Raw = i1 - jq;

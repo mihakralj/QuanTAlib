@@ -76,8 +76,8 @@ public sealed class T3 : AbstractBase
 
         double c1 = -v3;
         double c2 = 3.0 * (v2 + v3);
-        double c3 = -3.0 * (2.0 * v2 + v + v3);
-        double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+        double c3 = -3.0 * ((2.0 * v2) + v + v3);
+        double c4 = 1.0 + (3.0 * v) + (3.0 * v2) + v3;
 
         _params = new Parameters(alpha, decay, c1, c2, c3, c4);
 
@@ -358,8 +358,8 @@ public sealed class T3 : AbstractBase
 
         double c1 = -v3;
         double c2 = 3.0 * (v2 + v3);
-        double c3 = -3.0 * (2.0 * v2 + v + v3);
-        double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+        double c3 = -3.0 * ((2.0 * v2) + v + v3);
+        double c4 = 1.0 + (3.0 * v) + (3.0 * v2) + v3;
 
         var p = new Parameters(alpha, decay, c1, c2, c3, c4);
         var state = State.New();

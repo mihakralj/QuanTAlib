@@ -53,7 +53,7 @@ public sealed class Hp : AbstractBase
         Lambda = lambda;
 
         double s = Math.Sqrt(lambda);
-        _alpha = (s * 0.5 - 1.0) / (s * 0.5 + 1.0);
+        _alpha = ((s * 0.5) - 1.0) / ((s * 0.5) + 1.0);
         _alpha = Math.Clamp(_alpha, 0.0001, 0.9999);
         _oneMinusAlpha = 1.0 - _alpha;
         _halfAlpha = 0.5 * _alpha;
@@ -218,7 +218,7 @@ public sealed class Hp : AbstractBase
         }
 
         double s = Math.Sqrt(lambda);
-        double alpha = (s * 0.5 - 1.0) / (s * 0.5 + 1.0);
+        double alpha = ((s * 0.5) - 1.0) / ((s * 0.5) + 1.0);
         alpha = Math.Clamp(alpha, 0.0001, 0.9999);
 
         double oneMinusAlpha = 1.0 - alpha;

@@ -86,7 +86,7 @@ public sealed class Parzen : AbstractBase
             if (absU <= 0.5)
             {
                 // Inner region: cubic spline
-                w = Math.FusedMultiplyAdd(6.0, absU * absU * absU, 1.0 - 6.0 * absU * absU);
+                w = Math.FusedMultiplyAdd(6.0, absU * absU * absU, 1.0 - (6.0 * absU * absU));
             }
             else if (absU <= 1.0)
             {

@@ -127,7 +127,7 @@ public sealed class Zscore : AbstractBase
             double sum = _buffer.Sum;
             double mean = sum / n;
 
-            double numerator = _sumSq - (sum * sum) / n;
+            double numerator = _sumSq - ((sum * sum) / n);
             if (numerator < 0)
             {
                 numerator = 0;
@@ -317,7 +317,7 @@ public sealed class Zscore : AbstractBase
                 int n = count;
                 double mean = sum / n;
 
-                double numerator = sumSq - (sum * sum) / n;
+                double numerator = sumSq - ((sum * sum) / n);
                 if (numerator < 0)
                 {
                     numerator = 0;

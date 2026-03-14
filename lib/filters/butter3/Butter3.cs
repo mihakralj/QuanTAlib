@@ -57,7 +57,7 @@ public sealed class Butter3 : AbstractBase
         double c1 = a1 * a1;
 
         coef2 = b1 + c1;
-        coef3 = -(c1 + b1 * c1);
+        coef3 = -(c1 + (b1 * c1));
         coef4 = c1 * c1;
         coef1 = (1.0 - b1 + c1) * (1.0 - c1) / 8.0;
     }
@@ -87,7 +87,7 @@ public sealed class Butter3 : AbstractBase
         DateTime baseTime = DateTime.UtcNow;
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(baseTime + interval * i, source[i]));
+            Update(new TValue(baseTime + (interval * i), source[i]));
         }
     }
 
@@ -117,7 +117,7 @@ public sealed class Butter3 : AbstractBase
             : Math.FusedMultiplyAdd(_coef4, _state.Y3,
                 Math.FusedMultiplyAdd(_coef3, _state.Y2,
                     Math.FusedMultiplyAdd(_coef2, _state.Y1,
-                        _coef1 * (x + 3.0 * _state.X1 + 3.0 * _state.X2 + _state.X3))));
+                        _coef1 * (x + (3.0 * _state.X1) + (3.0 * _state.X2) + _state.X3))));
 
         // Update state: shift history
         _state.X3 = _state.X2;
@@ -203,7 +203,7 @@ public sealed class Butter3 : AbstractBase
                 : Math.FusedMultiplyAdd(coef4, y3,
                     Math.FusedMultiplyAdd(coef3, y2,
                         Math.FusedMultiplyAdd(coef2, y1,
-                            coef1 * (x + 3.0 * x1 + 3.0 * x2 + x3))));
+                            coef1 * (x + (3.0 * x1) + (3.0 * x2) + x3))));
 
             x3 = x2;
             x2 = x1;

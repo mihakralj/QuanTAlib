@@ -87,7 +87,7 @@ public sealed class Deco : AbstractBase
 
         double argShort = rad / shortPeriod;
         double alphaShort = (Math.Cos(argShort) + Math.Sin(argShort) - 1.0) / Math.Cos(argShort);
-        double oneMinusAlphaHalfShort = 1.0 - alphaShort * 0.5;
+        double oneMinusAlphaHalfShort = 1.0 - (alphaShort * 0.5);
         double oneMinusAlphaShort = 1.0 - alphaShort;
         _a1Short = oneMinusAlphaHalfShort * oneMinusAlphaHalfShort;
         _b1Short = 2.0 * oneMinusAlphaShort;
@@ -95,7 +95,7 @@ public sealed class Deco : AbstractBase
 
         double argLong = rad / longPeriod;
         double alphaLong = (Math.Cos(argLong) + Math.Sin(argLong) - 1.0) / Math.Cos(argLong);
-        double oneMinusAlphaHalfLong = 1.0 - alphaLong * 0.5;
+        double oneMinusAlphaHalfLong = 1.0 - (alphaLong * 0.5);
         double oneMinusAlphaLong = 1.0 - alphaLong;
         _a1Long = oneMinusAlphaHalfLong * oneMinusAlphaHalfLong;
         _b1Long = 2.0 * oneMinusAlphaLong;
@@ -153,7 +153,7 @@ public sealed class Deco : AbstractBase
         else
         {
             // HP[n] = a1*(x[n] - 2*x[n-1] + x[n-2]) + b1*HP[n-1] + c1*HP[n-2]
-            double diff = value - 2.0 * s.Price1 + s.Price2;
+            double diff = value - (2.0 * s.Price1) + s.Price2;
             hpShort = Math.FusedMultiplyAdd(_a1Short, diff, Math.FusedMultiplyAdd(_b1Short, s.HpShort1, _c1Short * s.HpShort2));
             hpLong = Math.FusedMultiplyAdd(_a1Long, diff, Math.FusedMultiplyAdd(_b1Long, s.HpLong1, _c1Long * s.HpLong2));
 
@@ -262,7 +262,7 @@ public sealed class Deco : AbstractBase
 
         double argShort = rad / shortPeriod;
         double alphaShort = (Math.Cos(argShort) + Math.Sin(argShort) - 1.0) / Math.Cos(argShort);
-        double omahShort = 1.0 - alphaShort * 0.5;
+        double omahShort = 1.0 - (alphaShort * 0.5);
         double omaShort = 1.0 - alphaShort;
         double a1S = omahShort * omahShort;
         double b1S = 2.0 * omaShort;
@@ -270,7 +270,7 @@ public sealed class Deco : AbstractBase
 
         double argLong = rad / longPeriod;
         double alphaLong = (Math.Cos(argLong) + Math.Sin(argLong) - 1.0) / Math.Cos(argLong);
-        double omahLong = 1.0 - alphaLong * 0.5;
+        double omahLong = 1.0 - (alphaLong * 0.5);
         double omaLong = 1.0 - alphaLong;
         double a1L = omahLong * omahLong;
         double b1L = 2.0 * omaLong;
@@ -291,7 +291,7 @@ public sealed class Deco : AbstractBase
             }
             else
             {
-                double diff = val - 2.0 * price1 + price2;
+                double diff = val - (2.0 * price1) + price2;
                 double hpS = Math.FusedMultiplyAdd(a1S, diff, Math.FusedMultiplyAdd(b1S, hpS1, c1S * hpS2));
                 double hpL = Math.FusedMultiplyAdd(a1L, diff, Math.FusedMultiplyAdd(b1L, hpL1, c1L * hpL2));
                 output[i] = hpL - hpS;
@@ -314,5 +314,4 @@ public sealed class Deco : AbstractBase
         var results = ind.Update(source);
         return (results, ind);
     }
-
 }
