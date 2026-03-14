@@ -115,6 +115,53 @@ Span mode represents maximum speed. Production code often needs different trade-
 
 Even QuanTAlib's slowest mode (Eventing with complete event infrastructure, 16.8 MB allocations) processes 500,000 EMA values in 3.5 milliseconds. Still faster than Ooples at 14.5 ms and Skender at 26.6 ms for identical calculation. The "slow" path here beats other libraries' only path.
 
+## Python Benchmark: quantalib vs pandas-ta
+
+The same indicators benchmarked in C# are also available through Python via NativeAOT shared library + ctypes FFI. This comparison measures the real-world cost of calling QuanTAlib from Python versus using pandas-ta (the most popular pure-Python technical analysis library).
+
+### Test Environment
+
+| Component | Specification |
+| :-------- | :------------ |
+| Data Size | 500,000 bars |
+| Period | 220 |
+| Python | 3.12.10 |
+| NumPy | 2.2.6 |
+| pandas | 3.0.1 |
+| pandas-ta | 0.4.71b0 |
+| quantalib | 0.8.7 (NativeAOT via ctypes) |
+
+### quantalib vs pandas-ta
+
+| Indicator | quantalib | pandas-ta | Speedup |
+| :-------- | --------: | --------: | ------: |
+| **SMA** | **1,308 μs** | 64,110 μs | **49×** |
+| **EMA** | **1,083 μs** | 4,486 μs | **4.1×** |
+| **WMA** | **1,223 μs** | 83,763 μs | **68×** |
+| **HMA** | **2,709 μs** | 154,508 μs | **57×** |
+| **ADOSC** | **1,655 μs** | 14,821 μs | **9.0×** |
+| **SKEW** | **3,987 μs** | 8,077 μs | **2.0×** |
+
+SMA and WMA expose the largest gaps. pandas-ta implements SMA as a rolling window in pure Python/numpy, while quantalib calls the same SIMD-optimized C# code (via NativeAOT) that beats TA-Lib in the C# benchmarks above. WMA at 68× faster reflects the dot-product advantage: eight FMA operations per cycle versus Python's element-at-a-time loop.
+
+### quantalib vs pandas builtins
+
+pandas itself provides optimized C implementations for common rolling operations. Fair comparison:
+
+| Indicator | quantalib | pandas | Speedup |
+| :-------- | --------: | -----: | ------: |
+| **SMA** | **1,308 μs** | 6,950 μs (rolling.mean) | **5.3×** |
+| **EMA** | **1,083 μs** | 3,652 μs (ewm.mean) | **3.4×** |
+| **WMA** | **1,223 μs** | 686,561 μs (rolling+apply) | **561×** |
+| **CORRELATION** | **20,450 μs** | 35,904 μs (rolling.corr) | **1.8×** |
+| **SKEW** | **3,987 μs** | 8,164 μs (rolling.skew) | **2.0×** |
+
+Even against pandas' C-optimized rolling operations, quantalib NativeAOT wins 2-5× on simple indicators. WMA is the extreme case: pandas lacks a native WMA implementation, falling back to `rolling().apply()` with a Python lambda — 561× slower.
+
+### FFI Overhead
+
+The ctypes foreign function interface adds approximately 5-15 microseconds per invocation. At 500,000 bars, this overhead disappears into noise. Below ~100 bars, FFI marshaling dominates and pandas-ta's pure-Python approach wins on latency. Above ~1,000 bars, NativeAOT SIMD takes over decisively.
+
 ## Methodology
 
 [BenchmarkDotNet](https://benchmarkdotnet.org/) handles all performance testing. The framework provides:
@@ -139,18 +186,22 @@ git clone https://github.com/mihakralj/QuanTAlib.git
 cd QuanTAlib
 ```
 
-Navigate to the performance project:
+### C# Benchmarks
 
 ```bash
 cd perf
-```
-
-Run benchmarks in Release configuration:
-
-```bash
 dotnet run -c Release
 ```
 
 Debug builds include instrumentation that destroys performance measurements. Release configuration or the numbers mean nothing.
+
+### Python Benchmarks
+
+```bash
+cd python
+python tests/benchmark.py --bars 500000 --period 220 --iterations 10
+```
+
+Adjust `--bars` and `--period` to match your use case. The script degrades gracefully — if pandas-ta or quantalib is unavailable, it benchmarks whatever is installed.
 
 Results vary by CPU generation, but relative ratios (QuanTAlib vs competitors) remain consistent across hardware. The architectures that make something fast stay fast; the ones that allocate memory keep allocating.
