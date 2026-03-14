@@ -44,9 +44,9 @@
     <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
   </PropertyGroup>
 
-  <!-- Stamp lib/VERSION into README.md replacing the <version> placeholder -->
+  <!-- Stamp lib/VERSION into README.md heading — single project only to prevent parallel race -->
   <Target Name="StampReadmeVersion" BeforeTargets="CoreCompile"
-          Condition="Exists('$(QtaVersionFile)') AND Exists('$(MSBuildThisFileDirectory)README.md')">
+          Condition="'$(MSBuildProjectName)' == 'quantalib' AND Exists('$(QtaVersionFile)') AND Exists('$(MSBuildThisFileDirectory)README.md')">
     <PropertyGroup>
       <ReadmeFile>$(MSBuildThisFileDirectory)README.md</ReadmeFile>
     </PropertyGroup>
