@@ -627,11 +627,11 @@ public class RemaTests
     [Fact]
     public void Rema_AllModes_ProduceSameResult_AfterResyncInterval()
     {
-        // This guards against implementation drift between CalculateCore (batch/span)
-        // and Update(TValue) (streaming/eventing) when internal counters wrap/reset.
+        // Guards against implementation drift between CalculateCore (batch/span)
+        // and Update(TValue) (streaming/eventing) over long runs.
         int period = 10;
         double lambda = 0.5;
-        int count = 12050; // > ResyncInterval (10,000)
+        int count = 12050; // Long-running consistency check
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 321);
         var bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));

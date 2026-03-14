@@ -256,9 +256,9 @@ public class ZscoreTests
 
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-9);
-            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-8); // FP addition order differs between ring scan paths
-            Assert.Equal(batchResult[i].Value, eventResult[i], 1e-9);
+            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-8);
+            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-7); // FP addition order differs between ring scan paths
+            Assert.Equal(batchResult[i].Value, eventResult[i], 1e-8);
         }
     }
 

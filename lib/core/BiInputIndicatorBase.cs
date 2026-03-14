@@ -32,10 +32,11 @@ public delegate void BiInputBatchDelegate(
 ///
 /// Infrastructure provided:
 /// - _p_state / _buffer.Snapshot() / _buffer.Restore() for bar correction (isNew semantics)
-/// - RingBuffer-based sliding window with a single running sum
-/// - Periodic resync every 1000 updates for floating-point drift correction
+/// - RingBuffer-based sliding window with a single Kahan compensated running sum
 /// - NaN/Infinity handling with last-valid-value substitution
 /// - Template Method pattern: subclasses only implement ComputeError and optionally PostProcess
+///
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public abstract class BiInputIndicatorBase : AbstractBase
@@ -43,12 +44,10 @@ public abstract class BiInputIndicatorBase : AbstractBase
     protected readonly RingBuffer _buffer;
 
     [StructLayout(LayoutKind.Auto)]
-    protected record struct BiInputState(double Sum, double LastValidActual, double LastValidPredicted, int TickCount);
+    protected record struct BiInputState(double Sum, double Compensation, double LastValidActual, double LastValidPredicted);
 
     protected BiInputState _state;
     protected BiInputState _p_state;
-
-    protected const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates a bi-input indicator with specified period.
@@ -141,15 +140,17 @@ public abstract class BiInputIndicatorBase : AbstractBase
         _p_state = _state;
         // Snapshot buffer state BEFORE Add so Restore can undo it
         _buffer.Snapshot();
-        _state.Sum = _state.Sum - GetRemovedValue() + error;
-        _buffer.Add(error);
-        _state.TickCount++;
 
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
+        // Kahan compensated sliding window update
+        double delta = error - GetRemovedValue();
         {
-            _state.TickCount = 0;
-            _state.Sum = _buffer.RecalculateSum();
+            double y = delta - _state.Compensation;
+            double t = _state.Sum + y;
+            _state.Compensation = (t - _state.Sum) - y;
+            _state.Sum = t;
         }
+
+        _buffer.Add(error);
     }
 
     /// <summary>

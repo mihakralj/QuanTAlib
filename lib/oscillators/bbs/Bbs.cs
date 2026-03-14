@@ -53,6 +53,9 @@ public sealed class Bbs : ITValuePublisher
         double BbSum,
         double BbSumSq,
         double KcSum,
+        double BbSumComp,
+        double BbSumSqComp,
+        double KcSumComp,
         double AtrRaw,
         double AtrE,
         double PrevClose,
@@ -64,10 +67,6 @@ public sealed class Bbs : ITValuePublisher
 
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
-    private int _tickCount;
-    private int _p_tickCount;
 
     // Saved squeeze state for SqueezeFired detection
     private bool _prevSqueezeOn;
@@ -169,7 +168,7 @@ public sealed class Bbs : ITValuePublisher
         _bbBuffer = new RingBuffer(bbPeriod);
         _kcBuffer = new RingBuffer(kcPeriod);
 
-        _state = new State(0, 0, 0, 0, 1.0, double.NaN, double.NaN, double.NaN, double.NaN, 0, false);
+        _state = new State(0, 0, 0, 0, 0, 0, 0, 1.0, double.NaN, double.NaN, double.NaN, double.NaN, 0, false);
         _p_state = _state;
     }
 
@@ -234,13 +233,11 @@ public sealed class Bbs : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
-            _p_tickCount = _tickCount;
             _p_prevSqueezeOn = _prevSqueezeOn;
         }
         else
         {
             _state = _p_state;
-            _tickCount = _p_tickCount;
             _prevSqueezeOn = _p_prevSqueezeOn;
         }
 
@@ -251,23 +248,46 @@ public sealed class Bbs : ITValuePublisher
             _state = _state with { Bars = _state.Bars + 1 };
         }
 
-        // === Bollinger Bands: SMA + population stddev via rolling sum/sumSq ===
+        // === Bollinger Bands: Kahan compensated SMA + population stddev ===
         if (_bbBuffer.IsFull)
         {
             double oldest = _bbBuffer.Oldest;
+            double bbDelta = close - oldest;
+            double bbSqDelta = (close * close) - (oldest * oldest);
+            {
+                double y = bbDelta - _state.BbSumComp;
+                double t = _state.BbSum + y;
+                double newComp = (t - _state.BbSum) - y;
+                double y2 = bbSqDelta - _state.BbSumSqComp;
+                double t2 = _state.BbSumSq + y2;
+                double newSqComp = (t2 - _state.BbSumSq) - y2;
+                _state = _state with
+                {
+                    BbSum = t,
+                    BbSumComp = newComp,
+                    BbSumSq = t2,
+                    BbSumSqComp = newSqComp
+                };
+            }
+        }
+        else
+        {
+            double y = close - _state.BbSumComp;
+            double t = _state.BbSum + y;
+            double newComp = (t - _state.BbSum) - y;
+            double y2 = (close * close) - _state.BbSumSqComp;
+            double t2 = _state.BbSumSq + y2;
+            double newSqComp = (t2 - _state.BbSumSq) - y2;
             _state = _state with
             {
-                BbSum = _state.BbSum - oldest,
-                BbSumSq = _state.BbSumSq - (oldest * oldest)
+                BbSum = t,
+                BbSumComp = newComp,
+                BbSumSq = t2,
+                BbSumSqComp = newSqComp
             };
         }
 
         _bbBuffer.Add(close, isNew);
-        _state = _state with
-        {
-            BbSum = _state.BbSum + close,
-            BbSumSq = _state.BbSumSq + (close * close)
-        };
 
         int bbCount = _bbBuffer.Count;
         double bbMean = bbCount > 0 ? _state.BbSum / bbCount : close;
@@ -277,15 +297,24 @@ public sealed class Bbs : ITValuePublisher
         double bbUpper = bbMean + (_bbMult * bbStdDev);
         double bbLower = bbMean - (_bbMult * bbStdDev);
 
-        // === Keltner Channel: SMA middle + EMA-smoothed ATR ===
+        // === Keltner Channel: Kahan compensated SMA middle + EMA-smoothed ATR ===
         if (_kcBuffer.IsFull)
         {
             double oldest = _kcBuffer.Oldest;
-            _state = _state with { KcSum = _state.KcSum - oldest };
+            double kcDelta = close - oldest;
+            double y = kcDelta - _state.KcSumComp;
+            double t = _state.KcSum + y;
+            _state = _state with { KcSum = t, KcSumComp = (t - _state.KcSum) - y };
+            // Fix: need to use pre-update KcSum for comp calc
+        }
+        else
+        {
+            double y = close - _state.KcSumComp;
+            double t = _state.KcSum + y;
+            _state = _state with { KcSum = t, KcSumComp = (t - _state.KcSum) - y };
         }
 
         _kcBuffer.Add(close, isNew);
-        _state = _state with { KcSum = _state.KcSum + close };
 
         int kcCount = _kcBuffer.Count;
         double kcMid = kcCount > 0 ? _state.KcSum / kcCount : close;
@@ -331,16 +360,6 @@ public sealed class Bbs : ITValuePublisher
         // === Bandwidth ===
         double bandwidth = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0; // skipcq: CS-R1077 - Exact-zero div guard: price avg
 
-        // === Resync for floating-point drift ===
-        if (isNew)
-        {
-            _tickCount++;
-            if (_bbBuffer.IsFull && _tickCount >= ResyncInterval)
-            {
-                _tickCount = 0;
-                RecalculateSums();
-            }
-        }
 
         // === IsHot ===
         if (!_state.IsHot && _state.Bars >= WarmupPeriod)
@@ -644,7 +663,7 @@ public sealed class Bbs : ITValuePublisher
             kcSum += _kcBuffer[i];
         }
 
-        _state = _state with { BbSum = bbSum, BbSumSq = bbSumSq, KcSum = kcSum };
+        _state = _state with { BbSum = bbSum, BbSumSq = bbSumSq, KcSum = kcSum, BbSumComp = 0, BbSumSqComp = 0, KcSumComp = 0 };
     }
 
     /// <summary>
@@ -656,10 +675,8 @@ public sealed class Bbs : ITValuePublisher
         _bbBuffer.Clear();
         _kcBuffer.Clear();
 
-        _state = new State(0, 0, 0, 0, 1.0, double.NaN, double.NaN, double.NaN, double.NaN, 0, false);
+        _state = new State(0, 0, 0, 0, 0, 0, 0, 1.0, double.NaN, double.NaN, double.NaN, double.NaN, 0, false);
         _p_state = _state;
-        _tickCount = 0;
-        _p_tickCount = 0;
         _prevSqueezeOn = false;
         _p_prevSqueezeOn = false;
 

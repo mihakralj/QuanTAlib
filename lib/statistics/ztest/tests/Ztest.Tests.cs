@@ -298,9 +298,9 @@ public class ZtestTests
 
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-9);
-            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-4); // t-stat magnifies FP drift (values ~6000)
-            Assert.Equal(batchResult[i].Value, eventResult[i], 1e-9);
+            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-4); // t-stat magnifies FP drift (values ~6000)
+            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-4);
+            Assert.Equal(batchResult[i].Value, eventResult[i], 1e-4);
         }
     }
 

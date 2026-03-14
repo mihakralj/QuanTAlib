@@ -213,6 +213,9 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(DateTime time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);
 
+    /// <summary>
+    /// Adds a sequence of raw <see langword="double"/> values with fabricated timestamps.
+    /// </summary>
     /// <remarks>
     /// <b>Synthetic timestamps:</b> Each element receives a fabricated timestamp starting at
     /// <see cref="DateTime.UtcNow"/> (captured once at call time) and incrementing by one minute

@@ -5,11 +5,13 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Sum: Summation over a rolling window using Kahan-Babuška algorithm
+/// Sum: Summation over a rolling window using Kahan-Babuška compensated summation
 /// </summary>
 /// <remarks>
 /// Sum calculates the sum of the last n values using the Kahan-Babuška summation
 /// algorithm (also known as "improved Kahan") for maximum numerical precision.
+/// No periodic resync is needed — Kahan-Babuška compensation maintains accuracy
+/// indefinitely.
 ///
 /// Kahan-Babuška fixes second-order rounding errors that classic Kahan misses:
 /// - Tracks two compensation layers: primary (c) and secondary (cc)
@@ -52,13 +54,10 @@ public sealed class Sum : AbstractBase
         public double Cc;            // Second-order compensation
         public double LastInput;
         public double LastValidValue;
-        public int TickCount;
     }
 
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates Sum with specified period.
@@ -140,7 +139,7 @@ public sealed class Sum : AbstractBase
 
     /// <summary>
     /// Recalculates the sum from scratch using Kahan-Babuška.
-    /// Used for periodic resync to prevent drift.
+    /// Used for bar corrections to ensure accuracy.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RecalculateSum()
@@ -235,13 +234,6 @@ public sealed class Sum : AbstractBase
 
         _buffer.Add(val);
         KahanBabuskaAdd(val);
-
-        _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            RecalculateSum();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -321,7 +313,7 @@ public sealed class Sum : AbstractBase
     }
 
     /// <summary>
-    /// Calculates Sum in-place using Kahan-Babuška summation.
+    /// Calculates Sum in-place using Kahan-Babuška compensated summation.
     /// Zero-allocation method for maximum performance.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -386,7 +378,6 @@ public sealed class Sum : AbstractBase
         try
         {
             int bufferIndex = 0;
-            int tickCount = 0;
 
             // Warmup phase
             int warmupEnd = Math.Min(period, len);
@@ -462,29 +453,6 @@ public sealed class Sum : AbstractBase
                 }
 
                 output[i] = sum;
-
-                // Periodic resync for long sequences
-                tickCount++;
-                if (tickCount >= ResyncInterval)
-                {
-                    tickCount = 0;
-                    sum = 0;
-                    c = 0;
-                    cc = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        double bVal = buffer[k];
-                        double yR = bVal - c;
-                        double tR = sum + yR;
-                        c = tR - sum - yR;
-                        sum = tR;
-
-                        double zR = c - cc;
-                        double ttR = sum + zR;
-                        cc = ttR - sum - zR;
-                        sum = ttR;
-                    }
-                }
             }
         }
         finally

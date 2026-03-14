@@ -40,12 +40,11 @@ public sealed class Bbwp : AbstractBase
     private record struct State(
         double Sum,
         double SumSq,
+        double SumComp,
+        double SumSqComp,
         double LastValid);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
-    private int _tickCount;
 
     /// <summary>
     /// Creates BBWP with specified period, multiplier, and lookback.
@@ -127,25 +126,43 @@ public sealed class Bbwp : AbstractBase
         {
             _p_state = _state;
 
-            // Remove oldest value contribution if buffer full
+            // Kahan compensated sliding window update
             if (_buffer.Count == _buffer.Capacity)
             {
                 double oldest = _buffer.Oldest;
-                _state.Sum -= oldest;
-                _state.SumSq -= oldest * oldest;
+                double delta = value - oldest;
+                {
+                    double y = delta - _state.SumComp;
+                    double t = _state.Sum + y;
+                    _state.SumComp = (t - _state.Sum) - y;
+                    _state.Sum = t;
+                }
+                {
+                    double deltaSq = (value * value) - (oldest * oldest);
+                    double y = deltaSq - _state.SumSqComp;
+                    double t = _state.SumSq + y;
+                    _state.SumSqComp = (t - _state.SumSq) - y;
+                    _state.SumSq = t;
+                }
             }
-
-            // Add new value
-            _state.Sum += value;
-            _state.SumSq += value * value;
-            _buffer.Add(value);
-
-            _tickCount++;
-            if (_buffer.IsFull && _tickCount >= ResyncInterval)
+            else
             {
-                _tickCount = 0;
-                RecalculateSums();
+                {
+                    double y = value - _state.SumComp;
+                    double t = _state.Sum + y;
+                    _state.SumComp = (t - _state.Sum) - y;
+                    _state.Sum = t;
+                }
+                {
+                    double sq = value * value;
+                    double y = sq - _state.SumSqComp;
+                    double t = _state.SumSq + y;
+                    _state.SumSqComp = (t - _state.SumSq) - y;
+                    _state.SumSq = t;
+                }
             }
+
+            _buffer.Add(value);
         }
         else
         {
@@ -251,7 +268,6 @@ public sealed class Bbwp : AbstractBase
         _bbwBuffer.Clear();
         _state = default;
         _p_state = default;
-        _tickCount = 0;
         Last = default;
     }
 

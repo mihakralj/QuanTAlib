@@ -19,6 +19,8 @@ namespace QuanTAlib;
 /// - RAE = 1 means same as mean predictor
 /// - RAE &gt; 1 means worse than mean predictor
 /// - Scale-independent ratio
+///
+/// Uses Kahan compensated summation to prevent floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Rae : AbstractBase
@@ -32,13 +34,13 @@ public sealed class Rae : AbstractBase
         double ActualSum,
         double AbsErrorSum,
         double AbsBaselineSum,
+        double ActualComp,
+        double AbsErrorComp,
+        double AbsBaselineComp,
         double LastValidActual,
-        double LastValidPredicted,
-        int TickCount);
+        double LastValidPredicted);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     public Rae(int period)
     {
@@ -93,9 +95,15 @@ public sealed class Rae : AbstractBase
 
         if (isNew)
         {
-            // Update actual buffer for mean calculation
+            // Update actual buffer for mean calculation — Kahan compensated
             double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
-            _state.ActualSum = _state.ActualSum - removedActual + actualVal;
+            {
+                double delta = actualVal - removedActual;
+                double y = delta - _state.ActualComp;
+                double t = _state.ActualSum + y;
+                _state.ActualComp = (t - _state.ActualSum) - y;
+                _state.ActualSum = t;
+            }
             _actualBuffer.Add(actualVal);
 
             // Calculate mean and baseline error
@@ -103,24 +111,27 @@ public sealed class Rae : AbstractBase
             double absError = Math.Abs(actualVal - predictedVal);
             double absBaseline = Math.Abs(actualVal - mean);
 
-            // Update error buffer
+            // Update error buffer — Kahan compensated
             double removedError = _absErrorBuffer.Count == _absErrorBuffer.Capacity ? _absErrorBuffer.Oldest : 0.0;
-            _state.AbsErrorSum = _state.AbsErrorSum - removedError + absError;
+            {
+                double delta = absError - removedError;
+                double y = delta - _state.AbsErrorComp;
+                double t = _state.AbsErrorSum + y;
+                _state.AbsErrorComp = (t - _state.AbsErrorSum) - y;
+                _state.AbsErrorSum = t;
+            }
             _absErrorBuffer.Add(absError);
 
-            // Update baseline buffer
+            // Update baseline buffer — Kahan compensated
             double removedBaseline = _absBaselineBuffer.Count == _absBaselineBuffer.Capacity ? _absBaselineBuffer.Oldest : 0.0;
-            _state.AbsBaselineSum = _state.AbsBaselineSum - removedBaseline + absBaseline;
-            _absBaselineBuffer.Add(absBaseline);
-
-            _state.TickCount++;
-            if (_actualBuffer.IsFull && _state.TickCount >= ResyncInterval)
             {
-                _state.TickCount = 0;
-                _state.ActualSum = _actualBuffer.RecalculateSum();
-                _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
-                _state.AbsBaselineSum = _absBaselineBuffer.RecalculateSum();
+                double delta = absBaseline - removedBaseline;
+                double y = delta - _state.AbsBaselineComp;
+                double t = _state.AbsBaselineSum + y;
+                _state.AbsBaselineComp = (t - _state.AbsBaselineSum) - y;
+                _state.AbsBaselineSum = t;
             }
+            _absBaselineBuffer.Add(absBaseline);
         }
         else
         {
@@ -294,7 +305,6 @@ public sealed class Rae : AbstractBase
             output[i] = absBaselineSum > 1e-10 ? absErrorSum / absBaselineSum : 1.0;
         }
 
-        int tickCount = 0;
         for (; i < len; i++)
         {
             double act = actual[i];
@@ -337,22 +347,6 @@ public sealed class Rae : AbstractBase
             }
 
             output[i] = absBaselineSum > 1e-10 ? absErrorSum / absBaselineSum : 1.0;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcActual = 0, recalcError = 0, recalcBaseline = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcActual += actualBuffer[k];
-                    recalcError += absErrorBuffer[k];
-                    recalcBaseline += absBaselineBuffer[k];
-                }
-                actualSum = recalcActual;
-                absErrorSum = recalcError;
-                absBaselineSum = recalcBaseline;
-            }
         }
     }
 

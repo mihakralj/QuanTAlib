@@ -14,7 +14,8 @@ namespace QuanTAlib;
 /// 3. F = ((SSR1 - SSR2) / 1) / (SSR2 / (N - 3))
 ///
 /// Higher F-statistic values indicate stronger evidence that X Granger-causes Y.
-/// The indicator uses running sums for O(1) streaming updates.
+/// The indicator uses running sums with Kahan compensated summation for O(1)
+/// streaming updates with numerical stability over long streams.
 /// Period must be greater than 3 (need N-3 > 0 degrees of freedom).
 /// </remarks>
 [SkipLocalsInit]
@@ -28,6 +29,16 @@ public sealed class Granger : AbstractBase
     private double _sumY, _sumYLag, _sumXLag;
     private double _sumYY, _sumYLagYLag, _sumXLagXLag;
     private double _sumYYLag, _sumYXLag, _sumYLagXLag;
+
+    // Kahan compensation terms
+    private double _sumYComp, _sumYLagComp, _sumXLagComp;
+    private double _sumYYComp, _sumYLagYLagComp, _sumXLagXLagComp;
+    private double _sumYYLagComp, _sumYXLagComp, _sumYLagXLagComp;
+
+    // Previous compensation state for rollback
+    private double _p_sumYComp, _p_sumYLagComp, _p_sumXLagComp;
+    private double _p_sumYYComp, _p_sumYLagYLagComp, _p_sumXLagXLagComp;
+    private double _p_sumYYLagComp, _p_sumYXLagComp, _p_sumYLagXLagComp;
 
     // Previous values for lag computation
     private double _prevY, _prevX;
@@ -44,8 +55,6 @@ public sealed class Granger : AbstractBase
     private double _lastValidY, _lastValidX;
     private double _p_lastValidY, _p_lastValidX;
 
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
     /// <inheritdoc />
@@ -112,7 +121,8 @@ public sealed class Granger : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesY, double seriesX, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesY), new TValue(DateTime.UtcNow, seriesX), isNew);
+        DateTime now = DateTime.UtcNow;
+        return Update(new TValue(now, seriesY), new TValue(now, seriesX), isNew);
     }
     /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for dual-input indicator. Use Update(seriesY, seriesX) instead.</remarks>
@@ -158,6 +168,15 @@ public sealed class Granger : AbstractBase
         _p_prevY = _prevY;
         _p_prevX = _prevX;
         _p_hasPrev = _hasPrev;
+        _p_sumYComp = _sumYComp;
+        _p_sumYLagComp = _sumYLagComp;
+        _p_sumXLagComp = _sumXLagComp;
+        _p_sumYYComp = _sumYYComp;
+        _p_sumYLagYLagComp = _sumYLagYLagComp;
+        _p_sumXLagXLagComp = _sumXLagXLagComp;
+        _p_sumYYLagComp = _sumYYLagComp;
+        _p_sumYXLagComp = _sumYXLagComp;
+        _p_sumYLagXLagComp = _sumYLagXLagComp;
 
         if (_hasPrev)
         {
@@ -171,15 +190,15 @@ public sealed class Granger : AbstractBase
                 double oldYLag = _windowYLag.Oldest;
                 double oldXLag = _windowXLag.Oldest;
 
-                _sumY -= oldY;
-                _sumYLag -= oldYLag;
-                _sumXLag -= oldXLag;
-                _sumYY = FusedMultiplyAdd(-oldY, oldY, _sumYY);
-                _sumYLagYLag = FusedMultiplyAdd(-oldYLag, oldYLag, _sumYLagYLag);
-                _sumXLagXLag = FusedMultiplyAdd(-oldXLag, oldXLag, _sumXLagXLag);
-                _sumYYLag = FusedMultiplyAdd(-oldY, oldYLag, _sumYYLag);
-                _sumYXLag = FusedMultiplyAdd(-oldY, oldXLag, _sumYXLag);
-                _sumYLagXLag = FusedMultiplyAdd(-oldYLag, oldXLag, _sumYLagXLag);
+                { double yk = -oldY - _sumYComp; double t = _sumY + yk; _sumYComp = (t - _sumY) - yk; _sumY = t; }
+                { double yk = -oldYLag - _sumYLagComp; double t = _sumYLag + yk; _sumYLagComp = (t - _sumYLag) - yk; _sumYLag = t; }
+                { double yk = -oldXLag - _sumXLagComp; double t = _sumXLag + yk; _sumXLagComp = (t - _sumXLag) - yk; _sumXLag = t; }
+                { double yk = -(oldY * oldY) - _sumYYComp; double t = _sumYY + yk; _sumYYComp = (t - _sumYY) - yk; _sumYY = t; }
+                { double yk = -(oldYLag * oldYLag) - _sumYLagYLagComp; double t = _sumYLagYLag + yk; _sumYLagYLagComp = (t - _sumYLagYLag) - yk; _sumYLagYLag = t; }
+                { double yk = -(oldXLag * oldXLag) - _sumXLagXLagComp; double t = _sumXLagXLag + yk; _sumXLagXLagComp = (t - _sumXLagXLag) - yk; _sumXLagXLag = t; }
+                { double yk = -(oldY * oldYLag) - _sumYYLagComp; double t = _sumYYLag + yk; _sumYYLagComp = (t - _sumYYLag) - yk; _sumYYLag = t; }
+                { double yk = -(oldY * oldXLag) - _sumYXLagComp; double t = _sumYXLag + yk; _sumYXLagComp = (t - _sumYXLag) - yk; _sumYXLag = t; }
+                { double yk = -(oldYLag * oldXLag) - _sumYLagXLagComp; double t = _sumYLagXLag + yk; _sumYLagXLagComp = (t - _sumYLagXLag) - yk; _sumYLagXLag = t; }
             }
 
             // Add new triplet
@@ -187,26 +206,20 @@ public sealed class Granger : AbstractBase
             _windowYLag.Add(yLag);
             _windowXLag.Add(xLag);
 
-            _sumY += y;
-            _sumYLag += yLag;
-            _sumXLag += xLag;
-            _sumYY = FusedMultiplyAdd(y, y, _sumYY);
-            _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, _sumYLagYLag);
-            _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, _sumXLagXLag);
-            _sumYYLag = FusedMultiplyAdd(y, yLag, _sumYYLag);
-            _sumYXLag = FusedMultiplyAdd(y, xLag, _sumYXLag);
-            _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
+            { double yk = y - _sumYComp; double t = _sumY + yk; _sumYComp = (t - _sumY) - yk; _sumY = t; }
+            { double yk = yLag - _sumYLagComp; double t = _sumYLag + yk; _sumYLagComp = (t - _sumYLag) - yk; _sumYLag = t; }
+            { double yk = xLag - _sumXLagComp; double t = _sumXLag + yk; _sumXLagComp = (t - _sumXLag) - yk; _sumXLag = t; }
+            { double yk = (y * y) - _sumYYComp; double t = _sumYY + yk; _sumYYComp = (t - _sumYY) - yk; _sumYY = t; }
+            { double yk = (yLag * yLag) - _sumYLagYLagComp; double t = _sumYLagYLag + yk; _sumYLagYLagComp = (t - _sumYLagYLag) - yk; _sumYLagYLag = t; }
+            { double yk = (xLag * xLag) - _sumXLagXLagComp; double t = _sumXLagXLag + yk; _sumXLagXLagComp = (t - _sumXLagXLag) - yk; _sumXLagXLag = t; }
+            { double yk = (y * yLag) - _sumYYLagComp; double t = _sumYYLag + yk; _sumYYLagComp = (t - _sumYYLag) - yk; _sumYYLag = t; }
+            { double yk = (y * xLag) - _sumYXLagComp; double t = _sumYXLag + yk; _sumYXLagComp = (t - _sumYXLag) - yk; _sumYXLag = t; }
+            { double yk = (yLag * xLag) - _sumYLagXLagComp; double t = _sumYLagXLag + yk; _sumYLagXLagComp = (t - _sumYLagXLag) - yk; _sumYLagXLag = t; }
         }
 
         _prevY = y;
         _prevX = x;
         _hasPrev = true;
-
-        _updateCount++;
-        if (_updateCount % ResyncInterval == 0)
-        {
-            Resync();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -218,6 +231,15 @@ public sealed class Granger : AbstractBase
         _prevY = _p_prevY;
         _prevX = _p_prevX;
         _hasPrev = _p_hasPrev;
+        _sumYComp = _p_sumYComp;
+        _sumYLagComp = _p_sumYLagComp;
+        _sumXLagComp = _p_sumXLagComp;
+        _sumYYComp = _p_sumYYComp;
+        _sumYLagYLagComp = _p_sumYLagYLagComp;
+        _sumXLagXLagComp = _p_sumXLagXLagComp;
+        _sumYYLagComp = _p_sumYYLagComp;
+        _sumYXLagComp = _p_sumYXLagComp;
+        _sumYLagXLagComp = _p_sumYLagXLagComp;
 
         if (_hasPrev)
         {
@@ -230,16 +252,16 @@ public sealed class Granger : AbstractBase
                 double oldYLag = _windowYLag.Newest;
                 double oldXLag = _windowXLag.Newest;
 
-                // Replace newest values
-                _sumY += y - oldY;
-                _sumYLag += yLag - oldYLag;
-                _sumXLag += xLag - oldXLag;
-                _sumYY = FusedMultiplyAdd(y, y, FusedMultiplyAdd(-oldY, oldY, _sumYY));
-                _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, FusedMultiplyAdd(-oldYLag, oldYLag, _sumYLagYLag));
-                _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, FusedMultiplyAdd(-oldXLag, oldXLag, _sumXLagXLag));
-                _sumYYLag = FusedMultiplyAdd(y, yLag, FusedMultiplyAdd(-oldY, oldYLag, _sumYYLag));
-                _sumYXLag = FusedMultiplyAdd(y, xLag, FusedMultiplyAdd(-oldY, oldXLag, _sumYXLag));
-                _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, FusedMultiplyAdd(-oldYLag, oldXLag, _sumYLagXLag));
+                // Replace newest values with Kahan
+                { double yk = (-oldY + y) - _sumYComp; double t = _sumY + yk; _sumYComp = (t - _sumY) - yk; _sumY = t; }
+                { double yk = (-oldYLag + yLag) - _sumYLagComp; double t = _sumYLag + yk; _sumYLagComp = (t - _sumYLag) - yk; _sumYLag = t; }
+                { double yk = (-oldXLag + xLag) - _sumXLagComp; double t = _sumXLag + yk; _sumXLagComp = (t - _sumXLag) - yk; _sumXLag = t; }
+                { double yk = (-(oldY * oldY) + (y * y)) - _sumYYComp; double t = _sumYY + yk; _sumYYComp = (t - _sumYY) - yk; _sumYY = t; }
+                { double yk = (-(oldYLag * oldYLag) + (yLag * yLag)) - _sumYLagYLagComp; double t = _sumYLagYLag + yk; _sumYLagYLagComp = (t - _sumYLagYLag) - yk; _sumYLagYLag = t; }
+                { double yk = (-(oldXLag * oldXLag) + (xLag * xLag)) - _sumXLagXLagComp; double t = _sumXLagXLag + yk; _sumXLagXLagComp = (t - _sumXLagXLag) - yk; _sumXLagXLag = t; }
+                { double yk = (-(oldY * oldYLag) + (y * yLag)) - _sumYYLagComp; double t = _sumYYLag + yk; _sumYYLagComp = (t - _sumYYLag) - yk; _sumYYLag = t; }
+                { double yk = (-(oldY * oldXLag) + (y * xLag)) - _sumYXLagComp; double t = _sumYXLag + yk; _sumYXLagComp = (t - _sumYXLag) - yk; _sumYXLag = t; }
+                { double yk = (-(oldYLag * oldXLag) + (yLag * xLag)) - _sumYLagXLagComp; double t = _sumYLagXLag + yk; _sumYLagXLagComp = (t - _sumYLagXLag) - yk; _sumYLagXLag = t; }
 
                 _windowY.UpdateNewest(y);
                 _windowYLag.UpdateNewest(yLag);
@@ -259,6 +281,9 @@ public sealed class Granger : AbstractBase
                 _sumYYLag = y * yLag;
                 _sumYXLag = y * xLag;
                 _sumYLagXLag = yLag * xLag;
+                _sumYComp = 0; _sumYLagComp = 0; _sumXLagComp = 0;
+                _sumYYComp = 0; _sumYLagYLagComp = 0; _sumXLagXLagComp = 0;
+                _sumYYLagComp = 0; _sumYXLagComp = 0; _sumYLagXLagComp = 0;
             }
         }
 
@@ -345,35 +370,6 @@ public sealed class Granger : AbstractBase
         return Max(0.0, fStat);
     }
 
-    private void Resync()
-    {
-        _sumY = 0;
-        _sumYLag = 0;
-        _sumXLag = 0;
-        _sumYY = 0;
-        _sumYLagYLag = 0;
-        _sumXLagXLag = 0;
-        _sumYYLag = 0;
-        _sumYXLag = 0;
-        _sumYLagXLag = 0;
-
-        for (int i = 0; i < _windowY.Count; i++)
-        {
-            double y = _windowY[i];
-            double yLag = _windowYLag[i];
-            double xLag = _windowXLag[i];
-
-            _sumY += y;
-            _sumYLag += yLag;
-            _sumXLag += xLag;
-            _sumYY = FusedMultiplyAdd(y, y, _sumYY);
-            _sumYLagYLag = FusedMultiplyAdd(yLag, yLag, _sumYLagYLag);
-            _sumXLagXLag = FusedMultiplyAdd(xLag, xLag, _sumXLagXLag);
-            _sumYYLag = FusedMultiplyAdd(y, yLag, _sumYYLag);
-            _sumYXLag = FusedMultiplyAdd(y, xLag, _sumYXLag);
-            _sumYLagXLag = FusedMultiplyAdd(yLag, xLag, _sumYLagXLag);
-        }
-    }
     /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
@@ -399,6 +395,16 @@ public sealed class Granger : AbstractBase
         _sumYXLag = 0;
         _sumYLagXLag = 0;
 
+        _sumYComp = 0;
+        _sumYLagComp = 0;
+        _sumXLagComp = 0;
+        _sumYYComp = 0;
+        _sumYLagYLagComp = 0;
+        _sumXLagXLagComp = 0;
+        _sumYYLagComp = 0;
+        _sumYXLagComp = 0;
+        _sumYLagXLagComp = 0;
+
         _prevY = 0;
         _prevX = 0;
         _p_prevY = 0;
@@ -411,7 +417,6 @@ public sealed class Granger : AbstractBase
         _p_lastValidY = 0;
         _p_lastValidX = 0;
 
-        _updateCount = 0;
         Last = default;
     }
 

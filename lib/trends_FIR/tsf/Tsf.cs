@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// Projects the linear regression line one step forward, forecasting the
 /// next bar's value based on the least-squares trend over the lookback period.
+/// Kahan compensated summation prevents floating-point drift without periodic resync.
 ///
 /// Calculation: <c>TSF = slope × period + intercept</c> (standard convention)
 /// or equivalently <c>TSF = b − m</c> (reversed-x convention where b = current bar value).
@@ -30,14 +31,11 @@ public sealed class Tsf : AbstractBase
     private int _disposed;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
+    private record struct State(double SumY, double SumXY, double SumYComp, double SumXYComp, double LastVal, double LastValidValue);
     private State _s;
     private State _ps;
 
-    private int _tickCount;
     private bool _isNew;
-
-    private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
     public bool IsNew => _isNew;
@@ -98,13 +96,19 @@ public sealed class Tsf : AbstractBase
             double oldest = _buffer.Oldest;
             double prevSumY = _s.SumY;
 
-            // O(1) update for SumXY (reversed-x convention)
-            // New value enters at x=0, existing values shift x+1, oldest drops off
-            // sumXY_new = sumXY_old + sumY_prev - n * oldest
-            _s.SumXY = Math.FusedMultiplyAdd(-_period, oldest, _s.SumXY + prevSumY);
+            // Kahan compensated update for SumXY: sumXY += (prevSumY - period * oldest)
+            double deltaXY = Math.FusedMultiplyAdd(-_period, oldest, prevSumY);
+            double yXY = deltaXY - _s.SumXYComp;
+            double tXY = _s.SumXY + yXY;
+            _s.SumXYComp = (tXY - _s.SumXY) - yXY;
+            _s.SumXY = tXY;
 
-            // O(1) update for SumY
-            _s.SumY = _s.SumY - oldest + val;
+            // Kahan compensated update for SumY: sumY += (val - oldest)
+            double deltaY = val - oldest;
+            double yY = deltaY - _s.SumYComp;
+            double tY = _s.SumY + yY;
+            _s.SumYComp = (tY - _s.SumY) - yY;
+            _s.SumY = tY;
 
             _buffer.Add(val);
         }
@@ -112,29 +116,20 @@ public sealed class Tsf : AbstractBase
         {
             if (_buffer.Count > 0)
             {
-                _s.SumXY += _s.SumY;
+                // Kahan compensated addition for SumXY: sumXY += sumY
+                double yXY = _s.SumY - _s.SumXYComp;
+                double tXY = _s.SumXY + yXY;
+                _s.SumXYComp = (tXY - _s.SumXY) - yXY;
+                _s.SumXY = tXY;
             }
-            _s.SumY += val;
+
+            // Kahan compensated addition for SumY
+            double yY = val - _s.SumYComp;
+            double tY = _s.SumY + yY;
+            _s.SumYComp = (tY - _s.SumY) - yY;
+            _s.SumY = tY;
+
             _buffer.Add(val);
-        }
-
-        _tickCount++;
-        if (_buffer.IsFull && _tickCount >= ResyncInterval)
-        {
-            _tickCount = 0;
-            Resync();
-        }
-    }
-
-    private void Resync()
-    {
-        _s.SumY = _buffer.Sum;
-        _s.SumXY = 0;
-        var span = _buffer.GetSpan();
-        for (int i = 0; i < span.Length; i++)
-        {
-            int x = span.Length - 1 - i;
-            _s.SumXY = Math.FusedMultiplyAdd(x, span[i], _s.SumXY);
         }
     }
 
@@ -409,7 +404,6 @@ public sealed class Tsf : AbstractBase
         _s.LastValidValue = double.NaN;
         _ps = default;
         Last = default;
-        _tickCount = 0;
     }
 
     protected override void Dispose(bool disposing)

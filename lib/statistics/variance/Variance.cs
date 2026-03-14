@@ -7,7 +7,8 @@ using System.Runtime.Intrinsics.X86;
 namespace QuanTAlib;
 
 /// <summary>
-/// Variance: Measures the dispersion of a set of data points around their mean.
+/// Variance: Measures the dispersion of a set of data points around their mean
+/// using Kahan compensated summation for numerical stability.
 /// </summary>
 /// <remarks>
 /// Variance is calculated as the average of the squared differences from the Mean.
@@ -18,6 +19,9 @@ namespace QuanTAlib;
 ///
 /// This implementation uses the O(1) running sum of squares formula:
 /// Variance = (SumSq - (Sum * Sum) / N) / (N - 1) (for Sample)
+///
+/// Kahan compensated summation eliminates the need for periodic resync
+/// by maintaining running compensation terms for each accumulator.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Variance : AbstractBase
@@ -27,8 +31,8 @@ public sealed class Variance : AbstractBase
     private readonly bool _isPopulation;
     private double _sumSq;
     private double _p_sumSq;
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
+    private double _sumSqComp; // Kahan compensation for _sumSq
+    private double _p_sumSqComp;
 
     public override bool IsHot => _buffer.IsFull;
 
@@ -57,12 +61,14 @@ public sealed class Variance : AbstractBase
         {
             // Snapshot state BEFORE mutations
             _p_sumSq = _sumSq;
+            _p_sumSqComp = _sumSqComp;
             _buffer.Snapshot();
         }
         else
         {
             // Restore state from snapshot
             _sumSq = _p_sumSq;
+            _sumSqComp = _p_sumSqComp;
             _buffer.Restore();
         }
 
@@ -70,33 +76,26 @@ public sealed class Variance : AbstractBase
         if (_buffer.IsFull)
         {
             double oldVal = _buffer.Oldest;
-            _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+            // Kahan subtract: sumSq -= oldVal * oldVal
+            double delta = -(oldVal * oldVal) - _sumSqComp;
+            double t = _sumSq + delta;
+            _sumSqComp = (t - _sumSq) - delta;
+            _sumSq = t;
         }
 
         _buffer.Add(input.Value);
-        _sumSq = Math.FusedMultiplyAdd(input.Value, input.Value, _sumSq);
-
-        if (isNew)
+        // Kahan add: sumSq += input.Value * input.Value
         {
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
+            double delta = (input.Value * input.Value) - _sumSqComp;
+            double t = _sumSq + delta;
+            _sumSqComp = (t - _sumSq) - delta;
+            _sumSq = t;
         }
 
         double variance = 0;
         if (_buffer.Count > 1)
         {
             double n = _buffer.Count;
-            // Var = (SumSq - 2*Mean*Sum + N*Mean^2) / (N or N-1)
-            // Var = (SumSq - 2*Mean*(N*Mean) + N*Mean^2) / ...
-            // Var = (SumSq - 2*N*Mean^2 + N*Mean^2) / ...
-            // Var = (SumSq - N*Mean^2) / ...
-
-            // Using Sum:
-            // Var = (SumSq - (Sum*Sum)/N) / ...
-
             double numerator = _sumSq - ((_buffer.Sum * _buffer.Sum) / n);
 
             // Handle floating point noise
@@ -134,8 +133,6 @@ public sealed class Variance : AbstractBase
         source.Times.CopyTo(tSpan);
 
         // Prime the state with the last 'period' values
-        // This ensures that subsequent calls to Update(TValue) work correctly
-        // We can't just copy the last value, we need to fill the buffer
         int primeStart = Math.Max(0, len - _period);
         for (int i = primeStart; i < len; i++)
         {
@@ -149,15 +146,9 @@ public sealed class Variance : AbstractBase
     {
         _buffer.Clear();
         _sumSq = 0;
-        _updateCount = 0;
+        _sumSqComp = 0;
+        _p_sumSqComp = 0;
         Last = default;
-    }
-
-    private void Resync()
-    {
-        var span = _buffer.GetSpan();
-        _sumSq = span.DotProduct(span);
-        _buffer.RecalculateSum();
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -179,11 +170,8 @@ public sealed class Variance : AbstractBase
     /// Calculates Variance in-place, writing results to pre-allocated output span.
     /// Zero-allocation method for maximum performance.
     /// Uses SIMD acceleration for large, clean datasets.
+    /// Kahan compensated summation eliminates the need for periodic resync.
     /// </summary>
-    /// <param name="source">Input values</param>
-    /// <param name="output">Output span (must be same length as source)</param>
-    /// <param name="period">Variance period (must be >= 2)</param>
-    /// <param name="isPopulation">If true, calculates Population Variance (div by N). If false, Sample Variance (div by N-1).</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation = false)
     {
@@ -243,9 +231,9 @@ public sealed class Variance : AbstractBase
         int len = source.Length;
         double sum = 0;
         double sumSq = 0;
+        double sumComp = 0;    // Kahan compensation for sum
+        double sumSqComp = 0;  // Kahan compensation for sumSq
 
-        // We need a buffer to handle the sliding window removal
-        // For scalar path, we can use a simple array or stackalloc
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
@@ -264,8 +252,20 @@ public sealed class Variance : AbstractBase
                 val = 0; // Fallback
             }
 
-            sum += val;
-            sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
+            // Kahan add to sum
+            {
+                double y = val - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+            }
+            // Kahan add val² to sumSq
+            {
+                double y = (val * val) - sumSqComp;
+                double t = sumSq + y;
+                sumSqComp = (t - sumSq) - y;
+                sumSq = t;
+            }
             buffer[i] = val;
 
             double n = i + 1;
@@ -287,7 +287,6 @@ public sealed class Variance : AbstractBase
         }
 
         // Sliding window phase
-        int tickCount = period;
         for (; i < len; i++)
         {
             double val = source[i];
@@ -298,9 +297,20 @@ public sealed class Variance : AbstractBase
 
             double oldVal = buffer[bufferIndex];
 
-            sum = sum - oldVal + val;
-            sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
-            sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
+            // Kahan sliding window for sum: sum += (val - oldVal)
+            {
+                double delta = (val - oldVal) - sumComp;
+                double t = sum + delta;
+                sumComp = (t - sum) - delta;
+                sum = t;
+            }
+            // Kahan sliding window for sumSq: sumSq += (val² - oldVal²)
+            {
+                double delta = (val * val - oldVal * oldVal) - sumSqComp;
+                double t = sumSq + delta;
+                sumSqComp = (t - sumSq) - delta;
+                sumSq = t;
+            }
 
             buffer[bufferIndex] = val;
             bufferIndex++;
@@ -318,14 +328,6 @@ public sealed class Variance : AbstractBase
 
             double denominator = isPopulation ? n : (n - 1);
             output[i] = numerator / denominator;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                sum = buffer.SumSIMD();
-                sumSq = buffer.DotProduct(buffer);
-            }
         }
     }
 
@@ -383,7 +385,6 @@ public sealed class Variance : AbstractBase
         var vZero = Vector512<double>.Zero;
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -436,24 +437,6 @@ public sealed class Variance : AbstractBase
 
             sum = vSums.GetElement(7);
             sumSq = vSumSqs.GetElement(7);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                int startIdx = lastIdx - period + 1;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    recalcSum += v;
-                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)
@@ -499,7 +482,6 @@ public sealed class Variance : AbstractBase
         var vZero = Vector128<double>.Zero;
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -540,24 +522,6 @@ public sealed class Variance : AbstractBase
 
             sum = ps1;
             sumSq = psSq1;
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                int startIdx = lastIdx - period + 1;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    recalcSum += v;
-                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-            }
         }
 
         for (int i = simdEnd; i < len; i++)
@@ -603,7 +567,6 @@ public sealed class Variance : AbstractBase
         var vZero = Vector256<double>.Zero;
 
         int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
-        int tickCount = period;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {
@@ -619,12 +582,6 @@ public sealed class Variance : AbstractBase
             var vDeltaSq = Avx.Subtract(vNewSq, vOldSq);
 
             // Prefix sum for Sum (same as Sma.cs)
-            // Prefix sum on deltas to compute 4 variance values simultaneously:
-            // Each lane accumulates deltas from all previous lanes within the vector.
-            // Lane 0: Δ₀ (window ending at i)
-            // Lane 1: Δ₀+Δ₁ (window ending at i+1)
-            // Lane 2: Δ₀+Δ₁+Δ₂ (window ending at i+2)
-            // Lane 3: Δ₀+Δ₁+Δ₂+Δ₃ (window ending at i+3)
             var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
             var vP1 = Avx.Add(vDelta, vShift1);
@@ -649,7 +606,6 @@ public sealed class Variance : AbstractBase
             var vSumSqs = Avx.Add(vSumSqPrev, vP2Sq);
 
             // Calculate Variance
-            // Var = (SumSq - (Sum*Sum)/N) / Denom
             var vSumSquared = Avx.Multiply(vSums, vSums);
             var vMeanTerm = Avx.Multiply(vSumSquared, vInvN);
             var vNumerator = Avx.Subtract(vSumSqs, vMeanTerm);
@@ -663,24 +619,6 @@ public sealed class Variance : AbstractBase
             // Update scalar accumulators for next iteration
             sum = vSums.GetElement(3);
             sumSq = vSumSqs.GetElement(3);
-
-            tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                double recalcSumSq = 0;
-                int startIdx = lastIdx - period + 1;
-                for (int k = 0; k < period; k++)
-                {
-                    double v = Unsafe.Add(ref srcRef, startIdx + k);
-                    recalcSum += v;
-                    recalcSumSq = Math.FusedMultiplyAdd(v, v, recalcSumSq);
-                }
-                sum = recalcSum;
-                sumSq = recalcSumSq;
-            }
         }
 
         // Handle remaining elements

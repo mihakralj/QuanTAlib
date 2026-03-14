@@ -41,14 +41,13 @@ public sealed class Aberr : ITValuePublisher, IDisposable
     private ITValuePublisher? _source;
     private bool _disposed;
 
-    private const int ResyncInterval = 1000;
-
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double SumSource,
         double SumDeviation,
-        double LastValidValue,
-        int TickCount
+        double SumSourceComp,
+        double SumDeviationComp,
+        double LastValidValue
     );
     private State _state;
     private State _pState;
@@ -164,19 +163,20 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         double removedSource = _sourceBuffer.Count == _sourceBuffer.Capacity ? _sourceBuffer.Oldest : 0.0;
         double removedDeviation = _deviationBuffer.Count == _deviationBuffer.Capacity ? _deviationBuffer.Oldest : 0.0;
 
-        _state.SumSource = _state.SumSource - removedSource + value;
-        _state.SumDeviation = _state.SumDeviation - removedDeviation + deviation;
+        // Kahan compensated summation for SumSource
+        double srcDelta = value - removedSource - _state.SumSourceComp;
+        double srcNewSum = _state.SumSource + srcDelta;
+        _state.SumSourceComp = (srcNewSum - _state.SumSource) - srcDelta;
+        _state.SumSource = srcNewSum;
+
+        // Kahan compensated summation for SumDeviation
+        double devDelta = deviation - removedDeviation - _state.SumDeviationComp;
+        double devNewSum = _state.SumDeviation + devDelta;
+        _state.SumDeviationComp = (devNewSum - _state.SumDeviation) - devDelta;
+        _state.SumDeviation = devNewSum;
 
         _sourceBuffer.Add(value);
         _deviationBuffer.Add(deviation);
-
-        _state.TickCount++;
-        if (_sourceBuffer.IsFull && _state.TickCount >= ResyncInterval)
-        {
-            _state.TickCount = 0;
-            _state.SumSource = _sourceBuffer.RecalculateSum();
-            _state.SumDeviation = _deviationBuffer.RecalculateSum();
-        }
     }
 
     /// <summary>
@@ -218,6 +218,8 @@ public sealed class Aberr : ITValuePublisher, IDisposable
             {
                 SumSource = currentSum,
                 SumDeviation = _deviationBuffer.Sum,
+                SumSourceComp = 0,
+                SumDeviationComp = 0,
             };
         }
 
@@ -449,6 +451,11 @@ public sealed class Aberr : ITValuePublisher, IDisposable
         public static bool operator !=(BatchOutputs left, BatchOutputs right) => !left.Equals(right);
     }
 #pragma warning restore MA0077
+
+    /// <summary>
+    /// Resync interval for batch path only (streaming uses Kahan compensation).
+    /// </summary>
+    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Internal state for scalar calculation.

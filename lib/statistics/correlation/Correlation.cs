@@ -5,7 +5,8 @@ namespace QuanTAlib;
 
 /// <summary>
 /// Correlation: Calculates Pearson's correlation coefficient between two price series
-/// using a streaming single-pass algorithm with circular buffers.
+/// using a streaming single-pass algorithm with circular buffers and Kahan compensated
+/// summation for numerical stability over long streams.
 /// </summary>
 /// <remarks>
 /// The Pearson correlation coefficient measures the linear relationship between two variables.
@@ -37,12 +38,20 @@ public sealed class Correlation : AbstractBase
     private double _sumX2, _sumY2;
     private double _sumXY;
 
+    // Kahan compensation terms
+    private double _sumXComp, _sumYComp;
+    private double _sumX2Comp, _sumY2Comp;
+    private double _sumXYComp;
+
+    // Previous compensation state for rollback
+    private double _p_sumXComp, _p_sumYComp;
+    private double _p_sumX2Comp, _p_sumY2Comp;
+    private double _p_sumXYComp;
+
     // Last valid values for NaN handling
     private double _lastValidX, _lastValidY;
     private double _p_lastValidX, _p_lastValidY;
 
-    private int _updateCount;
-    private const int ResyncInterval = 1000;
     private const double Epsilon = 1e-10;
 
     /// <inheritdoc />
@@ -80,11 +89,21 @@ public sealed class Correlation : AbstractBase
         {
             _p_lastValidX = _lastValidX;
             _p_lastValidY = _lastValidY;
+            _p_sumXComp = _sumXComp;
+            _p_sumYComp = _sumYComp;
+            _p_sumX2Comp = _sumX2Comp;
+            _p_sumY2Comp = _sumY2Comp;
+            _p_sumXYComp = _sumXYComp;
         }
         else
         {
             _lastValidX = _p_lastValidX;
             _lastValidY = _p_lastValidY;
+            _sumXComp = _p_sumXComp;
+            _sumYComp = _p_sumYComp;
+            _sumX2Comp = _p_sumX2Comp;
+            _sumY2Comp = _p_sumY2Comp;
+            _sumXYComp = _p_sumXYComp;
         }
 
         double x = SanitizeX(seriesX.Value);
@@ -117,7 +136,8 @@ public sealed class Correlation : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double seriesX, double seriesY, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, seriesX), new TValue(DateTime.UtcNow, seriesY), isNew);
+        DateTime now = DateTime.UtcNow;
+        return Update(new TValue(now, seriesX), new TValue(now, seriesY), isNew);
     }
     /// <summary>Not supported. This indicator requires two inputs; use <see cref="Update(TValue, TValue, bool)"/> instead.</summary>
     /// <remarks>Not supported for bi-input indicator. Use Update(seriesX, seriesY) instead.</remarks>
@@ -162,27 +182,82 @@ public sealed class Correlation : AbstractBase
         {
             double oldX = _bufferX.Oldest;
             double oldY = _bufferY.Oldest;
-            _sumX -= oldX;
-            _sumY -= oldY;
-            _sumX2 = FusedMultiplyAdd(-oldX, oldX, _sumX2);
-            _sumY2 = FusedMultiplyAdd(-oldY, oldY, _sumY2);
-            _sumXY = FusedMultiplyAdd(-oldX, oldY, _sumXY);
+
+            // Kahan subtract oldX from _sumX
+            {
+                double yk = -oldX - _sumXComp;
+                double t = _sumX + yk;
+                _sumXComp = (t - _sumX) - yk;
+                _sumX = t;
+            }
+            // Kahan subtract oldY from _sumY
+            {
+                double yk = -oldY - _sumYComp;
+                double t = _sumY + yk;
+                _sumYComp = (t - _sumY) - yk;
+                _sumY = t;
+            }
+            // Kahan subtract oldX² from _sumX2
+            {
+                double yk = -(oldX * oldX) - _sumX2Comp;
+                double t = _sumX2 + yk;
+                _sumX2Comp = (t - _sumX2) - yk;
+                _sumX2 = t;
+            }
+            // Kahan subtract oldY² from _sumY2
+            {
+                double yk = -(oldY * oldY) - _sumY2Comp;
+                double t = _sumY2 + yk;
+                _sumY2Comp = (t - _sumY2) - yk;
+                _sumY2 = t;
+            }
+            // Kahan subtract oldX*oldY from _sumXY
+            {
+                double yk = -(oldX * oldY) - _sumXYComp;
+                double t = _sumXY + yk;
+                _sumXYComp = (t - _sumXY) - yk;
+                _sumXY = t;
+            }
         }
 
         // Add new values
         _bufferX.Add(x);
         _bufferY.Add(y);
 
-        _sumX += x;
-        _sumY += y;
-        _sumX2 = FusedMultiplyAdd(x, x, _sumX2);
-        _sumY2 = FusedMultiplyAdd(y, y, _sumY2);
-        _sumXY = FusedMultiplyAdd(x, y, _sumXY);
-
-        _updateCount++;
-        if (_updateCount % ResyncInterval == 0)
+        // Kahan add x to _sumX
         {
-            Resync();
+            double yk = x - _sumXComp;
+            double t = _sumX + yk;
+            _sumXComp = (t - _sumX) - yk;
+            _sumX = t;
+        }
+        // Kahan add y to _sumY
+        {
+            double yk = y - _sumYComp;
+            double t = _sumY + yk;
+            _sumYComp = (t - _sumY) - yk;
+            _sumY = t;
+        }
+        // Kahan add x² to _sumX2
+        {
+            double yk = (x * x) - _sumX2Comp;
+            double t = _sumX2 + yk;
+            _sumX2Comp = (t - _sumX2) - yk;
+            _sumX2 = t;
+        }
+        // Kahan add y² to _sumY2
+        {
+            double yk = (y * y) - _sumY2Comp;
+            double t = _sumY2 + yk;
+            _sumY2Comp = (t - _sumY2) - yk;
+            _sumY2 = t;
+        }
+        // Kahan add x*y to _sumXY
+        {
+            double yk = (x * y) - _sumXYComp;
+            double t = _sumXY + yk;
+            _sumXYComp = (t - _sumXY) - yk;
+            _sumXY = t;
         }
     }
 
@@ -199,12 +274,41 @@ public sealed class Correlation : AbstractBase
         double oldX = _bufferX.Newest;
         double oldY = _bufferY.Newest;
 
-        // Update the running sums: remove old, add new (using FMA for consistency with ProcessNewBar)
-        _sumX = _sumX - oldX + x;
-        _sumY = _sumY - oldY + y;
-        _sumX2 = FusedMultiplyAdd(x, x, FusedMultiplyAdd(-oldX, oldX, _sumX2));
-        _sumY2 = FusedMultiplyAdd(y, y, FusedMultiplyAdd(-oldY, oldY, _sumY2));
-        _sumXY = FusedMultiplyAdd(x, y, FusedMultiplyAdd(-oldX, oldY, _sumXY));
+        // Kahan subtract old + add new for _sumX
+        {
+            double yk = (-oldX + x) - _sumXComp;
+            double t = _sumX + yk;
+            _sumXComp = (t - _sumX) - yk;
+            _sumX = t;
+        }
+        // Kahan subtract old + add new for _sumY
+        {
+            double yk = (-oldY + y) - _sumYComp;
+            double t = _sumY + yk;
+            _sumYComp = (t - _sumY) - yk;
+            _sumY = t;
+        }
+        // Kahan subtract old² + add new² for _sumX2
+        {
+            double yk = (-(oldX * oldX) + (x * x)) - _sumX2Comp;
+            double t = _sumX2 + yk;
+            _sumX2Comp = (t - _sumX2) - yk;
+            _sumX2 = t;
+        }
+        // Kahan subtract old² + add new² for _sumY2
+        {
+            double yk = (-(oldY * oldY) + (y * y)) - _sumY2Comp;
+            double t = _sumY2 + yk;
+            _sumY2Comp = (t - _sumY2) - yk;
+            _sumY2 = t;
+        }
+        // Kahan subtract old*old + add new*new for _sumXY
+        {
+            double yk = (-(oldX * oldY) + (x * y)) - _sumXYComp;
+            double t = _sumXY + yk;
+            _sumXYComp = (t - _sumXY) - yk;
+            _sumXY = t;
+        }
 
         // Update the buffer values
         _bufferX.UpdateNewest(x);
@@ -248,25 +352,6 @@ public sealed class Correlation : AbstractBase
         return Max(-1.0, Min(1.0, correlation));
     }
 
-    private void Resync()
-    {
-        _sumX = 0;
-        _sumY = 0;
-        _sumX2 = 0;
-        _sumY2 = 0;
-        _sumXY = 0;
-
-        for (int i = 0; i < _bufferX.Count; i++)
-        {
-            double x = _bufferX[i];
-            double y = _bufferY[i];
-            _sumX += x;
-            _sumY += y;
-            _sumX2 = FusedMultiplyAdd(x, x, _sumX2);
-            _sumY2 = FusedMultiplyAdd(y, y, _sumY2);
-            _sumXY = FusedMultiplyAdd(x, y, _sumXY);
-        }
-    }
     /// <summary>Not supported. This indicator requires two input spans.</summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
@@ -285,12 +370,17 @@ public sealed class Correlation : AbstractBase
         _sumY2 = 0;
         _sumXY = 0;
 
+        _sumXComp = 0;
+        _sumYComp = 0;
+        _sumX2Comp = 0;
+        _sumY2Comp = 0;
+        _sumXYComp = 0;
+
         _lastValidX = 0;
         _lastValidY = 0;
         _p_lastValidX = 0;
         _p_lastValidY = 0;
 
-        _updateCount = 0;
         Last = default;
     }
 

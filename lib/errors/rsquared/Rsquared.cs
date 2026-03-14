@@ -20,6 +20,8 @@ namespace QuanTAlib;
 /// - R² = 0 means predictions equal mean predictor
 /// - R² &lt; 0 means predictions worse than mean predictor
 /// - Range: (-∞, 1]
+///
+/// Uses Kahan compensated summation to prevent floating-point drift without periodic resync.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Rsquared : AbstractBase
@@ -33,13 +35,13 @@ public sealed class Rsquared : AbstractBase
         double ActualSum,
         double SqResidualSum,
         double SqTotalSum,
+        double ActualComp,
+        double SqResidualComp,
+        double SqTotalComp,
         double LastValidActual,
-        double LastValidPredicted,
-        int TickCount);
+        double LastValidPredicted);
     private State _state;
     private State _p_state;
-
-    private const int ResyncInterval = 1000;
 
     public Rsquared(int period)
     {
@@ -85,9 +87,15 @@ public sealed class Rsquared : AbstractBase
         {
             _p_state = _state;
 
-            // Update actual buffer for mean calculation
+            // Update actual buffer for mean calculation — Kahan compensated
             double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
-            _state.ActualSum = _state.ActualSum - removedActual + actualVal;
+            {
+                double delta = actualVal - removedActual;
+                double y = delta - _state.ActualComp;
+                double t = _state.ActualSum + y;
+                _state.ActualComp = (t - _state.ActualSum) - y;
+                _state.ActualSum = t;
+            }
             _actualBuffer.Add(actualVal);
 
             // Calculate mean and errors
@@ -97,24 +105,27 @@ public sealed class Rsquared : AbstractBase
             double sqResidual = residual * residual;
             double sqTotal = totalDev * totalDev;
 
-            // Update squared residual buffer (RSS)
+            // Update squared residual buffer (RSS) — Kahan compensated
             double removedResidual = _sqResidualBuffer.Count == _sqResidualBuffer.Capacity ? _sqResidualBuffer.Oldest : 0.0;
-            _state.SqResidualSum = _state.SqResidualSum - removedResidual + sqResidual;
+            {
+                double delta = sqResidual - removedResidual;
+                double y = delta - _state.SqResidualComp;
+                double t = _state.SqResidualSum + y;
+                _state.SqResidualComp = (t - _state.SqResidualSum) - y;
+                _state.SqResidualSum = t;
+            }
             _sqResidualBuffer.Add(sqResidual);
 
-            // Update squared total buffer (TSS)
+            // Update squared total buffer (TSS) — Kahan compensated
             double removedTotal = _sqTotalBuffer.Count == _sqTotalBuffer.Capacity ? _sqTotalBuffer.Oldest : 0.0;
-            _state.SqTotalSum = _state.SqTotalSum - removedTotal + sqTotal;
-            _sqTotalBuffer.Add(sqTotal);
-
-            _state.TickCount++;
-            if (_actualBuffer.IsFull && _state.TickCount >= ResyncInterval)
             {
-                _state.TickCount = 0;
-                _state.ActualSum = _actualBuffer.RecalculateSum();
-                _state.SqResidualSum = _sqResidualBuffer.RecalculateSum();
-                _state.SqTotalSum = _sqTotalBuffer.RecalculateSum();
+                double delta = sqTotal - removedTotal;
+                double y = delta - _state.SqTotalComp;
+                double t = _state.SqTotalSum + y;
+                _state.SqTotalComp = (t - _state.SqTotalSum) - y;
+                _state.SqTotalSum = t;
             }
+            _sqTotalBuffer.Add(sqTotal);
         }
         else
         {
@@ -297,7 +308,6 @@ public sealed class Rsquared : AbstractBase
             output[i] = sqTotalSum > 1e-10 ? 1.0 - (sqResidualSum / sqTotalSum) : 1.0;
         }
 
-        int tickCount = 0;
         for (; i < len; i++)
         {
             double act = actual[i];
@@ -342,22 +352,6 @@ public sealed class Rsquared : AbstractBase
             }
 
             output[i] = sqTotalSum > 1e-10 ? 1.0 - (sqResidualSum / sqTotalSum) : 1.0;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcActual = 0, recalcResidual = 0, recalcTotal = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcActual += actualBuffer[k];
-                    recalcResidual += sqResidualBuffer[k];
-                    recalcTotal += sqTotalBuffer[k];
-                }
-                actualSum = recalcActual;
-                sqResidualSum = recalcResidual;
-                sqTotalSum = recalcTotal;
-            }
         }
     }
 

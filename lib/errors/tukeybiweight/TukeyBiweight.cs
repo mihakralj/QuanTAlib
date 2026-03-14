@@ -29,7 +29,6 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
 {
     private readonly double _cSquaredOver6;
     private const double DefaultC = 4.685; // 95% efficiency for normal distribution
-    private const int BatchResyncInterval = 1000; // Local constant for static Batch method
 
     public TukeyBiweight(int period, double c = DefaultC)
         : base(period, $"TukeyBiweight({period},{c:F3})")
@@ -122,7 +121,7 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
             ErrorHelpers.ComputeTukeyBiweightErrors(actual, predicted, errors, c);
 
             // Step 2: Apply rolling mean
-            ErrorHelpers.ApplyRollingMean(errors, output, period, BatchResyncInterval);
+            ErrorHelpers.ApplyRollingMean(errors, output, period);
         }
         finally
         {

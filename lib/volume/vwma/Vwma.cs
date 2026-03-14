@@ -23,16 +23,10 @@ namespace QuanTAlib;
 public sealed class Vwma : ITValuePublisher
 {
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double SumPV, double SumVol, int Index, int Head, int Count, int SyncCounter)
+    private record struct State(double SumPV, double SumVol, double SumPVComp, double SumVolComp, int Index, int Head, int Count)
     {
-        public static State New() => new() { SumPV = 0, SumVol = 0, Index = 0, Head = 0, Count = 0, SyncCounter = 0 };
+        public static State New() => new() { SumPV = 0, SumVol = 0, SumPVComp = 0, SumVolComp = 0, Index = 0, Head = 0, Count = 0 };
     }
-
-    /// <summary>
-    /// Resync interval to limit floating-point drift in running sums.
-    /// Full recalculation every N bars.
-    /// </summary>
-    private const int ResyncInterval = 1000;
 
     private readonly int _period;
     private readonly double[] _priceBuffer;
@@ -222,18 +216,23 @@ public sealed class Vwma : ITValuePublisher
         double oldPrice = _priceBuffer[s.Head];
         double oldVol = _volBuffer[s.Head];
 
-        if (s.Count >= _period && oldVol > 0)
-        {
-            s.SumPV = Math.FusedMultiplyAdd(-oldPrice, oldVol, s.SumPV);
-            s.SumVol -= oldVol;
-        }
+        // Compute net deltas for Kahan compensation
+        double pvRemove = (s.Count >= _period && oldVol > 0) ? oldPrice * oldVol : 0.0;
+        double pvAdd = currentVol > 0 ? currentPrice * currentVol : 0.0;
+        double volRemove = (s.Count >= _period && oldVol > 0) ? oldVol : 0.0;
+        double volAdd = currentVol > 0 ? currentVol : 0.0;
 
-        // Add new values
-        if (currentVol > 0)
-        {
-            s.SumPV = Math.FusedMultiplyAdd(currentPrice, currentVol, s.SumPV);
-            s.SumVol += currentVol;
-        }
+        // Kahan compensated SumPV
+        double pvDelta = pvAdd - pvRemove - s.SumPVComp;
+        double pvNewSum = s.SumPV + pvDelta;
+        s.SumPVComp = (pvNewSum - s.SumPV) - pvDelta;
+        s.SumPV = pvNewSum;
+
+        // Kahan compensated SumVol
+        double volDelta = volAdd - volRemove - s.SumVolComp;
+        double volNewSum = s.SumVol + volDelta;
+        s.SumVolComp = (volNewSum - s.SumVol) - volDelta;
+        s.SumVol = volNewSum;
 
         // Store in circular buffer
         _priceBuffer[s.Head] = currentPrice;
@@ -248,14 +247,6 @@ public sealed class Vwma : ITValuePublisher
             if (s.Count < _period)
             {
                 s.Count++;
-            }
-
-            // Periodic resync to limit floating-point drift
-            s.SyncCounter++;
-            if (s.SyncCounter >= ResyncInterval && s.Count >= _period)
-            {
-                s.SyncCounter = 0;
-                ResyncRunningTotals(ref s);
             }
         }
 
@@ -389,7 +380,9 @@ public sealed class Vwma : ITValuePublisher
             volBuffer.Clear();
 
             double sumPV = 0;
+            double sumPVComp = 0;
             double sumVol = 0;
+            double sumVolComp = 0;
             double lastValidPrice = 0;
             double lastValidVolume = 0;
             int head = 0;
@@ -413,8 +406,6 @@ public sealed class Vwma : ITValuePublisher
                 }
             }
 
-            int syncCounter = 0;
-
             for (int i = 0; i < len; i++)
             {
                 // Get valid values with NaN substitution
@@ -430,22 +421,23 @@ public sealed class Vwma : ITValuePublisher
                     lastValidVolume = volume[i];
                 }
 
-                // Remove old values from circular buffer
+                // Kahan-compensated delta updates for SumPV and SumVol
                 double oldPrice = priceBuffer[head];
                 double oldVol = volBuffer[head];
 
-                if (count >= period && oldVol > 0)
-                {
-                    sumPV = Math.FusedMultiplyAdd(-oldPrice, oldVol, sumPV);
-                    sumVol -= oldVol;
-                }
+                double newPV = currentVol > 0 ? currentPrice * currentVol : 0;
+                double oldPV = (count >= period && oldVol > 0) ? oldPrice * oldVol : 0;
+                double deltaPV = newPV - oldPV;
+                double yPV = deltaPV - sumPVComp;
+                double tPV = sumPV + yPV;
+                sumPVComp = (tPV - sumPV) - yPV;
+                sumPV = tPV;
 
-                // Add new values
-                if (currentVol > 0)
-                {
-                    sumPV = Math.FusedMultiplyAdd(currentPrice, currentVol, sumPV);
-                    sumVol += currentVol;
-                }
+                double deltaVol = (currentVol > 0 ? currentVol : 0) - (count >= period && oldVol > 0 ? oldVol : 0);
+                double yVol = deltaVol - sumVolComp;
+                double tVol = sumVol + yVol;
+                sumVolComp = (tVol - sumVol) - yVol;
+                sumVol = tVol;
 
                 // Store in circular buffer
                 priceBuffer[head] = currentPrice;
@@ -457,26 +449,6 @@ public sealed class Vwma : ITValuePublisher
                 if (count < period)
                 {
                     count++;
-                }
-
-                // Periodic resync to limit floating-point drift
-                syncCounter++;
-                if (syncCounter >= ResyncInterval && count >= period)
-                {
-                    syncCounter = 0;
-                    // Recalculate sums from buffer
-                    sumPV = 0;
-                    sumVol = 0;
-                    for (int j = 0; j < period; j++)
-                    {
-                        double pj = priceBuffer[j];
-                        double vj = volBuffer[j];
-                        if (vj > 0)
-                        {
-                            sumPV = Math.FusedMultiplyAdd(pj, vj, sumPV);
-                            sumVol += vj;
-                        }
-                    }
                 }
 
                 // Calculate VWMA

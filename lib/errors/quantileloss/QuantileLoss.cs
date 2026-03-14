@@ -168,7 +168,6 @@ public sealed class QuantileLoss : BiInputIndicatorBase
             output[i] = lossSum / (i + 1);
         }
 
-        int tickCount = 0;
         for (; i < len; i++)
         {
             double act = actual[i];
@@ -205,19 +204,6 @@ public sealed class QuantileLoss : BiInputIndicatorBase
             }
 
             output[i] = lossSum / period;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += lossBuffer[k];
-                }
-
-                lossSum = recalcSum;
-            }
         }
     }
 

@@ -33,15 +33,13 @@ public sealed class Ravi : AbstractBase
     private record struct State(
         double ShortSum,
         double LongSum,
-        double LastValidValue,
-        int ShortTickCount,
-        int LongTickCount
+        double ShortSumComp,
+        double LongSumComp,
+        double LastValidValue
     );
 
     private State _s;
     private State _ps;
-
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates RAVI with specified short and long SMA periods.
@@ -69,7 +67,7 @@ public sealed class Ravi : AbstractBase
         _longBuffer = new RingBuffer(longPeriod);
         Name = $"Ravi({shortPeriod},{longPeriod})";
         WarmupPeriod = longPeriod;
-        _s = new State(0, 0, 0, 0, 0);
+        _s = default;
         _ps = _s;
     }
 
@@ -121,38 +119,32 @@ public sealed class Ravi : AbstractBase
 
         if (isNew)
         {
-            // Short buffer: remove oldest, add new
+            // Short buffer — Kahan compensated
             double shortRemoved = _shortBuffer.Count == _shortBuffer.Capacity ? _shortBuffer.Oldest : 0.0;
-            s.ShortSum = s.ShortSum - shortRemoved + val;
+            double sDelta = val - shortRemoved - s.ShortSumComp;
+            double sNewSum = s.ShortSum + sDelta;
+            s.ShortSumComp = (sNewSum - s.ShortSum) - sDelta;
+            s.ShortSum = sNewSum;
             _shortBuffer.Add(val);
 
-            // Long buffer: remove oldest, add new
+            // Long buffer — Kahan compensated
             double longRemoved = _longBuffer.Count == _longBuffer.Capacity ? _longBuffer.Oldest : 0.0;
-            s.LongSum = s.LongSum - longRemoved + val;
+            double lDelta = val - longRemoved - s.LongSumComp;
+            double lNewSum = s.LongSum + lDelta;
+            s.LongSumComp = (lNewSum - s.LongSum) - lDelta;
+            s.LongSum = lNewSum;
             _longBuffer.Add(val);
-
-            // Resync to prevent floating-point drift
-            s.ShortTickCount++;
-            if (_shortBuffer.IsFull && s.ShortTickCount >= ResyncInterval)
-            {
-                s.ShortTickCount = 0;
-                s.ShortSum = _shortBuffer.RecalculateSum();
-            }
-            s.LongTickCount++;
-            if (_longBuffer.IsFull && s.LongTickCount >= ResyncInterval)
-            {
-                s.LongTickCount = 0;
-                s.LongSum = _longBuffer.RecalculateSum();
-            }
         }
         else
         {
             // Bar correction: update newest value in both buffers
             _shortBuffer.UpdateNewest(val);
             s.ShortSum = _shortBuffer.Sum;
+            s.ShortSumComp = 0;
 
             _longBuffer.UpdateNewest(val);
             s.LongSum = _longBuffer.Sum;
+            s.LongSumComp = 0;
         }
 
         // Calculate RAVI
@@ -335,7 +327,9 @@ public sealed class Ravi : AbstractBase
         try
         {
             double shortSum = 0;
+            double shortSumComp = 0;
             double longSum = 0;
+            double longSumComp = 0;
             double lastValid = 0;
             int shortIdx = 0;
             int longIdx = 0;
@@ -352,9 +346,6 @@ public sealed class Ravi : AbstractBase
                 }
             }
 
-            int shortTickCount = 0;
-            int longTickCount = 0;
-
             for (int i = 0; i < len; i++)
             {
                 double val = source[i];
@@ -367,12 +358,14 @@ public sealed class Ravi : AbstractBase
                     val = lastValid;
                 }
 
-                // Update short buffer
-                if (shortFilled >= shortPeriod)
+                // Kahan-compensated update for short buffer
                 {
-                    shortSum -= shortBuf[shortIdx];
+                    double deltaS = val - (shortFilled >= shortPeriod ? shortBuf[shortIdx] : 0);
+                    double yS = deltaS - shortSumComp;
+                    double tS = shortSum + yS;
+                    shortSumComp = (tS - shortSum) - yS;
+                    shortSum = tS;
                 }
-                shortSum += val;
                 shortBuf[shortIdx] = val;
                 if (shortFilled < shortPeriod)
                 {
@@ -384,12 +377,14 @@ public sealed class Ravi : AbstractBase
                     shortIdx = 0;
                 }
 
-                // Update long buffer
-                if (longFilled >= longPeriod)
+                // Kahan-compensated update for long buffer
                 {
-                    longSum -= longBuf[longIdx];
+                    double deltaL = val - (longFilled >= longPeriod ? longBuf[longIdx] : 0);
+                    double yL = deltaL - longSumComp;
+                    double tL = longSum + yL;
+                    longSumComp = (tL - longSum) - yL;
+                    longSum = tL;
                 }
-                longSum += val;
                 longBuf[longIdx] = val;
                 if (longFilled < longPeriod)
                 {
@@ -399,32 +394,6 @@ public sealed class Ravi : AbstractBase
                 if (longIdx >= longPeriod)
                 {
                     longIdx = 0;
-                }
-
-                // Resync short
-                shortTickCount++;
-                if (shortFilled >= shortPeriod && shortTickCount >= ResyncInterval)
-                {
-                    shortTickCount = 0;
-                    double recalc = 0;
-                    for (int k = 0; k < shortPeriod; k++)
-                    {
-                        recalc += shortBuf[k];
-                    }
-                    shortSum = recalc;
-                }
-
-                // Resync long
-                longTickCount++;
-                if (longFilled >= longPeriod && longTickCount >= ResyncInterval)
-                {
-                    longTickCount = 0;
-                    double recalc = 0;
-                    for (int k = 0; k < longPeriod; k++)
-                    {
-                        recalc += longBuf[k];
-                    }
-                    longSum = recalc;
                 }
 
                 // Calculate RAVI
