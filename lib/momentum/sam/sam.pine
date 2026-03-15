@@ -1,6 +1,5 @@
-// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
-// https://mozilla.org/MPL/2.0/
-// © QuanTAlib
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
 
 //@version=6
 indicator("SAM: Smoothed Adaptive Momentum", shorttitle="SAM", overlay=false)

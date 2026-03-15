@@ -1,3 +1,5 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
 // HA: Heikin-Ashi
 // Smoothed candle transformation with recursive open
 // HA_Close = (O + H + L + C) / 4

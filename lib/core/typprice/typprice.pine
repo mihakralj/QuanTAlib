@@ -1,3 +1,5 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
 // TYPPRICE: Typical Price
 // (High + Low + Close) / 3
 // TA-Lib compatible — equivalent to TBar.HLC3
