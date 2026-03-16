@@ -58,10 +58,10 @@ If you know the indicator name, call it. If you do not, here is the map:
 | **Momentum** | `momentum` | Speed of price changes | `roc`, `mom`, `macd`, `tsi`, `vel` |
 | **Volatility** | `volatility` | Price variability | `atr`, `bbw`, `stddev`, `hv`, `tr` |
 | **Volume** | `volume` | Trading activity | `obv`, `vwma`, `mfi`, `cmf`, `adl` |
-| **Statistics** | `statistics` | Statistical measures | `zscore`, `correlation`, `entropy` |
-| **Channels** | `channels` | Price boundaries | `bbands`, `kchannel`, `dchannel` |
+| **Statistics** | `statistics` | Statistical measures | `zscore`, `correl`, `entropy` |
+| **Channels** | `channels` | Price boundaries | `bbands`, `kc`, `dc` |
 | **Cycles** | `cycles` | Cycle analysis | `ht_dcperiod`, `ht_sine`, `cg`, `dsp` |
-| **Reversals** | `reversals` | Pattern detection | `psar`, `pivot`, `fractals`, `swings` |
+| **Reversals** | `reversals` | Pattern detection | `sar`, `pivot`, `fractals`, `swings` |
 | **Errors** | `errors` | Error metrics, loss functions | `rmse`, `mae`, `mape`, `smape` |
 | **Numerics** | `numerics` | Mathematical transforms | `fft`, `normalize`, `sigmoid`, `slope` |
 

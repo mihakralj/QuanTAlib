@@ -97,7 +97,7 @@ class TestVolumeIndicatorsHaveVolumeParam:
     """Volume indicators that use _ptr(volume) must have volume in their signature."""
 
     VOLUME_REQUIRED = [
-        "adl", "adosc", "iii", "kvo", "va", "vwad", "vwap", "wad",
+        "ad", "adosc", "iii", "kvo", "va", "vwad", "vwap", "wad",
         "obv", "pvt", "pvr", "vf", "nvi", "pvi", "tvi", "pvd",
         "vwma", "evwma", "efi", "aobv", "mfi", "cmf", "eom", "pvo",
     ]

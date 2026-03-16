@@ -501,16 +501,16 @@ public sealed class StarchannelValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_KchannelComparison_Structure()
+    public void Validate_KcComparison_Structure()
     {
-        // Compare structural properties with Kchannel (EMA vs SMA middle)
+        // Compare structural properties with Kc (EMA vs SMA middle)
         // Both use ATR for bands, so band calculation should be similar
 
         const int period = 20;
         const double multiplier = 2.0;
 
         var star = new Starchannel(period, multiplier);
-        var kelt = new Kchannel(period, multiplier);
+        var kelt = new Kc(period, multiplier);
 
         foreach (var bar in _testData.Bars)
         {
@@ -543,18 +543,18 @@ public sealed class StarchannelValidationTests : IDisposable
         double keltLowerDist = kelt.Last.Value - kelt.Lower.Value;
         Assert.Equal(keltUpperDist, keltLowerDist, 1e-10);
 
-        _output.WriteLine("Starchannel vs Kchannel structure validated");
+        _output.WriteLine("Starchannel vs Kc structure validated");
     }
 
     [Fact]
-    public void Validate_Starchannel_DifferentFromKchannel()
+    public void Validate_Starchannel_DifferentFromKc()
     {
-        // Starchannel (SMA) should differ from Kchannel (EMA) in the middle line
+        // Starchannel (SMA) should differ from Kc (EMA) in the middle line
         const int period = 20;
         const double multiplier = 2.0;
 
         var star = new Starchannel(period, multiplier);
-        var kelt = new Kchannel(period, multiplier);
+        var kelt = new Kc(period, multiplier);
 
         foreach (var bar in _testData.Bars)
         {
@@ -569,7 +569,7 @@ public sealed class StarchannelValidationTests : IDisposable
         // Just verify they're both finite and reasonable
         Assert.True(double.IsFinite(diff));
 
-        _output.WriteLine($"Starchannel vs Kchannel middle difference: {diff:F6}");
+        _output.WriteLine($"Starchannel vs Kc middle difference: {diff:F6}");
     }
 
     // ═══════════════════════════════════════════════════════════════

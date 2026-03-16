@@ -13,7 +13,7 @@
 | **PineScript**   | [covariance.pine](covariance.pine)                       |
 
 - Covariance measures the joint variability of two random variables.
-- **Similar:** [Correlation](../correlation/Correlation.md), [Beta](../beta/Beta.md) | **Trading note:** Rolling covariance; measures how two assets move together. Foundation of portfolio theory.
+- **Similar:** [Correl](../correl/Correl.md), [Beta](../beta/Beta.md) | **Trading note:** Rolling covariance; measures how two assets move together. Foundation of portfolio theory.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Covariance measures the joint variability of two random variables. It indicates the direction of the linear relationship between variables.

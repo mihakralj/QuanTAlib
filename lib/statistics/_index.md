@@ -9,7 +9,7 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [BETA](beta/Beta.md) | Beta Coefficient | Asset volatility relative to market. β=1 means market-matched risk. |
 | [CMA](cma/Cma.md) | Cumulative Moving Average | Running average of all values. Welford's algorithm. No window. |
 | [COINTEGRATION](cointegration/Cointegration.md) | Cointegration | Tests if series share long-term equilibrium. Pairs trading foundation. |
-| [CORRELATION](correlation/Correlation.md) | Correlation | Linear relationship between two variables. Range: -1 to +1. |
+| [CORREL](correl/Correl.md) | Correlation | Linear relationship between two variables. Range: -1 to +1. |
 | [COVARIANCE](covariance/Covariance.md) | Covariance | Joint variability of two random variables. Building block for β. |
 | [ENTROPY](entropy/Entropy.md) | Shannon Entropy | Measures uncertainty/randomness. Higher entropy = less predictable. |
 | [GEOMEAN](geomean/Geomean.md) | Geometric Mean | nth root of product. Use for growth rates and ratios. |

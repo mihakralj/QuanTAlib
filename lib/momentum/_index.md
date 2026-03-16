@@ -16,7 +16,7 @@ Momentum indicators measure the velocity and acceleration of price changes. Unli
 | [MOM](mom/Mom.md) | Momentum | Raw price change over specified period. |
 | [PMO](pmo/Pmo.md) | Price Momentum Oscillator | Double-smoothed ROC oscillator. |
 | [PPO](ppo/Ppo.md) | Percentage Price Oscillator | MACD expressed as percentage for cross-instrument comparison. |
-| [PRS](prs/Prs.md) | Price Relative Strength | Performance ratio between two assets. |
+| [RS](rs/Rs.md) | Price Relative Strength | Performance ratio between two assets. |
 | [ROC](roc/Roc.md) | Rate of Change | Absolute price change over N periods. |
 | [ROCP](rocp/Rocp.md) | Rate of Change Percentage | Percentage price change over N periods. |
 | [ROCR](rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods. |

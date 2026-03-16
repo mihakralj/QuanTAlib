@@ -1,0 +1,64 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Price Channel (PC)", "PC", overlay=true)
+
+//@function Calculates Price Channel
+//@param length_param Lookback period for determining the highest high and lowest low
+//@returns tuple [upperChannel, middleChannel, lowerChannel]
+//@optimized Uses monotonic deque for O(1) amortized complexity per bar
+pc(simple int length_param) =>
+    if length_param <= 0
+        runtime.error("Length must be greater than 0")
+    var deque_hi = array.new_int(0)
+    var src_buffer_hi = array.new_float(0, na)
+    var int current_index_hi = 0
+    var deque_lo = array.new_int(0)
+    var src_buffer_lo = array.new_float(0, na)
+    var int current_index_lo = 0
+    if array.size(src_buffer_hi) != length_param
+        src_buffer_hi := array.new_float(length_param, na)
+        current_index_hi := 0
+        array.clear(deque_hi)
+        src_buffer_lo := array.new_float(length_param, na)
+        current_index_lo := 0
+        array.clear(deque_lo)
+    float cv_hi = nz(high)
+    array.set(src_buffer_hi, current_index_hi, cv_hi)
+    float cv_lo = nz(low)
+    array.set(src_buffer_lo, current_index_lo, cv_lo)
+    while array.size(deque_hi) > 0 and array.get(deque_hi, 0) <= bar_index - length_param
+        array.shift(deque_hi)
+    while array.size(deque_lo) > 0 and array.get(deque_lo, 0) <= bar_index - length_param
+        array.shift(deque_lo)
+    while array.size(deque_hi) > 0
+        if array.get(src_buffer_hi, array.get(deque_hi, array.size(deque_hi) - 1) % length_param) <= cv_hi
+            array.pop(deque_hi)
+        else
+            break
+    array.push(deque_hi, bar_index)
+    while array.size(deque_lo) > 0
+        if array.get(src_buffer_lo, array.get(deque_lo, array.size(deque_lo) - 1) % length_param) >= cv_lo
+            array.pop(deque_lo)
+        else
+            break
+    array.push(deque_lo, bar_index)
+    float highestHigh = array.get(src_buffer_hi, array.get(deque_hi, 0) % length_param)
+    current_index_hi := (current_index_hi + 1) % length_param
+    float lowestLow = array.get(src_buffer_lo, array.get(deque_lo, 0) % length_param)
+    current_index_lo := (current_index_lo + 1) % length_param
+    [highestHigh, (highestHigh + lowestLow) / 2.0, lowestLow]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1)
+
+// Calculation
+[upperCh, middleCh, lowerCh] = pc(i_length)
+
+// Plot
+plot(middleCh, "Middle Channel", color=color.yellow, linewidth=2)
+p1 = plot(upperCh, "Upper Channel", color=color.yellow, linewidth=2)
+p2 = plot(lowerCh, "Lower Channel", color=color.yellow, linewidth=2)
+fill(p1, p2, color=color.new(color.blue, 90), title="Band Fill")

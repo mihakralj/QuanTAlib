@@ -6,7 +6,7 @@
 
 You are here because you want an indicator on your TradingView chart. Maybe someone on Crypto Twitter posted a screenshot with colored lines and you thought "I need that." Maybe you googled "best RSI Pine Script" at 2 AM. Maybe you clicked a link by accident. All valid paths to enlightenment.
 
-Here is the good news: QuanTAlib provides **Pine Script v6 source code** for every one of its 396 indicators. Each script is self-contained, tested against the C# reference implementation, and ready to paste into TradingView's Pine Editor. No dependencies. No imports. No subscription to someone's Discord.
+Here is the good news: QuanTAlib provides **Pine Script v6 source code** for every one of its 393 indicators. Each script is self-contained, tested against the C# reference implementation, and ready to paste into TradingView's Pine Editor. No dependencies. No imports. No subscription to someone's Discord.
 
 Here is the less-good news: the scripts contain actual mathematics. You do not have to read it. But it is there, silently judging.
 
@@ -116,7 +116,7 @@ IIR stands for Infinite Impulse Response. These use recursive feedback: the prev
 | GDEMA | Generalized DEMA | [gdema.pine](../lib/trends_IIR/gdema/gdema.pine) |
 | HEMA | Hull Exponential MA | [hema.pine](../lib/trends_IIR/hema/hema.pine) |
 | HOLT | Holt Exponential Smoothing | [holt.pine](../lib/trends_IIR/holt/holt.pine) |
-| HTIT | Ehlers Hilbert Transform Instant Trendline | [htit.pine](../lib/trends_IIR/htit/htit.pine) |
+| HT_TRENDLINE | Ehlers Hilbert Transform Instant Trendline | [ht_trendline.pine](../lib/trends_IIR/ht_trendline/ht_trendline.pine) |
 | HWMA | Holt-Winters MA | [hwma.pine](../lib/trends_IIR/hwma/hwma.pine) |
 | JMA | Jurik MA | [jma.pine](../lib/trends_IIR/jma/jma.pine) |
 | KAMA | Kaufman Adaptive MA | [kama.pine](../lib/trends_IIR/kama/kama.pine) |
@@ -211,7 +211,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | DEM | DeMarker Oscillator | [dem.pine](../lib/oscillators/dem/dem.pine) |
 | DOSC | Derivative Oscillator | [dosc.pine](../lib/oscillators/dosc/dosc.pine) |
 | DPO | Detrended Price Oscillator | [dpo.pine](../lib/oscillators/dpo/dpo.pine) |
-| DYMOI | Dynamic Momentum Index | [dymoi.pine](../lib/oscillators/dymoi/dymoi.pine) |
+| DYMI | Dynamic Momentum Index | [dymi.pine](../lib/oscillators/dymi/dymi.pine) |
 | ER | Efficiency Ratio | [er.pine](../lib/oscillators/er/er.pine) |
 | ERI | Elder Ray Index | [eri.pine](../lib/oscillators/eri/eri.pine) |
 | FI | Force Index | [fi.pine](../lib/oscillators/fi/fi.pine) |
@@ -295,7 +295,7 @@ How fast price is moving. Direction matters here.
 | MOM | Momentum | [mom.pine](../lib/momentum/mom/mom.pine) |
 | PMO | Price Momentum Oscillator | [pmo.pine](../lib/momentum/pmo/pmo.pine) |
 | PPO | Percentage Price Oscillator | [ppo.pine](../lib/momentum/ppo/ppo.pine) |
-| PRS | Price Relative Strength | [prs.pine](../lib/momentum/prs/prs.pine) |
+| RS | Price Relative Strength | [rs.pine](../lib/momentum/rs/rs.pine) |
 | ROC | Rate of Change | [roc.pine](../lib/momentum/roc/roc.pine) |
 | ROCP | Rate of Change Percentage | [rocp.pine](../lib/momentum/rocp/rocp.pine) |
 | ROCR | Rate of Change Ratio | [rocr.pine](../lib/momentum/rocr/rocr.pine) |
@@ -348,7 +348,7 @@ What the crowd is doing with their money.
 
 | Indicator | What It Does | Pine Script |
 | :--- | :--- | :--- |
-| ADL | Accumulation/Distribution Line | [adl.pine](../lib/volume/adl/adl.pine) |
+| AD | Accumulation/Distribution Line | [ad.pine](../lib/volume/ad/ad.pine) |
 | ADOSC | Chaikin A/D Oscillator | [adosc.pine](../lib/volume/adosc/adosc.pine) |
 | AOBV | Archer On-Balance Volume | [aobv.pine](../lib/volume/aobv/aobv.pine) |
 | CMF | Chaikin Money Flow | [cmf.pine](../lib/volume/cmf/cmf.pine) |
@@ -390,14 +390,14 @@ Upper band, lower band, sometimes a middle. Price bounces between them. In theor
 | APZ | Adaptive Price Zone | [apz.pine](../lib/channels/apz/apz.pine) |
 | ATRBANDS | ATR Bands | [atrbands.pine](../lib/channels/atrbands/atrbands.pine) |
 | BBANDS | Bollinger Bands | [bbands.pine](../lib/channels/bbands/bbands.pine) |
-| DCHANNEL | Donchian Channels | [dchannel.pine](../lib/channels/dchannel/dchannel.pine) |
+| DC | Donchian Channels | [dc.pine](../lib/channels/dc/dc.pine) |
 | DECAYCHANNEL | Decay Min-Max Channel | [decaychannel.pine](../lib/channels/decaychannel/decaychannel.pine) |
 | FCB | Fractal Chaos Bands | [fcb.pine](../lib/channels/fcb/fcb.pine) |
 | JBANDS | Jurik Volatility Bands | [Jbands.pine](../lib/channels/jbands/Jbands.pine) |
-| KCHANNEL | Keltner Channel | [kchannel.pine](../lib/channels/kchannel/kchannel.pine) |
+| KC | Keltner Channel | [kc.pine](../lib/channels/kc/kc.pine) |
 | MAENV | Moving Average Envelope | [maenv.pine](../lib/channels/maenv/maenv.pine) |
 | MMCHANNEL | Min-Max Channel | [mmchannel.pine](../lib/channels/mmchannel/mmchannel.pine) |
-| PCHANNEL | Price Channel | [pchannel.pine](../lib/channels/pchannel/pchannel.pine) |
+| PC | Price Channel | [pc.pine](../lib/channels/pc/pc.pine) |
 | REGCHANNEL | Regression Channels | [regchannel.pine](../lib/channels/regchannel/regchannel.pine) |
 | SDCHANNEL | Standard Deviation Channel | [sdchannel.pine](../lib/channels/sdchannel/sdchannel.pine) |
 | STARCHANNEL | Stoller Average Range Channel | [starchannel.pine](../lib/channels/starchannel/starchannel.pine) |
@@ -447,7 +447,7 @@ Where price might turn around. Pivots, stops, and fractal patterns.
 | PIVOTEXT | Extended Traditional Pivots | [pivotext.pine](../lib/reversals/pivotext/pivotext.pine) |
 | PIVOTFIB | Fibonacci Pivot Points | [pivotfib.pine](../lib/reversals/pivotfib/pivotfib.pine) |
 | PIVOTWOOD | Woodie's Pivot Points | [pivotwood.pine](../lib/reversals/pivotwood/pivotwood.pine) |
-| PSAR | Parabolic Stop And Reverse | [psar.pine](../lib/reversals/psar/psar.pine) |
+| SAR | Parabolic Stop And Reverse | [sar.pine](../lib/reversals/sar/sar.pine) |
 | SAREXT | Parabolic SAR Extended | [sarext.pine](../lib/reversals/sarext/sarext.pine) |
 | SWINGS | Swing High/Low Detection | [swings.pine](../lib/reversals/swings/swings.pine) |
 | TTM_SCALPER | TTM Scalper Alert | [ttmscalper.pine](../lib/reversals/ttm_scalper/ttmscalper.pine) |
@@ -474,7 +474,7 @@ Quantitative measures of price behavior. Correlation, regression, distribution a
 | BETA | Beta Coefficient | [beta.pine](../lib/statistics/beta/beta.pine) |
 | CMA | Cumulative MA | [cma.pine](../lib/statistics/cma/cma.pine) |
 | COINTEGRATION | Cointegration | [cointegration.pine](../lib/statistics/cointegration/cointegration.pine) |
-| CORRELATION | Correlation | [correlation.pine](../lib/statistics/correlation/correlation.pine) |
+| CORREL | Correlation | [correl.pine](../lib/statistics/correl/correl.pine) |
 | COVARIANCE | Covariance | [covariance.pine](../lib/statistics/covariance/covariance.pine) |
 | ENTROPY | Shannon Entropy | [entropy.pine](../lib/statistics/entropy/entropy.pine) |
 | GEOMEAN | Geometric Mean | [geomean.pine](../lib/statistics/geomean/geomean.pine) |
@@ -677,7 +677,7 @@ You do not have to read any of this. But if you ever wonder why your backtest re
 
 ## The Full Catalog
 
-**[All 396 indicators with descriptions →](../lib/_index.md)**
+**[All 393 indicators with descriptions →](../lib/_index.md)**
 
 Every indicator in that list has a `.pine` file. Every `.pine` file works on TradingView. Every implementation matches the C# reference engine.
 

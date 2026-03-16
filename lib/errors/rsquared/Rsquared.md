@@ -13,7 +13,7 @@
 | **PineScript**   | [rsquared.pine](rsquared.pine)                       |
 
 - The Coefficient of Determination (R²) measures the proportion of variance in the actual values that is predictable from the predicted values.
-- **Similar:** [RSE](../rse/Rse.md), [Correlation](../../statistics/correlation/Correlation.md) | **Trading note:** R-squared (coefficient of determination); 1.0 = perfect fit, 0 = no better than mean.
+- **Similar:** [RSE](../rse/Rse.md), [Correl](../../statistics/correl/Correl.md) | **Trading note:** R-squared (coefficient of determination); 1.0 = perfect fit, 0 = no better than mean.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Coefficient of Determination (R²) measures the proportion of variance in the actual values that is predictable from the predicted values. R² ranges from negative infinity to 1, where 1 indicates perfect predictions.

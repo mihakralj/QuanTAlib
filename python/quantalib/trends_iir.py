@@ -11,7 +11,7 @@ __all__ = [
     "adxvma",
     "frama",
     "holt",
-    "htit",
+    "ht_trendline",
     "hwma",
     "jma",
     "kama",
@@ -86,14 +86,14 @@ def holt(close: object, period: int = 14, gamma: float = 0.0, offset: int = 0, *
     return _wrap(output, idx, f"HOLT_{period}", "trends_iir", offset)
 
 
-def htit(close: object, offset: int = 0, **kwargs) -> object:
+def ht_trendline(close: object, offset: int = 0, **kwargs) -> object:
     """Hilbert Transform Instantaneous Trendline."""
     offset = int(offset)
     src, idx = _arr(close)
     n = len(src)
     output = _out(n)
-    _check(_lib.qtl_htit(_ptr(src), _ptr(output), n))
-    return _wrap(output, idx, "HTIT", "trends_iir", offset)
+    _check(_lib.qtl_httrendline(_ptr(src), _ptr(output), n))
+    return _wrap(output, idx, "HT_TRENDLINE", "trends_iir", offset)
 
 
 def hwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:

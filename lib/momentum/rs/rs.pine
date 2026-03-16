@@ -1,0 +1,62 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Price Relative Strength (RS)", "RS", overlay=false)
+
+//@function Calculates Price Relative Strength comparing two assets
+//@param base Base asset price series
+//@param comp Compare asset price series
+//@param smooth_len Smoothing period for ratio
+//@returns Tuple containing raw ratio and smoothed ratio
+rs(series float base, series float comp, simple int smooth_len=1)=>
+    if smooth_len<=0
+        runtime.error("Smoothing length must be greater than 0")
+    float ratio = na
+    if not na(base) and not na(comp) and comp != 0
+        ratio := base/comp
+    float alpha = 2.0/math.max(smooth_len,1)
+    var float ema = na, var float result = na, var float e = 1.0, var bool warmup = true
+    if not na(ratio)
+        if na(ema)
+            ema := 0
+            result := ratio
+        else
+            ema := alpha*(ratio-ema)+ema
+            if warmup
+                e *= (1-alpha)
+                float c = 1.0/(1.0-e)
+                result := c*ema
+                if e<=1e-10
+                    warmup := false
+            else
+                result := ema
+    [ratio, result]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_base = input.source(close, "Base Asset")
+i_comp = input.symbol("SPY", "Compare Symbol")
+i_smooth = input.int(1, "Smoothing Length", minval=1)
+i_norm = input.bool(false, "Normalize to 100")
+i_log = input.bool(false, "Logarithmic Scale")
+
+// Get comparison data
+float comp_close = request.security(i_comp, timeframe.period, close, barmerge.gaps_off, barmerge.lookahead_off)
+
+// Calculate RS
+[raw_ratio, smooth_ratio] = rs(i_base, comp_close, i_smooth)
+
+// Apply optional normalization
+if i_norm
+    raw_ratio := raw_ratio/raw_ratio[1] * 100
+    smooth_ratio := smooth_ratio/smooth_ratio[1] * 100
+
+// Apply optional log scale
+if i_log
+    raw_ratio := math.log(raw_ratio)
+    smooth_ratio := math.log(smooth_ratio)
+
+// Plot
+plot(raw_ratio, "Raw Ratio", color=color.yellow, linewidth=2)
+plot(smooth_ratio, "Smoothed", color=color.blue, linewidth=2, display=i_smooth>1?display.all:display.none)

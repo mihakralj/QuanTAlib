@@ -55,7 +55,7 @@ Next parity targets (highest impact):
 | **Absolute Price Oscillator** | [Apo](../lib/oscillators/apo/Apo.md) | [✔️](../lib/oscillators/apo/Apo.md#validation) | [✔️](../lib/oscillators/apo/Apo.md#validation) | - | [✔️](../lib/oscillators/apo/Apo.md#validation) | ✔️ |
 | **Acceleration Bands** | [AccBands](../lib/channels/accbands/accbands.md) | [✔️](../lib/channels/accbands/accbands.md#validation) | - | - | - | ❔ |
 | **Acceleration Oscillator** | [Ac](../lib/oscillators/ac/Ac.md) | - | - | - | - | - |
-| **Accumulation/Distribution Line** | [Adl](../lib/volume/adl/adl.md) | [✔️](../lib/volume/adl/adl.md#validation) | [✔️](../lib/volume/adl/adl.md#validation) | [✔️](../lib/volume/adl/adl.md#validation) | [✔️](../lib/volume/adl/adl.md#validation) | ❔ |
+| **Accumulation/Distribution Line** | [Ad](../lib/volume/ad/ad.md) | [✔️](../lib/volume/ad/ad.md#validation) | [✔️](../lib/volume/ad/ad.md#validation) | [✔️](../lib/volume/ad/ad.md#validation) | [✔️](../lib/volume/ad/ad.md#validation) | ❔ |
 | **Accumulation/Distribution Oscillator** | [Adosc](../lib/volume/adosc/adosc.md) | [✔️](../lib/volume/adosc/adosc.md#validation) | [✔️](../lib/volume/adosc/adosc.md#validation) | [✔️](../lib/volume/adosc/adosc.md#validation) | [✔️](../lib/volume/adosc/adosc.md#validation) | ❔ |
 | **Accumulation Swing Index** | [Asi](../lib/momentum/asi/Asi.md) | - | - | - | - | - |
 | **Adaptive Price Zone** | [Apz](../lib/channels/apz/apz.md) | - | - | - | - | - |
@@ -125,7 +125,7 @@ Next parity targets (highest impact):
 | **Convolution Moving Average** | [Conv](../lib/trends_FIR/conv/Conv.md) | [✔️](../lib/trends_FIR/conv/Conv.md#validation) | [✔️](../lib/trends_FIR/conv/Conv.md#validation) | [✔️](../lib/trends_FIR/conv/Conv.md#validation) | [✔️](../lib/trends_FIR/conv/Conv.md#validation) | - |
 | **Coppock Curve** | [Coppock](../lib/oscillators/coppock/Coppock.md) | - | - | - | - | ❔ |
 | **Coral Trend Filter** | [Coral](../lib/trends_IIR/coral/Coral.md) | - | - | - | - | - |
-| **Correlation** | [Correlation](../lib/statistics/correlation/Correlation.md) | [✔️](../lib/statistics/correlation/Correlation.md#validation) | - | [✔️](../lib/statistics/correlation/Correlation.md#validation) | - | - |
+| **Correlation** | [Correl](../lib/statistics/correl/Correl.md) | [✔️](../lib/statistics/correl/Correl.md#validation) | - | [✔️](../lib/statistics/correl/Correl.md#validation) | - | - |
 | **Correlation Trend Indicator** | [Cti](../lib/oscillators/cti/Cti.md) | - | - | - | - | ⚠️ |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - | - |
 | **Decay Min-Max Channel** | [Decaychannel](../lib/channels/decaychannel/decaychannel.md) | - | - | - | - | - |
@@ -139,10 +139,10 @@ Next parity targets (highest impact):
 | **Directional Movement Index** | [Dx](../lib/dynamics/dx/Dx.md) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | - |
 | **Directional Movement Index (Jurik)** | [Dmx](../lib/dynamics/dmx/Dmx.md) | - | - | - | - | - |
 | **Dirty Data Detection** | Dirty | - | - | - | - | - |
-| **Donchian Channels** | [Dchannel](../lib/channels/dchannel/Dchannel.md) | - | - | [✔️](../lib/channels/dchannel/Dchannel.md#validation) | [⚠️](../lib/channels/dchannel/Dchannel.md#validation "structural test only; Ooples Donchian uses different channel width") | ❔ |
+| **Donchian Channels** | [Dc](../lib/channels/dc/dc.md) | - | - | [✔️](../lib/channels/dc/dc.md#validation) | [⚠️](../lib/channels/dc/dc.md#validation "structural test only; Ooples Donchian uses different channel width") | ❔ |
 | **Double Exponential Moving Average** | [Dema](../lib/trends_IIR/dema/Dema.md) | [✔️](../lib/trends_IIR/dema/Dema.md#validation) | [✔️](../lib/trends_IIR/dema/Dema.md#validation) | [✔️](../lib/trends_IIR/dema/Dema.md#validation) | [✔️](../lib/trends_IIR/dema/Dema.md#validation) | ⚠️ |
 | **Double Weighted Moving Average** | [Dwma](../lib/trends_FIR/dwma/Dwma.md) | [✔️](../lib/trends_FIR/dwma/Dwma.md#validation) | [✔️](../lib/trends_FIR/dwma/Dwma.md#validation) | [✔️](../lib/trends_FIR/dwma/Dwma.md#validation) | - | - |
-| **Dynamic Momentum Index** | [Dymoi](../lib/oscillators/dymoi/Dymoi.md) | - | - | - | [⚠️](../lib/oscillators/dymoi/Dymoi.md#validation "structural test only; Ooples uses different dynamic period logic") | - |
+| **Dynamic Momentum Index** | [Dymi](../lib/oscillators/dymi/Dymi.md) | - | - | - | [⚠️](../lib/oscillators/dymi/Dymi.md#validation "structural test only; Ooples uses different dynamic period logic") | - |
 | **Ease of Movement** | [Eom](../lib/volume/eom/Eom.md) | - | [✔️](../lib/volume/eom/Eom.md#validation) | - | - | ⚠️ |
 | **Efficiency Ratio** | [Er](../lib/oscillators/er/Er.md) | - | - | - | - | ⚠️ |
 | **Ehlers Autocorrelation Periodogram** | [Eacp](../lib/cycles/eacp/eacp.md) | - | - | - | - | - |
@@ -190,7 +190,7 @@ Next parity targets (highest impact):
 | **Highest value** | [Highest](../lib/numerics/highest/Highest.md) | [✔️](../lib/numerics/highest/Highest.md#validation) | [✔️](../lib/numerics/highest/Highest.md#validation) | - | - | - |
 | **Ehlers Hilbert Transform Dominant Cycle Period** | [HtDcPeriod](../lib/cycles/ht_dcperiod/HtDcperiod.md) | [✔️](../lib/cycles/ht_dcperiod/HtDcperiod.md#validation) | - | - | - | - |
 | **Ehlers Hilbert Transform Dominant Cycle Phase** | [HtDcPhase](../lib/cycles/ht_dcphase/HtDcphase.md) | [✔️](../lib/cycles/ht_dcphase/HtDcphase.md#validation) | - | - | - | - |
-| **Ehlers Hilbert Transform Instantaneous Trend** | [Htit](../lib/trends_IIR/htit/Htit.md) | [✔️](../lib/trends_IIR/htit/Htit.md#validation) | - | [✔️](../lib/trends_IIR/htit/Htit.md#validation) | [✔️](../lib/trends_IIR/htit/Htit.md#validation) | ❔ |
+| **Ehlers Hilbert Transform Instantaneous Trend** | [HtTrendline](../lib/trends_IIR/ht_trendline/HtTrendline.md) | [✔️](../lib/trends_IIR/ht_trendline/HtTrendline.md#validation) | - | [✔️](../lib/trends_IIR/ht_trendline/HtTrendline.md#validation) | [✔️](../lib/trends_IIR/ht_trendline/HtTrendline.md#validation) | ❔ |
 | **Ehlers Hilbert Transform Phasor Components** | [HtPhasor](../lib/cycles/ht_phasor/HtPhasor.md) | [✔️](../lib/cycles/ht_phasor/HtPhasor.md#validation) | - | - | - | - |
 | **Ehlers Hilbert Transform SineWave** | [HtSine](../lib/cycles/ht_sine/HtSine.md) | [✔️](../lib/cycles/ht_sine/HtSine.md#validation) | - | - | - | - |
 | **Ehlers Hilbert Transform Trend vs Cycle Mode** | [Ht_trendmode](../lib/dynamics/ht_trendmode/HtTrendmode.md) | [✔️](../lib/dynamics/ht_trendmode/HtTrendmode.md#validation) | - | - | - | - |
@@ -217,7 +217,7 @@ Next parity targets (highest impact):
 | **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends_IIR/kama/Kama.md) | [✔️](../lib/trends_IIR/kama/Kama.md#validation) | [✔️](../lib/trends_IIR/kama/Kama.md#validation) | [✔️](../lib/trends_IIR/kama/Kama.md#validation) | [✔️](../lib/trends_IIR/kama/Kama.md#validation) | ❔ |
 | **KDJ Indicator** | [Kdj](../lib/oscillators/kdj/Kdj.md) | - | - | [⚠️](../lib/oscillators/kdj/Kdj.md#validation "structural test via GetStoch; KDJ uses RMA smoothing vs SMA") | - | ❔ |
-| **Keltner Channel** | [Kchannel](../lib/channels/kchannel/kchannel.md) | - | - | [✔️](../lib/channels/kchannel/kchannel.md#validation) | [⚠️](../lib/channels/kchannel/kchannel.md#validation "structural test only; Ooples Keltner uses different ATR multiplier") | ❔ |
+| **Keltner Channel** | [Kc](../lib/channels/kc/kc.md) | - | - | [✔️](../lib/channels/kc/kc.md#validation) | [⚠️](../lib/channels/kc/kc.md#validation "structural test only; Ooples Keltner uses different ATR multiplier") | ❔ |
 | **Kendall Rank Correlation** | [Kendall](../lib/statistics/kendall/Kendall.md) | - | - | - | - | - |
 | **Klinger Volume Oscillator** | [Kvo](../lib/volume/kvo/Kvo.md) | - | [✔️](../lib/volume/kvo/Kvo.md#validation) | [✔️](../lib/volume/kvo/Kvo.md#validation) | [⚠️](../lib/volume/kvo/Kvo.md#validation "structural test only; Ooples KVO uses different volume weighting") | ❔ |
 | **Know Sure Thing** | [Kst](../lib/oscillators/kst/Kst.md) | - | - | - | - | ❔ |
@@ -270,7 +270,7 @@ Next parity targets (highest impact):
 | **Open-Close Average** | [Midbody](../lib/core/midbody/Midbody.md) | - | - | [✔️](../lib/core/midbody/Midbody.md#validation) | - | - |
 | **One Euro Filter** | [OneEuro](../lib/filters/oneeuro/OneEuro.md) | - | - | - | - | - |
 | **On Balance Volume** | [Obv](../lib/volume/obv/Obv.md) | [⚠️](../lib/volume/obv/Obv.md#validation) | [✔️](../lib/volume/obv/Obv.md#validation) | [✔️](../lib/volume/obv/Obv.md#validation) | [⚠️](../lib/volume/obv/Obv.md#validation) | ✔️ |
-| **Parabolic SAR** | [Psar](../lib/reversals/psar/Psar.md) | [✔️](../lib/reversals/psar/Psar.md#validation) | - | [✔️](../lib/reversals/psar/Psar.md#validation) | [⚠️](../lib/reversals/psar/Psar.md#validation "minor SAR initialization differences prevent numeric match") | ❔ |
+| **Parabolic SAR** | [Sar](../lib/reversals/sar/Sar.md) | [✔️](../lib/reversals/sar/Sar.md#validation) | - | [✔️](../lib/reversals/sar/Sar.md#validation) | [⚠️](../lib/reversals/sar/Sar.md#validation "minor SAR initialization differences prevent numeric match") | ❔ |
 | **Pascal Weighted Moving Average** | [Pwma](../lib/trends_FIR/pwma/Pwma.md) | - | - | - | [✔️](../lib/trends_FIR/pwma/Pwma.md#validation) | ❔ |
 | **Percentage Change** | [Change](../lib/numerics/change/Change.md) | - | [✔️](../lib/numerics/change/Change.md#validation) | - | - | - |
 | **Percentage Price Oscillator** | [Ppo](../lib/momentum/ppo/Ppo.md) | [✔️](../lib/momentum/ppo/Ppo.md#validation) | [✔️](../lib/momentum/ppo/Ppo.md#validation) | - | [✔️](../lib/momentum/ppo/Ppo.md#validation) | ❔ |
@@ -284,9 +284,9 @@ Next parity targets (highest impact):
 | **Pivot Points (Fibonacci)** | [Pivotfib](../lib/reversals/pivotfib/Pivotfib.md) | - | - | - | - | - |
 | **Positive Volume Index** | [Pvi](../lib/volume/pvi/Pvi.md) | - | [✔️](../lib/volume/pvi/Pvi.md#validation) | - | - | ⚠️ |
 | **Pretty Good Oscillator** | [Pgo](../lib/oscillators/pgo/Pgo.md) | - | - | - | [⚠️](../lib/oscillators/pgo/Pgo.md#validation "structural test only; Ooples PGO uses different ATR normalization") | ❔ |
-| **Price Channel** | [Pchannel](../lib/channels/pchannel/pchannel.md) | - | - | [✔️](../lib/channels/pchannel/pchannel.md#validation) | - | - |
+| **Price Channel** | [Pc](../lib/channels/pc/pc.md) | - | - | [✔️](../lib/channels/pc/pc.md#validation) | - | - |
 | **Price Momentum Oscillator** | [Pmo](../lib/momentum/pmo/Pmo.md) | - | - | [✔️](../lib/momentum/pmo/Pmo.md#validation) | [✔️](../lib/momentum/pmo/Pmo.md#validation) | - |
-| **Price Relative Strength** | [Prs](../lib/momentum/prs/Prs.md) | - | - | [✔️](../lib/momentum/prs/Prs.md#validation) | - | - |
+| **Price Relative Strength** | [Rs](../lib/momentum/rs/Rs.md) | - | - | [✔️](../lib/momentum/rs/Rs.md#validation) | - | - |
 | **Price Volume Divergence** | [Pvd](../lib/volume/pvd/Pvd.md) | - | - | - | - | - |
 | **Price Volume Rank** | [Pvr](../lib/volume/pvr/Pvr.md) | - | - | - | - | ⚠️ |
 | **Price Volume Trend** | [Pvt](../lib/volume/pvt/Pvt.md) | - | - | - | [✔️](../lib/volume/pvt/Pvt.md#validation) | ⚠️ |

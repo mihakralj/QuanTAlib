@@ -13,7 +13,7 @@
 | **PineScript**   | [ckstop.pine](ckstop.pine)                       |
 
 - The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes.
-- **Similar:** [Chandelier](../chandelier/Chandelier.md), [PSAR](../psar/Psar.md) | **Complementary:** ATR | **Trading note:** Chuck LeBeau's Chandelier stop; ATR trailing stop with configurable multiplier.
+- **Similar:** [Chandelier](../chandelier/Chandelier.md), [SAR](../sar/Sar.md) | **Complementary:** ATR | **Trading note:** Chuck LeBeau's Chandelier stop; ATR trailing stop with configurable multiplier.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chande Kroll Stop computes adaptive trailing stop levels using ATR-smoothed volatility envelopes around rolling extremes. It produces two lines: StopLong (support) and StopShort (resistance). When price trades above both stops, the trend is bullish. When below both, bearish. Crossovers between the two stops signal potential reversals.

@@ -19,7 +19,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | [DOSC](dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
-| [DYMOI](dymoi/Dymoi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
+| [DYMI](dymi/Dymi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
 | [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
 | [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
 | [FI](fi/Fi.md) | Force Index | Combines price change, direction, and volume to measure buying/selling power. |

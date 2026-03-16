@@ -36,7 +36,7 @@ MULTI_PARAM = [
     ("apo", {"fast": 12, "slow": 26}),
     ("deco", {"short_period": 30, "long_period": 60}),
     ("dosc", {"rsi_period": 14, "ema1_period": 5, "ema2_period": 3, "signal_period": 9}),
-    ("dymoi", {"base_period": 14, "short_period": 5, "long_period": 10, "min_period": 3, "max_period": 30}),
+    ("dymi", {"base_period": 14, "short_period": 5, "long_period": 10, "min_period": 3, "max_period": 30}),
     ("crsi", {"rsi_period": 3, "streak_period": 2, "rank_period": 100}),
     ("bbb", {"length": 20, "mult": 2.0}),
     ("bbi", {"p1": 3, "p2": 6, "p3": 12, "p4": 24}),

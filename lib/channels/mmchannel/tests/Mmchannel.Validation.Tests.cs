@@ -187,21 +187,21 @@ public sealed class MmchannelValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_AgainstDchannel_Bands()
+    public void Validate_AgainstDc_Bands()
     {
-        // Mmchannel upper/lower should exactly match Dchannel upper/lower
+        // Mmchannel upper/lower should exactly match Dc upper/lower
         int[] periods = { 10, 20, 50 };
 
         foreach (int period in periods)
         {
-            var (_, dcUp, dcLo) = Dchannel.Batch(_testData.Bars, period);
+            var (_, dcUp, dcLo) = Dc.Batch(_testData.Bars, period);
             var (mmUp, mmLo) = Mmchannel.Batch(_testData.Bars, period);
 
             ValidationHelper.VerifySeriesEqual(dcUp, mmUp);
             ValidationHelper.VerifySeriesEqual(dcLo, mmLo);
         }
 
-        _output.WriteLine("Mmchannel matches Dchannel upper/lower bands");
+        _output.WriteLine("Mmchannel matches Dc upper/lower bands");
     }
 
     [Fact]
@@ -209,7 +209,7 @@ public sealed class MmchannelValidationTests : IDisposable
     {
         // Note: Skender's Donchian uses lookbackPeriods+1 for the window size (includes current bar differently)
         // This test validates that we get finite, reasonable results, but exact match is not expected
-        // due to this convention difference. The exact match is validated via Dchannel comparison above.
+        // due to this convention difference. The exact match is validated via Dc comparison above.
         const int period = 20;
 
         var skenderResult = _testData.SkenderQuotes

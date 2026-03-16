@@ -27,7 +27,7 @@ public sealed class VwadIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = true;
         Name = "VWAD - Volume Weighted Accumulation/Distribution";
-        Description = "Volume Weighted Accumulation/Distribution enhances ADL by weighting each bar's contribution based on relative volume";
+        Description = "Volume Weighted Accumulation/Distribution enhances AD by weighting each bar's contribution based on relative volume";
 
         _series = new LineSeries(name: "VWAD", color: Color.Yellow, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
