@@ -423,7 +423,7 @@ public sealed class Adf : AbstractBase
                 continue;
             }
 
-            double aic = nObs * Math.Log(rss / nObs) + 2.0 * k;
+            double aic = (nObs * Math.Log(rss / nObs)) + (2.0 * k);
             if (aic < bestAic)
             {
                 bestAic = aic;
@@ -501,7 +501,7 @@ public sealed class Adf : AbstractBase
             {
                 for (int c = r; c < k; c++)
                 {
-                    xtx[r * k + c] += xRow[r] * xRow[c];
+                    xtx[(r * k) + c] += xRow[r] * xRow[c];
                 }
                 xty[r] += xRow[r] * yVal;
             }
@@ -512,7 +512,7 @@ public sealed class Adf : AbstractBase
         {
             for (int c = 0; c < r; c++)
             {
-                xtx[r * k + c] = xtx[c * k + r];
+                xtx[(r * k) + c] = xtx[(c * k) + r];
             }
         }
 
@@ -624,7 +624,7 @@ public sealed class Adf : AbstractBase
             {
                 for (int c = r; c < k; c++)
                 {
-                    xtx[r * k + c] += xRow[r] * xRow[c];
+                    xtx[(r * k) + c] += xRow[r] * xRow[c];
                 }
                 xty[r] += xRow[r] * yVal;
             }
@@ -635,7 +635,7 @@ public sealed class Adf : AbstractBase
         {
             for (int c = 0; c < r; c++)
             {
-                xtx[r * k + c] = xtx[c * k + r];
+                xtx[(r * k) + c] = xtx[(c * k) + r];
             }
         }
 
@@ -672,7 +672,7 @@ public sealed class Adf : AbstractBase
             {
                 for (int c = r; c < k; c++)
                 {
-                    xtx[r * k + c] += xRow[r] * xRow[c];
+                    xtx[(r * k) + c] += xRow[r] * xRow[c];
                 }
             }
         }
@@ -680,7 +680,7 @@ public sealed class Adf : AbstractBase
         {
             for (int c = 0; c < r; c++)
             {
-                xtx[r * k + c] = xtx[c * k + r];
+                xtx[(r * k) + c] = xtx[(c * k) + r];
             }
         }
 
@@ -726,7 +726,7 @@ public sealed class Adf : AbstractBase
             return (0, 1.0);
         }
 
-        double seGamma = Math.Sqrt(s2 * xtxInv[gammaIdx * k + gammaIdx]);
+        double seGamma = Math.Sqrt(s2 * xtxInv[(gammaIdx * k) + gammaIdx]);
         if (seGamma <= 1e-15 || !double.IsFinite(seGamma))
         {
             return (0, 1.0);
@@ -758,10 +758,10 @@ public sealed class Adf : AbstractBase
         {
             for (int j = 0; j <= i; j++)
             {
-                double sum = A[i * k + j];
+                double sum = A[(i * k) + j];
                 for (int p = 0; p < j; p++)
                 {
-                    sum -= L[i * k + p] * L[j * k + p];
+                    sum -= L[(i * k) + p] * L[(j * k) + p];
                 }
 
                 if (i == j)
@@ -770,11 +770,11 @@ public sealed class Adf : AbstractBase
                     {
                         return false; // Not positive definite
                     }
-                    L[i * k + j] = Math.Sqrt(sum);
+                    L[(i * k) + j] = Math.Sqrt(sum);
                 }
                 else
                 {
-                    L[i * k + j] = sum / L[j * k + j];
+                    L[(i * k) + j] = sum / L[(j * k) + j];
                 }
             }
         }
@@ -786,9 +786,9 @@ public sealed class Adf : AbstractBase
             double sum = b[i];
             for (int j = 0; j < i; j++)
             {
-                sum -= L[i * k + j] * z[j];
+                sum -= L[(i * k) + j] * z[j];
             }
-            z[i] = sum / L[i * k + i];
+            z[i] = sum / L[(i * k) + i];
         }
 
         // Back substitution: L'·x = z
@@ -797,9 +797,9 @@ public sealed class Adf : AbstractBase
             double sum = z[i];
             for (int j = i + 1; j < k; j++)
             {
-                sum -= L[j * k + i] * x[j];
+                sum -= L[(j * k) + i] * x[j];
             }
-            x[i] = sum / L[i * k + i];
+            x[i] = sum / L[(i * k) + i];
         }
 
         return true;
@@ -819,10 +819,10 @@ public sealed class Adf : AbstractBase
         {
             for (int j = 0; j <= i; j++)
             {
-                double sum = A[i * k + j];
+                double sum = A[(i * k) + j];
                 for (int p = 0; p < j; p++)
                 {
-                    sum -= L[i * k + p] * L[j * k + p];
+                    sum -= L[(i * k) + p] * L[(j * k) + p];
                 }
 
                 if (i == j)
@@ -831,11 +831,11 @@ public sealed class Adf : AbstractBase
                     {
                         return false;
                     }
-                    L[i * k + j] = Math.Sqrt(sum);
+                    L[(i * k) + j] = Math.Sqrt(sum);
                 }
                 else
                 {
-                    L[i * k + j] = sum / L[j * k + j];
+                    L[(i * k) + j] = sum / L[(j * k) + j];
                 }
             }
         }
@@ -845,15 +845,15 @@ public sealed class Adf : AbstractBase
         Linv.Clear();
         for (int i = 0; i < k; i++)
         {
-            Linv[i * k + i] = 1.0 / L[i * k + i];
+            Linv[(i * k) + i] = 1.0 / L[(i * k) + i];
             for (int j = i + 1; j < k; j++)
             {
                 double sum = 0;
                 for (int p = i; p < j; p++)
                 {
-                    sum -= L[j * k + p] * Linv[p * k + i];
+                    sum -= L[(j * k) + p] * Linv[(p * k) + i];
                 }
-                Linv[j * k + i] = sum / L[j * k + j];
+                Linv[(j * k) + i] = sum / L[(j * k) + j];
             }
         }
 
@@ -866,10 +866,10 @@ public sealed class Adf : AbstractBase
                 double sum = 0;
                 for (int p = j; p < k; p++)
                 {
-                    sum += Linv[p * k + i] * Linv[p * k + j];
+                    sum += Linv[(p * k) + i] * Linv[(p * k) + j];
                 }
-                Ainv[i * k + j] = sum;
-                Ainv[j * k + i] = sum;
+                Ainv[(i * k) + j] = sum;
+                Ainv[(j * k) + i] = sum;
             }
         }
 
@@ -947,7 +947,7 @@ public sealed class Adf : AbstractBase
         if (tStat <= tauStar)
         {
             // Small p-value region: p = NormCdf(poly3(tStat))
-            double poly = smallP[0] + smallP[1] * tStat + smallP[2] * tStat * tStat;
+            double poly = smallP[0] + (smallP[1] * tStat) + (smallP[2] * tStat * tStat);
             return NormCdf(poly);
         }
         else
@@ -955,7 +955,7 @@ public sealed class Adf : AbstractBase
             // Large p-value region: p = NormCdf(poly4(tStat))
             double t2 = tStat * tStat;
             double t3 = t2 * tStat;
-            double poly = largeP[0] + largeP[1] * tStat + largeP[2] * t2 + largeP[3] * t3;
+            double poly = largeP[0] + (largeP[1] * tStat) + (largeP[2] * t2) + (largeP[3] * t3);
             return NormCdf(poly);
         }
     }
@@ -1002,11 +1002,11 @@ public sealed class Adf : AbstractBase
         double t4 = t3 * t;
         double t5 = t4 * t;
 
-        double poly = a1 * t + a2 * t2 + a3 * t3 + a4 * t4 + a5 * t5;
+        double poly = (a1 * t) + (a2 * t2) + (a3 * t3) + (a4 * t4) + (a5 * t5);
         double erfcZ = poly * Math.Exp(-z * z);
         double erfZ = 1.0 - erfcZ;
 
         // Φ(x) = 0.5 · (1 + sign · erf(|x|/√2))
-        return 0.5 * (1.0 + sign * erfZ);
+        return 0.5 * (1.0 + (sign * erfZ));
     }
 }
