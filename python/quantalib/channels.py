@@ -14,14 +14,14 @@ __all__ = [
     "apz",
     "atrbands",
     "bbands",
-    "dchannel",
+    "dc",
     "decaychannel",
     "fcb",
     "jbands",
-    "kchannel",
+    "kc",
     "maenv",
     "mmchannel",
-    "pchannel",
+    "pc",
     "regchannel",
     "sdchannel",
     "starchannel",
@@ -77,7 +77,7 @@ def apz(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap_multi({"dstMiddle": dstMiddle, "dstUpper": dstUpper, "dstLower": dstLower}, idx, "channels", offset)
 
 
-def dchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def dc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Donchian Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -86,7 +86,7 @@ def dchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwa
     middle = _out(n)
     upper = _out(n)
     lower = _out(n)
-    _check(_lib.qtl_dchannel(_ptr(h), _ptr(l), _ptr(middle), _ptr(upper), _ptr(lower), n, period))
+    _check(_lib.qtl_dc(_ptr(h), _ptr(l), _ptr(middle), _ptr(upper), _ptr(lower), n, period))
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
@@ -130,7 +130,7 @@ def jbands(close: object, period: int = 14, phase: int = 0, offset: int = 0, **k
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def kchannel(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def kc(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
     """Keltner Channel."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -140,7 +140,7 @@ def kchannel(high: object, low: object, close: object, period: int = 14, multipl
     middle = _out(n)
     upper = _out(n)
     lower = _out(n)
-    _check(_lib.qtl_kchannel(_ptr(h), _ptr(l), _ptr(c), _ptr(middle), _ptr(upper), _ptr(lower), n, period, multiplier))
+    _check(_lib.qtl_kc(_ptr(h), _ptr(l), _ptr(c), _ptr(middle), _ptr(upper), _ptr(lower), n, period, multiplier))
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
@@ -171,7 +171,7 @@ def mmchannel(high: object, low: object, period: int = 14, offset: int = 0, **kw
     return _wrap_multi({"upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def pchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def pc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     """Price Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -180,7 +180,7 @@ def pchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwa
     middle = _out(n)
     upper = _out(n)
     lower = _out(n)
-    _check(_lib.qtl_pchannel(_ptr(h), _ptr(l), _ptr(middle), _ptr(upper), _ptr(lower), n, period))
+    _check(_lib.qtl_pc(_ptr(h), _ptr(l), _ptr(middle), _ptr(upper), _ptr(lower), n, period))
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 

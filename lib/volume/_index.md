@@ -4,7 +4,7 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [ADL](adl/Adl.md) | Accumulation/Distribution Line | Correlates price location within range to volume. Grandfather of volume flow analysis. |
+| [AD](ad/Ad.md) | Accumulation/Distribution Line | Correlates price location within range to volume. Grandfather of volume flow analysis. |
 | [ADOSC](adosc/Adosc.md) | Chaikin A/D Oscillator | Momentum indicator for AD Line. Predicts reversals by measuring acceleration of money flow. |
 | [AOBV](aobv/Aobv.md) | Archer On-Balance Volume | Dual EMA smoothing of OBV for cleaner crossover signals. |
 | [CMF](cmf/Cmf.md) | Chaikin Money Flow | Measures money flow volume over set period (typically 20-21 days). |
@@ -27,7 +27,7 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [VF](vf/Vf.md) | Volume Force | Measures force of volume behind price movements using EMA smoothing. |
 | [VO](vo/Vo.md) | Volume Oscillator | Difference between short and long volume moving averages. Shows volume momentum. |
 | [VROC](vroc/Vroc.md) | Volume Rate of Change | Measures speed at which volume is changing over time. |
-| [VWAD](vwad/Vwad.md) | Volume Weighted A/D | Similar to ADL but weights accumulation/distribution by volume. |
+| [VWAD](vwad/Vwad.md) | Volume Weighted A/D | Similar to AD but weights accumulation/distribution by volume. |
 | [VWAP](vwap/Vwap.md) | Volume Weighted Average Price | Average price weighted by volume. Common execution benchmark and intraday reference. |
 | [VWMA](vwma/Vwma.md) | Volume Weighted Moving Average | Moving average where each price point is weighted by its volume over a sliding window. |
 | [WAD](wad/Wad.md) | Williams Accumulation/Distribution | Measures cumulative buying/selling pressure using True Range and volume. |

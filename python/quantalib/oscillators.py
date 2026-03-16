@@ -47,7 +47,7 @@ __all__ = [
     "psl",
     "deco",
     "dosc",
-    "dymoi",
+    "dymi",
     "crsi",
     "bbb",
     "bbi",
@@ -493,16 +493,16 @@ def dosc(close: object, rsi_period: int = 14, ema1_period: int = 5,
     return _wrap(dst, idx, f"DOSC_{rsi_period}", "oscillators", offset)
 
 
-def dymoi(close: object, base_period: int = 14, short_period: int = 5,
-          long_period: int = 10, min_period: int = 3, max_period: int = 30,
-          offset: int = 0, **kwargs) -> object:
+def dymi(close: object, base_period: int = 14, short_period: int = 5,
+         long_period: int = 10, min_period: int = 3, max_period: int = 30,
+         offset: int = 0, **kwargs) -> object:
     """Dynamic Momentum Index."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_dymoi(_ptr(src), n, _ptr(dst),
-                          int(base_period), int(short_period), int(long_period),
-                          int(min_period), int(max_period)))
-    return _wrap(dst, idx, "DYMOI", "oscillators", offset)
+    _check(_lib.qtl_dymi(_ptr(src), n, _ptr(dst),
+                         int(base_period), int(short_period), int(long_period),
+                         int(min_period), int(max_period)))
+    return _wrap(dst, idx, "DYMI", "oscillators", offset)
 
 
 def crsi(close: object, rsi_period: int = 3, streak_period: int = 2,

@@ -13,7 +13,7 @@
 | **PineScript**   | [chandelier.pine](chandelier.pine)                       |
 
 - The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) ov...
-- **Similar:** [PSAR](../psar/Psar.md), [Super](../../dynamics/super/Super.md) | **Complementary:** ADX for trend strength | **Trading note:** Chandelier Exit; ATR-based trailing stop from highest high. Risk management tool.
+- **Similar:** [SAR](../sar/Sar.md), [Super](../../dynamics/super/Super.md) | **Complementary:** ADX for trend strength | **Trading note:** Chandelier Exit; ATR-based trailing stop from highest high. Risk management tool.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) over a lookback period. It produces two overlay lines: ExitLong (trailing stop for long positions) and ExitShort (trailing stop for short positions). Developed by Charles Le Beau and popularized by Alexander Elder. Default parameters: period 22, multiplier 3.0.

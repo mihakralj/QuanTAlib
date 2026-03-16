@@ -8,7 +8,7 @@ namespace QuanTAlib;
 /// each bar's contribution based on its volume relative to the rolling volume sum.
 /// </summary>
 /// <remarks>
-/// VWAD enhances ADL by weighting volume contributions:
+/// VWAD enhances AD by weighting volume contributions:
 /// <c>MFM = [(Close - Low) - (High - Close)] / (High - Low)</c>,
 /// <c>VolWeight = Volume / Σ(Volume, period)</c>,
 /// <c>VWAD = Σ(Volume × MFM × VolWeight)</c>.

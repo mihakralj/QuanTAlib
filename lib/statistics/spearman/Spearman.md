@@ -13,7 +13,7 @@
 | **PineScript**   | [spearman.pine](spearman.pine)                       |
 
 - Spearman's ρ (rho) measures the strength and direction of monotonic association between two variables.
-- **Similar:** [Correlation](../correlation/Correlation.md), [Kendall](../kendall/Kendall.md) | **Trading note:** Spearman rank correlation; non-parametric, detects monotonic (not just linear) relationships.
+- **Similar:** [Correl](../correl/Correl.md), [Kendall](../kendall/Kendall.md) | **Trading note:** Spearman rank correlation; non-parametric, detects monotonic (not just linear) relationships.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Spearman's ρ (rho) measures the strength and direction of monotonic association between two variables. Unlike Pearson's correlation, which measures linear relationship, Spearman captures any monotonic relationship. A portfolio of stocks whose returns move monotonically together has different risk than one whose components merely share a linear trend. Spearman detects both.

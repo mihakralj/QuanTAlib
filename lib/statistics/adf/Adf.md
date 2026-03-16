@@ -13,7 +13,9 @@
 | **PineScript**   | [adf.pine](adf.pine)                           |
 
 - Tests the null hypothesis that a time series contains a unit root (non-stationary). Output near **0** → stationary; output near **1** → unit root.
-- **Similar:** [Hurst](../hurst/Hurst.md), [Cointegration](../cointegration/Cointegration.md) | **Complementary:** Z-Score, Variance | **Trading note:** ADF < 0.05 confirms mean-reversion suitability.
+- **Similar indicators:** [Hurst](../hurst/Hurst.md), [Cointegration](../cointegration/Cointegration.md)
+- **Complementary indicators:** [Z-Score](../zscore/Zscore.md), [Variance](../variance/Variance.md)
+- **Trading note:** ADF < 0.05 confirms mean-reversion suitability.
 - Validated against Python `statsmodels.tsa.stattools.adfuller` reference implementation.
 
 The Augmented Dickey-Fuller test is the gold standard for detecting whether a financial time series is stationary or contains a unit root. Unlike the original Dickey-Fuller test, the augmented version includes lagged difference terms $\Delta y_{t-i}$ to absorb serial correlation, ensuring the test statistic follows the correct distribution. The p-value output uses MacKinnon (1994, 2010) polynomial interpolation with a standard normal CDF approximation, providing machine-precision results without lookup tables.

@@ -218,7 +218,7 @@ int qtl_obv(double* close, double* volume, int n, double* out);
 
 #### Pattern H: Dual-input statistics (seriesX + seriesY)
 
-**C# source:** `Correlation.Batch(ReadOnlySpan<double> seriesX, ..seriesY, Span<double> output, int period)`
+**C# source:** `Correl.Batch(ReadOnlySpan<double> seriesX, ..seriesY, Span<double> output, int period)`
 
 **C ABI:**
 
@@ -257,7 +257,7 @@ int qtl_pvo(double* volume, int n,
 | KDJ | 3 | K, D, J |
 | SMI | 2+ | smi, signal |
 | BBands | 3 | upper, middle, lower |
-| KChannel | 3 | upper, middle, lower |
+| KC | 3 | upper, middle, lower |
 | DCChannel | 3 | upper, middle, lower |
 | AccBands | 3 | upper, middle, lower |
 | AtrBands | 3 | upper, middle, lower |
@@ -621,7 +621,7 @@ packages = ["quantalib"]
 | mom | `Mom` | A | period |
 | pmo | `Pmo` | A | timePeriods, smoothPeriods, signalPeriods |
 | ppo | `Ppo` | A | fastPeriod, slowPeriod |
-| prs | `Prs` | H (dual) | period |
+| rs | `Rs` | H (dual) | period |
 | roc | `Roc` | A | period |
 | rocp | `Rocp` | A | period |
 | rocr | `Rocr` | A | period |
@@ -650,7 +650,7 @@ packages = ["quantalib"]
 | dem | `Dem` | E (HLC) | period |
 | dpo | `Dpo` | A | period |
 | dosc | `Dosc` | A | rsiPeriod, ema1Period, ema2Period, sigPeriod |
-| dymoi | `Dymoi` | A | basePeriod, shortPeriod, longPeriod... |
+| dymi | `Dymi` | A | basePeriod, shortPeriod, longPeriod... |
 | er | `Er` | A | period |
 | fisher | `Fisher` | A | period, alpha |
 | fisher04 | `Fisher04` | A | period |
@@ -733,7 +733,7 @@ packages = ["quantalib"]
 | gdema | `Gdema` | A | period, vfactor |
 | hema | `Hema` | A | period |
 | holt | `Holt` | A | period, gamma |
-| htit | `Htit` | A | — |
+| ht_trendline | `HtTrendline` | A | — |
 | hwma | `Hwma` | A | period |
 | jma | `Jma` | A | period, phase, power |
 | kama | `Kama` | A | period, fastPeriod, slowPeriod |
@@ -771,14 +771,14 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | apz | `Apz` | B (HLC) | period |
 | atrbands | `AtrBands` | B (HLC) | period, multiplier |
 | bbands | `Bbands` | A | period, multiplier |
-| dchannel | `Dchannel` | D (HL) | period |
+| dc | `Dc` | D (HL) | period |
 | decaychannel | `Decaychannel` | B (HLC) | period |
 | fcb | `Fcb` | D (HL) | period |
 | jbands | `Jbands` | A | period, phase, power |
-| kchannel | `Kchannel` | B (HLC) | period, multiplier |
+| kc | `Kc` | B (HLC) | period, multiplier |
 | maenv | `Maenv` | A | period, pct |
 | mmchannel | `Mmchannel` | D (HL) | period |
-| pchannel | `Pchannel` | D (HL) | period |
+| pc | `Pc` | D (HL) | period |
 | regchannel | `Regchannel` | A | period |
 | sdchannel | `Sdchannel` | A | period |
 | starchannel | `Starchannel` | B (HLC) | period |
@@ -820,7 +820,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 
 | Indicator | C# Class | Pattern | Key params |
 |-----------|----------|---------|------------|
-| adl | `Adl` | B (HLCV) | — |
+| ad | `Ad` | B (HLCV) | — |
 | adosc | `Adosc` | B (HLCV) | fastPeriod, slowPeriod |
 | aobv | `Aobv` | I (CV→2) | — |
 | cmf | `Cmf` | B (HLCV) | period |
@@ -854,7 +854,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 |-----------|----------|---------|------------|
 | acf | `Acf` | A | period, lag |
 | cma | `Cma` | A | — |
-| correlation | `Correlation` | H | period |
+| correl | `Correl` | H | period |
 | covariance | `Covariance` | H | period, isPopulation |
 | entropy | `Entropy` | A | period |
 | geomean | `Geomean` | A | period |
@@ -1005,7 +1005,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | pivotext | `Pivotext` | E (HLC→multi) | — |
 | pivotfib | `Pivotfib` | E (HLC→multi) | — |
 | pivotwood | `Pivotwood` | E (HLC→multi) | — |
-| psar | `Psar` | C (OHLC) | accelStart, accelMax |
+| sar | `Sar` | C (OHLC) | accelStart, accelMax |
 | swings | `Swings` | D (HL→multi) | period |
 | ttm_scalper | `TtmScalper` | D (HL→multi) | period |
 

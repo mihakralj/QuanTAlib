@@ -118,14 +118,14 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_adl")]
-    public static int QtlAdl(double* high, double* low, double* close, double* volume, double* output, int n)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_ad")]
+    public static int QtlAd(double* high, double* low, double* close, double* volume, double* output, int n)
     {
         if (high == null || low == null || close == null || volume == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Adl.Batch(Src(high, n), Src(low, n), Src(close, n), Src(volume, n), Dst(output, n));
+            Ad.Batch(Src(high, n), Src(low, n), Src(close, n), Src(volume, n), Dst(output, n));
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -449,14 +449,14 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_dchannel")]
-    public static int QtlDchannel(double* high, double* low, double* middle, double* upper, double* lower, int n, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_dc")]
+    public static int QtlDc(double* high, double* low, double* middle, double* upper, double* lower, int n, int period)
     {
         if (high == null || low == null || middle == null || upper == null || lower == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Dchannel.Batch(Src(high, n), Src(low, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period);
+            Dc.Batch(Src(high, n), Src(low, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -929,14 +929,14 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_htit")]
-    public static int QtlHtit(double* source, double* output, int n)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_httrendline")]
+    public static int QtlHtTrendline(double* source, double* output, int n)
     {
         if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Htit.Batch(Src(source, n), Dst(output, n));
+            HtTrendline.Batch(Src(source, n), Dst(output, n));
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -1240,14 +1240,14 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_kchannel")]
-    public static int QtlKchannel(double* high, double* low, double* close, double* middle, double* upper, double* lower, int n, int period, double multiplier)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_kc")]
+    public static int QtlKc(double* high, double* low, double* close, double* middle, double* upper, double* lower, int n, int period, double multiplier)
     {
         if (high == null || low == null || close == null || middle == null || upper == null || lower == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Kchannel.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period, multiplier);
+            Kc.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period, multiplier);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -2018,14 +2018,14 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_pchannel")]
-    public static int QtlPchannel(double* high, double* low, double* middle, double* upper, double* lower, int n, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_pc")]
+    public static int QtlPc(double* high, double* low, double* middle, double* upper, double* lower, int n, int period)
     {
         if (high == null || low == null || middle == null || upper == null || lower == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Pchannel.Batch(Src(high, n), Src(low, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period);
+            Pc.Batch(Src(high, n), Src(low, n), Dst(middle, n), Dst(upper, n), Dst(lower, n), period);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -2251,27 +2251,27 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_prs")]
-    public static int QtlPrs(double* baseSeries, double* compSeries, double* output, int n, int smoothPeriod)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_rs")]
+    public static int QtlRs(double* baseSeries, double* compSeries, double* output, int n, int smoothPeriod)
     {
         if (baseSeries == null || compSeries == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Prs.Batch(Src(baseSeries, n), Src(compSeries, n), Dst(output, n), smoothPeriod);
+            Rs.Batch(Src(baseSeries, n), Src(compSeries, n), Dst(output, n), smoothPeriod);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "qtl_psar")]
-    public static int QtlPsar(double* open, double* high, double* low, double* close, double* output, int n, double afStart, double afIncrement, double afMax)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_sar")]
+    public static int QtlSar(double* open, double* high, double* low, double* close, double* output, int n, double afStart, double afIncrement, double afMax)
     {
         if (open == null || high == null || low == null || close == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
         if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
         try
         {
-            Psar.Batch(Src(open, n), Src(high, n), Src(low, n), Src(close, n), Dst(output, n), afStart, afIncrement, afMax);
+            Sar.Batch(Src(open, n), Src(high, n), Src(low, n), Src(close, n), Dst(output, n), afStart, afIncrement, afMax);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }

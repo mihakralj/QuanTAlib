@@ -13,7 +13,7 @@
 | **PineScript**   | [swings.pine](swings.pine)                       |
 
 - Swing High/Low detection identifies local price extremes using a configurable lookback window.
-- **Similar:** [Fractal](../../oscillators/fisher/Fisher.md), [ZigZag](../psar/Psar.md) | **Complementary:** Volume for confirmation | **Trading note:** Swing high/low detector; identifies pivots for support/resistance and chart pattern analysis.
+- **Similar:** [Fractal](../../oscillators/fisher/Fisher.md), [ZigZag](../sar/Sar.md) | **Complementary:** Volume for confirmation | **Trading note:** Swing high/low detector; identifies pivots for support/resistance and chart pattern analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Swing High/Low detection identifies local price extremes using a configurable lookback window. A Swing High marks a bar whose high strictly exceeds the highs of all bars within the lookback window on each side. A Swing Low marks a bar whose low is strictly less than all corresponding lows. The lookback parameter controls sensitivity: larger lookback windows require more confirmation and produce fewer, more significant signals. This generalizes Williams' fixed five-bar Fractals into a flexible structural analysis tool.

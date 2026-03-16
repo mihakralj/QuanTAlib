@@ -386,12 +386,12 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    // Dymoi: Pattern A (src, out, int p1..p5)
-    [UnmanagedCallersOnly(EntryPoint = "qtl_dymoi")]
-    public static int QtlDymoi(double* src, int n, double* dst, int p1, int p2, int p3, int p4, int p5)
+    // Dymi: Pattern A (src, out, int p1..p5)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_dymi")]
+    public static int QtlDymi(double* src, int n, double* dst, int p1, int p2, int p3, int p4, int p5)
     {
         int v = Chk1(src, dst, n); if (v != 0) return v;
-        try { Dymoi.Batch(Src(src, n), Dst(dst, n), p1, p2, p3, p4, p5); return StatusCodes.QTL_OK; }
+        try { Dymi.Batch(Src(src, n), Dst(dst, n), p1, p2, p3, p4, p5); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
@@ -1155,7 +1155,7 @@ public static unsafe partial class Exports
     {
         int v = Chk2(x, y, dst, n); if (v != 0) return v;
         v = ChkPeriod(period); if (v != 0) return v;
-        try { Correlation.Batch(Src(x, n), Src(y, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        try { Correl.Batch(Src(x, n), Src(y, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
@@ -1480,10 +1480,10 @@ public static unsafe partial class Exports
     // Afirma already exported above in §8.4
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  Prs: Pattern H (seriesX, seriesY, out, int period) — Momentum/Statistics
+    //  Rs: Pattern H (seriesX, seriesY, out, int period) — Momentum/Statistics
     // ═══════════════════════════════════════════════════════════════════════
 
-    // Note: Prs might not have a span overload — check at build time
+    // Note: Rs might not have a span overload — check at build time
 }
 
 #pragma warning restore CA1031

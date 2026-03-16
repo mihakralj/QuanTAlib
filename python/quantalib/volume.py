@@ -8,7 +8,7 @@ from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
 
 
 __all__ = [
-    "adl",
+    "ad",
     "adosc",
     "iii",
     "kvo",
@@ -38,14 +38,14 @@ __all__ = [
 ]
 
 
-def adl(high: object, low: object, close: object, volume: object, offset: int = 0, **kwargs) -> object:
+def ad(high: object, low: object, close: object, volume: object, offset: int = 0, **kwargs) -> object:
     """Accumulation/Distribution Line."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close); v, _ = _arr(volume)
     n = len(h)
     output = _out(n)
-    _check(_lib.qtl_adl(_ptr(h), _ptr(l), _ptr(c), _ptr(v), _ptr(output), n))
-    return _wrap(output, idx, "ADL", "volume", offset)
+    _check(_lib.qtl_ad(_ptr(h), _ptr(l), _ptr(c), _ptr(v), _ptr(output), n))
+    return _wrap(output, idx, "AD", "volume", offset)
 
 
 def adosc(high: object, low: object, close: object, volume: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:

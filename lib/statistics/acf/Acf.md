@@ -13,7 +13,7 @@
 | **PineScript**   | [acf.pine](acf.pine)                       |
 
 - The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself.
-- **Similar:** [PACF](../pacf/Pacf.md), [Correlation](../correlation/Correlation.md) | **Trading note:** Autocorrelation function; detects mean-reversion (negative ACF) vs momentum (positive ACF) in returns.
+- **Similar:** [PACF](../pacf/Pacf.md), [Correl](../correl/Correl.md) | **Trading note:** Autocorrelation function; detects mean-reversion (negative ACF) vs momentum (positive ACF) in returns.
 - Validated against mathematical properties and theoretical AR-process expectations.
 
 The Autocorrelation Function (ACF) measures the correlation of a time series with a lagged copy of itself. It is fundamental for identifying repeating patterns, seasonal effects, and determining the order of time series models like ARMA/ARIMA.

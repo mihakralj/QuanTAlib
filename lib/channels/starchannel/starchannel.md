@@ -13,7 +13,7 @@
 | **PineScript**   | [starchannel.pine](starchannel.pine)                       |
 
 - Stoller Average Range Channel creates a volatility-adaptive price envelope using Average True Range (ATR) to determine band width around a simple m...
-- **Similar:** [KChannel](../kchannel/kchannel.md), [ATRBands](../atrbands/atrbands.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Stoller Average Range Channel; ATR-based bands around a moving average.
+- **Similar:** [KC](../kc/kc.md), [ATRBands](../atrbands/atrbands.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Stoller Average Range Channel; ATR-based bands around a moving average.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Stoller Average Range Channel creates a volatility-adaptive price envelope using Average True Range (ATR) to determine band width around a simple moving average centerline. The bands automatically expand during volatile periods and contract during calmer markets. The implementation uses a circular buffer for the SMA running sum and Wilder's RMA with a warmup compensator for ATR, achieving O(1) streaming updates per bar.

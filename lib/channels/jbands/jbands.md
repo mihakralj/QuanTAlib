@@ -13,7 +13,7 @@
 | **PineScript**   | [Jbands.pine](Jbands.pine)                       |
 
 - JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new pri...
-- **Similar:** [BBands](../bbands/bbands.md), [KChannel](../kchannel/kchannel.md) | **Complementary:** Momentum oscillators for reversal timing | **Trading note:** Uses JMA (Jurik Moving Average) as center line for smoother, lower-lag bands compared to standard Bollinger.
+- **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** Momentum oscillators for reversal timing | **Trading note:** Uses JMA (Jurik Moving Average) as center line for smoother, lower-lag bands compared to standard Bollinger.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation. Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetric width around a center line, JBANDS feature "snap-and-decay" hysteresis: expansion is instantaneous (plasticity), contraction is gradual (elasticity). The decay rate is dynamically modulated by a two-stage volatility estimator — a 10-bar SMA feeding a 128-bar trimmed mean — making the bands tight during quiet markets and expansive during trends. The center line is the full JMA: a 2-pole IIR filter with phase control and adaptive alpha.

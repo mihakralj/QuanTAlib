@@ -14,8 +14,8 @@ Category submodules:
     quantalib.momentum     — RSI, MACD, ROC, MOM, etc.
     quantalib.numerics     — FFT, sigmoid, slope, distributions, etc.
     quantalib.oscillators  — Stochastic, Fisher, Williams %R, etc.
-    quantalib.reversals    — Pivot points, PSAR, fractals, etc.
-    quantalib.statistics   — Z-score, correlation, linreg, etc.
+    quantalib.reversals    — Pivot points, SAR, fractals, etc.
+    quantalib.statistics   — Z-score, correl, linreg, etc.
     quantalib.trends_fir   — SMA, WMA, HMA, ALMA, etc.
     quantalib.trends_iir   — EMA, DEMA, TEMA, JMA, KAMA, etc.
     quantalib.volatility   — ATR, TR, Bollinger Width, etc.

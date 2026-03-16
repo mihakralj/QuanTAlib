@@ -15,7 +15,7 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 | [GDEMA](gdema/Gdema.md) | Generalized Double Exponential MA | Generalized DEMA with configurable volume factor for tunable lag/smoothness trade-off. |
 | [HEMA](hema/Hema.md) | Hull Exponential MA | EMA-domain Hull analog using half-life timing and de-lagged EMA cascade. |
 | [HOLT](holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing with separate level and trend components for adaptive trend-following. |
-| [HTIT](htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend (also known as HT_TRENDLINE) | Utilizes Hilbert Transform to isolate instantaneous trend component, providing zero-lag trendline with hybrid FIR-in-IIR design. |
+| [HT_TRENDLINE](ht_trendline/HtTrendline.md) | Ehlers Hilbert Transform Instantaneous Trend | Utilizes Hilbert Transform to isolate instantaneous trend component, providing zero-lag trendline with hybrid FIR-in-IIR design. |
 | [HWMA](hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing. Tracks level, velocity, acceleration. Recursive IIR structure. |
 | [JMA](jma/Jma.md) | Jurik MA | Adaptive filter achieving high noise reduction and low phase delay through multi-stage volatility normalization and dynamic parameter optimization. |
 | [KAMA](kama/Kama.md) | Kaufman Adaptive MA | Automatically adjusts sensitivity based on market volatility using Efficiency Ratio, balancing responsiveness and stability. |

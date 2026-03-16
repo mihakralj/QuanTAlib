@@ -69,7 +69,7 @@ The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, N
 
 | Category | Module | Examples |
 | -------- | ------ | -------- |
-| Channels | `channels` | bbands, kchannel, dchannel, aberr |
+| Channels | `channels` | bbands, kc, dc, aberr |
 | Core | `core` | ha, midpoint, avgprice, typprice |
 | Cycles | `cycles` | ht_dcperiod, ht_sine, cg, dsp |
 | Dynamics | `dynamics` | adx, aroon, ichimoku, supertrend |
@@ -78,8 +78,8 @@ The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, N
 | Momentum | `momentum` | rsi, macd, roc, mom, tsi |
 | Numerics | `numerics` | fft, normalize, sigmoid, slope |
 | Oscillators | `oscillators` | stoch, cci, fisher, qqe, willr |
-| Reversals | `reversals` | psar, pivot, fractals, swings |
-| Statistics | `statistics` | zscore, correlation, entropy, linreg |
+| Reversals | `reversals` | sar, pivot, fractals, swings |
+| Statistics | `statistics` | zscore, correl, entropy, linreg |
 | Trends FIR | `trends_fir` | sma, wma, hma, alma, trima |
 | Trends IIR | `trends_iir` | ema, dema, tema, kama, jma |
 | Volatility | `volatility` | atr, bbw, stddev, hv, tr |

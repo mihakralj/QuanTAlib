@@ -13,7 +13,7 @@
 | **PineScript**   | [mmchannel.pine](mmchannel.pine)                       |
 
 - Min-Max Channel tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation.
-- **Similar:** [DChannel](../dchannel/dchannel.md), [PChannel](../pchannel/pchannel.md) | **Complementary:** ATR for volatility context | **Trading note:** Min/Max channel; breakout system based on highest high and lowest low.
+- **Similar:** [DC](../dc/dc.md), [PC](../pc/pc.md) | **Complementary:** ATR for volatility context | **Trading note:** Min/Max channel; breakout system based on highest high and lowest low.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Min-Max Channel tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation. Unlike Donchian Channels which include a middle band, MMCHANNEL delivers only the raw extremes. The implementation uses monotonic deques for O(1) amortized updates: each element enters the deque once and leaves at most once, so total work over $N$ bars is $O(N)$ regardless of period length.

@@ -90,7 +90,7 @@ Infinite Impulse Response filters. Output depends on current input and past outp
 | [**GDEMA**](../lib/trends_IIR/gdema/Gdema.md) | Generalized DEMA | Configurable volume factor for tunable lag/smoothness |
 | [**HEMA**](../lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Hull concept with EMA |
 | [**HOLT**](../lib/trends_IIR/holt/Holt.md) | Holt Exponential Smoothing | Double exponential smoothing (level + trend) |
-| [**HTIT**](../lib/trends_IIR/htit/Htit.md) | Ehlers Hilbert Instantaneous Trend (also known as HT_TRENDLINE) | Dominant cycle extraction |
+| [**HT_TRENDLINE**](../lib/trends_IIR/ht_trendline/HtTrendline.md) | Ehlers Hilbert Instantaneous Trend | Dominant cycle extraction |
 | [**HWMA**](../lib/trends_IIR/hwma/Hwma.md) | Holt-Winters MA | Triple exponential smoothing (IIR) |
 | [**JMA**](../lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive, low-lag, proprietary algorithm |
 | [**KAMA**](../lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Efficiency ratio adaptation |
@@ -181,7 +181,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 comparing sequential highs/lows |
 | [**DOSC**](../lib/oscillators/dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
-| [**DYMOI**](../lib/oscillators/dymoi/Dymoi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period |
+| [**DYMI**](../lib/oscillators/dymi/Dymi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period |
 | [**ER**](../lib/oscillators/er/Er.md) | Efficiency Ratio | Net movement / total path length |
 | [**ERI**](../lib/oscillators/eri/Eri.md) | Elder Ray Index | Bull/bear power relative to EMA |
 | [**FI**](../lib/oscillators/fi/Fi.md) | Force Index | Price change × volume buying/selling power |
@@ -263,7 +263,7 @@ Rate of change and velocity measurements. First derivatives of price.
 | [**MOM**](../lib/momentum/mom/Mom.md) | Momentum | Raw price difference over N periods |
 | [**PMO**](../lib/momentum/pmo/Pmo.md) | Price Momentum Oscillator | Double-smoothed ROC |
 | [**PPO**](../lib/momentum/ppo/Ppo.md) | Percentage Price Oscillator | Percentage EMA difference |
-| [**PRS**](../lib/momentum/prs/Prs.md) | Price Relative Strength | Dual-input ratio comparison |
+| [**RS**](../lib/momentum/rs/Rs.md) | Price Relative Strength | Dual-input ratio comparison |
 | [**ROC**](../lib/momentum/roc/Roc.md) | Rate of Change | Absolute price change over N periods |
 | [**ROCP**](../lib/momentum/rocp/Rocp.md) | Rate of Change Percentage | Percentage price change over N periods |
 | [**ROCR**](../lib/momentum/rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods |
@@ -312,8 +312,8 @@ Price-volume relationships and accumulation/distribution measurements.
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
-| [**ADL**](../lib/volume/adl/Adl.md) | Accumulation/Distribution Line | Volume-weighted close position |
-| [**ADOSC**](../lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | ADL momentum (fast EMA - slow EMA) |
+| [**AD**](../lib/volume/ad/Ad.md) | Accumulation/Distribution Line | Volume-weighted close position |
+| [**ADOSC**](../lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | AD momentum (fast EMA - slow EMA) |
 | [**AOBV**](../lib/volume/aobv/Aobv.md) | Archer On-Balance Volume | OBV with signal line |
 | [**CMF**](../lib/volume/cmf/Cmf.md) | Chaikin Money Flow | Volume-weighted close position over period |
 | [**EFI**](../lib/volume/efi/Efi.md) | Elder's Force Index | Price change × volume |
@@ -352,14 +352,14 @@ Price envelope and boundary indicators for breakout and mean-reversion strategie
 | [**APZ**](../lib/channels/apz/apz.md) | Adaptive Price Zone | EMA-based volatility zone |
 | [**ATRBANDS**](../lib/channels/atrbands/Atrbands.md) | ATR Bands | ATR-based envelope around price |
 | [**BBANDS**](../lib/channels/bbands/Bbands.md) | Bollinger Bands | SMA ± StdDev bands |
-| [**DCHANNEL**](../lib/channels/dchannel/Dchannel.md) | Donchian Channels | Highest-high / lowest-low breakout bands |
+| [**DC**](../lib/channels/dc/dc.md) | Donchian Channels | Highest-high / lowest-low breakout bands |
 | [**DECAYCHANNEL**](../lib/channels/decaychannel/decaychannel.md) | Decay Min-Max Channel | Exponential decay toward midpoint |
 | [**FCB**](../lib/channels/fcb/fcb.md) | Fractal Chaos Bands | Williams fractal-based support/resistance |
 | [**JBANDS**](../lib/channels/jbands/Jbands.md) | Jurik Adaptive Bands | Snap-to-extreme, decay-to-price volatility bands |
-| [**KCHANNEL**](../lib/channels/kchannel/kchannel.md) | Keltner Channel | EMA with ATR bands; smoother than Bollinger |
+| [**KC**](../lib/channels/kc/kc.md) | Keltner Channel | EMA with ATR bands; smoother than Bollinger |
 | [**MAENV**](../lib/channels/maenv/maenv.md) | Moving Average Envelope | Fixed percentage bands around selectable MA |
 | [**MMCHANNEL**](../lib/channels/mmchannel/mmchannel.md) | Min-Max Channel | Rolling highest high / lowest low |
-| [**PCHANNEL**](../lib/channels/pchannel/pchannel.md) | Price Channel | Highest high / lowest low with midline |
+| [**PC**](../lib/channels/pc/pc.md) | Price Channel | Highest high / lowest low with midline |
 | [**REGCHANNEL**](../lib/channels/regchannel/regchannel.md) | Regression Channel | Linear regression with StdDev bands |
 | [**SDCHANNEL**](../lib/channels/sdchannel/sdchannel.md) | Standard Deviation Channel | MA with standard deviation bands |
 | [**STARCHANNEL**](../lib/channels/starchannel/starchannel.md) | Stoller Average Range Channel | SMA with ATR bands |
@@ -381,7 +381,7 @@ Mathematical and statistical computations on price series.
 | [**BETA**](../lib/statistics/beta/Beta.md) | Beta Coefficient | Systematic risk measure |
 | [**CMA**](../lib/statistics/cma/Cma.md) | Cumulative Moving Average | Expanding window average |
 | [**COINTEGRATION**](../lib/statistics/cointegration/Cointegration.md) | Cointegration | Engle-Granger two-step with ADF test |
-| [**CORRELATION**](../lib/statistics/correlation/Correlation.md) | Pearson Correlation | Linear relationship [-1, +1] |
+| [**CORREL**](../lib/statistics/correl/Correl.md) | Pearson Correlation | Linear relationship [-1, +1] |
 | [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) | Covariance | Joint variability measure |
 | [**ENTROPY**](../lib/statistics/entropy/Entropy.md) | Shannon Entropy | Information content via histogram binning |
 | [**GEOMEAN**](../lib/statistics/geomean/Geomean.md) | Geometric Mean | Rolling geometric mean via log-sum |
@@ -543,7 +543,7 @@ Reversal indicators identify potential turning points, compute adaptive stop lev
 | [**PIVOTEXT**](../lib/reversals/pivotext/Pivotext.md) | Extended Traditional Pivots | Extended pivots: 11 levels (PP, R1-R5, S1-S5); classic formula with R4/R5/S4/S5 |
 | [**PIVOTFIB**](../lib/reversals/pivotfib/Pivotfib.md) | Fibonacci Pivot Points | Fibonacci pivots: 7 levels (PP, R1-R3, S1-S3); ratios 0.382/0.618/1.000 applied to range |
 | [**PIVOTWOOD**](../lib/reversals/pivotwood/Pivotwood.md) | Woodie's Pivot Points | Close-weighted pivots: 7 levels (PP, R1-R3, S1-S3); PP = (H+L+2C)/4 biased toward close |
-| [**PSAR**](../lib/reversals/psar/Psar.md) | Parabolic Stop And Reverse | Accelerating trailing stop; SAR dots flip on reversal; Welles Wilder (1978) |
+| [**SAR**](../lib/reversals/sar/Sar.md) | Parabolic Stop And Reverse | Accelerating trailing stop; SAR dots flip on reversal; Welles Wilder (1978) |
 | [**SAREXT**](../lib/reversals/sarext/Sarext.md) | Parabolic SAR Extended | Asymmetric AF PSAR; sign-encoded output |
 | [**SWINGS**](../lib/reversals/swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector; dual SwingHigh/SwingLow with persistent levels |
 | [**TTM_SCALPER**](../lib/reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries; John Carter |

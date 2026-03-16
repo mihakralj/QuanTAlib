@@ -13,7 +13,7 @@
 | **PineScript**   | [accbands.pine](accbands.pine)                       |
 
 - Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating chann...
-- **Similar:** [BBands](../bbands/bbands.md), [KChannel](../kchannel/kchannel.md) | **Complementary:** ADX for trend strength | **Trading note:** Wider than Bollinger Bands; effective for breakout trading using high-low range volatility.
+- **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** ADX for trend strength | **Trading note:** Wider than Bollinger Bands; effective for breakout trading using high-low range volatility.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating channels that accommodate the full price excursion of the underlying asset. Each bar's contribution to band width is normalized by price level ($w = (H-L)/(H+L)$), making the bands scale-invariant across instruments. Three independent Simple Moving Averages of the adjusted high, adjusted low, and close prices form the upper, lower, and middle bands respectively. Headley's original breakout rule declares a trend when price closes outside the bands for two consecutive bars.

@@ -16,7 +16,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Adosc : ITValuePublisher
 {
-    private readonly Adl _adl;
+    private readonly Ad _ad;
     private readonly Ema _emaFast;
     private readonly Ema _emaSlow;
 
@@ -64,7 +64,7 @@ public sealed class Adosc : ITValuePublisher
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
         }
 
-        _adl = new Adl();
+        _ad = new Ad();
         _emaFast = new Ema(fastPeriod);
         _emaSlow = new Ema(slowPeriod);
         WarmupPeriod = slowPeriod;
@@ -77,7 +77,7 @@ public sealed class Adosc : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
     {
-        _adl.Reset();
+        _ad.Reset();
         _emaFast.Reset();
         _emaSlow.Reset();
         Last = default;
@@ -110,7 +110,7 @@ public sealed class Adosc : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar input, bool isNew = true)
     {
-        var adl = _adl.Update(input, isNew);
+        var adl = _ad.Update(input, isNew);
         return Update(adl, isNew);
     }
 

@@ -13,7 +13,7 @@ __all__ = [
     "macd",
     "pmo",
     "ppo",
-    "prs",
+    "rs",
     "rocp",
     "rocr",
     "sam",
@@ -90,15 +90,15 @@ def ppo(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int =
     return _wrap(destination, idx, f"PPO_{fastPeriod}", "momentum", offset)
 
 
-def prs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
+def rs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
     """Price Relative Strength."""
     smoothPeriod = int(smoothPeriod)
     offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr)
     output = _out(n)
-    _check(_lib.qtl_prs(_ptr(xarr), _ptr(yarr), _ptr(output), n, smoothPeriod))
-    return _wrap(output, idx, f"PRS_{smoothPeriod}", "momentum", offset)
+    _check(_lib.qtl_rs(_ptr(xarr), _ptr(yarr), _ptr(output), n, smoothPeriod))
+    return _wrap(output, idx, f"RS_{smoothPeriod}", "momentum", offset)
 
 
 def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:

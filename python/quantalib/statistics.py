@@ -38,7 +38,7 @@ __all__ = [
     "zscore",
     "cma",
     "entropy",
-    "correlation",
+    "correl",
     "covariance",
     "cointegration",
 ]
@@ -378,13 +378,13 @@ def entropy(close: object, period: int = 10, offset: int = 0, **kwargs) -> objec
     return _wrap(dst, idx, f"ENTROPY_{period}", "statistics", offset)
 
 
-def correlation(x: object, y: object, period: int = 20,
-                offset: int = 0, **kwargs) -> object:
+def correl(x: object, y: object, period: int = 20,
+           offset: int = 0, **kwargs) -> object:
     """Pearson Correlation."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
     n = len(xarr); dst = _out(n)
-    _check(_lib.qtl_correlation(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
+    _check(_lib.qtl_correl(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
     return _wrap(dst, idx, f"CORR_{period}", "statistics", offset)
 
 
