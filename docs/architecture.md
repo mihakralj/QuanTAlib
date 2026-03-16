@@ -10,7 +10,7 @@ Traditional object-oriented design stores data as arrays of objects: `List<Price
 
 QuanTAlib stores timestamps and values in separate contiguous arrays. When calculating an average, the CPU loads a cache line filled entirely with price values, without wasting space on interleaved timestamps or object headers.
 
-``` mermaid
+```mermaid
 graph LR
     subgraph AoS [Array of Structures: CPU chokes on interleaved data]
         direction LR
@@ -83,7 +83,7 @@ The math to calculate averages works with limited history. A 14-period SMA with 
 
 Trading systems have different data flow patterns. Backtesting engines process years of historical data in batch. Real-time systems update indicators bar-by-bar. Event-driven architectures react to changes asynchronously. QuanTAlib provides four modes optimized for these patterns.
 
-``` mermaid
+```mermaid
 graph TD
     Event[Eventing Mode<br/>Reactive Chain] -->|Adds pub/sub overhead| Stream
     Stream[Streaming Mode<br/>Stateful O1 Updates] -->|Maintains state across| Span
@@ -202,7 +202,7 @@ else
     CalculateScalar(source, output);
 ```
 
-``` mermaid
+```mermaid
 graph TD
     Start{JIT Hardware Detection}
     
