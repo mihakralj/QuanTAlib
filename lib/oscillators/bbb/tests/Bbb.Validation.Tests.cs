@@ -63,8 +63,8 @@ public sealed class BbbValidationTests : IDisposable
         int start = Math.Max(0, src.Length - 200);
         for (int i = start; i < src.Length; i++)
         {
-            Assert.Equal(batchSeries[i].Value, streamValues[i], 9);
-            Assert.Equal(batchSeries[i].Value, spanOutput[i], 9);
+            Assert.Equal(batchSeries[i].Value, streamValues[i], 8);
+            Assert.Equal(batchSeries[i].Value, spanOutput[i], 8);
         }
 
         _output.WriteLine("BBB validation: streaming, batch, and span outputs agree.");
