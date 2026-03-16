@@ -257,12 +257,28 @@
     .sidebar .search .clear-btn {
       color: #8b949e;
     }
+  /* Mermaid diagram styling for dark theme */
+  .mermaid {
+    background: transparent !important;
+    text-align: center;
+    margin: 1em 0;
+  }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
     globalThis.$docsify = {
+      markdown: {
+        renderer: {
+          code: function(code, lang) {
+            if (lang === 'mermaid') {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
+      },
       name: '<img src="docs/img/QuanTAlib2.png" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;">QuanTAlib',
       repo: 'https://github.com/mihakralj/QuanTAlib',
       loadSidebar: true,
@@ -316,8 +332,31 @@
             }, 100);
           });
         },
+        function(hook) {
+          hook.doneEach(function() {
+            mermaid.run({ querySelector: '.mermaid' });
+          });
+        },
       ],
     }
+  </script>
+  <!-- Mermaid diagrams (must load before Docsify) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0d1117',
+        primaryColor: '#238636',
+        primaryTextColor: '#c9d1d9',
+        primaryBorderColor: '#30363d',
+        lineColor: '#8b949e',
+        secondaryColor: '#161b22',
+        tertiaryColor: '#21262d'
+      }
+    });
   </script>
   <!-- Docsify v4 -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
