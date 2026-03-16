@@ -1,0 +1,129 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("ADF - Augmented Dickey-Fuller Test", shorttitle="ADF", overlay=false, precision=4)
+
+// ─── Inputs ────────────────────────────────────────────────────────────
+int    period     = input.int(50, "Period", minval=20, maxval=500)
+int    maxLag     = input.int(0,  "Max Lag (0=auto)", minval=0, maxval=10)
+string regModel   = input.string("Constant", "Regression", options=["NoConstant", "Constant", "ConstantAndTrend"])
+
+// ─── Helper: OLS solve 2×2 (constant + gamma, no lags for simplicity) ──
+// Full ADF with Cholesky is too complex for Pine; this is a reference only.
+// For production use, the C# implementation is authoritative.
+
+adf_pvalue(float[] data, int p, int mLag, string reg) =>
+    int n = array.size(data)
+    if n < 20
+        1.0
+    else
+        // Compute first differences
+        int nd = n - 1
+        float[] dy = array.new_float(nd, 0.0)
+        for i = 0 to nd - 1
+            array.set(dy, i, array.get(data, i + 1) - array.get(data, i))
+
+        // Simple ADF: regress dy on y_{t-1} (constant model, no lags)
+        // X = [1, y_{t-1}], Y = dy_t
+        float sx = 0.0, sy = 0.0, sxx = 0.0, sxy = 0.0, syy = 0.0
+        int startIdx = math.max(mLag, 0)
+        int nObs = nd - startIdx
+        if nObs < 3
+            1.0
+        else
+            for t = startIdx to nd - 1
+                float x = array.get(data, t)  // y_{t-1} in level
+                float y = array.get(dy, t)
+                sx += x
+                sy += y
+                sxx += x * x
+                sxy += x * y
+                syy += y * y
+
+            // OLS for constant model: [alpha, gamma]
+            float xbar = sx / nObs
+            float ybar = sy / nObs
+            float denom = sxx - sx * sx / nObs
+            if math.abs(denom) < 1e-15
+                1.0
+            else
+                float gamma = (sxy - sx * sy / nObs) / denom
+                float alpha = ybar - gamma * xbar
+
+                // RSS
+                float rss = 0.0
+                for t = startIdx to nd - 1
+                    float x = array.get(data, t)
+                    float y = array.get(dy, t)
+                    float resid = y - alpha - gamma * x
+                    rss += resid * resid
+
+                float s2 = rss / (nObs - 2)
+                if s2 <= 0
+                    1.0
+                else
+                    float se = math.sqrt(s2 / denom)
+                    if se <= 1e-15
+                        1.0
+                    else
+                        float tStat = gamma / se
+
+                        // MacKinnon (1994) p-value for N=1, regression-dependent
+                        float tauStar = reg == "NoConstant" ? -1.04 : reg == "ConstantAndTrend" ? -2.89 : -1.61
+                        float tauMin  = reg == "NoConstant" ? -19.04 : reg == "ConstantAndTrend" ? -16.18 : -18.83
+                        float tauMax  = reg == "NoConstant" ? 1e308 : reg == "ConstantAndTrend" ? 0.70 : 2.74
+
+                        if tStat < tauMin
+                            0.0
+                        else if tStat > tauMax
+                            1.0
+                        else
+                            float poly = 0.0
+                            if tStat <= tauStar
+                                // Small-p coefficients (regression-dependent)
+                                if reg == "NoConstant"
+                                    poly := 0.6344 + 1.2378 * tStat + 0.032496 * tStat * tStat
+                                else if reg == "ConstantAndTrend"
+                                    poly := 3.2512 + 1.6047 * tStat + 0.049588 * tStat * tStat
+                                else
+                                    poly := 2.1659 + 1.4412 * tStat + 0.038269 * tStat * tStat
+                            else
+                                // Large-p coefficients (regression-dependent)
+                                float t2 = tStat * tStat
+                                float t3 = t2 * tStat
+                                if reg == "NoConstant"
+                                    poly := 0.4797 + 0.93557 * tStat - 0.06999 * t2 + 0.033066 * t3
+                                else if reg == "ConstantAndTrend"
+                                    poly := 2.5261 + 0.61654 * tStat - 0.37956 * t2 - 0.060285 * t3
+                                else
+                                    poly := 1.7339 + 0.93202 * tStat - 0.12745 * t2 - 0.010368 * t3
+
+                            // Normal CDF via A&S 7.1.26 erf → Φ(x) = 0.5·(1 + erf(x/√2))
+                            int    sgn  = poly < 0 ? -1 : 1
+                            float  z    = math.abs(poly) * 0.70710678118654752
+                            float  tt   = 1.0 / (1.0 + 0.3275911 * z)
+                            float  tt2  = tt * tt
+                            float  tt3  = tt2 * tt
+                            float  tt4  = tt3 * tt
+                            float  tt5  = tt4 * tt
+                            float  erfcZ = (0.254829592 * tt - 0.284496736 * tt2 + 1.421413741 * tt3 - 1.453152027 * tt4 + 1.061405429 * tt5) * math.exp(-z * z)
+                            float  erfZ  = 1.0 - erfcZ
+                            float  result = 0.5 * (1.0 + sgn * erfZ)
+                            result
+
+// ─── Main ──────────────────────────────────────────────────────────────
+float[] window = array.new_float(0)
+for i = 0 to period - 1
+    array.push(window, close[period - 1 - i])
+
+float pval = adf_pvalue(window, period, maxLag, regModel)
+
+// ─── Plot ──────────────────────────────────────────────────────────────
+plot(pval, "ADF p-value", color=color.blue, linewidth=2)
+hline(0.01, "1% significance", color=color.red, linestyle=hline.style_dotted)
+hline(0.05, "5% significance", color=color.orange, linestyle=hline.style_dashed)
+hline(0.10, "10% significance", color=color.gray, linestyle=hline.style_dotted)
+
+bgcolor(pval < 0.05 ? color.new(color.green, 90) : na)

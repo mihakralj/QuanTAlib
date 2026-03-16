@@ -8,6 +8,7 @@ from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
 
 
 __all__ = [
+    "adf",
     "acf",
     "geomean",
     "granger",
@@ -41,6 +42,19 @@ __all__ = [
     "covariance",
     "cointegration",
 ]
+
+
+def adf(close: object, period: int = 50, max_lag: int = 0, regression: int = 1, offset: int = 0, **kwargs) -> object:
+    """Augmented Dickey-Fuller test p-value."""
+    period = int(kwargs.get("length", period))
+    max_lag = int(max_lag)
+    regression = int(regression)
+    offset = int(offset)
+    src, idx = _arr(close)
+    n = len(src)
+    output = _out(n)
+    _check(_lib.qtl_adf(_ptr(src), _ptr(output), n, period, max_lag, regression))
+    return _wrap(output, idx, f"ADF_{period}", "statistics", offset)
 
 
 def acf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwargs) -> object:

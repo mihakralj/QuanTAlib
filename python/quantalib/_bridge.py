@@ -254,6 +254,7 @@ HAS_WAD = _bind("qtl_wad", [_dp, _dp, _dp, _dp, _dp, _ci])
 # ═══════════════════════════════════════════════════════════════════════════
 #  Statistics
 # ═══════════════════════════════════════════════════════════════════════════
+HAS_ADF = _bind("qtl_adf", [_dp, _dp, _ci, _ci, _ci, _ci])
 HAS_ACF = _bind("qtl_acf", [_dp, _dp, _ci, _ci, _ci])
 HAS_GEOMEAN = _bind("qtl_geomean", [_dp, _dp, _ci, _ci])
 HAS_GRANGER = _bind("qtl_granger", [_dp, _dp, _dp, _ci, _ci])

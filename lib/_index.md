@@ -7,6 +7,7 @@
 | [ACCBANDS](channels/accbands/Accbands.md)                  | Acceleration Bands                                                        | Channels     |
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
 | [ACF](statistics/acf/Acf.md)                               | Autocorrelation Function                                                  | Statistics   |
+| [ADF](statistics/adf/Adf.md)                               | Augmented Dickey-Fuller Test                                              | Statistics   |
 | [ADL](volume/adl/Adl.md)                                   | Accumulation/Distribution Line                                            | Volume       |
 | [ADOSC](volume/adosc/Adosc.md)                             | Chaikin A/D Oscillator                                                    | Volume       |
 | [ADR](volatility/adr/Adr.md)                               | Average Daily Range                                                       | Volatility   |

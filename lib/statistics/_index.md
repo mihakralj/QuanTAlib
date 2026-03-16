@@ -4,6 +4,7 @@ Statistical tools applied to price and returns. These indicators quantify relati
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [ADF](adf/Adf.md) | Augmented Dickey-Fuller Test | Unit root test for stationarity. MacKinnon p-value output [0,1]. |
 | [ACF](acf/Acf.md) | Autocorrelation Function | Correlation of time series with lagged copy. For ARMA model identification. |
 | [BETA](beta/Beta.md) | Beta Coefficient | Asset volatility relative to market. β=1 means market-matched risk. |
 | [CMA](cma/Cma.md) | Cumulative Moving Average | Running average of all values. Welford's algorithm. No window. |
