@@ -338,6 +338,7 @@
 
 * [Statistics](/lib/statistics/_index.md)
   * [ACF - Autocorrelation Function](/lib/statistics/acf/Acf.md)
+  * [ADF - Augmented Dickey-Fuller Test](/lib/statistics/adf/Adf.md)
   * [BETA - Beta Coefficient](/lib/statistics/beta/Beta.md)
   * [CMA - Cumulative MA](/lib/statistics/cma/Cma.md)
   * [COINTEGRATION - Cointegration](/lib/statistics/cointegration/Cointegration.md)

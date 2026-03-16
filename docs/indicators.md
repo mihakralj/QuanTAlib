@@ -377,6 +377,7 @@ Mathematical and statistical computations on price series.
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**ACF**](../lib/statistics/acf/Acf.md) | Autocorrelation Function | Lagged self-correlation |
+| [**ADF**](../lib/statistics/adf/Adf.md) | Augmented Dickey-Fuller Test | Unit root stationarity test; MacKinnon p-value [0,1] |
 | [**BETA**](../lib/statistics/beta/Beta.md) | Beta Coefficient | Systematic risk measure |
 | [**CMA**](../lib/statistics/cma/Cma.md) | Cumulative Moving Average | Expanding window average |
 | [**COINTEGRATION**](../lib/statistics/cointegration/Cointegration.md) | Cointegration | Engle-Granger two-step with ADF test |
