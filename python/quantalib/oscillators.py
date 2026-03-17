@@ -25,6 +25,7 @@ __all__ = [
     "qqe",
     "reverseema",
     "rvgi",
+    "rrsi",
     "smi",
     "squeeze",
     "stc",
@@ -281,6 +282,17 @@ def rvgi(open: object, high: object, low: object, close: object, period: int = 1
     signalOutput = _out(n)
     _check(_lib.qtl_rvgi(_ptr(o), _ptr(h), _ptr(l), _ptr(c), _ptr(rvgiOutput), _ptr(signalOutput), n, period))
     return _wrap_multi({"rvgiOutput": rvgiOutput, "signalOutput": signalOutput}, idx, "oscillators", offset)
+
+
+def rrsi(close: object, smoothLength: int = 10, rsiLength: int = 10, offset: int = 0, **kwargs) -> object:
+    """Rocket RSI (Ehlers) — Fisher Transform of Super Smoother–filtered RSI."""
+    src = _to_np(close)
+    n = len(src)
+    out = _np.empty(n, dtype=_np.float64)
+    _bridge._check(_bridge._lib.qtl_rrsi(
+        src.ctypes.data_as(_bridge._dp), n,
+        out.ctypes.data_as(_bridge._dp), smoothLength, rsiLength))
+    return _shift(out, offset)
 
 
 def smi(high: object, low: object, close: object, kPeriod: int = 14, kSmooth: int = 3, dSmooth: int = 3, blau: int = 3, offset: int = 0, **kwargs) -> object:

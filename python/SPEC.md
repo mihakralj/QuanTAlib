@@ -671,6 +671,7 @@ packages = ["quantalib"]
 | reflex | `Reflex` | A | period |
 | reverseema | `ReverseEma` | A | period |
 | rvgi | `Rvgi` | C (OHLC) | period |
+| rrsi | `Rrsi` | A | smoothLength, rsiLength |
 | smi | `Smi` | I (HLC→2+) | period, smoothK, smoothD |
 | squeeze | `Squeeze` | I (HLC→multi) | bbPeriod, kcPeriod... |
 | squeeze_pro | `SqueezePro` | I (HLC→multi) | period, bbMult, kcMultWide/Normal/Narrow |

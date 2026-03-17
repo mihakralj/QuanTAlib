@@ -327,6 +327,17 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Rrsi: Pattern A (dual period params)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_rrsi")]
+    public static int QtlRrsi(double* src, int n, double* dst, int smoothLength, int rsiLength)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        v = ChkPeriod(smoothLength); if (v != 0) return v;
+        v = ChkPeriod(rsiLength); if (v != 0) return v;
+        try { Rrsi.Batch(Src(src, n), Dst(dst, n), smoothLength, rsiLength); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Er: Pattern A
     [UnmanagedCallersOnly(EntryPoint = "qtl_er")]
     public static int QtlEr(double* src, int n, double* dst, int period)
