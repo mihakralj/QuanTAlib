@@ -1,0 +1,43 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Bill Williams Market Facilitation Index (BW_MFI)", "BW_MFI", overlay=false)
+
+//@function Bill Williams MFI with 4-zone classification
+//@returns [mfi, zone] where zone: 1=Green, 2=Fade, 3=Fake, 4=Squat
+//@optimized O(1) per bar — division + two comparisons
+bw_mfi() =>
+    float mfi = volume != 0 ? (high - low) / volume : 0.0
+    float prev_mfi = nz(mfi[1])
+    float prev_vol = nz(volume[1])
+
+    int zone = na
+    if bar_index < 1
+        zone := 0
+    else
+        bool mfi_up = mfi > prev_mfi
+        bool vol_up = volume > prev_vol
+        if mfi_up and vol_up
+            zone := 1    // Green: trend continuation
+        else if not mfi_up and not vol_up
+            zone := 2    // Fade: fading momentum
+        else if mfi_up and not vol_up
+            zone := 3    // Fake: unsupported price move
+        else
+            zone := 4    // Squat: accumulation/distribution
+    [mfi, zone]
+
+// ---------- Main loop ----------
+
+[mfi_val, zone_val] = bw_mfi()
+
+// Zone-based bar coloring
+zone_color = switch zone_val
+    1 => color.green    // Green zone
+    2 => color.new(#8B4513, 0)  // Fade (brown)
+    3 => color.blue     // Fake zone
+    4 => color.fuchsia  // Squat zone
+    => color.gray       // First bar / unknown
+
+plot(mfi_val, title="BW_MFI", color=zone_color, style=plot.style_columns, linewidth=3)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dashed)

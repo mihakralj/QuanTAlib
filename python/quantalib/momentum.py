@@ -28,6 +28,7 @@ __all__ = [
     "cfo",
     "cfb",
     "asi",
+    "vwmacd",
 ]
 
 
@@ -231,3 +232,25 @@ def asi(open: object, high: object, low: object, close: object,
     n = len(o); dst = _out(n)
     _check(_lib.qtl_asi(_ptr(o), _ptr(h), _ptr(l), _ptr(c), n, _ptr(dst), float(limit)))
     return _wrap(dst, idx, "ASI", "momentum", int(offset))
+
+
+def vwmacd(close: object, volume: object, fastPeriod: int = 12,
+           slowPeriod: int = 26, signalPeriod: int = 9,
+           offset: int = 0, **kwargs) -> object:
+    """Volume-Weighted MACD -> (vwmacd, signal, histogram) or DataFrame."""
+    fastPeriod = int(kwargs.get("fast", fastPeriod))
+    slowPeriod = int(kwargs.get("slow", slowPeriod))
+    signalPeriod = int(kwargs.get("signal", signalPeriod))
+    offset = int(offset)
+    c, idx = _arr(close); v, _ = _arr(volume)
+    n = len(c)
+    d_vwmacd = _out(n); d_signal = _out(n); d_hist = _out(n)
+    _check(_lib.qtl_vwmacd(
+        _ptr(c), _ptr(v), n,
+        _ptr(d_vwmacd), _ptr(d_signal), _ptr(d_hist),
+        fastPeriod, slowPeriod, signalPeriod))
+    return _wrap_multi(
+        {f"VWMACD_{fastPeriod}_{slowPeriod}": d_vwmacd,
+         f"VWMACDs_{signalPeriod}": d_signal,
+         f"VWMACDh_{fastPeriod}_{slowPeriod}": d_hist},
+        idx, "momentum", offset)

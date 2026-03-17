@@ -17,6 +17,7 @@ __all__ = [
     "dc",
     "decaychannel",
     "fcb",
+    "hwc",
     "jbands",
     "kc",
     "maenv",
@@ -350,3 +351,17 @@ def apchannel(high: object, low: object, period: int = 20,
     upper = _out(n); lower = _out(n)
     _check(_lib.qtl_apchannel(_ptr(h), _ptr(l), n, _ptr(upper), _ptr(lower), float(period)))
     return _wrap_multi({f"APCU_{period}": upper, f"APCL_{period}": lower}, idx, "channels", offset)
+
+
+def hwc(close: object, period: int = 20, multiplier: float = 1.0,
+        offset: int = 0, **kwargs) -> object:
+    """Holt-Winters Channel -> (upper, middle, lower) or DataFrame."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    multiplier = float(kwargs.get("mult", multiplier))
+    arr, idx = _arr(close)
+    n = len(arr)
+    upper = _out(n); middle = _out(n); lower = _out(n)
+    _check(_lib.qtl_hwc(_ptr(arr), n, _ptr(upper), _ptr(middle), _ptr(lower), period, multiplier))
+    return _wrap_multi(
+        {f"HWCU_{period}": upper, f"HWCM_{period}": middle, f"HWCL_{period}": lower},
+        idx, "channels", offset)

@@ -242,6 +242,27 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Vwmacd: multi-output (close, volume → vwmacd, signal, histogram)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_vwmacd")]
+    public static int QtlVwmacd(double* close, double* volume, int n,
+        double* dstVwmacd, double* dstSignal, double* dstHist,
+        int fastPeriod, int slowPeriod, int signalPeriod)
+    {
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (close == null || volume == null ||
+            dstVwmacd == null || dstSignal == null || dstHist == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (fastPeriod < 1 || slowPeriod < 1 || signalPeriod < 1) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Vwmacd.Batch(
+                Src(close, n), Src(volume, n),
+                Dst(dstVwmacd, n), Dst(dstSignal, n), Dst(dstHist, n),
+                fastPeriod, slowPeriod, signalPeriod);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.3  Oscillators
     // ═══════════════════════════════════════════════════════════════════════
@@ -841,6 +862,26 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Hwc: multi-output (src → upper, middle, lower; int period, double multiplier)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_hwc")]
+    public static int QtlHwc(double* src, int n,
+        double* dstUpper, double* dstMiddle, double* dstLower,
+        int period, double multiplier)
+    {
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (src == null || dstUpper == null || dstMiddle == null || dstLower == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (period < 1) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Hwc.Batch(
+                Src(src, n),
+                Dst(dstUpper, n), Dst(dstMiddle, n), Dst(dstLower, n),
+                period, multiplier);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.7  Volatility
     // ═══════════════════════════════════════════════════════════════════════
@@ -1176,6 +1217,28 @@ public static unsafe partial class Exports
         int v = Chk2(x, y, dst, n); if (v != 0) return v;
         v = ChkPeriod(period); if (v != 0) return v;
         try { Cointegration.Batch(Src(x, n), Src(y, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    // Convexity: multi-output (asset, market → betaStd, betaUp, betaDown, ratio, convexity)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_convexity")]
+    public static int QtlConvexity(double* asset, double* market, int n,
+        double* dstBetaStd, double* dstBetaUp, double* dstBetaDown,
+        double* dstRatio, double* dstConvexity, int period)
+    {
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (asset == null || market == null ||
+            dstBetaStd == null || dstBetaUp == null || dstBetaDown == null ||
+            dstRatio == null || dstConvexity == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (period < 1) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Convexity.Batch(
+                Src(asset, n), Src(market, n),
+                Dst(dstBetaStd, n), Dst(dstBetaUp, n), Dst(dstBetaDown, n),
+                Dst(dstRatio, n), Dst(dstConvexity, n), period);
+            return StatusCodes.QTL_OK;
+        }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 

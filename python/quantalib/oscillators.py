@@ -11,6 +11,7 @@ __all__ = [
     "ac",
     "ao",
     "bbs",
+    "bw_mfi",
     "coppock",
     "eri",
     "fi",
@@ -200,6 +201,28 @@ def marketfi(high: object, low: object, volume: object, offset: int = 0, **kwarg
     return _wrap(output, idx, "MARKETFI", "oscillators", offset)
 
 
+def bw_mfi(high: object, low: object, volume: object, offset: int = 0, **kwargs) -> object:
+    """Bill Williams Market Facilitation Index with 4-zone classification."""
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); v, _ = _arr(volume)
+    n = len(h)
+    mfiOut = _out(n)
+    zoneOut = _out(n)
+    _check(_lib.qtl_bwmfi(_ptr(h), _ptr(l), _ptr(v), _ptr(mfiOut), _ptr(zoneOut), n))
+    return _wrap_multi({"mfiOut": mfiOut, "zoneOut": zoneOut}, idx, "oscillators", offset)
+
+
+def dstoch(high: object, low: object, close: object, period: int = 21, offset: int = 0, **kwargs) -> object:
+    """Double Stochastic (Bressert DSS)."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    output = _out(n)
+    _check(_lib.qtl_dstoch(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period))
+    return _wrap(output, idx, f"DSTOCH_{period}", "oscillators", offset)
+
+
 def mstoch(close: object, stochLength: int = 20, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
     """Modified Stochastic."""
     stochLength = int(stochLength)
@@ -286,6 +309,25 @@ def squeeze(high: object, low: object, close: object, period: int = 14, bbMult: 
     momOut = _out(n)
     sqOut = _out(n)
     _check(_lib.qtl_squeeze(_ptr(h), _ptr(l), _ptr(c), _ptr(momOut), _ptr(sqOut), n, period, bbMult, kcMult))
+    return _wrap_multi({"momOut": momOut, "sqOut": sqOut}, idx, "oscillators", offset)
+
+
+def squeeze_pro(high: object, low: object, close: object, period: int = 20, bbMult: float = 2.0, kcMultWide: float = 2.0, kcMultNormal: float = 1.5, kcMultNarrow: float = 1.0, momLength: int = 12, momSmooth: int = 6, useSma: bool = True, offset: int = 0, **kwargs) -> object:
+    """Squeeze Pro (LazyBear enhanced TTM Squeeze with 3 KC widths)."""
+    period = int(kwargs.get("length", period))
+    bbMult = float(bbMult)
+    kcMultWide = float(kcMultWide)
+    kcMultNormal = float(kcMultNormal)
+    kcMultNarrow = float(kcMultNarrow)
+    momLength = int(momLength)
+    momSmooth = int(momSmooth)
+    useSmaInt = int(bool(useSma))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    momOut = _out(n)
+    sqOut = _out(n)
+    _check(_lib.qtl_squeeze_pro(_ptr(h), _ptr(l), _ptr(c), _ptr(momOut), _ptr(sqOut), n, period, bbMult, kcMultWide, kcMultNormal, kcMultNarrow, momLength, momSmooth, useSmaInt))
     return _wrap_multi({"momOut": momOut, "sqOut": sqOut}, idx, "oscillators", offset)
 
 

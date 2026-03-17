@@ -8,6 +8,7 @@ from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
 
 
 __all__ = [
+    "atrstop",
     "chandelier",
     "ckstop",
     "fractals",
@@ -21,7 +22,20 @@ __all__ = [
     "sarext",
     "swings",
     "ttm_scalper",
+    "vstop",
 ]
+
+
+def atrstop(high: object, low: object, close: object, period: int = 21, multiplier: float = 3.0, offset: int = 0, **kwargs) -> object:
+    """ATR Trailing Stop."""
+    period = int(kwargs.get("length", period))
+    multiplier = float(multiplier)
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    output = _out(n)
+    _check(_lib.qtl_atrstop(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period, multiplier))
+    return _wrap(output, idx, f"ATRSTOP_{period}", "reversals", offset)
 
 
 def chandelier(open: object, high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
@@ -173,3 +187,15 @@ def ttm_scalper(high: object, low: object, close: object, useCloses: int = 0, of
     lowOutput = _out(n)
     _check(_lib.qtl_ttmscalper(_ptr(h), _ptr(l), _ptr(c), _ptr(highOutput), _ptr(lowOutput), n, useCloses))
     return _wrap_multi({"highOutput": highOutput, "lowOutput": lowOutput}, idx, "reversals", offset)
+
+
+def vstop(high: object, low: object, close: object, period: int = 7, multiplier: float = 3.0, offset: int = 0, **kwargs) -> object:
+    """Volatility Stop."""
+    period = int(kwargs.get("length", period))
+    multiplier = float(multiplier)
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
+    n = len(h)
+    output = _out(n)
+    _check(_lib.qtl_vstop(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period, multiplier))
+    return _wrap(output, idx, f"VSTOP_{period}", "reversals", offset)

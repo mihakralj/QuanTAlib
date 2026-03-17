@@ -15,6 +15,7 @@ Channels define dynamic support and resistance. Upper band shows where price ten
 | [DC](dc/dc.md) | Donchian Channels | Highest high and lowest low over N periods. Turtle trading foundation. |
 | [DECAYCHANNEL](decaychannel/DecayChannel.md) | Decay Min-Max Channel | Exponentially decaying min-max channel. Half-life decay toward midpoint. |
 | [FCB](fcb/Fcb.md) | Fractal Chaos Bands | Tracks fractal highs and lows. Identifies chaos-based support/resistance. |
+| [HWC](hwc/Hwc.md) | Holt-Winters Channel | Triple exponential smoothing channel. Upper/middle/lower bands from level/trend/season. |
 | [JBANDS](jbands/Jbands.md) | Jurik Adaptive Envelope Bands | JMA's internal adaptive envelopes. Snap to extremes, decay toward price. |
 | [KC](kc/Kc.md) | Keltner Channel | EMA with ATR bands. Smoother than Bollinger. |
 | [MAENV](maenv/Maenv.md) | Moving Average Envelope | Fixed percentage bands around moving average. Simple but effective. |

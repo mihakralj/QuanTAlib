@@ -130,6 +130,8 @@ HAS_IMI = _bind("qtl_imi", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _dp])
 HAS_KDJ = _bind("qtl_kdj", [_dp, _dp, _dp, _dp, _dp, _dp, _ci, _ci, _ci])
 HAS_KST = _bind("qtl_kst", [_dp, _dp, _dp, _ci, _ci, _ci, _ci, _ci, _ci, _ci, _ci, _ci, _ci])
 HAS_MARKETFI = _bind("qtl_marketfi", [_dp, _dp, _dp, _dp, _ci])
+HAS_BWMFI = _bind("qtl_bwmfi", [_dp, _dp, _dp, _dp, _dp, _ci])
+HAS_DSTOCH = _bind("qtl_dstoch", [_dp, _dp, _dp, _dp, _ci, _ci])
 HAS_MSTOCH = _bind("qtl_mstoch", [_dp, _dp, _ci, _ci, _ci, _ci])
 HAS_PGO = _bind("qtl_pgo", [_dp, _dp, _dp, _dp, _ci, _ci])
 HAS_QQE = _bind("qtl_qqe", [_dp, _dp, _ci, _ci, _ci, _cd])
@@ -137,6 +139,7 @@ HAS_REVERSEEMA = _bind("qtl_reverseema", [_dp, _dp, _ci, _ci])
 HAS_RVGI = _bind("qtl_rvgi", [_dp, _dp, _dp, _dp, _dp, _dp, _ci, _ci])
 HAS_SMI = _bind("qtl_smi", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _ci, _ci, _ci])
 HAS_SQUEEZE = _bind("qtl_squeeze", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _cd, _cd])
+HAS_SQUEEZE_PRO = _bind("qtl_squeeze_pro", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _cd, _cd, _cd, _cd, _ci, _ci, _ci])
 HAS_STC = _bind("qtl_stc", [_dp, _dp, _ci, _ci, _ci, _ci, _ci, _ci])
 HAS_STOCH = _bind("qtl_stoch", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _ci])
 HAS_STOCHF = _bind("qtl_stochf", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _ci])
@@ -399,6 +402,7 @@ HAS_WEIBULLDIST = _bind("qtl_weibulldist", [_dp, _dp, _ci, _cd, _cd, _ci])
 # ═══════════════════════════════════════════════════════════════════════════
 #  Reversals
 # ═══════════════════════════════════════════════════════════════════════════
+HAS_ATRSTOP = _bind("qtl_atrstop", [_dp, _dp, _dp, _dp, _ci, _ci, _cd])
 HAS_CHANDELIER = _bind("qtl_chandelier", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _cd])
 HAS_CKSTOP = _bind("qtl_ckstop", [_dp, _dp, _dp, _dp, _dp, _ci, _ci, _cd, _ci])
 HAS_FRACTALS = _bind("qtl_fractals", [_dp, _dp, _dp, _dp, _ci])
@@ -411,6 +415,7 @@ HAS_PIVOTWOOD = _bind("qtl_pivotwood", [_dp, _dp, _dp, _dp, _ci])
 HAS_SAR = _bind("qtl_sar", [_dp, _dp, _dp, _dp, _dp, _ci, _cd, _cd, _cd])
 HAS_SWINGS = _bind("qtl_swings", [_dp, _dp, _dp, _dp, _ci, _ci])
 HAS_TTMSCALPER = _bind("qtl_ttmscalper", [_dp, _dp, _dp, _dp, _dp, _ci, _ci])
+HAS_VSTOP = _bind("qtl_vstop", [_dp, _dp, _dp, _dp, _ci, _ci, _cd])
 
 
 # ── Momentum  (Exports.cs — manual) ──
@@ -424,6 +429,7 @@ HAS_BIAS = _bind("qtl_bias", [_dp, _ci, _dp, _ci])
 HAS_CFO = _bind("qtl_cfo", [_dp, _ci, _dp, _ci])
 HAS_CFB = _bind("qtl_cfb", [_dp, _ci, _dp, _ip, _ci])
 HAS_ASI = _bind("qtl_asi", [_dp, _dp, _dp, _dp, _ci, _dp, _cd])
+HAS_VWMACD = _bind("qtl_vwmacd", [_dp, _dp, _ci, _dp, _dp, _dp, _ci, _ci, _ci])
 
 # ── Oscillators  (Exports.cs — manual) ──
 HAS_FISHER = _bind("qtl_fisher", [_dp, _ci, _dp, _ci])
@@ -490,6 +496,7 @@ HAS_CCYC = _bind("qtl_ccyc", [_dp, _ci, _dp, _cd])
 HAS_BBANDS = _bind("qtl_bbands", [_dp, _ci, _dp, _dp, _dp, _ci, _cd])
 HAS_ATRBANDS = _bind("qtl_atrbands", [_dp, _dp, _dp, _ci, _dp, _dp, _dp, _ci, _cd])
 HAS_APCHANNEL = _bind("qtl_apchannel", [_dp, _dp, _ci, _dp, _dp, _cd])
+HAS_HWC = _bind("qtl_hwc", [_dp, _ci, _dp, _dp, _dp, _ci, _cd])
 
 # ── Volatility  (Exports.cs — manual) ──
 HAS_TR = _bind("qtl_tr", [_dp, _dp, _dp, _ci, _dp])
@@ -529,6 +536,7 @@ HAS_ENTROPY = _bind("qtl_entropy", [_dp, _ci, _dp, _ci])
 HAS_CORREL = _bind("qtl_correl", [_dp, _dp, _ci, _dp, _ci])
 HAS_COVARIANCE = _bind("qtl_covariance", [_dp, _dp, _ci, _dp, _ci, _ci])
 HAS_COINTEGRATION = _bind("qtl_cointegration", [_dp, _dp, _ci, _dp, _ci])
+HAS_CONVEXITY = _bind("qtl_convexity", [_dp, _dp, _ci, _dp, _dp, _dp, _dp, _dp, _ci])
 
 # ── Errors  (Exports.cs — manual) ──
 HAS_MSE = _bind("qtl_mse", [_dp, _dp, _ci, _dp, _ci])

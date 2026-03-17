@@ -41,6 +41,7 @@ __all__ = [
     "correl",
     "covariance",
     "cointegration",
+    "convexity",
 ]
 
 
@@ -406,3 +407,27 @@ def cointegration(x: object, y: object, period: int = 20,
     n = len(xarr); dst = _out(n)
     _check(_lib.qtl_cointegration(_ptr(xarr), _ptr(yarr), n, _ptr(dst), period))
     return _wrap(dst, idx, f"COINT_{period}", "statistics", offset)
+
+
+def convexity(x: object, y: object, period: int = 20,
+              offset: int = 0, **kwargs) -> object:
+    """Beta Convexity (up/down beta asymmetry).
+
+    Returns dict with keys: beta_std, beta_up, beta_down, ratio, convexity.
+    """
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    xarr, idx = _arr(x); yarr, _ = _arr(y)
+    n = len(xarr)
+    d_std = _out(n); d_up = _out(n); d_down = _out(n)
+    d_ratio = _out(n); d_cvx = _out(n)
+    _check(_lib.qtl_convexity(
+        _ptr(xarr), _ptr(yarr), n,
+        _ptr(d_std), _ptr(d_up), _ptr(d_down),
+        _ptr(d_ratio), _ptr(d_cvx), period))
+    return {
+        "beta_std": _wrap(d_std, idx, f"BETA_STD_{period}", "statistics", offset),
+        "beta_up": _wrap(d_up, idx, f"BETA_UP_{period}", "statistics", offset),
+        "beta_down": _wrap(d_down, idx, f"BETA_DOWN_{period}", "statistics", offset),
+        "ratio": _wrap(d_ratio, idx, f"RATIO_{period}", "statistics", offset),
+        "convexity": _wrap(d_cvx, idx, f"CONVEXITY_{period}", "statistics", offset),
+    }

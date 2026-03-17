@@ -630,6 +630,7 @@ packages = ["quantalib"]
 | sam | `Sam` | A | alpha, cutoff |
 | tsi | `Tsi` | A | longPeriod, shortPeriod |
 | vel | `Vel` | A | period |
+| vwmacd | `Vwmacd` | multi | fastPeriod, slowPeriod, signalPeriod |
 
 ### 8.3 Oscillators (~35 indicators)
 
@@ -649,6 +650,7 @@ packages = ["quantalib"]
 | deco | `Deco` | A | shortPeriod, longPeriod |
 | dem | `Dem` | E (HLC) | period |
 | dpo | `Dpo` | A | period |
+| dstoch | `Dstoch` | E (HLC) | period |
 | dosc | `Dosc` | A | rsiPeriod, ema1Period, ema2Period, sigPeriod |
 | dymi | `Dymi` | A | basePeriod, shortPeriod, longPeriod... |
 | er | `Er` | A | period |
@@ -661,6 +663,7 @@ packages = ["quantalib"]
 | kri | `Kri` | A | period |
 | kst | `Kst` | A | multiple roc/ma periods |
 | marketfi | `Marketfi` | D (HL) + vol | — |
+| bw_mfi | `BwMfi` | D (HL) + vol → 2 | — |
 | mstoch | `Mstoch` | A | period |
 | pgo | `Pgo` | E (HLC) | period |
 | psl | `Psl` | A | period |
@@ -670,6 +673,7 @@ packages = ["quantalib"]
 | rvgi | `Rvgi` | C (OHLC) | period |
 | smi | `Smi` | I (HLC→2+) | period, smoothK, smoothD |
 | squeeze | `Squeeze` | I (HLC→multi) | bbPeriod, kcPeriod... |
+| squeeze_pro | `SqueezePro` | I (HLC→multi) | period, bbMult, kcMultWide/Normal/Narrow |
 | stc | `Stc` | A + enum | kPeriod, dPeriod, fastLen, slowLen, smoothing(int) |
 | stoch | `Stoch` | I (HLC→2) | kPeriod, kSmooth, dSmooth |
 | stochf | `Stochf` | I (HLC→2) | kPeriod, dPeriod |
@@ -774,6 +778,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | dc | `Dc` | D (HL) | period |
 | decaychannel | `Decaychannel` | B (HLC) | period |
 | fcb | `Fcb` | D (HL) | period |
+| hwc | `Hwc` | A→multi | period, multiplier |
 | jbands | `Jbands` | A | period, phase, power |
 | kc | `Kc` | B (HLC) | period, multiplier |
 | maenv | `Maenv` | A | period, pct |
@@ -886,6 +891,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | zscore | `Zscore` | A | period |
 | ztest | `Ztest` | A | period, mu0 |
 | cointegration | `Cointegration` | H | — |
+| convexity | `Convexity` | multi | period |
 
 ### 8.10 Errors (~25 indicators)
 
@@ -996,6 +1002,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 
 | Indicator | C# Class | Pattern | Key params |
 |-----------|----------|---------|------------|
+| atrstop | `Atrstop` | E (HLC→1) | period, multiplier |
 | chandelier | `Chandelier` | C (OHLC→2) | period, multiplier |
 | ckstop | `Ckstop` | C (OHLC→2) | period, multiplier |
 | fractals | `Fractals` | D (HL→2) | period |
@@ -1008,6 +1015,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | sar | `Sar` | C (OHLC) | accelStart, accelMax |
 | swings | `Swings` | D (HL→multi) | period |
 | ttm_scalper | `TtmScalper` | D (HL→multi) | period |
+| vstop | `Vstop` | E (HLC→1) | period, multiplier |
 
 ### 8.15 Numerics (~15 indicators)
 

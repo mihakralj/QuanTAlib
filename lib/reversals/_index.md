@@ -4,6 +4,7 @@ Reversal indicators identify potential turning points where price may change dir
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [ATRSTOP](atrstop/Atrstop.md) | ATR Trailing Stop | Dynamic trailing stop using ATR multiplier with band ratcheting. |
 | [CHANDELIER](chandelier/Chandelier.md) | Chandelier Exit | ATR-based trailing stops hanging from HH/LL; dual ExitLong/ExitShort levels. |
 | [CKSTOP](ckstop/Ckstop.md) | Chande Kroll Stop | ATR-based adaptive trailing stops; dual StopLong/StopShort levels for trend detection. |
 | [FRACTALS](fractals/Fractals.md) | Williams Fractals | Five-bar pattern identifying local peaks/troughs; marks support/resistance levels. |
@@ -17,3 +18,4 @@ Reversal indicators identify potential turning points where price may change dir
 | [SAREXT](sarext/Sarext.md) | Parabolic SAR Extended | PSAR with asymmetric long/short acceleration factors. Sign-encoded output. |
 | [SWINGS](swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector for swing highs/lows; dual SwingHigh/SwingLow. |
 | [TTM_SCALPER](ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries. John Carter. |
+| [VSTOP](vstop/Vstop.md) | Volatility Stop | ATR-based trailing stop tracking SIC; flips on reversal. |
