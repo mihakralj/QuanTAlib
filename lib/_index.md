@@ -93,6 +93,7 @@
 | [DECYCLER](trends_IIR/decycler/Decycler.md)                | Ehlers Decycler                                                           | Trends (IIR) |
 | [DEM](oscillators/dem/Dem.md)                              | DeMarker Oscillator                                                       | Oscillators  |
 | [DEMA](trends_IIR/dema/Dema.md)                            | Double Exponential MA                                                     | Trends (IIR) |
+| [DMH](dynamics/dmh/Dmh.md)                                 | Ehlers Directional Movement with Hann                                     | Dynamics     |
 | [DMX](dynamics/dmx/Dmx.md)                                 | Jurik Directional Movement Index                                          | Dynamics     |
 | [DOSC](oscillators/dosc/Dosc.md)                           | Derivative Oscillator                                                     | Oscillators  |
 | [DSO](oscillators/dso/Dso.md)                              | Ehlers Deviation-Scaled Oscillator                                        | Oscillators  |

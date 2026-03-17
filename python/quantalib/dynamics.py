@@ -15,6 +15,7 @@ __all__ = [
     "aroon",
     "aroonosc",
     "chop",
+    "dmh",
     "dmx",
     "dx",
     "minus_di",
@@ -120,6 +121,17 @@ def chop(open: object, high: object, low: object, close: object, volume: object,
     dst = _out(n)
     _check(_lib.qtl_chop(_ptr(o), _ptr(h), _ptr(l), _ptr(c), _ptr(v), period, n, _ptr(dst)))
     return _wrap(dst, idx, f"CHOP_{period}", "dynamics", offset)
+
+
+def dmh(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Ehlers Directional Movement with Hann Windowing."""
+    period = int(kwargs.get("length", period))
+    offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low)
+    n = len(h)
+    dst = _out(n)
+    _check(_lib.qtl_dmh(_ptr(h), _ptr(l), period, n, _ptr(dst)))
+    return _wrap(dst, idx, f"DMH_{period}", "dynamics", offset)
 
 
 def dmx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:

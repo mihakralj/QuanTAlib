@@ -1,0 +1,46 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Directional Movement with Hann (DMH)", "DMH", overlay=false)
+
+//@function Calculates DMH (Ehlers Directional Movement with Hann Windowing)
+//@param period Number of bars used in the calculation
+//@returns dmh value
+dmh(simple int period = 14) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float sf = 1.0 / period
+
+    // Stage 1: Classic DM extraction
+    float upperMove = na(high[1]) ? 0.0 : high - high[1]
+    float lowerMove = na(low[1]) ? 0.0 : low[1] - low
+    float plusDM = 0.0
+    float minusDM = 0.0
+    if upperMove > lowerMove and upperMove > 0
+        plusDM := upperMove
+    else if lowerMove > upperMove and lowerMove > 0
+        minusDM := lowerMove
+
+    // Stage 2: EMA smoothing
+    var float ema = 0.0
+    ema := sf * (plusDM - minusDM) + (1.0 - sf) * ema
+
+    // Stage 3: Hann FIR filter on EMA history
+    float dmSum = 0.0
+    float coef = 0.0
+    for count = 1 to period
+        float w = 1.0 - math.cos(2.0 * math.pi * count / (period + 1))
+        dmSum += w * nz(ema[count - 1])
+        coef += w
+    float result = coef != 0 ? dmSum / coef : 0.0
+    result
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculate DMH
+dmhVal = dmh(i_period)
+
+// Plot
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+plot(dmhVal, "DMH", color=color.yellow, linewidth=2)

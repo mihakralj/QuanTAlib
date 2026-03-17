@@ -262,6 +262,7 @@ Is there a trend? How strong? These indicators answer that.
 | AROON | Aroon | [aroon.pine](../lib/dynamics/aroon/aroon.pine) |
 | AROONOSC | Aroon Oscillator | [aroonosc.pine](../lib/dynamics/aroonosc/aroonosc.pine) |
 | CHOP | Choppiness Index | [chop.pine](../lib/dynamics/chop/chop.pine) |
+| DMH | Ehlers Directional Movement with Hann | [dmh.pine](../lib/dynamics/dmh/dmh.pine) |
 | DMX | Jurik Directional Movement Index | [dmx.pine](../lib/dynamics/dmx/dmx.pine) |
 | DX | Directional Movement Index | [dx.pine](../lib/dynamics/dx/dx.pine) |
 | GHLA | Gann High-Low Activator | [ghla.pine](../lib/dynamics/ghla/ghla.pine) |

@@ -527,6 +527,19 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_dmh")]
+    public static int QtlDmh(double* high, double* low, int period, int n, double* destination)
+    {
+        if (high == null || low == null || destination == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            Dmh.Batch(Src(high, n), Src(low, n), period, Dst(destination, n));
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_dmx")]
     public static int QtlDmx(double* high, double* low, double* close, int period, int n, double* destination)
     {

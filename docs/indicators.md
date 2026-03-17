@@ -230,6 +230,7 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**AROON**](../lib/dynamics/aroon/Aroon.md) | Aroon | High/low recency |
 | [**AROONOSC**](../lib/dynamics/aroonosc/AroonOsc.md) | Aroon Oscillator | Aroon Up minus Down |
 | [**CHOP**](../lib/dynamics/chop/Chop.md) | Choppiness Index | ATR sum vs range; trending vs choppy |
+| [**DMH**](../lib/dynamics/dmh/Dmh.md) | Ehlers Directional Movement with Hann | Hann-windowed FIR on EMA-smoothed DM |
 | [**DMX**](../lib/dynamics/dmx/Dmx.md) | Jurik DMX | Enhanced directional movement |
 | [**DX**](../lib/dynamics/dx/Dx.md) | Directional Movement Index | Raw directional strength |
 | [**GHLA**](../lib/dynamics/ghla/Ghla.md) | Gann High-Low Activator | SMA(High)/SMA(Low) alternating on crossover |

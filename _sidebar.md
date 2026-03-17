@@ -186,6 +186,7 @@
   * [AROON - Aroon](/lib/dynamics/aroon/Aroon.md)
   * [AROONOSC - Aroon Oscillator](/lib/dynamics/aroonosc/AroonOsc.md)
   * [CHOP - Choppiness Index](/lib/dynamics/chop/Chop.md)
+  * [DMH - Ehlers Directional Movement with Hann](/lib/dynamics/dmh/Dmh.md)
   * [DMX - Jurik Directional Movement Index](/lib/dynamics/dmx/Dmx.md)
   * [DX - Directional Movement Index](/lib/dynamics/dx/Dx.md)
   * [GHLA - Gann High-Low Activator](/lib/dynamics/ghla/Ghla.md)

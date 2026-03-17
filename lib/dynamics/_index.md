@@ -13,6 +13,7 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | [AROON](aroon/Aroon.md)                     | Aroon                                        | Time since high/low. Aroon Up/Down measure recency of extremes.               |
 | [AROONOSC](aroonosc/AroonOsc.md)            | Aroon Oscillator                             | Aroon Up minus Aroon Down. Single line: +100 to -100.                         |
 | [CHOP](chop/Chop.md)                        | Choppiness Index                             | Trendiness measure. High values = choppy. Low = trending.                     |
+| [DMH](dmh/Dmh.md)                           | Ehlers Directional Movement with Hann        | Hann-windowed FIR filter on EMA-smoothed directional movement. Zero-centered. |
 | [DMX](dmx/Dmx.md)                           | Jurik DMX                                    | Smoothed bipolar DMI using Jurik smoothing. Low noise.                        |
 | [DX](dx/Dx.md)                              | Directional Movement Index                   | Raw directional strength. Unsmoothed ADX component.                           |
 | [GHLA](ghla/Ghla.md)                        | Gann High-Low Activator                      | SMA(High)/SMA(Low) alternating on crossover.                                  |
