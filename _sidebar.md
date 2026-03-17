@@ -138,6 +138,7 @@
   * [DECO - Ehlers Decycler Oscillator](/lib/oscillators/deco/Deco.md)
   * [DEM - DeMarker Oscillator](/lib/oscillators/dem/Dem.md)
   * [DOSC - Derivative Oscillator](/lib/oscillators/dosc/Dosc.md)
+  * [DSO - Ehlers Deviation-Scaled Oscillator](/lib/oscillators/dso/Dso.md)
   * [DPO - Detrended Price Oscillator](/lib/oscillators/dpo/Dpo.md)
   * [DSTOCH - Double Stochastic (Bressert)](/lib/oscillators/dstoch/Dstoch.md)
   * [DYMI - Dynamic Momentum Index](/lib/oscillators/dymi/dymi.md)

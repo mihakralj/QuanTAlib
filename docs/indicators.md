@@ -180,6 +180,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
 | [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 comparing sequential highs/lows |
 | [**DOSC**](../lib/oscillators/dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line |
+| [**DSO**](../lib/oscillators/dso/Dso.md) | Ehlers Deviation-Scaled Oscillator | SSF + RMS + Fisher Transform oscillator |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
 | [**DYMI**](../lib/oscillators/dymi/Dymi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period |
 | [**ER**](../lib/oscillators/er/Er.md) | Efficiency Ratio | Net movement / total path length |

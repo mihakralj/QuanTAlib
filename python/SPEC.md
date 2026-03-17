@@ -652,6 +652,7 @@ packages = ["quantalib"]
 | dpo | `Dpo` | A | period |
 | dstoch | `Dstoch` | E (HLC) | period |
 | dosc | `Dosc` | A | rsiPeriod, ema1Period, ema2Period, sigPeriod |
+| dso | `Dso` | A | period |
 | dymi | `Dymi` | A | basePeriod, shortPeriod, longPeriod... |
 | er | `Er` | A | period |
 | fisher | `Fisher` | A | period, alpha |

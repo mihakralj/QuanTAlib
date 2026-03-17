@@ -1,0 +1,76 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Deviation-Scaled Oscillator (DSO)", "DSO", overlay = false)
+
+//@function Ehlers Deviation-Scaled Oscillator — a Fisher-transformed, RMS-normalized
+//          Super Smoother oscillator. Applies a 2-pole Super Smoother filter to the
+//          whitened input (Close - Close[2]), computes a rolling RMS over the period,
+//          normalizes the filtered signal by RMS, then applies the Fisher Transform
+//          with ±0.99 clamping. Output is an unbounded oscillator (typically ±3).
+//@param source Series to analyze
+//@param period Lookback window / assumed cycle period (>= 2)
+//@returns DSO oscillator value (Fisher-transformed, unbounded)
+//@reference Ehlers, J.F. (2018). "A Fisherized Deviation-Scaled Oscillator."
+//           Technical Analysis of Stocks & Commodities, Oct 2018.
+//@optimized O(1) per bar via running sum circular buffer for RMS
+dso(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    float price = nz(source)
+
+    // --- Super Smoother coefficients (2-pole Butterworth at half-period cutoff) ---
+    float half_period = period * 0.5
+    float a1 = math.exp(-1.414 * math.pi / half_period)
+    float b1 = 2.0 * a1 * math.cos(1.414 * 180.0 / half_period)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    // --- Whitening: zeros at DC and Nyquist ---
+    float zeros = price - nz(source[2])
+
+    // --- 2-pole Super Smoother filter ---
+    var float filt  = 0.0
+    var float filt1 = 0.0
+    var float filt2 = 0.0
+    float zeros1 = nz(zeros[1])
+    filt2 := filt1
+    filt1 := filt
+    filt := c1 * 0.5 * (zeros + zeros1) + c2 * filt1 + c3 * filt2
+
+    // --- Rolling RMS via circular buffer ---
+    var array<float> buf = array.new_float(period, 0.0)
+    var int head = 0
+    var float sum_sq = 0.0
+
+    float filt_sq = filt * filt
+    float old_sq = array.get(buf, head)
+    array.set(buf, head, filt_sq)
+    sum_sq := sum_sq - old_sq + filt_sq
+    head := (head + 1) % period
+
+    float rms = math.sqrt(math.max(sum_sq / period, 1e-10))
+
+    // --- Scale by RMS ---
+    float scaled_filt = rms != 0.0 ? filt / rms : 0.0
+
+    // --- Fisher Transform (clamp to ±0.99) ---
+    float clamped = math.max(-0.99, math.min(0.99, scaled_filt))
+    float fisher_filt = 0.5 * math.log((1.0 + clamped) / (1.0 - clamped))
+
+    fisher_filt
+
+// ── Inputs ──
+int   p_period = input.int(40, "Period", minval = 2)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = dso(p_src, p_period)
+
+// ── Plot ──
+plot(out, "DSO", color.yellow, 2)
+hline(0, "Zero", color.gray)
+hline(2.0, "+2", color.new(color.red, 60))
+hline(-2.0, "-2", color.new(color.green, 60))

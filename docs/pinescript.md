@@ -210,6 +210,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | DECO | Ehlers Decycler Oscillator | [deco.pine](../lib/oscillators/deco/deco.pine) |
 | DEM | DeMarker Oscillator | [dem.pine](../lib/oscillators/dem/dem.pine) |
 | DOSC | Derivative Oscillator | [dosc.pine](../lib/oscillators/dosc/dosc.pine) |
+| DSO | Ehlers Deviation-Scaled Oscillator | [dso.pine](../lib/oscillators/dso/dso.pine) |
 | DPO | Detrended Price Oscillator | [dpo.pine](../lib/oscillators/dpo/dpo.pine) |
 | DYMI | Dynamic Momentum Index | [dymi.pine](../lib/oscillators/dymi/dymi.pine) |
 | ER | Efficiency Ratio | [er.pine](../lib/oscillators/er/er.pine) |

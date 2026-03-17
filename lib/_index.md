@@ -95,6 +95,7 @@
 | [DEMA](trends_IIR/dema/Dema.md)                            | Double Exponential MA                                                     | Trends (IIR) |
 | [DMX](dynamics/dmx/Dmx.md)                                 | Jurik Directional Movement Index                                          | Dynamics     |
 | [DOSC](oscillators/dosc/Dosc.md)                           | Derivative Oscillator                                                     | Oscillators  |
+| [DSO](oscillators/dso/Dso.md)                              | Ehlers Deviation-Scaled Oscillator                                        | Oscillators  |
 | [DPO](oscillators/dpo/Dpo.md)                              | Detrended Price Oscillator                                                | Oscillators  |
 | [DSTOCH](oscillators/dstoch/Dstoch.md)                     | Double Stochastic (Bressert)                                              | Oscillators  |
 | [DSMA](trends_IIR/dsma/Dsma.md)                            | Deviation-Scaled MA                                                       | Trends (IIR) |

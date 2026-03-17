@@ -19,6 +19,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
 | [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | [DOSC](dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
+| [DSO](dso/Dso.md) | Ehlers Deviation-Scaled Oscillator | SSF-filtered zeros with RMS normalization and Fisher Transform. TASC Oct 2018. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
 | [DSTOCH](dstoch/Dstoch.md) | Double Stochastic (Bressert) | Stochastic applied to Stochastic with EMA smoothing. Bounded 0-100. |
 | [DYMI](dymi/Dymi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |

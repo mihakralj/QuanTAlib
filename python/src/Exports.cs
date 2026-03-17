@@ -418,6 +418,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Dso: Pattern A (src, out, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_dso")]
+    public static int QtlDso(double* src, int n, double* dst, int period)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        v = ChkPeriod(period); if (v != 0) return v;
+        try { Dso.Batch(Src(src, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Dymi: Pattern A (src, out, int p1..p5)
     [UnmanagedCallersOnly(EntryPoint = "qtl_dymi")]
     public static int QtlDymi(double* src, int n, double* dst, int p1, int p2, int p3, int p4, int p5)

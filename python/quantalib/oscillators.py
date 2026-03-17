@@ -49,6 +49,7 @@ __all__ = [
     "psl",
     "deco",
     "dosc",
+    "dso",
     "dymi",
     "crsi",
     "bbb",
@@ -545,6 +546,14 @@ def dosc(close: object, rsi_period: int = 14, ema1_period: int = 5,
     _check(_lib.qtl_dosc(_ptr(src), n, _ptr(dst),
                          int(rsi_period), int(ema1_period), int(ema2_period), int(signal_period)))
     return _wrap(dst, idx, f"DOSC_{rsi_period}", "oscillators", offset)
+
+
+def dso(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
+    """Ehlers Deviation-Scaled Oscillator."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_dso(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"DSO_{period}", "oscillators", offset)
 
 
 def dymi(close: object, base_period: int = 14, short_period: int = 5,
