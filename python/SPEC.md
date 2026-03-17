@@ -994,6 +994,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 |-----------|----------|---------|------------|
 | amat | `Amat` | I (→2) | fastPeriod, slowPeriod |
 | aroon | `Aroon` | D (HL) | period |
+| dmh | `Dmh` | D (HL) | period |
 | ghla | `Ghla` | E (HLC) | period |
 | ht_trendmode | `HtTrendmode` | A | — |
 | pfe | `Pfe` | A | period, smoothPeriod |
