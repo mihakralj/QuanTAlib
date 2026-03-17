@@ -654,6 +654,7 @@ packages = ["quantalib"]
 | dosc | `Dosc` | A | rsiPeriod, ema1Period, ema2Period, sigPeriod |
 | dso | `Dso` | A | period |
 | rsih | `Rsih` | A | period |
+| madh | `Madh` | A | shortLength, dominantCycle |
 | dymi | `Dymi` | A | basePeriod, shortPeriod, longPeriod... |
 | er | `Er` | A | period |
 | fisher | `Fisher` | A | period, alpha |

@@ -200,6 +200,7 @@
 | [LOGTRANS](numerics/logtrans/Logtrans.md)                  | Logarithmic Transform                                                     | Numerics     |
 | [LOWEST](numerics/lowest/Lowest.md)                        | Rolling Minimum                                                           | Numerics     |
 | [LRSI](oscillators/lrsi/Lrsi.md)                           | Ehlers Laguerre RSI                                                       | Oscillators  |
+| [MADH](oscillators/madh/Madh.md)                           | Ehlers Moving Average Difference with Hann                                | Oscillators  |
 | [LSMA](trends_FIR/lsma/Lsma.md)                            | Least Squares MA                                                          | Trends (FIR) |
 | [LTMA](trends_IIR/ltma/Ltma.md)                            | Linear Trend MA                                                           | Trends (IIR) |
 | [LUNAR](cycles/lunar/Lunar.md)                             | Lunar Phase                                                               | Cycles       |

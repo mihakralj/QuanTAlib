@@ -438,6 +438,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Madh: Pattern A (src, out, int shortLength, int dominantCycle)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_madh")]
+    public static int QtlMadh(double* src, int n, double* dst, int shortLength, int dominantCycle)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        if (shortLength < 1 || dominantCycle < 2) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Madh.Batch(Src(src, n), Dst(dst, n), shortLength, dominantCycle); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Dymi: Pattern A (src, out, int p1..p5)
     [UnmanagedCallersOnly(EntryPoint = "qtl_dymi")]
     public static int QtlDymi(double* src, int n, double* dst, int p1, int p2, int p3, int p4, int p5)

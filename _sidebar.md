@@ -154,6 +154,7 @@
   * [KRI - Kairi Relative Index](/lib/oscillators/kri/Kri.md)
   * [KST - Know Sure Thing Oscillator](/lib/oscillators/kst/Kst.md)
   * [LRSI - Ehlers Laguerre RSI](/lib/oscillators/lrsi/Lrsi.md)
+  * [MADH - Ehlers Moving Average Difference with Hann](/lib/oscillators/madh/Madh.md)
   * [MARKETFI - Market Facilitation Index](/lib/oscillators/marketfi/Marketfi.md)
   * [MSTOCH - Ehlers MESA Stochastic](/lib/oscillators/mstoch/Mstoch.md)
   * [PGO - Pretty Good Oscillator](/lib/oscillators/pgo/Pgo.md)

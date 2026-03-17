@@ -195,6 +195,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**KRI**](../lib/oscillators/kri/Kri.md) | Kairi Relative Index | Percentage deviation from SMA |
 | [**KST**](../lib/oscillators/kst/Kst.md) | Know Sure Thing | Summed weighted ROCs across 4 timeframes |
 | [**LRSI**](../lib/oscillators/lrsi/Lrsi.md) | Ehlers Laguerre RSI | Laguerre filter-based RSI; output [0,1] |
+| [**MADH**](../lib/oscillators/madh/Madh.md) | Ehlers Moving Average Difference with Hann | Dual Hann FIR percentage difference oscillator |
 | [**MARKETFI**](../lib/oscillators/marketfi/Marketfi.md) | Market Facilitation Index | Price-range-per-unit-of-volume efficiency |
 | [**MSTOCH**](../lib/oscillators/mstoch/Mstoch.md) | Ehlers MESA Stochastic | Hilbert Transform cycle-tuned Stochastic |
 | [**PGO**](../lib/oscillators/pgo/Pgo.md) | Pretty Good Oscillator | ATR-normalized SMA displacement |

@@ -51,6 +51,7 @@ __all__ = [
     "dosc",
     "dso",
     "rsih",
+    "madh",
     "dymi",
     "crsi",
     "bbb",
@@ -563,6 +564,13 @@ def rsih(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_rsih(_ptr(src), n, _ptr(dst), period))
     return _wrap(dst, idx, f"RSIH_{period}", "oscillators", offset)
+
+
+def madh(close: object, shortLength: int = 8, dominantCycle: int = 27, offset: int = 0, **kwargs) -> object:
+    """Ehlers Moving Average Difference with Hann Windowing."""
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_madh(_ptr(src), n, _ptr(dst), int(shortLength), int(dominantCycle)))
+    return _wrap(dst, idx, f"MADH_{shortLength}_{dominantCycle}", "oscillators", int(offset))
 
 
 def dymi(close: object, base_period: int = 14, short_period: int = 5,

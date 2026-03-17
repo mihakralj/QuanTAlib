@@ -225,6 +225,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | KRI | Kairi Relative Index | [kri.pine](../lib/oscillators/kri/kri.pine) |
 | KST | Know Sure Thing Oscillator | [kst.pine](../lib/oscillators/kst/kst.pine) |
 | LRSI | Ehlers Laguerre RSI | [lrsi.pine](../lib/oscillators/lrsi/lrsi.pine) |
+| MADH | Ehlers Moving Average Difference with Hann | [madh.pine](../lib/oscillators/madh/madh.pine) |
 | MARKETFI | Market Facilitation Index | [marketfi.pine](../lib/oscillators/marketfi/marketfi.pine) |
 | MSTOCH | Ehlers MESA Stochastic | [mstoch.pine](../lib/oscillators/mstoch/mstoch.pine) |
 | PGO | Pretty Good Oscillator | [pgo.pine](../lib/oscillators/pgo/pgo.pine) |

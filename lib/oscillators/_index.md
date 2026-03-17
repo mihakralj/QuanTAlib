@@ -35,6 +35,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [KRI](kri/Kri.md) | Kairi Relative Index | Percentage deviation of price from SMA. Overbought/oversold. |
 | [KST](kst/Kst.md) | KST Oscillator | Summed weighted ROCs across 4 timeframes. Martin Pring. |
 | [LRSI](lrsi/Lrsi.md) | Ehlers Laguerre RSI | RSI computed over Laguerre filter stages. Single γ trades lag vs smoothness. Output [0,1]. |
+| [MADH](madh/Madh.md) | Ehlers Moving Average Difference with Hann | Dual Hann FIR difference. Zero-crossing trend oscillator. TASC Nov 2021. |
 | [MARKETFI](marketfi/Marketfi.md) | Market Facilitation Index | Bill Williams' price-range-per-unit-of-volume efficiency measure. O(1), no period. |
 | [MSTOCH](mstoch/Mstoch.md) | Ehlers MESA Stochastic | Hilbert Transform cycle-tuned Stochastic. Adaptive period. |
 | [PGO](pgo/Pgo.md) | Pretty Good Oscillator | Distance from SMA normalized by ATR. Units: ATR multiples. |

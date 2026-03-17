@@ -1,0 +1,56 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Moving Average Difference with Hann (MADH)", "MADH", overlay = false)
+
+//@function Ehlers Moving Average Difference with Hann — dual Hann-windowed FIR
+//          averages compared as percentage difference. Zero-crossing trend oscillator.
+//@param source Series to analyze (typically close)
+//@param shortLength Short filter window (>= 1)
+//@param dominantCycle Dominant cycle estimate (>= 2)
+//@returns MADH percentage oscillator value (zero-centered, unbounded)
+//@reference Ehlers, J.F. (2021). "The MAD Indicator, Enhanced."
+//           Technical Analysis of Stocks & Commodities, Nov 2021.
+//@optimized O(LongLength) per bar — dual FIR scan
+madh(series float source, simple int shortLength, simple int dominantCycle) =>
+    if shortLength < 1
+        runtime.error("ShortLength must be at least 1")
+    if dominantCycle < 2
+        runtime.error("DominantCycle must be at least 2")
+
+    int longLength = int(shortLength + dominantCycle / 2.0)
+
+    // --- Short Hann FIR filter ---
+    float filt1 = 0.0
+    float coef1 = 0.0
+    for k = 1 to shortLength
+        float w = 1.0 - math.cos(2.0 * math.pi * k / (shortLength + 1))
+        filt1 += w * nz(source[k - 1])
+        coef1 += w
+    if coef1 != 0.0
+        filt1 := filt1 / coef1
+
+    // --- Long Hann FIR filter ---
+    float filt2 = 0.0
+    float coef2 = 0.0
+    for k = 1 to longLength
+        float w = 1.0 - math.cos(2.0 * math.pi * k / (longLength + 1))
+        filt2 += w * nz(source[k - 1])
+        coef2 += w
+    if coef2 != 0.0
+        filt2 := filt2 / coef2
+
+    float result = filt2 != 0.0 ? 100.0 * (filt1 / filt2 - 1.0) : 0.0
+    result
+
+// ── Inputs ──
+int   p_short = input.int(8, "Short Length", minval = 1)
+int   p_cycle = input.int(27, "Dominant Cycle", minval = 2)
+float p_src   = input.source(close, "Source")
+
+// ── Calculation ──
+float out = madh(p_src, p_short, p_cycle)
+
+// ── Plot ──
+plot(out, "MADH", color.yellow, 2)
+hline(0, "Zero", color.gray)
