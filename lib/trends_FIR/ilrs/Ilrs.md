@@ -1,4 +1,4 @@
-# ILRS: Integral of Linear Regression Slope
+# ILRS: Ehlers Integral of Linear Regression Slope
 
 > *John Ehlers took the slope of a regression line, integrated it, and got a smoother trend follower. Differentiate to find direction, integrate to find position. Calculus: still useful after 300 years.*
 

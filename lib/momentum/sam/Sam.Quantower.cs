@@ -31,7 +31,7 @@ public class SamIndicator : Indicator, IWatchlistIndicator
 
     public SamIndicator()
     {
-        Name = "SAM - Smoothed Adaptive Momentum";
+        Name = "SAM - Ehlers Smoothed Adaptive Momentum";
         Description = "Ehlers adaptive momentum oscillator using Hilbert Transform cycle detection and Super Smoother";
         SeparateWindow = true;
         OnBackGround = false;

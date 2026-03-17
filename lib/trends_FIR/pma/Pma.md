@@ -1,4 +1,4 @@
-# PMA: Predictive Moving Average
+# PMA: Ehlers Predictive Moving Average
 
 > *John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been.*
 

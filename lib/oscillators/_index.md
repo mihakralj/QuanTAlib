@@ -15,7 +15,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [CFO](cfo/Cfo.md) | Chande Forecast Oscillator | Percentage difference between price and linear regression forecast. Also known as FOSC. |
 | [COPPOCK](coppock/Coppock.md) | Coppock Curve | Long-term momentum via weighted sum of ROC periods. Buy signals only. |
 | [CRSI](crsi/Crsi.md) | Connors RSI | Composite of RSI, streak RSI, and percentile rank. Mean-reversion. |
-| [CTI](cti/Cti.md) | Correlation Trend Indicator | Linear regression correlation coefficient as trend strength. |
+| [CTI](cti/Cti.md) | Ehlers Correlation Trend Indicator | Linear regression correlation coefficient as trend strength. |
 | [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
 | [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | [DOSC](dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
@@ -41,7 +41,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [QQE](qqe/Qqe.md) | Quantitative Qualitative Estimation | Smoothed RSI with dynamic volatility bands. |
 | [REFLEX](reflex/Reflex.md) | Ehlers Reflex | Ehlers zero-centered reversal oscillator using super smoother with normalized sum-of-differences. |
 | [REVERSEEMA](reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion subtracts EMA lag, producing zero-centered oscillator signal. |
-| [RVGI](rvgi/Rvgi.md) | Relative Vigor Index | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
+| [RVGI](rvgi/Rvgi.md) | Ehlers Relative Vigor Index | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
 | [RRSI](rrsi/Rrsi.md) | Ehlers Rocket RSI | Fisher Transform of Super Smoother–filtered RSI. Sharp cyclic reversal signals. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [SQUEEZE](squeeze/Squeeze.md) | Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |

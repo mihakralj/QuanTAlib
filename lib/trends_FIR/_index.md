@@ -18,14 +18,14 @@ Finite Impulse Response (FIR) trend indicators. These use fixed-length windows w
 | [HANMA](hanma/Hanma.md) | Hanning MA | Hanning (raised cosine). Zero at edges. Smooth roll-off. |
 | [HEND](hend/Hend.md) | Henderson MA | Henderson window. Optimized for trend extraction. Minimal distortion. |
 | [HMA](hma/Hma.md) | Hull MA | Reduced lag via weighted average differencing. Can overshoot. |
-| [ILRS](ilrs/Ilrs.md) | Integral of Linear Regression Slope | Cumulative linear regression slope. Smooth trend tracking. |
+| [ILRS](ilrs/Ilrs.md) | Ehlers Integral of Linear Regression Slope | Cumulative linear regression slope. Smooth trend tracking. |
 | [KAISER](kaiser/Kaiser.md) | Kaiser Window MA | Kaiser-Bessel window. Adjustable β parameter for sidelobe control. |
 | [LANCZOS](lanczos/Lanczos.md) | Lanczos (Sinc) Window MA | Windowed sinc function. Optimal frequency-domain characteristics. |
 | [LSMA](lsma/Lsma.md) | Least Squares MA | Linear regression endpoint. Extrapolates trend. |
 | [NLMA](nlma/Nlma.md) | Non-Lag MA | Damped cosine kernel convolution. Near-zero lag FIR. |
 | [NYQMA](nyqma/Nyqma.md) | Nyquist MA | Dual LWMA cascade. Nyquist-compliant FIR smoothing. |
 | [PARZEN](parzen/Parzen.md) | Parzen (de la Vallée-Poussin) Window MA | Parzen window. Piecewise cubic. Good spectral leakage control. |
-| [PMA](pma/Pma.md) | Predictive Moving Average | Ehlers predictive filter combining WMA cascade with linear extrapolation. |
+| [PMA](pma/Pma.md) | Ehlers Predictive Moving Average | Ehlers predictive filter combining WMA cascade with linear extrapolation. |
 | [PWMA](pwma/Pwma.md) | Pascal Weighted MA | Pascal's triangle coefficients. Binomial distribution weights. |
 | [QRMA](qrma/Qrma.md) | Quadratic Regression MA | Quadratic polynomial regression endpoint. Captures curvature. |
 | [RAIN](rain/Rain.md) | Rainbow MA | 10× cascaded SMA. Extreme smoothing via FIR convolution. |

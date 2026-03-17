@@ -12,7 +12,7 @@ public class PmaIndicatorTests
         Assert.Equal(7, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("PMA - Predictive Moving Average", indicator.Name);
+        Assert.Equal("PMA - Ehlers Predictive Moving Average", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

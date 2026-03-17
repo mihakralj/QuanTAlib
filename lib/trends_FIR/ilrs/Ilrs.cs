@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// ILRS: Integral of Linear Regression Slope
+/// ILRS: Ehlers Integral of Linear Regression Slope
 /// </summary>
 /// <remarks>
 /// Computes the linear regression slope over a rolling window, then accumulates

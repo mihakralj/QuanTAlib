@@ -1,4 +1,4 @@
-# CTI: Correlation Trend Indicator
+# CTI: Ehlers Correlation Trend Indicator
 
 > *Correlation trend indicator measures the linear correlation between price and a perfect trend line — how orderly is the move.*
 

@@ -82,7 +82,7 @@
 | [COVARIANCE](statistics/covariance/Covariance.md)          | Covariance                                                                | Statistics   |
 | [CRMA](trends_FIR/crma/Crma.md)                            | Cubic Regression MA                                                       | Trends (FIR) |
 | [CRSI](oscillators/crsi/Crsi.md)                           | Connors RSI                                                               | Oscillators  |
-| [CTI](oscillators/cti/Cti.md)                              | Correlation Trend Indicator                                               | Oscillators  |
+| [CTI](oscillators/cti/Cti.md)                              | Ehlers Correlation Trend Indicator                                        | Oscillators  |
 | [CV](volatility/cv/Cv.md)                                  | Coefficient of Variation                                                  | Volatility   |
 | [CVI](volatility/cvi/Cvi.md)                               | Chaikin Volatility                                                        | Volatility   |
 | [CWT](numerics/cwt/Cwt.md)                                 | Continuous Wavelet Transform                                              | Numerics     |
@@ -165,7 +165,7 @@
 | [ICHIMOKU](dynamics/ichimoku/Ichimoku.md)                  | Ichimoku Cloud                                                            | Dynamics     |
 | [IFFT](numerics/ifft/Ifft.md)                              | Inverse Fast Fourier Transform                                            | Numerics     |
 | [III](volume/iii/Iii.md)                                   | Intraday Intensity Index                                                  | Volume       |
-| [ILRS](trends_FIR/ilrs/Ilrs.md)                            | Integral of LinReg Slope                                                  | Trends (FIR) |
+| [ILRS](trends_FIR/ilrs/Ilrs.md)                            | Ehlers Integral of LinReg Slope                                           | Trends (FIR) |
 | [IMI](oscillators/imi/Imi.md)                              | Intraday Momentum Index                                                   | Oscillators  |
 | [IMPULSE](dynamics/impulse/Impulse.md)                     | Elder Impulse System                                                      | Dynamics     |
 | [INERTIA](oscillators/inertia/Inertia.md)                  | Inertia                                                                   | Oscillators  |
@@ -263,7 +263,7 @@
 | [PIVOTWOOD](reversals/pivotwood/Pivotwood.md)              | Woodie's Pivot Points                                                     | Reversals    |
 | [PLUS_DI](dynamics/plusdi/PlusDi.md)                        | Plus Directional Indicator                                                | Dynamics     |
 | [PLUS_DM](dynamics/plusdm/PlusDm.md)                        | Plus Directional Movement                                                 | Dynamics     |
-| [PMA](trends_FIR/pma/Pma.md)                               | Predictive Moving Average                                                 | Trends (FIR) |
+| [PMA](trends_FIR/pma/Pma.md)                               | Ehlers Predictive Moving Average                                          | Trends (FIR) |
 | [PMO](momentum/pmo/Pmo.md)                                 | Price Momentum Oscillator                                                 | Momentum     |
 | [POISSONDIST](numerics/poissondist/Poissondist.md)         | Poisson Distribution                                                      | Numerics     |
 | [POLYFIT](statistics/polyfit/Polyfit.md)                   | Polynomial Fitting                                                        | Statistics   |
@@ -308,11 +308,11 @@
 | [RSX](momentum/rsx/Rsx.md)                                 | Relative Strength Quality Index                                           | Momentum     |
 | [RV](volatility/rv/Rv.md)                                  | Realized Volatility                                                       | Volatility   |
 | [RVI](volatility/rvi/Rvi.md)                               | Relative Volatility Index                                                 | Volatility   |
-| [RVGI](oscillators/rvgi/Rvgi.md)                           | Relative Vigor Index                                                      | Oscillators  |
+| [RVGI](oscillators/rvgi/Rvgi.md)                           | Ehlers Relative Vigor Index                                               | Oscillators  |
 | [RRSI](oscillators/rrsi/Rrsi.md)                           | Ehlers Rocket RSI                                                         | Oscillators  |
 | [RWMA](trends_FIR/rwma/Rwma.md)                            | Range Weighted MA                                                         | Trends (FIR) |
 | [SAK](filters/sak/Sak.md)                                  | Ehlers Swiss Army Knife                                                   | Filters      |
-| [SAM](momentum/sam/Sam.md)                                 | Smoothed Adaptive Momentum                                                | Momentum     |
+| [SAM](momentum/sam/Sam.md)                                 | Ehlers Smoothed Adaptive Momentum                                         | Momentum     |
 | [SAR](reversals/sar/Sar.md)                                | Parabolic Stop And Reverse                                                | Reversals    |
 | [SAREXT](reversals/sarext/Sarext.md)                       | Parabolic SAR Extended                                                    | Reversals    |
 | [SDCHANNEL](channels/sdchannel/Sdchannel.md)               | Standard Deviation Channel                                                | Channels     |

@@ -12,7 +12,7 @@ public sealed class RvgiIndicatorTests
 
         Assert.Equal(10, indicator.Period);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("RVGI - Relative Vigor Index", indicator.Name);
+        Assert.Equal("RVGI - Ehlers Relative Vigor Index", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

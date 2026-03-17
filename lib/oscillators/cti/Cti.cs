@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// CTI: Correlation Trend Indicator (Ehlers, TASC 2020)
+/// CTI: Ehlers Correlation Trend Indicator
 /// </summary>
 /// <remarks>
 /// Measures the Pearson correlation coefficient between the price series and a

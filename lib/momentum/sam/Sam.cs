@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// SAM: Smoothed Adaptive Momentum - Ehlers adaptive momentum oscillator that
+/// SAM: Ehlers Smoothed Adaptive Momentum - adaptive momentum oscillator that
 /// measures price change over the dominant cycle period, then smooths with a
 /// 2-pole Super Smoother filter.
 /// </summary>

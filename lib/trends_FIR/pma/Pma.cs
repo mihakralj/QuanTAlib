@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PMA: Predictive Moving Average
+/// PMA: Ehlers Predictive Moving Average
 /// </summary>
 /// <remarks>
 /// Ehlers' linear-extrapolation filter using dual WMA cascade.

@@ -13,7 +13,7 @@ public sealed class CtiIndicatorTests
         Assert.Equal(20, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("CTI - Correlation Trend Indicator", indicator.Name);
+        Assert.Equal("CTI - Ehlers Correlation Trend Indicator", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

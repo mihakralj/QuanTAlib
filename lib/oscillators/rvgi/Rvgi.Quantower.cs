@@ -27,7 +27,7 @@ public sealed class RvgiIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "RVGI - Relative Vigor Index";
+        Name = "RVGI - Ehlers Relative Vigor Index";
         Description = "Dual-output oscillator comparing closing strength to the full bar range, smoothed via 4-tap SWMA and averaged over a period. RVGI > 0 in uptrends, < 0 in downtrends.";
 
         _rvgiLine = new LineSeries("RVGI", Color.Yellow, 2, LineStyle.Solid);

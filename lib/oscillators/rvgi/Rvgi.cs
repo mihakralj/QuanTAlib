@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// RVGI: Relative Vigor Index
+/// RVGI: Ehlers Relative Vigor Index
 /// </summary>
 /// <remarks>
 /// Dual-output oscillator built in four stages:

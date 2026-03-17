@@ -1,4 +1,4 @@
-# RVGI: Relative Vigor Index
+# RVGI: Ehlers Relative Vigor Index
 
 > *Relative Vigor Index compares the close-open range to the high-low range, measuring conviction in each bar's direction.*
 

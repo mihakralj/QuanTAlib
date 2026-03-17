@@ -51,14 +51,14 @@ Finite Impulse Response filters. Output depends only on a fixed window of inputs
 | [**HANMA**](../lib/trends_FIR/hanma/Hanma.md) | Hanning Weighted MA | Cosine-based window |
 | [**HEND**](../lib/trends_FIR/hend/Hend.md) | Henderson MA | Optimized for trend extraction, minimal distortion |
 | [**HMA**](../lib/trends_FIR/hma/Hma.md) | Hull MA | Reduced lag via WMA differencing |
-| [**ILRS**](../lib/trends_FIR/ilrs/Ilrs.md) | Integral of LinReg Slope | Cumulative linear regression slope |
+| [**ILRS**](../lib/trends_FIR/ilrs/Ilrs.md) | Ehlers Integral of LinReg Slope | Cumulative linear regression slope |
 | [**KAISER**](../lib/trends_FIR/kaiser/Kaiser.md) | Kaiser Window MA | Adjustable β for sidelobe control |
 | [**LANCZOS**](../lib/trends_FIR/lanczos/Lanczos.md) | Lanczos (Sinc) Window MA | Optimal frequency-domain characteristics |
 | [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) | Least Squares MA | Linear regression endpoint |
 | [**NLMA**](../lib/trends_FIR/nlma/Nlma.md) | Non-Lag MA | Damped cosine kernel FIR |
 | [**NYQMA**](../lib/trends_FIR/nyqma/Nyqma.md) | Nyquist MA | Dual LWMA cascade FIR |
 | [**PARZEN**](../lib/trends_FIR/parzen/Parzen.md) | Parzen Window MA | Piecewise cubic, good spectral leakage control |
-| [**PMA**](../lib/trends_FIR/pma/Pma.md) | Predictive Moving Average | Ehlers WMA cascade + extrapolation |
+| [**PMA**](../lib/trends_FIR/pma/Pma.md) | Ehlers Predictive Moving Average | WMA cascade + extrapolation |
 | [**PWMA**](../lib/trends_FIR/pwma/Pwma.md) | Pascal Weighted MA | Binomial coefficient weights |
 | [**QRMA**](../lib/trends_FIR/qrma/Qrma.md) | Quadratic Regression MA | Quadratic polynomial regression endpoint |
 | [**RAIN**](../lib/trends_FIR/rain/Rain.md) | Rainbow MA | 10× cascaded SMA |
@@ -176,7 +176,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**CFO**](../lib/oscillators/cfo/Cfo.md) | Chande Forecast Oscillator | Forecast error percentage |
 | [**COPPOCK**](../lib/oscillators/coppock/Coppock.md) | Coppock Curve | Long-term momentum via weighted ROC sum |
 | [**CRSI**](../lib/oscillators/crsi/Crsi.md) | Connors RSI | Composite RSI + streak RSI + percentile rank |
-| [**CTI**](../lib/oscillators/cti/Cti.md) | Correlation Trend Indicator | Linear regression correlation as trend strength |
+| [**CTI**](../lib/oscillators/cti/Cti.md) | Ehlers Correlation Trend Indicator | Linear regression correlation as trend strength |
 | [**DECO**](../lib/oscillators/deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass cycle isolation |
 | [**DEM**](../lib/oscillators/dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 comparing sequential highs/lows |
 | [**DOSC**](../lib/oscillators/dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line |
@@ -201,7 +201,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**QQE**](../lib/oscillators/qqe/Qqe.md) | Quantitative Qualitative Estimation | Smoothed RSI with dynamic volatility bands |
 | [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
 | [**REVERSEEMA**](../lib/oscillators/reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion oscillator |
-| [**RVGI**](../lib/oscillators/rvgi/Rvgi.md) | Relative Vigor Index | Open-close vs high-low ratio with smoothing |
+| [**RVGI**](../lib/oscillators/rvgi/Rvgi.md) | Ehlers Relative Vigor Index | Open-close vs high-low ratio with smoothing |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
 | [**SQUEEZE**](../lib/oscillators/squeeze/Squeeze.md) | Squeeze Momentum | BB inside KC squeeze with momentum |
 | [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100) |
@@ -269,7 +269,7 @@ Rate of change and velocity measurements. First derivatives of price.
 | [**ROCR**](../lib/momentum/rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods |
 | [**RSI**](../lib/momentum/rsi/Rsi.md) | Relative Strength Index | Bounded 0-100 momentum |
 | [**RSX**](../lib/momentum/rsx/Rsx.md) | Jurik RSX | Smoothed RSI variant |
-| [**SAM**](../lib/momentum/sam/Sam.md) | Smoothed Adaptive Momentum | Ehlers adaptive cycle momentum |
+| [**SAM**](../lib/momentum/sam/Sam.md) | Ehlers Smoothed Adaptive Momentum | Adaptive cycle momentum |
 | [**TSI**](../lib/momentum/tsi/Tsi.md) | True Strength Index | Double-smoothed momentum oscillator |
 | [**VEL**](../lib/momentum/vel/Vel.md) | Jurik Velocity | Adaptive velocity |
 

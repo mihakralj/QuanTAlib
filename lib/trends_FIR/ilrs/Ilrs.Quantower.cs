@@ -31,7 +31,7 @@ public sealed class IlrsIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = false;
-        Name = "ILRS - Integral of Linear Regression Slope";
+        Name = "ILRS - Ehlers Integral of Linear Regression Slope";
         Description = "Cumulative sum of rolling linear regression slope (Ehlers)";
         _series = new LineSeries(name: $"ILRS {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);

@@ -29,7 +29,7 @@ public sealed class CtiIndicator : Indicator, IWatchlistIndicator
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "CTI - Correlation Trend Indicator";
+        Name = "CTI - Ehlers Correlation Trend Indicator";
         Description = "Pearson correlation between price and a perfect linear time index";
 
         _series = new LineSeries("CTI", Color.Yellow, 2, LineStyle.Solid);

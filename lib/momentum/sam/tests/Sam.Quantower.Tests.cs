@@ -13,7 +13,7 @@ public class SamIndicatorTests
         Assert.Equal(8, indicator.Cutoff);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("SAM - Smoothed Adaptive Momentum", indicator.Name);
+        Assert.Equal("SAM - Ehlers Smoothed Adaptive Momentum", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.False(indicator.OnBackGround);
     }

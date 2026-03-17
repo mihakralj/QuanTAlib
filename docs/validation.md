@@ -126,7 +126,7 @@ Next parity targets (highest impact):
 | **Coppock Curve** | [Coppock](../lib/oscillators/coppock/Coppock.md) | - | - | - | - | ❔ |
 | **Coral Trend Filter** | [Coral](../lib/trends_IIR/coral/Coral.md) | - | - | - | - | - |
 | **Correlation** | [Correl](../lib/statistics/correl/Correl.md) | [✔️](../lib/statistics/correl/Correl.md#validation) | - | [✔️](../lib/statistics/correl/Correl.md#validation) | - | - |
-| **Correlation Trend Indicator** | [Cti](../lib/oscillators/cti/Cti.md) | - | - | - | - | ⚠️ |
+| **Ehlers Correlation Trend Indicator** | [Cti](../lib/oscillators/cti/Cti.md) | - | - | - | - | ⚠️ |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - | - |
 | **Decay Min-Max Channel** | [Decaychannel](../lib/channels/decaychannel/decaychannel.md) | - | - | - | - | - |
 | **Ehlers Decycler** | [Decycler](../lib/trends_IIR/decycler/Decycler.md) | - | - | - | - | - |
@@ -325,7 +325,7 @@ Next parity targets (highest impact):
 | **Schaff Trend Cycle** | [Stc](../lib/oscillators/stc/stc.md) | - | - | [✔️](../lib/oscillators/stc/stc.md#validation) | [⚠️](../lib/oscillators/stc/stc.md#validation "structural test only; Ooples STC uses different stochastic smoothing") | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends_FIR/sma/Sma.md) | [✔️](../lib/trends_FIR/sma/Sma.md#validation) | [✔️](../lib/trends_FIR/sma/Sma.md#validation) | [✔️](../lib/trends_FIR/sma/Sma.md#validation) | [✔️](../lib/trends_FIR/sma/Sma.md#validation) | ⚠️ |
 | **Sine-weighted MA** | [Sinema](../lib/trends_FIR/sinema/Sinema.md) | - | - | - | - | ⚠️ |
-| **Smoothed Adaptive Momentum** | [Sam](../lib/momentum/sam/Sam.md) | - | - | - | - | - |
+| **Ehlers Smoothed Adaptive Momentum** | [Sam](../lib/momentum/sam/Sam.md) | - | - | - | - | - |
 | **Smoothed Moving Average** | [Rma](../lib/trends_IIR/rma/Rma.md) | - | - | [✔️](../lib/trends_IIR/rma/Rma.md#validation) | [✔️](../lib/trends_IIR/rma/Rma.md#validation) | ❔ |
 | **SMI** | [Smi](../lib/oscillators/smi/Smi.md) | - | - | [⚠️](../lib/oscillators/smi/Smi.md#validation "structural test; different smoothing parameters") | [⚠️](../lib/oscillators/smi/Smi.md#validation "structural test only; Ooples SMI uses different double-smoothing") | ❔ |
 | **Solar Activity Cycle** | [Solar](../lib/cycles/solar/Solar.md) | - | - | - | - | - |

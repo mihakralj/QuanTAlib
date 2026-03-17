@@ -22,7 +22,7 @@ Momentum indicators measure the velocity and acceleration of price changes. Unli
 | [RS](rs/Rs.md) | Price Relative Strength | Performance ratio between two assets. |
 | [RSI](rsi/Rsi.md) | Relative Strength Index | Speed and change of price movements, bounded 0-100. |
 | [RSX](rsx/Rsx.md) | Relative Strength Quality Index | Noise-free RSI using cascaded IIR filters, zero lag at turning points. |
-| [SAM](sam/Sam.md) | Smoothed Adaptive Momentum | Ehlers. Hilbert Transform cycle detection + adaptive momentum + Super Smoother output. |
+| [SAM](sam/Sam.md) | Ehlers Smoothed Adaptive Momentum | Ehlers. Hilbert Transform cycle detection + adaptive momentum + Super Smoother output. |
 | [TSI](tsi/Tsi.md) | True Strength Index | Double-smoothed momentum oscillator. |
 | [VEL](vel/Vel.md) | Jurik Velocity | Market acceleration via PWMA vs WMA differential. |
 | [VWMACD](vwmacd/Vwmacd.md) | Volume-Weighted MACD | VWMA-based MACD with signal line and histogram. Volume-aware momentum. |

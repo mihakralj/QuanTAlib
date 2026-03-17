@@ -12,7 +12,7 @@ public class IlrsIndicatorTests
         Assert.Equal(14, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("ILRS - Integral of Linear Regression Slope", indicator.Name);
+        Assert.Equal("ILRS - Ehlers Integral of Linear Regression Slope", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
