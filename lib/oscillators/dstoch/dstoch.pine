@@ -1,0 +1,27 @@
+// PineScript v6 reference for DSTOCH (Double Stochastic / Bressert DSS)
+// Apply Stochastic formula twice with EMA smoothing between stages.
+
+//@version=6
+indicator("Double Stochastic (DSS Bressert)", shorttitle="DSTOCH", overlay=false)
+
+period = input.int(21, "Period", minval=1)
+
+// Stage 1: Raw %K
+rawK = ta.stoch(close, high, low, period)
+
+// Stage 1: EMA smooth rawK → smoothK
+smoothK = ta.ema(rawK, period)
+
+// Stage 2: Stochastic of smoothK
+skHigh = ta.highest(smoothK, period)
+skLow  = ta.lowest(smoothK, period)
+skRange = skHigh - skLow
+dsRaw = skRange > 0 ? 100.0 * (smoothK - skLow) / skRange : 0.0
+
+// Stage 2: EMA smooth dsRaw → DSS output
+dss = ta.ema(dsRaw, period)
+
+plot(dss, "DSS", color=color.blue, linewidth=2)
+hline(80, "Overbought", color=color.red, linestyle=hline.style_dotted)
+hline(20, "Oversold", color=color.green, linestyle=hline.style_dotted)
+hline(50, "Midline", color=color.gray, linestyle=hline.style_dotted)

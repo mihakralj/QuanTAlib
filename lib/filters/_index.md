@@ -9,15 +9,15 @@ Signal processing filters adapted for financial time series. These are not indic
 | [AGC](agc/Agc.md) | Ehlers Automatic Gain Control | Amplitude normalization via exponential peak tracking. Signal processing building block. |
 | [ALAGUERRE](alaguerre/ALaguerre.md) | Ehlers Adaptive Laguerre Filter | Ehlers. Variable-alpha Laguerre from tracking-error normalization. |
 | [BAXTERKING](baxterking/BaxterKing.md) | Baxter-King Band-Pass Filter | Symmetric FIR band-pass. Ideal for business cycle extraction. |
-| [CFITZ](cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass. Optimal under random-walk assumption. |
-| [EDCF](edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR. Distance-weighted smoothing adapts to local structure. |
 | [BESSEL](bessel/Bessel.md) | Bessel Filter | Maximally flat group delay. Best phase response. Minimal overshoot. |
 | [BILATERAL](bilateral/Bilateral.md) | Bilateral Filter | Edge-preserving smoothing. Adapts to local gradients. |
 | [BPF](bpf/Bpf.md) | BandPass Filter | 2nd-order IIR. Cascade of HP + LP. Extracts specific frequency band. |
 | [BUTTER2](butter2/Butter2.md) | Ehlers 2-Pole Butterworth Filter | Maximally flat frequency response. Classic 2-pole IIR filter. |
 | [BUTTER3](butter3/Butter3.md) | Ehlers 3-Pole Butterworth Filter | Steeper rolloff (-60 dB/decade). 3rd-order IIR with binomial feedforward. |
+| [CFITZ](cfitz/Cfitz.md) | Christiano-Fitzgerald Filter | Asymmetric full-sample band-pass. Optimal under random-walk assumption. |
 | [CHEBY1](cheby1/Cheby1.md) | Chebyshev Type I | Steeper roll-off with passband ripple. Sharper cutoff than Butterworth. |
 | [CHEBY2](cheby2/Cheby2.md) | Chebyshev Type II | Equiripple stopband, monotonic passband. Better stopband rejection. |
+| [EDCF](edcf/Edcf.md) | Ehlers Distance Coefficient Filter | Nonlinear FIR. Distance-weighted smoothing adapts to local structure. |
 | [ELLIPTIC](elliptic/Elliptic.md) | Elliptic Filter | Equiripple both bands. Sharpest transition for given order. |
 | [GAUSS](gauss/Gauss.md) | Gaussian Filter | Bell-curve weighted smoothing. No overshoot. |
 | [HANN](hann/Hann.md) | Hann Filter | Hann window smoothing. Good spectral leakage control. |

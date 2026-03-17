@@ -11,6 +11,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [BBI](bbi/Bbi.md) | Bulls Bears Index | Multi-period SMA composite. Measures aggregate trend strength. |
 | [BBS](bbs/Bbs.md) | Bollinger Band Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
 | [BRAR](brar/Brar.md) | BRAR | Bull-Bear power ratio from open-relative ranges. Japanese origin. |
+| [BW_MFI](bw_mfi/BwMfi.md) | Bill Williams MFI | MFI with 4-zone classification: Green (trend), Fade (fading), Fake (unsupported), Squat (breakout imminent). |
 | [CFO](cfo/Cfo.md) | Chande Forecast Oscillator | Percentage difference between price and linear regression forecast. Also known as FOSC. |
 | [COPPOCK](coppock/Coppock.md) | Coppock Curve | Long-term momentum via weighted sum of ROC periods. Buy signals only. |
 | [CRSI](crsi/Crsi.md) | Connors RSI | Composite of RSI, streak RSI, and percentile rank. Mean-reversion. |
@@ -19,6 +20,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | [DOSC](dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
+| [DSTOCH](dstoch/Dstoch.md) | Double Stochastic (Bressert) | Stochastic applied to Stochastic with EMA smoothing. Bounded 0-100. |
 | [DYMI](dymi/Dymi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
 | [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
 | [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
@@ -42,6 +44,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [RVGI](rvgi/Rvgi.md) | Relative Vigor Index | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [SQUEEZE](squeeze/Squeeze.md) | Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
+| [SQUEEZE_PRO](squeeze_pro/squeeze_pro.md) | Squeeze Pro | Multi-level BB vs KC squeeze (wide/normal/narrow) with MOM-smoothed momentum. LazyBear. |
 | [STC](stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic smoothing. Fast momentum oscillator (0-100). |
 | [STOCH](stoch/Stoch.md) | Stochastic Oscillator | Close position within N-period high-low range. Classic overbought/oversold. |
 | [STOCHF](stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic. Faster but noisier. |

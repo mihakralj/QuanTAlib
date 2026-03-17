@@ -308,6 +308,20 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_atrstop")]
+    public static int QtlAtrstop(double* high, double* low, double* close, double* output, int n, int period, double multiplier)
+    {
+        if (high == null || low == null || close == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (period <= 0) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Atrstop.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(output, n), period, multiplier);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_atr")]
     public static int QtlAtr(double* sourceOpen, double* sourceHigh, double* sourceLow, double* sourceClose, double* sourceVolume, int period, int n, double* dst)
     {
@@ -367,6 +381,44 @@ public static unsafe partial class Exports
         try
         {
             Bop.Batch(Src(open, n), Src(high, n), Src(low, n), Src(close, n), Dst(destination, n));
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_bwmfi")]
+    public static int QtlBwMfi(double* high, double* low, double* volume, double* mfiOutput, double* zoneOutput, int n)
+    {
+        if (high == null || low == null || volume == null || mfiOutput == null || zoneOutput == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var hi = Src(high, n);
+            var lo = Src(low, n);
+            var vol = Src(volume, n);
+            var mfiTmp = new double[n];
+            var zoneTmp = new int[n];
+            BwMfi.Batch(hi, lo, vol, mfiTmp.AsSpan(), zoneTmp.AsSpan());
+            mfiTmp.AsSpan().CopyTo(Dst(mfiOutput, n));
+            var zoneDst = Dst(zoneOutput, n);
+            for (int i = 0; i < n; i++)
+            {
+                zoneDst[i] = zoneTmp[i];
+            }
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_dstoch")]
+    public static int QtlDstoch(double* high, double* low, double* close, double* output, int n, int period)
+    {
+        if (high == null || low == null || close == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (period <= 0) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Dstoch.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(output, n), period);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
@@ -2848,6 +2900,19 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_squeeze_pro")]
+    public static int QtlSqueezePro(double* high, double* low, double* close, double* momOut, double* sqOut, int n, int period, double bbMult, double kcMultWide, double kcMultNormal, double kcMultNarrow, int momLength, int momSmooth, int useSma)
+    {
+        if (high == null || low == null || close == null || momOut == null || sqOut == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            SqueezePro.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(momOut, n), Dst(sqOut, n), period, bbMult, kcMultWide, kcMultNormal, kcMultNarrow, momLength, momSmooth, useSma != 0);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_ssf2")]
     public static int QtlSsf2(double* source, double* output, int n, int period)
     {
@@ -3380,6 +3445,20 @@ public static unsafe partial class Exports
         try
         {
             Voss.Batch(Src(source, n), Dst(output, n), period, predict, bandwidth);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "qtl_vstop")]
+    public static int QtlVstop(double* high, double* low, double* close, double* output, int n, int period, double multiplier)
+    {
+        if (high == null || low == null || close == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (period <= 0) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try
+        {
+            Vstop.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(output, n), period, multiplier);
             return StatusCodes.QTL_OK;
         }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
