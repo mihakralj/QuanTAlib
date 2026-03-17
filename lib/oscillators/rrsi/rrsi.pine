@@ -57,7 +57,7 @@ i_source = input.source(close, "Source")
 
 rocket_rsi = rrsi(i_source, i_smooth, i_rsi)
 
-plot(rocket_rsi, "Rocket RSI", color=color.cyan, linewidth=2)
+plot(rocket_rsi, "Rocket RSI", color=color.yellow, linewidth=2)
 hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
 hline(2, "Overbought", color=color.red, linestyle=hline.style_dashed)
 hline(-2, "Oversold", color=color.green, linestyle=hline.style_dashed)

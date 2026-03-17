@@ -1,4 +1,4 @@
-# QuanTAlib Indicators
+﻿# QuanTAlib Indicators
 
 | Indicator                                                  | Full Name                                                                 | Category     |
 | :--------------------------------------------------------- | :------------------------------------------------------------------------ | :----------- |
@@ -7,6 +7,7 @@
 | [ACCBANDS](channels/accbands/Accbands.md)                  | Acceleration Bands                                                        | Channels     |
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
 | [ACF](statistics/acf/Acf.md)                               | Autocorrelation Function                                                  | Statistics   |
+| [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
 | [AD](volume/ad/Ad.md)                                       | Accumulation/Distribution Line                                            | Volume       |
 | [ADF](statistics/adf/Adf.md)                               | Augmented Dickey-Fuller Test                                              | Statistics   |
 | [ADOSC](volume/adosc/Adosc.md)                             | Chaikin A/D Oscillator                                                    | Volume       |
@@ -28,11 +29,11 @@
 | [APZ](channels/apz/Apz.md)                                 | Adaptive Price Zone                                                       | Channels     |
 | [AROON](dynamics/aroon/Aroon.md)                           | Aroon                                                                     | Dynamics     |
 | [AROONOSC](dynamics/aroonosc/Aroonosc.md)                  | Aroon Oscillator                                                          | Dynamics     |
-| [ATRSTOP](reversals/atrstop/Atrstop.md)                    | ATR Trailing Stop                                                         | Reversals    |
 | [ASI](momentum/asi/Asi.md)                                 | Accumulation Swing Index                                                  | Momentum     |
 | [ATR](volatility/atr/Atr.md)                               | Average True Range                                                        | Volatility   |
 | [ATRBANDS](channels/atrbands/Atrbands.md)                  | ATR Bands                                                                 | Channels     |
 | [ATRN](volatility/atrn/Atrn.md)                            | ATR Normalized                                                            | Volatility   |
+| [ATRSTOP](reversals/atrstop/Atrstop.md)                    | ATR Trailing Stop                                                         | Reversals    |
 | [AVGPRICE](core/avgprice/Avgprice.md)                      | Average Price                                                             | Core         |
 | [BAXTERKING](filters/baxterking/BaxterKing.md)             | Baxter-King Band-Pass Filter                                              | Filters      |
 | [BBANDS](channels/bbands/Bbands.md)                        | Bollinger Bands                                                           | Channels     |
@@ -52,12 +53,12 @@
 | [BOP](momentum/bop/Bop.md)                                 | Balance of Power                                                          | Momentum     |
 | [BPF](filters/bpf/Bpf.md)                                  | BandPass Filter                                                           | Filters      |
 | [BRAR](oscillators/brar/Brar.md)                           | Bull-Bear Power Ratio                                                     | Oscillators  |
-| [BW_MFI](oscillators/bw_mfi/BwMfi.md)                     | Bill Williams Market Facilitation Index                                   | Oscillators  |
 | [BUTTER2](filters/butter2/Butter2.md)                      | Ehlers 2-Pole Butterworth Filter                                          | Filters      |
 | [BUTTER3](filters/butter3/Butter3.md)                      | Ehlers 3-Pole Butterworth Filter                                          | Filters      |
+| [BW_MFI](oscillators/bw_mfi/BwMfi.md)                     | Bill Williams Market Facilitation Index                                   | Oscillators  |
 | [BWMA](trends_FIR/bwma/Bwma.md)                            | Bessel-Weighted MA                                                        | Trends (FIR) |
-| [CCOR](cycles/ccor/Ccor.md)                                | Ehlers Correlation Cycle                                                  | Cycles       |
 | [CCI](momentum/cci/Cci.md)                                 | Commodity Channel Index                                                   | Momentum     |
+| [CCOR](cycles/ccor/Ccor.md)                                | Ehlers Correlation Cycle                                                  | Cycles       |
 | [CCV](volatility/ccv/Ccv.md)                               | Close-to-Close Volatility                                                 | Volatility   |
 | [CCYC](cycles/ccyc/Ccyc.md)                                | Ehlers Cyber Cycle                                                        | Cycles       |
 | [CFB](momentum/cfb/Cfb.md)                                 | Composite Fractal Behavior                                                | Momentum     |
@@ -74,8 +75,8 @@
 | [CMF](volume/cmf/Cmf.md)                                   | Chaikin Money Flow                                                        | Volume       |
 | [CMO](momentum/cmo/Cmo.md)                                 | Chande Momentum Oscillator                                                | Momentum     |
 | [COINTEGRATION](statistics/cointegration/Cointegration.md) | Cointegration                                                             | Statistics   |
-| [CONVEXITY](statistics/convexity/Convexity.md)             | Beta Convexity                                                            | Statistics   |
 | [CONV](trends_FIR/conv/Conv.md)                            | Convolution MA                                                            | Trends (FIR) |
+| [CONVEXITY](statistics/convexity/Convexity.md)             | Beta Convexity                                                            | Statistics   |
 | [COPPOCK](oscillators/coppock/Coppock.md)                  | Coppock Curve                                                             | Oscillators  |
 | [CORAL](trends_IIR/coral/Coral.md)                         | Coral Trend Filter                                                        | Trends (IIR) |
 | [CORREL](statistics/correl/Correl.md)                      | Correlation                                                               | Statistics   |
@@ -96,20 +97,19 @@
 | [DMH](dynamics/dmh/Dmh.md)                                 | Ehlers Directional Movement with Hann                                     | Dynamics     |
 | [DMX](dynamics/dmx/Dmx.md)                                 | Jurik Directional Movement Index                                          | Dynamics     |
 | [DOSC](oscillators/dosc/Dosc.md)                           | Derivative Oscillator                                                     | Oscillators  |
-| [DSO](oscillators/dso/Dso.md)                              | Ehlers Deviation-Scaled Oscillator                                        | Oscillators  |
 | [DPO](oscillators/dpo/Dpo.md)                              | Detrended Price Oscillator                                                | Oscillators  |
-| [DSTOCH](oscillators/dstoch/Dstoch.md)                     | Double Stochastic (Bressert)                                              | Oscillators  |
 | [DSMA](trends_IIR/dsma/Dsma.md)                            | Deviation-Scaled MA                                                       | Trends (IIR) |
+| [DSO](oscillators/dso/Dso.md)                              | Ehlers Deviation-Scaled Oscillator                                        | Oscillators  |
 | [DSP](cycles/dsp/Dsp.md)                                   | Ehlers Detrended Synthetic Price                                          | Cycles       |
+| [DSTOCH](oscillators/dstoch/Dstoch.md)                     | Double Stochastic (Bressert)                                              | Oscillators  |
 | [DWMA](trends_FIR/dwma/Dwma.md)                            | Double Weighted MA                                                        | Trends (FIR) |
 | [DWT](numerics/dwt/Dwt.md)                                 | Discrete Wavelet Transform                                                | Numerics     |
 | [DX](dynamics/dx/Dx.md)                                    | Directional Movement Index                                                | Dynamics     |
 | [DYMI](oscillators/dymi/Dymi.md)                            | Dynamic Momentum Index                                                    | Oscillators  |
-| [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
 | [EBSW](cycles/ebsw/Ebsw.md)                                | Ehlers Even Better Sinewave                                               | Cycles       |
 | [EDCF](filters/edcf/Edcf.md)                               | Ehlers Distance Coefficient Filter                                        | Filters      |
-| [EEO](oscillators/eeo/Eeo.md)                               | Ehlers Elegant Oscillator                                                 | Oscillators  |
 | [EDECAY](numerics/edecay/Edecay.md)                        | Exponential Decay                                                         | Numerics     |
+| [EEO](oscillators/eeo/Eeo.md)                               | Ehlers Elegant Oscillator                                                 | Oscillators  |
 | [EFI](volume/efi/Efi.md)                                   | Elder's Force Index                                                       | Volume       |
 | [ELLIPTIC](filters/elliptic/Elliptic.md)                   | Elliptic Filter                                                           | Filters      |
 | [EMA](trends_IIR/ema/Ema.md)                               | Exponential MA                                                            | Trends (IIR) |
@@ -142,8 +142,8 @@
 | [GWMA](trends_FIR/gwma/Gwma.md)                            | Gaussian Weighted MA                                                      | Trends (FIR) |
 | [HA](core/ha/Ha.md)                                        | Heikin-Ashi                                                               | Core         |
 | [HAMMA](trends_FIR/hamma/Hamma.md)                         | Hamming MA                                                                | Trends (FIR) |
-| [HANN](filters/hann/Hann.md)                               | Hann Filter                                                               | Filters      |
 | [HANMA](trends_FIR/hanma/Hanma.md)                         | Hanning MA                                                                | Trends (FIR) |
+| [HANN](filters/hann/Hann.md)                               | Hann Filter                                                               | Filters      |
 | [HARMEAN](statistics/harmean/Harmean.md)                   | Harmonic Mean                                                             | Statistics   |
 | [HEMA](trends_IIR/hema/Hema.md)                            | Hull Exponential MA                                                       | Trends (IIR) |
 | [HEND](trends_FIR/hend/Hend.md)                            | Henderson Moving Average                                                  | Trends (FIR) |
@@ -201,12 +201,12 @@
 | [LOGTRANS](numerics/logtrans/Logtrans.md)                  | Logarithmic Transform                                                     | Numerics     |
 | [LOWEST](numerics/lowest/Lowest.md)                        | Rolling Minimum                                                           | Numerics     |
 | [LRSI](oscillators/lrsi/Lrsi.md)                           | Ehlers Laguerre RSI                                                       | Oscillators  |
-| [MADH](oscillators/madh/Madh.md)                           | Ehlers Moving Average Difference with Hann                                | Oscillators  |
 | [LSMA](trends_FIR/lsma/Lsma.md)                            | Least Squares MA                                                          | Trends (FIR) |
 | [LTMA](trends_IIR/ltma/Ltma.md)                            | Linear Trend MA                                                           | Trends (IIR) |
 | [LUNAR](cycles/lunar/Lunar.md)                             | Lunar Phase                                                               | Cycles       |
 | [MAAPE](errors/maape/Maape.md)                             | Mean Arctangent APE                                                       | Errors       |
 | [MACD](momentum/macd/Macd.md)                              | Moving Average Convergence Divergence                                     | Momentum     |
+| [MADH](oscillators/madh/Madh.md)                           | Ehlers Moving Average Difference with Hann                                | Oscillators  |
 | [MAE](errors/mae/Mae.md)                                   | Mean Absolute Error                                                       | Errors       |
 | [MAENV](channels/maenv/maenv.md)                           | Moving Average Envelope                                                   | Channels     |
 | [MAMA](trends_IIR/mama/Mama.md)                            | Ehlers MESA Adaptive MA                                                   | Trends (IIR) |
@@ -234,8 +234,8 @@
 | [MINUS_DM](dynamics/minusdm/MinusDm.md)                    | Minus Directional Movement                                                | Dynamics     |
 | [MMA](trends_IIR/mma/Mma.md)                               | Modified MA                                                               | Trends (IIR) |
 | [MMCHANNEL](channels/mmchannel/Mmchannel.md)               | Min-Max Channel                                                           | Channels     |
-| [MODF](filters/modf/Modf.md)                               | Modular Filter                                                            | Filters      |
 | [MODE](statistics/mode/Mode.md)                            | Mode                                                                      | Statistics   |
+| [MODF](filters/modf/Modf.md)                               | Modular Filter                                                            | Filters      |
 | [MOM](momentum/mom/Mom.md)                                 | Momentum                                                                  | Momentum     |
 | [MPE](errors/mpe/Mpe.md)                                   | Mean Percentage Error                                                     | Errors       |
 | [MRAE](errors/mrae/Mrae.md)                                | Mean Relative Absolute Error                                              | Errors       |
@@ -246,8 +246,8 @@
 | [NET](filters/net/Net.md)                                  | Ehlers Noise Elimination Technology                                       | Filters      |
 | [NLMA](trends_FIR/nlma/Nlma.md)                            | Non-Lag Moving Average                                                    | Trends (FIR) |
 | [NMA](trends_IIR/nma/Nma.md)                               | Natural Moving Average                                                    | Trends (IIR) |
-| [NORMDIST](numerics/normdist/Normdist.md)                  | Normal Distribution                                                       | Numerics     |
 | [NORMALIZE](numerics/normalize/Normalize.md)               | Min-Max Normalization                                                     | Numerics     |
+| [NORMDIST](numerics/normdist/Normdist.md)                  | Normal Distribution                                                       | Numerics     |
 | [NOTCH](filters/notch/Notch.md)                            | Notch Filter                                                              | Filters      |
 | [NVI](volume/nvi/Nvi.md)                                   | Negative Volume Index                                                     | Volume       |
 | [NW](filters/nw/Nw.md)                                     | Nadaraya-Watson Kernel Regression                                         | Filters      |
@@ -305,17 +305,17 @@
 | [ROCP](momentum/rocp/Rocp.md)                              | Rate of Change Percentage                                                 | Momentum     |
 | [ROCR](momentum/rocr/Rocr.md)                              | Rate of Change Ratio                                                      | Momentum     |
 | [ROOFING](filters/roofing/Roofing.md)                      | Ehlers Roofing Filter                                                     | Filters      |
+| [RRSI](oscillators/rrsi/Rrsi.md)                           | Ehlers Rocket RSI                                                         | Oscillators  |
 | [RS](momentum/rs/Rs.md)                                     | Price Relative Strength                                                   | Momentum     |
 | [RSE](errors/rse/Rse.md)                                   | Relative Squared Error                                                    | Errors       |
 | [RSI](momentum/rsi/Rsi.md)                                 | Relative Strength Index                                                   | Momentum     |
+| [RSIH](oscillators/rsih/Rsih.md)                           | Ehlers Hann-Windowed RSI                                                  | Oscillators  |
 | [RSQUARED](errors/rsquared/Rsquared.md)                    | R² (Coefficient of Determination)                                         | Errors       |
 | [RSV](volatility/rsv/Rsv.md)                               | Rogers-Satchell Volatility                                                | Volatility   |
 | [RSX](momentum/rsx/Rsx.md)                                 | Relative Strength Quality Index                                           | Momentum     |
 | [RV](volatility/rv/Rv.md)                                  | Realized Volatility                                                       | Volatility   |
-| [RVI](volatility/rvi/Rvi.md)                               | Relative Volatility Index                                                 | Volatility   |
 | [RVGI](oscillators/rvgi/Rvgi.md)                           | Ehlers Relative Vigor Index                                               | Oscillators  |
-| [RRSI](oscillators/rrsi/Rrsi.md)                           | Ehlers Rocket RSI                                                         | Oscillators  |
-| [RSIH](oscillators/rsih/Rsih.md)                           | Ehlers Hann-Windowed RSI                                                  | Oscillators  |
+| [RVI](volatility/rvi/Rvi.md)                               | Relative Volatility Index                                                 | Volatility   |
 | [RWMA](trends_FIR/rwma/Rwma.md)                            | Range Weighted MA                                                         | Trends (FIR) |
 | [SAK](filters/sak/Sak.md)                                  | Ehlers Swiss Army Knife                                                   | Filters      |
 | [SAM](momentum/sam/Sam.md)                                 | Ehlers Smoothed Adaptive Momentum                                         | Momentum     |
@@ -350,8 +350,8 @@
 | [STOCHRSI](oscillators/stochrsi/Stochrsi.md)               | Stochastic RSI                                                            | Oscillators  |
 | [SUM](statistics/sum/Sum.md)                               | Rolling Sum                                                               | Statistics   |
 | [SUPER](dynamics/super/Super.md)                           | SuperTrend                                                                | Dynamics     |
-| [SWMA](trends_FIR/swma/Swma.md)                            | Symmetric Weighted MA                                                     | Trends (FIR) |
 | [SWINGS](reversals/swings/Swings.md)                       | Swing High/Low Detection                                                  | Reversals    |
+| [SWMA](trends_FIR/swma/Swma.md)                            | Symmetric Weighted MA                                                     | Trends (FIR) |
 | [T3](trends_IIR/t3/T3.md)                                  | Tillson T3 MA                                                             | Trends (IIR) |
 | [TD_SEQ](oscillators/td_seq/Td_seq.md)                     | TD Sequential                                                             | Oscillators  |
 | [TDIST](numerics/tdist/Tdist.md)                           | Student's t-Distribution                                                  | Numerics     |
@@ -391,10 +391,10 @@
 | [VO](volume/vo/Vo.md)                                      | Volume Oscillator                                                         | Volume       |
 | [VORTEX](dynamics/vortex/Vortex.md)                        | Vortex Indicator                                                          | Dynamics     |
 | [VOSS](filters/voss/Voss.md)                               | Ehlers Voss Predictive Filter                                             | Filters      |
-| [VSTOP](reversals/vstop/Vstop.md)                          | Volatility Stop                                                           | Reversals    |
 | [VOV](volatility/vov/Vov.md)                               | Volatility of Volatility                                                  | Volatility   |
 | [VR](volatility/vr/Vr.md)                                  | Volatility Ratio                                                          | Volatility   |
 | [VROC](volume/vroc/Vroc.md)                                | Volume Rate of Change                                                     | Volume       |
+| [VSTOP](reversals/vstop/Vstop.md)                          | Volatility Stop                                                           | Reversals    |
 | [VWAD](volume/vwad/Vwad.md)                                | Volume Weighted A/D                                                       | Volume       |
 | [VWAP](volume/vwap/Vwap.md)                                | Volume Weighted Average Price                                             | Volume       |
 | [VWAPBANDS](channels/vwapbands/Vwapbands.md)               | VWAP Bands                                                                | Channels     |
