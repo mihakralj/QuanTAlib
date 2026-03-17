@@ -1,0 +1,79 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Ultimate Strength Index (USI)", "USI", overlay = false)
+
+//@function Ehlers Ultimate Strength Index — a symmetric RSI replacement that uses
+//          the UltimateSmoother filter instead of Wilder's exponential smoothing.
+//          Output is bounded [-1, +1], with bullish > 0 and bearish < 0.
+//          Pipeline: SU/SD extraction → SMA(4) → UltimateSmoother(period) → normalize.
+//@param source Series of close prices
+//@param period UltimateSmoother filter period (default 28)
+//@returns USI value bounded [-1, +1]
+//@reference Ehlers, J.F. (2024). "Ultimate Strength Index (USI)."
+//           Technical Analysis of Stocks & Commodities, Nov 2024.
+//@optimized O(1) per bar — inline SMA(4) circular buffer + IIR filter
+usi(series float source, simple int period) =>
+    if period < 1
+        runtime.error("Period must be at least 1")
+
+    float src = nz(source)
+    float prevSrc = nz(source[1])
+
+    // --- Strength Up / Strength Down ---
+    float su = src > prevSrc ? src - prevSrc : 0.0
+    float sd = prevSrc > src ? prevSrc - src : 0.0
+
+    // --- Simple Moving Average of SU and SD over 4 bars ---
+    float avgSU = math.avg(su, nz(su[1]), nz(su[2]), nz(su[3]))
+    float avgSD = math.avg(sd, nz(sd[1]), nz(sd[2]), nz(sd[3]))
+
+    // --- UltimateSmoother coefficients ---
+    float a1 = math.exp(-1.414 * math.pi / period)
+    float c2 = 2.0 * a1 * math.cos(1.414 * math.pi / period)
+    float c3 = -a1 * a1
+    float c1 = (1.0 + c2 - c3) / 4.0
+
+    // --- UltimateSmoother of avgSU ---
+    var float usu = 0.0
+    if bar_index < 7
+        usu := avgSU
+    else
+        usu := (1.0 - c1) * avgSU + (2.0 * c1 - c2) * nz(avgSU[1]) - (c1 + c3) * nz(avgSU[2]) + c2 * nz(usu[1]) + c3 * nz(usu[2])
+
+    // --- UltimateSmoother of avgSD ---
+    var float usd = 0.0
+    if bar_index < 7
+        usd := avgSD
+    else
+        usd := (1.0 - c1) * avgSD + (2.0 * c1 - c2) * nz(avgSD[1]) - (c1 + c3) * nz(avgSD[2]) + c2 * nz(usd[1]) + c3 * nz(usd[2])
+
+    // --- USI normalization ---
+    float denom = usu + usd
+    float eps = 0.01
+    var float usiVal = 0.0
+    if denom > eps
+        usiVal := (usu - usd) / denom
+    usiVal
+
+// ——— Inputs ———
+int prd = input.int(28, "Period", minval = 1, tooltip = "UltimateSmoother filter period")
+string src = input.string("Close", "Source", options = ["Open","High","Low","Close","HL2","HLC3","HLCC4","OHLC4"])
+
+// ——— Source selector ———
+float price = switch src
+    "Open"  => open
+    "High"  => high
+    "Low"   => low
+    "HL2"   => hl2
+    "HLC3"  => hlc3
+    "HLCC4" => (high + low + close + close) / 4.0
+    "OHLC4" => ohlc4
+    => close
+
+// ——— Calculation & plot ———
+float val = usi(price, prd)
+hline(0, "Zero", color.gray, hline.style_dotted)
+hline(0.4, "+0.4", color.new(color.green, 60), hline.style_dashed)
+hline(-0.4, "-0.4", color.new(color.red, 60), hline.style_dashed)
+plot(val, "USI", val >= 0 ? color.teal : color.red, 2)

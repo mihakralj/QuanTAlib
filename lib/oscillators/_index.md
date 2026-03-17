@@ -59,4 +59,5 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [TRIX](trix/Trix.md) | Triple Exponential Average | ROC of triple EMA. Filters noise through three smoothings. |
 | [TTM_WAVE](ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (Waves A/B/C). John Carter. |
 | [ULTOSC](ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe oscillator. Combines 7, 14, 28 period buying pressure. |
+| [USI](usi/Usi.md) | Ehlers Ultimate Strength Index | Symmetric RSI replacement using UltimateSmoother. [-1, +1]. TASC Nov 2024. |
 | [WILLR](willr/Willr.md) | Williams %R | Inverse Stochastic. -100 to 0 range. Overbought/oversold. |

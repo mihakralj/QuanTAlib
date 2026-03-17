@@ -381,6 +381,7 @@
 | [UCHANNEL](channels/uchannel/Uchannel.md)                  | Ehlers Ultimate Channel                                                   | Channels     |
 | [UI](volatility/ui/Ui.md)                                  | Ulcer Index                                                               | Volatility   |
 | [ULTOSC](oscillators/ultosc/Ultosc.md)                     | Ultimate Oscillator                                                       | Oscillators  |
+| [USI](oscillators/usi/Usi.md)                               | Ehlers Ultimate Strength Index                                            | Oscillators  |
 | [USF](filters/usf/Usf.md)                                  | Ehlers Ultimate Smoother                                                  | Filters      |
 | [VA](volume/va/Va.md)                                      | Volume Accumulation                                                       | Volume       |
 | [VAMA](trends_IIR/vama/Vama.md)                            | Volatility Adjusted MA                                                    | Trends (IIR) |

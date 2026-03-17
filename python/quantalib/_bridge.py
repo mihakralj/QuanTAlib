@@ -458,6 +458,7 @@ HAS_BBB = _bind("qtl_bbb", [_dp, _ci, _dp, _ci, _cd])
 HAS_BBI = _bind("qtl_bbi", [_dp, _ci, _dp, _ci, _ci, _ci, _ci])
 HAS_DEM = _bind("qtl_dem", [_dp, _dp, _ci, _dp, _ci])
 HAS_BRAR = _bind("qtl_brar", [_dp, _dp, _dp, _dp, _ci, _dp, _dp, _ci])
+HAS_USI = _bind("qtl_usi", [_dp, _ci, _dp, _ci])
 
 # ── Trends — FIR  (Exports.cs — manual) ──
 HAS_SMA = _bind("qtl_sma", [_dp, _ci, _dp, _ci])

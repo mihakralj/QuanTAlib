@@ -639,3 +639,11 @@ def brar(open: object, high: object, low: object, close: object,
     n = len(o); br = _out(n); ar = _out(n)
     _check(_lib.qtl_brar(_ptr(o), _ptr(h), _ptr(l), _ptr(c), n, _ptr(br), _ptr(ar), length))
     return _wrap_multi({f"BR_{length}": br, f"AR_{length}": ar}, idx, "oscillators", offset)
+
+
+def usi(close: object, period: int = 28, offset: int = 0, **kwargs) -> object:
+    """Ehlers Ultimate Strength Index (USI)."""
+    period = int(period); offset = int(offset)
+    c, idx = _arr(close); n = len(c); dst = _out(n)
+    _check(_lib.qtl_usi(_ptr(c), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"USI_{period}", "oscillators", int(offset))

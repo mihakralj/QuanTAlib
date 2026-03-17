@@ -218,6 +218,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**TRIX**](../lib/oscillators/trix/Trix.md) | Triple Exponential Average | ROC of triple-smoothed EMA |
 | [**TTM_WAVE**](../lib/oscillators/ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (A/B/C waves) |
 | [**ULTOSC**](../lib/oscillators/ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe weighted buying pressure |
+| [**USI**](../lib/oscillators/usi/Usi.md) | Ehlers Ultimate Strength Index | UltimateSmoother-based RSI with symmetric [-1, +1] range |
 | [**WILLR**](../lib/oscillators/willr/Willr.md) | Williams %R | Inverse Stochastic (-100 to 0) |
 
 ### Dynamics

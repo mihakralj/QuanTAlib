@@ -179,6 +179,7 @@
   * [TRIX - Triple Exponential Average](/lib/oscillators/trix/Trix.md)
   * [TTM_WAVE - TTM Wave](/lib/oscillators/ttm_wave/TtmWave.md)
   * [ULTOSC - Ultimate Oscillator](/lib/oscillators/ultosc/Ultosc.md)
+  * [USI - Ehlers Ultimate Strength Index](/lib/oscillators/usi/Usi.md)
   * [WILLR - Williams %R](/lib/oscillators/willr/Willr.md)
 
 * [Dynamics](/lib/dynamics/_index.md)

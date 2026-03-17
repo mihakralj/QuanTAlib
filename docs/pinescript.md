@@ -248,6 +248,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | TRIX | Triple Exponential Average | [trix.pine](../lib/oscillators/trix/trix.pine) |
 | TTM_WAVE | TTM Wave | [ttm_wave.pine](../lib/oscillators/ttm_wave/ttm_wave.pine) |
 | ULTOSC | Ultimate Oscillator | [ultosc.pine](../lib/oscillators/ultosc/ultosc.pine) |
+| USI | Ehlers Ultimate Strength Index | [usi.pine](../lib/oscillators/usi/usi.pine) |
 | WILLR | Williams %R | [willr.pine](../lib/oscillators/willr/willr.pine) |
 
 ---
