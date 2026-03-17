@@ -50,6 +50,7 @@ __all__ = [
     "deco",
     "dosc",
     "dso",
+    "rsih",
     "dymi",
     "crsi",
     "bbb",
@@ -554,6 +555,14 @@ def dso(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_dso(_ptr(src), n, _ptr(dst), period))
     return _wrap(dst, idx, f"DSO_{period}", "oscillators", offset)
+
+
+def rsih(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Ehlers Hann-Windowed RSI."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_rsih(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"RSIH_{period}", "oscillators", offset)
 
 
 def dymi(close: object, base_period: int = 14, short_period: int = 5,

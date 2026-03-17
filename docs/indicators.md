@@ -203,6 +203,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**REFLEX**](../lib/oscillators/reflex/Reflex.md) | Ehlers Reflex | Zero-centered reversal oscillator |
 | [**REVERSEEMA**](../lib/oscillators/reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion oscillator |
 | [**RVGI**](../lib/oscillators/rvgi/Rvgi.md) | Ehlers Relative Vigor Index | Open-close vs high-low ratio with smoothing |
+| [**RSIH**](../lib/oscillators/rsih/Rsih.md) | Ehlers Hann-Windowed RSI | Hann-weighted zero-mean RSI [-1, +1] |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
 | [**SQUEEZE**](../lib/oscillators/squeeze/Squeeze.md) | Squeeze Momentum | BB inside KC squeeze with momentum |
 | [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100) |

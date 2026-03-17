@@ -233,6 +233,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | REFLEX | Ehlers Reflex | [reflex.pine](../lib/oscillators/reflex/reflex.pine) |
 | REVERSEEMA | Ehlers Reverse EMA | [reverseema.pine](../lib/oscillators/reverseema/reverseema.pine) |
 | RVGI | Relative Vigor Index | [rvgi.pine](../lib/oscillators/rvgi/rvgi.pine) |
+| RSIH | Ehlers Hann-Windowed RSI | [rsih.pine](../lib/oscillators/rsih/rsih.pine) |
 | SMI | Stochastic Momentum Index | [smi.pine](../lib/oscillators/smi/smi.pine) |
 | SQUEEZE | Squeeze Momentum | [squeeze.pine](../lib/oscillators/squeeze/squeeze.pine) |
 | STC | Schaff Trend Cycle | [stc.pine](../lib/oscillators/stc/stc.pine) |

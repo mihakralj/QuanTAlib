@@ -1,0 +1,50 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Hann-Windowed RSI (RSIH)", "RSIH", overlay = false)
+
+//@function Ehlers Hann-Windowed RSI — a zero-mean RSI variant using Hann window
+//          coefficients to weight price differences. Produces a bounded [-1, +1]
+//          oscillator with inherent smoothing via the Hann window. FIR filter.
+//@param source Series to analyze
+//@param period Lookback window for RSI calculation (>= 1)
+//@returns RSIH oscillator value [-1, +1]
+//@reference Ehlers, J.F. (2022). "(Yet Another) Improved RSI."
+//           Technical Analysis of Stocks & Commodities, Jan 2022.
+//@optimized O(N) per bar — FIR scan over Hann-weighted window
+rsih(series float source, simple int period) =>
+    if period < 1
+        runtime.error("Period must be at least 1")
+
+    float price = nz(source)
+
+    // --- Hann window coefficients precomputed per bar ---
+    float angle_step = 2.0 * math.pi / (period + 1)
+    float cu = 0.0
+    float cd = 0.0
+
+    for k = 1 to period
+        float newer = nz(source[k - 1])
+        float older = nz(source[k])
+        float diff = newer - older
+        float w = 1.0 - math.cos(angle_step * k)
+        if diff > 0
+            cu += w * diff
+        if diff < 0
+            cd += w * (-diff)
+
+    float result = (cu + cd) != 0.0 ? (cu - cd) / (cu + cd) : 0.0
+    result
+
+// ── Inputs ──
+int   p_period = input.int(14, "Period", minval = 1)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = rsih(p_src, p_period)
+
+// ── Plot ──
+plot(out, "RSIH", color.yellow, 2)
+hline(0, "Zero", color.gray)
+hline(0.5, "+0.5", color.new(color.red, 60))
+hline(-0.5, "-0.5", color.new(color.green, 60))

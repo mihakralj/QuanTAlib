@@ -163,6 +163,7 @@
   * [REVERSEEMA - Ehlers Reverse EMA](/lib/oscillators/reverseema/ReverseEma.md)
   * [RVGI - Ehlers Relative Vigor Index](/lib/oscillators/rvgi/Rvgi.md)
   * [RRSI - Ehlers Rocket RSI](/lib/oscillators/rrsi/Rrsi.md)
+  * [RSIH - Ehlers Hann-Windowed RSI](/lib/oscillators/rsih/Rsih.md)
   * [SMI - Stochastic Momentum Index](/lib/oscillators/smi/Smi.md)
   * [SQUEEZE - Squeeze Momentum](/lib/oscillators/squeeze/Squeeze.md)
   * [SQUEEZE_PRO - Squeeze Pro](/lib/oscillators/squeeze_pro/squeeze_pro.md)

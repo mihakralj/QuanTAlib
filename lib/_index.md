@@ -311,6 +311,7 @@
 | [RVI](volatility/rvi/Rvi.md)                               | Relative Volatility Index                                                 | Volatility   |
 | [RVGI](oscillators/rvgi/Rvgi.md)                           | Ehlers Relative Vigor Index                                               | Oscillators  |
 | [RRSI](oscillators/rrsi/Rrsi.md)                           | Ehlers Rocket RSI                                                         | Oscillators  |
+| [RSIH](oscillators/rsih/Rsih.md)                           | Ehlers Hann-Windowed RSI                                                  | Oscillators  |
 | [RWMA](trends_FIR/rwma/Rwma.md)                            | Range Weighted MA                                                         | Trends (FIR) |
 | [SAK](filters/sak/Sak.md)                                  | Ehlers Swiss Army Knife                                                   | Filters      |
 | [SAM](momentum/sam/Sam.md)                                 | Ehlers Smoothed Adaptive Momentum                                         | Momentum     |

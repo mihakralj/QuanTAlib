@@ -44,6 +44,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [REVERSEEMA](reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion subtracts EMA lag, producing zero-centered oscillator signal. |
 | [RVGI](rvgi/Rvgi.md) | Ehlers Relative Vigor Index | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
 | [RRSI](rrsi/Rrsi.md) | Ehlers Rocket RSI | Fisher Transform of Super Smoother–filtered RSI. Sharp cyclic reversal signals. |
+| [RSIH](rsih/Rsih.md) | Ehlers Hann-Windowed RSI | Hann-weighted CU/CD RSI, zero-mean [-1, +1]. FIR filter. TASC Jan 2022. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [SQUEEZE](squeeze/Squeeze.md) | Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
 | [SQUEEZE_PRO](squeeze_pro/squeeze_pro.md) | Squeeze Pro | Multi-level BB vs KC squeeze (wide/normal/narrow) with MOM-smoothed momentum. LazyBear. |
