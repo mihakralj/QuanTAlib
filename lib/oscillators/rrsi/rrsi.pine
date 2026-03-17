@@ -1,0 +1,62 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Rocket RSI (RRSI)", "RRSI", overlay=false)
+
+//@function Calculates the Rocket RSI (Ehlers, TASC May 2018)
+//@param source Source price series
+//@param smoothLength Super Smoother filter period
+//@param rsiLength RSI accumulation period
+//@returns Rocket RSI value (Fisher-transformed RSI)
+rrsi(series float source, simple int smoothLength, simple int rsiLength) =>
+    if smoothLength <= 0
+        runtime.error("Smooth length must be greater than 0")
+    if rsiLength <= 0
+        runtime.error("RSI length must be greater than 0")
+
+    // Super Smoother coefficients (Ehlers 2-pole Butterworth)
+    float a1 = math.exp(-1.414 * math.pi / smoothLength)
+    float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / smoothLength)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    // Momentum: Close - Close[rsiLength-1]
+    float mom = source - source[rsiLength - 1]
+
+    // Super Smoother Filter (2-pole IIR)
+    var float filt = 0.0
+    filt := bar_index < 2 ? mom : c1 * (mom + mom[1]) * 0.5 + c2 * filt[1] + c3 * filt[2]
+
+    // Ehlers RSI (summation-based, not Wilder)
+    float cu = 0.0
+    float cd = 0.0
+    for j = 0 to rsiLength - 1
+        float diff = filt[j] - filt[j + 1]
+        if diff > 0
+            cu += diff
+        else if diff < 0
+            cd -= diff
+
+    float cuCd = cu + cd
+    float myRsi = cuCd > 1e-10 ? (cu - cd) / cuCd : 0.0
+
+    // Clamp to ±0.999
+    myRsi := math.max(-0.999, math.min(0.999, myRsi))
+
+    // Fisher Transform (arctanh)
+    float rocket = 0.5 * math.log((1.0 + myRsi) / (1.0 - myRsi))
+    rocket
+
+// ---------- Main loop ----------
+
+i_smooth = input.int(10, "Smooth Length", minval=1, maxval=500)
+i_rsi    = input.int(10, "RSI Length", minval=1, maxval=500)
+i_source = input.source(close, "Source")
+
+rocket_rsi = rrsi(i_source, i_smooth, i_rsi)
+
+plot(rocket_rsi, "Rocket RSI", color=color.cyan, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+hline(2, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(-2, "Oversold", color=color.green, linestyle=hline.style_dashed)
