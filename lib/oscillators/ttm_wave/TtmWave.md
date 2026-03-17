@@ -10,6 +10,7 @@
 | **Outputs** | WaveA1, WaveA2, WaveB1, WaveB2, WaveC1, WaveC2 (`Last` = Wave1 = WaveA2) |
 | **Output range** | Unbounded (MACD histograms in price units) |
 | **Warmup period** | 752 bars |
+| **PineScript** | [ttm_wave.pine](ttm_wave.pine) |
 
 ### Key takeaways
 

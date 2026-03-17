@@ -10,6 +10,7 @@
 | Outputs      | double (single value) |
 | Output range | Unbounded, centered at zero |
 | Warmup       | `slowPeriod` bars (default: 34) |
+| PineScript   | [ao.pine](ao.pine)               |
 
 ### Key takeaways
 

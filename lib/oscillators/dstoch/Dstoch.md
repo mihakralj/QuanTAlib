@@ -1,21 +1,22 @@
-# DSTOCH — Double Stochastic (Bressert DSS)
+# DSTOCH: Double Stochastic (Bressert DSS)
 
-## Overview
+> *Apply the Stochastic formula twice — once to price, once to the result — and the oscillator sharpens from a gentle hill into a decisive cliff.*
 
-**DSTOCH** (Double Stochastic / DSS Bressert) applies the Stochastic oscillator formula twice with EMA smoothing between stages, producing a momentum indicator bounded between 0 and 100. Developed by Walter Bressert, it is more responsive than standard Stochastic while remaining bounded.
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                       |
+| **Inputs**       | High, Low, Close                 |
+| **Parameters**   | `period` (default 21)            |
+| **Outputs**      | Single series (Dstoch)           |
+| **Output range** | [0, 100]                         |
+| **Warmup**       | `period` bars                    |
+| **PineScript**   | [dstoch.pine](dstoch.pine)       |
 
-| Property   | Value           |
-| :--------- | :-------------- |
-| Category   | Oscillator      |
-| Output     | Single (DSS)    |
-| Range      | [0, 100]        |
-| Default    | period = 21     |
-| Input      | TBar (HLC)      |
-| Hot after  | period bars     |
+- DSTOCH (Double Stochastic / DSS Bressert) applies the Stochastic oscillator formula twice with EMA smoothing between stages, producing a momentum indicator bounded between 0 and 100 that is more responsive than standard Stochastic.
+- **Similar:** [Stoch](../stoch/Stoch.md), [StochRSI](../stochrsi/Stochrsi.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Overbought above 80, oversold below 20; sharper transitions than single Stochastic.
+- No external validation libraries implement DSS Bressert. Validated through self-consistency and behavioral testing.
 
-**Source:** [Dstoch.cs](Dstoch.cs) · [PineScript](dstoch.pine)
-
----
+DSTOCH applies the Stochastic normalization formula to price, then applies it again to the normalized result with EMA smoothing in between. This double application sharpens the oscillator's transitions, making overbought/oversold signals more decisive while remaining bounded to [0, 100].
 
 ## Formula
 

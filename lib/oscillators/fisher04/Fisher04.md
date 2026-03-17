@@ -2,9 +2,21 @@
 
 > *The Fisher Transform provides clear, unambiguous turning points that make it possible to identify trend reversals.*
 
-## Introduction
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                       |
+| **Inputs**       | Source (close)                   |
+| **Parameters**   | `period` (default 9)             |
+| **Outputs**      | Single series (Fisher04)         |
+| **Output range** | Unbounded (typically ±3)         |
+| **Warmup**       | `period` bars                    |
+| **PineScript**   | [fisher04.pine](fisher04.pine)   |
 
-The Fisher04 indicator implements the revised Fisher Transform from Chapter 1 of Ehlers' 2004 book *Cybernetic Analysis for Stocks and Futures*. It converts price data into a Gaussian normal distribution using the inverse hyperbolic tangent (arctanh), producing sharp turning-point signals. This 2004 revision uses wider normalization bandwidth, gentler IIR smoothing, and a reduced arctanh multiplier compared to the original 2002 TASC article, resulting in a smoother oscillator with less noise.
+- Fisher04 implements the revised Fisher Transform from Ehlers' 2004 *Cybernetic Analysis for Stocks and Futures*, converting price data to a Gaussian distribution via arctanh with wider normalization and gentler IIR smoothing than the original 2002 article.
+- **Similar:** [Fisher](../fisher/Fisher.md), [RRSI](../rrsi/Rrsi.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** Unbounded oscillator; values beyond ±2 indicate extremes. Uses 2004 coefficients (1.0 normalization, 0.5 IIR, 0.25 arctanh multiplier) — distinct from the 2002 version.
+- No external validation libraries implement the 2004 Fisher variant. Validated through self-consistency and behavioral testing.
+
+Fisher04 uses wider normalization bandwidth, gentler IIR smoothing (0.5 vs 0.67 feedback), and a halved arctanh multiplier (0.25 vs 0.5) compared to the original 2002 TASC formulation. The result is a smoother oscillator with less noise while retaining the sharp turning-point characteristics of the Fisher Transform.
 
 ## Historical Context
 

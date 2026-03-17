@@ -1,15 +1,22 @@
 # NET: Ehlers Noise Elimination Technology
 
-**NET** applies Kendall Tau-a rank correlation to a rolling window of the input series. It measures the degree of monotonic trend: +1 means perfectly rising, −1 means perfectly falling, 0 means no trend. Unlike Pearson correlation (used in CTI), Kendall tau is nonparametric and robust to outliers.
+> *Rank the bars. Count the agreements. If the market is trending, the ranks will tell you — without a single moving average.*
 
-| Property       | Value                        |
-| :------------- | :--------------------------- |
-| **Category**   | Filters                      |
-| **Author**     | John F. Ehlers               |
-| **Source**      | TASC, December 2020          |
-| **Parameters** | period (int, default 14, ≥ 2) |
-| **Output**     | double, bounded [−1, +1]     |
-| **Inputs**     | Single series (Close, HL2, etc.) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Filter                           |
+| **Inputs**       | Source (close)                   |
+| **Parameters**   | `period` (default 14, ≥ 2)      |
+| **Outputs**      | Single series (Net)              |
+| **Output range** | [-1, +1]                         |
+| **Warmup**       | `period` bars                    |
+| **PineScript**   | [net.pine](net.pine)             |
+
+- NET applies Kendall Tau-a rank correlation to a rolling window, measuring the degree of monotonic trend: +1 = perfectly rising, −1 = perfectly falling, 0 = no trend. Unlike Pearson correlation (CTI), Kendall tau is nonparametric and robust to outliers.
+- **Similar:** [CTI](../../oscillators/cti/Cti.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** Values above +0.5 or below −0.5 indicate strong monotonic trend; zero crossings signal direction changes.
+- No external validation libraries implement NET. Validated through self-consistency and behavioral testing.
+
+NET measures the degree of monotonic ordering within a rolling window using Kendall's Tau-a concordance statistic. For each pair of bars in the window, it checks whether both price and time agree on direction (concordant) or disagree (discordant). The normalized difference (concordant − discordant) / total_pairs produces a bounded [-1, +1] output with zero lag — no smoothing filters involved.
 
 ## Historical Context
 

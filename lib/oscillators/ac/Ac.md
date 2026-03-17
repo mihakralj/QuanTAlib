@@ -10,6 +10,7 @@
 | Outputs      | double (single value) |
 | Output range | Unbounded, centered at zero |
 | Warmup       | `slowPeriod + acPeriod - 1` bars (default: 38) |
+| PineScript   | [ac.pine](ac.pine)                              |
 
 ### Key takeaways
 

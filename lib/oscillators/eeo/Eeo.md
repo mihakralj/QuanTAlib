@@ -1,22 +1,26 @@
 # EEO: Ehlers Elegant Oscillator
 
-A bounded zero-crossing oscillator that applies the Inverse Fisher Transform to RMS-normalized 2-bar momentum, then smooths the result with a 2-pole Super Smoother filter. Output is approximately bounded to [-1, +1].
+> *Where DSO shouts through a megaphone, EEO whispers through a compressor — the Inverse Fisher Transform tames extremes into a clean bounded signal.*
 
-| Property       | Value                                         |
-|:-------------- |:--------------------------------------------- |
-| **Category**   | Oscillators                                   |
-| **Author**     | John F. Ehlers                                |
-| **Source**      | TASC, February 2022                          |
-| **Article**    | "An Elegant Oscillator: Inverse Fisher Transform Redux" |
-| **Input**      | Single series (Close)                         |
-| **Parameters** | BandEdge (default 20)                         |
-| **Output**     | Bounded ≈ [-1, +1]                           |
-| **Hot after**  | 50 + BandEdge bars                           |
-| **PineScript** | [eeo.pine](eeo.pine)                         |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Category**     | Oscillator                       |
+| **Inputs**       | Source (close)                   |
+| **Parameters**   | `bandEdge` (default 20)          |
+| **Outputs**      | Single series (Eeo)              |
+| **Output range** | Bounded ≈ [-1, +1]              |
+| **Warmup**       | `50 + bandEdge` bars             |
+| **PineScript**   | [eeo.pine](eeo.pine)            |
+
+- EEO (Elegant Oscillator) applies the Inverse Fisher Transform (tanh) to RMS-normalized 2-bar momentum, then smooths the result with a 2-pole Super Smoother filter, producing a bounded zero-crossing oscillator.
+- **Similar:** [DSO](../dso/Dso.md), [RSIH](../rsih/Rsih.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Output bounded ≈ [-1, +1]; ±0.5 levels indicate strong momentum. Unlike DSO (unbounded), EEO compresses extremes via tanh.
+- No external validation libraries implement EEO. Validated through self-consistency and behavioral testing.
+
+EEO is Ehlers' 2022 refinement of his earlier DSO (2018). Where DSO applies the Fisher Transform (arctanh) to expand a normalized signal, EEO applies the **Inverse Fisher Transform** (tanh) to compress it. The IFT naturally bounds the output to [-1, +1] without the ±0.99 clamping that DSO requires. A Super Smoother post-filter then removes residual noise. The fixed 50-bar RMS normalization window provides a stable volatility baseline independent of the BandEdge parameter.
 
 ## Historical Context
 
-Ehlers' 2022 "Elegant Oscillator" is a refinement of his earlier DSO (2018). Where DSO applies the Fisher Transform (arctanh) to expand a normalized signal, EEO applies the **Inverse Fisher Transform** (tanh) to compress it. The IFT naturally bounds the output to [-1, +1] without needing the ±0.99 clamping that DSO requires. A Super Smoother post-filter then removes residual noise.
+John F. Ehlers published the Elegant Oscillator in the February 2022 issue of *Technical Analysis of Stocks & Commodities* magazine under the title "An Elegant Oscillator: Inverse Fisher Transform Redux." The article presents EEO as a deliberate counterpart to his 2018 Deviation-Scaled Oscillator (DSO). While DSO uses the Fisher Transform (arctanh) to stretch readings near zero into large excursions, EEO uses the Inverse Fisher Transform (tanh) to compress them — producing a naturally bounded output without the artificial clamping that DSO requires.
 
 ## Architecture & Physics
 
