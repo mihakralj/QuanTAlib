@@ -173,13 +173,13 @@ public sealed class Atrstop : ITValuePublisher
             double upperEval, lowerEval;
             if (_useHighLow)
             {
-                upperEval = high + _multiplier * atrValue;
-                lowerEval = low - _multiplier * atrValue;
+                upperEval = high + (_multiplier * atrValue);
+                lowerEval = low - (_multiplier * atrValue);
             }
             else
             {
-                upperEval = close + _multiplier * atrValue;
-                lowerEval = close - _multiplier * atrValue;
+                upperEval = close + (_multiplier * atrValue);
+                lowerEval = close - (_multiplier * atrValue);
             }
 
             // Initialize bands on first hot bar

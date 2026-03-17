@@ -46,8 +46,8 @@ public sealed class BwMfiValidationTests
         double range1 = mfi1 * vol1;
         double range2 = mfi2 * vol2;
 
-        m.Update(new TBar(t, 100, 100 + range1 / 2, 100 - range1 / 2, 100, vol1));
-        m.Update(new TBar(t.AddMinutes(1), 100, 100 + range2 / 2, 100 - range2 / 2, 100, vol2));
+        m.Update(new TBar(t, 100, 100 + (range1 / 2), 100 - (range1 / 2), 100, vol1));
+        m.Update(new TBar(t.AddMinutes(1), 100, 100 + (range2 / 2), 100 - (range2 / 2), 100, vol2));
 
         Assert.Equal(expectedZone, m.Zone);
     }

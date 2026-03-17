@@ -174,7 +174,7 @@ public sealed class HwcTests
             // Low volatility: small oscillation
             indCalm.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.1)));
             // High volatility: large oscillation
-            indVolatile.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.1) * 20));
+            indVolatile.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (Math.Sin(i * 0.1) * 20)));
         }
 
         double widthCalm = indCalm.Upper.Value - indCalm.Lower.Value;
