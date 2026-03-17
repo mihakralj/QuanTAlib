@@ -421,6 +421,7 @@ Markets oscillate. These indicators try to measure the oscillation itself — th
 
 | Indicator | What It Does | Pine Script |
 | :--- | :--- | :--- |
+| AMFM | Ehlers AM Detector / FM Demodulator | [amfm.pine](../lib/cycles/amfm/amfm.pine) |
 | CCOR | Ehlers Correlation Cycle | [ccor.pine](../lib/cycles/ccor/ccor.pine) |
 | CCYC | Ehlers Cyber Cycle | [ccyc.pine](../lib/cycles/ccyc/ccyc.pine) |
 | CG | Ehlers Center of Gravity | [cg.pine](../lib/cycles/cg/cg.pine) |

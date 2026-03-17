@@ -1,0 +1,50 @@
+// AMFM: Ehlers AM Detector / FM Demodulator
+// John F. Ehlers — "A Technical Description of Market Data for Traders"
+// TASC, May 2021 (AM + FM) / June 2021 (strategy application)
+// Source: https://www.mesasoftware.com/papers/AMFM.pdf
+//
+// Decomposes price movement into amplitude (AM) and frequency (FM) components
+// using digital signal processing techniques from radio engineering.
+//
+// AM Detector: extracts volatility envelope from whitened spectrum
+//   Deriv = Close - Open  (whitening — removes DC, handles gaps)
+//   Envel = Highest(|Deriv|, 4)  (envelope detection)
+//   AM = SMA(Envel, 8)  (smoothed volatility)
+//
+// FM Demodulator: extracts timing/phase from whitened spectrum
+//   Deriv = Close - Open
+//   HL = clamp(10 * Deriv, -1, +1)  (hard limiter — strips amplitude)
+//   FM = SuperSmoother(HL, Period)  (integration via 2-pole Butterworth IIR)
+
+//@version=6
+indicator("AMFM - Ehlers AM Detector / FM Demodulator", shorttitle="AMFM",
+     overlay=false, precision=4)
+
+// ── Inputs ────────────────────────────────────────────────────────────
+int period = input.int(30, "FM Super Smoother Period", minval=1)
+
+// ── Common: Whitened derivative ───────────────────────────────────────
+float deriv = close - open
+
+// ── AM Detector ──────────────────────────────────────────────────────
+float envel = ta.highest(math.abs(deriv), 4)
+float am    = ta.sma(envel, 8)
+
+// ── FM Demodulator ───────────────────────────────────────────────────
+// Hard limiter: 10x gain then clamp to ±1 strips all amplitude info
+float hl = math.max(-1.0, math.min(1.0, 10.0 * deriv))
+
+// Super Smoother (2-pole Butterworth IIR) — integrates the hard-limited signal
+float a1 = math.exp(-1.414 * math.pi / period)
+float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / period)
+float c2 = b1
+float c3 = -(a1 * a1)
+float c1 = 1.0 - c2 - c3
+
+var float fm = 0.0
+fm := bar_index < 2 ? deriv : c1 * (hl + nz(hl[1])) / 2.0 + c2 * nz(fm[1]) + c3 * nz(fm[2])
+
+// ── Plots ────────────────────────────────────────────────────────────
+plot(am, "AM", color=color.new(color.orange, 0), linewidth=2)
+plot(fm, "FM", color=color.new(color.aqua, 0), linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

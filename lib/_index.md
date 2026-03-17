@@ -8,6 +8,7 @@
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
 | [ACF](statistics/acf/Acf.md)                               | Autocorrelation Function                                                  | Statistics   |
 | [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
+| [AMFM](cycles/amfm/Amfm.md)                                | Ehlers AM Detector / FM Demodulator                                       | Cycles       |
 | [AD](volume/ad/Ad.md)                                       | Accumulation/Distribution Line                                            | Volume       |
 | [ADF](statistics/adf/Adf.md)                               | Augmented Dickey-Fuller Test                                              | Statistics   |
 | [ADOSC](volume/adosc/Adosc.md)                             | Chaikin A/D Oscillator                                                    | Volume       |

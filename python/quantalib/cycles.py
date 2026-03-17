@@ -21,6 +21,7 @@ __all__ = [
     "ccor",
     "ebsw",
     "acp",
+    "amfm",
 ]
 
 
@@ -150,3 +151,13 @@ def acp(close: object, min_period: int = 8, max_period: int = 48,
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_acp(_ptr(src), n, _ptr(dst), int(min_period), int(max_period), int(avg_length), int(enhance)))
     return _wrap(dst, idx, f"ACP_{min_period}_{max_period}", "cycles", offset)
+
+
+def amfm(open: object, close: object, period: int = 30,
+         offset: int = 0, **kwargs) -> object:
+    """Ehlers AM Detector / FM Demodulator."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    o, idx = _arr(open); c, _ = _arr(close)
+    n = len(o); fm = _out(n); am = _out(n)
+    _check(_lib.qtl_amfm(_ptr(o), _ptr(c), n, _ptr(fm), _ptr(am), period))
+    return _wrap_multi({f"FM_{period}": fm, f"AM_{period}": am}, idx, "cycles", offset)

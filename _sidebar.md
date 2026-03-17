@@ -315,6 +315,7 @@
   * [VWAPSD - VWAP with Standard Deviation Bands](/lib/channels/vwapsd/Vwapsd.md)
 
 * [Cycles](/lib/cycles/_index.md)
+  * [AMFM - Ehlers AM Detector / FM Demodulator](/lib/cycles/amfm/Amfm.md)
   * [CCOR - Ehlers Correlation Cycle](/lib/cycles/ccor/Ccor.md)
   * [CCYC - Ehlers Cyber Cycle](/lib/cycles/ccyc/Ccyc.md)
   * [CG - Ehlers Center of Gravity](/lib/cycles/cg/Cg.md)

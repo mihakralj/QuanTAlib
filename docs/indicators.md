@@ -433,6 +433,7 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**AMFM**](../lib/cycles/amfm/Amfm.md) | Ehlers AM Detector / FM Demodulator | DSP decomposition into amplitude + frequency |
 | [**CCOR**](../lib/cycles/ccor/Ccor.md) | Ehlers Correlation Cycle | Dual Pearson correlation phasor + market state |
 | [**CCYC**](../lib/cycles/ccyc/Ccyc.md) | Ehlers Cyber Cycle | 4-tap FIR + 2-pole high-pass IIR cycle extraction |
 | [**CG**](../lib/cycles/cg/Cg.md) | Ehlers Center of Gravity | Ehlers cycle measurement |

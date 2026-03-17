@@ -1525,6 +1525,17 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Amfm: Pattern OC-dual (open, close → fmOut, amOut, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_amfm")]
+    public static int QtlAmfm(double* open, double* close, int n, double* dstFm, double* dstAm, int period)
+    {
+        if (open == null || close == null || dstFm == null || dstAm == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        int v = ChkPeriod(period); if (v != 0) return v;
+        try { Amfm.Batch(Src(open, n), Src(close, n), Dst(dstAm, n), Dst(dstFm, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.14  Numerics / transforms
     // ═══════════════════════════════════════════════════════════════════════

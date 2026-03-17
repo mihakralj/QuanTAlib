@@ -571,6 +571,7 @@ HAS_DSP = _bind("qtl_dsp", [_dp, _ci, _dp, _ci])
 HAS_CCOR = _bind("qtl_ccor", [_dp, _ci, _dp, _ci, _cd])
 HAS_EBSW = _bind("qtl_ebsw", [_dp, _ci, _dp, _ci, _ci])
 HAS_ACP = _bind("qtl_acp", [_dp, _ci, _dp, _ci, _ci, _ci, _ci])
+HAS_AMFM = _bind("qtl_amfm", [_dp, _dp, _ci, _dp, _dp, _ci])
 
 # ── Numerics  (Exports.cs — manual) ──
 HAS_CHANGE = _bind("qtl_change", [_dp, _ci, _dp, _ci])
