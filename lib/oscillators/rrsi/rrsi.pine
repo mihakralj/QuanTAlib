@@ -22,17 +22,18 @@ rrsi(series float source, simple int smoothLength, simple int rsiLength) =>
     float c1 = 1.0 - c2 - c3
 
     // Momentum: Close - Close[rsiLength-1]
-    float mom = source - source[rsiLength - 1]
+    // nz() prevents na propagation into the IIR filter on early bars
+    float mom = nz(source) - nz(source[rsiLength - 1])
 
     // Super Smoother Filter (2-pole IIR)
     var float filt = 0.0
-    filt := bar_index < 2 ? mom : c1 * (mom + mom[1]) * 0.5 + c2 * filt[1] + c3 * filt[2]
+    filt := bar_index < rsiLength ? mom : c1 * (mom + nz(mom[1])) * 0.5 + c2 * nz(filt[1]) + c3 * nz(filt[2])
 
     // Ehlers RSI (summation-based, not Wilder)
     float cu = 0.0
     float cd = 0.0
     for j = 0 to rsiLength - 1
-        float diff = filt[j] - filt[j + 1]
+        float diff = nz(filt[j]) - nz(filt[j + 1])
         if diff > 0
             cu += diff
         else if diff < 0
