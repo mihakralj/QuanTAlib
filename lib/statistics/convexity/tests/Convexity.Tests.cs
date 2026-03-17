@@ -93,10 +93,10 @@ public sealed class ConvexityTests
         for (int i = 1; i <= period; i++)
         {
             double sign = (i % 2 == 0) ? 1 : -1;
-            double magnitude = 0.01 + rng.NextDouble() * 0.03;
+            double magnitude = 0.01 + (rng.NextDouble() * 0.03);
             double mktReturn = sign * magnitude;
             mkt *= (1 + mktReturn);
-            ast *= (1 + 2 * mktReturn); // exactly 2x market return
+            ast *= (1 + (2 * mktReturn)); // exactly 2x market return
             c.Update(ast, mkt);
         }
 
@@ -123,7 +123,7 @@ public sealed class ConvexityTests
         for (int i = 1; i <= period; i++)
         {
             double sign = (i % 2 == 0) ? 1 : -1;
-            double magnitude = 0.01 + rng.NextDouble() * 0.03; // 1%-4% varying
+            double magnitude = 0.01 + (rng.NextDouble() * 0.03); // 1%-4% varying
             double mktReturn = sign * magnitude;
             double astReturn;
             if (mktReturn > 0)
@@ -157,8 +157,8 @@ public sealed class ConvexityTests
         c.Update(100.0, 100.0);
         for (int i = 0; i < 50; i++)
         {
-            double ast = 100.0 + rng.NextDouble() * 20 - 10;
-            double mkt = 100.0 + rng.NextDouble() * 20 - 10;
+            double ast = 100.0 + (rng.NextDouble() * 20) - 10;
+            double mkt = 100.0 + (rng.NextDouble() * 20) - 10;
             c.Update(ast, mkt);
             Assert.True(c.ConvexityValue >= 0, $"Convexity must be ≥ 0, got {c.ConvexityValue} at i={i}");
         }
@@ -179,8 +179,8 @@ public sealed class ConvexityTests
         for (int i = 1; i <= period + 5; i++)
         {
             double sign = (i % 2 == 0) ? 1 : -1;
-            double magnitude = 0.005 + rng.NextDouble() * 0.02;
-            price *= (1 + sign * magnitude);
+            double magnitude = 0.005 + (rng.NextDouble() * 0.02);
+            price *= (1 + (sign * magnitude));
             c.Update(price, price);
         }
 
@@ -296,9 +296,9 @@ public sealed class ConvexityTests
         for (int i = 0; i < 10; i++)
         {
             double sign = (i % 2 == 0) ? 1 : -1;
-            double magnitude = 0.005 + rng.NextDouble() * 0.02;
-            ast *= (1 + sign * magnitude * 1.5);
-            mkt *= (1 + sign * magnitude);
+            double magnitude = 0.005 + (rng.NextDouble() * 0.02);
+            ast *= (1 + (sign * magnitude * 1.5));
+            mkt *= (1 + (sign * magnitude));
             assetSeries.Add(new TValue(i, ast));
             marketSeries.Add(new TValue(i, mkt));
         }
@@ -394,7 +394,7 @@ public sealed class ConvexityTests
         for (int i = 1; i <= period; i++)
         {
             double sign = (i % 2 == 0) ? 1 : -1;
-            double magnitude = 0.01 + rng.NextDouble() * 0.03;
+            double magnitude = 0.01 + (rng.NextDouble() * 0.03);
             double mktRet = sign * magnitude;
             mkt *= (1 + mktRet);
             ast *= (1 - mktRet); // inverse
@@ -440,8 +440,8 @@ public sealed class ConvexityTests
 
         for (int i = 0; i < 1000; i++)
         {
-            ast *= (1 + (rng.NextDouble() - 0.5) * 0.04);
-            mkt *= (1 + (rng.NextDouble() - 0.5) * 0.02);
+            ast *= (1 + ((rng.NextDouble() - 0.5) * 0.04));
+            mkt *= (1 + ((rng.NextDouble() - 0.5) * 0.02));
             c.Update(ast, mkt);
 
             Assert.True(double.IsFinite(c.ConvexityValue), $"ConvexityValue not finite at i={i}");

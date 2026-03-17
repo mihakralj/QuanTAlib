@@ -57,7 +57,7 @@ public sealed class ConvexityIndicatorTests
         {
             ind.HistoricalData.AddBar(
                 DateTime.UtcNow.AddMinutes(i),
-                100 + i * 0.5, 101 + i * 0.5, 99 + i * 0.5, 100.5 + i * 0.5, 1000);
+                100 + (i * 0.5), 101 + (i * 0.5), 99 + (i * 0.5), 100.5 + (i * 0.5), 1000);
         }
 
         ind.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));

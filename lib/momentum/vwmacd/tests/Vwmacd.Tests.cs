@@ -74,7 +74,7 @@ public sealed class VwmacdTests
         var ind = new Vwmacd(fastPeriod: 3, slowPeriod: 5, signalPeriod: 3);
         for (int i = 0; i < 20; i++)
         {
-            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 100 + i, 105 + i, 95 + i, 101 + i, 1000 + i * 10);
+            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 100 + i, 105 + i, 95 + i, 101 + i, 1000 + (i * 10));
             ind.Update(bar);
         }
         Assert.True(double.IsFinite(ind.Last.Value));
@@ -116,7 +116,7 @@ public sealed class VwmacdTests
         var ind = new Vwmacd(fastPeriod: 5, slowPeriod: 10, signalPeriod: 3);
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + i * 2;
+            double price = 100.0 + (i * 2);
             var bar = new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 10000);
             ind.Update(bar);
         }
@@ -130,7 +130,7 @@ public sealed class VwmacdTests
         var ind = new Vwmacd(fastPeriod: 5, slowPeriod: 10, signalPeriod: 3);
         for (int i = 0; i < 30; i++)
         {
-            double price = 200.0 - i * 2;
+            double price = 200.0 - (i * 2);
             var bar = new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 10000);
             ind.Update(bar);
         }
@@ -326,7 +326,7 @@ public sealed class VwmacdTests
             // ind1: uniform volume
             ind1.Update(new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000));
             // ind2: high volume on latter bars (accelerating weight)
-            ind2.Update(new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000 + i * 500));
+            ind2.Update(new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000 + (i * 500)));
         }
 
         // Both should be finite; values may differ due to volume weighting

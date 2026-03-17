@@ -111,7 +111,7 @@ public sealed class Hwc : AbstractBase
         _decayGamma = 1.0 - gamma;
         _multiplier = multiplier;
 
-        int effectivePeriod = Math.Max((int)(2.0 / alpha - 1.0), 1);
+        int effectivePeriod = Math.Max((int)((2.0 / alpha) - 1.0), 1);
         WarmupPeriod = effectivePeriod;
         Name = $"Hwc({alpha:F3},{beta:F3},{gamma:F3},{multiplier:F1})";
         _state = new State(double.NaN, 0, 0, 0, double.NaN, false);
@@ -179,7 +179,7 @@ public sealed class Hwc : AbstractBase
             double prevA = _state.A;
 
             // HWMA: F = α×src + (1−α)×(prevF + prevV + 0.5×prevA)
-            double forecast = prevF + prevV + 0.5 * prevA;
+            double forecast = prevF + prevV + (0.5 * prevA);
             double newF = Math.FusedMultiplyAdd(forecast, _decayAlpha, _alpha * val);
 
             // V = β×(F − prevF) + (1−β)×(prevV + prevA)
@@ -188,7 +188,7 @@ public sealed class Hwc : AbstractBase
             // A = γ×(V − prevV) + (1−γ)×prevA
             double newA = Math.FusedMultiplyAdd(prevA, _decayGamma, _gamma * (newV - prevV));
 
-            result = newF + newV + 0.5 * newA;
+            result = newF + newV + (0.5 * newA);
 
             // Adaptive volatility filter: filt = α×(src − forecast)² + (1−α)×prevFilt
             double err = val - forecast;
@@ -240,7 +240,7 @@ public sealed class Hwc : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -299,11 +299,11 @@ public sealed class Hwc : AbstractBase
             }
             else
             {
-                double forecast = f + v + 0.5 * a;
+                double forecast = f + v + (0.5 * a);
                 double newF = Math.FusedMultiplyAdd(forecast, dA, alpha * val);
                 double newV = Math.FusedMultiplyAdd(v + a, dB, beta * (newF - f));
                 double newA = Math.FusedMultiplyAdd(a, dG, gamma * (newV - v));
-                result = newF + newV + 0.5 * newA;
+                result = newF + newV + (0.5 * newA);
 
                 double err = val - forecast;
                 filt = Math.FusedMultiplyAdd(err * err, alpha, filt * dA);
