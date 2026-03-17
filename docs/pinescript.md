@@ -213,6 +213,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | DSO | Ehlers Deviation-Scaled Oscillator | [dso.pine](../lib/oscillators/dso/dso.pine) |
 | DPO | Detrended Price Oscillator | [dpo.pine](../lib/oscillators/dpo/dpo.pine) |
 | DYMI | Dynamic Momentum Index | [dymi.pine](../lib/oscillators/dymi/dymi.pine) |
+| EEO | Ehlers Elegant Oscillator | [eeo.pine](../lib/oscillators/eeo/eeo.pine) |
 | ER | Efficiency Ratio | [er.pine](../lib/oscillators/er/er.pine) |
 | ERI | Elder Ray Index | [eri.pine](../lib/oscillators/eri/eri.pine) |
 | FI | Force Index | [fi.pine](../lib/oscillators/fi/fi.pine) |

@@ -23,6 +23,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
 | [DSTOCH](dstoch/Dstoch.md) | Double Stochastic (Bressert) | Stochastic applied to Stochastic with EMA smoothing. Bounded 0-100. |
 | [DYMI](dymi/Dymi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
+| [EEO](eeo/Eeo.md) | Ehlers Elegant Oscillator | IFT of RMS-normalized momentum with Super Smoother. TASC Feb 2022. |
 | [ER](er/Er.md) | Efficiency Ratio | Measures directional efficiency. Net movement / total path length. |
 | [ERI](eri/Eri.md) | Elder Ray Index | Separates bull and bear power relative to EMA. |
 | [FI](fi/Fi.md) | Force Index | Combines price change, direction, and volume to measure buying/selling power. |

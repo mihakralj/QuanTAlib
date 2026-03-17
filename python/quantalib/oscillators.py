@@ -573,6 +573,14 @@ def madh(close: object, shortLength: int = 8, dominantCycle: int = 27, offset: i
     return _wrap(dst, idx, f"MADH_{shortLength}_{dominantCycle}", "oscillators", int(offset))
 
 
+def eeo(close: object, bandEdge: int = 20, offset: int = 0, **kwargs) -> object:
+    """Ehlers Elegant Oscillator."""
+    bandEdge = int(kwargs.get("length", bandEdge)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_eeo(_ptr(src), n, _ptr(dst), bandEdge))
+    return _wrap(dst, idx, f"EEO_{bandEdge}", "oscillators", offset)
+
+
 def dymi(close: object, base_period: int = 14, short_period: int = 5,
          long_period: int = 10, min_period: int = 3, max_period: int = 30,
          offset: int = 0, **kwargs) -> object:

@@ -183,6 +183,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**DSO**](../lib/oscillators/dso/Dso.md) | Ehlers Deviation-Scaled Oscillator | SSF + RMS + Fisher Transform oscillator |
 | [**DPO**](../lib/oscillators/dpo/Dpo.md) | Detrended Price Oscillator | Displaced SMA trend removal |
 | [**DYMI**](../lib/oscillators/dymi/Dymi.md) | Dynamic Momentum Index | Volatility-adaptive RSI period |
+| [**EEO**](../lib/oscillators/eeo/Eeo.md) | Ehlers Elegant Oscillator | IFT of RMS-normalized momentum with Super Smoother |
 | [**ER**](../lib/oscillators/er/Er.md) | Efficiency Ratio | Net movement / total path length |
 | [**ERI**](../lib/oscillators/eri/Eri.md) | Elder Ray Index | Bull/bear power relative to EMA |
 | [**FI**](../lib/oscillators/fi/Fi.md) | Force Index | Price change × volume buying/selling power |

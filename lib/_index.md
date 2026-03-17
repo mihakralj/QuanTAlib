@@ -108,6 +108,7 @@
 | [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
 | [EBSW](cycles/ebsw/Ebsw.md)                                | Ehlers Even Better Sinewave                                               | Cycles       |
 | [EDCF](filters/edcf/Edcf.md)                               | Ehlers Distance Coefficient Filter                                        | Filters      |
+| [EEO](oscillators/eeo/Eeo.md)                               | Ehlers Elegant Oscillator                                                 | Oscillators  |
 | [EDECAY](numerics/edecay/Edecay.md)                        | Exponential Decay                                                         | Numerics     |
 | [EFI](volume/efi/Efi.md)                                   | Elder's Force Index                                                       | Volume       |
 | [ELLIPTIC](filters/elliptic/Elliptic.md)                   | Elliptic Filter                                                           | Filters      |

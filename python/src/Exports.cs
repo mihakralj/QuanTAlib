@@ -448,6 +448,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Eeo: Pattern A (src, out, int bandEdge)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_eeo")]
+    public static int QtlEeo(double* src, int n, double* dst, int bandEdge)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        if (bandEdge < 2) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Eeo.Batch(Src(src, n), Dst(dst, n), bandEdge); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Dymi: Pattern A (src, out, int p1..p5)
     [UnmanagedCallersOnly(EntryPoint = "qtl_dymi")]
     public static int QtlDymi(double* src, int n, double* dst, int p1, int p2, int p3, int p4, int p5)

@@ -142,6 +142,7 @@
   * [DPO - Detrended Price Oscillator](/lib/oscillators/dpo/Dpo.md)
   * [DSTOCH - Double Stochastic (Bressert)](/lib/oscillators/dstoch/Dstoch.md)
   * [DYMI - Dynamic Momentum Index](/lib/oscillators/dymi/dymi.md)
+  * [EEO - Ehlers Elegant Oscillator](/lib/oscillators/eeo/Eeo.md)
   * [ER - Efficiency Ratio](/lib/oscillators/er/Er.md)
   * [ERI - Elder Ray Index](/lib/oscillators/eri/Eri.md)
   * [FI - Force Index](/lib/oscillators/fi/Fi.md)

@@ -1,0 +1,75 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Elegant Oscillator (EEO)", "EEO", overlay = false)
+
+//@function Ehlers Elegant Oscillator — an Inverse Fisher Transform (IFT) applied to
+//          RMS-normalized 2-bar momentum, smoothed by a Super Smoother filter.
+//          Pipeline: Deriv = Close - Close[2] → RMS(50) → NDeriv = Deriv/RMS →
+//          IFish = tanh(NDeriv) → SuperSmoother(BandEdge).
+//          Output is bounded approximately [-1, +1].
+//@param source Series to analyze
+//@param bandEdge Super Smoother cutoff period (>= 2)
+//@returns EEO oscillator value (bounded ±1)
+//@reference Ehlers, J.F. (2022). "An Elegant Oscillator: Inverse Fisher Transform Redux."
+//           Technical Analysis of Stocks & Commodities, Feb 2022.
+//@optimized O(1) per bar via running sum circular buffer for RMS
+eeo(series float source, simple int bandEdge) =>
+    if bandEdge < 2
+        runtime.error("BandEdge must be at least 2")
+
+    float price = nz(source)
+
+    // --- 2-bar momentum (derivative) ---
+    float deriv = price - nz(source[2])
+
+    // --- Rolling RMS of derivative over 50 bars ---
+    var array<float> buf = array.new_float(50, 0.0)
+    var int head = 0
+    var float sum_sq = 0.0
+
+    float deriv_sq = deriv * deriv
+    float old_sq = array.get(buf, head)
+    array.set(buf, head, deriv_sq)
+    sum_sq := sum_sq - old_sq + deriv_sq
+    head := (head + 1) % 50
+
+    float rms = math.sqrt(math.max(sum_sq / 50.0, 1e-10))
+
+    // --- Normalize derivative by RMS ---
+    float nDeriv = rms > 1e-10 ? deriv / rms : 0.0
+
+    // --- Inverse Fisher Transform (tanh) ---
+    float e2n = math.exp(2.0 * nDeriv)
+    float iFish = (e2n - 1.0) / (e2n + 1.0)
+
+    // --- Super Smoother coefficients (2-pole Butterworth at BandEdge) ---
+    float a1 = math.exp(-1.414 * math.pi / bandEdge)
+    float b1 = 2.0 * a1 * math.cos(1.414 * 180.0 / bandEdge)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    // --- 2-pole Super Smoother filter ---
+    var float ss  = 0.0
+    var float ss1 = 0.0
+    var float ss2 = 0.0
+    float iFish1 = nz(iFish[1])
+    ss2 := ss1
+    ss1 := ss
+    ss := c1 * 0.5 * (iFish + iFish1) + c2 * ss1 + c3 * ss2
+
+    ss
+
+// ── Inputs ──
+int   p_bandEdge = input.int(20, "BandEdge", minval = 2)
+float p_src      = input.source(close, "Source")
+
+// ── Calculation ──
+float out = eeo(p_src, p_bandEdge)
+
+// ── Plot ──
+plot(out, "EEO", color.yellow, 2)
+hline(0, "Zero", color.gray)
+hline(0.5, "+0.5", color.new(color.red, 60))
+hline(-0.5, "-0.5", color.new(color.green, 60))
