@@ -106,6 +106,7 @@
   * [LMS - Least Mean Squares](/lib/filters/lms/Lms.md)
   * [LOESS - LOESS Smoothing](/lib/filters/loess/Loess.md)
   * [MODF - Modular Filter](/lib/filters/modf/Modf.md)
+  * [NET - Ehlers Noise Elimination Technology](/lib/filters/net/Net.md)
   * [NOTCH - Notch Filter](/lib/filters/notch/Notch.md)
   * [NW - Nadaraya-Watson Estimator](/lib/filters/nw/Nw.md)
   * [ONEEURO - One Euro Filter](/lib/filters/oneeuro/OneEuro.md)

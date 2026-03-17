@@ -38,6 +38,7 @@ __all__ = [
     "cheby2",
     "elliptic",
     "edcf",
+    "net",
     "bpf",
     "alaguerre",
     "bilateral",
@@ -375,6 +376,14 @@ def edcf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_edcf(_ptr(src), n, _ptr(dst), period))
     return _wrap(dst, idx, f"EDCF_{period}", "filters", offset)
+
+
+def net(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+    """Ehlers Noise Elimination Technology."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_net(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"NET_{period}", "filters", offset)
 
 
 def bpf(close: object, period: int = 14, bandwidth: int = 5,

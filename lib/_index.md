@@ -243,6 +243,7 @@
 | [MSLE](errors/msle/Msle.md)                                | Mean Squared Log Error                                                    | Errors       |
 | [MSTOCH](oscillators/mstoch/Mstoch.md)                     | Ehlers MESA Stochastic                                                    | Oscillators  |
 | [NATR](volatility/natr/Natr.md)                            | Normalized ATR                                                            | Volatility   |
+| [NET](filters/net/Net.md)                                  | Ehlers Noise Elimination Technology                                       | Filters      |
 | [NLMA](trends_FIR/nlma/Nlma.md)                            | Non-Lag Moving Average                                                    | Trends (FIR) |
 | [NMA](trends_IIR/nma/Nma.md)                               | Natural Moving Average                                                    | Trends (IIR) |
 | [NORMDIST](numerics/normdist/Normdist.md)                  | Normal Distribution                                                       | Numerics     |

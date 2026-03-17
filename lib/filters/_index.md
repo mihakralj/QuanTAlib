@@ -28,6 +28,7 @@ Signal processing filters adapted for financial time series. These are not indic
 | [LMS](lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR. NLMS weight update. O(order) per bar. |
 | [LOESS](loess/Loess.md) | LOESS Smoothing | Local polynomial regression. Robust to outliers. |
 | [MODF](modf/Modf.md) | Modular Filter | Dual-path adaptive filter with upper/lower EMA bands and state selection. |
+| [NET](net/Net.md) | Ehlers Noise Elimination Technology | Kendall Tau-a rank correlation for noise/trend separation. Bounded [-1, +1]. |
 | [NOTCH](notch/Notch.md) | Notch Filter | Band-stop. Removes specific frequency (e.g., 60 Hz noise). |
 | [NW](nw/Nw.md) | Nadaraya-Watson Kernel Regression | Non-parametric kernel regression smoothing. Bandwidth-adaptive. |
 | [ONEEURO](oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass. Adaptive cutoff from signal derivative. |

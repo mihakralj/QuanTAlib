@@ -172,6 +172,7 @@ These are the heavy artillery. Kalman filters, Butterworth filters, wavelets. If
 | LMS | Least Mean Squares | [lms.pine](../lib/filters/lms/lms.pine) |
 | LOESS | LOESS Smoothing | [loess.pine](../lib/filters/loess/loess.pine) |
 | MODF | Modular Filter | [modf.pine](../lib/filters/modf/modf.pine) |
+| NET | Ehlers Noise Elimination Technology | [net.pine](../lib/filters/net/net.pine) |
 | NOTCH | Notch Filter | [notch.pine](../lib/filters/notch/notch.pine) |
 | NW | Nadaraya-Watson Estimator | [nw.pine](../lib/filters/nw/nw.pine) |
 | ONEEURO | One Euro Filter | [oneeuro.pine](../lib/filters/oneeuro/oneeuro.pine) |

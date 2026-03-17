@@ -144,6 +144,7 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**LMS**](../lib/filters/lms/Lms.md) | Least Mean Squares | Widrow-Hoff adaptive FIR filter |
 | [**LOESS**](../lib/filters/loess/Loess.md) | LOESS Smoothing | Local polynomial regression |
 | [**MODF**](../lib/filters/modf/Modf.md) | Modular Filter | Dual-path adaptive filter with state selection |
+| [**NET**](../lib/filters/net/Net.md) | Ehlers Noise Elimination Technology | Kendall Tau-a rank correlation for noise elimination |
 | [**NOTCH**](../lib/filters/notch/Notch.md) | Notch Filter | Single frequency rejection |
 | [**NW**](../lib/filters/nw/Nw.md) | Nadaraya-Watson Estimator | Non-parametric Gaussian kernel regression smoothing |
 | [**ONEEURO**](../lib/filters/oneeuro/OneEuro.md) | One Euro Filter | Speed-adaptive low-pass, adaptive cutoff |
