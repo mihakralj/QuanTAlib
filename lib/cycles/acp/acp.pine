@@ -1,7 +1,7 @@
 // Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Ehlers Autocorrelation Periodogram (EACP)","EACP",overlay=false)
+indicator("Ehlers Autocorrelation Periodogram (ACP)","ACP",overlay=false)
 //@function Autocorrelation periodogram dominant cycle estimator
 //@param source Price input series
 //@param minPeriod Minimum period to evaluate
@@ -11,7 +11,7 @@ indicator("Ehlers Autocorrelation Periodogram (EACP)","EACP",overlay=false)
 //@returns Smoothed dominant cycle estimate
 //@optimized Removed buffer complexity, uses native PineScript historical operator for O(n) correlation
 //@validation wolfram:"Wiener-Khinchin theorem","Pearson correlation coefficient" external:"TradingView TASC 2025.02 Autocorrelation","ImmortalFreedom Ehlers ACP","QuantStrat autocorrPeriodogram"
-eacp(series float source,simple int minPeriod,simple int maxPeriod,simple int avgLength,simple bool enhance)=>
+acp(series float source,simple int minPeriod,simple int maxPeriod,simple int avgLength,simple bool enhance)=>
     if minPeriod<3
         runtime.error("Min period must be at least 3")
     if maxPeriod<=minPeriod
@@ -140,6 +140,6 @@ i_minPeriod=input.int(8,"Min Period",minval=3,maxval=500)
 i_maxPeriod=input.int(48,"Max Period",minval=4,maxval=500)
 i_avgLength=input.int(3,"Autocorrelation Length",minval=0,maxval=500)
 i_enhance=input.bool(true,"Enhance Resolution")
-[dominantCycle,normalizedPower]=eacp(i_source,i_minPeriod,i_maxPeriod,i_avgLength,i_enhance)
+[dominantCycle,normalizedPower]=acp(i_source,i_minPeriod,i_maxPeriod,i_avgLength,i_enhance)
 plot(dominantCycle,"Dominant Cycle",color=color.yellow,linewidth=2)
 plot(normalizedPower,"Normalized Power",color=color.orange,linewidth=2)

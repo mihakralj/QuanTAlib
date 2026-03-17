@@ -73,7 +73,7 @@
 | `dwma` | ⏭️ | no comparable pandas-ta equivalent |
 | `dwt` | ⏭️ | no comparable pandas-ta equivalent |
 | `dymoi` | ⏭️ | no comparable pandas-ta equivalent |
-| `eacp` | ⏭️ | no comparable pandas-ta equivalent |
+| `acp` | ⏭️ | no comparable pandas-ta equivalent |
 | `ebsw` | ⚠️ | max_diff=1.846e+00, n=100 |
 | `edcf` | ⏭️ | no comparable pandas-ta equivalent |
 | `efi` | ✔️ | max_diff=3.411e-13, n=100 |

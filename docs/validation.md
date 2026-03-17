@@ -145,7 +145,7 @@ Next parity targets (highest impact):
 | **Dynamic Momentum Index** | [Dymi](../lib/oscillators/dymi/Dymi.md) | - | - | - | [⚠️](../lib/oscillators/dymi/Dymi.md#validation "structural test only; Ooples uses different dynamic period logic") | - |
 | **Ease of Movement** | [Eom](../lib/volume/eom/Eom.md) | - | [✔️](../lib/volume/eom/Eom.md#validation) | - | - | ⚠️ |
 | **Efficiency Ratio** | [Er](../lib/oscillators/er/Er.md) | - | - | - | - | ⚠️ |
-| **Ehlers Autocorrelation Periodogram** | [Eacp](../lib/cycles/eacp/eacp.md) | - | - | - | - | - |
+| **Ehlers Autocorrelation Periodogram** | [Acp](../lib/cycles/acp/acp.md) | - | - | - | - | - |
 | **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | - | - | - | - | - |
 | **Ehlers Center of Gravity** | [Cg](../lib/cycles/cg/Cg.md) | - | - | - | [⚠️](../lib/cycles/cg/Cg.md#validation "structural test only; Ooples CG uses different weighting scheme") | ⚠️ |
 | **Ehlers Correlation Cycle** | [Ccor](../lib/cycles/ccor/Ccor.md) | - | - | - | - | - |

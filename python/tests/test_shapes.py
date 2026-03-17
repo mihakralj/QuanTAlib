@@ -56,7 +56,7 @@ MULTI_PARAM = [
     ("baxterking", {"length": 12, "min_period": 6, "max_period": 32}),
     ("cfitz", {"length": 6, "bw_period": 32}),
     ("ebsw", {"hp_length": 40, "ssf_length": 10}),
-    ("eacp", {"min_period": 8, "max_period": 48, "avg_length": 3, "enhance": 1}),
+    ("acp", {"min_period": 8, "max_period": 48, "avg_length": 3, "enhance": 1}),
     ("betadist", {"length": 50, "alpha": 2.0, "beta": 2.0}),
     ("expdist", {"length": 50, "lam": 3.0}),
     ("binomdist", {"length": 50, "trials": 20, "threshold": 10}),

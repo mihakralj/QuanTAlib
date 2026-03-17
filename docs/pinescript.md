@@ -419,7 +419,7 @@ Markets oscillate. These indicators try to measure the oscillation itself — th
 | CCYC | Ehlers Cyber Cycle | [ccyc.pine](../lib/cycles/ccyc/ccyc.pine) |
 | CG | Ehlers Center of Gravity | [cg.pine](../lib/cycles/cg/cg.pine) |
 | DSP | Ehlers Detrended Synthetic Price | [dsp.pine](../lib/cycles/dsp/dsp.pine) |
-| EACP | Ehlers Autocorrelation Periodogram | [eacp.pine](../lib/cycles/eacp/eacp.pine) |
+| ACP | Ehlers Autocorrelation Periodogram | [acp.pine](../lib/cycles/acp/acp.pine) |
 | EBSW | Ehlers Even Better Sinewave | [ebsw.pine](../lib/cycles/ebsw/ebsw.pine) |
 | HOMOD | Ehlers Homodyne Discriminator | [homod.pine](../lib/cycles/homod/homod.pine) |
 | HT_DCPERIOD | Ehlers Hilbert Transform Dominant Cycle Period | [ht_dcperiod.pine](../lib/cycles/ht_dcperiod/ht_dcperiod.pine) |

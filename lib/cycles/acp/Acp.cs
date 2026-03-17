@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// EACP: Ehlers Autocorrelation Periodogram - Dominant cycle estimator using
+/// ACP: Ehlers Autocorrelation Periodogram - Dominant cycle estimator using
 /// autocorrelation and spectral analysis via the Wiener-Khinchin theorem.
 /// </summary>
 /// <remarks>
@@ -32,7 +32,7 @@ namespace QuanTAlib;
 /// to spectral density, enabling frequency domain analysis.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Eacp : AbstractBase
+public sealed class Acp : AbstractBase
 {
     private readonly int _minPeriod;
     private readonly int _maxPeriod;
@@ -82,7 +82,7 @@ public sealed class Eacp : AbstractBase
     /// <param name="maxPeriod">Maximum period to evaluate (must be > minPeriod).</param>
     /// <param name="avgLength">Averaging length for Pearson correlation (0 uses lag length).</param>
     /// <param name="enhance">Apply cubic emphasis to highlight dominant peaks.</param>
-    public Eacp(int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
+    public Acp(int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
     {
         if (minPeriod < 3)
         {
@@ -126,7 +126,7 @@ public sealed class Eacp : AbstractBase
         _p_smooth = new double[size];
         _filtHistory = new RingBuffer(size + maxPeriod);
 
-        Name = $"Eacp({minPeriod},{maxPeriod})";
+        Name = $"Acp({minPeriod},{maxPeriod})";
         WarmupPeriod = maxPeriod * 2;
 
         // Initialize state
@@ -138,7 +138,7 @@ public sealed class Eacp : AbstractBase
     /// <summary>
     /// Creates a chained Ehlers Autocorrelation Periodogram indicator.
     /// </summary>
-    public Eacp(ITValuePublisher source, int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
+    public Acp(ITValuePublisher source, int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
         : this(minPeriod, maxPeriod, avgLength, enhance)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -424,17 +424,17 @@ public sealed class Eacp : AbstractBase
     }
 
     /// <summary>
-    /// Calculates EACP for a time series.
+    /// Calculates ACP for a time series.
     /// </summary>
     public static TSeries Batch(TSeries source, int minPeriod = 8, int maxPeriod = 48,
                                      int avgLength = 3, bool enhance = true)
     {
-        var eacp = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
-        return eacp.Update(source);
+        var acp = new Acp(minPeriod, maxPeriod, avgLength, enhance);
+        return acp.Update(source);
     }
 
     /// <summary>
-    /// Calculates EACP in-place using a pre-allocated output span.
+    /// Calculates ACP in-place using a pre-allocated output span.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output,
@@ -461,17 +461,17 @@ public sealed class Eacp : AbstractBase
         }
 
         // Use streaming implementation for batch (complex state management)
-        var eacp = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
+        var acp = new Acp(minPeriod, maxPeriod, avgLength, enhance);
         for (int i = 0; i < len; i++)
         {
-            var result = eacp.Update(new TValue(DateTime.MinValue, source[i]));
+            var result = acp.Update(new TValue(DateTime.MinValue, source[i]));
             output[i] = result.Value;
         }
     }
 
-    public static (TSeries Results, Eacp Indicator) Calculate(TSeries source, int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
+    public static (TSeries Results, Acp Indicator) Calculate(TSeries source, int minPeriod = 8, int maxPeriod = 48, int avgLength = 3, bool enhance = true)
     {
-        var indicator = new Eacp(minPeriod, maxPeriod, avgLength, enhance);
+        var indicator = new Acp(minPeriod, maxPeriod, avgLength, enhance);
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }

@@ -103,7 +103,7 @@ NO_PTA_EQUIVALENT: set[str] = {
     "bwma", "ccor", "ccv", "ccyc", "cfitz", "change", "cheby1", "cheby2",
     "cointegration", "conv", "coral", "correl", "covariance", "crma",
     "cv", "cvi", "cwt", "deco", "decycler", "dem", "dema_alpha", "dosc",
-    "dsma", "dsp", "dwma", "dwt", "dymi", "eacp", "edcf", "elliptic",
+    "dsma", "dsp", "dwma", "dwt", "dymi", "acp", "edcf", "elliptic",
     "ema_alpha", "etherm", "evwma", "ewma", "expdist", "exptrans",
     "fisher04", "gdema", "hanma", "hema", "kri", "lema", "lsma", "mae",
     "mape", "mse", "parzen", "pvd", "rain", "rmse", "sgma", "sinema",

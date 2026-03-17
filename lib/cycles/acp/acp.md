@@ -1,4 +1,4 @@
-# EACP: Ehlers Autocorrelation Periodogram
+# ACP: Ehlers Autocorrelation Periodogram
 
 > *Autocorrelation periodogram scans every possible cycle length and ranks them by strength — a spectral fingerprint of the market.*
 
@@ -7,16 +7,16 @@
 | **Category**     | Cycle                        |
 | **Inputs**       | Source (close)                          |
 | **Parameters**   | `minPeriod` (default 8), `maxPeriod` (default 48), `avgLength` (default 3), `enhance` (default true)                      |
-| **Outputs**      | Single series (Eacp)                       |
+| **Outputs**      | Single series (Acp)                       |
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `maxPeriod * 2` bars                          |
-| **PineScript**   | [eacp.pine](eacp.pine)                       |
+| **PineScript**   | [acp.pine](acp.pine)                       |
 
-- EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result i...
+- ACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem.
 - **Similar:** [CG](../cg/cg.md), [HT_DCPeriod](../ht_dcperiod/ht_dcperiod.md) | **Complementary:** EBSW for trend/cycle classification | **Trading note:** Ehlers Autocorrelation Periodogram; identifies dominant cycle length adaptively.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-EACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem. The output is a continuously updating cycle period measurement (in bars) that can adaptively tune other indicators to the market's current rhythm, making fixed-period assumptions unnecessary.
+ACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem. The output is a continuously updating cycle period measurement (in bars) that can adaptively tune other indicators to the market's current rhythm, making fixed-period assumptions unnecessary.
 
 ## Historical Context
 

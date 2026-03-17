@@ -20,7 +20,7 @@ __all__ = [
     "dsp",
     "ccor",
     "ebsw",
-    "eacp",
+    "acp",
 ]
 
 
@@ -142,11 +142,11 @@ def ebsw(close: object, hp_length: int = 40, ssf_length: int = 10,
     return _wrap(dst, idx, f"EBSW_{hp_length}", "cycles", offset)
 
 
-def eacp(close: object, min_period: int = 8, max_period: int = 48,
-         avg_length: int = 3, enhance: int = 1,
-         offset: int = 0, **kwargs) -> object:
+def acp(close: object, min_period: int = 8, max_period: int = 48,
+        avg_length: int = 3, enhance: int = 1,
+        offset: int = 0, **kwargs) -> object:
     """Ehlers Autocorrelation Periodogram."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_eacp(_ptr(src), n, _ptr(dst), int(min_period), int(max_period), int(avg_length), int(enhance)))
-    return _wrap(dst, idx, f"EACP_{min_period}_{max_period}", "cycles", offset)
+    _check(_lib.qtl_acp(_ptr(src), n, _ptr(dst), int(min_period), int(max_period), int(avg_length), int(enhance)))
+    return _wrap(dst, idx, f"ACP_{min_period}_{max_period}", "cycles", offset)

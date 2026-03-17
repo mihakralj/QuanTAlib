@@ -2,7 +2,7 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
-public class EacpTests
+public class AcpTests
 {
     private const double Tolerance = 1e-9;
 
@@ -11,18 +11,18 @@ public class EacpTests
     [Fact]
     public void Constructor_DefaultParameters_SetsProperties()
     {
-        var eacp = new Eacp();
+        var acp = new Acp();
 
-        Assert.Equal("Eacp(8,48)", eacp.Name);
-        Assert.False(eacp.IsHot);
+        Assert.Equal("Acp(8,48)", acp.Name);
+        Assert.False(acp.IsHot);
     }
 
     [Fact]
     public void Constructor_CustomParameters_SetsProperties()
     {
-        var eacp = new Eacp(minPeriod: 10, maxPeriod: 60, avgLength: 5, enhance: false);
+        var acp = new Acp(minPeriod: 10, maxPeriod: 60, avgLength: 5, enhance: false);
 
-        Assert.Equal("Eacp(10,60)", eacp.Name);
+        Assert.Equal("Acp(10,60)", acp.Name);
     }
 
     [Theory]
@@ -31,7 +31,7 @@ public class EacpTests
     [InlineData(-1)]
     public void Constructor_InvalidMinPeriod_ThrowsArgumentOutOfRange(int minPeriod)
     {
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Eacp(minPeriod, 48));
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Acp(minPeriod, 48));
         Assert.Equal("minPeriod", ex.ParamName);
     }
 
@@ -41,31 +41,31 @@ public class EacpTests
     [InlineData(10, 10)]
     public void Constructor_MaxPeriodNotGreaterThanMin_ThrowsArgumentOutOfRange(int minPeriod, int maxPeriod)
     {
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Eacp(minPeriod, maxPeriod));
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Acp(minPeriod, maxPeriod));
         Assert.Equal("maxPeriod", ex.ParamName);
     }
 
     [Fact]
     public void Constructor_NegativeAvgLength_ThrowsArgumentOutOfRange()
     {
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Eacp(8, 48, avgLength: -1));
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new Acp(8, 48, avgLength: -1));
         Assert.Equal("avgLength", ex.ParamName);
     }
 
     [Fact]
     public void Constructor_WithNullSource_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => new Eacp(null!, 8, 48));
+        Assert.Throws<ArgumentNullException>(() => new Acp(null!, 8, 48));
     }
 
     [Fact]
     public void Constructor_WithValidSource_Subscribes()
     {
         var source = new TSeries();
-        var eacp = new Eacp(source, 8, 48);
+        var acp = new Acp(source, 8, 48);
 
         source.Add(new TValue(DateTime.UtcNow, 100.0));
-        Assert.NotEqual(default, eacp.Last);
+        Assert.NotEqual(default, acp.Last);
     }
 
     #endregion
@@ -75,8 +75,8 @@ public class EacpTests
     [Fact]
     public void Update_ReturnsValidTValue()
     {
-        var eacp = new Eacp(8, 48);
-        var result = eacp.Update(new TValue(DateTime.UtcNow, 100.0));
+        var acp = new Acp(8, 48);
+        var result = acp.Update(new TValue(DateTime.UtcNow, 100.0));
 
         Assert.True(double.IsFinite(result.Value));
     }
@@ -84,59 +84,59 @@ public class EacpTests
     [Fact]
     public void Update_AfterWarmup_IsHotTrue()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
+        Assert.True(acp.IsHot);
     }
 
     [Fact]
     public void Update_DominantCycle_WithinRange()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
         // Dominant cycle should be within the specified range
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     [Fact]
     public void Update_NormalizedPower_BetweenZeroAndOne()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.InRange(eacp.NormalizedPower, 0, 1);
+        Assert.InRange(acp.NormalizedPower, 0, 1);
     }
 
     [Fact]
     public void Update_InitialValue_NearMidpoint()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         // First update should return near midpoint of range
-        var result = eacp.Update(new TValue(DateTime.UtcNow, 100.0));
+        var result = acp.Update(new TValue(DateTime.UtcNow, 100.0));
 
         // Initial dominant cycle starts at (8+48)/2 = 28
         Assert.True(result.Value >= 8 && result.Value <= 48);
@@ -149,13 +149,13 @@ public class EacpTests
     [Fact]
     public void Update_IsNewTrue_AdvancesState()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
-        eacp.Update(new TValue(DateTime.UtcNow, 100.0), isNew: true);
-        var first = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow, 100.0), isNew: true);
+        var first = acp.Last.Value;
 
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), 110.0), isNew: true);
-        var second = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), 110.0), isNew: true);
+        var second = acp.Last.Value;
 
         // Values should potentially differ
         Assert.True(double.IsFinite(first) && double.IsFinite(second));
@@ -164,20 +164,20 @@ public class EacpTests
     [Fact]
     public void Update_IsNewFalse_ReplacesCurrentBar()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
         }
 
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
-        var beforeCorrection = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
+        var beforeCorrection = acp.Last.Value;
 
         // Correct the bar with a different value
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 90.0), isNew: false);
-        var afterCorrection = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 90.0), isNew: false);
+        var afterCorrection = acp.Last.Value;
 
         // Values should differ after correction
         Assert.True(double.IsFinite(beforeCorrection) && double.IsFinite(afterCorrection));
@@ -186,23 +186,23 @@ public class EacpTests
     [Fact]
     public void Update_MultipleCorrections_RestoresToSnapshot()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i), isNew: true);
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i), isNew: true);
         }
 
         // Add a new bar
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 150.0), isNew: true);
-        var originalValue = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 150.0), isNew: true);
+        var originalValue = acp.Last.Value;
 
         // Correct multiple times
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 160.0), isNew: false);
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 140.0), isNew: false);
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 150.0), isNew: false);
-        var restoredValue = eacp.Last.Value;
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 160.0), isNew: false);
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 140.0), isNew: false);
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 150.0), isNew: false);
+        var restoredValue = acp.Last.Value;
 
         Assert.Equal(originalValue, restoredValue, Tolerance);
     }
@@ -214,41 +214,41 @@ public class EacpTests
     [Fact]
     public void Reset_ClearsState()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         for (int i = 0; i < 200; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i));
         }
 
-        Assert.True(eacp.IsHot);
+        Assert.True(acp.IsHot);
 
-        eacp.Reset();
+        acp.Reset();
 
-        Assert.False(eacp.IsHot);
-        Assert.Equal(default, eacp.Last);
+        Assert.False(acp.IsHot);
+        Assert.Equal(default, acp.Last);
     }
 
     [Fact]
     public void Reset_AllowsReuse()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         // First run
         for (int i = 0; i < 200; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
         }
-        var firstResult = eacp.Last.Value;
+        var firstResult = acp.Last.Value;
 
-        eacp.Reset();
+        acp.Reset();
 
         // Second run with same data
         for (int i = 0; i < 200; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
         }
-        var secondResult = eacp.Last.Value;
+        var secondResult = acp.Last.Value;
 
         Assert.Equal(firstResult, secondResult, Tolerance);
     }
@@ -260,34 +260,34 @@ public class EacpTests
     [Fact]
     public void Update_NaN_UsesLastValidValue()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
-        eacp.Update(new TValue(DateTime.UtcNow, 100.0));
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.NaN));
+        acp.Update(new TValue(DateTime.UtcNow, 100.0));
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.NaN));
 
-        Assert.True(double.IsFinite(eacp.Last.Value));
+        Assert.True(double.IsFinite(acp.Last.Value));
     }
 
     [Fact]
     public void Update_Infinity_UsesLastValidValue()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
-        eacp.Update(new TValue(DateTime.UtcNow, 100.0));
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.PositiveInfinity));
+        acp.Update(new TValue(DateTime.UtcNow, 100.0));
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.PositiveInfinity));
 
-        Assert.True(double.IsFinite(eacp.Last.Value));
+        Assert.True(double.IsFinite(acp.Last.Value));
     }
 
     [Fact]
     public void Update_NegativeInfinity_UsesLastValidValue()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
-        eacp.Update(new TValue(DateTime.UtcNow, 100.0));
-        eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.NegativeInfinity));
+        acp.Update(new TValue(DateTime.UtcNow, 100.0));
+        acp.Update(new TValue(DateTime.UtcNow.AddSeconds(1), double.NegativeInfinity));
 
-        Assert.True(double.IsFinite(eacp.Last.Value));
+        Assert.True(double.IsFinite(acp.Last.Value));
     }
 
     #endregion
@@ -308,7 +308,7 @@ public class EacpTests
         var bars = gbm.Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Streaming
-        var streaming = new Eacp(minPeriod, maxPeriod);
+        var streaming = new Acp(minPeriod, maxPeriod);
         foreach (var bar in bars)
         {
             streaming.Update(new TValue(bar.Time, bar.Close));
@@ -321,7 +321,7 @@ public class EacpTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Eacp.Batch(tSeries, minPeriod, maxPeriod);
+        var batch = Acp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -338,7 +338,7 @@ public class EacpTests
         var bars = gbm.Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Streaming
-        var streaming = new Eacp(minPeriod, maxPeriod);
+        var streaming = new Acp(minPeriod, maxPeriod);
         var streamingResults = new double[dataLen];
         for (int i = 0; i < dataLen; i++)
         {
@@ -354,7 +354,7 @@ public class EacpTests
             source[i] = bars[i].Close;
         }
 
-        Eacp.Batch(source, batchResults, minPeriod, maxPeriod);
+        Acp.Batch(source, batchResults, minPeriod, maxPeriod);
 
         // Compare all values
         for (int i = 0; i < dataLen; i++)
@@ -373,7 +373,7 @@ public class EacpTests
         double[] source = new double[100];
         double[] output = new double[50];
 
-        var ex = Assert.Throws<ArgumentException>(() => Eacp.Batch(source, output, 8, 48));
+        var ex = Assert.Throws<ArgumentException>(() => Acp.Batch(source, output, 8, 48));
         Assert.Equal("output", ex.ParamName);
     }
 
@@ -383,7 +383,7 @@ public class EacpTests
         double[] source = new double[100];
         double[] output = new double[100];
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => Eacp.Batch(source, output, 2, 48));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Acp.Batch(source, output, 2, 48));
     }
 
     [Fact]
@@ -392,7 +392,7 @@ public class EacpTests
         double[] source = new double[100];
         double[] output = new double[100];
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => Eacp.Batch(source, output, 8, 8));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Acp.Batch(source, output, 8, 8));
     }
 
     [Fact]
@@ -401,7 +401,7 @@ public class EacpTests
         double[] source = [];
         double[] output = [];
 
-        var ex = Record.Exception(() => Eacp.Batch(source, output, 8, 48));
+        var ex = Record.Exception(() => Acp.Batch(source, output, 8, 48));
         Assert.Null(ex);
     }
 
@@ -411,7 +411,7 @@ public class EacpTests
         double[] source = { 100, 101, double.NaN, 103, 104, 105, 106, 107, 108, 109 };
         double[] output = new double[10];
 
-        Eacp.Batch(source, output, 3, 8);
+        Acp.Batch(source, output, 3, 8);
 
         foreach (double v in output)
         {
@@ -427,23 +427,23 @@ public class EacpTests
     public void Chaining_PropagatesUpdates()
     {
         var source = new TSeries();
-        var eacp = new Eacp(source, 8, 48);
+        var acp = new Acp(source, 8, 48);
 
         for (int i = 0; i < 200; i++)
         {
             source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.True(double.IsFinite(eacp.Last.Value));
+        Assert.True(acp.IsHot);
+        Assert.True(double.IsFinite(acp.Last.Value));
     }
 
     [Fact]
     public void Chaining_MultipleIndicators()
     {
         var source = new TSeries();
-        var eacp1 = new Eacp(source, 8, 48);
-        var eacp2 = new Eacp(source, 12, 60);
+        var acp1 = new Acp(source, 8, 48);
+        var acp2 = new Acp(source, 12, 60);
 
         for (int i = 0; i < 300; i++)
         {
@@ -451,11 +451,11 @@ public class EacpTests
         }
 
         // Both should have values
-        Assert.True(double.IsFinite(eacp1.Last.Value));
-        Assert.True(double.IsFinite(eacp2.Last.Value));
+        Assert.True(double.IsFinite(acp1.Last.Value));
+        Assert.True(double.IsFinite(acp2.Last.Value));
 
         // Different ranges should produce different results
-        Assert.NotEqual(eacp1.Last.Value, eacp2.Last.Value);
+        Assert.NotEqual(acp1.Last.Value, acp2.Last.Value);
     }
 
     #endregion
@@ -468,35 +468,35 @@ public class EacpTests
     [InlineData(12, 100)]
     public void Update_DifferentRanges_ProducesValidResults(int minPeriod, int maxPeriod)
     {
-        var eacp = new Eacp(minPeriod, maxPeriod);
+        var acp = new Acp(minPeriod, maxPeriod);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, minPeriod, maxPeriod);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, minPeriod, maxPeriod);
     }
 
     [Fact]
     public void Update_EnhanceFalse_ProducesValidResults()
     {
-        var eacp = new Eacp(8, 48, avgLength: 3, enhance: false);
+        var acp = new Acp(8, 48, avgLength: 3, enhance: false);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     [Theory]
@@ -506,18 +506,18 @@ public class EacpTests
     [InlineData(10)]
     public void Update_DifferentAvgLength_ProducesValidResults(int avgLength)
     {
-        var eacp = new Eacp(8, 48, avgLength: avgLength);
+        var acp = new Acp(8, 48, avgLength: avgLength);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     #endregion

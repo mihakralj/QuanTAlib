@@ -3,12 +3,12 @@ using Xunit;
 namespace QuanTAlib.Tests;
 
 /// <summary>
-/// Validation tests for EACP (Ehlers Autocorrelation Periodogram).
-/// EACP is Ehlers' proprietary indicator not commonly implemented in trading libraries
+/// Validation tests for ACP (Ehlers Autocorrelation Periodogram).
+/// ACP is Ehlers' proprietary indicator not commonly implemented in trading libraries
 /// (TA-Lib, Skender, Tulip), so validation is done against mathematical properties
 /// and known theoretical results based on the original PineScript implementation.
 /// </summary>
-public class EacpValidationTests
+public class AcpValidationTests
 {
     private const double Tolerance = 1e-9;
 
@@ -19,42 +19,42 @@ public class EacpValidationTests
     {
         // For constant input, autocorrelation is undefined but the algorithm
         // should still produce a value within the valid range
-        var eacp = new Eacp(8, 48, 3, true);
+        var acp = new Acp(8, 48, 3, true);
 
         for (int i = 0; i < 500; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0));
         }
 
-        Assert.InRange(eacp.DominantCycle, 8, 48);
-        Assert.InRange(eacp.NormalizedPower, 0.0, 1.0);
+        Assert.InRange(acp.DominantCycle, 8, 48);
+        Assert.InRange(acp.NormalizedPower, 0.0, 1.0);
     }
 
     [Fact]
     public void Validation_SineWave_DetectsPeriod()
     {
-        // EACP should detect the dominant period in a sine wave
+        // ACP should detect the dominant period in a sine wave
         const int knownPeriod = 20;
-        var eacp = new Eacp(8, 48, 3, true);
+        var acp = new Acp(8, 48, 3, true);
 
         // Generate sine wave with known period
         for (int i = 0; i < 500; i++)
         {
             double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
         // Dominant cycle should be close to the known period
         // Allow 20% tolerance due to filter lag and warmup effects
         double tolerance = knownPeriod * 0.3;
-        Assert.InRange(eacp.DominantCycle, knownPeriod - tolerance, knownPeriod + tolerance);
+        Assert.InRange(acp.DominantCycle, knownPeriod - tolerance, knownPeriod + tolerance);
     }
 
     [Fact]
     public void Validation_MultipleCycles_DetectsDominant()
     {
-        // When multiple cycles are present, EACP should detect the dominant one
-        var eacp = new Eacp(8, 48, 3, true);
+        // When multiple cycles are present, ACP should detect the dominant one
+        var acp = new Acp(8, 48, 3, true);
 
         // Generate signal with dominant 16-period cycle and weaker 32-period cycle
         for (int i = 0; i < 500; i++)
@@ -62,26 +62,26 @@ public class EacpValidationTests
             double cycle16 = 10.0 * Math.Sin(2.0 * Math.PI * i / 16.0);  // Stronger
             double cycle32 = 5.0 * Math.Sin(2.0 * Math.PI * i / 32.0);   // Weaker
             double price = 100.0 + cycle16 + cycle32;
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
         // Should detect the dominant cycle (16) rather than the weaker one
-        Assert.InRange(eacp.DominantCycle, 12, 24);
+        Assert.InRange(acp.DominantCycle, 12, 24);
     }
 
     [Fact]
     public void Validation_NormalizedPower_BoundedZeroToOne()
     {
         // Normalized power should always be between 0 and 1
-        var eacp = new Eacp(8, 48, 3, true);
+        var acp = new Acp(8, 48, 3, true);
 
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
-            Assert.InRange(eacp.NormalizedPower, 0.0, 1.0);
+            acp.Update(new TValue(bar.Time, bar.Close));
+            Assert.InRange(acp.NormalizedPower, 0.0, 1.0);
         }
     }
 
@@ -104,8 +104,8 @@ public class EacpValidationTests
         Assert.InRange(expectedAlphaHP, 0.0, 1.0);
 
         // The indicator should use this coefficient
-        var eacp = new Eacp(8, maxPeriod);
-        Assert.True(eacp.Name.Contains("48", StringComparison.Ordinal));
+        var acp = new Acp(8, maxPeriod);
+        Assert.True(acp.Name.Contains("48", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -149,20 +149,20 @@ public class EacpValidationTests
         // Enhance mode applies cubic emphasis (pwr^3)
         // This should make peaks more pronounced
 
-        var eacpEnhanced = new Eacp(8, 48, 3, enhance: true);
-        var eacpNormal = new Eacp(8, 48, 3, enhance: false);
+        var acpEnhanced = new Acp(8, 48, 3, enhance: true);
+        var acpNormal = new Acp(8, 48, 3, enhance: false);
 
         // Generate sine wave
         for (int i = 0; i < 300; i++)
         {
             double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
-            eacpEnhanced.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
-            eacpNormal.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acpEnhanced.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acpNormal.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
         // Both should produce valid results
-        Assert.InRange(eacpEnhanced.DominantCycle, 8, 48);
-        Assert.InRange(eacpNormal.DominantCycle, 8, 48);
+        Assert.InRange(acpEnhanced.DominantCycle, 8, 48);
+        Assert.InRange(acpNormal.DominantCycle, 8, 48);
     }
 
     #endregion
@@ -183,7 +183,7 @@ public class EacpValidationTests
         var bars = gbm.Fetch(dataLen, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // Streaming
-        var streaming = new Eacp(minPeriod, maxPeriod);
+        var streaming = new Acp(minPeriod, maxPeriod);
         foreach (var bar in bars)
         {
             streaming.Update(new TValue(bar.Time, bar.Close));
@@ -196,7 +196,7 @@ public class EacpValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var batch = Eacp.Batch(tSeries, minPeriod, maxPeriod);
+        var batch = Acp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Compare last values
         Assert.Equal(batch[^1].Value, streaming.Last.Value, Tolerance);
@@ -219,7 +219,7 @@ public class EacpValidationTests
             tSeries.Add(new TValue(bar.Time, bar.Close));
         }
 
-        var tSeriesResult = Eacp.Batch(tSeries, minPeriod, maxPeriod);
+        var tSeriesResult = Acp.Batch(tSeries, minPeriod, maxPeriod);
 
         // Span approach
         double[] source = new double[dataLen];
@@ -229,7 +229,7 @@ public class EacpValidationTests
             source[i] = bars[i].Close;
         }
 
-        Eacp.Batch(source, spanResult, minPeriod, maxPeriod);
+        Acp.Batch(source, spanResult, minPeriod, maxPeriod);
 
         // Compare all values
         for (int i = 0; i < dataLen; i++)
@@ -252,15 +252,15 @@ public class EacpValidationTests
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        var eacp = new Eacp(minPeriod, maxPeriod);
+        var acp = new Acp(minPeriod, maxPeriod);
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, minPeriod, maxPeriod);
-        Assert.InRange(eacp.NormalizedPower, 0.0, 1.0);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, minPeriod, maxPeriod);
+        Assert.InRange(acp.NormalizedPower, 0.0, 1.0);
     }
 
     [Theory]
@@ -272,14 +272,14 @@ public class EacpValidationTests
         var gbm = new GBM(seed: 42);
         var bars = gbm.Fetch(300, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        var eacp = new Eacp(8, 48, avgLength);
+        var acp = new Acp(8, 48, avgLength);
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     #endregion
@@ -289,46 +289,46 @@ public class EacpValidationTests
     [Fact]
     public void Validation_VerySmallPrices_HandledCorrectly()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         for (int i = 0; i < 200; i++)
         {
             double price = 0.0001 + (0.00001 * Math.Sin(2.0 * Math.PI * i / 20.0));
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     [Fact]
     public void Validation_VeryLargePrices_HandledCorrectly()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         for (int i = 0; i < 200; i++)
         {
             double price = 1e10 + (1e9 * Math.Sin(2.0 * Math.PI * i / 20.0));
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
-        Assert.True(eacp.IsHot);
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.True(acp.IsHot);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     [Fact]
     public void Validation_HighVolatility_StableResults()
     {
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         var gbm = new GBM(seed: 42, sigma: 0.5); // High volatility
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
-            Assert.InRange(eacp.DominantCycle, 8, 48);
-            Assert.InRange(eacp.NormalizedPower, 0.0, 1.0);
+            acp.Update(new TValue(bar.Time, bar.Close));
+            Assert.InRange(acp.DominantCycle, 8, 48);
+            Assert.InRange(acp.NormalizedPower, 0.0, 1.0);
         }
     }
 
@@ -337,14 +337,14 @@ public class EacpValidationTests
     {
         // When all prices are identical, correlation is undefined
         // but the algorithm should still produce valid output
-        var eacp = new Eacp(8, 48);
+        var acp = new Acp(8, 48);
 
         for (int i = 0; i < 300; i++)
         {
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0));
         }
 
-        Assert.InRange(eacp.DominantCycle, 8, 48);
+        Assert.InRange(acp.DominantCycle, 8, 48);
     }
 
     #endregion
@@ -355,38 +355,38 @@ public class EacpValidationTests
     public void Validation_Autocorrelation_SineWaveHighCorrelation()
     {
         // A pure sine wave should have high autocorrelation at its period
-        var eacp = new Eacp(8, 48, 3, true);
+        var acp = new Acp(8, 48, 3, true);
 
         // Generate pure sine wave
         for (int i = 0; i < 300; i++)
         {
             double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
-            eacp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
         // Should have relatively high normalized power for a pure sine
-        Assert.True(eacp.NormalizedPower > 0.1,
-            $"Pure sine should have detectable power, got {eacp.NormalizedPower}");
+        Assert.True(acp.NormalizedPower > 0.1,
+            $"Pure sine should have detectable power, got {acp.NormalizedPower}");
     }
 
     [Fact]
     public void Validation_RandomNoise_LowPower()
     {
         // Random noise should have low spectral power at any frequency
-        var eacp = new Eacp(8, 48, 3, true);
+        var acp = new Acp(8, 48, 3, true);
 
         var gbm = new GBM(seed: 42, mu: 0, sigma: 0.01); // Nearly pure noise
         var bars = gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in bars)
         {
-            eacp.Update(new TValue(bar.Time, bar.Close));
+            acp.Update(new TValue(bar.Time, bar.Close));
         }
 
         // For noise, dominant cycle detection is weak
         // Just verify it doesn't crash and produces valid output
-        Assert.InRange(eacp.DominantCycle, 8, 48);
-        Assert.InRange(eacp.NormalizedPower, 0.0, 1.0);
+        Assert.InRange(acp.DominantCycle, 8, 48);
+        Assert.InRange(acp.NormalizedPower, 0.0, 1.0);
     }
 
     #endregion
@@ -400,8 +400,8 @@ public class EacpValidationTests
         const int period1 = 12;
         const int period2 = 36;
 
-        var eacp1 = new Eacp(8, 48);
-        var eacp2 = new Eacp(8, 48);
+        var acp1 = new Acp(8, 48);
+        var acp2 = new Acp(8, 48);
 
         // Generate two different sine waves
         for (int i = 0; i < 500; i++)
@@ -409,19 +409,19 @@ public class EacpValidationTests
             double price1 = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period1));
             double price2 = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period2));
 
-            eacp1.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price1));
-            eacp2.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price2));
+            acp1.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price1));
+            acp2.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price2));
         }
 
         // They should detect different dominant cycles
-        double diff = Math.Abs(eacp1.DominantCycle - eacp2.DominantCycle);
-        Assert.True(diff > 5, $"Should detect different cycles: {eacp1.DominantCycle} vs {eacp2.DominantCycle}");
+        double diff = Math.Abs(acp1.DominantCycle - acp2.DominantCycle);
+        Assert.True(diff > 5, $"Should detect different cycles: {acp1.DominantCycle} vs {acp2.DominantCycle}");
     }
 
     [Fact]
-    public void Eacp_Correction_Recomputes()
+    public void Acp_Correction_Recomputes()
     {
-        var ind = new Eacp(8, 48, 3, true);
+        var ind = new Acp(8, 48, 3, true);
         var t0 = new DateTime(946_684_800_000_000_0L, DateTimeKind.Utc);
 
         // Build state well past warmup

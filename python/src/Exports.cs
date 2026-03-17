@@ -1465,13 +1465,13 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    // Eacp: (int minPeriod, int maxPeriod, int avgLength, bool enhance → int)
-    [UnmanagedCallersOnly(EntryPoint = "qtl_eacp")]
-    public static int QtlEacp(double* src, int n, double* dst, int minPeriod, int maxPeriod, int avgLength, int enhance)
+    // Acp: (int minPeriod, int maxPeriod, int avgLength, bool enhance → int)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_acp")]
+    public static int QtlAcp(double* src, int n, double* dst, int minPeriod, int maxPeriod, int avgLength, int enhance)
     {
         int v = Chk1(src, dst, n); if (v != 0) return v;
         v = ChkPeriod(minPeriod); if (v != 0) return v;
-        try { Eacp.Batch(Src(src, n), Dst(dst, n), minPeriod, maxPeriod, avgLength, enhance != 0); return StatusCodes.QTL_OK; }
+        try { Acp.Batch(Src(src, n), Dst(dst, n), minPeriod, maxPeriod, avgLength, enhance != 0); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 

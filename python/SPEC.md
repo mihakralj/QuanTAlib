@@ -974,7 +974,7 @@ All channel indicators output 3 spans: upper, middle, lower (Pattern I).
 | ccyc | `Ccyc` | A | alpha |
 | cg | `Cg` | A | period |
 | dsp | `Dsp` | A | period |
-| eacp | `Eacp` | A | minPeriod, maxPeriod, avgLength, enhance |
+| acp | `Acp` | A | minPeriod, maxPeriod, avgLength, enhance |
 | ebsw | `Ebsw` | A | hpLength, ssfLength |
 | homod | `Homod` | A | minPeriod, maxPeriod |
 | ht_dcperiod | `HtDcperiod` | A | — |

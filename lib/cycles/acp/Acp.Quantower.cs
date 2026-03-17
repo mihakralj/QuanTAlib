@@ -5,7 +5,7 @@ using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
 [SkipLocalsInit]
-public sealed class EacpIndicator : Indicator, IWatchlistIndicator
+public sealed class AcpIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Min Period", sortIndex: 1, 3, 100, 1, 0)]
     public int MinPeriod { get; set; } = 8;
@@ -25,7 +25,7 @@ public sealed class EacpIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Eacp _eacp = null!;
+    private Acp _acp = null!;
     private readonly LineSeries _cycleSeries;
     private readonly LineSeries _powerSeries;
     private Func<IHistoryItem, double> _priceSelector = null!;
@@ -33,14 +33,14 @@ public sealed class EacpIndicator : Indicator, IWatchlistIndicator
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"EACP ({MinPeriod},{MaxPeriod})";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/cycles/eacp/Eacp.Quantower.cs";
+    public override string ShortName => $"ACP ({MinPeriod},{MaxPeriod})";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/cycles/acp/Acp.Quantower.cs";
 
-    public EacpIndicator()
+    public AcpIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "EACP - Ehlers Autocorrelation Periodogram";
+        Name = "ACP - Ehlers Autocorrelation Periodogram";
         Description = "Ehlers' Autocorrelation Periodogram estimates the dominant cycle period using autocorrelation and spectral analysis";
 
         _cycleSeries = new LineSeries(name: "Cycle", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);
@@ -52,7 +52,7 @@ public sealed class EacpIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
-        _eacp = new Eacp(MinPeriod, MaxPeriod, AvgLength, Enhance);
+        _acp = new Acp(MinPeriod, MaxPeriod, AvgLength, Enhance);
         _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
@@ -70,9 +70,9 @@ public sealed class EacpIndicator : Indicator, IWatchlistIndicator
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        TValue result = _eacp.Update(input, args.IsNewBar());
+        TValue result = _acp.Update(input, args.IsNewBar());
 
-        _cycleSeries.SetValue(result.Value, _eacp.IsHot, ShowColdValues);
-        _powerSeries.SetValue(_eacp.NormalizedPower * MaxPeriod, _eacp.IsHot, ShowColdValues);
+        _cycleSeries.SetValue(result.Value, _acp.IsHot, ShowColdValues);
+        _powerSeries.SetValue(_acp.NormalizedPower * MaxPeriod, _acp.IsHot, ShowColdValues);
     }
 }

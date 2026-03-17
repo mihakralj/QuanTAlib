@@ -2,12 +2,12 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib.Quantower.Tests;
 
-public class EacpIndicatorTests
+public class AcpIndicatorTests
 {
     [Fact]
-    public void EacpIndicator_Constructor_SetsDefaults()
+    public void AcpIndicator_Constructor_SetsDefaults()
     {
-        var indicator = new EacpIndicator();
+        var indicator = new AcpIndicator();
 
         Assert.Equal(8, indicator.MinPeriod);
         Assert.Equal(48, indicator.MaxPeriod);
@@ -15,34 +15,34 @@ public class EacpIndicatorTests
         Assert.True(indicator.Enhance);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("EACP - Ehlers Autocorrelation Periodogram", indicator.Name);
+        Assert.Equal("ACP - Ehlers Autocorrelation Periodogram", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
 
     [Fact]
-    public void EacpIndicator_MinHistoryDepths_EqualsZero()
+    public void AcpIndicator_MinHistoryDepths_EqualsZero()
     {
-        var indicator = new EacpIndicator();
+        var indicator = new AcpIndicator();
 
-        Assert.Equal(0, EacpIndicator.MinHistoryDepths);
+        Assert.Equal(0, AcpIndicator.MinHistoryDepths);
         Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
-    public void EacpIndicator_ShortName_IncludesPeriods()
+    public void AcpIndicator_ShortName_IncludesPeriods()
     {
-        var indicator = new EacpIndicator { MinPeriod = 10, MaxPeriod = 60 };
+        var indicator = new AcpIndicator { MinPeriod = 10, MaxPeriod = 60 };
 
-        Assert.True(indicator.ShortName.Contains("EACP", StringComparison.Ordinal));
+        Assert.True(indicator.ShortName.Contains("ACP", StringComparison.Ordinal));
         Assert.True(indicator.ShortName.Contains("10", StringComparison.Ordinal));
         Assert.True(indicator.ShortName.Contains("60", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void EacpIndicator_Initialize_CreatesInternalEacp()
+    public void AcpIndicator_Initialize_CreatesInternalAcp()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
 
         // Initialize should not throw
         indicator.Initialize();
@@ -52,9 +52,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
+    public void AcpIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         // Add historical data
@@ -71,9 +71,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ProcessUpdate_NewBar_ComputesValue()
+    public void AcpIndicator_ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -87,9 +87,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
+    public void AcpIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         // Should not throw an exception
@@ -100,9 +100,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_MultipleUpdates_ProducesCorrectSequence()
+    public void AcpIndicator_MultipleUpdates_ProducesCorrectSequence()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -123,13 +123,13 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_DifferentSourceTypes_Work()
+    public void AcpIndicator_DifferentSourceTypes_Work()
     {
         var sources = new[] { SourceType.Open, SourceType.High, SourceType.Low, SourceType.Close, SourceType.HL2, SourceType.HLC3 };
 
         foreach (var source in sources)
         {
-            var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48, Source = source };
+            var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48, Source = source };
             indicator.Initialize();
 
             var now = DateTime.UtcNow;
@@ -142,9 +142,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_MinPeriod_CanBeChanged()
+    public void AcpIndicator_MinPeriod_CanBeChanged()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8 };
+        var indicator = new AcpIndicator { MinPeriod = 8 };
 
         Assert.Equal(8, indicator.MinPeriod);
 
@@ -153,9 +153,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_MaxPeriod_CanBeChanged()
+    public void AcpIndicator_MaxPeriod_CanBeChanged()
     {
-        var indicator = new EacpIndicator { MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MaxPeriod = 48 };
 
         Assert.Equal(48, indicator.MaxPeriod);
 
@@ -164,9 +164,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_AvgLength_CanBeChanged()
+    public void AcpIndicator_AvgLength_CanBeChanged()
     {
-        var indicator = new EacpIndicator { AvgLength = 3 };
+        var indicator = new AcpIndicator { AvgLength = 3 };
 
         Assert.Equal(3, indicator.AvgLength);
 
@@ -175,9 +175,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_Enhance_CanBeChanged()
+    public void AcpIndicator_Enhance_CanBeChanged()
     {
-        var indicator = new EacpIndicator { Enhance = true };
+        var indicator = new AcpIndicator { Enhance = true };
 
         Assert.True(indicator.Enhance);
 
@@ -186,9 +186,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_Source_CanBeChanged()
+    public void AcpIndicator_Source_CanBeChanged()
     {
-        var indicator = new EacpIndicator { Source = SourceType.Close };
+        var indicator = new AcpIndicator { Source = SourceType.Close };
 
         Assert.Equal(SourceType.Close, indicator.Source);
 
@@ -197,9 +197,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ShowColdValues_CanBeChanged()
+    public void AcpIndicator_ShowColdValues_CanBeChanged()
     {
-        var indicator = new EacpIndicator { ShowColdValues = true };
+        var indicator = new AcpIndicator { ShowColdValues = true };
 
         Assert.True(indicator.ShowColdValues);
 
@@ -208,9 +208,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ShortName_UpdatesWhenPeriodsChange()
+    public void AcpIndicator_ShortName_UpdatesWhenPeriodsChange()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         string initialName = indicator.ShortName;
 
         Assert.True(initialName.Contains("8", StringComparison.Ordinal));
@@ -225,9 +225,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_ProcessUpdate_IgnoresNonBarUpdates()
+    public void AcpIndicator_ProcessUpdate_IgnoresNonBarUpdates()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -243,9 +243,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_CycleSeries_HasCorrectProperties()
+    public void AcpIndicator_CycleSeries_HasCorrectProperties()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var lineSeries = indicator.LinesSeries[0];
@@ -256,9 +256,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_PowerSeries_HasCorrectProperties()
+    public void AcpIndicator_PowerSeries_HasCorrectProperties()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var powerSeries = indicator.LinesSeries[1];
@@ -269,13 +269,13 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_DifferentPeriodRanges_Work()
+    public void AcpIndicator_DifferentPeriodRanges_Work()
     {
         var periodRanges = new[] { (8, 48), (10, 60), (6, 30), (12, 100) };
 
         foreach (var (minPeriod, maxPeriod) in periodRanges)
         {
-            var indicator = new EacpIndicator { MinPeriod = minPeriod, MaxPeriod = maxPeriod };
+            var indicator = new AcpIndicator { MinPeriod = minPeriod, MaxPeriod = maxPeriod };
             indicator.Initialize();
 
             var now = DateTime.UtcNow;
@@ -294,9 +294,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_SineWave_DetectsCycle()
+    public void AcpIndicator_SineWave_DetectsCycle()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -316,9 +316,9 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_PowerOutput_ScaledCorrectly()
+    public void AcpIndicator_PowerOutput_ScaledCorrectly()
     {
-        var indicator = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48 };
+        var indicator = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -336,10 +336,10 @@ public class EacpIndicatorTests
     }
 
     [Fact]
-    public void EacpIndicator_EnhanceMode_AffectsOutput()
+    public void AcpIndicator_EnhanceMode_AffectsOutput()
     {
-        var indicatorEnhanced = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48, Enhance = true };
-        var indicatorNormal = new EacpIndicator { MinPeriod = 8, MaxPeriod = 48, Enhance = false };
+        var indicatorEnhanced = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48, Enhance = true };
+        var indicatorNormal = new AcpIndicator { MinPeriod = 8, MaxPeriod = 48, Enhance = false };
         indicatorEnhanced.Initialize();
         indicatorNormal.Initialize();
 
