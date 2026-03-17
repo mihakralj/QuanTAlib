@@ -7,14 +7,16 @@ namespace QuanTAlib;
 /// MADH: Ehlers Moving Average Difference with Hann
 /// </summary>
 /// <remarks>
-/// A zero-centered percentage oscillator that computes the difference between
-/// two Hann-windowed FIR averages (short and long). The long length is derived
-/// from the short length plus half the dominant cycle. Pure FIR — no recursive state.
+/// A zero-crossing trend oscillator that computes the percentage difference
+/// between a short and long Hann-windowed FIR moving average.
 ///
 /// Calculation:
-/// <c>LongLength = (int)(ShortLength + DominantCycle / 2.0)</c>
-/// <c>Filt = Σ w(k) · Close[k-1] / Σ w(k)   where w(k) = 1 - cos(2π·k / (N+1))</c>
-/// <c>MADH = 100 · (Filt1 / Filt2 - 1)</c>
+/// <c>LongLength = IntPortion(ShortLength + DominantCycle / 2)</c>
+/// <c>Filt1 = HannFIR(Close, ShortLength)</c>
+/// <c>Filt2 = HannFIR(Close, LongLength)</c>
+/// <c>MADH = 100 × (Filt1 / Filt2 - 1)</c>
+///
+/// Hann coefficients: <c>w(k) = 1 - cos(2π·k / (N + 1))</c>
 /// </remarks>
 /// <seealso href="Madh.md">Detailed documentation</seealso>
 /// <seealso href="madh.pine">Reference Pine Script implementation</seealso>
@@ -29,24 +31,22 @@ public sealed class Madh : AbstractBase
 
     private readonly int _shortLength;
     private readonly int _longLength;
-    private readonly double[] _hannShort;
-    private readonly double[] _hannLong;
-    private readonly double _coefSumShort;
-    private readonly double _coefSumLong;
+    private readonly double[] _shortCoeffs;
+    private readonly double[] _longCoeffs;
 
     private State _s = State.New();
     private State _ps = State.New();
 
-    // RingBuffer stores close prices — needs longLength + 1 slots
+    // RingBuffer stores close prices — needs longLength+1 slots
     private readonly RingBuffer _closeBuf;
 
     private const double Epsilon = 1e-10;
 
     /// <summary>
-    /// Creates MADH with specified short length and dominant cycle.
+    /// Creates MADH with specified parameters.
     /// </summary>
-    /// <param name="shortLength">Short filter window (must be ≥ 1)</param>
-    /// <param name="dominantCycle">Dominant cycle estimate (must be ≥ 2)</param>
+    /// <param name="shortLength">Short Hann FIR window length (must be ≥ 1)</param>
+    /// <param name="dominantCycle">Dominant cycle period (must be ≥ 2)</param>
     public Madh(int shortLength = 8, int dominantCycle = 27)
     {
         if (shortLength < 1)
@@ -59,40 +59,32 @@ public sealed class Madh : AbstractBase
         }
 
         _shortLength = shortLength;
-        _longLength = (int)(shortLength + dominantCycle / 2.0);
+        _longLength = shortLength + dominantCycle / 2;
 
-        // Precompute short Hann window coefficients: w(k) = 1 - cos(2π·k / (N+1))
-        _hannShort = new double[shortLength];
-        double angleStepShort = 2.0 * Math.PI / (shortLength + 1);
-        double sumShort = 0;
-        for (int k = 1; k <= shortLength; k++)
+        // Precompute short Hann coefficients: w(k) = 1 - cos(2π·k / (N+1))
+        _shortCoeffs = new double[_shortLength];
+        double shortAngleStep = 2.0 * Math.PI / (_shortLength + 1);
+        for (int k = 1; k <= _shortLength; k++)
         {
-            double w = 1.0 - Math.Cos(angleStepShort * k);
-            _hannShort[k - 1] = w;
-            sumShort += w;
+            _shortCoeffs[k - 1] = 1.0 - Math.Cos(shortAngleStep * k);
         }
-        _coefSumShort = sumShort;
 
-        // Precompute long Hann window coefficients
-        _hannLong = new double[_longLength];
-        double angleStepLong = 2.0 * Math.PI / (_longLength + 1);
-        double sumLong = 0;
+        // Precompute long Hann coefficients
+        _longCoeffs = new double[_longLength];
+        double longAngleStep = 2.0 * Math.PI / (_longLength + 1);
         for (int k = 1; k <= _longLength; k++)
         {
-            double w = 1.0 - Math.Cos(angleStepLong * k);
-            _hannLong[k - 1] = w;
-            sumLong += w;
+            _longCoeffs[k - 1] = 1.0 - Math.Cos(longAngleStep * k);
         }
-        _coefSumLong = sumLong;
 
-        _closeBuf = new RingBuffer(_longLength + 1);
+        _closeBuf = new RingBuffer(_longLength);
 
         Name = $"Madh({shortLength},{dominantCycle})";
-        WarmupPeriod = _longLength + 1;
+        WarmupPeriod = _longLength;
     }
 
     /// <summary>
-    /// Creates MADH with specified source, short length and dominant cycle.
+    /// Creates MADH with specified source and parameters.
     /// Subscribes to source.Pub event.
     /// </summary>
     public Madh(ITValuePublisher source, int shortLength = 8, int dominantCycle = 27) : this(shortLength, dominantCycle)
@@ -113,7 +105,7 @@ public sealed class Madh : AbstractBase
         source.Pub += Handle;
     }
 
-    public override bool IsHot => _s.Count > _longLength;
+    public override bool IsHot => _s.Count >= _longLength;
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
@@ -243,32 +235,42 @@ public sealed class Madh : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private double ComputeResult()
     {
-        int available = Math.Min(_s.Count, _longLength + 1);
-        if (available <= 0)
+        int available = Math.Min(_s.Count, _longLength);
+        if (available < 1)
         {
             return 0.0;
         }
 
-        // Short Hann FIR: scan most recent shortLength values
-        double sumShort = 0.0;
-        int effectiveShort = Math.Min(available, _shortLength);
-        for (int k = 1; k <= effectiveShort; k++)
+        // Short Hann FIR
+        double filt1 = 0.0;
+        double coef1 = 0.0;
+        int shortAvail = Math.Min(available, _shortLength);
+        for (int k = 1; k <= shortAvail; k++)
         {
-            double val = _closeBuf[available - k];
-            sumShort = Math.FusedMultiplyAdd(_hannShort[k - 1], val, sumShort);
+            double w = _shortCoeffs[k - 1];
+            filt1 = Math.FusedMultiplyAdd(w, _closeBuf[available - k], filt1);
+            coef1 += w;
         }
-        double filt1 = _coefSumShort > Epsilon ? sumShort / _coefSumShort : 0.0;
-
-        // Long Hann FIR: scan most recent longLength values
-        double sumLong = 0.0;
-        int effectiveLong = Math.Min(available, _longLength);
-        for (int k = 1; k <= effectiveLong; k++)
+        if (coef1 > Epsilon)
         {
-            double val = _closeBuf[available - k];
-            sumLong = Math.FusedMultiplyAdd(_hannLong[k - 1], val, sumLong);
+            filt1 /= coef1;
         }
-        double filt2 = _coefSumLong > Epsilon ? sumLong / _coefSumLong : 0.0;
 
+        // Long Hann FIR
+        double filt2 = 0.0;
+        double coef2 = 0.0;
+        for (int k = 1; k <= available; k++)
+        {
+            double w = _longCoeffs[k - 1];
+            filt2 = Math.FusedMultiplyAdd(w, _closeBuf[available - k], filt2);
+            coef2 += w;
+        }
+        if (coef2 > Epsilon)
+        {
+            filt2 /= coef2;
+        }
+
+        // MADH = 100 * (Filt1 / Filt2 - 1)
         return Math.Abs(filt2) > Epsilon ? 100.0 * (filt1 / filt2 - 1.0) : 0.0;
     }
 

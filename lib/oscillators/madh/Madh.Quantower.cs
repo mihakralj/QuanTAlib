@@ -36,7 +36,7 @@ public sealed class MadhIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         _sourceName = Source.ToString();
         Name = "MADH - Ehlers Moving Average Difference with Hann";
-        Description = "Zero-centered percentage oscillator comparing dual Hann-windowed FIR averages";
+        Description = "Dual Hann FIR difference oscillator — percentage deviation between short and long moving averages";
         _series = new LineSeries(name: $"MADH {ShortLength},{DominantCycle}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }

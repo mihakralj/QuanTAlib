@@ -3,22 +3,22 @@
 //@version=6
 indicator("Ehlers Moving Average Difference with Hann (MADH)", "MADH", overlay = false)
 
-//@function Ehlers Moving Average Difference with Hann — dual Hann-windowed FIR
-//          averages compared as percentage difference. Zero-crossing trend oscillator.
-//@param source Series to analyze (typically close)
-//@param shortLength Short filter window (>= 1)
-//@param dominantCycle Dominant cycle estimate (>= 2)
-//@returns MADH percentage oscillator value (zero-centered, unbounded)
+//@function Ehlers Moving Average Difference with Hann — dual Hann FIR filter
+//          difference expressed as a percentage. Zero-crossing oscillator.
+//@param source Series to analyze (typically Close)
+//@param shortLength Short Hann FIR window length (>= 1)
+//@param dominantCycle Dominant cycle period (>= 2)
+//@returns MADH oscillator value (percentage, zero-centered, unbounded)
 //@reference Ehlers, J.F. (2021). "The MAD Indicator, Enhanced."
 //           Technical Analysis of Stocks & Commodities, Nov 2021.
-//@optimized O(LongLength) per bar — dual FIR scan
+//@optimized O(LongLength) per bar — FIR scan over two Hann-weighted windows
 madh(series float source, simple int shortLength, simple int dominantCycle) =>
     if shortLength < 1
         runtime.error("ShortLength must be at least 1")
     if dominantCycle < 2
         runtime.error("DominantCycle must be at least 2")
 
-    int longLength = int(shortLength + dominantCycle / 2.0)
+    int longLength = int(shortLength + dominantCycle / 2)
 
     // --- Short Hann FIR filter ---
     float filt1 = 0.0
@@ -40,6 +40,7 @@ madh(series float source, simple int shortLength, simple int dominantCycle) =>
     if coef2 != 0.0
         filt2 := filt2 / coef2
 
+    // --- MADH = percentage difference ---
     float result = filt2 != 0.0 ? 100.0 * (filt1 / filt2 - 1.0) : 0.0
     result
 

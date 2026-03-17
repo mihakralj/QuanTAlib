@@ -2,8 +2,8 @@ namespace QuanTAlib;
 
 public class MadhTests
 {
-    private const int DefaultShortLength = 8;
-    private const int DefaultDominantCycle = 27;
+    private const int DefaultShort = 8;
+    private const int DefaultCycle = 27;
     private const double Tolerance = 1e-12;
 
     private static TSeries MakeSeries(int count = 500)
@@ -41,17 +41,17 @@ public class MadhTests
     {
         var indicator = new Madh(8, 27);
         Assert.Equal("Madh(8,27)", indicator.Name);
-        // longLength = (int)(8 + 27/2.0) = (int)(8 + 13.5) = 21
-        Assert.Equal(22, indicator.WarmupPeriod);
+        // LongLength = 8 + 27/2 = 8 + 13 = 21
+        Assert.Equal(21, indicator.WarmupPeriod);
     }
 
     [Fact]
-    public void Constructor_ShortLengthOne_IsValid()
+    public void Constructor_MinimalParams_IsValid()
     {
         var indicator = new Madh(1, 2);
         Assert.Equal("Madh(1,2)", indicator.Name);
-        // longLength = (int)(1 + 2/2.0) = (int)(1 + 1.0) = 2
-        Assert.Equal(3, indicator.WarmupPeriod);
+        // LongLength = 1 + 2/2 = 1 + 1 = 2
+        Assert.Equal(2, indicator.WarmupPeriod);
     }
 
     // ========== B) Basic Calculation ==========
@@ -59,7 +59,7 @@ public class MadhTests
     [Fact]
     public void Update_ReturnsTValue_WithValidProperties()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(DefaultShort, DefaultCycle);
         var input = new TValue(DateTime.UtcNow, 100.0);
         TValue result = indicator.Update(input);
 
@@ -70,7 +70,7 @@ public class MadhTests
     [Fact]
     public void Update_AfterWarmup_IsHotBecomesTrue()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(DefaultShort, DefaultCycle);
         Assert.False(indicator.IsHot);
 
         for (int i = 0; i < 500; i++)
@@ -84,7 +84,7 @@ public class MadhTests
     [Fact]
     public void Update_LastProperty_MatchesReturnValue()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(DefaultShort, DefaultCycle);
         var input = new TValue(DateTime.UtcNow, 42.0);
         TValue result = indicator.Update(input);
 
@@ -166,7 +166,7 @@ public class MadhTests
     [Fact]
     public void Reset_ClearsState()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(DefaultShort, DefaultCycle);
 
         for (int i = 0; i < 50; i++)
         {
@@ -237,7 +237,7 @@ public class MadhTests
     public void BatchNaN_DoesNotPropagate()
     {
         int shortLen = 5;
-        int domCycle = 10;
+        int cycle = 10;
         double[] source = new double[100];
         double[] output = new double[100];
 
@@ -249,7 +249,7 @@ public class MadhTests
         source[50] = double.NaN;
         source[51] = double.NaN;
 
-        Madh.Batch(source, output, shortLen, domCycle);
+        Madh.Batch(source, output, shortLen, cycle);
 
         for (int i = 0; i < 100; i++)
         {
@@ -263,21 +263,21 @@ public class MadhTests
     public void AllModes_ProduceSameResult()
     {
         int shortLen = 5;
-        int domCycle = 10;
+        int cycle = 10;
         TSeries data = MakeSeries();
 
         // 1. Batch (TSeries)
-        TSeries batchResults = Madh.Batch(data, shortLen, domCycle);
+        TSeries batchResults = Madh.Batch(data, shortLen, cycle);
         double expected = batchResults.Last.Value;
 
         // 2. Span batch
         var tValues = data.Values.ToArray();
         var spanOutput = new double[tValues.Length];
-        Madh.Batch(new ReadOnlySpan<double>(tValues), spanOutput, shortLen, domCycle);
+        Madh.Batch(new ReadOnlySpan<double>(tValues), spanOutput, shortLen, cycle);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming
-        var streaming = new Madh(shortLen, domCycle);
+        var streaming = new Madh(shortLen, cycle);
         for (int i = 0; i < data.Count; i++)
         {
             streaming.Update(data[i]);
@@ -286,7 +286,7 @@ public class MadhTests
 
         // 4. Eventing
         var pubSource = new TSeries();
-        var eventBased = new Madh(pubSource, shortLen, domCycle);
+        var eventBased = new Madh(pubSource, shortLen, cycle);
         for (int i = 0; i < data.Count; i++)
         {
             pubSource.Add(data[i]);
@@ -359,7 +359,7 @@ public class MadhTests
     [Fact]
     public void Pub_EventFires_OnUpdate()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(DefaultShort, DefaultCycle);
         int eventCount = 0;
 
         indicator.Pub += (object? sender, in TValueEventArgs args) => eventCount++;
@@ -389,7 +389,7 @@ public class MadhTests
     public void Calculate_ReturnsHotIndicator()
     {
         TSeries data = MakeSeries();
-        (TSeries results, Madh indicator) = Madh.Calculate(data, DefaultShortLength, DefaultDominantCycle);
+        (TSeries results, Madh indicator) = Madh.Calculate(data, DefaultShort, DefaultCycle);
 
         Assert.Equal(data.Count, results.Count);
         Assert.True(indicator.IsHot);
@@ -399,10 +399,10 @@ public class MadhTests
     public void StaticCalculate_MatchesInstance()
     {
         const int shortLen = 5;
-        const int domCycle = 10;
+        const int cycle = 10;
         int count = 100;
         var source = new TSeries();
-        var indicator = new Madh(shortLen, domCycle);
+        var indicator = new Madh(shortLen, cycle);
 
         for (int i = 0; i < count; i++)
         {
@@ -410,7 +410,7 @@ public class MadhTests
             indicator.Update(source.Last);
         }
 
-        var staticResult = Madh.Batch(source, shortLen, domCycle);
+        var staticResult = Madh.Batch(source, shortLen, cycle);
 
         Assert.Equal(source.Count, staticResult.Count);
         Assert.Equal(indicator.Last.Value, staticResult.Last.Value, 8);
@@ -421,7 +421,7 @@ public class MadhTests
     [Fact]
     public void ConstantInput_OutputConvergesToZero()
     {
-        var indicator = new Madh(5, 10);
+        var indicator = new Madh(8, 27);
         double lastResult = double.NaN;
 
         for (int i = 0; i < 300; i++)
@@ -430,14 +430,14 @@ public class MadhTests
             lastResult = r.Value;
         }
 
-        // Constant input → both filters = constant → MADH = 100*(1 - 1) = 0
+        // Constant input → Filt1 = Filt2 = 100 → MADH = 0
         Assert.Equal(0.0, lastResult, 1e-10);
     }
 
     [Fact]
     public void TrendingInput_ProducesNonZero()
     {
-        var indicator = new Madh(5, 10);
+        var indicator = new Madh(8, 27);
         double lastResult = 0.0;
 
         for (int i = 0; i < 100; i++)
@@ -446,15 +446,31 @@ public class MadhTests
             lastResult = r.Value;
         }
 
-        // Strong uptrend: short avg > long avg → positive MADH
+        // Strong uptrend → short MA > long MA → positive MADH
         Assert.True(lastResult > 0.0);
         Assert.True(double.IsFinite(lastResult));
     }
 
     [Fact]
+    public void UpTrend_Positive_DownTrend_Negative()
+    {
+        var up = new Madh(5, 10);
+        var down = new Madh(5, 10);
+
+        for (int i = 0; i < 50; i++)
+        {
+            up.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i));
+            down.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 200.0 - i));
+        }
+
+        Assert.True(up.Last.Value > 0, "Ascending should produce positive MADH");
+        Assert.True(down.Last.Value < 0, "Descending should produce negative MADH");
+    }
+
+    [Fact]
     public void MadhProducesFiniteValues_OnGBMData()
     {
-        var indicator = new Madh(DefaultShortLength, DefaultDominantCycle);
+        var indicator = new Madh(8, 27);
         TSeries data = MakeSeries(200);
 
         int nonFiniteCount = 0;
@@ -468,5 +484,22 @@ public class MadhTests
         }
 
         Assert.Equal(0, nonFiniteCount);
+    }
+
+    [Fact]
+    public void LongLength_CalculatedCorrectly()
+    {
+        // LongLength = ShortLength + DominantCycle / 2
+        // 8 + 27/2 = 8 + 13 = 21
+        var indicator = new Madh(8, 27);
+        Assert.Equal(21, indicator.WarmupPeriod);
+
+        // 10 + 20/2 = 10 + 10 = 20
+        var indicator2 = new Madh(10, 20);
+        Assert.Equal(20, indicator2.WarmupPeriod);
+
+        // 1 + 2/2 = 1 + 1 = 2
+        var indicator3 = new Madh(1, 2);
+        Assert.Equal(2, indicator3.WarmupPeriod);
     }
 }

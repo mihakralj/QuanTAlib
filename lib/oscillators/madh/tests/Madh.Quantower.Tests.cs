@@ -59,7 +59,7 @@ public class MadhIndicatorTests
     [Fact]
     public void MadhIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new MadhIndicator { ShortLength = 3, DominantCycle = 4 };
+        var indicator = new MadhIndicator { ShortLength = 3, DominantCycle = 6 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -75,7 +75,7 @@ public class MadhIndicatorTests
     [Fact]
     public void MadhIndicator_ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new MadhIndicator { ShortLength = 3, DominantCycle = 4 };
+        var indicator = new MadhIndicator { ShortLength = 3, DominantCycle = 6 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -91,7 +91,7 @@ public class MadhIndicatorTests
     [Fact]
     public void MadhIndicator_InternalIndicator_HandlesBarCorrection()
     {
-        var ma = new Madh(3, 4);
+        var ma = new Madh(3, 6);
         double[] prices = [100, 102, 99, 103, 97, 104, 98, 105, 97, 106];
 
         var now = DateTime.UtcNow;
@@ -123,7 +123,7 @@ public class MadhIndicatorTests
     [Fact]
     public void MadhIndicator_MultipleHistoricalBars()
     {
-        var indicator = new MadhIndicator { ShortLength = 3, DominantCycle = 6 };
+        var indicator = new MadhIndicator { ShortLength = 5, DominantCycle = 10 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
