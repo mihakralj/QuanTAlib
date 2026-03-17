@@ -12,6 +12,7 @@ A bounded zero-crossing oscillator that applies the Inverse Fisher Transform to 
 | **Parameters** | BandEdge (default 20)                         |
 | **Output**     | Bounded ≈ [-1, +1]                           |
 | **Hot after**  | 50 + BandEdge bars                           |
+| **PineScript** | [eeo.pine](eeo.pine)                         |
 
 ## Historical Context
 
