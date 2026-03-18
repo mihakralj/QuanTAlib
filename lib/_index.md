@@ -8,7 +8,6 @@
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
 | [ACF](statistics/acf/Acf.md)                               | Autocorrelation Function                                                  | Statistics   |
 | [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
-| [AMFM](cycles/amfm/Amfm.md)                                | Ehlers AM Detector / FM Demodulator                                       | Cycles       |
 | [AD](volume/ad/Ad.md)                                       | Accumulation/Distribution Line                                            | Volume       |
 | [ADF](statistics/adf/Adf.md)                               | Augmented Dickey-Fuller Test                                              | Statistics   |
 | [ADOSC](volume/adosc/Adosc.md)                             | Chaikin A/D Oscillator                                                    | Volume       |
@@ -23,6 +22,7 @@
 | [ALLIGATOR](dynamics/alligator/Alligator.md)               | Williams Alligator                                                        | Dynamics     |
 | [ALMA](trends_FIR/alma/Alma.md)                            | Arnaud Legoux MA                                                          | Trends (FIR) |
 | [AMAT](dynamics/amat/Amat.md)                              | Archer Moving Averages Trends                                             | Dynamics     |
+| [AMFM](cycles/amfm/Amfm.md)                                | Ehlers AM Detector / FM Demodulator                                       | Cycles       |
 | [AO](oscillators/ao/Ao.md)                                 | Awesome Oscillator                                                        | Oscillators  |
 | [AOBV](volume/aobv/Aobv.md)                                | Archer On-Balance Volume                                                  | Volume       |
 | [APCHANNEL](channels/apchannel/Apchannel.md)               | Andrews' Pitchfork                                                        | Channels     |
@@ -271,13 +271,13 @@
 | [PLUS_DI](dynamics/plusdi/PlusDi.md)                        | Plus Directional Indicator                                                | Dynamics     |
 | [PLUS_DM](dynamics/plusdm/PlusDm.md)                        | Plus Directional Movement                                                 | Dynamics     |
 | [PMA](trends_FIR/pma/Pma.md)                               | Ehlers Predictive Moving Average                                          | Trends (FIR) |
-| [PTA](dynamics/pta/Pta.md)                                  | Ehlers Precision Trend Analysis                                           | Dynamics     |
 | [PMO](momentum/pmo/Pmo.md)                                 | Price Momentum Oscillator                                                 | Momentum     |
 | [POISSONDIST](numerics/poissondist/Poissondist.md)         | Poisson Distribution                                                      | Numerics     |
 | [POLYFIT](statistics/polyfit/Polyfit.md)                   | Polynomial Fitting                                                        | Statistics   |
 | [PPO](momentum/ppo/Ppo.md)                                 | Percentage Price Oscillator                                               | Momentum     |
 | [PSEUDOHUBER](errors/pseudohuber/Pseudohuber.md)           | Pseudo-Huber Loss                                                         | Errors       |
 | [PSL](oscillators/psl/Psl.md)                              | Psychological Line                                                        | Oscillators  |
+| [PTA](dynamics/pta/Pta.md)                                  | Ehlers Precision Trend Analysis                                           | Dynamics     |
 | [PVD](volume/pvd/Pvd.md)                                   | Price Volume Divergence                                                   | Volume       |
 | [PVI](volume/pvi/Pvi.md)                                   | Positive Volume Index                                                     | Volume       |
 | [PVO](volume/pvo/Pvo.md)                                   | Percentage Volume Oscillator                                              | Volume       |
@@ -313,7 +313,7 @@
 | [RSE](errors/rse/Rse.md)                                   | Relative Squared Error                                                    | Errors       |
 | [RSI](momentum/rsi/Rsi.md)                                 | Relative Strength Index                                                   | Momentum     |
 | [RSIH](oscillators/rsih/Rsih.md)                           | Ehlers Hann-Windowed RSI                                                  | Oscillators  |
-| [RSQUARED](errors/rsquared/Rsquared.md)                    | R² (Coefficient of Determination)                                         | Errors       |
+| [RSQUARED](errors/rsquared/Rsquared.md)                    | Rï¿½ (Coefficient of Determination)                                         | Errors       |
 | [RSV](volatility/rsv/Rsv.md)                               | Rogers-Satchell Volatility                                                | Volatility   |
 | [RSX](momentum/rsx/Rsx.md)                                 | Relative Strength Quality Index                                           | Momentum     |
 | [RV](volatility/rv/Rv.md)                                  | Realized Volatility                                                       | Volatility   |
@@ -383,8 +383,8 @@
 | [UCHANNEL](channels/uchannel/Uchannel.md)                  | Ehlers Ultimate Channel                                                   | Channels     |
 | [UI](volatility/ui/Ui.md)                                  | Ulcer Index                                                               | Volatility   |
 | [ULTOSC](oscillators/ultosc/Ultosc.md)                     | Ultimate Oscillator                                                       | Oscillators  |
-| [USI](oscillators/usi/Usi.md)                               | Ehlers Ultimate Strength Index                                            | Oscillators  |
 | [USF](filters/usf/Usf.md)                                  | Ehlers Ultimate Smoother                                                  | Filters      |
+| [USI](oscillators/usi/Usi.md)                               | Ehlers Ultimate Strength Index                                            | Oscillators  |
 | [VA](volume/va/Va.md)                                      | Volume Accumulation                                                       | Volume       |
 | [VAMA](trends_IIR/vama/Vama.md)                            | Volatility Adjusted MA                                                    | Trends (IIR) |
 | [VARIANCE](statistics/variance/Variance.md)                | Variance                                                                  | Statistics   |

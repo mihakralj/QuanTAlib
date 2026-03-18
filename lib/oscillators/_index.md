@@ -19,8 +19,8 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [DECO](deco/Deco.md) | Ehlers Decycler Oscillator | Dual HP bandpass isolating intermediate-frequency market cycles. |
 | [DEM](dem/Dem.md) | DeMarker Oscillator | Bounded 0-1 oscillator comparing sequential highs and lows. |
 | [DOSC](dosc/Dosc.md) | Derivative Oscillator | Double-smoothed RSI minus signal line. Momentum acceleration. |
-| [DSO](dso/Dso.md) | Ehlers Deviation-Scaled Oscillator | SSF-filtered zeros with RMS normalization and Fisher Transform. TASC Oct 2018. |
-| [DPO](dpo/Dpo.md) | Detrended Price Oscillator | Removes trend via displaced SMA. Reveals cycles. |
+| [DPO](dpo/Dpo.md)                        | Detrended Price Oscillator                             | Removes trend via displaced SMA. Reveals cycles. |
+| [DSO](dso/Dso.md)                        | Ehlers Deviation-Scaled Oscillator                     | SSF-filtered zeros with RMS normalization and Fisher Transform. TASC Oct 2018. |
 | [DSTOCH](dstoch/Dstoch.md) | Double Stochastic (Bressert) | Stochastic applied to Stochastic with EMA smoothing. Bounded 0-100. |
 | [DYMI](dymi/Dymi.md) | Dynamic Momentum Index | RSI with volatility-adaptive period. Shorter in volatile markets. |
 | [EEO](eeo/Eeo.md) | Ehlers Elegant Oscillator | IFT of RMS-normalized momentum with Super Smoother. TASC Feb 2022. |
@@ -44,9 +44,9 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [QQE](qqe/Qqe.md) | Quantitative Qualitative Estimation | Smoothed RSI with dynamic volatility bands. |
 | [REFLEX](reflex/Reflex.md) | Ehlers Reflex | Ehlers zero-centered reversal oscillator using super smoother with normalized sum-of-differences. |
 | [REVERSEEMA](reverseema/ReverseEma.md) | Ehlers Reverse EMA | 8-stage cascaded Z-transform inversion subtracts EMA lag, producing zero-centered oscillator signal. |
-| [RVGI](rvgi/Rvgi.md) | Ehlers Relative Vigor Index | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
-| [RRSI](rrsi/Rrsi.md) | Ehlers Rocket RSI | Fisher Transform of Super Smoother–filtered RSI. Sharp cyclic reversal signals. |
-| [RSIH](rsih/Rsih.md) | Ehlers Hann-Windowed RSI | Hann-weighted CU/CD RSI, zero-mean [-1, +1]. FIR filter. TASC Jan 2022. |
+| [RRSI](rrsi/Rrsi.md)                     | Ehlers Rocket RSI                                      | Fisher Transform of Super Smoother–filtered RSI. Sharp cyclic reversal signals. |
+| [RSIH](rsih/Rsih.md)                     | Ehlers Hann-Windowed RSI                               | Hann-weighted CU/CD RSI, zero-mean [-1, +1]. FIR filter. TASC Jan 2022. |
+| [RVGI](rvgi/Rvgi.md)                     | Ehlers Relative Vigor Index                            | Open-close vs high-low ratio with SMA smoothing. Measures conviction. |
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [SQUEEZE](squeeze/Squeeze.md) | Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
 | [SQUEEZE_PRO](squeeze_pro/squeeze_pro.md) | Squeeze Pro | Multi-level BB vs KC squeeze (wide/normal/narrow) with MOM-smoothed momentum. LazyBear. |

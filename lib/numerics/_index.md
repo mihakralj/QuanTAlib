@@ -26,8 +26,8 @@ Basic mathematical transforms and utility functions for time series. These build
 | [LOWEST](lowest/Lowest.md) | Rolling Minimum | Minimum value over lookback window. |
 | [MAXINDEX](maxindex/Maxindex.md) | Rolling Maximum Index | Position of maximum value in rolling window. |
 | [MININDEX](minindex/Minindex.md) | Rolling Minimum Index | Position of minimum value in rolling window. |
-| [NORMDIST](normdist/Normdist.md) | Normal Distribution | Gaussian probability distribution transform. |
-| [NORMALIZE](normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] range using rolling min/max. |
+| [NORMALIZE](normalize/Normalize.md)       | Min-Max Normalization                                  | Scale to [0,1] range using rolling min/max. |
+| [NORMDIST](normdist/Normdist.md)         | Normal Distribution                                    | Gaussian probability distribution transform. |
 | [POISSONDIST](poissondist/Poissondist.md) | Poisson Distribution | Poisson probability distribution transform. |
 | [RELU](relu/Relu.md) | Rectified Linear Unit | max(0, x); neural network activation function. |
 | [SIGMOID](sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform. |

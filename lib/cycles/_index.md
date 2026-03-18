@@ -6,12 +6,12 @@ Cycle analysis identifies repeating patterns in price data. John Ehlers pioneere
 
 | Indicator                                | Full Name                                              | Description                                                                  |
 | :--------------------------------------- | :----------------------------------------------------- | :--------------------------------------------------------------------------- |
+| [ACP](acp/Acp.md)                        | Ehlers Autocorrelation Periodogram                     | Ehlers. Spectral analysis via autocorrelation. Detects dominant period.      |
 | [AMFM](amfm/Amfm.md)                    | Ehlers AM Detector / FM Demodulator                    | Ehlers. DSP decomposition into amplitude (volatility) and frequency (timing).|
 | [CCOR](ccor/Ccor.md)                     | Ehlers Correlation Cycle                               | Ehlers. Dual Pearson correlation (cos + -sin). Phasor angle + market state.  |
 | [CCYC](ccyc/Ccyc.md)                     | Ehlers Cyber Cycle                                     | Ehlers. 4-tap FIR + 2-pole high-pass IIR. Isolates dominant cycle component. |
 | [CG](cg/Cg.md)                           | Ehlers Center of Gravity                               | Ehlers. Weighted sum position. Minimal lag cycle indicator.                  |
 | [DSP](dsp/Dsp.md)                        | Ehlers Detrended Synthetic Price                       | Removes trend to reveal underlying cycles.                                   |
-| [ACP](acp/Acp.md)                        | Ehlers Autocorrelation Periodogram                     | Ehlers. Spectral analysis via autocorrelation. Detects dominant period.      |
 | [EBSW](ebsw/Ebsw.md)                     | Ehlers Even Better Sinewave                            | Ehlers. Improved sinewave extraction. Reduces false signals.                 |
 | [HOMOD](homod/Homod.md)                  | Ehlers Homodyne Discriminator                          | Dominant cycle detection via homodyne technique.                             |
 | [HT_DCPERIOD](ht_dcperiod/Htdcperiod.md) | Ehlers Hilbert Transform Dominant Cycle Period         | Ehlers Hilbert Transform. Measures current cycle length.                     |
