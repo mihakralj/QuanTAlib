@@ -1,4 +1,4 @@
-﻿# QuanTAlib Indicators
+# QuanTAlib Indicators
 
 | Indicator                                                  | Full Name                                                                 | Category     |
 | :--------------------------------------------------------- | :------------------------------------------------------------------------ | :----------- |
@@ -201,6 +201,7 @@
 | [LOGNORMDIST](numerics/lognormdist/Lognormdist.md)         | Log-Normal Distribution                                                   | Numerics     |
 | [LOGTRANS](numerics/logtrans/Logtrans.md)                  | Logarithmic Transform                                                     | Numerics     |
 | [LOWEST](numerics/lowest/Lowest.md)                        | Rolling Minimum                                                           | Numerics     |
+| [LPF](cycles/lpf/Lpf.md)                                   | Ehlers Linear Predictive Filter                                           | Cycles       |
 | [LRSI](oscillators/lrsi/Lrsi.md)                           | Ehlers Laguerre RSI                                                       | Oscillators  |
 | [LSMA](trends_FIR/lsma/Lsma.md)                            | Least Squares MA                                                          | Trends (FIR) |
 | [LTMA](trends_IIR/ltma/Ltma.md)                            | Linear Trend MA                                                           | Trends (IIR) |
@@ -312,7 +313,7 @@
 | [RSE](errors/rse/Rse.md)                                   | Relative Squared Error                                                    | Errors       |
 | [RSI](momentum/rsi/Rsi.md)                                 | Relative Strength Index                                                   | Momentum     |
 | [RSIH](oscillators/rsih/Rsih.md)                           | Ehlers Hann-Windowed RSI                                                  | Oscillators  |
-| [RSQUARED](errors/rsquared/Rsquared.md)                    | R² (Coefficient of Determination)                                         | Errors       |
+| [RSQUARED](errors/rsquared/Rsquared.md)                    | R� (Coefficient of Determination)                                         | Errors       |
 | [RSV](volatility/rsv/Rsv.md)                               | Rogers-Satchell Volatility                                                | Volatility   |
 | [RSX](momentum/rsx/Rsx.md)                                 | Relative Strength Quality Index                                           | Momentum     |
 | [RV](volatility/rv/Rv.md)                                  | Realized Volatility                                                       | Volatility   |

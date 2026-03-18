@@ -13,6 +13,7 @@ __all__ = [
     "ht_dcphase",
     "ht_phasor",
     "ht_sine",
+    "lpf",
     "lunar",
     "solar",
     "ssfdsp",
@@ -77,6 +78,16 @@ def ht_sine(close: object, offset: int = 0, **kwargs) -> object:
     leadSine = _out(n)
     _check(_lib.qtl_htsine(_ptr(src), _ptr(sine), _ptr(leadSine), n))
     return _wrap_multi({"sine": sine, "leadSine": leadSine}, idx, "cycles", offset)
+
+
+def lpf(close: object, lower_bound: int = 18, upper_bound: int = 40,
+        data_length: int = 40, offset: int = 0, **kwargs) -> object:
+    """Ehlers Linear Predictive Filter (dominant cycle)."""
+    lower_bound = int(lower_bound); upper_bound = int(upper_bound)
+    data_length = int(data_length); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_lpf(_ptr(src), n, _ptr(dst), lower_bound, upper_bound, data_length))
+    return _wrap(dst, idx, f"LPF_{lower_bound}_{upper_bound}", "cycles", offset)
 
 
 def lunar(close: object, offset: int = 0, **kwargs) -> object:

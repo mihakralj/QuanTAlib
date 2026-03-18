@@ -447,6 +447,7 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 | [**HT_DCPHASE**](../lib/cycles/ht_dcphase/HtDcphase.md) | Ehlers HT Dominant Cycle Phase | Hilbert Transform phase angle |
 | [**HT_PHASOR**](../lib/cycles/ht_phasor/HtPhasor.md) | Ehlers HT Phasor Components | In-phase and quadrature components |
 | [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Ehlers HT SineWave (also known as SINE) | Dominant cycle phase with lead signal |
+| [**LPF**](../lib/cycles/lpf/Lpf.md) | Ehlers Linear Predictive Filter | Griffiths LMS predictor ? DFT spectrum ? dominant cycle |
 | [**LUNAR**](../lib/cycles/lunar/Lunar.md) | Lunar Phase | Moon phase cycle |
 | [**SOLAR**](../lib/cycles/solar/Solar.md) | Solar Activity Cycle | Solar activity periodicity |
 | [**SSFDSP**](../lib/cycles/ssfdsp/Ssfdsp.md) | Ehlers SSF Detrended Synthetic Price | Dual Super Smoother oscillator |

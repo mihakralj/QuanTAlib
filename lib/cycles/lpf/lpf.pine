@@ -1,0 +1,128 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Linear Predictive Filter (LPF)","LPF",overlay=false)
+//@function Griffiths linear predictive filter dominant cycle estimator
+//@param source Price input series
+//@param lowerBound Lower bandpass boundary (minimum period)
+//@param upperBound Upper bandpass boundary (maximum period)
+//@param dataLength Data length for Griffiths predictor
+//@returns [dominantCycle, signal, predict] Dominant cycle period, normalized signal, predicted value
+//@optimized Uses native PineScript historical operator; roofing filter + AGC + Griffiths LMS inline
+//@validation wolfram:"Griffiths LMS algorithm","Wiener-Hopf equation" external:"TASC 2025.01 Linear Predictive Filters","Ehlers Linear Prediction PDF"
+lpf(series float source,simple int lowerBound,simple int upperBound,simple int dataLength)=>
+    if lowerBound<8
+        runtime.error("Lower bound must be at least 8")
+    if upperBound<=lowerBound
+        runtime.error("Upper bound must be greater than lower bound")
+    if dataLength<4
+        runtime.error("Data length must be at least 4")
+    var array<float> xx=array.new_float(0)
+    var array<float> coef=array.new_float(0)
+    var array<float> pwr=array.new_float(0)
+    var int storedLen=0
+    var int storedUpper=0
+    var bool configured=false
+    var float hp=0.0
+    var float lp=0.0
+    var float peak=0.1
+    var float signal=0.0
+    var float dom=0.0
+    var float prevDom=0.0
+    if not configured or storedLen!=dataLength or storedUpper!=upperBound
+        xx:=array.new_float(dataLength+1,0.0)
+        coef:=array.new_float(dataLength+1,0.0)
+        pwr:=array.new_float(upperBound+2,0.0)
+        storedLen:=dataLength
+        storedUpper:=upperBound
+        configured:=true
+        hp:=0.0
+        lp:=0.0
+        peak:=0.1
+        signal:=0.0
+        dom:=(lowerBound+upperBound)*0.5
+        prevDom:=dom
+    float price=nz(source)
+    // Stage 1: Roofing filter — Highpass (Butterworth 2nd order)
+    float alphaHP=(math.cos(0.707*2.0*math.pi/float(upperBound))+math.sin(0.707*2.0*math.pi/float(upperBound))-1.0)/math.cos(0.707*2.0*math.pi/float(upperBound))
+    hp:=math.pow(1.0-alphaHP/2.0,2.0)*(price-2.0*nz(price[1])+nz(price[2]))+2.0*(1.0-alphaHP)*nz(hp[1])-math.pow(1.0-alphaHP,2.0)*nz(hp[2])
+    // Stage 1b: SuperSmoother lowpass
+    float a1=math.exp(-math.sqrt(2.0)*math.pi/float(lowerBound))
+    float b1=2.0*a1*math.cos(math.sqrt(2.0)*math.pi/float(lowerBound))
+    float ssC2=b1
+    float ssC3=-(a1*a1)
+    float ssC1=1.0-ssC2-ssC3
+    lp:=ssC1*(hp+nz(hp[1]))*0.5+ssC2*nz(lp[1])+ssC3*nz(lp[2])
+    // Stage 2: AGC normalization
+    peak:=0.991*peak
+    if math.abs(lp)>peak
+        peak:=math.abs(lp)
+    signal:=peak>0.0?lp/peak:0.0
+    // Stage 3: Griffiths adaptive predictor
+    // Shift data buffer
+    for count=dataLength to 1
+        array.set(xx,count,count>1?array.get(xx,count-1):0.0)
+    array.set(xx,0,signal)
+    // Compute signal power
+    float sigPower=0.0
+    for count=0 to dataLength-1
+        float xVal=array.get(xx,count)
+        sigPower+=xVal*xVal
+    sigPower/=float(dataLength)
+    // Convergence factor
+    float mu=sigPower>0.0?0.25/(sigPower*float(dataLength)):0.0
+    // Predict
+    float xBar=0.0
+    for count=1 to dataLength
+        xBar+=array.get(coef,count)*array.get(xx,count)
+    // Error + coefficient update
+    float err=array.get(xx,0)-xBar
+    for count=1 to dataLength
+        float c=array.get(coef,count)+mu*err*array.get(xx,count)
+        array.set(coef,count,c)
+    // Stage 4: Spectrum from coefficients
+    float maxPwrLocal=0.0
+    for period=lowerBound to upperBound
+        float realPart=0.0
+        float imagPart=0.0
+        for count=1 to dataLength
+            float angle=2.0*math.pi*float(count)/float(period)
+            realPart+=array.get(coef,count)*math.cos(angle)
+            imagPart+=array.get(coef,count)*math.sin(angle)
+        float p=realPart*realPart+imagPart*imagPart
+        array.set(pwr,period,p)
+        if p>maxPwrLocal
+            maxPwrLocal:=p
+    // Stage 5: Dominant cycle via center of gravity
+    float spx=0.0
+    float sp=0.0
+    for period=lowerBound to upperBound
+        float p=maxPwrLocal>0.0?array.get(pwr,period)/maxPwrLocal:0.0
+        if p>=0.5
+            spx+=float(period)*p
+            sp+=p
+    float rawDom=sp>0.0?spx/sp:dom
+    // Constrain change to ±2 bars per update
+    float maxDelta=2.0
+    if rawDom-prevDom>maxDelta
+        rawDom:=prevDom+maxDelta
+    if prevDom-rawDom>maxDelta
+        rawDom:=prevDom-maxDelta
+    dom:=math.max(float(lowerBound),math.min(float(upperBound),rawDom))
+    prevDom:=dom
+    // Two-bar prediction for trigger
+    float xPred=0.0
+    if dataLength>2
+        for count=1 to dataLength-2
+            xPred+=array.get(coef,count)*array.get(xx,count)
+    [dom,signal,xPred]
+
+// ---------- Main loop ----------
+i_source=input.source(close,"Source")
+i_lower=input.int(18,"Lower Bound",minval=8,maxval=200)
+i_upper=input.int(40,"Upper Bound",minval=10,maxval=500)
+i_length=input.int(40,"Data Length",minval=4,maxval=200)
+[dominantCycle,sig,pred]=lpf(i_source,i_lower,i_upper,i_length)
+plot(dominantCycle,"Dominant Cycle",color=color.yellow,linewidth=2)
+plot(sig*20+30,"Signal",color=color.lime,linewidth=1)
+plot(pred*20+30,"Predict",color=color.red,linewidth=1)

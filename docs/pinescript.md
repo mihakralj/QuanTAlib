@@ -435,6 +435,7 @@ Markets oscillate. These indicators try to measure the oscillation itself — th
 | HT_DCPHASE | Ehlers Hilbert Transform Dominant Cycle Phase | [ht_dcphase.pine](../lib/cycles/ht_dcphase/ht_dcphase.pine) |
 | HT_PHASOR | Ehlers Hilbert Transform Phasor Components | [phasor.pine](../lib/cycles/ht_phasor/phasor.pine) |
 | HT_SINE | Ehlers Hilbert Transform SineWave | [ht_sine.pine](../lib/cycles/ht_sine/ht_sine.pine) |
+| LPF | Ehlers Linear Predictive Filter | [lpf.pine](../lib/cycles/lpf/lpf.pine) |
 | LUNAR | Lunar Phase | [lunar.pine](../lib/cycles/lunar/lunar.pine) |
 | SOLAR | Solar Activity Cycle | [solar.pine](../lib/cycles/solar/solar.pine) |
 | SSFDSP | Ehlers SSF Detrended Synthetic Price | [ssfdsp.pine](../lib/cycles/ssfdsp/ssfdsp.pine) |

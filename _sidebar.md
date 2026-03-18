@@ -329,6 +329,7 @@
   * [HT_DCPHASE - Ehlers Hilbert Transform Dominant Cycle Phase](/lib/cycles/ht_dcphase/HtDcphase.md)
   * [HT_PHASOR - Ehlers Hilbert Transform Phasor Components](/lib/cycles/ht_phasor/HtPhasor.md)
   * [HT_SINE - Ehlers Hilbert Transform SineWave (also known as SINE)](/lib/cycles/ht_sine/HtSine.md)
+  * [LPF - Ehlers Linear Predictive Filter](/lib/cycles/lpf/Lpf.md)
   * [LUNAR - Lunar Phase](/lib/cycles/lunar/Lunar.md)
   * [SOLAR - Solar Activity Cycle](/lib/cycles/solar/Solar.md)
   * [SSFDSP - Ehlers SSF Detrended Synthetic Price](/lib/cycles/ssfdsp/Ssfdsp.md)

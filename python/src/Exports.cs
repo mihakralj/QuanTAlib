@@ -1546,6 +1546,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Lpf: Pattern A (source → output, int lowerBound, int upperBound, int dataLength)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_lpf")]
+    public static int QtlLpf(double* src, int n, double* dst, int lowerBound, int upperBound, int dataLength)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        v = ChkPeriod(lowerBound); if (v != 0) return v;
+        try { Lpf.Batch(Src(src, n), Dst(dst, n), lowerBound, upperBound, dataLength); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.14  Numerics / transforms
     // ═══════════════════════════════════════════════════════════════════════

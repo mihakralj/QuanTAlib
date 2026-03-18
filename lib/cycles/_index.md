@@ -18,6 +18,7 @@ Cycle analysis identifies repeating patterns in price data. John Ehlers pioneere
 | [HT_DCPHASE](ht_dcphase/Htdcphase.md)    | Ehlers Hilbert Transform Dominant Cycle Phase          | Ehlers Hilbert Transform. Measures current position in cycle.                |
 | [HT_PHASOR](ht_phasor/HtPhasor.md)       | Ehlers Hilbert Transform Phasor Components             | Ehlers. In-phase and quadrature components.                                  |
 | [HT_SINE](ht_sine/HtSine.md)             | Ehlers Hilbert Transform SineWave (also known as SINE) | Ehlers Hilbert Transform. Sine and lead sine for cycle timing.               |
+| [LPF](lpf/Lpf.md)                        | Ehlers Linear Predictive Filter                        | Ehlers. Griffiths LMS predictor coefficients → DFT spectrum → dominant cycle.|
 | [LUNAR](lunar/Lunar.md)                  | Lunar Phase                                            | 29.5-day lunar cycle. Studied for market correlations.                       |
 | [SOLAR](solar/Solar.md)                  | Solar Activity Cycle                                   | ~11-year sunspot cycle. Long-term research indicator.                        |
 | [SSFDSP](ssfdsp/Ssfdsp.md)               | Ehlers SSF Detrended Synthetic Price                   | Super Smoother Filter based DSP. Cleaner cycle extraction.                   |
