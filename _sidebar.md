@@ -202,6 +202,7 @@
   * [PFE - Polarized Fractal Efficiency](/lib/dynamics/pfe/Pfe.md)
   * [PLUS_DI - Plus Directional Indicator](/lib/dynamics/plusdi/PlusDi.md)
   * [PLUS_DM - Plus Directional Movement](/lib/dynamics/plusdm/PlusDm.md)
+  * [PTA - Ehlers Precision Trend Analysis](/lib/dynamics/pta/Pta.md)
   * [QSTICK - Qstick Indicator](/lib/dynamics/qstick/Qstick.md)
   * [RAVI - Chande Range Action Verification Index](/lib/dynamics/ravi/Ravi.md)
   * [SUPER - SuperTrend](/lib/dynamics/super/Super.md)

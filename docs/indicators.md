@@ -246,6 +246,7 @@ Indicators measuring trend strength, regime, and directional movement quality.
 | [**PFE**](../lib/dynamics/pfe/Pfe.md) | Polarized Fractal Efficiency | Fractal path efficiency as trend strength |
 | [**PLUS_DI**](../lib/dynamics/plusdi/PlusDi.md) | Plus Directional Indicator | Upward DI (0-100) |
 | [**PLUS_DM**](../lib/dynamics/plusdm/PlusDm.md) | Plus Directional Movement | Smoothed upward DM |
+| [**PTA**](../lib/dynamics/pta/Pta.md) | Ehlers Precision Trend Analysis | Dual highpass bandpass near-zero-lag trend |
 | [**QSTICK**](../lib/dynamics/qstick/Qstick.md) | Qstick | Average close-open difference |
 | [**RAVI**](../lib/dynamics/ravi/Ravi.md) | Chande Range Action Verification Index | Dual-SMA divergence as trend strength |
 | [**SUPER**](../lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend bands |

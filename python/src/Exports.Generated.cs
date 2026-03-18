@@ -2316,6 +2316,19 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_pta")]
+    public static int QtlPta(double* source, double* output, int n, int longPeriod, int shortPeriod)
+    {
+        if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            Pta.Batch(Src(source, n), Dst(output, n), longPeriod, shortPeriod);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_rs")]
     public static int QtlRs(double* baseSeries, double* compSeries, double* output, int n, int smoothPeriod)
     {

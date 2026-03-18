@@ -1,0 +1,37 @@
+// PTA: Ehlers Precision Trend Analysis
+// Category: Dynamics
+// Based on: John F. Ehlers, "Precision Trend Analysis," TASC September 2024
+//
+// Dual highpass filter bandpass approach for near-zero-lag trend extraction.
+// Trend = HP(longPeriod) - HP(shortPeriod)
+// where HP is a 2-pole Butterworth highpass filter.
+// Preserves cyclic components between shortPeriod and longPeriod.
+// Output: zero-centered, positive = uptrend, negative = downtrend.
+
+//@version=6
+indicator("PTA - Ehlers Precision Trend Analysis", shorttitle="PTA", overlay=false)
+
+// ── Inputs ──────────────────────────────────────────────────────
+int longPeriod  = input.int(250, "Long Period",  minval=3)
+int shortPeriod = input.int(40,  "Short Period", minval=2)
+
+// ── Highpass Filter Function ────────────────────────────────────
+highpass(float src, float period) =>
+    float a1 = math.exp(-1.414 * math.pi / period)
+    float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / period)
+    float c2 = b1
+    float c3 = -a1 * a1
+    float c1 = (1.0 + c2 - c3) * 0.25
+    float hp = 0.0
+    if bar_index >= 2
+        hp := c1 * (src - 2.0 * src[1] + src[2]) + c2 * nz(hp[1]) + c3 * nz(hp[2])
+    hp
+
+// ── Calculations ────────────────────────────────────────────────
+float hp1   = highpass(close, longPeriod)
+float hp2   = highpass(close, shortPeriod)
+float trend = hp1 - hp2
+
+// ── Plots ───────────────────────────────────────────────────────
+plot(trend, "PTA", color.red, 2)
+hline(0, "Zero", color.gray, hline.style_dotted)

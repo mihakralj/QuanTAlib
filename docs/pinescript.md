@@ -277,6 +277,7 @@ Is there a trend? How strong? These indicators answer that.
 | PFE | Polarized Fractal Efficiency | [pfe.pine](../lib/dynamics/pfe/pfe.pine) |
 | PLUS_DI | Plus Directional Indicator | [plusdi.pine](../lib/dynamics/plusdi/plusdi.pine) |
 | PLUS_DM | Plus Directional Movement | [plusdm.pine](../lib/dynamics/plusdm/plusdm.pine) |
+| PTA | Ehlers Precision Trend Analysis | [pta.pine](../lib/dynamics/pta/pta.pine) |
 | QSTICK | Qstick Indicator | [qstick.pine](../lib/dynamics/qstick/qstick.pine) |
 | RAVI | Chande Range Action Verification Index | [ravi.pine](../lib/dynamics/ravi/ravi.pine) |
 | SUPER | SuperTrend | [super.pine](../lib/dynamics/super/super.pine) |

@@ -266,6 +266,18 @@ def plus_dm(high: object, low: object, close: object, period: int = 14, offset: 
     return _wrap(destination, idx, f"PLUS_DM_{period}", "dynamics", offset)
 
 
+def pta(close: object, longPeriod: int = 250, shortPeriod: int = 40, offset: int = 0, **kwargs) -> object:
+    """Ehlers Precision Trend Analysis."""
+    longPeriod = int(kwargs.get("long_period", longPeriod))
+    shortPeriod = int(kwargs.get("short_period", shortPeriod))
+    offset = int(offset)
+    src, idx = _arr(close)
+    n = len(src)
+    output = _out(n)
+    _check(_lib.qtl_pta(_ptr(src), _ptr(output), n, longPeriod, shortPeriod))
+    return _wrap(output, idx, f"PTA_{longPeriod}_{shortPeriod}", "dynamics", offset)
+
+
 def qstick(open: object, high: object, low: object, close: object, volume: object, period: int = 14, useEma: int = 0, offset: int = 0, **kwargs) -> object:
     """QStick."""
     period = int(kwargs.get("length", period))

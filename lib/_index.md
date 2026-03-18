@@ -270,6 +270,7 @@
 | [PLUS_DI](dynamics/plusdi/PlusDi.md)                        | Plus Directional Indicator                                                | Dynamics     |
 | [PLUS_DM](dynamics/plusdm/PlusDm.md)                        | Plus Directional Movement                                                 | Dynamics     |
 | [PMA](trends_FIR/pma/Pma.md)                               | Ehlers Predictive Moving Average                                          | Trends (FIR) |
+| [PTA](dynamics/pta/Pta.md)                                  | Ehlers Precision Trend Analysis                                           | Dynamics     |
 | [PMO](momentum/pmo/Pmo.md)                                 | Price Momentum Oscillator                                                 | Momentum     |
 | [POISSONDIST](numerics/poissondist/Poissondist.md)         | Poisson Distribution                                                      | Numerics     |
 | [POLYFIT](statistics/polyfit/Polyfit.md)                   | Polynomial Fitting                                                        | Statistics   |

@@ -24,7 +24,8 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | [MINUS_DM](minusdm/MinusDm.md)              | Minus Directional Movement                   | Wilder-smoothed downward directional movement. Price units.                   |
 | [PFE](pfe/Pfe.md)                           | Polarized Fractal Efficiency                 | Trend efficiency: straight-line / total path distance.                        |
 | [PLUS_DI](plusdi/PlusDi.md)                  | Plus Directional Indicator                   | Upward directional movement as % of true range. 0-100.                        |
-| [PLUS_DM](plusdm/PlusDm.md)                  | Plus Directional Movement                    | Wilder-smoothed upward directional movement. Price units.                     |
+| [PLUS_DM](plusdm/PlusDm.md)                  | Plus Directional Movement                    | Wilder-smoothed upward directional movement. Price units.                   |
+| [PTA](pta/Pta.md)                            | Ehlers Precision Trend Analysis              | Dual highpass bandpass. Zero-centered near-zero-lag trend.                   |
 | [QSTICK](qstick/Qstick.md)                  | Qstick                                       | MA of (Close - Open). Positive = buying pressure.                             |
 | [RAVI](ravi/Ravi.md)                         | Chande Range Action Verification Index       | \|SMA(short) − SMA(long)\| / SMA(long) × 100.                                |
 | [SUPER](super/Super.md)                      | SuperTrend                                   | ATR-based trailing stop. Flips on breakout. Color-coded direction.            |
