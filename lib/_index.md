@@ -129,8 +129,9 @@
 | [FI](oscillators/fi/Fi.md)                                 | Force Index                                                               | Oscillators  |
 | [FISHER](oscillators/fisher/Fisher.md)                     | Ehlers Fisher Transform                                                   | Oscillators  |
 | [FISHER04](oscillators/fisher04/Fisher04.md)               | Ehlers Fisher Transform (2004)                                            | Oscillators  |
-| [FRACTALS](reversals/fractals/Fractals.md)                 | Williams Fractals                                                         | Reversals    |
 | [FRAMA](trends_IIR/frama/Frama.md)                         | Ehlers Fractal Adaptive MA                                                | Trends (IIR) |
+| [FSI](cycles/fsi/Fsi.md)                                   | Ehlers Fourier Series Indicator                                           | Cycles       |
+| [FRACTALS](reversals/fractals/Fractals.md)                 | Williams Fractals                                                         | Reversals    |
 | [FWMA](trends_FIR/fwma/Fwma.md)                            | Fibonacci Weighted MA                                                     | Trends (FIR) |
 | [GAMMADIST](numerics/gammadist/Gammadist.md)               | Gamma Distribution                                                        | Numerics     |
 | [GATOR](oscillators/gator/Gator.md)                        | Williams Gator Oscillator                                                 | Oscillators  |

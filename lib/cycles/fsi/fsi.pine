@@ -1,0 +1,51 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © QuanTAlib
+
+//@version=6
+indicator("FSI - Ehlers Fourier Series Indicator", shorttitle="FSI", overlay=false)
+
+// Inputs
+x = input.int(20, "Fundamental Cycle Period", minval=6)
+bw = input.float(0.1, "Bandwidth", minval=0.001, step=0.01)
+
+// Fundamental bandpass coefficients
+L1 = math.cos(2 * math.pi / x)
+G1 = math.cos(bw * 2 * math.pi / x)
+S1 = 1 / G1 - math.sqrt(1 / (G1 * G1) - 1)
+
+// 2nd harmonic coefficients (period = x/2)
+L2 = math.cos(2 * math.pi / (x / 2))
+G2 = math.cos(bw * 2 * math.pi / (x / 2))
+S2 = 1 / G2 - math.sqrt(1 / (G2 * G2) - 1)
+
+// 3rd harmonic coefficients (period = x/3)
+L3 = math.cos(2 * math.pi / (x / 3))
+G3 = math.cos(bw * 2 * math.pi / (x / 3))
+S3 = 1 / G3 - math.sqrt(1 / (G3 * G3) - 1)
+
+// Bandpass filters
+float BP1 = 0.0
+BP1 := 0.5 * (1 - S1) * (close - close[2]) + L1 * (1 + S1) * nz(BP1[1]) - S1 * nz(BP1[2])
+
+float BP2 = 0.0
+BP2 := 0.5 * (1 - S2) * (close - close[2]) + L2 * (1 + S2) * nz(BP2[1]) - S2 * nz(BP2[2])
+
+float BP3 = 0.0
+BP3 := 0.5 * (1 - S3) * (close - close[2]) + L3 * (1 + S3) * nz(BP3[1]) - S3 * nz(BP3[2])
+
+// Quadrature components (differentiation-based 90° phase shift)
+Q1 = (x / (2 * math.pi)) * (BP1 - nz(BP1[1]))
+Q2 = (x / (2 * math.pi)) * (BP2 - nz(BP2[1]))
+Q3 = (x / (2 * math.pi)) * (BP3 - nz(BP3[1]))
+
+// Power estimation (rolling sum over x bars)
+P1 = math.sum(BP1 * BP1 + Q1 * Q1, x)
+P2 = math.sum(BP2 * BP2 + Q2 * Q2, x)
+P3 = math.sum(BP3 * BP3 + Q3 * Q3, x)
+
+// Amplitude-weighted reconstruction
+fsi = P1 > 0 ? BP1 + math.sqrt(P2 / P1) * BP2 + math.sqrt(P3 / P1) * BP3 : BP1
+
+plot(fsi, "FSI", color.yellow, 2)
+hline(0, "Zero", color.gray, hline.style_dotted)

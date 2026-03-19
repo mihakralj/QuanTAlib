@@ -1556,6 +1556,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Fsi: Pattern A (src → dst, int period, double bandwidth)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_fsi")]
+    public static int QtlFsi(double* src, int n, double* dst, int period, double bandwidth)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        v = ChkPeriod(period); if (v != 0) return v;
+        try { Fsi.Batch(Src(src, n), Dst(dst, n), period, bandwidth); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.14  Numerics / transforms
     // ═══════════════════════════════════════════════════════════════════════

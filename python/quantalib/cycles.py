@@ -23,6 +23,7 @@ __all__ = [
     "ebsw",
     "acp",
     "amfm",
+    "fsi",
 ]
 
 
@@ -172,3 +173,12 @@ def amfm(open: object, close: object, period: int = 30,
     n = len(o); fm = _out(n); am = _out(n)
     _check(_lib.qtl_amfm(_ptr(o), _ptr(c), n, _ptr(fm), _ptr(am), period))
     return _wrap_multi({f"FM_{period}": fm, f"AM_{period}": am}, idx, "cycles", offset)
+
+
+def fsi(close: object, period: int = 20, bandwidth: float = 0.1,
+        offset: int = 0, **kwargs) -> object:
+    """Ehlers Fourier Series Indicator."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_fsi(_ptr(src), n, _ptr(dst), period, float(bandwidth)))
+    return _wrap(dst, idx, f"FSI_{period}", "cycles", offset)

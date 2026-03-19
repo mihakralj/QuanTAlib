@@ -323,6 +323,7 @@
   * [CCYC - Ehlers Cyber Cycle](/lib/cycles/ccyc/Ccyc.md)
   * [CG - Ehlers Center of Gravity](/lib/cycles/cg/Cg.md)
   * [DSP - Ehlers Detrended Synthetic Price](/lib/cycles/dsp/Dsp.md)
+  * [FSI - Ehlers Fourier Series Indicator](/lib/cycles/fsi/Fsi.md)
   * [ACP - Ehlers Autocorrelation Periodogram](/lib/cycles/acp/Acp.md)
   * [EBSW - Ehlers Even Better Sinewave](/lib/cycles/ebsw/Ebsw.md)
   * [HOMOD - Ehlers Homodyne Discriminator](/lib/cycles/homod/Homod.md)
