@@ -441,6 +441,7 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 | [**CCYC**](../lib/cycles/ccyc/Ccyc.md) | Ehlers Cyber Cycle | 4-tap FIR + 2-pole high-pass IIR cycle extraction |
 | [**CG**](../lib/cycles/cg/Cg.md) | Ehlers Center of Gravity | Ehlers cycle measurement |
 | [**DSP**](../lib/cycles/dsp/Dsp.md) | Ehlers Detrended Synthetic Price | Cycle-isolated price component |
+| [**EPA**](../lib/cycles/epa/epa.md) | Ehlers Phasor Analysis | Pearson correlation phasor with wraparound + trend state |
 | [**FSI**](../lib/cycles/fsi/Fsi.md) | Ehlers Fourier Series Indicator | 3-harmonic bandpass + amplitude-weighted reconstruction |
 | [**ACP**](../lib/cycles/acp/Acp.md) | Ehlers Autocorrelation Periodogram | Ehlers dominant cycle detection |
 | [**EBSW**](../lib/cycles/ebsw/Ebsw.md) | Ehlers Even Better Sinewave | Ehlers improved cycle indicator |

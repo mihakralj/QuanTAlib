@@ -429,6 +429,7 @@ Markets oscillate. These indicators try to measure the oscillation itself — th
 | CCYC | Ehlers Cyber Cycle | [ccyc.pine](../lib/cycles/ccyc/ccyc.pine) |
 | CG | Ehlers Center of Gravity | [cg.pine](../lib/cycles/cg/cg.pine) |
 | DSP | Ehlers Detrended Synthetic Price | [dsp.pine](../lib/cycles/dsp/dsp.pine) |
+| EPA | Ehlers Phasor Analysis | [epa.pine](../lib/cycles/epa/epa.pine) |
 | FSI | Ehlers Fourier Series Indicator | [fsi.pine](../lib/cycles/fsi/fsi.pine) |
 | ACP | Ehlers Autocorrelation Periodogram | [acp.pine](../lib/cycles/acp/acp.pine) |
 | EBSW | Ehlers Even Better Sinewave | [ebsw.pine](../lib/cycles/ebsw/ebsw.pine) |

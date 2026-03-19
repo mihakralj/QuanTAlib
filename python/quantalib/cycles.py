@@ -24,6 +24,7 @@ __all__ = [
     "acp",
     "amfm",
     "fsi",
+    "epa",
 ]
 
 
@@ -182,3 +183,12 @@ def fsi(close: object, period: int = 20, bandwidth: float = 0.1,
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_fsi(_ptr(src), n, _ptr(dst), period, float(bandwidth)))
     return _wrap(dst, idx, f"FSI_{period}", "cycles", offset)
+
+
+def epa(close: object, period: int = 28,
+        offset: int = 0, **kwargs) -> object:
+    """Ehlers Phasor Analysis."""
+    period = int(kwargs.get("length", period)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_epa(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"EPA_{period}", "cycles", offset)

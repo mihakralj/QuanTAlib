@@ -1566,6 +1566,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Epa: Pattern A (src → dst, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_epa")]
+    public static int QtlEpa(double* src, int n, double* dst, int period)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        v = ChkPeriod(period); if (v != 0) return v;
+        try { Epa.Batch(Src(src, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  §8.14  Numerics / transforms
     // ═══════════════════════════════════════════════════════════════════════

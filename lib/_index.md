@@ -107,6 +107,7 @@
 | [DWT](numerics/dwt/Dwt.md)                                 | Discrete Wavelet Transform                                                | Numerics     |
 | [DX](dynamics/dx/Dx.md)                                    | Directional Movement Index                                                | Dynamics     |
 | [DYMI](oscillators/dymi/Dymi.md)                            | Dynamic Momentum Index                                                    | Oscillators  |
+| [EPA](cycles/epa/epa.md)                                    | Ehlers Phasor Analysis                                                    | Cycles       |
 | [EBSW](cycles/ebsw/Ebsw.md)                                | Ehlers Even Better Sinewave                                               | Cycles       |
 | [EDCF](filters/edcf/Edcf.md)                               | Ehlers Distance Coefficient Filter                                        | Filters      |
 | [EDECAY](numerics/edecay/Edecay.md)                        | Exponential Decay                                                         | Numerics     |

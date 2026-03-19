@@ -1,0 +1,85 @@
+//@version=6
+// EPA: Ehlers Phasor Analysis
+// From John F. Ehlers, "Recurring Phase Of Cycle Analysis"
+// (Stocks & Commodities, November 2022)
+indicator("EPA - Ehlers Phasor Analysis", shorttitle="EPA", overlay=false)
+
+period = input.int(28, "Period", minval=2)
+src    = input.source(close, "Source")
+
+var float prevAngle      = 0.0
+var float prevDeltaAngle = 0.0
+var float derivedPeriod  = 0.0
+
+// Correlate price with Cosine wave (Pearson correlation → Real)
+float sx_r = 0.0, float sy_r = 0.0
+float sxx_r = 0.0, float sxy_r = 0.0, float syy_r = 0.0
+for k = 0 to period - 1
+    float x = nz(src[k])
+    float y = math.cos(2.0 * math.pi * k / period)
+    sx_r  += x
+    sy_r  += y
+    sxx_r += x * x
+    sxy_r += x * y
+    syy_r += y * y
+
+float dp_r = (period * sxx_r - sx_r * sx_r) * (period * syy_r - sy_r * sy_r)
+float real = dp_r > 0 ? math.max(-1.0, math.min(1.0, (period * sxy_r - sx_r * sy_r) / math.sqrt(dp_r))) : 0.0
+
+// Correlate price with -Sine wave (Pearson correlation → Imag)
+float sx_i = 0.0, float sy_i = 0.0
+float sxx_i = 0.0, float sxy_i = 0.0, float syy_i = 0.0
+for k = 0 to period - 1
+    float x = nz(src[k])
+    float y = -math.sin(2.0 * math.pi * k / period)
+    sx_i  += x
+    sy_i  += y
+    sxx_i += x * x
+    sxy_i += x * y
+    syy_i += y * y
+
+float dp_i = (period * sxx_i - sx_i * sx_i) * (period * syy_i - sy_i * sy_i)
+float imag = dp_i > 0 ? math.max(-1.0, math.min(1.0, (period * sxy_i - sx_i * sy_i) / math.sqrt(dp_i))) : 0.0
+
+// Angle = 90 - atan(Imag/Real) with quadrant fix
+float angle = 0.0
+if real != 0
+    angle := 90.0 - math.todegrees(math.atan(imag / real))
+if real < 0
+    angle -= 180.0
+
+// Wraparound compensation
+if math.abs(angle) - math.abs(prevAngle - 360.0) < angle - prevAngle and prevAngle > 90.0 and angle < -90.0
+    angle -= 360.0
+
+// Angle cannot go backwards (with conditional exceptions)
+if angle < prevAngle and ((prevAngle > -135.0 and prevAngle < 135.0) or (angle < -90.0 and prevAngle < -90.0))
+    angle := prevAngle
+
+// DerivedPeriod from angle rate-of-change
+float deltaAngle = angle - prevAngle
+if deltaAngle <= 0
+    deltaAngle := prevDeltaAngle
+if deltaAngle > 0
+    derivedPeriod := 360.0 / deltaAngle
+    prevDeltaAngle := deltaAngle
+if derivedPeriod > 60
+    derivedPeriod := 60.0
+
+// Trend state
+int trendState = 0
+float angleChange = angle - prevAngle
+if angleChange <= 6.0
+    if angle >= 90.0 or angle <= -90.0
+        trendState := 1    // trending long
+    else if angle > -90.0 and angle < 90.0
+        trendState := -1   // trending short
+
+prevAngle := angle
+
+plot(angle, "Angle", color.yellow, 2)
+hline(0, "Zero", color.white)
+hline(90, "+90", color.new(color.cyan, 50))
+hline(-90, "-90", color.new(color.cyan, 50))
+plot(derivedPeriod, "DerivedPeriod", color.cyan, 1, display=display.none)
+plot(trendState, "TrendState", color.red, 2, display=display.none)
