@@ -283,7 +283,7 @@ public class LpfIndicatorTests
     public void LpfIndicator_SourceCodeLink_IsValid()
     {
         var indicator = new LpfIndicator();
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Lpf.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Lpf.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 }

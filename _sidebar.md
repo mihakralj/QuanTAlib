@@ -116,6 +116,7 @@
   * [SAK - Ehlers Swiss Army Knife](/lib/filters/sak/Sak.md)
   * [SGF - Savitzky-Golay Filter](/lib/filters/sgf/Sgf.md)
   * [SPBF - Ehlers Super Passband Filter](/lib/filters/spbf/Spbf.md)
+  * [TBF - Ehlers Truncated Bandpass Filter](/lib/filters/tbf/Tbf.md)
   * [SSF2 - Ehlers 2-Pole Super Smoother Filter](/lib/filters/ssf2/Ssf2.md)
   * [SSF3 - Ehlers 3-Pole Super Smoother Filter](/lib/filters/ssf3/Ssf3.md)
   * [USF - Ehlers Ultimate Smoother Filter](/lib/filters/usf/Usf.md)

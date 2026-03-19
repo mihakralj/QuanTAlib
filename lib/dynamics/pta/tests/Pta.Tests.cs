@@ -95,7 +95,10 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         var series = MakeSeries(100);
-        foreach (var bar in series) pta.Update(bar);
+        foreach (var bar in series)
+        {
+            pta.Update(bar);
+        }
         double val1 = pta.Update(new TValue(DateTime.UtcNow, 105.0), isNew: true).Value;
         double val2 = pta.Update(new TValue(DateTime.UtcNow.AddMinutes(1), 110.0), isNew: true).Value;
         Assert.NotEqual(val1, val2);
@@ -106,10 +109,13 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         var series = MakeSeries(100);
-        foreach (var bar in series) pta.Update(bar);
+        foreach (var bar in series)
+        {
+            pta.Update(bar);
+        }
 
         double v1 = pta.Update(new TValue(DateTime.UtcNow, 105.0), isNew: true).Value;
-        double v2 = pta.Update(new TValue(DateTime.UtcNow, 108.0), isNew: false).Value;
+        _ = pta.Update(new TValue(DateTime.UtcNow, 108.0), isNew: false).Value;
         double v3 = pta.Update(new TValue(DateTime.UtcNow, 105.0), isNew: false).Value;
         Assert.Equal(v1, v3, 10);
     }
@@ -119,7 +125,10 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         var series = MakeSeries(100);
-        foreach (var bar in series) pta.Update(bar);
+        foreach (var bar in series)
+        {
+            pta.Update(bar);
+        }
         pta.Reset();
         Assert.False(pta.IsHot);
         Assert.Equal(0.0, pta.Update(new TValue(DateTime.UtcNow, 100.0)).Value);
@@ -163,7 +172,10 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         var series = MakeSeries(5000);
-        foreach (var bar in series) pta.Update(bar);
+        foreach (var bar in series)
+        {
+            pta.Update(bar);
+        }
         Assert.True(double.IsFinite(pta.Last.Value));
     }
 
@@ -192,7 +204,10 @@ public class PtaTests
 
         // Mode 1: Streaming
         var streaming = new Pta(lp, sp);
-        foreach (var bar in series) streaming.Update(bar);
+        foreach (var bar in series)
+        {
+            streaming.Update(bar);
+        }
 
         // Mode 2: Batch TSeries
         var batchResult = Pta.Batch(series, lp, sp);
@@ -228,19 +243,24 @@ public class PtaTests
         var streaming = new Pta(lp, sp);
         var streamResults = new double[series.Count];
         for (int i = 0; i < series.Count; i++)
+        {
             streamResults[i] = streaming.Update(series[i]).Value;
+        }
 
         var spanResults = new double[series.Count];
         Pta.Batch(series.Values, spanResults, lp, sp);
 
         for (int i = 0; i < series.Count; i++)
+        {
             Assert.Equal(streamResults[i], spanResults[i], 10);
+        }
     }
 
     [Fact]
     public void SpanBatch_EmptyInput_NoThrow()
     {
-        Pta.Batch(ReadOnlySpan<double>.Empty, Span<double>.Empty, 50, 10);
+        var exception = Record.Exception(() => Pta.Batch(ReadOnlySpan<double>.Empty, Span<double>.Empty, 50, 10));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -261,7 +281,9 @@ public class PtaTests
         var source = new TSeries();
         var pta = new Pta(source, longPeriod: 50, shortPeriod: 10);
         for (int i = 0; i < 100; i++)
+        {
             source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.1));
+        }
         Assert.True(double.IsFinite(pta.Last.Value));
     }
 
@@ -274,7 +296,9 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         for (int i = 0; i < 300; i++)
+        {
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0));
+        }
 
         // Constant price → zero 2nd-order difference → both HP = 0 → PTA = 0
         Assert.Equal(0.0, pta.Last.Value, 10);
@@ -286,7 +310,9 @@ public class PtaTests
         // A perfectly linear trend has zero 2nd derivative → HP outputs approach 0
         var pta = new Pta(50, 10);
         for (int i = 0; i < 500; i++)
+        {
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+        }
 
         // Both HP filters output 0 for pure linear → PTA ≈ 0
         Assert.True(Math.Abs(pta.Last.Value) < 1.0,
@@ -303,7 +329,10 @@ public class PtaTests
         {
             double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 100.0);
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
-            if (i > 300) lastAbsMax = Math.Max(lastAbsMax, Math.Abs(pta.Last.Value));
+            if (i > 300)
+            {
+                lastAbsMax = Math.Max(lastAbsMax, Math.Abs(pta.Last.Value));
+            }
         }
         Assert.True(lastAbsMax > 0.1,
             $"Expected significant output for in-band sine, got max={lastAbsMax}");
@@ -315,10 +344,14 @@ public class PtaTests
         var pta = new Pta(50, 10);
         // Uptrend
         for (int i = 0; i < 200; i++)
+        {
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+        }
         // Transition to downtrend
         for (int i = 0; i < 200; i++)
+        {
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(200 + i), 200.0 - i * 0.5));
+        }
 
         // After sustained downtrend, PTA should detect the reversal
         // (the sign change may take some bars due to the bandpass filter)
@@ -343,8 +376,8 @@ public class PtaTests
     public void Name_IncludesBothPeriods()
     {
         var pta = new Pta(300, 60);
-        Assert.Contains("300", pta.Name);
-        Assert.Contains("60", pta.Name);
+        Assert.Contains("300", pta.Name, StringComparison.Ordinal);
+        Assert.Contains("60", pta.Name, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -361,7 +394,10 @@ public class PtaTests
     {
         var pta = new Pta(50, 10);
         var values = new double[100];
-        for (int i = 0; i < 100; i++) values[i] = 100.0 + i * 0.1;
+        for (int i = 0; i < 100; i++)
+        {
+            values[i] = 100.0 + i * 0.1;
+        }
         pta.Prime(values);
         Assert.True(pta.IsHot);
     }

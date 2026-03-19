@@ -154,6 +154,7 @@ Signal processing filters adapted for financial time series. Designed to separat
 | [**SAK**](../lib/filters/sak/Sak.md) | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS) |
 | [**SGF**](../lib/filters/sgf/Sgf.md) | Savitzky-Golay Filter | Polynomial least-squares fitting |
 | [**SPBF**](../lib/filters/spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers wide-band bandpass with RMS envelope |
+| [**TBF**](../lib/filters/tbf/Tbf.md) | Ehlers Truncated Bandpass Filter | Truncated IIR bandpass, eliminates initialization errors |
 | [**SSF2**](../lib/filters/ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers two-pole design |
 | [**SSF3**](../lib/filters/ssf3/Ssf3.md) | Ehlers 3-Pole Super Smoother Filter | Ehlers three-pole, single-sample feedforward |
 | [**USF**](../lib/filters/usf/Usf.md) | Ehlers Ultimate Smoother | Ehlers high-fidelity filter |

@@ -356,6 +356,7 @@
 | [SWINGS](reversals/swings/Swings.md)                       | Swing High/Low Detection                                                  | Reversals    |
 | [SWMA](trends_FIR/swma/Swma.md)                            | Symmetric Weighted MA                                                     | Trends (FIR) |
 | [T3](trends_IIR/t3/T3.md)                                  | Tillson T3 MA                                                             | Trends (IIR) |
+| [TBF](filters/tbf/Tbf.md)                                  | Ehlers Truncated Bandpass Filter                                          | Filters      |
 | [TD_SEQ](oscillators/td_seq/Td_seq.md)                     | TD Sequential                                                             | Oscillators  |
 | [TDIST](numerics/tdist/Tdist.md)                           | Student's t-Distribution                                                  | Numerics     |
 | [TEMA](trends_IIR/tema/Tema.md)                            | Triple Exponential MA                                                     | Trends (IIR) |

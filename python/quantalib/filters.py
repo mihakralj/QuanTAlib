@@ -25,6 +25,7 @@ __all__ = [
     "roofing",
     "sgf",
     "spbf",
+    "tbf",
     "ssf2",
     "ssf3",
     "usf",
@@ -246,6 +247,19 @@ def spbf(close: object, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: 
     output = _out(n)
     _check(_lib.qtl_spbf(_ptr(src), _ptr(output), n, shortPeriod, longPeriod, rmsPeriod))
     return _wrap(output, idx, f"SPBF_{shortPeriod}", "filters", offset)
+
+
+def tbf(close: object, period: int = 20, bandwidth: float = 0.1, length: int = 10, offset: int = 0, **kwargs) -> object:
+    """Ehlers Truncated Bandpass Filter."""
+    period = int(period)
+    bandwidth = float(bandwidth)
+    length = int(length)
+    offset = int(offset)
+    src, idx = _arr(close)
+    n = len(src)
+    output = _out(n)
+    _check(_lib.qtl_tbf(_ptr(src), _ptr(output), n, period, bandwidth, length))
+    return _wrap(output, idx, f"TBF_{period}", "filters", offset)
 
 
 def ssf2(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:

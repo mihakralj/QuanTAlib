@@ -2887,6 +2887,22 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    [UnmanagedCallersOnly(EntryPoint = "qtl_tbf")]
+    public static int QtlTbf(double* source, double* output, int n, int period, double bandwidth, int length)
+    {
+        if (source == null || output == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        try
+        {
+            var src = Src(source, n);
+            var dst = Dst(output, n);
+            Span<double> bpScratch = n <= 4096 ? stackalloc double[n] : new double[n];
+            Tbf.Batch(src, dst, bpScratch, period, bandwidth, length);
+            return StatusCodes.QTL_OK;
+        }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "qtl_spearman")]
     public static int QtlSpearman(double* seriesX, double* seriesY, double* output, int n, int period)
     {

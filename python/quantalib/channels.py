@@ -257,8 +257,8 @@ def ttm_lrc(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap_multi({"midline": midline, "upper1": upper1, "lower1": lower1, "upper2": upper2, "lower2": lower2}, idx, "channels", offset)
 
 
-def ubands(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
-    """Upper/Lower Bands."""
+def ubands(close: object, period: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs) -> object:
+    """Ehlers Ultimate Bands."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
     offset = int(offset)
@@ -271,8 +271,8 @@ def ubands(close: object, period: int = 14, multiplier: float = 2.0, offset: int
     return _wrap_multi({"upper": upper, "middle": middle, "lower": lower}, idx, "channels", offset)
 
 
-def uchannel(high: object, low: object, close: object, strPeriod: int = 14, centerPeriod: int = 20, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
-    """Ulcer Channel."""
+def uchannel(high: object, low: object, close: object, strPeriod: int = 20, centerPeriod: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs) -> object:
+    """Ehlers Ultimate Channel."""
     strPeriod = int(strPeriod)
     centerPeriod = int(centerPeriod)
     multiplier = float(multiplier)

@@ -109,8 +109,6 @@ public sealed class Amfm : ITValuePublisher
         _s = default;
         _ps = default;
 
-        // Warmup: need 4 bars for envelope + 8 bars for SMA = 12;
-        // also need 'period' bars for SSF convergence
         WarmupPeriod = Math.Max(12, period);
         Name = $"Amfm({period})";
         _barHandler = HandleBar;
@@ -201,9 +199,18 @@ public sealed class Amfm : ITValuePublisher
 
         // Find max of the 4-element envelope buffer
         double envel = _amEnvBuf[0];
-        if (_amEnvBuf[1] > envel) envel = _amEnvBuf[1];
-        if (_amEnvBuf[2] > envel) envel = _amEnvBuf[2];
-        if (_amEnvBuf[3] > envel) envel = _amEnvBuf[3];
+        if (_amEnvBuf[1] > envel)
+        {
+            envel = _amEnvBuf[1];
+        }
+        if (_amEnvBuf[2] > envel)
+        {
+            envel = _amEnvBuf[2];
+        }
+        if (_amEnvBuf[3] > envel)
+        {
+            envel = _amEnvBuf[3];
+        }
 
         // Step 2: AM = SMA(envelope, 8)
         int smaIdx = _s.SmaIdx;
@@ -224,8 +231,14 @@ public sealed class Amfm : ITValuePublisher
         // ── FM Demodulator ───────────────────────────────────────────
         // Step 1: Hard limiter (10x gain, clamp to ±1)
         double hl = 10.0 * deriv;
-        if (hl > 1.0) hl = 1.0;
-        else if (hl < -1.0) hl = -1.0;
+        if (hl > 1.0)
+        {
+            hl = 1.0;
+        }
+        else if (hl < -1.0)
+        {
+            hl = -1.0;
+        }
 
         // Step 2: Super Smoother (2-pole Butterworth IIR)
         double fm;
@@ -301,7 +314,10 @@ public sealed class Amfm : ITValuePublisher
         {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         }
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Super Smoother coefficients
         double a1 = Math.Exp(-1.414 * Math.PI / period);
@@ -312,7 +328,9 @@ public sealed class Amfm : ITValuePublisher
 
         // AM state
         Span<double> envBuf = stackalloc double[4];
+        envBuf.Clear();
         Span<double> smaBuf = stackalloc double[8];
+        smaBuf.Clear();
         double smaSum = 0.0;
         int envIdx = 0;
         int smaIdx = 0;
@@ -332,9 +350,18 @@ public sealed class Amfm : ITValuePublisher
             envIdx = (envIdx + 1) & 3;
 
             double envel = envBuf[0];
-            if (envBuf[1] > envel) envel = envBuf[1];
-            if (envBuf[2] > envel) envel = envBuf[2];
-            if (envBuf[3] > envel) envel = envBuf[3];
+            if (envBuf[1] > envel)
+            {
+                envel = envBuf[1];
+            }
+            if (envBuf[2] > envel)
+            {
+                envel = envBuf[2];
+            }
+            if (envBuf[3] > envel)
+            {
+                envel = envBuf[3];
+            }
 
             // AM: SMA(envelope, 8)
             double oldSma = smaBuf[smaIdx];
@@ -346,8 +373,14 @@ public sealed class Amfm : ITValuePublisher
 
             // FM: hard limiter
             double hl = 10.0 * deriv;
-            if (hl > 1.0) hl = 1.0;
-            else if (hl < -1.0) hl = -1.0;
+            if (hl > 1.0)
+            {
+                hl = 1.0;
+            }
+            else if (hl < -1.0)
+            {
+                hl = -1.0;
+            }
 
             // FM: Super Smoother
             double fm;

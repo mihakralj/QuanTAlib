@@ -74,8 +74,10 @@ public sealed class Pta : AbstractBase
         ArgumentOutOfRangeException.ThrowIfLessThan(longPeriod, 3, nameof(longPeriod));
         ArgumentOutOfRangeException.ThrowIfLessThan(shortPeriod, 2, nameof(shortPeriod));
         if (longPeriod <= shortPeriod)
+        {
             throw new ArgumentOutOfRangeException(nameof(longPeriod),
                 $"longPeriod ({longPeriod}) must be greater than shortPeriod ({shortPeriod}).");
+        }
 
         LongPeriod = longPeriod;
         ShortPeriod = shortPeriod;
@@ -120,16 +122,22 @@ public sealed class Pta : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
+        {
             Update(new TValue(DateTime.MinValue, v), isNew: true);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double src = input.Value;
         ref State s = ref _state;
@@ -188,7 +196,10 @@ public sealed class Pta : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var resultValues = new double[source.Count];
         Batch(source.Values, resultValues, LongPeriod, ShortPeriod);
@@ -196,7 +207,9 @@ public sealed class Pta : AbstractBase
         var result = new TSeries();
         var times = source.Times;
         for (int i = 0; i < source.Count; i++)
+        {
             result.Add(new TValue(times[i], resultValues[i]));
+        }
 
         // Sync internal state
         int len = source.Count;
@@ -204,7 +217,9 @@ public sealed class Pta : AbstractBase
         {
             var replay = new Pta(LongPeriod, ShortPeriod);
             for (int i = 0; i < len; i++)
+            {
                 replay.Update(new TValue(times[i], source.Values[i]));
+            }
             _state = replay._state;
         }
         _p_state = _state;
@@ -226,14 +241,21 @@ public sealed class Pta : AbstractBase
                              int longPeriod = 250, int shortPeriod = 40)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
-        if (source.Length == 0) return;
+        }
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         ArgumentOutOfRangeException.ThrowIfLessThan(longPeriod, 3, nameof(longPeriod));
         ArgumentOutOfRangeException.ThrowIfLessThan(shortPeriod, 2, nameof(shortPeriod));
         if (longPeriod <= shortPeriod)
+        {
             throw new ArgumentOutOfRangeException(nameof(longPeriod),
                 $"longPeriod ({longPeriod}) must be greater than shortPeriod ({shortPeriod}).");
+        }
 
         // Precompute coefficients
         ComputeHpCoefficients(longPeriod, out double c1L, out double c2L, out double c3L);
@@ -241,7 +263,10 @@ public sealed class Pta : AbstractBase
 
         // Bar 0 and 1: output = 0 (not enough history for 2nd-order diff)
         output[0] = 0.0;
-        if (source.Length < 2) return;
+        if (source.Length < 2)
+        {
+            return;
+        }
         output[1] = 0.0;
 
         double hp1 = 0, hp1_1 = 0;

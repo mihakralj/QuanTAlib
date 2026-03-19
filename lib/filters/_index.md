@@ -38,6 +38,7 @@ Signal processing filters adapted for financial time series. These are not indic
 | [SAK](sak/Sak.md) | Ehlers Swiss Army Knife | Configurable multi-mode filter (LP, HP, BP, BS). Single framework. |
 | [SGF](sgf/Sgf.md) | Savitzky-Golay | Polynomial smoothing. Preserves higher moments (derivatives). |
 | [SPBF](spbf/Spbf.md) | Ehlers Super Passband Filter | Ehlers. Wide-band bandpass via differenced EMAs with RMS envelope. |
+| [TBF](tbf/Tbf.md) | Ehlers Truncated Bandpass Filter | Ehlers. 2-pole bandpass with finite truncation window. Eliminates initialization errors. |
 | [SSF2](ssf2/Ssf2.md) | Ehlers 2-Pole Super Smoother Filter | Ehlers. 2-pole Butterworth variant. Standard cycle pre-filter. |
 | [SSF3](ssf3/Ssf3.md) | Ehlers 3-Pole Super Smoother Filter | Ehlers. 3-pole single-sample feedforward. Steeper rolloff than SSF2. |
 | [USF](usf/Usf.md) | Ehlers Ultimate Smoother Filter | Ehlers. 3-pole variant. More smoothing than SSF. |

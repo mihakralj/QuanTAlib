@@ -1,0 +1,57 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+// Truncated Bandpass Filter logic based on work by John F. Ehlers (c) 2020
+indicator("Ehlers Truncated Bandpass Filter (TBF)", "TBF", overlay=false)
+
+//@function Calculates Truncated Bandpass Filter alongside standard Bandpass
+//@param src Source series
+//@param period Center cycle period
+//@param bw Fractional bandwidth (e.g. 0.1 = 10%)
+//@param length Truncation window length
+//@returns tuple [truncatedBP, standardBP]
+tbf(series float src, simple int period, simple float bw, simple int length) =>
+    // Ehlers bandpass coefficients
+    float twoPi = 2.0 * math.pi
+    float L1 = math.cos(twoPi / period)
+    float G1 = math.cos(bw * twoPi / period)
+    float S1 = 1.0 / G1 - math.sqrt(1.0 / (G1 * G1) - 1.0)
+    float a0 = 0.5 * (1.0 - S1)
+    float a1 = L1 * (1.0 + S1)
+    float a2 = -S1
+
+    // Standard Bandpass (IIR)
+    var float bp = 0.0
+    float s = nz(src, src[1])
+    if bar_index >= 3
+        bp := a0 * (s - nz(src[2], s)) + a1 * nz(bp[1], 0.0) + a2 * nz(bp[2], 0.0)
+    else
+        bp := 0.0
+
+    // Truncated Bandpass using array
+    float tbfVal = 0.0
+    if bar_index >= length + 1
+        trunc = array.new_float(length + 3, 0.0)
+        for count = length to 1
+            float pPrev = nz(src[count - 1], s)
+            float pNext = nz(src[count + 1], s)
+            float val = a0 * (pPrev - pNext) + a1 * array.get(trunc, count + 1) + a2 * array.get(trunc, count + 2)
+            array.set(trunc, count, val)
+        tbfVal := array.get(trunc, 1)
+    [tbfVal, bp]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(20, "Period", minval=2, tooltip="Center cycle period for the bandpass filter.")
+i_bw = input.float(0.1, "Bandwidth", minval=0.001, maxval=1.0, step=0.01, tooltip="Fractional bandwidth (0.1 = 10%).")
+i_length = input.int(10, "Length", minval=1, tooltip="Truncation window length in bars.")
+
+// Calculation
+[tbfVal, bpVal] = tbf(i_source, i_period, i_bw, i_length)
+
+// Plot
+plot(tbfVal, "TBF", color=color.blue, linewidth=2)
+plot(bpVal, "BP", color=color.red, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

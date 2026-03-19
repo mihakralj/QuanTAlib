@@ -182,6 +182,7 @@ These are the heavy artillery. Kalman filters, Butterworth filters, wavelets. If
 | SAK | Ehlers Swiss Army Knife | [sak.pine](../lib/filters/sak/sak.pine) |
 | SGF | Savitzky-Golay Filter | [sgf.pine](../lib/filters/sgf/sgf.pine) |
 | SPBF | Ehlers Super Passband Filter | [spbf.pine](../lib/filters/spbf/spbf.pine) |
+| TBF | Ehlers Truncated Bandpass Filter | [tbf.pine](../lib/filters/tbf/tbf.pine) |
 | SSF2 | Ehlers 2-Pole Super Smoother Filter | [ssf2.pine](../lib/filters/ssf2/ssf2.pine) |
 | SSF3 | Ehlers 3-Pole Super Smoother Filter | [ssf3.pine](../lib/filters/ssf3/ssf3.pine) |
 | USF | Ehlers Ultimate Smoother Filter | [usf.pine](../lib/filters/usf/usf.pine) |
