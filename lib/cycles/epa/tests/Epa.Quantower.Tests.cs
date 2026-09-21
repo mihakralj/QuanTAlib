@@ -98,7 +98,7 @@ public class EpaIndicatorTests
         {
             indicator.HistoricalData.AddBar(
                 open: 100 + i, high: 105 + i, low: 95 + i, close: 102 + i,
-                volume: 1000 + i * 10,
+                volume: 1000 + (i * 10),
                 time: DateTime.UtcNow.AddDays(i));
             var ex = Record.Exception(() =>
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar)));

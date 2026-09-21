@@ -10,7 +10,7 @@ public sealed class EpaTests
         var s = new TSeries();
         for (int i = 0; i < count; i++)
         {
-            s.Add(new TValue(DateTime.UtcNow.AddDays(i), 100 + rng.NextDouble() * 10));
+            s.Add(new TValue(DateTime.UtcNow.AddDays(i), 100 + (rng.NextDouble() * 10)));
         }
         return s;
     }
@@ -397,7 +397,7 @@ public sealed class EpaTests
         double[] data = new double[20];
         for (int i = 0; i < 20; i++)
         {
-            data[i] = 100 + i * 0.5;
+            data[i] = 100 + (i * 0.5);
         }
         epa.Prime(data);
         Assert.True(epa.IsHot);
@@ -411,7 +411,7 @@ public sealed class EpaTests
         var epa = new Epa(period: 20);
         for (int i = 0; i < 100; i++)
         {
-            double price = 100 + 10 * Math.Sin(2 * Math.PI * i / 20.0);
+            double price = 100 + (10 * Math.Sin(2 * Math.PI * i / 20.0));
             epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
         }
         // With a matching sine wave, angle should advance
