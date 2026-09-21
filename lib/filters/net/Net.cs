@@ -201,12 +201,12 @@ public sealed class Net : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        long initialTicks = DateTime.UtcNow.Ticks - source.Length * (step?.Ticks ?? TimeSpan.FromSeconds(1).Ticks);
+        long initialTicks = DateTime.UtcNow.Ticks - (source.Length * (step?.Ticks ?? TimeSpan.FromSeconds(1).Ticks));
         TimeSpan increment = step ?? TimeSpan.FromSeconds(1);
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(initialTicks + i * increment.Ticks, source[i]));
+            Update(new TValue(initialTicks + (i * increment.Ticks), source[i]));
         }
     }
 
