@@ -209,10 +209,10 @@ public sealed class Lpf : AbstractBase
 
         // ── Stage 1: Roofing Filter ──────────────────────────────────────
         // Highpass: 2nd-order Butterworth
-        double hpCoef = (1.0 - _hpAlpha * 0.5);
-        double hpInput = hpCoef * hpCoef * (val - 2.0 * _state.Src1 + _state.Src2);
+        double hpCoef = (1.0 - (_hpAlpha * 0.5));
+        double hpInput = hpCoef * hpCoef * (val - (2.0 * _state.Src1) + _state.Src2);
         double oneMinusAlpha = 1.0 - _hpAlpha;
-        double hp = hpInput + 2.0 * oneMinusAlpha * _state.Hp1 - oneMinusAlpha * oneMinusAlpha * _state.Hp2;
+        double hp = hpInput + (2.0 * oneMinusAlpha * _state.Hp1) - (oneMinusAlpha * oneMinusAlpha * _state.Hp2);
 
         // SuperSmoother lowpass
         double lp = Math.FusedMultiplyAdd(_ssC1, (hp + _state.Hp1) * 0.5,
@@ -275,7 +275,7 @@ public sealed class Lpf : AbstractBase
                 realPart += _coef[i] * Math.Cos(angle);
                 imagPart += _coef[i] * Math.Sin(angle);
             }
-            double p = realPart * realPart + imagPart * imagPart;
+            double p = (realPart * realPart) + (imagPart * imagPart);
             _pwr[period] = p;
             if (p > maxPwrLocal)
             {

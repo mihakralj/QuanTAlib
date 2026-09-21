@@ -270,7 +270,7 @@ public class LpfIndicatorTests
 
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
