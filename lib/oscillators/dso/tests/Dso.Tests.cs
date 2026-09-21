@@ -72,7 +72,7 @@ public class DsoTests
 
         for (int i = 0; i < 500; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         Assert.True(indicator.IsHot);
@@ -98,7 +98,7 @@ public class DsoTests
         // Warm up past the period threshold first
         for (int i = 0; i < 15; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5), isNew: true);
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)), isNew: true);
         }
 
         TValue r1 = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(30), 120.0), isNew: true);
@@ -242,7 +242,7 @@ public class DsoTests
 
         for (int i = 0; i < 100; i++)
         {
-            source[i] = 100.0 + i * 0.5;
+            source[i] = 100.0 + (i * 0.5);
         }
 
         source[50] = double.NaN;
@@ -335,7 +335,7 @@ public class DsoTests
 
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Dso.Batch(source, output, 20);
@@ -430,7 +430,7 @@ public class DsoTests
 
         for (int i = 0; i < 100; i++)
         {
-            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0));
+            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)));
             lastResult = r.Value;
         }
 
