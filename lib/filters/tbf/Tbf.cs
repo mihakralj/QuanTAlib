@@ -250,7 +250,7 @@ public sealed class Tbf : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -388,8 +388,8 @@ public sealed class Tbf : AbstractBase
             {
                 // price k bars ago: most recent is at (head-1) mod bufSize,
                 // k bars ago is at (head-1-k) mod bufSize
-                int idxPrev = ((writeIdx - (c - 1)) % bufSize + bufSize) % bufSize;
-                int idxNext = ((writeIdx - (c + 1)) % bufSize + bufSize) % bufSize;
+                int idxPrev = (((writeIdx - (c - 1)) % bufSize) + bufSize) % bufSize;
+                int idxNext = (((writeIdx - (c + 1)) % bufSize) + bufSize) % bufSize;
                 double pPrev = priceBuf[idxPrev];
                 double pNext = priceBuf[idxNext];
                 trunc[c] = Math.FusedMultiplyAdd(a0, pPrev - pNext,
