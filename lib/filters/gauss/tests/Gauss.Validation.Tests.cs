@@ -44,7 +44,7 @@ public class GaussValidationTests : IDisposable
     /// </summary>
     private static double[] CalculateExpectedGauss(double[] source, double sigma)
     {
-        int kernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
+        int kernelSize = (int)((2 * Math.Ceiling(3.0 * sigma)) + 1);
         double[] weights = new double[kernelSize];
         double sum = 0;
         int center = kernelSize / 2;

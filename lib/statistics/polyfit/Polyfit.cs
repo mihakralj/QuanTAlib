@@ -100,7 +100,7 @@ public sealed class Polyfit : AbstractBase
 
         // Power sums and cross products accumulate with normalized t ∈ [0, 1].
         // Max degree=6 → sz=7, matrix=7*8=56 doubles + powSums=13 + crossSums=7 — all stackalloc safe.
-        Span<double> powSums = stackalloc double[2 * m + 1];
+        Span<double> powSums = stackalloc double[(2 * m) + 1];
         Span<double> crossSums = stackalloc double[sz];
         Span<double> aug = stackalloc double[sz * (sz + 1)]; // augmented matrix row-major
 
@@ -133,19 +133,19 @@ public sealed class Polyfit : AbstractBase
         {
             for (int col = 0; col < sz; col++)
             {
-                aug[row * stride + col] = powSums[row + col];
+                aug[(row * stride) + col] = powSums[row + col];
             }
-            aug[row * stride + sz] = crossSums[row];
+            aug[(row * stride) + sz] = crossSums[row];
         }
 
         // Gaussian elimination with partial pivoting
         for (int col = 0; col < sz; col++)
         {
             int pivotRow = col;
-            double pivotMax = Math.Abs(aug[col * stride + col]);
+            double pivotMax = Math.Abs(aug[(col * stride) + col]);
             for (int row = col + 1; row < sz; row++)
             {
-                double absVal = Math.Abs(aug[row * stride + col]);
+                double absVal = Math.Abs(aug[(row * stride) + col]);
                 if (absVal > pivotMax)
                 {
                     pivotMax = absVal;
@@ -168,13 +168,13 @@ public sealed class Polyfit : AbstractBase
                 }
             }
 
-            double diag = aug[col * stride + col];
+            double diag = aug[(col * stride) + col];
             for (int row = col + 1; row < sz; row++)
             {
-                double factor = aug[row * stride + col] / diag;
+                double factor = aug[(row * stride) + col] / diag;
                 for (int k = col; k <= sz; k++)
                 {
-                    aug[row * stride + k] = Math.FusedMultiplyAdd(-factor, aug[col * stride + k], aug[row * stride + k]);
+                    aug[(row * stride) + k] = Math.FusedMultiplyAdd(-factor, aug[(col * stride) + k], aug[(row * stride) + k]);
                 }
             }
         }
@@ -183,12 +183,12 @@ public sealed class Polyfit : AbstractBase
         Span<double> a = stackalloc double[sz];
         for (int row = sz - 1; row >= 0; row--)
         {
-            double val = aug[row * stride + sz];
+            double val = aug[(row * stride) + sz];
             for (int k = row + 1; k < sz; k++)
             {
-                val = Math.FusedMultiplyAdd(-aug[row * stride + k], a[k], val);
+                val = Math.FusedMultiplyAdd(-aug[(row * stride) + k], a[k], val);
             }
-            a[row] = val / aug[row * stride + row];
+            a[row] = val / aug[(row * stride) + row];
         }
 
         // Evaluate polynomial at t=1: P(1) = a0 + a1 + a2 + ... + am

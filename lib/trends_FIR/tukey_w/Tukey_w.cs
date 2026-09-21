@@ -98,7 +98,7 @@ public sealed class Tukey_w : AbstractBase
                 {
                     w = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * i / aN));
                 }
-                else if (i > N - aN * 0.5)
+                else if (i > N - (aN * 0.5))
                 {
                     w = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * (N - i) / aN));
                 }

@@ -82,7 +82,7 @@ public class BiInputIndicatorBaseTests
         var indicator = new Mae(5);
         for (int i = 0; i < 4; i++)
         {
-            indicator.Update(i * 10.0, i * 10.0 + 5.0);
+            indicator.Update(i * 10.0, (i * 10.0) + 5.0);
             Assert.False(indicator.IsHot);
         }
     }
@@ -93,7 +93,7 @@ public class BiInputIndicatorBaseTests
         var indicator = new Mae(5);
         for (int i = 0; i < 5; i++)
         {
-            indicator.Update(i * 10.0, i * 10.0 + 5.0);
+            indicator.Update(i * 10.0, (i * 10.0) + 5.0);
         }
         Assert.True(indicator.IsHot);
     }
@@ -104,7 +104,7 @@ public class BiInputIndicatorBaseTests
         var indicator = new Mae(3);
         for (int i = 0; i < 20; i++)
         {
-            indicator.Update(i * 10.0, i * 10.0 + 5.0);
+            indicator.Update(i * 10.0, (i * 10.0) + 5.0);
         }
         Assert.True(indicator.IsHot);
     }
@@ -268,7 +268,7 @@ public class BiInputIndicatorBaseTests
 
         for (int i = 0; i < 10; i++)
         {
-            indicator.Update(i * 10.0, i * 10.0 + 5.0);
+            indicator.Update(i * 10.0, (i * 10.0) + 5.0);
         }
         double original = indicator.Last.Value;
 
@@ -360,7 +360,7 @@ public class BiInputIndicatorBaseTests
         var indicator = new Mae(3);
         for (int i = 0; i < 5; i++)
         {
-            indicator.Update(i * 10.0, i * 10.0 + 5.0);
+            indicator.Update(i * 10.0, (i * 10.0) + 5.0);
         }
         Assert.True(indicator.IsHot);
 
@@ -563,7 +563,7 @@ public class BiInputIndicatorBaseTests
         for (int i = 0; i < 20; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10.0);
-            predicted.Add(now.AddMinutes(i), i * 10.0 + 5.0);
+            predicted.Add(now.AddMinutes(i), (i * 10.0) + 5.0);
         }
 
         var result = Mae.Batch(actual, predicted, 5);
@@ -603,7 +603,7 @@ public class BiInputIndicatorBaseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10.0);
-            predicted.Add(now.AddMinutes(i), i * 10.0 + 3.0);
+            predicted.Add(now.AddMinutes(i), (i * 10.0) + 3.0);
         }
 
         var (results, indicator) = Mae.Calculate(actual, predicted, 5);
@@ -647,7 +647,7 @@ public class BiInputIndicatorBaseTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.03 + 1.0;
+            predicted[i] = (bar.Close * 1.03) + 1.0;
         }
 
         // Streaming

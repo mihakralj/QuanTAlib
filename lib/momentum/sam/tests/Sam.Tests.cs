@@ -122,7 +122,7 @@ public class SamTests
         var sam = new Sam();
         for (int i = 0; i < 200; i++)
         {
-            sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
         Assert.True(sam.DominantCycle > 0);
     }
@@ -166,7 +166,7 @@ public class SamTests
         // Feed enough data to get past trivial warmup
         for (int i = 0; i < 120; i++)
         {
-            sam.Update(new TValue(time.AddSeconds(i), 100.0 + Math.Sin(i * 0.3) * 10), true);
+            sam.Update(new TValue(time.AddSeconds(i), 100.0 + (Math.Sin(i * 0.3) * 10)), true);
         }
 
         var first = sam.Update(new TValue(time.AddSeconds(120), 115.0), true);
@@ -184,7 +184,7 @@ public class SamTests
 
         for (int i = 0; i < 120; i++)
         {
-            sam.Update(new TValue(time.AddSeconds(i), 100.0 + Math.Sin(i * 0.3) * 10), true);
+            sam.Update(new TValue(time.AddSeconds(i), 100.0 + (Math.Sin(i * 0.3) * 10)), true);
         }
 
         var baseline = sam.Update(new TValue(time.AddSeconds(120), 105.0), true);
@@ -259,7 +259,7 @@ public class SamTests
 
         for (int i = 0; i < 120; i++)
         {
-            sam.Update(new TValue(time.AddSeconds(i), 100.0 + Math.Sin(i * 0.2) * 5), true);
+            sam.Update(new TValue(time.AddSeconds(i), 100.0 + (Math.Sin(i * 0.2) * 5)), true);
         }
 
         var afterNaN = sam.Update(new TValue(time.AddSeconds(120), double.NaN), true);
@@ -274,7 +274,7 @@ public class SamTests
 
         for (int i = 0; i < 120; i++)
         {
-            sam.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.1), true);
+            sam.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.1)), true);
         }
 
         var afterInf = sam.Update(new TValue(time.AddSeconds(120), double.PositiveInfinity), true);
@@ -289,7 +289,7 @@ public class SamTests
 
         for (int i = 0; i < 200; i++)
         {
-            var value = i % 5 == 0 ? double.NaN : 100.0 + i * 0.1;
+            var value = i % 5 == 0 ? double.NaN : 100.0 + (i * 0.1);
             var tv = sam.Update(new TValue(time.AddSeconds(i), value), true);
             Assert.True(double.IsFinite(tv.Value));
         }
@@ -418,7 +418,7 @@ public class SamTests
 
         for (int i = 0; i < largeSize; i++)
         {
-            source[i] = 100.0 + Math.Sin(i * 0.1) * 20;
+            source[i] = 100.0 + (Math.Sin(i * 0.1) * 20);
         }
 
         Sam.Batch(source, output);
@@ -493,7 +493,7 @@ public class SamTests
         double[] primeData = new double[150];
         for (int i = 0; i < 150; i++)
         {
-            primeData[i] = 100.0 + Math.Sin(i * 0.2) * 10;
+            primeData[i] = 100.0 + (Math.Sin(i * 0.2) * 10);
         }
 
         sam.Prime(primeData);
@@ -510,7 +510,7 @@ public class SamTests
         double[] data = new double[150];
         for (int i = 0; i < 150; i++)
         {
-            data[i] = 100.0 + Math.Sin(i * 0.2) * 10;
+            data[i] = 100.0 + (Math.Sin(i * 0.2) * 10);
         }
 
         sam1.Prime(data);
@@ -535,7 +535,7 @@ public class SamTests
 
         for (int i = 0; i < 200; i++)
         {
-            result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2), true);
+            result = sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2)), true);
         }
 
         // Strong trend should produce non-zero smoothed momentum
@@ -552,7 +552,7 @@ public class SamTests
         for (int i = 0; i < 500; i++)
         {
             var result = sam.Update(
-                new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.2) * 20), true);
+                new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.2) * 20)), true);
 
             if (sam.IsHot)
             {
@@ -581,7 +581,7 @@ public class SamTests
         for (int i = 0; i < 300; i++)
         {
             sam.Update(new TValue(DateTime.UtcNow.AddSeconds(i),
-                100.0 + Math.Sin(i * 2.0 * Math.PI / 20.0) * 10), true);
+                100.0 + (Math.Sin(i * 2.0 * Math.PI / 20.0) * 10)), true);
         }
 
         // After warmup, dominant cycle should have stabilized to a finite positive value

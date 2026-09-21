@@ -134,7 +134,7 @@ public class LtmaTests
         // Multiple corrections
         for (int c = 0; c < 5; c++)
         {
-            ltma.Update(new TValue(baseBar.Time, baseBar.Close + (c + 1) * 2.0), isNew: false);
+            ltma.Update(new TValue(baseBar.Time, baseBar.Close + ((c + 1) * 2.0)), isNew: false);
         }
 
         // Final correction with original → must restore

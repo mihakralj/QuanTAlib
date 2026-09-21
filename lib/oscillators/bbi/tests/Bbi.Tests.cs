@@ -381,7 +381,7 @@ public sealed class BbiTests
         int n = 10_000;
         var source = new double[n];
         var output = new double[n];
-        for (int i = 0; i < n; i++) { source[i] = 100.0 + i * 0.01; }
+        for (int i = 0; i < n; i++) { source[i] = 100.0 + (i * 0.01); }
         var ex = Record.Exception(() => Bbi.Batch(source.AsSpan(), output.AsSpan()));
         Assert.Null(ex);
     }

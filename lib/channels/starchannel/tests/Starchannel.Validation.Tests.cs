@@ -396,7 +396,7 @@ public sealed class StarchannelValidationTests : IDisposable
         // Create predictable data: 100, 102, 104, 106, 108
         for (int i = 0; i < 5; i++)
         {
-            double close = 100 + i * 2;
+            double close = 100 + (i * 2);
             series.Add(new TBar(t0.AddMinutes(i), close, close + 5, close - 5, close, 100));
         }
 

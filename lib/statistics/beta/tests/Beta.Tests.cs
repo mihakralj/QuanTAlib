@@ -153,7 +153,7 @@ public class BetaTests
         var beta = new Beta(5);
         for (int i = 0; i < 10; i++)
         {
-            beta.Update(100 + i * 2, 100 + i); // Different ratios
+            beta.Update(100 + (i * 2), 100 + i); // Different ratios
         }
         Assert.True(beta.IsHot);
 

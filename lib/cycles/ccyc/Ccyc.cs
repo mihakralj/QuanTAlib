@@ -59,7 +59,7 @@ public sealed class Ccyc : AbstractBase
             throw new ArgumentException("Alpha must be between 0 and 1 (exclusive).", nameof(alpha));
         }
 
-        double halfAlpha = 1.0 - 0.5 * alpha;
+        double halfAlpha = 1.0 - (0.5 * alpha);
         _chp = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         _cfb1 = 2.0 * oneMinusAlpha;
@@ -125,7 +125,7 @@ public sealed class Ccyc : AbstractBase
         double price0 = price;
 
         // 4-tap FIR smoother: smooth = (x + 2*x1 + 2*x2 + x3) / 6
-        double smooth = (price0 + 2.0 * price1 + 2.0 * price2 + price3) / 6.0;
+        double smooth = (price0 + (2.0 * price1) + (2.0 * price2) + price3) / 6.0;
 
         // Shift smooth history
         double smooth2 = s.Smooth1;
@@ -136,13 +136,13 @@ public sealed class Ccyc : AbstractBase
         if (count < 7)
         {
             // Bootstrap: second-difference of raw price
-            cycle = (price0 - 2.0 * price1 + price2) * 0.25;
+            cycle = (price0 - (2.0 * price1) + price2) * 0.25;
         }
         else
         {
             // Steady-state: 2-pole high-pass IIR on smoothed input
             // cycle = c_hp * (smooth - 2*smooth1 + smooth2) + c_fb1*cycle1 + c_fb2*cycle2
-            double diff = smooth0 - 2.0 * smooth1 + smooth2;
+            double diff = smooth0 - (2.0 * smooth1) + smooth2;
             cycle = Math.FusedMultiplyAdd(_chp, diff,
                         Math.FusedMultiplyAdd(_cfb1, s.Cycle1, _cfb2 * s.Cycle2));
         }
@@ -240,7 +240,7 @@ public sealed class Ccyc : AbstractBase
             return;
         }
 
-        double halfAlpha = 1.0 - 0.5 * alpha;
+        double halfAlpha = 1.0 - (0.5 * alpha);
         double chp = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         double cfb1 = 2.0 * oneMinusAlpha;
@@ -263,7 +263,7 @@ public sealed class Ccyc : AbstractBase
             price1 = price0;
             price0 = val;
 
-            double smooth = (price0 + 2.0 * price1 + 2.0 * price2 + price3) / 6.0;
+            double smooth = (price0 + (2.0 * price1) + (2.0 * price2) + price3) / 6.0;
             smooth2 = smooth1;
             smooth1 = smooth0;
             smooth0 = smooth;
@@ -272,11 +272,11 @@ public sealed class Ccyc : AbstractBase
             int barNum = i + 1;
             if (barNum < 7)
             {
-                cycle = (price0 - 2.0 * price1 + price2) * 0.25;
+                cycle = (price0 - (2.0 * price1) + price2) * 0.25;
             }
             else
             {
-                double diff = smooth0 - 2.0 * smooth1 + smooth2;
+                double diff = smooth0 - (2.0 * smooth1) + smooth2;
                 cycle = Math.FusedMultiplyAdd(chp, diff,
                             Math.FusedMultiplyAdd(cfb1, cycle1, cfb2 * cycle2));
             }

@@ -63,12 +63,12 @@ public sealed class AccBandsValidationTests : IDisposable
         var accBands = new AccBands(3, 4.0);
         var (middle, upper, lower) = accBands.Update(series);
 
-        double adjH0 = 12.0 * (1.0 + 4.0 * 4.0 / 20.0);
-        double adjH1 = 14.0 * (1.0 + 4.0 * 4.0 / 24.0);
-        double adjH2 = 16.0 * (1.0 + 4.0 * 4.0 / 28.0);
-        double adjL0 = 8.0 * (1.0 - 4.0 * 4.0 / 20.0);
-        double adjL1 = 10.0 * (1.0 - 4.0 * 4.0 / 24.0);
-        double adjL2 = 12.0 * (1.0 - 4.0 * 4.0 / 28.0);
+        double adjH0 = 12.0 * (1.0 + (4.0 * 4.0 / 20.0));
+        double adjH1 = 14.0 * (1.0 + (4.0 * 4.0 / 24.0));
+        double adjH2 = 16.0 * (1.0 + (4.0 * 4.0 / 28.0));
+        double adjL0 = 8.0 * (1.0 - (4.0 * 4.0 / 20.0));
+        double adjL1 = 10.0 * (1.0 - (4.0 * 4.0 / 24.0));
+        double adjL2 = 12.0 * (1.0 - (4.0 * 4.0 / 28.0));
 
         Assert.Equal(12.0, middle.Last.Value, 1e-10);
         Assert.Equal((adjH0 + adjH1 + adjH2) / 3.0, upper.Last.Value, 1e-10);
@@ -106,8 +106,8 @@ public sealed class AccBandsValidationTests : IDisposable
             double l = c - 5;
             double denom = h + l;
             double w = (h - l) / denom;
-            sumAdjH += h * (1.0 + 4.0 * w);
-            sumAdjL += l * (1.0 - 4.0 * w);
+            sumAdjH += h * (1.0 + (4.0 * w));
+            sumAdjL += l * (1.0 - (4.0 * w));
         }
         Assert.Equal(sumAdjH / 5.0, upper.Last.Value, 1e-10);
         Assert.Equal(sumAdjL / 5.0, lower.Last.Value, 1e-10);

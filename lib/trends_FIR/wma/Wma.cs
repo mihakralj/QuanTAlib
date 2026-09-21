@@ -461,7 +461,7 @@ public sealed class Wma : AbstractBase
 
         var vInvDivisor = Vector512.Create(invDivisor);
         var vPeriod = Vector512.Create((double)period);
-        int simdEnd = period + (len - period) / vectorWidth * vectorWidth;
+        int simdEnd = period + ((len - period) / vectorWidth * vectorWidth);
 
         var vSumState = Vector512.Create(sum);
         var vWsumState = Vector512.Create(wsum);
@@ -518,7 +518,7 @@ public sealed class Wma : AbstractBase
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
             sum = sum - oldest + val;
-            wsum = wsum - oldSum + period * val;
+            wsum = wsum - oldSum + (period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
@@ -559,7 +559,7 @@ public sealed class Wma : AbstractBase
         var vInvDivisor = Vector256.Create(invDivisor);
         var vPeriod = Vector256.Create((double)period);
         var vZero = Vector256<double>.Zero;
-        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
+        int simdEnd = period + (((len - period) / vectorWidth) * vectorWidth);
 
         var vSumState = Vector256.Create(sum);
         var vWsumState = Vector256.Create(wsum);
@@ -708,7 +708,7 @@ public sealed class Wma : AbstractBase
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
             sum = sum - oldest + val;
-            wsum = wsum - oldSum + period * val;
+            wsum = wsum - oldSum + (period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
@@ -747,7 +747,7 @@ public sealed class Wma : AbstractBase
         }
 
         var vInvDivisor = Vector128.Create(invDivisor);
-        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
+        int simdEnd = period + (((len - period) / vectorWidth) * vectorWidth);
 
         double sumState = sum;
         double wsumState = wsum;
@@ -841,7 +841,7 @@ public sealed class Wma : AbstractBase
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
             sum = sum - oldest + val;
-            wsum = wsum - oldSum + period * val;
+            wsum = wsum - oldSum + (period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }

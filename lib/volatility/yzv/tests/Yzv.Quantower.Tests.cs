@@ -56,7 +56,7 @@ public class YzvIndicatorTests
         for (int i = 0; i < 50; i++)
         {
             // Create price movement that generates volatility
-            double basePrice = 100 + Math.Sin(i * 0.3) * (5 + i * 0.1);
+            double basePrice = 100 + (Math.Sin(i * 0.3) * (5 + (i * 0.1)));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
 
             // Process update for each bar to simulate history loading
@@ -106,7 +106,7 @@ public class YzvIndicatorTests
             for (int i = 0; i < 60; i++)
             {
                 // Create price movement with varying amplitude
-                double basePrice = 100 + Math.Sin(i * 0.2) * 5;
+                double basePrice = 100 + (Math.Sin(i * 0.2) * 5);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -204,10 +204,10 @@ public class YzvIndicatorTests
         // Price with varying OHLC
         for (int i = 0; i < 20; i++)
         {
-            double open = 100 + Math.Sin(i * 0.3) * 3;
+            double open = 100 + (Math.Sin(i * 0.3) * 3);
             double high = open + 2 + Math.Abs(Math.Sin(i * 0.5));
             double low = open - 2 - Math.Abs(Math.Cos(i * 0.5));
-            double close = open + Math.Sin(i * 0.4) * 2;
+            double close = open + (Math.Sin(i * 0.4) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), open, high, low, close, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -232,7 +232,7 @@ public class YzvIndicatorTests
 
         for (int i = 0; i < 60; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 5;
+            double price = 100 + (Math.Sin(i * 0.3) * 5);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -292,7 +292,7 @@ public class YzvIndicatorTests
         // Large gap up (open much higher than previous close)
         for (int i = 10; i < 20; i++)
         {
-            double open = 120 + (i - 10) * 2; // Large gaps
+            double open = 120 + ((i - 10) * 2); // Large gaps
             indicator.HistoricalData.AddBar(now.AddMinutes(i), open, open + 2, open - 2, open + 1, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -316,7 +316,7 @@ public class YzvIndicatorTests
         // Low volatility regime
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 0.5; // Small movements
+            double price = 100 + (Math.Sin(i * 0.5) * 0.5); // Small movements
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 0.2, price - 0.2, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -326,7 +326,7 @@ public class YzvIndicatorTests
         // High volatility regime
         for (int i = 20; i < 40; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 10; // Large movements
+            double price = 100 + (Math.Sin(i * 0.5) * 10); // Large movements
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

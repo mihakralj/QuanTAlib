@@ -148,7 +148,7 @@ public class RaeTests
         // Different actual values but perfect predictions
         for (int i = 0; i < 20; i++)
         {
-            double val = 100 + i * 2;
+            double val = 100 + (i * 2);
             rae.Update(new TValue(time.AddSeconds(i), val), new TValue(time.AddSeconds(i), val));
         }
 

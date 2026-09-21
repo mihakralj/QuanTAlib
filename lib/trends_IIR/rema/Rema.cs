@@ -358,7 +358,6 @@ public sealed class Rema : AbstractBase
             }
 
             Unsafe.Add(ref outRef, i) = result;
-
         }
     }
 

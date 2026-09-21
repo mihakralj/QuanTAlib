@@ -295,7 +295,7 @@ public class EwmaValidationTests
         var ewma = new Ewma(5, false);
         for (int i = 0; i < 20; i++)
         {
-            double price = 0.0001 + (i % 2) * 0.00001;
+            double price = 0.0001 + ((i % 2) * 0.00001);
             var result = ewma.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             Assert.True(double.IsFinite(result.Value));
             Assert.True(result.Value >= 0);
@@ -308,7 +308,7 @@ public class EwmaValidationTests
         var ewma = new Ewma(5, false);
         for (int i = 0; i < 20; i++)
         {
-            double price = 1e10 + (i % 2) * 1e9;
+            double price = 1e10 + ((i % 2) * 1e9);
             var result = ewma.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             Assert.True(double.IsFinite(result.Value));
             Assert.True(result.Value >= 0);
@@ -398,7 +398,7 @@ public class EwmaValidationTests
         // Multiple corrections
         for (int j = 0; j < 10; j++)
         {
-            double correctedPrice = 100 + j * 5;
+            double correctedPrice = 100 + (j * 5);
             var result = ewma.Update(new TValue(DateTime.UtcNow, correctedPrice), isNew: false);
             Assert.True(double.IsFinite(result.Value));
             Assert.True(result.Value >= 0);

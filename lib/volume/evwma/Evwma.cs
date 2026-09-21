@@ -112,7 +112,6 @@ public sealed class Evwma : ITValuePublisher
         return lastValid;
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public TValue Update(TBar input, bool isNew = true)
     {

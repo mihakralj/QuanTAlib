@@ -262,7 +262,7 @@ public class CgIndicatorTests
 
         var now = DateTime.UtcNow;
         double[] closes = { 100, 102, 98, 105, 97, 110, 95, 108, 92, 115, 90, 120 };
-        double maxExpectedBound = (10 - 1) / 2.0 + 1.0; // Period-based bound with margin
+        double maxExpectedBound = ((10 - 1) / 2.0) + 1.0; // Period-based bound with margin
 
         foreach (var close in closes)
         {

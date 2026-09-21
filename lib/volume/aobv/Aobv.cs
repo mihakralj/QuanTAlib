@@ -256,7 +256,6 @@ public sealed class Aobv : ITValuePublisher
         return (new TSeries(tFast, vFast), new TSeries(tSlow, vSlow));
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

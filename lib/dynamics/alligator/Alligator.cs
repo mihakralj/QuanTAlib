@@ -293,7 +293,6 @@ public sealed class Alligator : ITValuePublisher
         return new TSeries(tList, vList);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>
@@ -336,7 +335,6 @@ public sealed class Alligator : ITValuePublisher
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 
     /// <summary>
     /// Gets the Jaw period value.

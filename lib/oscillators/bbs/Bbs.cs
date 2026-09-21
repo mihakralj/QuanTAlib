@@ -360,7 +360,6 @@ public sealed class Bbs : ITValuePublisher
         // === Bandwidth ===
         double bandwidth = bbMean != 0.0 ? ((bbUpper - bbLower) / bbMean) * 100.0 : 0.0; // skipcq: CS-R1077 - Exact-zero div guard: price avg
 
-
         // === IsHot ===
         if (!_state.IsHot && _state.Bars >= WarmupPeriod)
         {

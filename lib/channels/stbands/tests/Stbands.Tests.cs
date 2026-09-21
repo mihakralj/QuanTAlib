@@ -403,7 +403,7 @@ public class StbandsTests
         var series = new TSeries();
         for (int i = 0; i < 20; i++)
         {
-            series.Add(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.5);
+            series.Add(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.5));
         }
 
         TSeries result = stbands.Update(series);

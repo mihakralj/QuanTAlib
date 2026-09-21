@@ -535,7 +535,7 @@ public class FdistTests
         double[] src = new double[count];
         for (int i = 0; i < count; i++)
         {
-            src[i] = 100.0 + Math.Sin(i * 0.1) * 10.0;
+            src[i] = 100.0 + (Math.Sin(i * 0.1) * 10.0);
         }
 
         double[] dst = new double[count];

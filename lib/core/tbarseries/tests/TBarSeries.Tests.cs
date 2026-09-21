@@ -1223,9 +1223,9 @@ public class TBarSeriesTests
         {
             times[i] = i;
             opens[i] = i * 10.0;
-            highs[i] = i * 10.0 + 5.0;
-            lows[i] = i * 10.0 - 5.0;
-            closes[i] = i * 10.0 + 2.0;
+            highs[i] = (i * 10.0) + 5.0;
+            lows[i] = (i * 10.0) - 5.0;
+            closes[i] = (i * 10.0) + 2.0;
             volumes[i] = i * 100.0;
         }
 
@@ -1233,7 +1233,7 @@ public class TBarSeriesTests
 
         Assert.Equal(N, series.Count);
         Assert.Equal(0, series[0].Time);
-        Assert.Equal((N - 1) * 10.0 + 2.0, series[N - 1].Close);
+        Assert.Equal(((N - 1) * 10.0) + 2.0, series[N - 1].Close);
         Assert.Equal((N - 1) * 100.0, series[N - 1].Volume);
     }
 
@@ -1246,7 +1246,7 @@ public class TBarSeriesTests
 
         for (int i = 0; i < N; i++)
         {
-            bars[i] = new TBar(i, i * 10.0, i * 10.0 + 5.0, i * 10.0 - 5.0, i * 10.0 + 2.0, i * 100.0);
+            bars[i] = new TBar(i, i * 10.0, (i * 10.0) + 5.0, (i * 10.0) - 5.0, (i * 10.0) + 2.0, i * 100.0);
         }
 
         series.AddRange(bars);
@@ -1254,6 +1254,6 @@ public class TBarSeriesTests
         Assert.Equal(N, series.Count);
         Assert.Equal(0, series[0].Time);
         Assert.Equal(2.0, series[0].Close);
-        Assert.Equal((N - 1) * 10.0 + 2.0, series[N - 1].Close);
+        Assert.Equal(((N - 1) * 10.0) + 2.0, series[N - 1].Close);
     }
 }

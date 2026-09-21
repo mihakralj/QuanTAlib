@@ -132,7 +132,7 @@ public class TtmLrcIndicatorTests
         // Add some volatility to ensure non-zero stddev
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 10;
+            double price = 100 + (Math.Sin(i * 0.5) * 10);
             ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price, 1000);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
@@ -214,7 +214,7 @@ public class TtmLrcIndicatorTests
         // Perfect linear data: y = 100 + 2*i
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + i * 2;
+            double price = 100 + (i * 2);
             ind.HistoricalData.AddBar(now.AddMinutes(i), price, price, price, price);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
@@ -264,14 +264,14 @@ public class TtmLrcIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + i * 2; // Strong uptrend
+            double price = 100 + (i * 2); // Strong uptrend
             ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 
         // After warmup, midline should be close to the current regression line value
         double midline = ind.LinesSeries[0].GetValue(0);
-        double lastPrice = 100 + 29 * 2; // 158
+        double lastPrice = 100 + (29 * 2); // 158
 
         // Midline should be close to last price (within reasonable range for regression)
         Assert.True(Math.Abs(midline - lastPrice) < 10, $"Midline ({midline}) should be close to last price ({lastPrice})");

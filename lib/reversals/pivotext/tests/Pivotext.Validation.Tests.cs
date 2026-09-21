@@ -60,16 +60,16 @@ public sealed class PivotextValidationTests
                 double hMinusPP = pH - pp;
 
                 Assert.Equal(pp, p.PP, precision: 10);
-                Assert.Equal(2.0 * pp - pL, p.R1, precision: 10);
-                Assert.Equal(2.0 * pp - pH, p.S1, precision: 10);
+                Assert.Equal((2.0 * pp) - pL, p.R1, precision: 10);
+                Assert.Equal((2.0 * pp) - pH, p.S1, precision: 10);
                 Assert.Equal(pp + range, p.R2, precision: 10);
                 Assert.Equal(pp - range, p.S2, precision: 10);
-                Assert.Equal(pH + 2.0 * ppMinusL, p.R3, precision: 10);
-                Assert.Equal(pL - 2.0 * hMinusPP, p.S3, precision: 10);
-                Assert.Equal(pH + 3.0 * ppMinusL, p.R4, precision: 10);
-                Assert.Equal(pL - 3.0 * hMinusPP, p.S4, precision: 10);
-                Assert.Equal(pH + 4.0 * ppMinusL, p.R5, precision: 10);
-                Assert.Equal(pL - 4.0 * hMinusPP, p.S5, precision: 10);
+                Assert.Equal(pH + (2.0 * ppMinusL), p.R3, precision: 10);
+                Assert.Equal(pL - (2.0 * hMinusPP), p.S3, precision: 10);
+                Assert.Equal(pH + (3.0 * ppMinusL), p.R4, precision: 10);
+                Assert.Equal(pL - (3.0 * hMinusPP), p.S4, precision: 10);
+                Assert.Equal(pH + (4.0 * ppMinusL), p.R5, precision: 10);
+                Assert.Equal(pL - (4.0 * hMinusPP), p.S5, precision: 10);
             }
         }
     }

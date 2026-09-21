@@ -81,7 +81,7 @@ public class TtmTrendBasicTests
         // EMA = alpha * value + (1 - alpha) * prevEMA
         // EMA = 0.2857 * 107 + 0.7143 * 100 = 30.57 + 71.43 = 102.0
         double alpha = 2.0 / 7.0;
-        double expected = alpha * 107.0 + (1 - alpha) * 100.0;
+        double expected = (alpha * 107.0) + ((1 - alpha) * 100.0);
         Assert.Equal(expected, result.Value, 10);
     }
 
@@ -360,7 +360,7 @@ public class TtmTrendBarCorrectionTests
 
         // Should use 105 instead of 110
         double alpha = 2.0 / 7.0;
-        double expected = alpha * 105.0 + (1 - alpha) * 100.0;
+        double expected = (alpha * 105.0) + ((1 - alpha) * 100.0);
         Assert.Equal(expected, corrected.Value, 10);
     }
 }

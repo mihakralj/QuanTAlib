@@ -107,7 +107,7 @@ public sealed class DpoTests
         double[] data = new double[warmup + 3];
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = 100 + i * 2;
+            data[i] = 100 + (i * 2);
         }
 
         for (int i = 0; i < data.Length; i++)

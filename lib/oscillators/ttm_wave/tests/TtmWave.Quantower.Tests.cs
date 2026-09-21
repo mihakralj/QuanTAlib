@@ -64,7 +64,7 @@ public sealed class TtmWaveIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 800; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 0.1, 110 + i * 0.1, 90 + i * 0.1, 105 + i * 0.1);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 0.1), 110 + (i * 0.1), 90 + (i * 0.1), 105 + (i * 0.1));
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
@@ -85,7 +85,7 @@ public sealed class TtmWaveIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 800; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 0.1, 110 + i * 0.1, 90 + i * 0.1, 105 + i * 0.1);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 0.1), 110 + (i * 0.1), 90 + (i * 0.1), 105 + (i * 0.1));
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
         }
@@ -138,7 +138,7 @@ public sealed class TtmWaveIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 800; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 0.1, 110 + i * 0.1, 90 + i * 0.1, 105 + i * 0.1);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 0.1), 110 + (i * 0.1), 90 + (i * 0.1), 105 + (i * 0.1));
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
         }

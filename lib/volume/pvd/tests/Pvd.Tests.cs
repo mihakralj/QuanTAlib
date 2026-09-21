@@ -285,7 +285,7 @@ public class PvdTests
         // Build up state
         for (int i = 0; i < 10; i++)
         {
-            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + i * 10), isNew: true);
+            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + (i * 10)), isNew: true);
         }
 
         _ = pvd.Last.Value;
@@ -307,7 +307,7 @@ public class PvdTests
         // Build up state
         for (int i = 0; i < 10; i++)
         {
-            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + i * 10), isNew: true);
+            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + (i * 10)), isNew: true);
         }
 
         // Update with Infinity
@@ -325,7 +325,7 @@ public class PvdTests
         // Build up state
         for (int i = 0; i < 10; i++)
         {
-            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + i * 10), isNew: true);
+            pvd.Update(new TBar(time.AddMinutes(i), 100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i, 1000.0 + (i * 10)), isNew: true);
         }
 
         // Update with negative infinity
@@ -470,8 +470,8 @@ public class PvdTests
 
         for (int i = 0; i < size; i++)
         {
-            closes[i] = 100.0 + i * 0.01;
-            volumes[i] = 1000000.0 + i * 100;
+            closes[i] = 100.0 + (i * 0.01);
+            volumes[i] = 1000000.0 + (i * 100);
         }
 
         // Should not stack overflow

@@ -57,7 +57,7 @@ public class CfitzValidationTests
         double[] input = new double[200];
         for (int i = 0; i < 200; i++)
         {
-            input[i] = 100.0 + 0.5 * i;  // linear trend
+            input[i] = 100.0 + (0.5 * i);  // linear trend
         }
         double[] output = new double[200];
         Cfitz.Batch(input, output, 6, 32);

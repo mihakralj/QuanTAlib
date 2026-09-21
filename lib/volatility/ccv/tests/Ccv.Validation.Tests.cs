@@ -160,7 +160,7 @@ public class CcvValidationTests
         double priceLow = 100.0;
         for (int i = 0; i < 20; i++)
         {
-            priceLow *= (1 + 0.001 * (i % 2 == 0 ? 1 : -1)); // ±0.1%
+            priceLow *= (1 + (0.001 * (i % 2 == 0 ? 1 : -1))); // ±0.1%
             ccvLow.Update(new TValue(DateTime.UtcNow.AddMinutes(i), priceLow));
         }
 
@@ -168,7 +168,7 @@ public class CcvValidationTests
         double priceHigh = 100.0;
         for (int i = 0; i < 20; i++)
         {
-            priceHigh *= (1 + 0.05 * (i % 2 == 0 ? 1 : -1)); // ±5%
+            priceHigh *= (1 + (0.05 * (i % 2 == 0 ? 1 : -1))); // ±5%
             ccvHigh.Update(new TValue(DateTime.UtcNow.AddMinutes(i), priceHigh));
         }
 

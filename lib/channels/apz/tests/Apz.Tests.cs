@@ -168,7 +168,7 @@ public class ApzTests
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
         {
-            var correctionBar = new TBar(tenthBar.Time, tenthBar.Open + i, tenthBar.High + i * 2, tenthBar.Low - i, tenthBar.Close + i, tenthBar.Volume);
+            var correctionBar = new TBar(tenthBar.Time, tenthBar.Open + i, tenthBar.High + (i * 2), tenthBar.Low - i, tenthBar.Close + i, tenthBar.Volume);
             apz.Update(correctionBar, isNew: false);
         }
 

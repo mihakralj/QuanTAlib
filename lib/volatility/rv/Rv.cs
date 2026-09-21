@@ -525,5 +525,4 @@ public sealed class Rv : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

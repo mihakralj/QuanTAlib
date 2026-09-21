@@ -58,7 +58,7 @@ public class RviIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            double closePrice = 100 + i * 0.5 + Math.Sin(i * 0.3) * 2;
+            double closePrice = 100 + (i * 0.5) + (Math.Sin(i * 0.3) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
 
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
@@ -79,7 +79,7 @@ public class RviIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            double closePrice = 100 + i * 0.3;
+            double closePrice = 100 + (i * 0.3);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
         }
 
@@ -105,7 +105,7 @@ public class RviIndicatorTests
             var now = DateTime.UtcNow;
             for (int i = 0; i < 60; i++)
             {
-                double closePrice = 100 + i * 0.2 + Math.Sin(i * 0.5) * 3;
+                double closePrice = 100 + (i * 0.2) + (Math.Sin(i * 0.5) * 3);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -129,7 +129,7 @@ public class RviIndicatorTests
             var now = DateTime.UtcNow;
             for (int i = 0; i < 60; i++)
             {
-                double closePrice = 100 + i * 0.2 + Math.Sin(i * 0.5) * 3;
+                double closePrice = 100 + (i * 0.2) + (Math.Sin(i * 0.5) * 3);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -198,7 +198,7 @@ public class RviIndicatorTests
         // Strong uptrend: price consistently rising
         for (int i = 0; i < 60; i++)
         {
-            double closePrice = 100 + i * 1.5; // Strong consistent uptrend
+            double closePrice = 100 + (i * 1.5); // Strong consistent uptrend
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -220,7 +220,7 @@ public class RviIndicatorTests
         // Strong downtrend: price consistently falling
         for (int i = 0; i < 60; i++)
         {
-            double closePrice = 200 - i * 1.5; // Strong consistent downtrend
+            double closePrice = 200 - (i * 1.5); // Strong consistent downtrend
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 1, closePrice + 2, closePrice - 2, closePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -242,7 +242,7 @@ public class RviIndicatorTests
         // Mixed data with various price movements
         for (int i = 0; i < 100; i++)
         {
-            double closePrice = 100 + Math.Sin(i * 0.2) * 20 + (i % 3 == 0 ? 5 : -3);
+            double closePrice = 100 + (Math.Sin(i * 0.2) * 20) + (i % 3 == 0 ? 5 : -3);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), closePrice - 2, closePrice + 3, closePrice - 3, closePrice, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
@@ -272,7 +272,7 @@ public class RviIndicatorTests
         // Same close prices, different open/high/low
         for (int i = 0; i < 60; i++)
         {
-            double closePrice = 100 + i * 0.5;
+            double closePrice = 100 + (i * 0.5);
             // Indicator 1: narrow range
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), closePrice, closePrice + 1, closePrice - 1, closePrice, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));

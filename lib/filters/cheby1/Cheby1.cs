@@ -72,9 +72,9 @@ public sealed class Cheby1 : AbstractBase
         double omegaD = coshMu * Wc;
         double K = Math.FusedMultiplyAdd(sigma, sigma, omegaD * omegaD);
 
-        double a0z = 1.0 - 2.0 * sigma + K;
-        double a1z = 2.0 * K - 2.0;
-        double a2z = 1.0 + 2.0 * sigma + K;
+        double a0z = 1.0 - (2.0 * sigma) + K;
+        double a1z = (2.0 * K) - 2.0;
+        double a2z = 1.0 + (2.0 * sigma) + K;
         double b0z = K;
         double b1z = 2.0 * K;
         double b2z = K;
@@ -202,7 +202,6 @@ public sealed class Cheby1 : AbstractBase
         return indicator.Update(source);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double ripple = 1.0)
     {
@@ -231,11 +230,11 @@ public sealed class Cheby1 : AbstractBase
         double coshMu = Math.Cosh(mu);
         double sigma = -sinhMu * Wc;
         double omegaD = coshMu * Wc;
-        double K = sigma * sigma + omegaD * omegaD;
+        double K = (sigma * sigma) + (omegaD * omegaD);
 
-        double a0z = 1.0 - 2.0 * sigma + K;
-        double a1z = 2.0 * K - 2.0;
-        double a2z = 1.0 + 2.0 * sigma + K;
+        double a0z = 1.0 - (2.0 * sigma) + K;
+        double a1z = (2.0 * K) - 2.0;
+        double a2z = 1.0 + (2.0 * sigma) + K;
         double b0z = K;
         double b1z = 2.0 * K;
         double b2z = K;

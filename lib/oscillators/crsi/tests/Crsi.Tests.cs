@@ -382,7 +382,7 @@ public sealed class CrsiTests
         var out1 = new double[n];
         for (int i = 0; i < n; i++)
         {
-            src[i] = 100.0 + i * 0.01;
+            src[i] = 100.0 + (i * 0.01);
         }
 
         // rankPeriod > 256 to exercise ArrayPool path

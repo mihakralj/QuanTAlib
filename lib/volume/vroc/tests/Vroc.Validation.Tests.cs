@@ -101,7 +101,7 @@ public class VrocValidationTests
         {
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
-                100, 101, 99, 100, 1000 + i * 100);
+                100, 101, 99, 100, 1000 + (i * 100));
             var result = vroc.Update(bar, isNew: true);
             Assert.Equal(0.0, result.Value, precision: 10);
         }
@@ -115,7 +115,7 @@ public class VrocValidationTests
         // Feed steadily increasing volume
         for (int i = 0; i < 50; i++)
         {
-            double volume = 1000 + i * 200; // increases by 200 each bar
+            double volume = 1000 + (i * 200); // increases by 200 each bar
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 100, 101, 99, 100, volume);
@@ -136,7 +136,7 @@ public class VrocValidationTests
         // Feed steadily decreasing volume
         for (int i = 0; i < 50; i++)
         {
-            double volume = 20000 - i * 200; // decreases by 200 each bar
+            double volume = 20000 - (i * 200); // decreases by 200 each bar
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 100, 101, 99, 100, volume);

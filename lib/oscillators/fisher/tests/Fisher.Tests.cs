@@ -88,7 +88,7 @@ public sealed class FisherTests
         var fisher = new Fisher(period: 5);
         for (int i = 0; i < 20; i++)
         {
-            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2));
+            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)));
         }
         Assert.True(fisher.FisherValue > 0, "Rising prices should produce positive Fisher");
     }
@@ -99,7 +99,7 @@ public sealed class FisherTests
         var fisher = new Fisher(period: 5);
         for (int i = 0; i < 20; i++)
         {
-            fisher.Update(new TValue(DateTime.UtcNow, 200.0 - i * 2));
+            fisher.Update(new TValue(DateTime.UtcNow, 200.0 - (i * 2)));
         }
         Assert.True(fisher.FisherValue < 0, "Falling prices should produce negative Fisher");
     }
@@ -131,7 +131,7 @@ public sealed class FisherTests
         double[] data = new double[15];
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = 100 + i * 2;
+            data[i] = 100 + (i * 2);
         }
 
         for (int i = 0; i < data.Length; i++)
@@ -388,7 +388,7 @@ public sealed class FisherTests
         // Create a very strong uptrend
         for (int i = 0; i < 30; i++)
         {
-            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + i * 10));
+            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 10)));
         }
 
         // Fisher should be significantly positive
@@ -404,7 +404,7 @@ public sealed class FisherTests
 
         for (int i = 0; i < 30; i++)
         {
-            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + i * 5));
+            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 5)));
         }
 
         // Both should be positive in uptrend

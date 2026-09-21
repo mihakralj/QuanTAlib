@@ -26,8 +26,8 @@ public class GrangerValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + GbmNoise(rng) * 2.0;
-            y = 50.0 + 0.5 * prevY + 0.3 * prevX + GbmNoise(rng) * 0.5;
+            x = 100.0 + (Math.Sin(i * 0.1) * 10.0) + (GbmNoise(rng) * 2.0);
+            y = 50.0 + (0.5 * prevY) + (0.3 * prevX) + (GbmNoise(rng) * 0.5);
 
             indicator.Update(y, x, isNew: true);
 
@@ -80,12 +80,12 @@ public class GrangerValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            x = 100.0 + Math.Sin(i * 0.1) * 10.0 + GbmNoise(rng) * 2.0;
+            x = 100.0 + (Math.Sin(i * 0.1) * 10.0) + (GbmNoise(rng) * 2.0);
 
             // Strong: Y depends heavily on X_lag
-            yStrong = 50.0 + 0.3 * prevYStrong + 0.6 * prevX + GbmNoise(rng) * 0.5;
+            yStrong = 50.0 + (0.3 * prevYStrong) + (0.6 * prevX) + (GbmNoise(rng) * 0.5);
             // Weak: Y barely depends on X_lag
-            yWeak = 50.0 + 0.8 * prevYWeak + 0.05 * prevX + GbmNoise(rng) * 5.0;
+            yWeak = 50.0 + (0.8 * prevYWeak) + (0.05 * prevX) + (GbmNoise(rng) * 5.0);
 
             strongIndicator.Update(yStrong, x, isNew: true);
             weakIndicator.Update(yWeak, x, isNew: true);
@@ -211,9 +211,9 @@ public class GrangerValidationTests
         for (int i = 0; i < 200; i++)
         {
             // X is exogenous (just random walk with drift)
-            x = prevX + GbmNoise(rng) * 2.0;
+            x = prevX + (GbmNoise(rng) * 2.0);
             // Y depends on X_lag (X Granger-causes Y, but Y does NOT Granger-cause X)
-            y = 50.0 + 0.3 * prevY + 0.4 * prevX + GbmNoise(rng) * 0.5;
+            y = 50.0 + (0.3 * prevY) + (0.4 * prevX) + (GbmNoise(rng) * 0.5);
 
             indicatorYX.Update(y, x, isNew: true); // Testing: does X cause Y?
             indicatorXY.Update(x, y, isNew: true); // Testing: does Y cause X?

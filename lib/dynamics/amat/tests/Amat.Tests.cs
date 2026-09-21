@@ -83,7 +83,7 @@ public class AmatTests
         // Feed rising prices to create bullish trend
         for (int i = 0; i < 20; i++)
         {
-            amat.Update(new TValue(DateTime.UtcNow, 100 + i * 2));
+            amat.Update(new TValue(DateTime.UtcNow, 100 + (i * 2)));
         }
 
         // Trend should be +1, -1, or 0
@@ -99,7 +99,7 @@ public class AmatTests
         // Feed steadily rising prices
         for (int i = 0; i < 50; i++)
         {
-            amat.Update(new TValue(DateTime.UtcNow, 100 + i * 3));
+            amat.Update(new TValue(DateTime.UtcNow, 100 + (i * 3)));
         }
 
         // Should be bullish when fast EMA > slow EMA and both rising
@@ -121,7 +121,7 @@ public class AmatTests
         // Feed steadily falling prices
         for (int i = 0; i < 50; i++)
         {
-            amat.Update(new TValue(DateTime.UtcNow, 200 - i * 3));
+            amat.Update(new TValue(DateTime.UtcNow, 200 - (i * 3)));
         }
 
         // Should be bearish when fast EMA < slow EMA and both falling
@@ -471,7 +471,7 @@ public class AmatTests
         // Feed rising prices to create divergence
         for (int i = 0; i < 30; i++)
         {
-            amat.Update(new TValue(DateTime.UtcNow, 100 + i * 5));
+            amat.Update(new TValue(DateTime.UtcNow, 100 + (i * 5)));
         }
 
         // Strength should be positive when there's divergence

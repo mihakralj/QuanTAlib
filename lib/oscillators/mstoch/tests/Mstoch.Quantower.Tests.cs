@@ -68,7 +68,7 @@ public sealed class MstochIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 0.5, 110 + i * 0.5, 90 + i * 0.5, 105 + i * 0.5);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 0.5), 110 + (i * 0.5), 90 + (i * 0.5), 105 + (i * 0.5));
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
         }
@@ -118,7 +118,7 @@ public sealed class MstochIndicatorTests
             var now = DateTime.UtcNow;
             for (int i = 0; i < 20; i++)
             {
-                indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 0.5, 110 + i * 0.5, 90 + i * 0.5, 105 + i * 0.5);
+                indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 0.5), 110 + (i * 0.5), 90 + (i * 0.5), 105 + (i * 0.5));
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
 

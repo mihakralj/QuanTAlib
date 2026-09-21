@@ -105,7 +105,7 @@ public sealed class Kaiser : AbstractBase
         for (int k = 0; k < period; k++)
         {
             double t = nm1 > 0 ? (2.0 * k / nm1) - 1.0 : 0.0;
-            double argSq = 1.0 - t * t;
+            double argSq = 1.0 - (t * t);
             double arg = argSq > 0 ? Math.Sqrt(argSq) : 0.0;
             double w = i0Beta > 0 ? BesselI0(beta * arg) / i0Beta : 1.0;
             weights[k] = w;

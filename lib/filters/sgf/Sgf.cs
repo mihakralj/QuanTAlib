@@ -69,17 +69,17 @@ public sealed class Sgf : AbstractBase
             double weight = 0;
             if (_polyOrder == 2)
             {
-                weight = 3.0 * (3.0 * _period * _period - 7.0 - 20.0 * k * k);
+                weight = 3.0 * ((3.0 * _period * _period) - 7.0 - (20.0 * k * k));
             }
             else if (_polyOrder == 4)
             {
                 double k2 = k * k;
-                weight = 15.0 + k2 * (-20.0 + k2 * 6.0);
+                weight = 15.0 + (k2 * (-20.0 + (k2 * 6.0)));
             }
             else
             {
                 // Guard against division by zero when halfWindow == 0 (period == 1)
-                weight = (halfWindow == 0) ? 1.0 : 1.0 - Math.Abs((double)k) / (double)halfWindow;
+                weight = (halfWindow == 0) ? 1.0 : 1.0 - (Math.Abs((double)k) / (double)halfWindow);
             }
 
             _weights[i] = weight;
@@ -287,17 +287,17 @@ public sealed class Sgf : AbstractBase
             double weight = 0;
             if (polyOrder == 2)
             {
-                weight = 3.0 * (3.0 * period * period - 7.0 - 20.0 * k * k);
+                weight = 3.0 * ((3.0 * period * period) - 7.0 - (20.0 * k * k));
             }
             else if (polyOrder == 4)
             {
                 double k2 = k * k;
-                weight = 15.0 + k2 * (-20.0 + k2 * 6.0);
+                weight = 15.0 + (k2 * (-20.0 + (k2 * 6.0)));
             }
             else
             {
                 // Guard against division by zero when halfWindow == 0 (period == 1)
-                weight = (halfWindow == 0) ? 1.0 : 1.0 - Math.Abs((double)k) / (double)halfWindow;
+                weight = (halfWindow == 0) ? 1.0 : 1.0 - (Math.Abs((double)k) / (double)halfWindow);
             }
 
             weights[i] = weight;

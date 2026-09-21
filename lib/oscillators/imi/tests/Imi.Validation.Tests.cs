@@ -162,7 +162,7 @@ public sealed class ImiValidationTests : IDisposable
         for (int i = 0; i < 5; i++)
         {
             // Doji: Open == Close
-            imi.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 100, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 100, 1000));
         }
 
         Assert.Equal(50.0, imi.Last.Value, 1e-10);

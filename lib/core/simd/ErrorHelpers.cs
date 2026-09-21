@@ -433,7 +433,7 @@ public static class ErrorHelpers
             double diff = act - pred;
             double ratio = diff / delta;
             // δ² * (√(1 + (error/δ)²) - 1)
-            output[i] = deltaSquared * (Math.Sqrt(1.0 + ratio * ratio) - 1.0);
+            output[i] = deltaSquared * (Math.Sqrt(1.0 + (ratio * ratio)) - 1.0);
         }
     }
 

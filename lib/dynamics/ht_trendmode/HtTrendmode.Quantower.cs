@@ -52,7 +52,7 @@ public sealed class HtTrendmodeIndicator : Indicator, IWatchlistIndicator
             SourceType.HL2 => (GetPrice(PriceType.High) + GetPrice(PriceType.Low)) / 2,
             SourceType.HLC3 => (GetPrice(PriceType.High) + GetPrice(PriceType.Low) + GetPrice(PriceType.Close)) / 3,
             SourceType.OHLC4 => (GetPrice(PriceType.Open) + GetPrice(PriceType.High) + GetPrice(PriceType.Low) + GetPrice(PriceType.Close)) / 4,
-            SourceType.HLCC4 => (GetPrice(PriceType.High) + GetPrice(PriceType.Low) + 2 * GetPrice(PriceType.Close)) / 4,
+            SourceType.HLCC4 => (GetPrice(PriceType.High) + GetPrice(PriceType.Low) + (2 * GetPrice(PriceType.Close))) / 4,
             _ => GetPrice(PriceType.Close)
         };
 

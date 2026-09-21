@@ -56,16 +56,16 @@ public class SgfValidationTests : IDisposable
             double weight = 0;
             if (polyOrder == 2)
             {
-                weight = 3.0 * (3.0 * adjPeriod * adjPeriod - 7.0 - 20.0 * k * k);
+                weight = 3.0 * ((3.0 * adjPeriod * adjPeriod) - 7.0 - (20.0 * k * k));
             }
             else if (polyOrder == 4)
             {
                 double k2 = k * k;
-                weight = 15.0 + k2 * (-20.0 + k2 * 6.0);
+                weight = 15.0 + (k2 * (-20.0 + (k2 * 6.0)));
             }
             else
             {
-                weight = 1.0 - Math.Abs((double)k) / (double)halfWindow;
+                weight = 1.0 - (Math.Abs((double)k) / (double)halfWindow);
             }
 
             weights[i] = weight;

@@ -34,10 +34,10 @@ public class MeTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(me.IsHot, $"IsHot should be false at index {i}");
-            me.Update(i * 10, i * 10 + 5);
+            me.Update(i * 10, (i * 10) + 5);
         }
 
-        me.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        me.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(me.IsHot, "IsHot should be true after period updates");
     }
 
@@ -172,7 +172,7 @@ public class MeTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             me.Update(tenthActual, tenthPredicted);
         }
 
@@ -197,7 +197,7 @@ public class MeTests
 
         for (int i = 0; i < 10; i++)
         {
-            me.Update(i * 10, i * 10 + 5);
+            me.Update(i * 10, (i * 10) + 5);
         }
 
         Assert.True(me.IsHot);
@@ -275,7 +275,7 @@ public class MeTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2; // Offset prediction
+            predicted[i] = (bar.Close * 1.05) + 2; // Offset prediction
         }
 
         // Streaming
@@ -331,7 +331,7 @@ public class MeTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
         }
 
         var results = Me.Batch(actual, predicted, 3);

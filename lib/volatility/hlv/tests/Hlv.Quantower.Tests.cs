@@ -227,7 +227,7 @@ public class HlvIndicatorTests
         // Same data for both
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100 + i * 0.5;
+            double basePrice = 100 + (i * 0.5);
             indicatorRaw.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 3, basePrice - 3, basePrice + 1, 1000);
             indicatorRaw.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 

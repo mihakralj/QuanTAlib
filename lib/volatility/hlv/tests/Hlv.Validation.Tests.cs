@@ -37,7 +37,7 @@ public class HlvValidationTests
     [InlineData(10, 0.9)]                  // 1 - 1/10 = 9/10
     public void Hlv_RmaDecay_IsCorrect(int period, double expectedDecay)
     {
-        double decay = 1.0 - 1.0 / period;
+        double decay = 1.0 - (1.0 / period);
         Assert.Equal(expectedDecay, decay, 10);
     }
 
@@ -92,7 +92,7 @@ public class HlvValidationTests
     [InlineData(14, 100)]  // Very late - correction should be minimal
     public void Hlv_BiasCorrection_WorksCorrectly(int period, int count)
     {
-        double decay = 1.0 - 1.0 / period;
+        double decay = 1.0 - (1.0 / period);
         double e = Math.Pow(decay, count);
         double correctionFactor = 1.0 / (1.0 - e);
 

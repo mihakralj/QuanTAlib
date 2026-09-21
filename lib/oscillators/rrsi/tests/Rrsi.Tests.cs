@@ -368,7 +368,7 @@ public sealed class RrsiTests
         }
         for (int i = 20; i < 50; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i - 20) * 2.0));
+            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + ((i - 20) * 2.0)));
         }
         Assert.True(ind.Last.Value > 0, $"Strong uptrend should be positive, got {ind.Last.Value}");
     }
@@ -383,7 +383,7 @@ public sealed class RrsiTests
         }
         for (int i = 20; i < 50; i++)
         {
-            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 - (i - 20) * 2.0));
+            ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 - ((i - 20) * 2.0)));
         }
         Assert.True(ind.Last.Value < 0, $"Strong downtrend should be negative, got {ind.Last.Value}");
     }

@@ -129,7 +129,7 @@ public class RegchannelIndicatorTests
         // Add some volatility to ensure non-zero stddev
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + Math.Sin(i * 0.5) * 10;
+            double price = 100 + (Math.Sin(i * 0.5) * 10);
             ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price, 1000);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
@@ -173,7 +173,7 @@ public class RegchannelIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + i * 0.5;
+            double price = 100 + (i * 0.5);
             ind1.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price);
             ind2.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price);
             ind1.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
@@ -266,14 +266,14 @@ public class RegchannelIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + i * 2; // Strong uptrend
+            double price = 100 + (i * 2); // Strong uptrend
             ind.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price);
             ind.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
 
         // After warmup, middle should be close to the current regression line value
         double middle = ind.LinesSeries[0].GetValue(0);
-        double lastPrice = 100 + 29 * 2; // 158
+        double lastPrice = 100 + (29 * 2); // 158
 
         // Middle should be close to last price (within reasonable range for regression)
         Assert.True(Math.Abs(middle - lastPrice) < 10, $"Middle ({middle}) should be close to last price ({lastPrice})");

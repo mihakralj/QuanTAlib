@@ -212,7 +212,6 @@ public sealed class Twap : ITValuePublisher
         return result;
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

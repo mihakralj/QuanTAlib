@@ -23,7 +23,7 @@ public class LineartransValidationTests
 
         for (int i = 0; i < series.Count; i++)
         {
-            double expected = slope * series[i].Value + intercept;
+            double expected = (slope * series[i].Value) + intercept;
             Assert.Equal(expected, result[i].Value, Tolerance);
         }
     }
@@ -41,7 +41,7 @@ public class LineartransValidationTests
         for (int i = 0; i < series.Count; i++)
         {
             var result = linear.Update(series[i], true);
-            double expected = slope * series[i].Value + intercept;
+            double expected = (slope * series[i].Value) + intercept;
             Assert.Equal(expected, result.Value, Tolerance);
         }
     }
@@ -59,7 +59,7 @@ public class LineartransValidationTests
 
         for (int i = 0; i < source.Length; i++)
         {
-            double expected = slope * source[i] + intercept;
+            double expected = (slope * source[i]) + intercept;
             Assert.Equal(expected, output[i], Tolerance);
         }
     }
@@ -111,7 +111,7 @@ public class LineartransValidationTests
 
         // Direct composed transform: y = c*(a*x + b) + d = (a*c)*x + (b*c + d)
         double composedSlope = a * c;
-        double composedIntercept = b * c + d;
+        double composedIntercept = (b * c) + d;
         var direct = Lineartrans.Batch(series, composedSlope, composedIntercept);
 
         for (int i = 0; i < series.Count; i++)

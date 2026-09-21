@@ -36,9 +36,9 @@ public sealed class PivotdemValidationTests
                 double pC = bars[i - 1].Close;
 
                 double x;
-                if (pC < pO) { x = pH + 2.0 * pL + pC; }
-                else if (pC > pO) { x = 2.0 * pH + pL + pC; }
-                else { x = pH + pL + 2.0 * pC; }
+                if (pC < pO) { x = pH + (2.0 * pL) + pC; }
+                else if (pC > pO) { x = (2.0 * pH) + pL + pC; }
+                else { x = pH + pL + (2.0 * pC); }
 
                 double expectedPP = x * 0.25;
                 Assert.Equal(expectedPP, p.PP, precision: 10);
@@ -64,9 +64,9 @@ public sealed class PivotdemValidationTests
                 double pC = bars[i - 1].Close;
 
                 double x;
-                if (pC < pO) { x = pH + 2.0 * pL + pC; }
-                else if (pC > pO) { x = 2.0 * pH + pL + pC; }
-                else { x = pH + pL + 2.0 * pC; }
+                if (pC < pO) { x = pH + (2.0 * pL) + pC; }
+                else if (pC > pO) { x = (2.0 * pH) + pL + pC; }
+                else { x = pH + pL + (2.0 * pC); }
 
                 double halfX = x * 0.5;
                 Assert.Equal(x * 0.25, p.PP, precision: 10);
@@ -239,5 +239,4 @@ public sealed class PivotdemValidationTests
             }
         }
     }
-
 }

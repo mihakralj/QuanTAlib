@@ -303,14 +303,14 @@ public class TtmTrendIndicatorTests
         // Feed historical bars
         for (int i = 0; i < 5; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 2, 110 + i * 2, 90 + i * 2, 105 + i * 2);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 2), 110 + (i * 2), 90 + (i * 2), 105 + (i * 2));
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 
         // Feed new bars
         for (int i = 5; i < 8; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i * 2, 110 + i * 2, 90 + i * 2, 105 + i * 2);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + (i * 2), 110 + (i * 2), 90 + (i * 2), 105 + (i * 2));
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
         }
 

@@ -65,7 +65,7 @@ public sealed class Elliptic : AbstractBase
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
 
-        double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
+        double a0_denom = 1.0 - (2.0 * sigma_scaled) + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9)
         {
             a0_denom = 1e-9;
@@ -73,12 +73,12 @@ public sealed class Elliptic : AbstractBase
 
         const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
-        double b0_val = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
-        double b1_val = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;
+        double b0_val = norm_factor * C_k * (1.0 + (omega_z_scaled * omega_z_scaled)) / a0_denom;
+        double b1_val = norm_factor * C_k * ((2.0 * omega_z_scaled * omega_z_scaled) - 2.0) / a0_denom;
         double b2_val = b0_val;
 
-        double a1_val = (2.0 * Kp_scaled - 2.0) / a0_denom;
-        double a2_val = (1.0 + 2.0 * sigma_scaled + Kp_scaled) / a0_denom;
+        double a1_val = ((2.0 * Kp_scaled) - 2.0) / a0_denom;
+        double a2_val = (1.0 + (2.0 * sigma_scaled) + Kp_scaled) / a0_denom;
 
         // Validate and Normalize for Unity Gain at DC
         // DC Gain = (b0 + b1 + b2) / (1 + a1 + a2)
@@ -207,7 +207,6 @@ public sealed class Elliptic : AbstractBase
         return indicator.Update(source);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -255,7 +254,7 @@ public sealed class Elliptic : AbstractBase
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
 
-        double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
+        double a0_denom = 1.0 - (2.0 * sigma_scaled) + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9)
         {
             a0_denom = 1e-9;
@@ -263,12 +262,12 @@ public sealed class Elliptic : AbstractBase
 
         const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
-        double b0 = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
-        double b1 = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;
+        double b0 = norm_factor * C_k * (1.0 + (omega_z_scaled * omega_z_scaled)) / a0_denom;
+        double b1 = norm_factor * C_k * ((2.0 * omega_z_scaled * omega_z_scaled) - 2.0) / a0_denom;
         double b2 = b0;
 
-        double a1 = (2.0 * Kp_scaled - 2.0) / a0_denom;
-        double a2 = (1.0 + 2.0 * sigma_scaled + Kp_scaled) / a0_denom;
+        double a1 = ((2.0 * Kp_scaled) - 2.0) / a0_denom;
+        double a2 = (1.0 + (2.0 * sigma_scaled) + Kp_scaled) / a0_denom;
 
         // Normalize constants for Unity Gain
         double sum_b = b0 + b1 + b2;

@@ -195,7 +195,7 @@ public sealed class LtmaValidationTests : IDisposable
             var ltmaVal = ltma.Update(tVal);
             var e1 = ema1.Update(tVal);
             var e2 = ema2.Update(e1);
-            double expected = 2.0 * e1.Value - e2.Value;
+            double expected = (2.0 * e1.Value) - e2.Value;
 
             Assert.Equal(expected, ltmaVal.Value, 1e-9);
         }

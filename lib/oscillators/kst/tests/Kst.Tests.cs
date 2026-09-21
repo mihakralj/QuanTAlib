@@ -148,7 +148,7 @@ public sealed class KstBarCorrectionTests
         var kst = new Kst(r1: 3, r2: 4, r3: 5, r4: 6, s1: 2, s2: 2, s3: 2, s4: 2, sigPeriod: 2);
         for (int i = 0; i < 5; i++)
         {
-            kst.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2), isNew: true);
+            kst.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)), isNew: true);
         }
         double val1 = kst.Last.Value;
         kst.Update(new TValue(DateTime.UtcNow, 110.0), isNew: true);

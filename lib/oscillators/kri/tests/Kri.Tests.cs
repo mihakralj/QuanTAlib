@@ -21,7 +21,7 @@ public sealed class KriTests
         var k = new Kri(5);
         for (int i = 0; i < 20; i++)
         {
-            k.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2));
+            k.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)));
         }
         Assert.True(k.Last.Value > 0, "Price above SMA should produce positive KRI");
     }
@@ -31,7 +31,7 @@ public sealed class KriTests
         var k = new Kri(5);
         for (int i = 0; i < 20; i++)
         {
-            k.Update(new TValue(DateTime.UtcNow, 200.0 - i * 2));
+            k.Update(new TValue(DateTime.UtcNow, 200.0 - (i * 2)));
         }
         Assert.True(k.Last.Value < 0, "Price below SMA should produce negative KRI");
     }
@@ -57,7 +57,7 @@ public sealed class KriTests
         double[] data = new double[15];
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = 100 + i * 2;
+            data[i] = 100 + (i * 2);
         }
         for (int i = 0; i < data.Length; i++)
         {

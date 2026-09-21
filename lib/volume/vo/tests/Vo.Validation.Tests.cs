@@ -56,7 +56,7 @@ public class VoValidationTests
         // Feed bars with steadily increasing volume
         for (int i = 0; i < 50; i++)
         {
-            double volume = 1000 + i * 100; // increasing
+            double volume = 1000 + (i * 100); // increasing
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 100, 101, 99, 100, volume);
@@ -76,7 +76,7 @@ public class VoValidationTests
         // Feed bars with steadily decreasing volume
         for (int i = 0; i < 50; i++)
         {
-            double volume = 10000 - i * 100; // decreasing
+            double volume = 10000 - (i * 100); // decreasing
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 100, 101, 99, 100, volume);

@@ -68,7 +68,7 @@ public class Butter3ValidationTests
         double c1 = a1 * a1;
 
         double coef2 = b1 + c1;
-        double coef3 = -(c1 + b1 * c1);
+        double coef3 = -(c1 + (b1 * c1));
         double coef4 = c1 * c1;
         double coef1 = (1.0 - b1 + c1) * (1.0 - c1) / 8.0;
 
@@ -85,8 +85,8 @@ public class Butter3ValidationTests
             }
             else
             {
-                filt = coef1 * (src + 3.0 * src1 + 3.0 * src2 + src3)
-                     + coef2 * filt1 + coef3 * filt2 + coef4 * filt3;
+                filt = (coef1 * (src + (3.0 * src1) + (3.0 * src2) + src3))
+                     + (coef2 * filt1) + (coef3 * filt2) + (coef4 * filt3);
             }
 
             result.Add(filt);

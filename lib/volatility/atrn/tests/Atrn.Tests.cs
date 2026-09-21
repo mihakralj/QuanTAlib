@@ -374,7 +374,7 @@ public class AtrnTests
         var batch = Atrn.Batch(bars, DefaultPeriod);
 
         Assert.NotNull(indicator);
-        Assert.True(indicator.WarmupPeriod >= DefaultPeriod + 10 * DefaultPeriod);
+        Assert.True(indicator.WarmupPeriod >= DefaultPeriod + (10 * DefaultPeriod));
         Assert.Equal(batch.Count, results.Count);
 
         for (int i = 0; i < results.Count; i++)

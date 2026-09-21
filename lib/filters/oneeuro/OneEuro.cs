@@ -131,7 +131,7 @@ public sealed class OneEuro : AbstractBase
             s.DxHat = Math.FusedMultiplyAdd(_alphaD, dx - s.DxHat, s.DxHat);
 
             // Step 3: Adaptive cutoff
-            double fc = MinCutoff + Beta * Math.Abs(s.DxHat);
+            double fc = MinCutoff + (Beta * Math.Abs(s.DxHat));
 
             // Step 4: Smoothing factor α = r / (r + 1), r = 2π·fc
             double r = 2.0 * Math.PI * fc;
@@ -223,7 +223,7 @@ public sealed class OneEuro : AbstractBase
             dxHat = Math.FusedMultiplyAdd(alphaD, dx - dxHat, dxHat);
 
             // Adaptive cutoff
-            double fc = minCutoff + beta * Math.Abs(dxHat);
+            double fc = minCutoff + (beta * Math.Abs(dxHat));
 
             // Smoothing factor
             double r = 2.0 * Math.PI * fc;

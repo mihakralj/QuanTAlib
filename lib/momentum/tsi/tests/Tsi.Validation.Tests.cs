@@ -143,7 +143,7 @@ public sealed class TsiValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 2));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 2)));
         }
 
         Assert.True(tsi.Last.Value > 95.0, $"Expected TSI > 95, got {tsi.Last.Value}");
@@ -156,7 +156,7 @@ public sealed class TsiValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < 50; i++)
         {
-            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - i * 2));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - (i * 2)));
         }
 
         Assert.True(tsi.Last.Value < -95.0, $"Expected TSI < -95, got {tsi.Last.Value}");
@@ -184,7 +184,7 @@ public sealed class TsiValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < 20; i++)
         {
-            double price = i < 10 ? 100.0 + i * 2 : 120.0 - (i - 10) * 2;
+            double price = i < 10 ? 100.0 + (i * 2) : 120.0 - ((i - 10) * 2);
             tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             tsiValues.Add(tsi.Last.Value);
             signalValues.Add(tsi.Signal);

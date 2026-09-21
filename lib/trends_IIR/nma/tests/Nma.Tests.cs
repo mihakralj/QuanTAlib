@@ -147,7 +147,7 @@ public class NmaTests
         nma.Update(series[^1]);
         for (int c = 0; c < 5; c++)
         {
-            nma.Update(new TValue(series[^1].Time, series[^1].Value * (1.0 + c * 0.01)), isNew: false);
+            nma.Update(new TValue(series[^1].Time, series[^1].Value * (1.0 + (c * 0.01))), isNew: false);
         }
         var corrected = nma.Update(new TValue(series[^1].Time, series[^1].Value + 2.0), isNew: false);
 

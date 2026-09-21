@@ -354,7 +354,7 @@ public class HwmaTests
         double[] prices = new double[30];
         for (int i = 0; i < 30; i++)
         {
-            prices[i] = 100 + i * 2; // Linear uptrend
+            prices[i] = 100 + (i * 2); // Linear uptrend
         }
 
         double lastResult = 0;

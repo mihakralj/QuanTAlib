@@ -123,7 +123,7 @@ public sealed class QstickValidationTests : IDisposable
 
         // Bar 2: diff = 3, EMA = alpha * 3 + (1-alpha) * 6-
         qstick.Update(new TBar(time.AddMinutes(1).Ticks, 100.0, 108.0, 96.0, 103.0, 1000));
-        expectedEma = alpha * 3 + (1 - alpha) * expectedEma;
+        expectedEma = (alpha * 3) + ((1 - alpha) * expectedEma);
         Assert.Equal(expectedEma, qstick.Last.Value, 10);
     }
 

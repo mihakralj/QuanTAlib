@@ -411,7 +411,7 @@ public class BbandsTests
         DateTime startTime = DateTime.UtcNow;
         for (int i = 0; i < data.Length; i++)
         {
-            streamBbands.Update(new TValue(startTime + i * TimeSpan.FromSeconds(1), data[i]), isNew: true);
+            streamBbands.Update(new TValue(startTime + (i * TimeSpan.FromSeconds(1)), data[i]), isNew: true);
         }
 
         Assert.Equal(streamBbands.Middle.Value, primedBbands.Middle.Value, precision: 10);

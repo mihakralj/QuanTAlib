@@ -642,5 +642,4 @@ public sealed class Amat : ITValuePublisher, IDisposable
         TSeries results = amat.Update(source);
         return (results, amat);
     }
-
 }

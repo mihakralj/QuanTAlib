@@ -41,12 +41,12 @@ public class YzvValidationTests
 
         double sOSq = ro * ro;
         double sCSq = rc * rc;
-        double sRsSq = rh * (rh - rc) + rl * (rl - rc);
+        double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));
 
         double ratioN = (double)(period + 1) / (period - 1);
         double kYz = 0.34 / (1.34 + ratioN);
 
-        double sSqDaily = sOSq + kYz * sCSq + (1.0 - kYz) * sRsSq;
+        double sSqDaily = sOSq + (kYz * sCSq) + ((1.0 - kYz) * sRsSq);
 
         // First bar: RMA = value, eComp = 1 - alpha
         double alpha = 1.0 / period;
@@ -85,7 +85,7 @@ public class YzvValidationTests
         double ratioN = (double)(period + 1) / (period - 1);
         double kYz = 0.34 / (1.34 + ratioN);
 
-        double expectedK = 0.34 / (1.34 + 21.0 / 19.0);
+        double expectedK = 0.34 / (1.34 + (21.0 / 19.0));
         Assert.Equal(expectedK, kYz, 10);
 
         // Verify k is in reasonable range (0 < k < 0.5)
@@ -103,7 +103,7 @@ public class YzvValidationTests
         double rh = Math.Log(high / open);
         double rl = Math.Log(low / open);
 
-        double sRsSq = rh * (rh - rc) + rl * (rl - rc);
+        double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));
 
         // Verify this is positive for typical bar
         Assert.True(sRsSq >= 0, "Rogers-Satchell should be non-negative for valid OHLC");
@@ -225,8 +225,8 @@ public class YzvValidationTests
             double moveSmall = 1.0;
             double moveLarge = 10.0;
 
-            yzvSmall.Update(new TBar(DateTime.UtcNow, baseSmall, baseSmall + moveSmall, baseSmall - moveSmall, baseSmall + (i % 2) * moveSmall, 1000));
-            yzvLarge.Update(new TBar(DateTime.UtcNow, baseLarge, baseLarge + moveLarge, baseLarge - moveLarge, baseLarge + (i % 2) * moveLarge, 1000));
+            yzvSmall.Update(new TBar(DateTime.UtcNow, baseSmall, baseSmall + moveSmall, baseSmall - moveSmall, baseSmall + ((i % 2) * moveSmall), 1000));
+            yzvLarge.Update(new TBar(DateTime.UtcNow, baseLarge, baseLarge + moveLarge, baseLarge - moveLarge, baseLarge + ((i % 2) * moveLarge), 1000));
         }
 
         // Larger moves should produce larger YZV (roughly 10x)
@@ -272,7 +272,7 @@ public class YzvValidationTests
         // No gap scenario
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 + i * 0.1;
+            double close = 100 + (i * 0.1);
             yzvNoGap.Update(new TBar(DateTime.UtcNow, close, close + 1, close - 1, close, 1000));
         }
 
@@ -297,7 +297,7 @@ public class YzvValidationTests
         // No gap scenario
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 - i * 0.1;
+            double close = 100 - (i * 0.1);
             yzvNoGap.Update(new TBar(DateTime.UtcNow, close, close + 1, close - 1, close, 1000));
         }
 

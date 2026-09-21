@@ -184,7 +184,7 @@ public sealed class AdfIndicatorTests
         for (int i = 0; i < 30; i++)
         {
             indicator.HistoricalData.AddBar(
-                now.AddMinutes(i), 100 + i * 0.5, 105 + i * 0.5, 95 + i * 0.5, 102 + i * 0.5);
+                now.AddMinutes(i), 100 + (i * 0.5), 105 + (i * 0.5), 95 + (i * 0.5), 102 + (i * 0.5));
 
             var reason = i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar;
             indicator.ProcessUpdate(new UpdateArgs(reason));

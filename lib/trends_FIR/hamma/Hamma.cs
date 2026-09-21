@@ -109,7 +109,7 @@ public sealed class Hamma : AbstractBase
             double twoPiOverPm1 = 2.0 * Math.PI / (period - 1);
             for (int i = 0; i < period; i++)
             {
-                double w = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * i);
+                double w = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * i));
                 weights[i] = w;
                 sum += w;
             }

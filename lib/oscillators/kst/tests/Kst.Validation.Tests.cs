@@ -101,7 +101,7 @@ public sealed class KstValidationTests(ITestOutputHelper output)
         double startPrice = 100.0;
         int n = 60;
         double[] prices = new double[n];
-        for (int i = 0; i < n; i++) { prices[i] = startPrice + i * 0.5; } // constant rise
+        for (int i = 0; i < n; i++) { prices[i] = startPrice + (i * 0.5); } // constant rise
 
         var spanK = new double[n];
         var spanS = new double[n];
@@ -124,7 +124,7 @@ public sealed class KstValidationTests(ITestOutputHelper output)
         double startPrice = 200.0;
         int n = 60;
         double[] prices = new double[n];
-        for (int i = 0; i < n; i++) { prices[i] = startPrice - i * 0.5; } // constant fall
+        for (int i = 0; i < n; i++) { prices[i] = startPrice - (i * 0.5); } // constant fall
 
         var spanK = new double[n];
         var spanS = new double[n];

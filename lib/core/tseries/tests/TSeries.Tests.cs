@@ -536,7 +536,6 @@ public class TSeriesTests
         Assert.Equal(3.0, series[2].Value);
     }
 
-
     [Fact]
     public void GetEnumerator_ExplicitGenericInterface_Works()
     {

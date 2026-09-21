@@ -318,7 +318,7 @@ public class AcfTests
         // Generate and store values
         for (int i = 0; i < 20; i++)
         {
-            inputs.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + i * 0.5));
+            inputs.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100 + (i * 0.5)));
         }
 
         // First pass

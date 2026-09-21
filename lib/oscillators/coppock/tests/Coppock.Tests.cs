@@ -149,7 +149,7 @@ public sealed class CoppockBarCorrectionTests
         var c = new Coppock(longRoc: 3, shortRoc: 2, wmaPeriod: 3);
         for (int i = 0; i < 5; i++)
         {
-            c.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2), isNew: true);
+            c.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)), isNew: true);
         }
         double val1 = c.Last.Value;
         c.Update(new TValue(DateTime.UtcNow, 115.0), isNew: true);

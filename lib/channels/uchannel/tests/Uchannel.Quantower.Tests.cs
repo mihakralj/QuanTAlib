@@ -358,7 +358,7 @@ public class UchannelQuantowerTests
         double width2 = indicator2.LinesSeries[4].GetValue(0);
 
         // Width2 should be approximately 2x Width1
-        Assert.True(Math.Abs(width2 - 2 * width1) < 0.0001,
+        Assert.True(Math.Abs(width2 - (2 * width1)) < 0.0001,
             $"Width2 ({width2}) should be ~2x Width1 ({width1})");
     }
 
@@ -377,7 +377,7 @@ public class UchannelQuantowerTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 30; i++)
         {
-            double close = 100 + (i % 5) * 2;
+            double close = 100 + ((i % 5) * 2);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), close, close + 3, close - 3, close, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), close, close + 3, close - 3, close, 1000);

@@ -328,7 +328,7 @@ public class JerkTests
 
         for (int i = 0; i < 30; i++)
         {
-            source.Add(now.AddSeconds(i), 100 + i * 0.5);
+            source.Add(now.AddSeconds(i), 100 + (i * 0.5));
         }
 
         var (results, indicator) = Jerk.Calculate(source);

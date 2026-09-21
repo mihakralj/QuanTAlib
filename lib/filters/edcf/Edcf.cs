@@ -49,7 +49,7 @@ public sealed class Edcf : AbstractBase
         // But the inner loop looks back within the same window, so we only need 'length' samples
         // However, the EasyLanguage code accesses Price[count + LookBack] where count goes to Length-1
         // and LookBack goes to Length-1, so max index = 2*(Length-1). We need 2*Length - 1 in the buffer.
-        _buffer = new RingBuffer(2 * length - 1);
+        _buffer = new RingBuffer((2 * length) - 1);
         WarmupPeriod = length;
         Name = $"Edcf({_length})";
     }
@@ -215,12 +215,12 @@ public sealed class Edcf : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        long initialTicks = DateTime.UtcNow.Ticks - source.Length * (step?.Ticks ?? TimeSpan.FromSeconds(1).Ticks);
+        long initialTicks = DateTime.UtcNow.Ticks - (source.Length * (step?.Ticks ?? TimeSpan.FromSeconds(1).Ticks));
         TimeSpan increment = step ?? TimeSpan.FromSeconds(1);
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(initialTicks + i * increment.Ticks, source[i]));
+            Update(new TValue(initialTicks + (i * increment.Ticks), source[i]));
         }
     }
 

@@ -238,7 +238,7 @@ public class PolyfitValidationTests
     [InlineData(14, 2)]
     public void GBMData_AllFinite(int period, int degree)
     {
-        var gbm = new GBM(100, 0.05, 0.2, seed: period * 10 + degree);
+        var gbm = new GBM(100, 0.05, 0.2, seed: (period * 10) + degree);
         var p = new Polyfit(period, degree);
         for (int i = 0; i < 100; i++)
         {

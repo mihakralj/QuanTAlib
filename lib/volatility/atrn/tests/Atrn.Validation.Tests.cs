@@ -166,7 +166,7 @@ public sealed class AtrnValidationTests : IDisposable
         for (int i = 0; i < lookbackWindow + 100; i++)
         {
             constantBars.Add(new TBar(
-                startTime + i * TimeSpan.FromMinutes(1).Ticks,
+                startTime + (i * TimeSpan.FromMinutes(1).Ticks),
                 price,          // Open
                 price + 5.0,    // High (constant +5)
                 price - 5.0,    // Low (constant -5)
@@ -215,7 +215,7 @@ public sealed class AtrnValidationTests : IDisposable
             double range = 1.0 + (i * 0.1);
 
             bars.Add(new TBar(
-                startTime + i * TimeSpan.FromMinutes(1).Ticks,
+                startTime + (i * TimeSpan.FromMinutes(1).Ticks),
                 price,
                 price + range,
                 price - range,
@@ -261,7 +261,7 @@ public sealed class AtrnValidationTests : IDisposable
             double range = Math.Max(0.1, 10.0 - (i * 0.05));
 
             bars.Add(new TBar(
-                startTime + i * TimeSpan.FromMinutes(1).Ticks,
+                startTime + (i * TimeSpan.FromMinutes(1).Ticks),
                 price,
                 price + range,
                 price - range,

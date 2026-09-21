@@ -198,7 +198,7 @@ public class MaseTests
         // Generate data where prediction is always perfect
         for (int i = 0; i < 20; i++)
         {
-            double actual = 100 + i * 2;
+            double actual = 100 + (i * 2);
             double perfect = actual; // Perfect prediction
             mase.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), perfect));
         }

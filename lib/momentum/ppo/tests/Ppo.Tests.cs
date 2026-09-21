@@ -131,7 +131,7 @@ public class PpoTests
         var ppo = new Ppo(TestFastPeriod, TestSlowPeriod, TestSignalPeriod);
         for (int i = 0; i < 30; i++)
         {
-            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5), true);
+            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)), true);
         }
         Assert.Equal(ppo.Last.Value - ppo.Signal.Value, ppo.Histogram.Value, 10);
     }
@@ -142,7 +142,7 @@ public class PpoTests
         var ppo = new Ppo(TestFastPeriod, TestSlowPeriod, TestSignalPeriod);
         for (int i = 0; i < 40; i++)
         {
-            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0), true);
+            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)), true);
         }
         Assert.True(ppo.Last.Value > 0,
             $"PPO should be positive with rising prices, got {ppo.Last.Value}");
@@ -154,7 +154,7 @@ public class PpoTests
         var ppo = new Ppo(TestFastPeriod, TestSlowPeriod, TestSignalPeriod);
         for (int i = 0; i < 40; i++)
         {
-            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 300.0 - i * 2.0), true);
+            ppo.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 300.0 - (i * 2.0)), true);
         }
         Assert.True(ppo.Last.Value < 0,
             $"PPO should be negative with falling prices, got {ppo.Last.Value}");
@@ -216,7 +216,7 @@ public class PpoTests
 
         for (int i = 0; i < 25; i++)
         {
-            ppo.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.5), true);
+            ppo.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.5)), true);
         }
 
         var baseline = ppo.Update(new TValue(time.AddSeconds(25), 120.0), true);
@@ -233,7 +233,7 @@ public class PpoTests
 
         for (int i = 0; i < 25; i++)
         {
-            ppo.Update(new TValue(time.AddSeconds(i), 100.0 + i * 0.5), true);
+            ppo.Update(new TValue(time.AddSeconds(i), 100.0 + (i * 0.5)), true);
         }
 
         var baseline = ppo.Update(new TValue(time.AddSeconds(25), 120.0), true);
@@ -385,7 +385,7 @@ public class PpoTests
 
         for (int i = 0; i < largeSize; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Ppo.Batch(source, output, TestFastPeriod, TestSlowPeriod);

@@ -89,7 +89,7 @@ public class VaValidationTests
         // Bar 2: close below midpoint
         var bar2 = new TBar(DateTime.UtcNow.AddMinutes(1), 101, 101, 99, 98, 500);
         var r2 = va.Update(bar2, isNew: true);
-        double expectedVa2 = expectedVa1 + 500 * (98 - 100.0); // 2000 + (-1000) = 1000
+        double expectedVa2 = expectedVa1 + (500 * (98 - 100.0)); // 2000 + (-1000) = 1000
 
         Assert.Equal(expectedVa1, r1.Value, precision: 10);
         Assert.Equal(expectedVa2, r2.Value, precision: 10);

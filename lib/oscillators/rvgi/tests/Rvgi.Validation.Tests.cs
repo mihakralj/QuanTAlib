@@ -239,7 +239,7 @@ public sealed class RvgiValidationTests(ITestOutputHelper output)
 
         for (int i = 0; i < 50; i++)
         {
-            double basePrice = 100.0 + i * 0.5;
+            double basePrice = 100.0 + (i * 0.5);
             rvgi.Update(new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 open: basePrice,
@@ -261,7 +261,7 @@ public sealed class RvgiValidationTests(ITestOutputHelper output)
 
         for (int i = 0; i < 50; i++)
         {
-            double basePrice = 200.0 - i * 0.5;
+            double basePrice = 200.0 - (i * 0.5);
             rvgi.Update(new TBar(
                 DateTime.UtcNow.AddMinutes(i),
                 open: basePrice + 2.0,

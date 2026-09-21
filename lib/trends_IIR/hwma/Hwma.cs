@@ -88,7 +88,7 @@ public sealed class Hwma : AbstractBase
             throw new ArgumentException("Gamma must be between 0 and 1", nameof(gamma));
         }
 
-        int effectivePeriod = (int)(2.0 / alpha - 1.0); // Reverse calculate for display
+        int effectivePeriod = (int)((2.0 / alpha) - 1.0); // Reverse calculate for display
         _alpha = alpha;
         _beta = beta;
         _gamma = gamma;
@@ -190,7 +190,7 @@ public sealed class Hwma : AbstractBase
             double prevA = _state.A;
 
             // F = α × source + (1-α) × (prevF + prevV + 0.5 × prevA)
-            double forecast = prevF + prevV + 0.5 * prevA;
+            double forecast = prevF + prevV + (0.5 * prevA);
             double newF = Math.FusedMultiplyAdd(forecast, _decayAlpha, _alpha * val);
 
             // V = β × (F - prevF) + (1-β) × (prevV + prevA)
@@ -202,7 +202,7 @@ public sealed class Hwma : AbstractBase
             _state = _state with { F = newF, V = newV, A = newA };
 
             // output = F + V + 0.5 × A
-            result = newF + newV + 0.5 * newA;
+            result = newF + newV + (0.5 * newA);
         }
 
         Last = new TValue(input.Time, result);
@@ -333,7 +333,7 @@ public sealed class Hwma : AbstractBase
                 double prevA = A;
 
                 // F = α × source + (1-α) × (prevF + prevV + 0.5 × prevA)
-                F = Math.FusedMultiplyAdd(prevF + prevV + 0.5 * prevA, decayAlpha, alpha * val);
+                F = Math.FusedMultiplyAdd(prevF + prevV + (0.5 * prevA), decayAlpha, alpha * val);
 
                 // V = β × (F - prevF) + (1-β) × (prevV + prevA)
                 V = Math.FusedMultiplyAdd(prevV + prevA, decayBeta, beta * (F - prevF));
@@ -342,7 +342,7 @@ public sealed class Hwma : AbstractBase
                 A = Math.FusedMultiplyAdd(prevA, decayGamma, gamma * (V - prevV));
 
                 // output = F + V + 0.5 × A
-                output[i] = F + V + 0.5 * A;
+                output[i] = F + V + (0.5 * A);
             }
         }
     }

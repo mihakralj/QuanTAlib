@@ -481,7 +481,7 @@ public class HvValidationTests
         // Multiple corrections on same price
         for (int j = 0; j < 5; j++)
         {
-            var tempPrice = new TValue(prices[19].Time, prices[19].Value * (1.0 + j * 0.01));
+            var tempPrice = new TValue(prices[19].Time, prices[19].Value * (1.0 + (j * 0.01)));
             hv.Update(tempPrice, isNew: false);
         }
 

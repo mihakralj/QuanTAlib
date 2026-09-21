@@ -372,7 +372,7 @@ public sealed class CtiTests
         double[] output = new double[10000];
         for (int i = 0; i < src.Length; i++)
         {
-            src[i] = 100.0 + i * 0.01;
+            src[i] = 100.0 + (i * 0.01);
         }
         var ex = Record.Exception(() => Cti.Batch(src.AsSpan(), output.AsSpan(), DefaultPeriod));
         Assert.Null(ex);

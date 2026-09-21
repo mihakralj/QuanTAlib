@@ -59,14 +59,14 @@ public sealed class PivotcamValidationTests
                 double range = pH - pL;
 
                 Assert.Equal(pp, p.PP, precision: 10);
-                Assert.Equal(pC + range * 1.0833 / 12.0, p.R1, precision: 4);
-                Assert.Equal(pC - range * 1.0833 / 12.0, p.S1, precision: 4);
-                Assert.Equal(pC + range * 1.1666 / 12.0, p.R2, precision: 4);
-                Assert.Equal(pC - range * 1.1666 / 12.0, p.S2, precision: 4);
-                Assert.Equal(pC + range * 1.25 / 12.0, p.R3, precision: 4);
-                Assert.Equal(pC - range * 1.25 / 12.0, p.S3, precision: 4);
-                Assert.Equal(pC + range * 1.5 / 12.0, p.R4, precision: 4);
-                Assert.Equal(pC - range * 1.5 / 12.0, p.S4, precision: 4);
+                Assert.Equal(pC + (range * 1.0833 / 12.0), p.R1, precision: 4);
+                Assert.Equal(pC - (range * 1.0833 / 12.0), p.S1, precision: 4);
+                Assert.Equal(pC + (range * 1.1666 / 12.0), p.R2, precision: 4);
+                Assert.Equal(pC - (range * 1.1666 / 12.0), p.S2, precision: 4);
+                Assert.Equal(pC + (range * 1.25 / 12.0), p.R3, precision: 4);
+                Assert.Equal(pC - (range * 1.25 / 12.0), p.S3, precision: 4);
+                Assert.Equal(pC + (range * 1.5 / 12.0), p.R4, precision: 4);
+                Assert.Equal(pC - (range * 1.5 / 12.0), p.S4, precision: 4);
             }
         }
     }
@@ -272,5 +272,4 @@ public sealed class PivotcamValidationTests
             }
         }
     }
-
 }

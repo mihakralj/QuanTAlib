@@ -234,7 +234,7 @@ public sealed class Pfe : AbstractBase
         _s = default;
         _ps = default;
 
-        int warmupLength = Math.Min(source.Length, WarmupPeriod + _smoothPeriod * 3);
+        int warmupLength = Math.Min(source.Length, WarmupPeriod + (_smoothPeriod * 3));
         int startIndex = source.Length - warmupLength;
 
         // Seed LastValidValue

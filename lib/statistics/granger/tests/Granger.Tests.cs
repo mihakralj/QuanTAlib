@@ -209,7 +209,7 @@ public class GrangerStateCorrectionTests
         // Multiple corrections converge
         for (int i = 0; i < 5; i++)
         {
-            indicator.Update(y1 + i * 0.01, x1 + i * 0.01, isNew: false);
+            indicator.Update(y1 + (i * 0.01), x1 + (i * 0.01), isNew: false);
         }
 
         var final1 = indicator.Update(y1, x1, isNew: false);

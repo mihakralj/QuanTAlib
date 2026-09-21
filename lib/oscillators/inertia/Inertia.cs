@@ -58,8 +58,8 @@ public sealed class Inertia : AbstractBase
         WarmupPeriod = period;
 
         _sumX = period * (period - 1) / 2.0;
-        double sumX2 = period * (period - 1.0) * (2.0 * period - 1.0) / 6.0;
-        _denomX = period * sumX2 - _sumX * _sumX;
+        double sumX2 = period * (period - 1.0) * ((2.0 * period) - 1.0) / 6.0;
+        _denomX = (period * sumX2) - (_sumX * _sumX);
     }
 
     /// <summary>
@@ -160,8 +160,8 @@ public sealed class Inertia : AbstractBase
         }
 
         // Linear regression: slope, intercept, TSF
-        double slope = (_period * _state.SumXY - _sumX * _state.SumY) / _denomX;
-        double intercept = (_state.SumY - slope * _sumX) / _period;
+        double slope = ((_period * _state.SumXY) - (_sumX * _state.SumY)) / _denomX;
+        double intercept = (_state.SumY - (slope * _sumX)) / _period;
         double tsf = Math.FusedMultiplyAdd(slope, _period - 1, intercept);
 
         // Inertia = source - TSF (raw residual, no normalization)
@@ -265,8 +265,8 @@ public sealed class Inertia : AbstractBase
         }
 
         double sumX = period * (period - 1) / 2.0;
-        double sumX2 = period * (period - 1.0) * (2.0 * period - 1.0) / 6.0;
-        double denomX = period * sumX2 - sumX * sumX;
+        double sumX2 = period * (period - 1.0) * ((2.0 * period) - 1.0) / 6.0;
+        double denomX = (period * sumX2) - (sumX * sumX);
 
         double sumY = 0.0;
         double sumXY = 0.0;
@@ -311,8 +311,8 @@ public sealed class Inertia : AbstractBase
                 continue;
             }
 
-            double slope = (period * sumXY - sumX * sumY) / denomX;
-            double intercept = (sumY - slope * sumX) / period;
+            double slope = ((period * sumXY) - (sumX * sumY)) / denomX;
+            double intercept = (sumY - (slope * sumX)) / period;
             double tsf = Math.FusedMultiplyAdd(slope, period - 1, intercept);
 
             output[i] = val - tsf;

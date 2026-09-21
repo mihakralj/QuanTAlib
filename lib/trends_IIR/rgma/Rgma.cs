@@ -60,7 +60,7 @@ public sealed class Rgma : AbstractBase
 
         _passes = passes;
 
-        _alpha = 2.0 / (period / Math.Sqrt(passes) + 1.0);
+        _alpha = 2.0 / ((period / Math.Sqrt(passes)) + 1.0);
         _decay = 1.0 - _alpha;
 
         _filters = new double[_passes];
@@ -293,7 +293,6 @@ public sealed class Rgma : AbstractBase
             state.IsHot = true;
         }
 
-
         return filters[^1];
     }
 
@@ -347,7 +346,6 @@ public sealed class Rgma : AbstractBase
                     state.IsHot = true;
                 }
 
-
                 y = filters[^1];
             }
 
@@ -395,7 +393,7 @@ public sealed class Rgma : AbstractBase
             return;
         }
 
-        double alpha = 2.0 / (period / Math.Sqrt(passes) + 1.0);
+        double alpha = 2.0 / ((period / Math.Sqrt(passes)) + 1.0);
         double decay = 1.0 - alpha;
 
         var state = State.New();

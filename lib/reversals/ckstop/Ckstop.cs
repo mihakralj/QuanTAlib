@@ -241,8 +241,8 @@ public sealed class Ckstop : ITValuePublisher
         double lowestLow = _minDequeLow.GetExtremum(_lBuf);
 
         // Step 2b: First (initial) stops
-        double initStopShort = highestHigh - _multiplier * atr;
-        double initStopLong = lowestLow + _multiplier * atr;
+        double initStopShort = highestHigh - (_multiplier * atr);
+        double initStopLong = lowestLow + (_multiplier * atr);
 
         // Step 3: Track highest/lowest of initial stops over stopPeriod
         int sBufIdx = (int)(_index % _stopPeriod);

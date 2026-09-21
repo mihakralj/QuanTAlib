@@ -105,7 +105,7 @@ public sealed class Mgdi : AbstractBase
                 ratio4 *= ratio4;
 
                 double denominator = _k * _period * ratio4;
-                _state.LastMgdi = (Math.Abs(denominator) < 1e-9) ? price : prev + (price - prev) / denominator;
+                _state.LastMgdi = (Math.Abs(denominator) < 1e-9) ? price : prev + ((price - prev) / denominator);
             }
             else
             {
@@ -218,7 +218,7 @@ public sealed class Mgdi : AbstractBase
                 ratio4 *= ratio4;
 
                 double denominator = k * period * ratio4;
-                lastMgdi = (Math.Abs(denominator) < 1e-9) ? price : lastMgdi + (price - lastMgdi) / denominator;
+                lastMgdi = (Math.Abs(denominator) < 1e-9) ? price : lastMgdi + ((price - lastMgdi) / denominator);
             }
             else
             {

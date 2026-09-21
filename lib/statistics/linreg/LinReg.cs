@@ -94,10 +94,10 @@ public sealed class LinReg : AbstractBase
         _sum_x = 0.5 * period * (period - 1);
 
         // sum_x2 = 0^2 + ... + (n-1)^2 = (n-1)n(2n-1)/6
-        double sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
+        double sum_x2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
 
         // denominator = n * sum_x2 - sum_x^2
-        _denominator = period * sum_x2 - _sum_x * _sum_x;
+        _denominator = (period * sum_x2) - (_sum_x * _sum_x);
     }
 
     public LinReg(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
@@ -130,7 +130,7 @@ public sealed class LinReg : AbstractBase
             // O(1) update for sum_xy with Kahan compensation
             // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
             {
-                double delta = prev_sum_y - _period * oldest;
+                double delta = prev_sum_y - (_period * oldest);
                 double y = delta - _state.SumXYComp;
                 double t = _state.SumXY + y;
                 _state.SumXYComp = (t - _state.SumXY) - y;
@@ -148,7 +148,7 @@ public sealed class LinReg : AbstractBase
 
             // O(1) update for sum_y2 with Kahan: subtract oldest², add val²
             {
-                double delta = val * val - oldest * oldest;
+                double delta = (val * val) - (oldest * oldest);
                 double y = delta - _state.SumY2Comp;
                 double t = _state.SumY2 + y;
                 _state.SumY2Comp = (t - _state.SumY2) - y;
@@ -235,8 +235,8 @@ public sealed class LinReg : AbstractBase
             if (!_buffer.IsFull)
             {
                 sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
+                double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                denom = (n * sx2) - (sx * sx);
             }
 
             if (Math.Abs(denom) < MinDenominator)
@@ -379,7 +379,6 @@ public sealed class LinReg : AbstractBase
 
         try
         {
-
             double sum_y = 0;
             double sum_xy = 0;
             double sumYComp = 0;        // Kahan compensation for sum_y
@@ -389,8 +388,8 @@ public sealed class LinReg : AbstractBase
             int count = 0;
 
             double full_sum_x = 0.5 * period * (period - 1);
-            double full_sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-            double full_denom = period * full_sum_x2 - full_sum_x * full_sum_x;
+            double full_sum_x2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+            double full_denom = (period * full_sum_x2) - (full_sum_x * full_sum_x);
 
             for (int i = 0; i < len; i++)
             {
@@ -424,8 +423,8 @@ public sealed class LinReg : AbstractBase
                     {
                         double n = count;
                         double sx = 0.5 * n * (n - 1);
-                        double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                        double denom = n * sx2 - sx * sx;
+                        double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                        double denom = (n * sx2) - (sx * sx);
 
                         if (Math.Abs(denom) < MinDenominator)
                         {
@@ -454,7 +453,7 @@ public sealed class LinReg : AbstractBase
 
                     // Kahan compensated update for sum_xy
                     {
-                        double delta = prev_sum_y - period * oldest;
+                        double delta = prev_sum_y - (period * oldest);
                         double y = delta - sumXYComp;
                         double t = sum_xy + y;
                         sumXYComp = (t - sum_xy) - y;

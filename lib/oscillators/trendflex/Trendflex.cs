@@ -222,7 +222,7 @@ public sealed class Trendflex : AbstractBase
         // Always use Add (not UpdateNewest) because Snapshot/Restore already handles rollback
         buf.Add(filt);
         int n = Math.Min(s.Count, period);
-        double slopeSum = n > 0 ? (n * filt - buf.Sum) / period : 0.0;
+        double slopeSum = n > 0 ? ((n * filt) - buf.Sum) / period : 0.0;
 
         // --- RMS normalization ---
         s.Ms = Math.FusedMultiplyAdd(RMS_ALPHA, slopeSum * slopeSum, RMS_DECAY * s.Ms);
@@ -272,7 +272,7 @@ public sealed class Trendflex : AbstractBase
             // Slope
             buf.Add(filt);
             int n = Math.Min(s.Count, period);
-            double slopeSum = n > 0 ? (n * filt - buf.Sum) / period : 0.0;
+            double slopeSum = n > 0 ? ((n * filt) - buf.Sum) / period : 0.0;
 
             // RMS
             s.Ms = Math.FusedMultiplyAdd(RMS_ALPHA, slopeSum * slopeSum, RMS_DECAY * s.Ms);

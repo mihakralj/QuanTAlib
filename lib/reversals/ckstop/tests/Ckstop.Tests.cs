@@ -131,12 +131,12 @@ public sealed class CkstopBasicTests
         // Steady uptrend
         for (int i = 0; i < 20; i++)
         {
-            double price = basePrice + i * 2;
+            double price = basePrice + (i * 2);
             _ = ck.Update(new TBar(DateTime.UtcNow.AddMinutes(i),
                 price + 1, price - 1, price + 0.5, price, 1000));
         }
 
-        Assert.True(ck.StopLong < 100.0 + 19 * 2, "StopLong should be below the current price in an uptrend");
+        Assert.True(ck.StopLong < 100.0 + (19 * 2), "StopLong should be below the current price in an uptrend");
     }
 }
 

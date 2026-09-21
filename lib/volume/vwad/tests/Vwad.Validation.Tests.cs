@@ -137,7 +137,7 @@ public class VwadValidationTests
 
         // Bar 2: sumVol=450, volWeight=150/450=0.333, MFM=-0.333, weightedMfv=150*(-0.333)*0.333=-16.67
         // cumVwad = 44.4 - 16.67 = 27.8
-        double expectedBar2 = expectedBar1 + 150 * (-1.0 / 3.0) * (150.0 / 450.0);
+        double expectedBar2 = expectedBar1 + (150 * (-1.0 / 3.0) * (150.0 / 450.0));
         Assert.Equal(expectedBar2, results[2], 6);
     }
 

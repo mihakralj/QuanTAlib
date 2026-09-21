@@ -54,7 +54,7 @@ public class HtPhasorTests
 
         for (int i = 0; i < 100; i++)
         {
-            phasor.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 5));
+            phasor.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 5)));
         }
 
         Assert.True(double.IsFinite(phasor.Quadrature));
@@ -126,7 +126,7 @@ public class HtPhasorTests
 
         for (int i = 0; i < 50; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.2) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.2) * 10)));
         }
 
         Assert.True(phasor.IsHot);
@@ -238,7 +238,7 @@ public class HtPhasorTests
         double[] data = new double[50];
         for (int i = 0; i < 50; i++)
         {
-            data[i] = 100.0 + Math.Sin(i * 0.3) * 10;
+            data[i] = 100.0 + (Math.Sin(i * 0.3) * 10);
         }
 
         phasor1.Prime(data);

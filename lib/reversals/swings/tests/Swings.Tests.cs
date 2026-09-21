@@ -114,7 +114,7 @@ public sealed class SwingsBasicTests
         // Monotone ascending - no swing high or low
         for (int i = 0; i < 5; i++)
         {
-            double price = 100.0 + i * 5;
+            double price = 100.0 + (i * 5);
             _ = sw.Update(new TBar(dt.AddMinutes(i), price, price + 2, price - 2, price + 1, 1000), isNew: true);
         }
 

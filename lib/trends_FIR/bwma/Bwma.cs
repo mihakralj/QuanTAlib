@@ -59,7 +59,7 @@ public sealed class Bwma : AbstractBase
 
         _period = period;
         _order = order;
-        _power = order * 0.5 + 0.5;
+        _power = (order * 0.5) + 0.5;
         _buffer = new RingBuffer(period);
         _weights = new double[period];
         Name = $"Bwma({period}, {order})";
@@ -101,12 +101,12 @@ public sealed class Bwma : AbstractBase
     {
         double sum = 0;
         double scale = period > 1 ? 2.0 / (period - 1) : 0.0;
-        double power = order * 0.5 + 0.5;
+        double power = (order * 0.5) + 0.5;
 
         for (int i = 0; i < period; i++)
         {
-            double x = period > 1 ? i * scale - 1.0 : 0.0;
-            double arg = 1.0 - x * x;
+            double x = period > 1 ? (i * scale) - 1.0 : 0.0;
+            double arg = 1.0 - (x * x);
 
             double w;
             if (arg > 0.0)
@@ -366,7 +366,7 @@ public sealed class Bwma : AbstractBase
             return;
         }
 
-        double power = order * 0.5 + 0.5;
+        double power = (order * 0.5) + 0.5;
 
         if (period > len)
         {

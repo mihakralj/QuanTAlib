@@ -68,7 +68,7 @@ public class ImiTests
 
         for (int i = 0; i < 4; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 102, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 102, 1000));
         }
 
         Assert.False(imi.IsHot);
@@ -82,7 +82,7 @@ public class ImiTests
 
         for (int i = 0; i < 5; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 102, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 102, 1000));
         }
 
         Assert.True(imi.IsHot);
@@ -236,18 +236,18 @@ public class ImiTests
         // Fill buffer
         for (int i = 0; i < 3; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 102, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 102, 1000));
         }
 
         // New bar
-        imi.Update(new TBar(baseTime + 3 * 60000, 100, 110, 99, 108, 1000), isNew: true);
+        imi.Update(new TBar(baseTime + (3 * 60000), 100, 110, 99, 108, 1000), isNew: true);
         double firstValue = imi.Last.Value;
 
         // Correction 1
-        imi.Update(new TBar(baseTime + 3 * 60000, 100, 115, 99, 92, 1000), isNew: false);
+        imi.Update(new TBar(baseTime + (3 * 60000), 100, 115, 99, 92, 1000), isNew: false);
 
         // Correction 2 - same as first new bar
-        imi.Update(new TBar(baseTime + 3 * 60000, 100, 110, 99, 108, 1000), isNew: false);
+        imi.Update(new TBar(baseTime + (3 * 60000), 100, 110, 99, 108, 1000), isNew: false);
         double secondValue = imi.Last.Value;
 
         Assert.Equal(firstValue, secondValue, Precision);
@@ -311,7 +311,7 @@ public class ImiTests
 
         for (int i = 0; i < 5; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 100, 110, 99, 108, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 110, 99, 108, 1000));
         }
 
         Assert.True(imi.IsHot);
@@ -331,7 +331,7 @@ public class ImiTests
         // All up bars
         for (int i = 0; i < 3; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 100, 110, 99, 108, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 100, 110, 99, 108, 1000));
         }
         Assert.Equal(100.0, imi.Last.Value, Precision);
 
@@ -340,7 +340,7 @@ public class ImiTests
         // All down bars
         for (int i = 0; i < 3; i++)
         {
-            imi.Update(new TBar(baseTime + i * 60000, 108, 110, 99, 100, 1000));
+            imi.Update(new TBar(baseTime + (i * 60000), 108, 110, 99, 100, 1000));
         }
         Assert.Equal(0.0, imi.Last.Value, Precision);
     }
@@ -358,7 +358,7 @@ public class ImiTests
 
         for (int i = 0; i < 10; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100, 110, 99, 108, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100, 110, 99, 108, 1000));
         }
 
         imi.Prime(source);
@@ -379,7 +379,7 @@ public class ImiTests
 
         for (int i = 0; i < 20; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100 + i, 110 + i, 90 + i, 105 + i, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100 + i, 110 + i, 90 + i, 105 + i, 1000));
         }
 
         var result = Imi.Batch(source);
@@ -404,7 +404,7 @@ public class ImiTests
 
         for (int i = 0; i < 20; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100, 110, 99, 108, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100, 110, 99, 108, 1000));
         }
 
         var result = Imi.Batch(source, 5);
@@ -421,7 +421,7 @@ public class ImiTests
 
         for (int i = 0; i < 20; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100, 110, 99, 108, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100, 110, 99, 108, 1000));
         }
 
         var (results, indicator) = Imi.Calculate(source, 10);

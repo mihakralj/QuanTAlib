@@ -277,7 +277,7 @@ public sealed class Dosc : AbstractBase
             s.AvgLoss = Math.FusedMultiplyAdd(rsiAlpha, changeDn, rsiDecay * s.AvgLoss);
         }
 
-        double rsiVal = s.AvgLoss == 0.0 ? 100.0 : 100.0 - 100.0 / (1.0 + s.AvgGain / s.AvgLoss);
+        double rsiVal = s.AvgLoss == 0.0 ? 100.0 : 100.0 - (100.0 / (1.0 + (s.AvgGain / s.AvgLoss)));
 
         // --- Stage 2: EMA1 of RSI ---
         double ema1;

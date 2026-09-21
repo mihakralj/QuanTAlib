@@ -512,7 +512,7 @@ public class UiTests
 
         for (int i = 0; i < dataLen; i++)
         {
-            source[i] = 100 + Math.Sin(i * 0.1) * 10;
+            source[i] = 100 + (Math.Sin(i * 0.1) * 10);
         }
 
         // Should not throw - uses ArrayPool for large period

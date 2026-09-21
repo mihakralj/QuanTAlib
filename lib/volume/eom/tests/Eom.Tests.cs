@@ -320,8 +320,8 @@ public class EomTests
 
         for (int i = 0; i < size; i++)
         {
-            high[i] = 110 + i * 0.1;
-            low[i] = 90 + i * 0.1;
+            high[i] = 110 + (i * 0.1);
+            low[i] = 90 + (i * 0.1);
             volume[i] = 100000;
         }
 
@@ -365,5 +365,4 @@ public class EomTests
         // Different volume scales should produce different results
         Assert.NotEqual(eom1.Last.Value, eom2.Last.Value);
     }
-
 }

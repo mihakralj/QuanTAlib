@@ -614,8 +614,8 @@ public class VrTests
         // Build up history with varying volatility
         for (int i = 0; i < 50; i++)
         {
-            double range = 2.0 + (i % 5) * 0.5; // Varying range
-            vr.Update(new TBar(DateTime.UtcNow, 100, 100 + range, 100 - range, 100 + range / 2, 1000));
+            double range = 2.0 + ((i % 5) * 0.5); // Varying range
+            vr.Update(new TBar(DateTime.UtcNow, 100, 100 + range, 100 - range, 100 + (range / 2), 1000));
         }
 
         // VR should oscillate around 1.0 over time

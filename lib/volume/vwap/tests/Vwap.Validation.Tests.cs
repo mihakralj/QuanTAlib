@@ -129,12 +129,12 @@ public class VwapValidationTests
 
         // Bar 1: VWAP = (11*100 + 13.667*200) / 300 = (1100 + 2733.33) / 300 = 12.778
         double tp1 = (15.0 + 12.0 + 14.0) / 3.0;
-        double expectedBar1 = (tp0 * 100 + tp1 * 200) / 300.0;
+        double expectedBar1 = ((tp0 * 100) + (tp1 * 200)) / 300.0;
         Assert.Equal(expectedBar1, results[1], 6);
 
         // Bar 2: VWAP = (11*100 + 13.667*200 + 12.333*150) / 450
         double tp2 = (14.0 + 11.0 + 12.0) / 3.0;
-        double expectedBar2 = (tp0 * 100 + tp1 * 200 + tp2 * 150) / 450.0;
+        double expectedBar2 = ((tp0 * 100) + (tp1 * 200) + (tp2 * 150)) / 450.0;
         Assert.Equal(expectedBar2, results[2], 6);
     }
 
@@ -156,7 +156,7 @@ public class VwapValidationTests
         var result = vwap.Update(bars[1]);
 
         // VWAP = (10*1000 + 20*100) / 1100 = 12000/1100 = 10.909
-        double expected = (10.0 * 1000.0 + 20.0 * 100.0) / 1100.0;
+        double expected = ((10.0 * 1000.0) + (20.0 * 100.0)) / 1100.0;
         Assert.Equal(expected, result.Value, 6);
 
         // VWAP should be much closer to 10 than to 20
@@ -218,7 +218,7 @@ public class VwapValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 50, 50, 50, 50, 1000 + i * 10);
+            var bar = new TBar(DateTime.UtcNow.AddMinutes(i), 50, 50, 50, 50, 1000 + (i * 10));
             results.Add(vwap.Update(bar).Value);
         }
 

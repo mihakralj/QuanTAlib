@@ -203,7 +203,7 @@ public sealed class Coppock : ITValuePublisher
         {
             double oldPlain = plainSum;
             plainSum = plainSum - prevWma + combined;
-            weightedSum = weightedSum - oldPlain + _wmaPeriod * combined;
+            weightedSum = weightedSum - oldPlain + (_wmaPeriod * combined);
             coppockVal = weightedSum / _wmaNorm;
         }
 
@@ -357,7 +357,7 @@ public sealed class Coppock : ITValuePublisher
                 {
                     double oldPlain = plainSum;
                     plainSum = plainSum - oldest + combined;
-                    weightedSum = weightedSum - oldPlain + wmaPeriod * combined;
+                    weightedSum = weightedSum - oldPlain + (wmaPeriod * combined);
                     coppockVal = weightedSum / wmaNorm;
                 }
                 wmaBuf[wmaH] = combined;

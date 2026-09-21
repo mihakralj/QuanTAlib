@@ -100,7 +100,7 @@ public class VidyaValidationTests
             }
 
             double dynamicAlpha = alpha * vi;
-            double currentVidya = dynamicAlpha * prices[i] + (1 - dynamicAlpha) * prevVidya;
+            double currentVidya = (dynamicAlpha * prices[i]) + ((1 - dynamicAlpha) * prevVidya);
 
             results.Add(currentVidya);
             prevVidya = currentVidya;

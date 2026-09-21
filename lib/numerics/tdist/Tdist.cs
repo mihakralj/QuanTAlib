@@ -89,7 +89,7 @@ public sealed class Tdist : AbstractBase
         double t2 = t * t;
         double bx = nuD / Math.FusedMultiplyAdd(1.0, t2, nuD); // ν / (ν + t²)
         double ibeta = Betadist.IncompleteBeta(bx, nuD * 0.5, 0.5);
-        return t >= 0.0 ? 1.0 - 0.5 * ibeta : 0.5 * ibeta;
+        return t >= 0.0 ? 1.0 - (0.5 * ibeta) : 0.5 * ibeta;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

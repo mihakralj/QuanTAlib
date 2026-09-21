@@ -351,7 +351,7 @@ public class EwmaTests
         // Stable prices (small changes)
         for (int i = 0; i < 20; i++)
         {
-            ewmaStable.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + i * 0.01));
+            ewmaStable.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + (i * 0.01)));
         }
 
         // Volatile prices (alternating)

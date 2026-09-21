@@ -488,7 +488,7 @@ public class CcorTests
         // Feed a perfect sine wave of the same period
         for (int i = 0; i < 100; i++)
         {
-            double val = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double val = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             _ = ind.Update(new TValue(DateTime.UtcNow.AddMinutes(i), val));
         }
 

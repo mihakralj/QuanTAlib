@@ -399,26 +399,26 @@ public sealed class Mama : AbstractBase
                 double adj = (AdjSlope * period) + AdjIntercept;
 
                 // Smooth
-                double smooth = (4.0 * priceBuffer[bufferIdx] +
-                                 3.0 * priceBuffer[(bufferIdx - 1) & Mask] +
-                                 2.0 * priceBuffer[(bufferIdx - 2) & Mask] +
+                double smooth = ((4.0 * priceBuffer[bufferIdx]) +
+                                 (3.0 * priceBuffer[(bufferIdx - 1) & Mask]) +
+                                 (2.0 * priceBuffer[(bufferIdx - 2) & Mask]) +
                                  priceBuffer[(bufferIdx - 3) & Mask]) * 0.1;
 
                 smoothBuffer[bufferIdx] = smooth;
 
                 // Detrender
-                double dt = (C1 * smoothBuffer[bufferIdx] +
-                             C2 * smoothBuffer[(bufferIdx - 2) & Mask] -
-                             C2 * smoothBuffer[(bufferIdx - 4) & Mask] -
-                             C1 * smoothBuffer[(bufferIdx - 6) & Mask]) * adj;
+                double dt = ((C1 * smoothBuffer[bufferIdx]) +
+                             (C2 * smoothBuffer[(bufferIdx - 2) & Mask]) -
+                             (C2 * smoothBuffer[(bufferIdx - 4) & Mask]) -
+                             (C1 * smoothBuffer[(bufferIdx - 6) & Mask])) * adj;
 
                 detrender[bufferIdx] = dt;
 
                 // Q1
-                double q1 = (C1 * dt +
-                             C2 * detrender[(bufferIdx - 2) & Mask] -
-                             C2 * detrender[(bufferIdx - 4) & Mask] -
-                             C1 * detrender[(bufferIdx - 6) & Mask]) * adj;
+                double q1 = ((C1 * dt) +
+                             (C2 * detrender[(bufferIdx - 2) & Mask]) -
+                             (C2 * detrender[(bufferIdx - 4) & Mask]) -
+                             (C1 * detrender[(bufferIdx - 6) & Mask])) * adj;
 
                 Q1_buffer[bufferIdx] = q1;
 
@@ -427,15 +427,15 @@ public sealed class Mama : AbstractBase
                 I1_buffer[bufferIdx] = i1;
 
                 // Advance phases
-                double jI = (C1 * i1 +
-                             C2 * I1_buffer[(bufferIdx - 2) & Mask] -
-                             C2 * I1_buffer[(bufferIdx - 4) & Mask] -
-                             C1 * I1_buffer[(bufferIdx - 6) & Mask]) * adj;
+                double jI = ((C1 * i1) +
+                             (C2 * I1_buffer[(bufferIdx - 2) & Mask]) -
+                             (C2 * I1_buffer[(bufferIdx - 4) & Mask]) -
+                             (C1 * I1_buffer[(bufferIdx - 6) & Mask])) * adj;
 
-                double jQ = (C1 * q1 +
-                             C2 * Q1_buffer[(bufferIdx - 2) & Mask] -
-                             C2 * Q1_buffer[(bufferIdx - 4) & Mask] -
-                             C1 * Q1_buffer[(bufferIdx - 6) & Mask]) * adj;
+                double jQ = ((C1 * q1) +
+                             (C2 * Q1_buffer[(bufferIdx - 2) & Mask]) -
+                             (C2 * Q1_buffer[(bufferIdx - 4) & Mask]) -
+                             (C1 * Q1_buffer[(bufferIdx - 6) & Mask])) * adj;
 
                 // Phasor addition
                 double i2_val = i1 - jQ;

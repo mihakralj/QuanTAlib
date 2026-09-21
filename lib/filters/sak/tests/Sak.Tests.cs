@@ -386,7 +386,7 @@ public sealed class SakTests
         var output = new double[size];
         for (int i = 0; i < size; i++)
         {
-            src[i] = 100.0 + i * 0.01;
+            src[i] = 100.0 + (i * 0.01);
         }
 
         // Should not throw StackOverflowException

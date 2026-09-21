@@ -81,8 +81,8 @@ public sealed class Stderr : AbstractBase
 
         // Precompute fixed regression constants
         _sumX = 0.5 * period * (period - 1);
-        _sumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        _denom = period * _sumX2 - _sumX * _sumX;
+        _sumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        _denom = (period * _sumX2) - (_sumX * _sumX);
     }
 
     /// <summary>Creates a chaining constructor that subscribes to an upstream publisher.</summary>
@@ -133,7 +133,7 @@ public sealed class Stderr : AbstractBase
 
             // Correct running sums for newest bar change
             _sumY = _p_sumY - _p_lastVal + val;
-            _sumXY = _p_sumXY - (_period - 1) * (_p_lastVal - val);
+            _sumXY = _p_sumXY - ((_period - 1) * (_p_lastVal - val));
             // Re-derive sumXY correctly via recalculation to avoid drift on bar corrections
             if (_buffer.Count > 0)
             {
@@ -211,7 +211,7 @@ public sealed class Stderr : AbstractBase
             // O(1) update for sumXY with Kahan compensation
             // ΣXY_new = ΣXY_old - ΣY_old + oldest + (N-1)*val
             {
-                double delta = -prevSumY + oldest + (_period - 1) * val;
+                double delta = -prevSumY + oldest + ((_period - 1) * val);
                 double y = delta - _sumXYComp;
                 double t = _sumXY + y;
                 _sumXYComp = (t - _sumXY) - y;
@@ -266,16 +266,16 @@ public sealed class Stderr : AbstractBase
         double sumY = _sumY;
         double sumXY = _sumXY;
         double sumX = (n == _period) ? _sumX : 0.5 * n * (n - 1);
-        double sumX2 = (n == _period) ? _sumX2 : (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-        double denom = (n == _period) ? _denom : n * sumX2 - sumX * sumX;
+        double sumX2 = (n == _period) ? _sumX2 : (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+        double denom = (n == _period) ? _denom : (n * sumX2) - (sumX * sumX);
 
         if (denom == 0)
         {
             return 0;
         }
 
-        double slope = (n * sumXY - sumX * sumY) / denom;
-        double intercept = (sumY - slope * sumX) / n;
+        double slope = ((n * sumXY) - (sumX * sumY)) / denom;
+        double intercept = (sumY - (slope * sumX)) / n;
 
         // O(N): accumulate residual sum of squares
         double ssr = 0;
@@ -437,8 +437,8 @@ public sealed class Stderr : AbstractBase
 
             // Precompute constants for full period window
             double sumXFull = 0.5 * period * (period - 1);
-            double sumX2Full = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-            double denomFull = period * sumX2Full - sumXFull * sumXFull;
+            double sumX2Full = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+            double denomFull = (period * sumX2Full) - (sumXFull * sumXFull);
 
             double sumY = 0;
             double sumXY = 0;
@@ -480,7 +480,7 @@ public sealed class Stderr : AbstractBase
 
                 // O(1) Kahan compensated update for sumXY
                 {
-                    double delta = -sumY + oldest + (period - 1) * newest;
+                    double delta = -sumY + oldest + ((period - 1) * newest);
                     double y = delta - sumXYComp;
                     double t = sumXY + y;
                     sumXYComp = (t - sumXY) - y;
@@ -496,8 +496,8 @@ public sealed class Stderr : AbstractBase
                     sumY = t;
                 }
 
-                double slope = (period * sumXY - sumXFull * sumY) / denomFull;
-                double intercept = (sumY - slope * sumXFull) / period;
+                double slope = ((period * sumXY) - (sumXFull * sumY)) / denomFull;
+                double intercept = (sumY - (slope * sumXFull)) / period;
 
                 double ssr = 0;
                 int start = i - period + 1;
@@ -529,16 +529,16 @@ public sealed class Stderr : AbstractBase
         }
 
         double sumX = 0.5 * n * (n - 1);
-        double sumX2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-        double denom = n * sumX2 - sumX * sumX;
+        double sumX2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+        double denom = (n * sumX2) - (sumX * sumX);
 
         if (denom == 0)
         {
             return 0;
         }
 
-        double slope = (n * sumXY - sumX * sumY) / denom;
-        double intercept = (sumY - slope * sumX) / n;
+        double slope = ((n * sumXY) - (sumX * sumY)) / denom;
+        double intercept = (sumY - (slope * sumX)) / n;
 
         double ssr = 0;
         for (int k = 0; k < n; k++)

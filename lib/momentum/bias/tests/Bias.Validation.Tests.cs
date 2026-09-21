@@ -271,7 +271,7 @@ public sealed class BiasValidationTests : IDisposable
 
         for (int i = 0; i < 100; i++)
         {
-            double value = baseValue * (1 + i * 0.01);
+            double value = baseValue * (1 + (i * 0.01));
             bias.Update(new TValue(DateTime.UtcNow, value));
 
             Assert.True(double.IsFinite(bias.Last.Value), $"Bias should be finite at index {i}");
@@ -415,7 +415,7 @@ public sealed class BiasValidationTests : IDisposable
         var biasValues = new List<double>();
         for (int i = 0; i < 100; i++)
         {
-            double value = mean + amplitude * Math.Sin(i * 0.5);
+            double value = mean + (amplitude * Math.Sin(i * 0.5));
             bias.Update(new TValue(DateTime.UtcNow, value));
             if (i >= 9) // After warmup
             {

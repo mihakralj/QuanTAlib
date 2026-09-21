@@ -497,7 +497,6 @@ public sealed class Gkv : AbstractBase
         return (results, indicator);
     }
 
-
     /// <summary>
     /// Batch calculation from pre-computed GK estimators.
     /// </summary>

@@ -29,7 +29,7 @@ file static class DecyclerPineReference
         double arg = 0.707 * 2.0 * Math.PI / period;
         double cosArg = Math.Cos(arg);
         double alpha = (cosArg + Math.Sin(arg) - 1.0) / cosArg;
-        double halfAlpha = 1.0 - alpha * 0.5;
+        double halfAlpha = 1.0 - (alpha * 0.5);
         double a1 = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         double b1 = 2.0 * oneMinusAlpha;
@@ -48,9 +48,9 @@ file static class DecyclerPineReference
             }
             else
             {
-                hp[i] = a1 * (src[i] - 2.0 * src[i - 1] + src[i - 2])
-                       + b1 * hp[i - 1]
-                       + c1 * hp[i - 2];
+                hp[i] = (a1 * (src[i] - (2.0 * src[i - 1]) + src[i - 2]))
+                       + (b1 * hp[i - 1])
+                       + (c1 * hp[i - 2]);
                 result[i] = src[i] - hp[i];
             }
         }
@@ -68,7 +68,7 @@ file static class DecyclerPineReference
         double arg = 0.707 * 2.0 * Math.PI / period;
         double cosArg = Math.Cos(arg);
         double alpha = (cosArg + Math.Sin(arg) - 1.0) / cosArg;
-        double halfAlpha = 1.0 - alpha * 0.5;
+        double halfAlpha = 1.0 - (alpha * 0.5);
         double a1 = halfAlpha * halfAlpha;
         double oneMinusAlpha = 1.0 - alpha;
         double b1 = 2.0 * oneMinusAlpha;
@@ -90,9 +90,9 @@ file static class DecyclerPineReference
         for (int i = 1; i < src.Length; i++)
         {
             // IsInitialized = true from bar 1 onward
-            double newHp = a1 * (src[i] - 2.0 * src1 + src2)
-                         + b1 * hp
-                         + c1 * hp1;
+            double newHp = (a1 * (src[i] - (2.0 * src1) + src2))
+                         + (b1 * hp)
+                         + (c1 * hp1);
             result[i] = src[i] - newHp;
 
             hp1 = hp;

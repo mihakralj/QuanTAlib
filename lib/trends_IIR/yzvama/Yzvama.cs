@@ -310,7 +310,7 @@ public sealed class Yzvama : AbstractBase
 
                 double sOSq = ro * ro;
                 double sCSq = rc * rc;
-                double sRsSq = rh * (rh - rc) + rl * (rl - rc);
+                double sRsSq = (rh * (rh - rc)) + (rl * (rl - rc));
 
                 // Use FMA for sSqDailyShort and sSqDailyLong computations
                 // Original: sOSq + _kShort * sCSq + (1.0 - _kShort) * sRsSq
@@ -561,7 +561,6 @@ public sealed class Yzvama : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 
     /// <summary>
     /// Resets the YZVAMA state.

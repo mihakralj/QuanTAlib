@@ -161,7 +161,6 @@ public sealed class Apo : ITValuePublisher, IDisposable
         Update(args.Value, args.IsNew);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided series history.
     /// </summary>

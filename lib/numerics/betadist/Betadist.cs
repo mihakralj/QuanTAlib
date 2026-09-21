@@ -116,8 +116,8 @@ public sealed class Betadist : AbstractBase
             ser += LanczosCoeff[k] / (x + k);
         }
 
-        return 0.5 * Math.Log(2.0 * Math.PI)
-             + (x + 0.5) * Math.Log(t)
+        return (0.5 * Math.Log(2.0 * Math.PI))
+             + ((x + 0.5) * Math.Log(t))
              - t
              + Math.Log(ser);
     }
@@ -161,7 +161,7 @@ public sealed class Betadist : AbstractBase
 
         // ln-prefactor: cfX^cfA * (1-cfX)^cfB / (cfA * B(cfA,cfB))
         // B(a,b) = B(b,a) so the log-beta term is symmetric.
-        double lnPrefactor = cfA * Math.Log(cfX) + cfB * Math.Log(1.0 - cfX)
+        double lnPrefactor = (cfA * Math.Log(cfX)) + (cfB * Math.Log(1.0 - cfX))
                            - Math.Log(cfA)
                            - (LnGamma(cfA) + LnGamma(cfB) - LnGamma(cfA + cfB));
 
@@ -186,7 +186,7 @@ public sealed class Betadist : AbstractBase
         double qam = p - 1.0;
 
         double c = 1.0;
-        double d = 1.0 - qab * x / qap;
+        double d = 1.0 - (qab * x / qap);
         if (Math.Abs(d) < FpMin)
         {
             d = FpMin;
@@ -201,13 +201,13 @@ public sealed class Betadist : AbstractBase
 
             // Even step: d_{2m}
             double aa = m * (q - m) * x / ((qam + m2) * (p + m2));
-            d = 1.0 + aa * d;
+            d = 1.0 + (aa * d);
             if (Math.Abs(d) < FpMin)
             {
                 d = FpMin;
             }
 
-            c = 1.0 + aa / c;
+            c = 1.0 + (aa / c);
             if (Math.Abs(c) < FpMin)
             {
                 c = FpMin;
@@ -218,13 +218,13 @@ public sealed class Betadist : AbstractBase
 
             // Odd step: d_{2m+1}
             aa = -(p + m) * (qab + m) * x / ((p + m2) * (qap + m2));
-            d = 1.0 + aa * d;
+            d = 1.0 + (aa * d);
             if (Math.Abs(d) < FpMin)
             {
                 d = FpMin;
             }
 
-            c = 1.0 + aa / c;
+            c = 1.0 + (aa / c);
             if (Math.Abs(c) < FpMin)
             {
                 c = FpMin;

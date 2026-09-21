@@ -103,7 +103,7 @@ public class DspTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + i * 1.0;
+            double price = 100.0 + (i * 1.0);
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -118,7 +118,7 @@ public class DspTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 200.0 - i * 1.0;
+            double price = 200.0 - (i * 1.0);
             dsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -414,7 +414,7 @@ public class DspTests
 
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Both should have values

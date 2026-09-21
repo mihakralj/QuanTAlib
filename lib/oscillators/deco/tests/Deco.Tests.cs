@@ -364,7 +364,7 @@ public class DecoTests
         TValue last = default;
         for (int i = 0; i < 30; i++)
         {
-            last = deco.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * i * 0.1));
+            last = deco.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * i * 0.1)));
         }
         Assert.NotEqual(0.0, last.Value);
     }

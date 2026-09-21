@@ -146,7 +146,7 @@ public class HomodTests
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
+            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)), isNew: true);
         }
 
         homod.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
@@ -213,7 +213,7 @@ public class HomodTests
         // First run
         for (int i = 0; i < 200; i++)
         {
-            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var firstResult = homod.Last.Value;
 
@@ -222,7 +222,7 @@ public class HomodTests
         // Second run with same data
         for (int i = 0; i < 200; i++)
         {
-            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var secondResult = homod.Last.Value;
 
@@ -407,7 +407,7 @@ public class HomodTests
 
         for (int i = 0; i < 200; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(homod.IsHot);
@@ -423,7 +423,7 @@ public class HomodTests
 
         for (int i = 0; i < 300; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Both should have values

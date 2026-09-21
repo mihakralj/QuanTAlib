@@ -62,10 +62,10 @@ public sealed class Tsf : AbstractBase
         _sumX = 0.5 * period * (period - 1);
 
         // sumX2 = 0^2 + ... + (n-1)^2 = (n-1)n(2n-1)/6
-        double sumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
+        double sumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
 
         // denominator = n * sumX2 - sumX^2
-        _denominator = period * sumX2 - _sumX * _sumX;
+        _denominator = (period * sumX2) - (_sumX * _sumX);
         _s.LastValidValue = double.NaN;
     }
 
@@ -175,8 +175,8 @@ public sealed class Tsf : AbstractBase
             {
                 // Recalculate constants for smaller n during warmup
                 sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
+                double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                denom = (n * sx2) - (sx * sx);
             }
 
             if (Math.Abs(denom) < 1e-10)
@@ -310,8 +310,8 @@ public sealed class Tsf : AbstractBase
 
         // Precalculate constants for full period
         double fullSumX = 0.5 * period * (period - 1);
-        double fullSumX2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        double fullDenom = period * fullSumX2 - fullSumX * fullSumX;
+        double fullSumX2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        double fullDenom = (period * fullSumX2) - (fullSumX * fullSumX);
 
         for (int i = 0; i < len; i++)
         {
@@ -345,8 +345,8 @@ public sealed class Tsf : AbstractBase
                 {
                     double n = count;
                     double sx = 0.5 * n * (n - 1);
-                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                    double denom = n * sx2 - sx * sx;
+                    double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                    double denom = (n * sx2) - (sx * sx);
 
                     if (Math.Abs(denom) < 1e-10)
                     {

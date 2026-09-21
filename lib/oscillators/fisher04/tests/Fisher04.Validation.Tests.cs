@@ -293,7 +293,7 @@ public sealed class Fisher04ValidationTests(ITestOutputHelper output) : IDisposa
         // Keep feeding extreme values to push value1 toward clamp
         for (int i = 0; i < 50; i++)
         {
-            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + (i + 4) * 100.0), isNew: true);
+            fisher.Update(new TValue(DateTime.UtcNow, 100.0 + ((i + 4) * 100.0)), isNew: true);
         }
 
         // Fisher should remain finite (clamping prevents log(∞))

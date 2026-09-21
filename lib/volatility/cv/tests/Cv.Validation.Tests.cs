@@ -77,7 +77,7 @@ public class CvValidationTests
         // Warmup with stable prices
         for (int i = 0; i < 25; i++)
         {
-            double price = 100.0 * (1 + 0.001 * (i % 2 == 0 ? 1 : -1));
+            double price = 100.0 * (1 + (0.001 * (i % 2 == 0 ? 1 : -1)));
             cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
         }
 
@@ -95,7 +95,7 @@ public class CvValidationTests
         double lastVol = shockVol;
         for (int i = 0; i < 50; i++)
         {
-            double price = 120.0 * (1 + 0.0001 * (i % 2 == 0 ? 1 : -1)); // Very stable prices
+            double price = 120.0 * (1 + (0.0001 * (i % 2 == 0 ? 1 : -1))); // Very stable prices
             cv.Update(new TValue(DateTime.UtcNow.AddMinutes(31 + i), price));
             lastVol = cv.Last.Value;
         }
@@ -117,7 +117,7 @@ public class CvValidationTests
         // Warmup
         for (int i = 0; i < 25; i++)
         {
-            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.1));
+            cv.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.1)));
         }
 
         // Series of large moves
@@ -172,7 +172,7 @@ public class CvValidationTests
         for (int i = period; i < logReturns.Length; i++)
         {
             double prevReturn = logReturns[i - 1];
-            variance = omega + alpha * prevReturn * prevReturn + beta * variance;
+            variance = omega + (alpha * prevReturn * prevReturn) + (beta * variance);
         }
 
         // Expected annualized volatility
@@ -331,7 +331,7 @@ public class CvValidationTests
         // Warmup with stable prices then shock
         for (int i = 0; i < 25; i++)
         {
-            double price = 100.0 + i * 0.1;
+            double price = 100.0 + (i * 0.1);
             cvLowBeta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             cvHighBeta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
         }
@@ -346,7 +346,7 @@ public class CvValidationTests
         // Continue with stable prices - track decay
         for (int i = 0; i < 20; i++)
         {
-            double price = 120.0 + i * 0.05;
+            double price = 120.0 + (i * 0.05);
             cvLowBeta.Update(new TValue(DateTime.UtcNow.AddMinutes(31 + i), price));
             cvHighBeta.Update(new TValue(DateTime.UtcNow.AddMinutes(31 + i), price));
         }

@@ -224,7 +224,7 @@ public class NviTests
         // Process some valid bars first
         for (int i = 0; i < 10; i++)
         {
-            nvi.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 100000 - i * 1000));
+            nvi.Update(new TBar(time.AddMinutes(i), 100, 105, 95, 102, 100000 - (i * 1000)));
         }
 
         // Process bar with NaN volume
@@ -254,7 +254,7 @@ public class NviTests
 
         for (int i = 0; i < 10; i++)
         {
-            nvi.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 - i * 5000), isNew: true);
+            nvi.Update(new TBar(time.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i, 100000 - (i * 5000)), isNew: true);
         }
 
         Assert.True(nvi.IsHot);

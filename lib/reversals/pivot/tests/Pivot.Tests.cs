@@ -101,12 +101,12 @@ public sealed class PivotBasicTests
 
         double expectedPP = (120.0 + 100.0 + 115.0) / 3.0;
         Assert.Equal(expectedPP, p.PP, precision: 10);
-        Assert.Equal(2.0 * expectedPP - 100.0, p.R1, precision: 10);
-        Assert.Equal(2.0 * expectedPP - 120.0, p.S1, precision: 10);
+        Assert.Equal((2.0 * expectedPP) - 100.0, p.R1, precision: 10);
+        Assert.Equal((2.0 * expectedPP) - 120.0, p.S1, precision: 10);
         Assert.Equal(expectedPP + 20.0, p.R2, precision: 10);
         Assert.Equal(expectedPP - 20.0, p.S2, precision: 10);
-        Assert.Equal(120.0 + 2.0 * (expectedPP - 100.0), p.R3, precision: 10);
-        Assert.Equal(100.0 - 2.0 * (120.0 - expectedPP), p.S3, precision: 10);
+        Assert.Equal(120.0 + (2.0 * (expectedPP - 100.0)), p.R3, precision: 10);
+        Assert.Equal(100.0 - (2.0 * (120.0 - expectedPP)), p.S3, precision: 10);
     }
 
     [Fact]

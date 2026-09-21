@@ -119,7 +119,6 @@ public sealed class Vel : ITValuePublisher, IDisposable
         return new TSeries(t, v);
     }
 
-
     /// <summary>
     /// Initializes the indicator state using the provided series history.
     /// </summary>

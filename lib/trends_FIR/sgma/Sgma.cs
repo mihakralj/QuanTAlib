@@ -146,10 +146,10 @@ public sealed class Sgma : AbstractBase
             {
                 0 => 1.0,
                 1 => 1.0 - Math.Abs(normX),
-                2 => 1.0 - normX * normX,
+                2 => 1.0 - (normX * normX),
                 3 => 1.0 - Math.Abs(normX * normX * normX),
-                4 => 1.0 - normX * normX * normX * normX,
-                _ => 1.0 - normX * normX
+                4 => 1.0 - (normX * normX * normX * normX),
+                _ => 1.0 - (normX * normX)
             };
 
             weights[i] = w;
@@ -549,10 +549,10 @@ public sealed class Sgma : AbstractBase
             {
                 0 => 1.0,
                 1 => 1.0 - Math.Abs(normX),
-                2 => 1.0 - normX * normX,
+                2 => 1.0 - (normX * normX),
                 3 => 1.0 - Math.Abs(normX * normX * normX),
-                4 => 1.0 - normX * normX * normX * normX,
-                _ => 1.0 - normX * normX
+                4 => 1.0 - (normX * normX * normX * normX),
+                _ => 1.0 - (normX * normX)
             };
 
             sum2 = Math.FusedMultiplyAdd(window[i], w, sum2);

@@ -269,7 +269,7 @@ public class HomodIndicatorTests
         // Generate sine wave pattern
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -309,7 +309,7 @@ public class HomodIndicatorTests
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + i * 0.5; // Trending up
+            double price = 100.0 + (i * 0.5); // Trending up
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

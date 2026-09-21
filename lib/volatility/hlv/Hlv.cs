@@ -475,7 +475,6 @@ public sealed class Hlv : AbstractBase
         return (results, indicator);
     }
 
-
     /// <summary>
     /// Batch calculation from pre-computed Parkinson estimators.
     /// </summary>

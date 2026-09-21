@@ -493,7 +493,7 @@ public class AdxvmaTests
         // Feed strong uptrend bars (large +DM consistently)
         for (int i = 0; i < 50; i++)
         {
-            double price = 100 + i * 2;
+            double price = 100 + (i * 2);
             var bar = new TBar(time.AddMinutes(i), price, price + 1, price - 0.5, price + 0.5, 1000);
             adxvma.Update(bar, isNew: true);
         }

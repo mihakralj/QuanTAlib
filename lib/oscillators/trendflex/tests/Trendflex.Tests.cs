@@ -65,7 +65,7 @@ public class TrendflexTests
 
         for (int i = 0; i < 500; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         Assert.True(indicator.IsHot);
@@ -223,7 +223,7 @@ public class TrendflexTests
 
         for (int i = 0; i < 100; i++)
         {
-            source[i] = 100.0 + i * 0.5;
+            source[i] = 100.0 + (i * 0.5);
         }
 
         source[50] = double.NaN;
@@ -316,7 +316,7 @@ public class TrendflexTests
 
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Trendflex.Batch(source, output, 20);
@@ -412,7 +412,7 @@ public class TrendflexTests
         // Strong uptrend
         for (int i = 0; i < 100; i++)
         {
-            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0));
+            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)));
             lastResult = r.Value;
         }
 

@@ -125,16 +125,16 @@ public sealed class PivotextBasicTests
         double hMinusPP = 120.0 - expectedPP;
 
         Assert.Equal(expectedPP, p.PP, precision: 10);
-        Assert.Equal(2.0 * expectedPP - 100.0, p.R1, precision: 10);
-        Assert.Equal(2.0 * expectedPP - 120.0, p.S1, precision: 10);
+        Assert.Equal((2.0 * expectedPP) - 100.0, p.R1, precision: 10);
+        Assert.Equal((2.0 * expectedPP) - 120.0, p.S1, precision: 10);
         Assert.Equal(expectedPP + 20.0, p.R2, precision: 10);
         Assert.Equal(expectedPP - 20.0, p.S2, precision: 10);
-        Assert.Equal(120.0 + 2.0 * ppMinusL, p.R3, precision: 10);
-        Assert.Equal(100.0 - 2.0 * hMinusPP, p.S3, precision: 10);
-        Assert.Equal(120.0 + 3.0 * ppMinusL, p.R4, precision: 10);
-        Assert.Equal(100.0 - 3.0 * hMinusPP, p.S4, precision: 10);
-        Assert.Equal(120.0 + 4.0 * ppMinusL, p.R5, precision: 10);
-        Assert.Equal(100.0 - 4.0 * hMinusPP, p.S5, precision: 10);
+        Assert.Equal(120.0 + (2.0 * ppMinusL), p.R3, precision: 10);
+        Assert.Equal(100.0 - (2.0 * hMinusPP), p.S3, precision: 10);
+        Assert.Equal(120.0 + (3.0 * ppMinusL), p.R4, precision: 10);
+        Assert.Equal(100.0 - (3.0 * hMinusPP), p.S4, precision: 10);
+        Assert.Equal(120.0 + (4.0 * ppMinusL), p.R5, precision: 10);
+        Assert.Equal(100.0 - (4.0 * hMinusPP), p.S5, precision: 10);
     }
 
     [Fact]

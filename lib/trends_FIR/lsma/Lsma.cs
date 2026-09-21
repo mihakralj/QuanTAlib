@@ -61,10 +61,10 @@ public sealed class Lsma : AbstractBase
         _sum_x = 0.5 * period * (period - 1);
 
         // sum_x2 = 0^2 + ... + (n-1)^2 = (n-1)n(2n-1)/6
-        double sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
+        double sum_x2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
 
         // denominator = n * sum_x2 - sum_x^2
-        _denominator = period * sum_x2 - _sum_x * _sum_x;
+        _denominator = (period * sum_x2) - (_sum_x * _sum_x);
         _state.LastValidValue = double.NaN;
     }
 
@@ -177,8 +177,8 @@ public sealed class Lsma : AbstractBase
             {
                 // Recalculate constants for smaller n
                 sx = 0.5 * n * (n - 1);
-                double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                denom = n * sx2 - sx * sx;
+                double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                denom = (n * sx2) - (sx * sx);
             }
 
             if (Math.Abs(denom) < 1e-10)
@@ -309,8 +309,8 @@ public sealed class Lsma : AbstractBase
 
         // Precalculate constants for full period
         double full_sum_x = 0.5 * period * (period - 1);
-        double full_sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        double full_denom = period * full_sum_x2 - full_sum_x * full_sum_x;
+        double full_sum_x2 = (period - 1.0) * period * ((2.0 * period) - 1.0) / 6.0;
+        double full_denom = (period * full_sum_x2) - (full_sum_x * full_sum_x);
 
         for (int i = 0; i < len; i++)
         {
@@ -346,8 +346,8 @@ public sealed class Lsma : AbstractBase
                 {
                     double n = count;
                     double sx = 0.5 * n * (n - 1);
-                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                    double denom = n * sx2 - sx * sx;
+                    double sx2 = (n - 1.0) * n * ((2.0 * n) - 1.0) / 6.0;
+                    double denom = (n * sx2) - (sx * sx);
 
                     if (Math.Abs(denom) < 1e-10)
                     {

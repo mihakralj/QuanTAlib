@@ -129,7 +129,7 @@ public sealed class LaguerreValidationTests : IDisposable
             else if (i >= 4)
             {
                 // After warmup: FIR = (input + 2*prev1 + 2*prev2 + prev3) / 6
-                double expectedFir = (input + 2.0 * prev0 + 2.0 * prev1 + prev2) / 6.0;
+                double expectedFir = (input + (2.0 * prev0) + (2.0 * prev1) + prev2) / 6.0;
                 Assert.Equal(expectedFir, lagResult, 1e-10);
             }
 
@@ -326,6 +326,6 @@ public sealed class LaguerreValidationTests : IDisposable
         }
 
         double mean = sum / n;
-        return Math.Max(0, sumSq / n - mean * mean);
+        return Math.Max(0, (sumSq / n) - (mean * mean));
     }
 }

@@ -163,7 +163,7 @@ public sealed class HammaValidationTests : IDisposable
         double weightSum = 0;
         for (int i = 0; i < period; i++)
         {
-            weights[i] = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * i);
+            weights[i] = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * i));
             weightSum += weights[i];
         }
 
@@ -187,11 +187,11 @@ public sealed class HammaValidationTests : IDisposable
         int period = 5;
         double twoPiOverPm1 = 2.0 * Math.PI / (period - 1);
 
-        double w0 = 0.54 - 0.46 * Math.Cos(0);                      // 0.08
-        double w1 = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * 1);      // ≈0.54
-        double w2 = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * 2);      // 1.0
-        double w3 = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * 3);      // ≈0.54
-        double w4 = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * 4);      // 0.08
+        double w0 = 0.54 - (0.46 * Math.Cos(0));                      // 0.08
+        double w1 = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * 1));      // ≈0.54
+        double w2 = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * 2));      // 1.0
+        double w3 = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * 3));      // ≈0.54
+        double w4 = 0.54 - (0.46 * Math.Cos(twoPiOverPm1 * 4));      // 0.08
 
         Assert.Equal(0.08, w0, 1e-10);
         Assert.Equal(0.08, w4, 1e-10);

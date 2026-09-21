@@ -182,7 +182,7 @@ public class UiIndicatorTests
         // Price rises then drops - creates drawdown
         for (int i = 0; i < 10; i++)
         {
-            double price = 100 + i * 2; // Rise to 118
+            double price = 100 + (i * 2); // Rise to 118
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -190,7 +190,7 @@ public class UiIndicatorTests
         // Now drop the price
         for (int i = 10; i < 20; i++)
         {
-            double price = 118 - (i - 10) * 3; // Drop from 118 to 88
+            double price = 118 - ((i - 10) * 3); // Drop from 118 to 88
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -219,7 +219,7 @@ public class UiIndicatorTests
         }
         for (int i = 10; i < 20; i++)
         {
-            double price = 109 - (i - 10) * 0.5; // Small drop
+            double price = 109 - ((i - 10) * 0.5); // Small drop
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), price, price + 0.5, price - 0.5, price, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -233,7 +233,7 @@ public class UiIndicatorTests
         }
         for (int i = 10; i < 20; i++)
         {
-            double price = 109 - (i - 10) * 2; // Large drop
+            double price = 109 - ((i - 10) * 2); // Large drop
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), price, price + 0.5, price - 0.5, price, 1000);
             indicator2.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -311,7 +311,7 @@ public class UiIndicatorTests
         // Drawdown - price drops significantly
         for (int i = 10; i < 15; i++)
         {
-            double price = 109 - (i - 10) * 4; // Drop from 109 to 89
+            double price = 109 - ((i - 10) * 4); // Drop from 109 to 89
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
@@ -322,7 +322,7 @@ public class UiIndicatorTests
         // Need at least 10 more bars of rising prices to fully replace the drawdown window
         for (int i = 15; i < 30; i++)
         {
-            double price = 89 + (i - 15) * 3; // Rise from 89 to 134 (well past old high of 109)
+            double price = 89 + ((i - 15) * 3); // Rise from 89 to 134 (well past old high of 109)
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

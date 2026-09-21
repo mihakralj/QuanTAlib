@@ -185,7 +185,7 @@ public sealed class Ebsw : AbstractBase
         double wave = (filt0 + filt1 + filt2) / 3.0;
 
         // Power: 3-bar average of squared filtered values
-        double pwr = (filt0 * filt0 + filt1 * filt1 + filt2 * filt2) / 3.0;
+        double pwr = ((filt0 * filt0) + (filt1 * filt1) + (filt2 * filt2)) / 3.0;
 
         // Automatic gain control: normalize by RMS, clamp to [-1, +1]
         double sineWave = pwr > 0 ? wave / Math.Sqrt(pwr) : 0;
@@ -326,7 +326,7 @@ public sealed class Ebsw : AbstractBase
             double wave = (filt0 + filt1 + filt2) / 3.0;
 
             // Power
-            double pwr = (filt0 * filt0 + filt1 * filt1 + filt2 * filt2) / 3.0;
+            double pwr = ((filt0 * filt0) + (filt1 * filt1) + (filt2 * filt2)) / 3.0;
 
             // AGC normalization
             double sineWave = pwr > 0 ? wave / Math.Sqrt(pwr) : 0;

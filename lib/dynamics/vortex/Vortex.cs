@@ -339,5 +339,4 @@ public sealed class Vortex : ITValuePublisher
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

@@ -139,8 +139,8 @@ public sealed class HtDcperiod : AbstractBase
         double input1 = buffer[KEY_Q1];
         DoHilbertTransform(buffer, KEY_JQ, input1, true, hilbertIdx, adjustedPrevPeriod);
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForOddPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForOddPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         i1ForEvenPrev3 = i1ForEvenPrev2;
         i1ForEvenPrev2 = buffer[KEY_DETRENDER];
@@ -164,8 +164,8 @@ public sealed class HtDcperiod : AbstractBase
             hilbertIdx = 0;
         }
 
-        q2 = 0.2 * (buffer[KEY_Q1] + buffer[KEY_JI]) + 0.8 * prevQ2;
-        i2 = 0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ]) + 0.8 * prevI2;
+        q2 = (0.2 * (buffer[KEY_Q1] + buffer[KEY_JI])) + (0.8 * prevQ2);
+        i2 = (0.2 * (i1ForEvenPrev3 - buffer[KEY_JQ])) + (0.8 * prevI2);
 
         i1ForOddPrev3 = i1ForOddPrev2;
         i1ForOddPrev2 = buffer[KEY_DETRENDER];
@@ -289,7 +289,7 @@ public sealed class HtDcperiod : AbstractBase
         }
 
         // Calculate smoothed price using WMA
-        double adjustedPrevPeriod = 0.075 * s.Period + 0.54;
+        double adjustedPrevPeriod = (0.075 * s.Period) + 0.54;
 
         s.PeriodWMASub += price;
         s.PeriodWMASub -= s.TrailingWMAValue;

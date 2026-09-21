@@ -34,10 +34,10 @@ public class WrmseTests
         for (int i = 0; i < period - 1; i++)
         {
             Assert.False(wrmse.IsHot);
-            wrmse.Update(i * 10, i * 10 + 5);
+            wrmse.Update(i * 10, (i * 10) + 5);
         }
 
-        wrmse.Update((period - 1) * 10, (period - 1) * 10 + 5);
+        wrmse.Update((period - 1) * 10, ((period - 1) * 10) + 5);
         Assert.True(wrmse.IsHot);
     }
 
@@ -49,8 +49,8 @@ public class WrmseTests
 
         for (int i = 0; i < 20; i++)
         {
-            wrmse.Update(i * 10, i * 10 + 7);
-            rmse.Update(i * 10, i * 10 + 7);
+            wrmse.Update(i * 10, (i * 10) + 7);
+            rmse.Update(i * 10, (i * 10) + 7);
         }
 
         // With default weight of 1.0, WRMSE should equal RMSE
@@ -154,7 +154,7 @@ public class WrmseTests
         for (int i = 0; i < 10; i++)
         {
             tenthActual = i * 10;
-            tenthPredicted = i * 10 + 5;
+            tenthPredicted = (i * 10) + 5;
             tenthWeight = i + 1.0;
             wrmse.Update(tenthActual, tenthPredicted, tenthWeight);
         }
@@ -178,7 +178,7 @@ public class WrmseTests
 
         for (int i = 0; i < 10; i++)
         {
-            wrmse.Update(i * 10, i * 10 + 5, i + 1.0);
+            wrmse.Update(i * 10, (i * 10) + 5, i + 1.0);
         }
 
         Assert.True(wrmse.IsHot);
@@ -238,7 +238,7 @@ public class WrmseTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2;
+            predicted[i] = (bar.Close * 1.05) + 2;
         }
 
         var wrmse = new Wrmse(period);
@@ -271,7 +271,7 @@ public class WrmseTests
         {
             var bar = gbm.Next();
             actual[i] = bar.Close;
-            predicted[i] = bar.Close * 1.05 + 2;
+            predicted[i] = (bar.Close * 1.05) + 2;
             weights[i] = (i % 5) + 1.0; // Varying weights 1-5
         }
 
@@ -317,7 +317,7 @@ public class WrmseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
         }
 
         var results = Wrmse.Batch(actual, predicted, 3);
@@ -362,7 +362,7 @@ public class WrmseTests
             actual.Add(now.AddMinutes(i), i * 10);
             if (i < 5)
             {
-                predicted.Add(now.AddMinutes(i), i * 10 + 5);
+                predicted.Add(now.AddMinutes(i), (i * 10) + 5);
             }
         }
 
@@ -380,7 +380,7 @@ public class WrmseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            predicted.Add(now.AddMinutes(i), (i * 10) + 5);
             if (i < 5)
             {
                 weights.Add(now.AddMinutes(i), 1.0);

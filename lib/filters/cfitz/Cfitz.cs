@@ -226,7 +226,7 @@ public sealed class Cfitz : AbstractBase
         }
 
         // Endpoint correction: b̃ = -0.5*B_0 - Σ B_j
-        double btilde = -0.5 * _b0 - sumBj;
+        double btilde = (-0.5 * _b0) - sumBj;
         weightedSum += btilde * _history[0];
 
         return weightedSum;
@@ -303,7 +303,7 @@ public sealed class Cfitz : AbstractBase
                     ws += bWeights[j] * source[j];  // y_{j+1} in 0-index is source[j]
                     sBj += bWeights[j];
                 }
-                double bt = -0.5 * b0 - sBj;
+                double bt = (-0.5 * b0) - sBj;
                 ws += bt * source[T - 1];
                 output[t] = ws;
             }
@@ -317,7 +317,7 @@ public sealed class Cfitz : AbstractBase
                     ws += bWeights[j] * source[T - 1 - j];
                     sBj += bWeights[j];
                 }
-                double bt = -0.5 * b0 - sBj;
+                double bt = (-0.5 * b0) - sBj;
                 ws += bt * source[0];
                 output[t] = ws;
             }
@@ -339,7 +339,7 @@ public sealed class Cfitz : AbstractBase
                     sumFwd += bWeights[j];
                 }
                 // Far endpoint correction
-                double btFwd = -0.5 * b0 - sumFwd;
+                double btFwd = (-0.5 * b0) - sumFwd;
                 ws += btFwd * source[T - 1];
 
                 // Backward terms: j=1..tp-2 = t-1 in 0-indexed
@@ -351,7 +351,7 @@ public sealed class Cfitz : AbstractBase
                     sumBwd += bWeights[j];
                 }
                 // Near endpoint correction
-                double btBwd = -0.5 * b0 - sumBwd;
+                double btBwd = (-0.5 * b0) - sumBwd;
                 ws += btBwd * source[0];
 
                 output[t] = ws;

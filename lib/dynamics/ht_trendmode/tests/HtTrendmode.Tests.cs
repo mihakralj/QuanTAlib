@@ -60,7 +60,7 @@ public class HtTrendmodeTests
         // Feed data
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         // TrendMode property should match output
@@ -76,7 +76,7 @@ public class HtTrendmodeTests
         // Feed data
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.2) * 10));
+            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (Math.Sin(i * 0.2) * 10)));
         }
 
         // SmoothPeriod should be in valid range
@@ -93,7 +93,7 @@ public class HtTrendmodeTests
         // Feed data
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.3) * 8));
+            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (Math.Sin(i * 0.3) * 8)));
         }
 
         // InstPeriod should be positive
@@ -109,7 +109,7 @@ public class HtTrendmodeTests
         // Strong trend: monotonically increasing
         for (int i = 0; i < 100; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 2.0));
+            indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 2.0)));
         }
 
         // With strong trend, inst_period should be larger → trend mode likely
@@ -126,7 +126,7 @@ public class HtTrendmodeTests
         // Pure sinusoidal data (strong cycle)
         for (int i = 0; i < 100; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.4) * 10.0;
+            double value = 100.0 + (Math.Sin(i * 0.4) * 10.0);
             indicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value));
         }
 
@@ -195,7 +195,7 @@ public class HtTrendmodeTests
 
         for (int i = 0; i < 100; i++)
         {
-            series.Add(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.2) * 10);
+            series.Add(DateTime.UtcNow.AddMinutes(i), 100.0 + (Math.Sin(i * 0.2) * 10));
         }
 
         var result = indicator.Update(series);
@@ -218,7 +218,7 @@ public class HtTrendmodeTests
 
         for (int i = 0; i < input.Length; i++)
         {
-            input[i] = 100.0 + Math.Sin(i * 0.15) * 8;
+            input[i] = 100.0 + (Math.Sin(i * 0.15) * 8);
         }
 
         HtTrendmode.Batch(input.AsSpan(), output.AsSpan());
@@ -238,7 +238,7 @@ public class HtTrendmodeTests
 
         for (int i = 0; i < 100; i++)
         {
-            series.Add(DateTime.UtcNow.AddMinutes(i), 100.0 + Math.Sin(i * 0.25) * 12);
+            series.Add(DateTime.UtcNow.AddMinutes(i), 100.0 + (Math.Sin(i * 0.25) * 12));
         }
 
         var result = HtTrendmode.Batch(series);
@@ -278,7 +278,7 @@ public class HtTrendmodeTests
 
         for (int i = 0; i < 100; i++)
         {
-            double value = 100.0 + Math.Sin(i * 0.2) * 10 + Math.Cos(i * 0.3) * 5;
+            double value = 100.0 + (Math.Sin(i * 0.2) * 10) + (Math.Cos(i * 0.3) * 5);
             series.Add(DateTime.UtcNow.AddMinutes(i), value);
 
             var result = streamingIndicator.Update(new TValue(DateTime.UtcNow.AddMinutes(i), value));
@@ -303,7 +303,7 @@ public class HtTrendmodeTests
         double[] primeData = new double[70];
         for (int i = 0; i < primeData.Length; i++)
         {
-            primeData[i] = 100.0 + i * 0.5;
+            primeData[i] = 100.0 + (i * 0.5);
         }
 
         indicator.Prime(primeData);

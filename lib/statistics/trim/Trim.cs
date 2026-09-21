@@ -314,7 +314,7 @@ public sealed class Trim : AbstractBase
         }
 
         int trimCount = (int)(count * trimPct / 100.0);
-        int keepCount = count - 2 * trimCount;
+        int keepCount = count - (2 * trimCount);
 
         if (keepCount < 1)
         {
@@ -341,7 +341,7 @@ public sealed class Trim : AbstractBase
         }
 
         int trimCount = (int)(count * trimPct / 100.0);
-        int keepCount = count - 2 * trimCount;
+        int keepCount = count - (2 * trimCount);
 
         if (keepCount < 1)
         {

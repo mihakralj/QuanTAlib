@@ -392,7 +392,6 @@ public sealed class Vhf : AbstractBase
                 prevClose = val;
                 hasPrevClose = true;
 
-
                 // Calculate VHF
                 if (closeFilled >= closeBufSize && diffFilled >= period)
                 {

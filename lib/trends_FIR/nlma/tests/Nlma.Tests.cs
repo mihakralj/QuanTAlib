@@ -82,7 +82,7 @@ public class NlmaTests
     {
         // DC gain = 1: constant input → output must equal that constant after warmup
         var nlma = new Nlma(10);
-        int flen = 5 * 10 - 1; // 49
+        int flen = (5 * 10) - 1; // 49
         TValue result = default;
         for (int i = 0; i < flen + 10; i++)
         {
@@ -96,7 +96,7 @@ public class NlmaTests
     {
         // period=2, flen=9. After warmup, constant input → output = input
         var nlma = new Nlma(2);
-        int flen = 5 * 2 - 1; // 9
+        int flen = (5 * 2) - 1; // 9
         TValue result = default;
         for (int i = 0; i < flen + 5; i++)
         {
@@ -111,7 +111,7 @@ public class NlmaTests
         // Igorad kernel with any period: constant input must produce constant output
         // This validates that signed-sum normalization preserves DC gain = 1
         var nlma = new Nlma(4);
-        int flen = 5 * 4 - 1; // 19
+        int flen = (5 * 4) - 1; // 19
         TValue result = default;
         for (int i = 0; i < flen + 5; i++)
         {
@@ -126,7 +126,7 @@ public class NlmaTests
         // Igorad kernel with period 14 should have negative weights for lag cancellation
         // Test: feed a step function and verify responsiveness
         var nlma = new Nlma(14);
-        int flen = 5 * 14 - 1; // 69
+        int flen = (5 * 14) - 1; // 69
 
         // Feed flen bars of 100, then flen bars of 200
         for (int i = 0; i < flen; i++)
@@ -165,7 +165,7 @@ public class NlmaTests
     {
         // period=3, flen = 5*3-1 = 14
         var nlma = new Nlma(3);
-        int flen = 5 * 3 - 1; // 14
+        int flen = (5 * 3) - 1; // 14
         Assert.False(nlma.IsHot);
 
         for (int i = 0; i < flen - 1; i++)
@@ -281,12 +281,12 @@ public class NlmaTests
     public void AllModes_ProduceSameResults()
     {
         int period = 10;
-        int flen = 5 * period - 1; // 49
+        int flen = (5 * period) - 1; // 49
         int len = flen + 30; // ensure enough bars for full kernel
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + Math.Sin(i) * 10));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + (Math.Sin(i) * 10)));
         }
 
         // Mode 1: streaming
@@ -343,12 +343,12 @@ public class NlmaTests
     public void Batch_Span_MatchesTSeries()
     {
         int period = 7;
-        int flen = 5 * period - 1; // 34
+        int flen = (5 * period) - 1; // 34
         int len = flen + 20;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 50 + i * 0.5));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 50 + (i * 0.5)));
         }
 
         var tsBatch = Nlma.Batch(src, period);
@@ -388,12 +388,12 @@ public class NlmaTests
         double[] output = new double[count];
         for (int i = 0; i < count; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
         Nlma.Batch(source, output, 300);
 
         // flen = 5*300 - 1 = 1499
-        int flen = 5 * 300 - 1;
+        int flen = (5 * 300) - 1;
         for (int i = flen; i < count; i++)
         {
             Assert.True(double.IsFinite(output[i]), $"Output at index {i} should be finite");
@@ -406,7 +406,7 @@ public class NlmaTests
     public void Calculate_ReturnsIndicatorAndResults()
     {
         int period = 5;
-        int flen = 5 * period - 1; // 24
+        int flen = (5 * period) - 1; // 24
         int len = flen + 20;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
@@ -426,7 +426,7 @@ public class NlmaTests
     public void Reset_ClearsState()
     {
         int period = 5;
-        int flen = 5 * period - 1; // 24
+        int flen = (5 * period) - 1; // 24
         var nlma = new Nlma(period);
         for (int i = 0; i < flen + 10; i++)
         {
@@ -458,11 +458,11 @@ public class NlmaTests
     public void LargePeriod_Handles()
     {
         int period = 500;
-        int flen = 5 * period - 1; // 2499
+        int flen = (5 * period) - 1; // 2499
         var nlma = new Nlma(period);
         for (int i = 0; i < flen + 100; i++)
         {
-            nlma.Update(new TValue(DateTime.MinValue.AddDays(i), 100 + i * 0.01));
+            nlma.Update(new TValue(DateTime.MinValue.AddDays(i), 100 + (i * 0.01)));
         }
         Assert.True(double.IsFinite(nlma.Last.Value));
         Assert.True(nlma.IsHot);

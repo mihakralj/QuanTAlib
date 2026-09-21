@@ -88,7 +88,7 @@ public class RsTests
         for (int i = 0; i < 20; i++)
         {
             double basePrice = 200.0 + i;
-            double compPrice = 100.0 + i * 0.5;
+            double compPrice = 100.0 + (i * 0.5);
             rs.Update(basePrice, compPrice);
             results.Add(rs.Last.Value);
         }
@@ -382,8 +382,8 @@ public class RsTests
         // Base grows faster than comparison
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 2;   // +2 per bar
-            double compPrice = 100.0 + i * 1;   // +1 per bar
+            double basePrice = 100.0 + (i * 2);   // +2 per bar
+            double compPrice = 100.0 + (i * 1);   // +1 per bar
             rs.Update(basePrice, compPrice);
         }
 
@@ -399,8 +399,8 @@ public class RsTests
         // Base grows slower than comparison
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 1;   // +1 per bar
-            double compPrice = 100.0 + i * 2;   // +2 per bar
+            double basePrice = 100.0 + (i * 1);   // +1 per bar
+            double compPrice = 100.0 + (i * 2);   // +2 per bar
             rs.Update(basePrice, compPrice);
         }
 
@@ -416,8 +416,8 @@ public class RsTests
         // Both grow at same rate
         for (int i = 0; i < 20; i++)
         {
-            double basePrice = 100.0 + i * 2;
-            double compPrice = 50.0 + i * 1;
+            double basePrice = 100.0 + (i * 2);
+            double compPrice = 50.0 + (i * 1);
             rs.Update(basePrice, compPrice);
         }
 

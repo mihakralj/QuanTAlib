@@ -424,7 +424,6 @@ public sealed class Ultosc : AbstractBase
         return (results, indicator);
     }
 
-
     public override void Reset()
     {
         _bp1.Clear();

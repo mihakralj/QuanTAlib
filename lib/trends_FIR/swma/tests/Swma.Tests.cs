@@ -243,7 +243,6 @@ public class SwmaTests
             swma.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0));
         }
 
-
         swma.Update(new TValue(DateTime.UtcNow.AddSeconds(5), double.NaN));
         // After NaN, last-valid substitution should produce finite result
         Assert.True(double.IsFinite(swma.Last.Value));

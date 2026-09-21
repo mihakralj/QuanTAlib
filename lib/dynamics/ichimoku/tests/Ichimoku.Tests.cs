@@ -83,7 +83,7 @@ public class IchimokuTests
 
         for (int i = 0; i < 52; i++)
         {
-            var bar = new TBar(baseTime + i * 60000, 100 + i, 105 + i, 95 + i, 102 + i, 1000);
+            var bar = new TBar(baseTime + (i * 60000), 100 + i, 105 + i, 95 + i, 102 + i, 1000);
             ichimoku.Update(bar);
         }
 
@@ -241,18 +241,18 @@ public class IchimokuTests
         // Add some initial bars
         for (int i = 0; i < 3; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 100, 1000));
         }
 
         // Capture state before update (use underscore to indicate intentionally unused)
         _ = ichimoku.Tenkan.Value;
 
         // Update with new bar
-        ichimoku.Update(new TBar(baseTime + 3 * 60000, 110, 120, 100, 115, 1000), isNew: true);
+        ichimoku.Update(new TBar(baseTime + (3 * 60000), 110, 120, 100, 115, 1000), isNew: true);
         double tenkanAfterNew = ichimoku.Tenkan.Value;
 
         // Correct the bar (isNew=false) with different values
-        ichimoku.Update(new TBar(baseTime + 3 * 60000, 90, 95, 85, 90, 1000), isNew: false);
+        ichimoku.Update(new TBar(baseTime + (3 * 60000), 90, 95, 85, 90, 1000), isNew: false);
         double tenkanAfterCorrection = ichimoku.Tenkan.Value;
 
         // Values should differ based on the correction
@@ -268,17 +268,17 @@ public class IchimokuTests
         // Fill buffer
         for (int i = 0; i < 5; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 105, 95, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 105, 95, 100, 1000));
         }
 
         // First update
-        ichimoku.Update(new TBar(baseTime + 5 * 60000, 105, 110, 100, 105, 1000), isNew: true);
+        ichimoku.Update(new TBar(baseTime + (5 * 60000), 105, 110, 100, 105, 1000), isNew: true);
         double firstTenkan = ichimoku.Tenkan.Value;
 
         // Multiple corrections should converge
         for (int i = 0; i < 3; i++)
         {
-            ichimoku.Update(new TBar(baseTime + 5 * 60000, 105, 110, 100, 105, 1000), isNew: false);
+            ichimoku.Update(new TBar(baseTime + (5 * 60000), 105, 110, 100, 105, 1000), isNew: false);
         }
 
         Assert.Equal(firstTenkan, ichimoku.Tenkan.Value, Precision);
@@ -344,7 +344,7 @@ public class IchimokuTests
         // Process some bars
         for (int i = 0; i < 60; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100 + i, 105 + i, 95 + i, 100 + i, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100 + i, 105 + i, 95 + i, 100 + i, 1000));
         }
 
         Assert.True(ichimoku.IsHot);
@@ -368,7 +368,7 @@ public class IchimokuTests
         // First use
         for (int i = 0; i < 10; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 110, 90, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 110, 90, 100, 1000));
         }
 
         double firstTenkan = ichimoku.Tenkan.Value;
@@ -378,7 +378,7 @@ public class IchimokuTests
 
         for (int i = 0; i < 10; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 110, 90, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 110, 90, 100, 1000));
         }
 
         Assert.Equal(firstTenkan, ichimoku.Tenkan.Value, Precision);
@@ -396,7 +396,7 @@ public class IchimokuTests
 
         for (int i = 0; i < 60; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100, 110, 90, 100, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100, 110, 90, 100, 1000));
         }
 
         var (tenkan, kijun, senkouA, senkouB, chikou) = Ichimoku.Batch(source);
@@ -430,7 +430,7 @@ public class IchimokuTests
 
         for (int i = 0; i < 20; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100 + i, 110 + i, 90 + i, 100 + i, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100 + i, 110 + i, 90 + i, 100 + i, 1000));
         }
 
         var (tenkan, _, _, _, _) = Ichimoku.Batch(source, 3, 5, 10, 5);
@@ -446,7 +446,7 @@ public class IchimokuTests
 
         for (int i = 0; i < 60; i++)
         {
-            source.Add(new TBar(baseTime + i * 60000, 100, 110, 90, 100, 1000));
+            source.Add(new TBar(baseTime + (i * 60000), 100, 110, 90, 100, 1000));
         }
 
         var (results, indicator) = Ichimoku.Calculate(source);
@@ -469,7 +469,7 @@ public class IchimokuTests
         // Constant high=low=close=100
         for (int i = 0; i < 10; i++)
         {
-            ichimoku.Update(new TBar(baseTime + i * 60000, 100, 100, 100, 100, 1000));
+            ichimoku.Update(new TBar(baseTime + (i * 60000), 100, 100, 100, 100, 1000));
         }
 
         Assert.Equal(100.0, ichimoku.Tenkan.Value, Precision);
@@ -506,8 +506,8 @@ public class IchimokuTests
         // Uptrend: increasing highs and lows
         for (int i = 0; i < 15; i++)
         {
-            double basePrice = 100 + i * 2;
-            ichimoku.Update(new TBar(baseTime + i * 60000, basePrice, basePrice + 5, basePrice - 5, basePrice, 1000));
+            double basePrice = 100 + (i * 2);
+            ichimoku.Update(new TBar(baseTime + (i * 60000), basePrice, basePrice + 5, basePrice - 5, basePrice, 1000));
         }
 
         // In uptrend, Tenkan should be above Kijun (faster vs slower)

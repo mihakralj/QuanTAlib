@@ -99,7 +99,7 @@ public sealed class ErValidationTests(ITestOutputHelper output)
         const int N = 100;
         const int period = 10;
         double[] prices = new double[N];
-        for (int i = 0; i < N; i++) { prices[i] = 100.0 + i * 1.0; }
+        for (int i = 0; i < N; i++) { prices[i] = 100.0 + (i * 1.0); }
 
         var output2 = new double[N];
         Er.Batch(prices.AsSpan(), output2.AsSpan(), period);

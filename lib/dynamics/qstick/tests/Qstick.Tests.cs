@@ -507,8 +507,8 @@ public class QstickTests
 
         for (int i = 0; i < 20; i++)
         {
-            double open = 100.0 + i * 0.5;
-            double close = open + (i % 3 - 1);  // varies between -1, 0, 1
+            double open = 100.0 + (i * 0.5);
+            double close = open + ((i % 3) - 1);  // varies between -1, 0, 1
             bars.Add(new TBar(time.AddMinutes(i).Ticks, open, open + 2, open - 1, close, 1000));
         }
 

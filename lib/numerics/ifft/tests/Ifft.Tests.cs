@@ -499,7 +499,7 @@ public class IfftTests
         double[] src = new double[count];
         for (int i = 0; i < count; i++)
         {
-            src[i] = 100.0 + Math.Sin(i * 0.2) * 10.0;
+            src[i] = 100.0 + (Math.Sin(i * 0.2) * 10.0);
         }
 
         double[] dst = new double[count];
@@ -564,7 +564,7 @@ public class IfftTests
         var time = DateTime.UtcNow;
         for (int i = 0; i < windowSize; i++)
         {
-            source.Add(new TValue(time.AddMinutes(i), 100.0 + Math.Sin(i * 0.5) * 5.0), true);
+            source.Add(new TValue(time.AddMinutes(i), 100.0 + (Math.Sin(i * 0.5) * 5.0)), true);
         }
 
         Assert.True(indicator.IsHot);
@@ -657,10 +657,10 @@ public class IfftTests
         for (int i = 0; i < count; i++)
         {
             double v = 100.0
-                + 10.0 * Math.Sin(twoPiOverN * 1 * i)
-                + 10.0 * Math.Sin(twoPiOverN * 2 * i)
-                + 10.0 * Math.Sin(twoPiOverN * 4 * i)
-                + 10.0 * Math.Sin(twoPiOverN * 8 * i);
+                + (10.0 * Math.Sin(twoPiOverN * 1 * i))
+                + (10.0 * Math.Sin(twoPiOverN * 2 * i))
+                + (10.0 * Math.Sin(twoPiOverN * 4 * i))
+                + (10.0 * Math.Sin(twoPiOverN * 8 * i));
             values.Add(new TValue(time.AddMinutes(i), v));
         }
 

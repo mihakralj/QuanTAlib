@@ -129,7 +129,7 @@ public sealed class KdjValidationTests(ITestOutputHelper output) : IDisposable
 
         for (int i = 0; i < barCount; i++)
         {
-            double expectedJ = 3.0 * bK.Values[i] - 2.0 * bD.Values[i];
+            double expectedJ = (3.0 * bK.Values[i]) - (2.0 * bD.Values[i]);
             Assert.Equal(expectedJ, bJ.Values[i], 1e-10);
         }
 

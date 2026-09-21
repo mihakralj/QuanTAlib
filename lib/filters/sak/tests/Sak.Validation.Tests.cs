@@ -83,7 +83,7 @@ public sealed class SakValidationTests
         double c0 = alpha * alpha / 4.0;
 
         double x0 = 10.0, x1 = 20.0, x2 = 30.0;
-        double expectedY = c0 * (x0 + 2.0 * x1 + x2);   // pure FIR formula
+        double expectedY = c0 * (x0 + (2.0 * x1) + x2);   // pure FIR formula
 
         var sak = new Sak("Smooth", period: period);
         var now = DateTime.UtcNow;

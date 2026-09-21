@@ -120,7 +120,7 @@ public class NmaValidationTests
         double lastNma = 0;
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             lastNma = nma.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price)).Value;
         }
 

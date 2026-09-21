@@ -177,7 +177,7 @@ public class VamaIndicatorTests
         // Start with low volatility period
         for (int i = 0; i < 30; i++)
         {
-            double price = 100 + i * 0.1;
+            double price = 100 + (i * 0.1);
             indicator.HistoricalData.AddBar(now, price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             now = now.AddMinutes(1);
@@ -238,7 +238,7 @@ public class VamaIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 200; i++)
         {
-            double price = 100 + (i * 0.1) + Math.Sin(i * 0.1) * 2;
+            double price = 100 + (i * 0.1) + (Math.Sin(i * 0.1) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

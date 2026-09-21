@@ -226,7 +226,7 @@ public class AcfValidationTests
         for (int i = 1; i < n; i++)
         {
             double epsilon = Math.Log(bars[i].Close / bars[i - 1].Close) * 0.5; // incremental log-return scaled as noise
-            ar1Data[i] = phi * ar1Data[i - 1] + epsilon;
+            ar1Data[i] = (phi * ar1Data[i - 1]) + epsilon;
         }
 
         // Compute ACF at different lags

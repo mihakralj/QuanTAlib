@@ -342,7 +342,7 @@ public class CointegrationTests
 
         for (int i = 0; i < 10; i++)
         {
-            indicator.Update(100.0 + i, 100.0 + i * 0.5);
+            indicator.Update(100.0 + i, 100.0 + (i * 0.5));
         }
 
         _ = indicator.Last.Value; // beforeNaN - verify state before NaN
@@ -362,7 +362,7 @@ public class CointegrationTests
 
         for (int i = 0; i < 10; i++)
         {
-            indicator.Update(100.0 + i, 100.0 + i * 0.5);
+            indicator.Update(100.0 + i, 100.0 + (i * 0.5));
         }
 
         // Update with infinity
@@ -380,7 +380,7 @@ public class CointegrationTests
         for (int i = 0; i < 20; i++)
         {
             double a = i % 5 == 0 ? double.NaN : 100.0 + i;
-            double b = i % 7 == 0 ? double.NaN : 100.0 + i * 0.5;
+            double b = i % 7 == 0 ? double.NaN : 100.0 + (i * 0.5);
             indicator.Update(a, b);
         }
 
@@ -592,8 +592,8 @@ public class CointegrationTests
 
         for (int i = 0; i < 100; i++)
         {
-            double a = 100.0 + i * 0.1;
-            double b = a + Math.Log(random.Next().Close / 100.0) * 0.1; // Highly correlated
+            double a = 100.0 + (i * 0.1);
+            double b = a + (Math.Log(random.Next().Close / 100.0) * 0.1); // Highly correlated
 
             indicator.Update(a, b);
         }
@@ -616,9 +616,9 @@ public class CointegrationTests
         for (int i = 0; i < 100; i++)
         {
             // Cointegrated pair
-            double a1 = 100.0 + i * 0.1;
+            double a1 = 100.0 + (i * 0.1);
             double noise1 = Math.Log(random.Next().Close / 100.0);
-            double b1 = a1 + noise1 * 0.1;
+            double b1 = a1 + (noise1 * 0.1);
             indicatorCointegrated.Update(a1, b1);
 
             // Random walks

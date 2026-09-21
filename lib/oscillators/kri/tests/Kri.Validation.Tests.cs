@@ -101,7 +101,7 @@ public sealed class KriValidationTests(ITestOutputHelper output)
         const int N = 100;
         const int period = 5;
         double[] prices = new double[N];
-        for (int i = 0; i < N; i++) { prices[i] = 100.0 + i * 2.0; }
+        for (int i = 0; i < N; i++) { prices[i] = 100.0 + (i * 2.0); }
 
         var batchOut = new double[N];
         Kri.Batch(prices.AsSpan(), batchOut.AsSpan(), period);
@@ -123,7 +123,7 @@ public sealed class KriValidationTests(ITestOutputHelper output)
         const int N = 100;
         const int period = 5;
         double[] prices = new double[N];
-        for (int i = 0; i < N; i++) { prices[i] = 200.0 - i * 2.0; }
+        for (int i = 0; i < N; i++) { prices[i] = 200.0 - (i * 2.0); }
 
         var batchOut = new double[N];
         Kri.Batch(prices.AsSpan(), batchOut.AsSpan(), period);

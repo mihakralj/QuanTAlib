@@ -13,7 +13,7 @@ public sealed class SpearmanValidationTests
         var s = new Spearman(10);
         for (int i = 1; i <= 10; i++)
         {
-            s.Update((double)i, 2.0 * i + 5.0, isNew: true);
+            s.Update((double)i, (2.0 * i) + 5.0, isNew: true);
         }
         Assert.Equal(1.0, s.Last.Value, 1e-10);
     }

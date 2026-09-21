@@ -524,7 +524,7 @@ public class FftTests
         double[] src = new double[count];
         for (int i = 0; i < count; i++)
         {
-            src[i] = 100.0 + Math.Sin(i * 0.2) * 10.0;
+            src[i] = 100.0 + (Math.Sin(i * 0.2) * 10.0);
         }
 
         double[] dst = new double[count];
@@ -589,7 +589,7 @@ public class FftTests
         var time = DateTime.UtcNow;
         for (int i = 0; i < windowSize; i++)
         {
-            source.Add(new TValue(time.AddMinutes(i), 100.0 + Math.Sin(i * 0.5) * 5.0), true);
+            source.Add(new TValue(time.AddMinutes(i), 100.0 + (Math.Sin(i * 0.5) * 5.0)), true);
         }
 
         Assert.True(indicator.IsHot);
@@ -648,7 +648,7 @@ public class FftTests
         // Feed 3x the window size to ensure convergence
         for (int i = 0; i < windowSize * 3; i++)
         {
-            double signal = 50.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double signal = 50.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             indicator.Update(new TValue(time.AddMinutes(i), signal), true);
         }
 

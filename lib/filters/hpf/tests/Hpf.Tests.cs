@@ -20,7 +20,6 @@ public class HpfTests
         Assert.StartsWith("HPF", hpf.Name, StringComparison.Ordinal);
     }
 
-
     [Fact]
     public void Calc_ReturnsValue()
     {

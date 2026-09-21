@@ -263,7 +263,7 @@ public sealed class Pacf : AbstractBase
             // Update coefficients: φ_kj = φ_{k-1,j} - φ_kk * φ_{k-1,k-j}
             for (int j = 1; j < k; j++)
             {
-                phi[j] = phiPrev[j] - phi[k] * phiPrev[k - j];
+                phi[j] = phiPrev[j] - (phi[k] * phiPrev[k - j]);
             }
         }
 

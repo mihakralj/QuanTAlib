@@ -77,12 +77,12 @@ public sealed class Cheby2 : AbstractBase
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
 
-        double a0z = 1.0 - 2.0 * sigmaP + Kp;
-        double a1z = 2.0 * Kp - 2.0;
-        double a2z = 1.0 + 2.0 * sigmaP + Kp;
+        double a0z = 1.0 - (2.0 * sigmaP) + Kp;
+        double a1z = (2.0 * Kp) - 2.0;
+        double a2z = 1.0 + (2.0 * sigmaP) + Kp;
 
         double b0z = dcGain * (1.0 + Kz);
-        double b1z = dcGain * (2.0 * Kz - 2.0);
+        double b1z = dcGain * ((2.0 * Kz) - 2.0);
         double b2z = dcGain * (1.0 + Kz);
 
         // Normalize
@@ -258,12 +258,12 @@ public sealed class Cheby2 : AbstractBase
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
 
-        double a0z = 1.0 - 2.0 * sigmaP + Kp;
-        double a1z = 2.0 * Kp - 2.0;
-        double a2z = 1.0 + 2.0 * sigmaP + Kp;
+        double a0z = 1.0 - (2.0 * sigmaP) + Kp;
+        double a1z = (2.0 * Kp) - 2.0;
+        double a2z = 1.0 + (2.0 * sigmaP) + Kp;
 
         double b0z = dcGain * (1.0 + Kz);
-        double b1z = dcGain * (2.0 * Kz - 2.0);
+        double b1z = dcGain * ((2.0 * Kz) - 2.0);
         double b2z = dcGain * (1.0 + Kz);
 
         double b0 = b0z / a0z;

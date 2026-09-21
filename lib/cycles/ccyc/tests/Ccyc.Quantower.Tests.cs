@@ -116,7 +116,7 @@ public class CcycIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + 5 * Math.Sin(2 * Math.PI * i / 20.0);
+            double price = 100 + (5 * Math.Sin(2 * Math.PI * i / 20.0));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price + 1);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

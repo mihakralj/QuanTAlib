@@ -178,7 +178,7 @@ public class HtDcperiodIndicatorTests
         // HT_DCPERIOD needs significant warmup - feed sinusoidal data
         for (int i = 0; i < 100; i++)
         {
-            double price = 100 + 10 * Math.Sin(i * 0.3);
+            double price = 100 + (10 * Math.Sin(i * 0.3));
             indicator.HistoricalData.AddBar(
                 time: now.AddMinutes(i),
                 open: price - 1,
@@ -339,7 +339,7 @@ public class HtDcperiodIndicatorTests
         // Feed sinusoidal data with known period (~21 bars)
         for (int i = 0; i < 100; i++)
         {
-            double price = 100 + 10 * Math.Sin(2 * Math.PI * i / 21.0);
+            double price = 100 + (10 * Math.Sin(2 * Math.PI * i / 21.0));
             indicator.HistoricalData.AddBar(
                 time: now.AddMinutes(i),
                 open: price - 0.5,

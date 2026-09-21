@@ -13,12 +13,12 @@ public class NlmaValidationTests
     public void Batch_Matches_Streaming()
     {
         int period = 10;
-        int flen = 5 * period - 1; // 49
+        int flen = (5 * period) - 1; // 49
         int len = flen + 30;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + Math.Sin(i) * 20));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + (Math.Sin(i) * 20)));
         }
 
         var batchResult = Nlma.Batch(src, period);
@@ -35,12 +35,12 @@ public class NlmaValidationTests
     public void Span_Matches_Streaming()
     {
         int period = 8;
-        int flen = 5 * period - 1; // 39
+        int flen = (5 * period) - 1; // 39
         int len = flen + 20;
         double[] values = new double[len];
         for (int i = 0; i < len; i++)
         {
-            values[i] = 50 + i * 0.7;
+            values[i] = 50 + (i * 0.7);
         }
 
         double[] spanOutput = new double[len];
@@ -58,12 +58,12 @@ public class NlmaValidationTests
     public void Calculate_Matches_Batch()
     {
         int period = 12;
-        int flen = 5 * period - 1; // 59
+        int flen = (5 * period) - 1; // 59
         int len = flen + 20;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 200 + i * 0.3));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 200 + (i * 0.3)));
         }
 
         var batchResult = Nlma.Batch(src, period);
@@ -79,7 +79,7 @@ public class NlmaValidationTests
     public void ConstantInput_ProducesConstant()
     {
         int period = 15;
-        int flen = 5 * period - 1; // 74
+        int flen = (5 * period) - 1; // 74
         int len = flen + 20;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
@@ -108,12 +108,12 @@ public class NlmaValidationTests
     public void LargePeriod_Handles()
     {
         int period = 200;
-        int flen = 5 * period - 1; // 999
+        int flen = (5 * period) - 1; // 999
         int len = flen + 100;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + Math.Sin(i * 0.1) * 10));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + (Math.Sin(i * 0.1) * 10)));
         }
 
         var result = Nlma.Batch(src, period);
@@ -128,7 +128,7 @@ public class NlmaValidationTests
     [Fact]
     public void DifferentPeriods_ProduceDifferentResults()
     {
-        int maxFlen = 5 * 20 - 1; // 99 for period=20
+        int maxFlen = (5 * 20) - 1; // 99 for period=20
         int len = maxFlen + 30;
         var src = new TSeries([], []);
         for (int i = 0; i < len; i++)
@@ -177,7 +177,7 @@ public class NlmaValidationTests
         // Multiple corrections should not drift
         for (int c = 0; c < 10; c++)
         {
-            nlma.Update(new TValue(DateTime.MinValue.AddDays(29), 129.0 + c * 0.001), isNew: false);
+            nlma.Update(new TValue(DateTime.MinValue.AddDays(29), 129.0 + (c * 0.001)), isNew: false);
         }
 
         // Final correction with original value
@@ -192,13 +192,13 @@ public class NlmaValidationTests
         // cancellation effect. Verify this by checking that NLMA on sinusoidal data
         // differs from SMA and shows phase lead (less phase lag than SMA).
         int period = 10;
-        int flen = 5 * period - 1; // 49
+        int flen = (5 * period) - 1; // 49
         int len = 3 * flen;
         var src = new TSeries([], []);
         // Sinusoidal signal with period matching the filter period
         for (int i = 0; i < len; i++)
         {
-            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + 10 * Math.Sin(2 * Math.PI * i / 20)));
+            src.Add(new TValue(DateTime.MinValue.AddDays(i), 100 + (10 * Math.Sin(2 * Math.PI * i / 20))));
         }
 
         var nlmaResult = Nlma.Batch(src, period);
@@ -235,7 +235,7 @@ public class NlmaValidationTests
     {
         // NLMA's negative weights can cause output to exceed input range
         int period = 14;
-        int flen = 5 * period - 1; // 69
+        int flen = (5 * period) - 1; // 69
         var nlma = new Nlma(period);
 
         // Step function: all 0s then all 100s — enough data for full kernel

@@ -517,9 +517,9 @@ public sealed class KdjTests
 
         for (int i = 0; i < barCount; i++)
         {
-            high[i] = 100.0 + i * 0.1;
-            low[i] = 99.0 + i * 0.1;
-            close[i] = 99.5 + i * 0.1;
+            high[i] = 100.0 + (i * 0.1);
+            low[i] = 99.0 + (i * 0.1);
+            close[i] = 99.5 + (i * 0.1);
         }
 
         // Should not throw StackOverflowException (uses ArrayPool for > 256)
@@ -582,12 +582,12 @@ public sealed class KdjTests
         // Now sharp move up
         for (int i = 3; i < 8; i++)
         {
-            kdj.Update(new TBar(time.AddSeconds(i), 100 + (i - 2) * 5, 110 + (i - 2) * 5, 95 + (i - 2) * 5, 110 + (i - 2) * 5, 1000));
+            kdj.Update(new TBar(time.AddSeconds(i), 100 + ((i - 2) * 5), 110 + ((i - 2) * 5), 95 + ((i - 2) * 5), 110 + ((i - 2) * 5), 1000));
         }
 
         // J should be able to exceed 100 (it's unbounded)
         // This is a property test - we just verify J is computed as 3K-2D
-        double expectedJ = 3.0 * kdj.K.Value - 2.0 * kdj.D.Value;
+        double expectedJ = (3.0 * kdj.K.Value) - (2.0 * kdj.D.Value);
         Assert.Equal(expectedJ, kdj.Last.Value, 1e-10);
     }
 
@@ -606,10 +606,10 @@ public sealed class KdjTests
         // Sharp move down
         for (int i = 3; i < 8; i++)
         {
-            kdj.Update(new TBar(time.AddSeconds(i), 200 - (i - 2) * 5, 210 - (i - 2) * 5, 190 - (i - 2) * 5, 190 - (i - 2) * 5, 1000));
+            kdj.Update(new TBar(time.AddSeconds(i), 200 - ((i - 2) * 5), 210 - ((i - 2) * 5), 190 - ((i - 2) * 5), 190 - ((i - 2) * 5), 1000));
         }
 
-        double expectedJ = 3.0 * kdj.K.Value - 2.0 * kdj.D.Value;
+        double expectedJ = (3.0 * kdj.K.Value) - (2.0 * kdj.D.Value);
         Assert.Equal(expectedJ, kdj.Last.Value, 1e-10);
     }
 

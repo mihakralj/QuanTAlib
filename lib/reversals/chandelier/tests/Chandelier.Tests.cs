@@ -114,12 +114,12 @@ public sealed class ChandelierBasicTests
         // Steady uptrend
         for (int i = 0; i < 20; i++)
         {
-            double price = basePrice + i * 2;
+            double price = basePrice + (i * 2);
             _ = ch.Update(new TBar(DateTime.UtcNow.AddMinutes(i),
                 price + 1, price - 1, price + 0.5, price, 1000));
         }
 
-        Assert.True(ch.ExitLong < 100.0 + 19 * 2, "ExitLong should be below the current price in an uptrend");
+        Assert.True(ch.ExitLong < 100.0 + (19 * 2), "ExitLong should be below the current price in an uptrend");
     }
 }
 

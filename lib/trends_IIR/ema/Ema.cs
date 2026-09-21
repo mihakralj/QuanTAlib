@@ -83,7 +83,7 @@ public sealed class Ema : AbstractBase
         _decay = 1.0 - alpha;
         Name = $"Ema(α={alpha:F4})";
         // Approximate period from alpha: alpha = 2/(N+1) => N = 2/alpha - 1
-        WarmupPeriod = (int)(2.0 / alpha - 1.0);
+        WarmupPeriod = (int)((2.0 / alpha) - 1.0);
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public sealed class Ema : AbstractBase
         ref double outRef = ref MemoryMarshal.GetReference(output);
 
         // Unroll by 4 to reduce loop overhead and improve instruction-level parallelism
-        int unrollEnd = i + ((len - i) / 4) * 4;
+        int unrollEnd = i + (((len - i) / 4) * 4);
         for (; i < unrollEnd; i += 4)
         {
             double v0 = Unsafe.Add(ref srcRef, i);
@@ -381,7 +381,6 @@ public sealed class Ema : AbstractBase
 
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v3);
             Unsafe.Add(ref outRef, i + 3) = state.Ema;
-
         }
 
         // Scalar remainder
@@ -425,7 +424,7 @@ public sealed class Ema : AbstractBase
 
         // Unroll by 4 for better ILP
         int i = 1;
-        int unrollEnd = 1 + ((len - 1) / 4) * 4;
+        int unrollEnd = 1 + (((len - 1) / 4) * 4);
 
         for (; i < unrollEnd; i += 4)
         {

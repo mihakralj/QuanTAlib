@@ -83,7 +83,7 @@ public class JmaTests
 
         // Warmup for JMA(10) is approx 203 bars
         // ceil(20 + 80 * 10^0.36) = 203
-        int warmup = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(10, 0.36));
+        int warmup = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(10, 0.36)));
 
         for (int i = 1; i < warmup; i++)
         {

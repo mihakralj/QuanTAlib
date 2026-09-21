@@ -329,7 +329,7 @@ public sealed class AcTests
         var ac = new Ac();
         for (int i = 0; i < 50; i++)
         {
-            var val = new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.1);
+            var val = new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.1));
             _ = ac.Update(val, isNew: true);
         }
 

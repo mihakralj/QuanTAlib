@@ -56,7 +56,7 @@ public class VrIndicatorTests
         for (int i = 0; i < 50; i++)
         {
             // Create price movement that generates volatility
-            double basePrice = 100 + Math.Sin(i * 0.3) * (5 + i * 0.1);
+            double basePrice = 100 + (Math.Sin(i * 0.3) * (5 + (i * 0.1)));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
 
             // Process update for each bar to simulate history loading
@@ -106,7 +106,7 @@ public class VrIndicatorTests
             for (int i = 0; i < 60; i++)
             {
                 // Create price movement with varying amplitude
-                double basePrice = 100 + Math.Sin(i * 0.2) * 5;
+                double basePrice = 100 + (Math.Sin(i * 0.2) * 5);
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), basePrice, basePrice + 2, basePrice - 2, basePrice, 1000);
                 indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             }
@@ -205,7 +205,7 @@ public class VrIndicatorTests
         // Price with varying HLC
         for (int i = 0; i < 20; i++)
         {
-            double close = 100 + Math.Sin(i * 0.3) * 3;
+            double close = 100 + (Math.Sin(i * 0.3) * 3);
             double high = close + 2 + Math.Abs(Math.Sin(i * 0.5));
             double low = close - 2 - Math.Abs(Math.Cos(i * 0.5));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), close, high, low, close, 1000);
@@ -261,7 +261,7 @@ public class VrIndicatorTests
 
         for (int i = 0; i < 60; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 5;
+            double price = 100 + (Math.Sin(i * 0.3) * 5);
             indicator1.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator2.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price, 1000);
             indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -365,8 +365,8 @@ public class VrIndicatorTests
         // Normal market with consistent volatility
         for (int i = 0; i < 100; i++)
         {
-            double price = 100 + Math.Sin(i * 0.1) * 2;
-            double range = 2 + Math.Sin(i * 0.2) * 0.5; // Consistent range
+            double price = 100 + (Math.Sin(i * 0.1) * 2);
+            double range = 2 + (Math.Sin(i * 0.2) * 0.5); // Consistent range
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + range, price - range, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 

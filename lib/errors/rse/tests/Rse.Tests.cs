@@ -148,7 +148,7 @@ public class RseTests
         // Different actual values but perfect predictions
         for (int i = 0; i < 20; i++)
         {
-            double val = 100 + i * 2;
+            double val = 100 + (i * 2);
             rse.Update(new TValue(time.AddSeconds(i), val), new TValue(time.AddSeconds(i), val));
         }
 
@@ -165,8 +165,8 @@ public class RseTests
         // Generate data with some error
         for (int i = 0; i < 20; i++)
         {
-            double actual = 100 + i * 2;
-            double predicted = actual + (i % 3 - 1) * 2; // Small systematic error
+            double actual = 100 + (i * 2);
+            double predicted = actual + (((i % 3) - 1) * 2); // Small systematic error
             rse.Update(new TValue(time.AddSeconds(i), actual), new TValue(time.AddSeconds(i), predicted));
         }
 

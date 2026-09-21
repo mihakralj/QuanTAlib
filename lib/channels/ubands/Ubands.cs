@@ -100,7 +100,7 @@ public sealed class Ubands : AbstractBase
 
         // Precompute coefficients for FMA optimization
         _k0 = 1.0 - c1;           // coefficient for val
-        _k1 = 2.0 * c1 - _c2;     // coefficient for PrevInput1
+        _k1 = (2.0 * c1) - _c2;     // coefficient for PrevInput1
         _k2 = -(c1 + _c3);        // coefficient for PrevInput2
 
         WarmupPeriod = period;
@@ -261,7 +261,7 @@ public sealed class Ubands : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -316,7 +316,7 @@ public sealed class Ubands : AbstractBase
         double c1 = (1.0 + c2 - c3) / 4.0;
 
         double k0 = 1.0 - c1;
-        double k1 = 2.0 * c1 - c2;
+        double k1 = (2.0 * c1) - c2;
         double k2 = -(c1 + c3);
 
         // Use stackalloc for residual buffer if small enough
@@ -404,5 +404,4 @@ public sealed class Ubands : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

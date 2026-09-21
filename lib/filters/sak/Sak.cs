@@ -156,7 +156,7 @@ public sealed class Sak : AbstractBase
                 break;
 
             case "HP":
-                _c0 = 1.0 - alpha / 2.0; _b0 = 1; _b1 = -1;            _b2 = 0;
+                _c0 = 1.0 - (alpha / 2.0); _b0 = 1; _b1 = -1;            _b2 = 0;
                 _a1 = decay;             _a2 = 0;
                 break;
 
@@ -245,7 +245,7 @@ public sealed class Sak : AbstractBase
             double oldest = _smaBuf!.IsFull ? _smaBuf.Oldest : 0.0;
             _smaBuf.Add(val, isNew);
             // _state.Y1 holds the running sum
-            y = Math.FusedMultiplyAdd(_oneDivN, val, _state.Y1 - _oneDivN * oldest);
+            y = Math.FusedMultiplyAdd(_oneDivN, val, _state.Y1 - (_oneDivN * oldest));
             _state.Y1 = y;
         }
         else
@@ -388,7 +388,7 @@ public sealed class Sak : AbstractBase
             {
                 double oldest = (smaBuf != null && smaBuf.IsFull) ? smaBuf.Oldest : 0.0;
                 smaBuf?.Add(val);
-                y = Math.FusedMultiplyAdd(oneDivN, val, state.Y1 - oneDivN * oldest);
+                y = Math.FusedMultiplyAdd(oneDivN, val, state.Y1 - (oneDivN * oldest));
                 state.Y1 = y;
             }
             else

@@ -240,8 +240,8 @@ public sealed class Chandelier : ITValuePublisher
         double lowestLow = _minDequeLow.GetExtremum(_lBuf);
 
         // Step 3: Chandelier exits — no second-stage smoothing
-        ExitLong = highestHigh - _multiplier * atr;
-        ExitShort = lowestLow + _multiplier * atr;
+        ExitLong = highestHigh - (_multiplier * atr);
+        ExitShort = lowestLow + (_multiplier * atr);
 
         _s = s;
 

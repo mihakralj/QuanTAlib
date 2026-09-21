@@ -529,7 +529,6 @@ public sealed class Rsv : AbstractBase
         return (results, indicator);
     }
 
-
     /// <summary>
     /// Batch calculation from pre-computed RS variances.
     /// </summary>

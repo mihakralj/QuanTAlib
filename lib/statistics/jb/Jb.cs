@@ -357,7 +357,7 @@ public sealed class Jb : AbstractBase
         double meanSq = mean * mean;
 
         // m₂ = (Σx² - Σx²/n) / n
-        double m2Numerator = sumSq - (sum * sum) / n;
+        double m2Numerator = sumSq - ((sum * sum) / n);
         if (m2Numerator < Epsilon)
         {
             return 0;
@@ -479,8 +479,8 @@ public sealed class Jb : AbstractBase
                 // Kahan subtract old, add new
                 { double y = (val - oldVal) - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
                 { double y = (vSq - oSq) - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
-                { double y = (vSq * val - oSq * oldVal) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
-                { double y = (vSq * vSq - oSq * oSq) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
+                { double y = ((vSq * val) - (oSq * oldVal)) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
+                { double y = ((vSq * vSq) - (oSq * oSq)) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
 
                 output[i] = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, period);
             }
@@ -540,7 +540,7 @@ public sealed class Jb : AbstractBase
         var vEpsilon = Vector256.Create(Epsilon);
         var vZero = Vector256<double>.Zero;
 
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (((len - period) / VectorWidth) * VectorWidth);
 
         for (int i = period; i < simdEnd; i += VectorWidth)
         {

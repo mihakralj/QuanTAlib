@@ -18,9 +18,9 @@ public class WaveletValidationTests
         double[] noisy = new double[T];
         for (int i = 0; i < T; i++)
         {
-            clean[i] = 100.0 + 10.0 * Math.Sin(2 * Math.PI * i / 80.0);
+            clean[i] = 100.0 + (10.0 * Math.Sin(2 * Math.PI * i / 80.0));
             // Alternating noise with amplitude 25 — much larger than signal variation
-            noisy[i] = clean[i] + 25.0 * ((i % 2 == 0) ? 1.0 : -1.0);
+            noisy[i] = clean[i] + (25.0 * ((i % 2 == 0) ? 1.0 : -1.0));
         }
 
         double[] denoised = new double[T];
@@ -132,7 +132,7 @@ public class WaveletValidationTests
         double[] output = new double[len];
         for (int i = 0; i < len; i++)
         {
-            input[i] = 100.0 + 0.5 * i;
+            input[i] = 100.0 + (0.5 * i);
         }
 
         Wavelet.Batch(input, output, 3, 1.0);
@@ -156,7 +156,7 @@ public class WaveletValidationTests
         double[] output = new double[len];
         for (int i = 0; i < len; i++)
         {
-            input[i] = 100 + 10 * Math.Sin(2 * Math.PI * i / 50.0) + 0.5 * Math.Sin(101.1 * i);
+            input[i] = 100 + (10 * Math.Sin(2 * Math.PI * i / 50.0)) + (0.5 * Math.Sin(101.1 * i));
         }
 
         Wavelet.Batch(input, output, 4, 1.0);
@@ -216,6 +216,6 @@ public class WaveletValidationTests
         }
         int n = data.Length - 1;
         double mean = sum / n;
-        return sum2 / n - mean * mean;
+        return (sum2 / n) - (mean * mean);
     }
 }

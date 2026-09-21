@@ -110,7 +110,7 @@ public class HomodValidationTests
         // Generate 500 bars of sine wave
         for (int i = 0; i < 500; i++)
         {
-            double value = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod);
+            double value = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / knownPeriod));
             homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
         }
 
@@ -131,7 +131,7 @@ public class HomodValidationTests
         // Generate sine wave with specified period
         for (int i = 0; i < 600; i++)
         {
-            double value = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double value = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
         }
 
@@ -282,7 +282,7 @@ public class HomodValidationTests
         // Strong uptrend with no cyclical component
         for (int i = 0; i < 500; i++)
         {
-            double value = 100.0 + i * 0.5;
+            double value = 100.0 + (i * 0.5);
             var result = homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
             Assert.True(double.IsFinite(result.Value));
         }
@@ -339,7 +339,7 @@ public class HomodValidationTests
         // Generate synthetic cycle
         for (int i = 0; i < 200; i++)
         {
-            double value = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20);
+            double value = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20));
             homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
         }
 
@@ -347,7 +347,7 @@ public class HomodValidationTests
         var postWarmupValues = new List<double>();
         for (int i = 200; i < 400; i++)
         {
-            double value = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20);
+            double value = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20));
             var result = homod.Update(new TValue(DateTime.UtcNow.AddSeconds(i), value));
             postWarmupValues.Add(result.Value);
         }

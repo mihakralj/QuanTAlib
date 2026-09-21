@@ -107,7 +107,7 @@ public sealed class Jma : AbstractBase
         _logSqrtDivider = Math.Log(Math.Max(sqrtDivider, 1e-12));
 
         // same warmup heuristic used in the AFL port (SetBarsRequired)
-        WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
+        WarmupPeriod = (int)Math.Ceiling(20.0 + (80.0 * Math.Pow(period, 0.36)));
 
         _handler = Handle;
         Name = $"Jma({period},{phase})";

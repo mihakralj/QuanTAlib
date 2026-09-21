@@ -176,11 +176,11 @@ public sealed class Sam : AbstractBase
         double price1 = s.Price0;
         double price0 = price;
 
-        double smoothPrice = (price0 + 2.0 * price1 + 2.0 * price2 + price3) / 6.0;
+        double smoothPrice = (price0 + (2.0 * price1) + (2.0 * price2) + price3) / 6.0;
 
         // ── Stage 2: Hilbert Transform ──
         // Adaptive bandwidth based on previous smooth period
-        double bandwidth = 0.075 * s.DcPeriod + 0.54;
+        double bandwidth = (0.075 * s.DcPeriod) + 0.54;
 
         // Shift smooth price history
         double sp6 = s.Sp5;
@@ -192,7 +192,7 @@ public sealed class Sam : AbstractBase
         double sp0 = smoothPrice;
 
         // Detrender: Hilbert Transform of smooth price
-        double detrender = (0.0962 * sp0 + 0.5769 * sp2 - 0.5769 * sp4 - 0.0962 * sp6) * bandwidth;
+        double detrender = ((0.0962 * sp0) + (0.5769 * sp2) - (0.5769 * sp4) - (0.0962 * sp6)) * bandwidth;
 
         // Shift detrender history
         double det6 = s.Det5;
@@ -204,7 +204,7 @@ public sealed class Sam : AbstractBase
         double det0 = detrender;
 
         // Q1 via Hilbert Transform of detrender
-        double q1 = (0.0962 * det0 + 0.5769 * det2 - 0.5769 * det4 - 0.0962 * det6) * bandwidth;
+        double q1 = ((0.0962 * det0) + (0.5769 * det2) - (0.5769 * det4) - (0.0962 * det6)) * bandwidth;
 
         // I1 is detrender delayed by 3 bars
         double i1 = det3;
@@ -229,10 +229,10 @@ public sealed class Sam : AbstractBase
 
         // ── Stage 3: Phase advance ──
         // JI = Hilbert Transform of I1
-        double ji = (0.0962 * i1_0 + 0.5769 * i1_2 - 0.5769 * i1_4 - 0.0962 * i1_6) * bandwidth;
+        double ji = ((0.0962 * i1_0) + (0.5769 * i1_2) - (0.5769 * i1_4) - (0.0962 * i1_6)) * bandwidth;
 
         // JQ = Hilbert Transform of Q1
-        double jq = (0.0962 * q1_0 + 0.5769 * q1_2 - 0.5769 * q1_4 - 0.0962 * q1_6) * bandwidth;
+        double jq = ((0.0962 * q1_0) + (0.5769 * q1_2) - (0.5769 * q1_4) - (0.0962 * q1_6)) * bandwidth;
 
         // Phasor addition: I2 = I1 - JQ, Q2 = Q1 + JI
         double i2Raw = i1 - jq;

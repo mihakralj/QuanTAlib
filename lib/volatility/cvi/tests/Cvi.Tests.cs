@@ -384,10 +384,10 @@ public class CviTests
         // Start with small range, expand over time
         for (int i = 0; i < 20; i++)
         {
-            double range = 5 + i * 0.5; // Expanding range
+            double range = 5 + (i * 0.5); // Expanding range
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
-                100.0, 100.0 + range / 2, 100.0 - range / 2, 100.0, 1000.0
+                100.0, 100.0 + (range / 2), 100.0 - (range / 2), 100.0, 1000.0
             );
             cvi.Update(bar);
         }
@@ -404,14 +404,14 @@ public class CviTests
         // Start with large range, contract over time
         for (int i = 0; i < 20; i++)
         {
-            double range = 20 - i * 0.5; // Contracting range
+            double range = 20 - (i * 0.5); // Contracting range
             if (range < 1)
             {
                 range = 1;
             }
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
-                100.0, 100.0 + range / 2, 100.0 - range / 2, 100.0, 1000.0
+                100.0, 100.0 + (range / 2), 100.0 - (range / 2), 100.0, 1000.0
             );
             cvi.Update(bar);
         }
@@ -451,7 +451,7 @@ public class CviTests
         // Feed pre-calculated range values via TValue
         for (int i = 0; i < 20; i++)
         {
-            var result = cvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 5.0 + i * 0.1));
+            var result = cvi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 5.0 + (i * 0.1)));
             Assert.True(double.IsFinite(result.Value));
         }
 

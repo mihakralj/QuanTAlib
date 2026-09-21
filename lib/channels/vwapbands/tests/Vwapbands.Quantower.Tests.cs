@@ -148,7 +148,7 @@ public class VwapbandsIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 5; i++)
         {
-            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 105 + i, 95 + i, 102 + i, 1000 + i * 100);
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 105 + i, 95 + i, 102 + i, 1000 + (i * 100));
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 

@@ -100,7 +100,7 @@ public sealed class WclpriceValidationTests : IDisposable
         var bar = new TBar(DateTime.UtcNow, open: 10.0, high: 20.0, low: 8.0, close: 16.0, volume: 1000);
         var ind = new Wclprice();
         var result = ind.Update(bar, isNew: true);
-        double expected = (20.0 + 8.0 + 2.0 * 16.0) / 4.0; // = 15.0
+        double expected = (20.0 + 8.0 + (2.0 * 16.0)) / 4.0; // = 15.0
         Assert.Equal(expected, result.Value, 1e-12);
         _output.WriteLine($"WCLPRICE formula: expected={expected}, actual={result.Value}: PASSED");
     }

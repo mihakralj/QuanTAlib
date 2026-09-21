@@ -359,7 +359,7 @@ public class IlrsTests
         // Feed increasing prices
         for (int i = 0; i < 10; i++)
         {
-            ilrs.Update(new TValue(DateTime.UtcNow, 100.0 + i * 10));
+            ilrs.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 10)));
         }
 
         // Integral should be well above starting value
@@ -373,7 +373,7 @@ public class IlrsTests
         // Feed decreasing prices
         for (int i = 0; i < 10; i++)
         {
-            ilrs.Update(new TValue(DateTime.UtcNow, 200.0 - i * 10));
+            ilrs.Update(new TValue(DateTime.UtcNow, 200.0 - (i * 10)));
         }
 
         // Integral should be below starting value

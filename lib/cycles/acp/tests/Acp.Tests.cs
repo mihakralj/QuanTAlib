@@ -169,7 +169,7 @@ public class AcpTests
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)), isNew: true);
         }
 
         acp.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
@@ -237,7 +237,7 @@ public class AcpTests
         // First run
         for (int i = 0; i < 200; i++)
         {
-            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var firstResult = acp.Last.Value;
 
@@ -246,7 +246,7 @@ public class AcpTests
         // Second run with same data
         for (int i = 0; i < 200; i++)
         {
-            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            acp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var secondResult = acp.Last.Value;
 
@@ -431,7 +431,7 @@ public class AcpTests
 
         for (int i = 0; i < 200; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(acp.IsHot);
@@ -447,7 +447,7 @@ public class AcpTests
 
         for (int i = 0; i < 300; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         // Both should have values

@@ -273,7 +273,7 @@ public sealed class AmatValidationTests : IDisposable
         // Phase 2: Falling prices (reversal)
         for (int i = 50; i < 150; i++)
         {
-            double price = 150 - (i - 50) * 2; // Fall faster than rise
+            double price = 150 - ((i - 50) * 2); // Fall faster than rise
             amat.Update(new TValue(time.AddMinutes(i), price));
         }
         double bearishTrend = amat.Last.Value;

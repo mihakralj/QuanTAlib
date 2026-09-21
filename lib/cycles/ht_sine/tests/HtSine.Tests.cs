@@ -91,7 +91,7 @@ public class HtSineTests
 
         for (int i = 0; i < 100; i++)
         {
-            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(double.IsFinite(htSine.LeadSine));
@@ -106,7 +106,7 @@ public class HtSineTests
         const int period = 20;
         for (int i = 0; i < 500; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / period);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / period));
             htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
 
@@ -128,7 +128,7 @@ public class HtSineTests
         // Build some history first
         for (int i = 0; i < 100; i++)
         {
-            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1), isNew: true);
+            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)), isNew: true);
         }
         var first = htSine.Last.Value;
 
@@ -147,7 +147,7 @@ public class HtSineTests
         // Build some history first
         for (int i = 0; i < 100; i++)
         {
-            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1), isNew: true);
+            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)), isNew: true);
         }
 
         htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 150.0), isNew: true);
@@ -168,7 +168,7 @@ public class HtSineTests
         // Build some history
         for (int i = 0; i < 100; i++)
         {
-            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1), isNew: true);
+            htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)), isNew: true);
         }
 
         // Add a new bar
@@ -215,7 +215,7 @@ public class HtSineTests
         // First run
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.1);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.1));
             htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
         var firstResult = htSine.Last.Value;
@@ -225,7 +225,7 @@ public class HtSineTests
         // Second run with same data
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.1);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.1));
             htSine.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
         }
         var secondResult = htSine.Last.Value;
@@ -412,7 +412,7 @@ public class HtSineTests
 
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
 
         Assert.True(htSine.IsHot);

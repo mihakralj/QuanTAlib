@@ -149,7 +149,7 @@ public sealed class Vr : AbstractBase
         else
         {
             // RMA update: (prev * (period-1) + value) / period
-            rawAtr = (s.RawAtr * (_period - 1) + tr) / _period;
+            rawAtr = ((s.RawAtr * (_period - 1)) + tr) / _period;
             eComp = (1.0 - alpha) * s.ECompensator;
         }
 
@@ -320,7 +320,7 @@ public sealed class Vr : AbstractBase
             }
             else
             {
-                rawAtr = (rawAtr * (period - 1) + tr) / period;
+                rawAtr = ((rawAtr * (period - 1)) + tr) / period;
                 eComp = (1.0 - alpha) * eComp;
             }
 
@@ -390,7 +390,7 @@ public sealed class Vr : AbstractBase
             }
             else
             {
-                rawAtr = (rawAtr * (period - 1) + tr) / period;
+                rawAtr = ((rawAtr * (period - 1)) + tr) / period;
                 eComp = (1.0 - alpha) * eComp;
             }
 
@@ -412,5 +412,4 @@ public sealed class Vr : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

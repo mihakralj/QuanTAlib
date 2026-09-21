@@ -242,7 +242,6 @@ public sealed class Frama : ITValuePublisher, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
-
     /// <summary>
     /// Initializes the indicator state using the provided bar series history.
     /// </summary>

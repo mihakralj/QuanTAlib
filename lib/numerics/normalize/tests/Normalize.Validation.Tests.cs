@@ -163,9 +163,9 @@ public class NormalizeValidationTests
 
         norm.Update(new TValue(DateTime.UtcNow, baseVal));
         norm.Update(new TValue(DateTime.UtcNow, baseVal + epsilon));
-        norm.Update(new TValue(DateTime.UtcNow, baseVal + epsilon / 2));
-        norm.Update(new TValue(DateTime.UtcNow, baseVal + epsilon / 4));
-        var result = norm.Update(new TValue(DateTime.UtcNow, baseVal + epsilon * 0.75));
+        norm.Update(new TValue(DateTime.UtcNow, baseVal + (epsilon / 2)));
+        norm.Update(new TValue(DateTime.UtcNow, baseVal + (epsilon / 4)));
+        var result = norm.Update(new TValue(DateTime.UtcNow, baseVal + (epsilon * 0.75)));
 
         // Should be in valid range
         Assert.True(result.Value >= 0.0 && result.Value <= 1.0);

@@ -78,7 +78,7 @@ public sealed class AlligatorValidationTests : IDisposable
         // Create strong uptrend
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + i * 2.0;
+            double price = 100.0 + (i * 2.0);
             var bar = new TBar(DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             alligator.Update(bar);
         }

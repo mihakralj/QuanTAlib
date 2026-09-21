@@ -68,12 +68,12 @@ public class Sp15ValidationTests
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i;
+            double val = a + (b * i);
             sp15.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - 7;
-        double expected = a + b * centerIdx;
+        double expected = a + (b * centerIdx);
         Assert.Equal(expected, sp15.Last.Value, 1e-6);
     }
 
@@ -86,12 +86,12 @@ public class Sp15ValidationTests
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i + c * i * i;
+            double val = a + (b * i) + (c * i * i);
             sp15.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - 7;
-        double expected = a + b * centerIdx + c * centerIdx * centerIdx;
+        double expected = a + (b * centerIdx) + (c * centerIdx * centerIdx);
         Assert.Equal(expected, sp15.Last.Value, 1e-4);
     }
 
@@ -104,12 +104,12 @@ public class Sp15ValidationTests
 
         for (int i = 0; i < total; i++)
         {
-            double val = a + b * i + c * i * i + d * i * i * i;
+            double val = a + (b * i) + (c * i * i) + (d * i * i * i);
             sp15.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
 
         int centerIdx = total - 1 - 7;
-        double expected = a + b * centerIdx + c * centerIdx * centerIdx + d * centerIdx * centerIdx * centerIdx;
+        double expected = a + (b * centerIdx) + (c * centerIdx * centerIdx) + (d * centerIdx * centerIdx * centerIdx);
         Assert.Equal(expected, sp15.Last.Value, 1.0);
     }
 
@@ -172,8 +172,8 @@ public class Sp15ValidationTests
         double[] reverse = new double[15];
         for (int i = 0; i < 15; i++)
         {
-            forward[i] = 10.0 + 2.0 * i;
-            reverse[i] = 10.0 + 2.0 * (14 - i);
+            forward[i] = 10.0 + (2.0 * i);
+            reverse[i] = 10.0 + (2.0 * (14 - i));
         }
 
         TValue fwdResult = default;
@@ -186,7 +186,7 @@ public class Sp15ValidationTests
 
         // For linear input centered at i=7: forward center = 10+14=24, reverse center = 10+14=24
         // Both should give the same result for symmetric weights applied to symmetric-about-center linear data
-        double expected = 2.0 * (10.0 + 2.0 * 7.0);
+        double expected = 2.0 * (10.0 + (2.0 * 7.0));
         Assert.Equal(expected, fwdResult.Value + revResult.Value, 1e-6);
     }
 
@@ -199,7 +199,7 @@ public class Sp15ValidationTests
         for (int i = 0; i < n; i++)
         {
             // Pure period-4 sinusoid centered at 100
-            double val = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 4.0);
+            double val = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 4.0));
             sp15.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
         // After warmup, the output should be ~100 (sinusoid suppressed)
@@ -214,7 +214,7 @@ public class Sp15ValidationTests
         const int n = 60;
         for (int i = 0; i < n; i++)
         {
-            double val = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 5.0);
+            double val = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 5.0));
             sp15.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
         }
         Assert.Equal(100.0, sp15.Last.Value, 0.5);

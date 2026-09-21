@@ -79,13 +79,13 @@ public class HendTests
         double lastResult = double.NaN;
         for (int i = 0; i < total; i++)
         {
-            double val = 10.0 + 3.0 * i;
+            double val = 10.0 + (3.0 * i);
             var result = hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
             lastResult = result.Value;
         }
         // Centered filter: output at bar N = polynomial value at bar N - half
         int centerIdx = total - 1 - half;
-        double expected = 10.0 + 3.0 * centerIdx;
+        double expected = 10.0 + (3.0 * centerIdx);
         Assert.Equal(expected, lastResult, 1e-6);
     }
 
@@ -99,12 +99,12 @@ public class HendTests
         double lastResult = double.NaN;
         for (int i = 0; i < total; i++)
         {
-            double val = 5.0 + 2.0 * i + 0.5 * i * i;
+            double val = 5.0 + (2.0 * i) + (0.5 * i * i);
             var result = hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
             lastResult = result.Value;
         }
         int centerIdx = total - 1 - half;
-        double expected = 5.0 + 2.0 * centerIdx + 0.5 * centerIdx * centerIdx;
+        double expected = 5.0 + (2.0 * centerIdx) + (0.5 * centerIdx * centerIdx);
         Assert.Equal(expected, lastResult, 1e-4);
     }
 
@@ -118,12 +118,12 @@ public class HendTests
         double lastResult = double.NaN;
         for (int i = 0; i < total; i++)
         {
-            double val = 1.0 + 0.5 * i + 0.1 * i * i + 0.01 * i * i * i;
+            double val = 1.0 + (0.5 * i) + (0.1 * i * i) + (0.01 * i * i * i);
             var result = hend.Update(new TValue(DateTime.UtcNow.AddSeconds(i), val));
             lastResult = result.Value;
         }
         int centerIdx = total - 1 - half;
-        double expected = 1.0 + 0.5 * centerIdx + 0.1 * centerIdx * centerIdx + 0.01 * centerIdx * centerIdx * centerIdx;
+        double expected = 1.0 + (0.5 * centerIdx) + (0.1 * centerIdx * centerIdx) + (0.01 * centerIdx * centerIdx * centerIdx);
         Assert.Equal(expected, lastResult, 1e-2);
     }
 

@@ -44,7 +44,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 500; i++)
         {
-            y = 0.3 * y + rng.NextDouble() * 2 - 1;
+            y = (0.3 * y) + (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), 100 + y));
         }
 
@@ -63,7 +63,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 500; i++)
         {
-            double noise = rng.NextDouble() * 10 - 5; // zero-centered white noise
+            double noise = (rng.NextDouble() * 10) - 5; // zero-centered white noise
             a.Update(new TValue(now.AddMinutes(i), noise));
         }
 
@@ -85,7 +85,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 500; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 
@@ -101,7 +101,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            a.Update(new TValue(now.AddMinutes(i), 100.0 + i * 0.1));
+            a.Update(new TValue(now.AddMinutes(i), 100.0 + (i * 0.1)));
         }
 
         // Linear trend without constant/trend in model should appear non-stationary
@@ -125,7 +125,7 @@ public class AdfValidationTests
         double y = 0;
         for (int i = 0; i < 100; i++)
         {
-            y = -0.9 * y + rng.NextDouble() * 0.1;
+            y = (-0.9 * y) + (rng.NextDouble() * 0.1);
             a.Update(new TValue(now.AddMinutes(i), 50 + y));
         }
 
@@ -145,7 +145,7 @@ public class AdfValidationTests
         var source = new TSeries();
         for (int i = 0; i < 80; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), y));
         }
 
@@ -203,7 +203,7 @@ public class AdfValidationTests
         var data = new List<TValue>();
         for (int i = 0; i < 40; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             data.Add(new TValue(DateTime.UtcNow.AddMinutes(i), y));
         }
 
@@ -240,7 +240,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 100; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 
@@ -263,7 +263,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 25; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 
@@ -281,7 +281,7 @@ public class AdfValidationTests
 
         for (int i = 0; i < 50; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 

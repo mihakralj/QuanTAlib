@@ -23,7 +23,7 @@ public class DemaTests
 
             var e1Val = ema1.Update(tVal);
             var e2Val = ema2.Update(e1Val);
-            double expected = 2 * e1Val.Value - e2Val.Value;
+            double expected = (2 * e1Val.Value) - e2Val.Value;
 
             Assert.Equal(expected, dVal.Value, 1e-9);
         }

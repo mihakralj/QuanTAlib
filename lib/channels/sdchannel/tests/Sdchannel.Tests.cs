@@ -192,7 +192,7 @@ public class SdchannelTests
         // Perfect linear trend: 100, 102, 104, 106, 108
         for (int i = 0; i < 5; i++)
         {
-            s.Update(new TValue(DateTime.UtcNow, 100 + i * 2));
+            s.Update(new TValue(DateTime.UtcNow, 100 + (i * 2)));
         }
 
         // All points lie exactly on regression line

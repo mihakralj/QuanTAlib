@@ -155,7 +155,7 @@ public class AdxvmaIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 200; i++)
         {
-            double price = 100 + (i * 0.1) + Math.Sin(i * 0.1) * 2;
+            double price = 100 + (i * 0.1) + (Math.Sin(i * 0.1) * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 2, price - 2, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }

@@ -279,7 +279,7 @@ public sealed class Stbands : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             // Treat as close price only
-            Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);
+            Update(new TValue(startTime + (i * step.Value), source[i]), isNew: true);
         }
     }
 
@@ -406,5 +406,4 @@ public sealed class Stbands : AbstractBase
         TSeries results = indicator.Update(source);
         return (results, indicator);
     }
-
 }

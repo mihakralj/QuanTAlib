@@ -156,8 +156,8 @@ public class AdoscTests
         // Apply 5 corrections with different values
         for (int i = 0; i < 5; i++)
         {
-            var correctedBar = new TBar(bar20.Time, bar20.Open * (1 + i * 0.01), bar20.High * (1 + i * 0.01),
-                bar20.Low * (1 + i * 0.01), bar20.Close * (1 + i * 0.01), bar20.Volume);
+            var correctedBar = new TBar(bar20.Time, bar20.Open * (1 + (i * 0.01)), bar20.High * (1 + (i * 0.01)),
+                bar20.Low * (1 + (i * 0.01)), bar20.Close * (1 + (i * 0.01)), bar20.Volume);
             adosc.Update(correctedBar, isNew: false);
         }
 

@@ -192,7 +192,7 @@ public sealed class Starchannel : ITValuePublisher
         double trueRange = Math.Max(tr1, Math.Max(tr2, tr3));
 
         // ATR using RMA with warmup compensation (uses _atrPeriod for separate ATR smoothing)
-        double newRawRma = (_state.RawRma * (_atrPeriod - 1) + trueRange) / _atrPeriod;
+        double newRawRma = ((_state.RawRma * (_atrPeriod - 1)) + trueRange) / _atrPeriod;
         double newE = (1.0 - _atrAlpha) * _state.E;
         double atrValue = newE > Epsilon ? newRawRma / (1.0 - newE) : newRawRma;
 
@@ -406,7 +406,7 @@ public sealed class Starchannel : ITValuePublisher
             double tr = Math.Max(tr1, Math.Max(tr2, tr3));
 
             // ATR (RMA with warmup compensation, uses effectiveAtrPeriod)
-            rawRma = (rawRma * (effectiveAtrPeriod - 1) + tr) / effectiveAtrPeriod;
+            rawRma = ((rawRma * (effectiveAtrPeriod - 1)) + tr) / effectiveAtrPeriod;
             e = (1.0 - atrAlpha) * e;
             double atr = e > Epsilon ? rawRma / (1.0 - e) : rawRma;
 

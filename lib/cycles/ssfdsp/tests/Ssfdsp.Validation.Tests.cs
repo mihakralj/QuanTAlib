@@ -159,7 +159,7 @@ public class SsfdspValidationTests
 
         for (int i = 0; i < 200; i++)
         {
-            double price = 100 + 10 * Math.Sin(frequency * i);
+            double price = 100 + (10 * Math.Sin(frequency * i));
             ssfdsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
             if (i >= 80) // After warmup
             {
@@ -337,7 +337,7 @@ public class SsfdspValidationTests
 
         for (int i = 0; i < 1000; i++)
         {
-            double price = 100 + 10 * Math.Sin(2 * Math.PI * i / 40);
+            double price = 100 + (10 * Math.Sin(2 * Math.PI * i / 40));
             ssfdsp.Update(new TValue(DateTime.UtcNow.AddSeconds(i), price));
 
             if (i >= 100) // After warmup

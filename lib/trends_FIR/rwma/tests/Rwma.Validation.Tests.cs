@@ -128,11 +128,11 @@ public class RwmaValidationTests
         Assert.Equal(10.0, results[0], 6);
 
         // Bar 1: RWMA = (10*10 + 20*6) / (10+6) = (100+120)/16 = 13.75
-        double expectedBar1 = (10.0 * 10.0 + 20.0 * 6.0) / 16.0;
+        double expectedBar1 = ((10.0 * 10.0) + (20.0 * 6.0)) / 16.0;
         Assert.Equal(expectedBar1, results[1], 6);
 
         // Bar 2: RWMA = (10*10 + 20*6 + 30*10) / (10+6+10) = (100+120+300)/26 = 20.0
-        double expectedBar2 = (10.0 * 10.0 + 20.0 * 6.0 + 30.0 * 10.0) / 26.0;
+        double expectedBar2 = ((10.0 * 10.0) + (20.0 * 6.0) + (30.0 * 10.0)) / 26.0;
         Assert.Equal(expectedBar2, results[2], 6);
     }
 
@@ -168,7 +168,7 @@ public class RwmaValidationTests
         var result = rwma.Update(new TBar(DateTime.UtcNow.AddMinutes(1), 100, 101, 99, 100, 100));  // range=2
 
         // RWMA = (10*50 + 100*2) / (50+2) = (500+200)/52 = 13.46...
-        double expected = (10.0 * 50.0 + 100.0 * 2.0) / 52.0;
+        double expected = ((10.0 * 50.0) + (100.0 * 2.0)) / 52.0;
         Assert.Equal(expected, result.Value, 6);
 
         // RWMA should be much closer to 10 than to 100

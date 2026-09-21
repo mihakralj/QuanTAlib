@@ -50,7 +50,7 @@ public sealed class Gauss : AbstractBase
         }
 
         _sigma = sigma;
-        KernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
+        KernelSize = (int)((2 * Math.Ceiling(3.0 * sigma)) + 1);
         WarmupPeriod = KernelSize;
         Name = $"Gauss({sigma:F2})";
         _buffer = new RingBuffer(KernelSize);
@@ -241,7 +241,7 @@ public sealed class Gauss : AbstractBase
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
         }
 
-        int kernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
+        int kernelSize = (int)((2 * Math.Ceiling(3.0 * sigma)) + 1);
 
         // Use stackalloc for small kernels, ArrayPool for large ones to avoid stack overflow
         double[]? rented = null;

@@ -332,8 +332,8 @@ public sealed class AtrBandsValidationTests : IDisposable
 
             double expectedMid = smaResult[i].Sma!.Value;
             double expectedAtr = atrResult[i].Atr!.Value;
-            double expectedUp = expectedMid + multiplier * expectedAtr;
-            double expectedLo = expectedMid - multiplier * expectedAtr;
+            double expectedUp = expectedMid + (multiplier * expectedAtr);
+            double expectedLo = expectedMid - (multiplier * expectedAtr);
 
             Assert.True(
                 Math.Abs(qMid[i].Value - expectedMid) <= ValidationHelper.SkenderTolerance,

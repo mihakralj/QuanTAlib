@@ -58,7 +58,7 @@ public sealed class Ssf3 : AbstractBase
         double c1 = a1 * a1;
 
         coef2 = b1 + c1;
-        coef3 = -(c1 + b1 * c1);
+        coef3 = -(c1 + (b1 * c1));
         coef4 = c1 * c1;
         coef1 = 1.0 - coef2 - coef3 - coef4;
     }
@@ -88,7 +88,7 @@ public sealed class Ssf3 : AbstractBase
         DateTime baseTime = DateTime.UtcNow;
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(baseTime + interval * i, source[i]));
+            Update(new TValue(baseTime + (interval * i), source[i]));
         }
     }
 

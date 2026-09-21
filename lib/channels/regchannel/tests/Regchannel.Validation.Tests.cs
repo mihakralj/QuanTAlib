@@ -81,7 +81,7 @@ public sealed class RegchannelValidationTests : IDisposable
         // Perfect linear trend: 100, 110, 120, 130, 140
         for (int i = 0; i < 5; i++)
         {
-            series.Add(new TValue(t0.AddMinutes(i), 100 + i * 10));
+            series.Add(new TValue(t0.AddMinutes(i), 100 + (i * 10)));
         }
 
         var ind = new Regchannel(5, 2.0);
@@ -424,7 +424,7 @@ public sealed class RegchannelValidationTests : IDisposable
         var t0 = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            uptrend.Add(new TValue(t0.AddMinutes(i), 100 + i * 2 + (i % 3))); // Noisy uptrend
+            uptrend.Add(new TValue(t0.AddMinutes(i), 100 + (i * 2) + (i % 3))); // Noisy uptrend
         }
 
         var indUp = new Regchannel(10, 2.0);
@@ -438,7 +438,7 @@ public sealed class RegchannelValidationTests : IDisposable
         var downtrend = new TSeries();
         for (int i = 0; i < 20; i++)
         {
-            downtrend.Add(new TValue(t0.AddMinutes(i), 200 - i * 2 + (i % 3))); // Noisy downtrend
+            downtrend.Add(new TValue(t0.AddMinutes(i), 200 - (i * 2) + (i % 3))); // Noisy downtrend
         }
 
         var indDown = new Regchannel(10, 2.0);

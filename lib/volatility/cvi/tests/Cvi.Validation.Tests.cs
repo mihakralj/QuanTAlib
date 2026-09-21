@@ -87,10 +87,10 @@ public class CviValidationTests
         // Gradually expanding range
         for (int i = 0; i < 20; i++)
         {
-            double range = 5 + i * 0.5; // Expanding from 5 to 14.5
+            double range = 5 + (i * 0.5); // Expanding from 5 to 14.5
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
-                100.0, 100.0 + range / 2, 100.0 - range / 2, 100.0, 1000.0
+                100.0, 100.0 + (range / 2), 100.0 - (range / 2), 100.0, 1000.0
             );
             cvi.Update(bar);
         }
@@ -110,14 +110,14 @@ public class CviValidationTests
         // Gradually contracting range
         for (int i = 0; i < 20; i++)
         {
-            double range = 20 - i * 0.5; // Contracting from 20 to 10.5
+            double range = 20 - (i * 0.5); // Contracting from 20 to 10.5
             if (range < 1)
             {
                 range = 1;
             }
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
-                100.0, 100.0 + range / 2, 100.0 - range / 2, 100.0, 1000.0
+                100.0, 100.0 + (range / 2), 100.0 - (range / 2), 100.0, 1000.0
             );
             cvi.Update(bar);
         }
@@ -144,7 +144,7 @@ public class CviValidationTests
         emas[0] = ranges[0];
         for (int i = 1; i < ranges.Length; i++)
         {
-            emas[i] = (ranges[i] - emas[i - 1]) * alpha + emas[i - 1];
+            emas[i] = ((ranges[i] - emas[i - 1]) * alpha) + emas[i - 1];
         }
 
         // Calculate ROC for last point
@@ -407,7 +407,7 @@ public class CviValidationTests
             double range = (i % 2 == 0) ? 5.0 : 20.0;
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
-                100.0, 100.0 + range / 2, 100.0 - range / 2, 100.0, 1000.0
+                100.0, 100.0 + (range / 2), 100.0 - (range / 2), 100.0, 1000.0
             );
             cvi.Update(bar);
         }

@@ -247,7 +247,7 @@ public class SsfdspIndicatorTests
         // Generate trending then ranging price pattern
         for (int i = 0; i < 100; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(i * 0.15);
+            double price = 100.0 + (10.0 * Math.Sin(i * 0.15));
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 1, price - 1, price);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
             values.Add(indicator.LinesSeries[0].GetValue(0));

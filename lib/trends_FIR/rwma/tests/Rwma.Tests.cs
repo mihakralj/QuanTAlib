@@ -123,7 +123,7 @@ public class RwmaTests
         var result = rwma.Update(bar2);
 
         // RWMA = (10*20 + 20*2) / (20+2) = (200+40)/22 = 10.909...
-        double expected = (10.0 * 20.0 + 20.0 * 2.0) / (20.0 + 2.0);
+        double expected = ((10.0 * 20.0) + (20.0 * 2.0)) / (20.0 + 2.0);
         Assert.Equal(expected, result.Value, 10);
 
         // Should be closer to 10 (the high-range bar) than 20
@@ -684,7 +684,7 @@ public class RwmaTests
         var result = rwma.Update(quietBar);
 
         // RWMA = (50*40 + 100*2) / (40+2) = (2000+200)/42 = 52.38...
-        double expected = (50.0 * 40.0 + 100.0 * 2.0) / 42.0;
+        double expected = ((50.0 * 40.0) + (100.0 * 2.0)) / 42.0;
         Assert.Equal(expected, result.Value, 10);
 
         // Should be much closer to 50 than 100

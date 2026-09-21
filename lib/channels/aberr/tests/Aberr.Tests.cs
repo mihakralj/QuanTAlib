@@ -608,7 +608,7 @@ public class AberrTests
         var series = new TSeries();
         for (int i = 0; i < 10; i++)
         {
-            series.Add(DateTime.UtcNow, 100 + i * 10); // 100, 110, 120, ...
+            series.Add(DateTime.UtcNow, 100 + (i * 10)); // 100, 110, 120, ...
         }
 
         // Multiplier 1.0

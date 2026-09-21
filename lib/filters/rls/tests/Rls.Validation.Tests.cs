@@ -17,7 +17,7 @@ public class RlsValidationTests
         double[] sine = new double[T];
         for (int i = 0; i < T; i++)
         {
-            sine[i] = 100.0 + 10.0 * Math.Sin(2 * Math.PI * i / 40.0);
+            sine[i] = 100.0 + (10.0 * Math.Sin(2 * Math.PI * i / 40.0));
         }
 
         double[] output = new double[T];

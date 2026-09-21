@@ -88,7 +88,7 @@ public sealed class Rls : AbstractBase
         _p_P = new double[matSize];
         for (int i = 0; i < order; i++)
         {
-            _P[i * order + i] = delta;
+            _P[(i * order) + i] = delta;
         }
 
         // Ring buffer holds order+1 values: current + order past values
@@ -247,7 +247,7 @@ public sealed class Rls : AbstractBase
                     int rowBase = i * _order;
                     for (int j = 0; j < _order; j++)
                     {
-                        _P[rowBase + j] = _invLambda * (_P[rowBase + j] - ki * px[j]);
+                        _P[rowBase + j] = _invLambda * (_P[rowBase + j] - (ki * px[j]));
                     }
                 }
             }
@@ -304,7 +304,7 @@ public sealed class Rls : AbstractBase
         double[] P = new double[matSize];
         for (int i = 0; i < order; i++)
         {
-            P[i * order + i] = delta;
+            P[(i * order) + i] = delta;
         }
 
         // Temporary buffers for Px and k
@@ -391,7 +391,7 @@ public sealed class Rls : AbstractBase
                 int rowBase = i * order;
                 for (int j = 0; j < order; j++)
                 {
-                    P[rowBase + j] = invLambda * (P[rowBase + j] - ki * px[j]);
+                    P[rowBase + j] = invLambda * (P[rowBase + j] - (ki * px[j]));
                 }
             }
 
@@ -414,7 +414,7 @@ public sealed class Rls : AbstractBase
         Array.Clear(_p_P);
         for (int i = 0; i < _order; i++)
         {
-            _P[i * _order + i] = delta;
+            _P[(i * _order) + i] = delta;
         }
 
         Last = default;

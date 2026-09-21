@@ -62,7 +62,7 @@ public sealed class ErTests
         var er = new Er(period: 10);
         for (int i = 0; i < 20; i++)
         {
-            er.Update(new TValue(DateTime.UtcNow, 100.0 + i * 2));
+            er.Update(new TValue(DateTime.UtcNow, 100.0 + (i * 2)));
         }
         Assert.True(er.Last.Value > 0.8, "Strongly trending prices should produce high ER");
     }
@@ -117,7 +117,7 @@ public sealed class ErTests
         double[] data = new double[15];
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = 100 + i * 2;
+            data[i] = 100 + (i * 2);
         }
 
         for (int i = 0; i < data.Length; i++)

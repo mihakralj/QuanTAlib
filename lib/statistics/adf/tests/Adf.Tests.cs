@@ -374,7 +374,7 @@ public class AdfConsistencyTests
         double price = 100;
         for (int i = 0; i < 30; i++)
         {
-            price += rng.NextDouble() * 2 - 1;
+            price += (rng.NextDouble() * 2) - 1;
             data[i] = price;
         }
 
@@ -400,7 +400,7 @@ public class AdfSpecificTests
 
         for (int i = 0; i < 200; i++)
         {
-            y = 100 + 0.5 * (y - 100) + rng.NextDouble() * 2 - 1;
+            y = 100 + (0.5 * (y - 100)) + (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 
@@ -419,7 +419,7 @@ public class AdfSpecificTests
 
         for (int i = 0; i < 200; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             a.Update(new TValue(now.AddMinutes(i), y));
         }
 
@@ -435,7 +435,7 @@ public class AdfSpecificTests
         var source = new TSeries();
         for (int i = 0; i < 80; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), y));
         }
 
@@ -464,7 +464,7 @@ public class AdfSpecificTests
         var source = new TSeries();
         for (int i = 0; i < 100; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), y));
         }
 
@@ -485,7 +485,7 @@ public class AdfSpecificTests
         var source = new TSeries();
         for (int i = 0; i < 200; i++)
         {
-            y += rng.NextDouble() * 2 - 1;
+            y += (rng.NextDouble() * 2) - 1;
             source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), y));
         }
 

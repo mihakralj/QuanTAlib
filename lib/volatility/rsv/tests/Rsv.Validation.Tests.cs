@@ -56,7 +56,7 @@ public class RsvValidationTests
         double lnLO = Math.Log(price / price); // log(1) = 0
         double lnLC = Math.Log(price / price); // log(1) = 0
 
-        double rsVariance = lnHO * lnHC + lnLO * lnLC; // 0
+        double rsVariance = (lnHO * lnHC) + (lnLO * lnLC); // 0
 
         Assert.Equal(0.0, rsVariance, 15);
     }
@@ -153,7 +153,7 @@ public class RsvValidationTests
         // Strongly trending market (continuous up moves)
         for (int i = 0; i < 30; i++)
         {
-            double basePrice = 100 + i * 2; // Strong uptrend
+            double basePrice = 100 + (i * 2); // Strong uptrend
             var bar = new TBar(
                 DateTime.UtcNow.AddMinutes(i).Ticks,
                 basePrice, basePrice + 3, basePrice - 2, basePrice + 2, 1000.0
@@ -698,7 +698,7 @@ public class RsvValidationTests
         double lnLO = Math.Log(low / open);
         double lnLC = Math.Log(low / close);
 
-        return lnHO * lnHC + lnLO * lnLC;
+        return (lnHO * lnHC) + (lnLO * lnLC);
     }
 
     private static double Variance(List<double> values)

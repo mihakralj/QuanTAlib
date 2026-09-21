@@ -215,7 +215,7 @@ public sealed class SumValidationTests : IDisposable
         // Expected: sum of 1e10, 1e10+1, ..., 1e10+999
         // = 1000 * 1e10 + sum of 0,1,2,...,999
         // = 1e13 + 999*1000/2 = 1e13 + 499500
-        double expectedSum = 1000 * baseValue + 499500.0;
+        double expectedSum = (1000 * baseValue) + 499500.0;
 
         Assert.Equal(expectedSum, sum.Last.Value, 1e-4);
         _output.WriteLine($"Sum Kahan-Babuška stability test passed: {sum.Last.Value:G17}");
@@ -364,7 +364,7 @@ public sealed class SumValidationTests : IDisposable
         }
 
         // Expected: 1e16 - 1000 * 1e13 = 1e16 - 1e16 = 0
-        double expected = 1e16 - 1000 * 1e13;
+        double expected = 1e16 - (1000 * 1e13);
 
         // With Kahan-Babuška, this should be accurate
         // Naive sum would have significant error

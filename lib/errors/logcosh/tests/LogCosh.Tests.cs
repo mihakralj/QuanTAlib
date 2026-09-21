@@ -398,7 +398,7 @@ public class LogCoshTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
-            logCosh.Update(bar.Close, bar.Close * (1 + (i % 3 - 1) * 0.1));
+            logCosh.Update(bar.Close, bar.Close * (1 + (((i % 3) - 1) * 0.1)));
             Assert.True(logCosh.Last.Value >= 0, $"LogCosh should be non-negative, got {logCosh.Last.Value}");
         }
     }

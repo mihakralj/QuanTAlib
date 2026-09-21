@@ -83,14 +83,14 @@ public sealed class PivotcamBasicTests
         double range = 20.0;
         double pC = 100.0;
         Assert.Equal(100.0, p.PP, precision: 10);
-        Assert.Equal(pC + range * 1.0833 / 12.0, p.R1, precision: 4);
-        Assert.Equal(pC - range * 1.0833 / 12.0, p.S1, precision: 4);
-        Assert.Equal(pC + range * 1.1666 / 12.0, p.R2, precision: 4);
-        Assert.Equal(pC - range * 1.1666 / 12.0, p.S2, precision: 4);
-        Assert.Equal(pC + range * 1.25 / 12.0, p.R3, precision: 4);
-        Assert.Equal(pC - range * 1.25 / 12.0, p.S3, precision: 4);
-        Assert.Equal(pC + range * 1.5 / 12.0, p.R4, precision: 4);
-        Assert.Equal(pC - range * 1.5 / 12.0, p.S4, precision: 4);
+        Assert.Equal(pC + (range * 1.0833 / 12.0), p.R1, precision: 4);
+        Assert.Equal(pC - (range * 1.0833 / 12.0), p.S1, precision: 4);
+        Assert.Equal(pC + (range * 1.1666 / 12.0), p.R2, precision: 4);
+        Assert.Equal(pC - (range * 1.1666 / 12.0), p.S2, precision: 4);
+        Assert.Equal(pC + (range * 1.25 / 12.0), p.R3, precision: 4);
+        Assert.Equal(pC - (range * 1.25 / 12.0), p.S3, precision: 4);
+        Assert.Equal(pC + (range * 1.5 / 12.0), p.R4, precision: 4);
+        Assert.Equal(pC - (range * 1.5 / 12.0), p.S4, precision: 4);
     }
 
     [Fact]
@@ -108,14 +108,14 @@ public sealed class PivotcamBasicTests
         double pC = 115.0;
 
         Assert.Equal(expectedPP, p.PP, precision: 10);
-        Assert.Equal(pC + range * 1.0833 / 12.0, p.R1, precision: 4);
-        Assert.Equal(pC - range * 1.0833 / 12.0, p.S1, precision: 4);
-        Assert.Equal(pC + range * 1.1666 / 12.0, p.R2, precision: 4);
-        Assert.Equal(pC - range * 1.1666 / 12.0, p.S2, precision: 4);
-        Assert.Equal(pC + range * 1.25 / 12.0, p.R3, precision: 4);
-        Assert.Equal(pC - range * 1.25 / 12.0, p.S3, precision: 4);
-        Assert.Equal(pC + range * 1.5 / 12.0, p.R4, precision: 4);
-        Assert.Equal(pC - range * 1.5 / 12.0, p.S4, precision: 4);
+        Assert.Equal(pC + (range * 1.0833 / 12.0), p.R1, precision: 4);
+        Assert.Equal(pC - (range * 1.0833 / 12.0), p.S1, precision: 4);
+        Assert.Equal(pC + (range * 1.1666 / 12.0), p.R2, precision: 4);
+        Assert.Equal(pC - (range * 1.1666 / 12.0), p.S2, precision: 4);
+        Assert.Equal(pC + (range * 1.25 / 12.0), p.R3, precision: 4);
+        Assert.Equal(pC - (range * 1.25 / 12.0), p.S3, precision: 4);
+        Assert.Equal(pC + (range * 1.5 / 12.0), p.R4, precision: 4);
+        Assert.Equal(pC - (range * 1.5 / 12.0), p.S4, precision: 4);
     }
 
     [Fact]

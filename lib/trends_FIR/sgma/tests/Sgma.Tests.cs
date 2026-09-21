@@ -394,12 +394,12 @@ public class SgmaTests
         double[] prices = new double[20];
         for (int i = 0; i < 10; i++)
         {
-            prices[i] = 100 + i * 5;
+            prices[i] = 100 + (i * 5);
         }
 
         for (int i = 10; i < 20; i++)
         {
-            prices[i] = 145 - (i - 10) * 5;
+            prices[i] = 145 - ((i - 10) * 5);
         }
 
         var sgma2 = new Sgma(5, 2);
