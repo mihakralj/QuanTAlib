@@ -181,7 +181,7 @@ public class FsiTests
         var rng = new Random(123);
         for (int i = 0; i < 1000; i++)
         {
-            double price = 100 + (rng.NextDouble() - 0.5) * 50;
+            double price = 100 + ((rng.NextDouble() - 0.5) * 50);
             fsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
         }
         Assert.True(double.IsFinite(fsi.Last.Value));
@@ -291,7 +291,7 @@ public class FsiTests
         var fsi = new Fsi(source, period: 20, bandwidth: 0.1);
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.1));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.1)));
         }
         Assert.True(double.IsFinite(fsi.Last.Value));
     }
@@ -320,7 +320,7 @@ public class FsiTests
         double lastAbsMax = 0;
         for (int i = 0; i < 200; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 20.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 20.0));
             fsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             if (i > 100)
             {
@@ -339,8 +339,8 @@ public class FsiTests
         double lastAbsMax = 0;
         for (int i = 0; i < 300; i++)
         {
-            double price = 100.0 + 5.0 * Math.Sin(2.0 * Math.PI * i / 20.0)
-                                 + 3.0 * Math.Sin(2.0 * Math.PI * i / 10.0);
+            double price = 100.0 + (5.0 * Math.Sin(2.0 * Math.PI * i / 20.0))
+                                 + (3.0 * Math.Sin(2.0 * Math.PI * i / 10.0));
             fsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             if (i > 150)
             {
@@ -403,7 +403,7 @@ public class FsiTests
         var values = new double[100];
         for (int i = 0; i < 100; i++)
         {
-            values[i] = 100.0 + i * 0.1;
+            values[i] = 100.0 + (i * 0.1);
         }
         fsi.Prime(values);
         Assert.True(fsi.IsHot);
