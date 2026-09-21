@@ -75,7 +75,7 @@ public class MadhTests
 
         for (int i = 0; i < 500; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         Assert.True(indicator.IsHot);
@@ -100,7 +100,7 @@ public class MadhTests
 
         for (int i = 0; i < 30; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5), isNew: true);
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)), isNew: true);
         }
 
         TValue r1 = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(30), 120.0), isNew: true);
@@ -243,7 +243,7 @@ public class MadhTests
 
         for (int i = 0; i < 100; i++)
         {
-            source[i] = 100.0 + i * 0.5;
+            source[i] = 100.0 + (i * 0.5);
         }
 
         source[50] = double.NaN;
@@ -346,7 +346,7 @@ public class MadhTests
 
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Madh.Batch(source, output, 8, 27);
@@ -442,7 +442,7 @@ public class MadhTests
 
         for (int i = 0; i < 100; i++)
         {
-            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0));
+            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)));
             lastResult = r.Value;
         }
 
