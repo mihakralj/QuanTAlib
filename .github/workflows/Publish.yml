@@ -43,7 +43,7 @@ jobs:
   # 1) ReSharper InspectCode -> SARIF artifact
   # ==============================================================================
   ReSharper_Analysis:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
@@ -123,7 +123,7 @@ jobs:
   # 2) Snyk Security Scan -> SARIF artifact
   # ==============================================================================
   Snyk_Scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -196,7 +196,7 @@ jobs:
   # 3) Semgrep Security Scan -> SARIF artifact
   # ==============================================================================
   Semgrep_Scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -265,7 +265,7 @@ jobs:
   # ==============================================================================
   Sonar_Analysis:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
@@ -458,7 +458,7 @@ jobs:
   # ==============================================================================
   GitHub_Security_Upload:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -672,7 +672,7 @@ jobs:
   # ==============================================================================
   DeepSource_Upload:
     needs: [Sonar_Analysis]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -711,7 +711,7 @@ jobs:
   # 7) Codacy Rule Sync (disable Sonar rules from sonar-suppressions.json)
   # ==============================================================================
   Codacy_Rule_Sync:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -822,7 +822,7 @@ jobs:
   # ==============================================================================
   Codacy_Upload:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis, Codacy_Rule_Sync]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read

@@ -42,7 +42,7 @@ jobs:
             native_file: quantalib_native.dll
             wheel_platform_tag: win_arm64
           - wheel_id: linux-amd64
-            os: ubuntu-latest
+            os: ubuntu-26.04
             rid: linux-x64
             native_dir: linux_x86_64
             native_file: quantalib_native.so
@@ -172,7 +172,7 @@ jobs:
   # ==============================================================================
   Publish_Package:
     needs: [Build_Python_Wheels]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment: pypi
     timeout-minutes: 15
     permissions:
