@@ -390,7 +390,7 @@ public class CmoTests
         }
 
         Assert.NotNull(received);
-        Assert.Equal(cmo.Last.Value, received!.Value.Value);
+        Assert.Equal(cmo.Last.Value, received.Value.Value);
     }
 
     [Fact]

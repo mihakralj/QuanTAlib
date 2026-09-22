@@ -394,7 +394,7 @@ public sealed class CrsiValidationTests(ITestOutputHelper output) : IDisposable
             Assert.True(r.RsiStreak.HasValue, $"Skender RsiStreak null at {i}");
             Assert.True(r.PercentRank.HasValue, $"Skender PercentRank null at {i}");
             Assert.True(r.ConnorsRsi.HasValue, $"Skender ConnorsRsi null at {i}");
-            Assert.InRange(r.ConnorsRsi!.Value, 0.0, 100.0);
+            Assert.InRange(r.ConnorsRsi.Value, 0.0, 100.0);
         }
 
         _output.WriteLine("Skender ConnorsRsi components all present and in [0,100] for converged bars.");
@@ -603,7 +603,7 @@ public sealed class CrsiValidationTests(ITestOutputHelper output) : IDisposable
 
         Assert.NotNull(method);
 
-        var parameters = method!.GetParameters();
+        var parameters = method.GetParameters();
         var args = new object?[parameters.Length];
         args[0] = stockData; // extension target
 
@@ -631,14 +631,14 @@ public sealed class CrsiValidationTests(ITestOutputHelper output) : IDisposable
         var result = method.Invoke(null, args) as StockData;
         Assert.NotNull(result);
 
-        var outputValues = result!.OutputValues as System.Collections.IDictionary;
+        var outputValues = result.OutputValues as System.Collections.IDictionary;
         Assert.NotNull(outputValues);
-        Assert.NotEmpty(outputValues!.Keys);
+        Assert.NotEmpty(outputValues.Keys);
 
         object? firstSeries = outputValues.Values.Cast<object?>().FirstOrDefault(v => v is IEnumerable<double>);
         Assert.NotNull(firstSeries);
 
-        return ((IEnumerable<double>)firstSeries!).ToArray();
+        return ((IEnumerable<double>)firstSeries).ToArray();
     }
 
     private static List<TickerData> BuildOoplesTickerData(double[] values)
