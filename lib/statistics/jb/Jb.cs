@@ -476,11 +476,15 @@ public sealed class Jb : AbstractBase
 
                 double vSq = val * val;
                 double oSq = oldVal * oldVal;
-                // Kahan subtract old, add new
-                { double y = (val - oldVal) - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
-                { double y = (vSq - oSq) - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
-                { double y = ((vSq * val) - (oSq * oldVal)) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
-                { double y = ((vSq * vSq) - (oSq * oSq)) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
+                // Keep the operation order aligned with streaming: subtract old, then add new.
+                { double y = -oldVal - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
+                { double y = -oSq - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
+                { double y = -(oSq * oldVal) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
+                { double y = -(oSq * oSq) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
+                { double y = val - sumComp; double t = sum + y; sumComp = (t - sum) - y; sum = t; }
+                { double y = vSq - sumSqComp; double t = sumSq + y; sumSqComp = (t - sumSq) - y; sumSq = t; }
+                { double y = (vSq * val) - sumCuComp; double t = sumCu + y; sumCuComp = (t - sumCu) - y; sumCu = t; }
+                { double y = (vSq * vSq) - sumQuComp; double t = sumQu + y; sumQuComp = (t - sumQu) - y; sumQu = t; }
 
                 output[i] = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, period);
             }
