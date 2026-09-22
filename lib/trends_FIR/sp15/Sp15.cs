@@ -253,13 +253,13 @@ public sealed class Sp15 : AbstractBase
         double[]? ringRented = Period > StackallocThreshold ? ArrayPool<double>.Shared.Rent(Period) : null;
         Span<double> ring = Period <= StackallocThreshold
             ? stackalloc double[Period]
-            : ringRented!.AsSpan(0, Period);
+            : ringRented.AsSpan(0, Period);
 
         // Allocate NaN-corrected values array
         double[]? cleanRented = len > StackallocThreshold ? ArrayPool<double>.Shared.Rent(len) : null;
         Span<double> clean = len <= StackallocThreshold
             ? stackalloc double[len]
-            : cleanRented!.AsSpan(0, len);
+            : cleanRented.AsSpan(0, len);
 
         try
         {

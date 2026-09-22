@@ -105,7 +105,7 @@ public static class IndicatorExtensions
         var lastTime = data.Time(data.Count - 1);
         var firstTime = data.Time(0);
 
-        IChartWindowCoordinatesConverter safeConverter = converter!;
+        IChartWindowCoordinatesConverter safeConverter = converter;
         DateTime tLeft = safeConverter.GetTime(clientRect.Left);
         DateTime leftTime = tLeft > lastTime ? tLeft : lastTime;
 
@@ -158,7 +158,7 @@ public static class IndicatorExtensions
         var lastTime = data.Time(data.Count - 1);
         var firstTime = data.Time(0);
 
-        IChartWindowCoordinatesConverter safeConverter = converter!;
+        IChartWindowCoordinatesConverter safeConverter = converter;
         DateTime tLeft = safeConverter.GetTime(clientRect.Left);
         DateTime leftTime = tLeft > lastTime ? tLeft : lastTime;
 
