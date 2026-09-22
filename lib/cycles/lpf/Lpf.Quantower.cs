@@ -73,7 +73,7 @@ public sealed class LpfIndicator : Indicator, IWatchlistIndicator
         TValue result = _lpf.Update(input, args.IsNewBar());
 
         _cycleSeries.SetValue(result.Value, _lpf.IsHot, ShowColdValues);
-        _signalSeries.SetValue(_lpf.Signal * UpperBound * 0.5 + (LowerBound + UpperBound) * 0.5, _lpf.IsHot, ShowColdValues);
-        _predictSeries.SetValue(_lpf.Predict * UpperBound * 0.5 + (LowerBound + UpperBound) * 0.5, _lpf.IsHot, ShowColdValues);
+        _signalSeries.SetValue((_lpf.Signal * UpperBound * 0.5) + ((LowerBound + UpperBound) * 0.5), _lpf.IsHot, ShowColdValues);
+        _predictSeries.SetValue((_lpf.Predict * UpperBound * 0.5) + ((LowerBound + UpperBound) * 0.5), _lpf.IsHot, ShowColdValues);
     }
 }

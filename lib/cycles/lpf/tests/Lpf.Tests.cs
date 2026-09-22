@@ -192,7 +192,7 @@ public class LpfTests
 
         for (int i = 0; i < 100; i++)
         {
-            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10), isNew: true);
+            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)), isNew: true);
         }
 
         lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(100), 110.0), isNew: true);
@@ -254,7 +254,7 @@ public class LpfTests
 
         for (int i = 0; i < 200; i++)
         {
-            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var firstResult = lpf.Last.Value;
 
@@ -262,7 +262,7 @@ public class LpfTests
 
         for (int i = 0; i < 200; i++)
         {
-            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + Math.Sin(i * 0.1) * 10));
+            lpf.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (Math.Sin(i * 0.1) * 10)));
         }
         var secondResult = lpf.Last.Value;
 
@@ -494,7 +494,7 @@ public class LpfTests
         double[] data = new double[200];
         for (int i = 0; i < 200; i++)
         {
-            data[i] = 100.0 + Math.Sin(i * 0.1) * 10;
+            data[i] = 100.0 + (Math.Sin(i * 0.1) * 10);
         }
 
         lpf.Prime(data);

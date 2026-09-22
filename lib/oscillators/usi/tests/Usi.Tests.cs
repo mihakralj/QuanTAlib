@@ -72,7 +72,7 @@ public class UsiTests
 
         for (int i = 0; i < 500; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         Assert.True(indicator.IsHot);
@@ -97,7 +97,7 @@ public class UsiTests
 
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.5), isNew: true);
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.5)), isNew: true);
         }
 
         TValue r1 = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(60), 200.0), isNew: true);
@@ -188,7 +188,7 @@ public class UsiTests
 
         for (int i = 0; i < 200; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
             if (indicator.IsHot && hotAt < 0)
             {
                 hotAt = i;
@@ -208,7 +208,7 @@ public class UsiTests
 
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         TValue nanResult = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(50), double.NaN));
@@ -223,7 +223,7 @@ public class UsiTests
 
         for (int i = 0; i < 50; i++)
         {
-            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 0.1));
+            indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 0.1)));
         }
 
         TValue infResult = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(50), double.PositiveInfinity));
@@ -239,7 +239,7 @@ public class UsiTests
 
         for (int i = 0; i < 100; i++)
         {
-            source[i] = 100.0 + i * 0.5;
+            source[i] = 100.0 + (i * 0.5);
         }
 
         source[50] = double.NaN;
@@ -332,7 +332,7 @@ public class UsiTests
 
         for (int i = 0; i < size; i++)
         {
-            source[i] = 100.0 + i * 0.1;
+            source[i] = 100.0 + (i * 0.1);
         }
 
         Usi.Batch(source, output, 28);
@@ -427,7 +427,7 @@ public class UsiTests
 
         for (int i = 0; i < 200; i++)
         {
-            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + i * 2.0));
+            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 100.0 + (i * 2.0)));
             lastResult = r.Value;
         }
 
@@ -444,7 +444,7 @@ public class UsiTests
 
         for (int i = 0; i < 200; i++)
         {
-            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 500.0 - i * 2.0));
+            TValue r = indicator.Update(new TValue(DateTime.UtcNow.AddSeconds(i), 500.0 - (i * 2.0)));
             lastResult = r.Value;
         }
 

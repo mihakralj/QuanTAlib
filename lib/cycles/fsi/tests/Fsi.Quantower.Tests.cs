@@ -59,7 +59,7 @@ public class FsiIndicatorTests
 
         for (int i = 0; i < 50; i++)
         {
-            double price = 100.0 + Math.Sin(2.0 * Math.PI * i / 20.0) * 5.0;
+            double price = 100.0 + (Math.Sin(2.0 * Math.PI * i / 20.0) * 5.0);
             indicator.HistoricalData.AddBar(
                 DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
@@ -77,7 +77,7 @@ public class FsiIndicatorTests
 
         for (int i = 0; i < 30; i++)
         {
-            double price = 100.0 + i * 0.5;
+            double price = 100.0 + (i * 0.5);
             indicator.HistoricalData.AddBar(
                 DateTime.UtcNow.AddMinutes(i), price, price + 1, price - 1, price, 1000);
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));

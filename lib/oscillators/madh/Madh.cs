@@ -59,7 +59,7 @@ public sealed class Madh : AbstractBase
         }
 
         _shortLength = shortLength;
-        _longLength = shortLength + dominantCycle / 2;
+        _longLength = shortLength + (dominantCycle / 2);
 
         // Precompute short Hann coefficients: w(k) = 1 - cos(2π·k / (N+1))
         _shortCoeffs = new double[_shortLength];
@@ -271,7 +271,7 @@ public sealed class Madh : AbstractBase
         }
 
         // MADH = 100 * (Filt1 / Filt2 - 1)
-        return Math.Abs(filt2) > Epsilon ? 100.0 * (filt1 / filt2 - 1.0) : 0.0;
+        return Math.Abs(filt2) > Epsilon ? 100.0 * ((filt1 / filt2) - 1.0) : 0.0;
     }
 
     /// <summary>

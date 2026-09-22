@@ -186,7 +186,7 @@ public class PtaTests
         var rng = new Random(123);
         for (int i = 0; i < 1000; i++)
         {
-            double price = 100 + (rng.NextDouble() - 0.5) * 50;
+            double price = 100 + ((rng.NextDouble() - 0.5) * 50);
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
         }
         Assert.True(double.IsFinite(pta.Last.Value));
@@ -282,7 +282,7 @@ public class PtaTests
         var pta = new Pta(source, longPeriod: 50, shortPeriod: 10);
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.1));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.1)));
         }
         Assert.True(double.IsFinite(pta.Last.Value));
     }
@@ -311,7 +311,7 @@ public class PtaTests
         var pta = new Pta(50, 10);
         for (int i = 0; i < 500; i++)
         {
-            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         // Both HP filters output 0 for pure linear → PTA ≈ 0
@@ -327,7 +327,7 @@ public class PtaTests
         double lastAbsMax = 0;
         for (int i = 0; i < 500; i++)
         {
-            double price = 100.0 + 10.0 * Math.Sin(2.0 * Math.PI * i / 100.0);
+            double price = 100.0 + (10.0 * Math.Sin(2.0 * Math.PI * i / 100.0));
             pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             if (i > 300)
             {
@@ -345,12 +345,12 @@ public class PtaTests
         // Uptrend
         for (int i = 0; i < 200; i++)
         {
-            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 0.5));
+            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
         // Transition to downtrend
         for (int i = 0; i < 200; i++)
         {
-            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(200 + i), 200.0 - i * 0.5));
+            pta.Update(new TValue(DateTime.UtcNow.AddMinutes(200 + i), 200.0 - (i * 0.5)));
         }
 
         // After sustained downtrend, PTA should detect the reversal
@@ -396,7 +396,7 @@ public class PtaTests
         var values = new double[100];
         for (int i = 0; i < 100; i++)
         {
-            values[i] = 100.0 + i * 0.1;
+            values[i] = 100.0 + (i * 0.1);
         }
         pta.Prime(values);
         Assert.True(pta.IsHot);

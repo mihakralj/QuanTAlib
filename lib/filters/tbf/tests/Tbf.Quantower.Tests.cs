@@ -162,7 +162,7 @@ public class TbfIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 50; i++)
         {
-            double price = 100 + Math.Sin(i * 0.3) * 10;
+            double price = 100 + (Math.Sin(i * 0.3) * 10);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price + 1);
             indicator.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }
@@ -194,7 +194,7 @@ public class TbfIndicatorTests
         var now = DateTime.UtcNow;
         for (int i = 0; i < 20; i++)
         {
-            double price = 100 + i * 2;
+            double price = 100 + (i * 2);
             indicator.HistoricalData.AddBar(now.AddMinutes(i), price, price + 5, price - 5, price + 1);
             indicator.ProcessUpdate(new UpdateArgs(i == 0 ? UpdateReason.HistoricalBar : UpdateReason.NewBar));
         }

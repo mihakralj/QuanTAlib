@@ -8,7 +8,7 @@ public class NetTests
         TSeries series = [];
         for (int i = 0; i < count; i++)
         {
-            series.Add(new TValue(DateTime.UtcNow.AddSeconds(i).Ticks, 100.0 + rng.NextDouble() * 10.0));
+            series.Add(new TValue(DateTime.UtcNow.AddSeconds(i).Ticks, 100.0 + (rng.NextDouble() * 10.0)));
         }
         return series;
     }
@@ -69,7 +69,7 @@ public class NetTests
         TValue result = default;
         for (int i = 1; i <= 10; i++)
         {
-            result = net.Update(new TValue(i, 100.0 - i * 10.0));
+            result = net.Update(new TValue(i, 100.0 - (i * 10.0)));
         }
         Assert.True(result.Value < 0.0, $"Expected negative NET for falling series, got {result.Value}");
     }
@@ -147,7 +147,7 @@ public class NetTests
         var net = new Net(period: 10);
         for (int i = 1; i <= 20; i++)
         {
-            net.Update(new TValue(i, 50.0 + i * 0.5));
+            net.Update(new TValue(i, 50.0 + (i * 0.5)));
         }
 
         double firstVal = net.Update(new TValue(21, 70.0)).Value;
@@ -428,7 +428,7 @@ public class NetTests
         var rng = new Random(123);
         for (int i = 0; i < 1000; i++)
         {
-            net.Update(new TValue(i, rng.NextDouble() * 200.0 - 100.0));
+            net.Update(new TValue(i, (rng.NextDouble() * 200.0) - 100.0));
             Assert.InRange(net.Last.Value, -1.0, 1.0);
         }
     }
@@ -531,7 +531,7 @@ public class NetTests
         var rng = new Random(99);
         for (int i = 0; i < 100_000; i++)
         {
-            net.Update(new TValue(i, 100.0 + rng.NextDouble() * 50.0));
+            net.Update(new TValue(i, 100.0 + (rng.NextDouble() * 50.0)));
         }
         Assert.True(double.IsFinite(net.Last.Value));
         Assert.InRange(net.Last.Value, -1.0, 1.0);

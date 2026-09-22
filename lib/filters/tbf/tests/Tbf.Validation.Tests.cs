@@ -342,9 +342,9 @@ public class TbfValidationTests
             }
             else
             {
-                directBp[i] = a0 * (input[i] - input[i - 2])
-                    + a1 * directBp[i - 1]
-                    - s1 * directBp[i - 2];
+                directBp[i] = (a0 * (input[i] - input[i - 2]))
+                    + (a1 * directBp[i - 1])
+                    - (s1 * directBp[i - 2]);
             }
         }
 

@@ -162,7 +162,7 @@ public sealed class Pta : AbstractBase
         else
         {
             // 2nd-order difference: src - 2*src1 + src2
-            double diff = src - 2.0 * s.Src1 + s.Src2;
+            double diff = src - (2.0 * s.Src1) + s.Src2;
 
             // HP1 (long period): hp1 = c1L*diff + c2L*hp1 + c3L*hp1_1
             double hp1 = Math.FusedMultiplyAdd(_c1L, diff,
@@ -274,7 +274,7 @@ public sealed class Pta : AbstractBase
 
         for (int i = 2; i < source.Length; i++)
         {
-            double diff = source[i] - 2.0 * source[i - 1] + source[i - 2];
+            double diff = source[i] - (2.0 * source[i - 1]) + source[i - 2];
 
             double newHp1 = Math.FusedMultiplyAdd(c1L, diff,
                              Math.FusedMultiplyAdd(c2L, hp1, c3L * hp1_1));

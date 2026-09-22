@@ -89,7 +89,7 @@ public sealed class Usi : AbstractBase
         double c1 = (1.0 + _c2 - _c3) / 4.0;
 
         _k0 = 1.0 - c1;
-        _k1 = 2.0 * c1 - _c2;
+        _k1 = (2.0 * c1) - _c2;
         _k2 = -(c1 + _c3);
 
         Name = $"Usi({period})";
