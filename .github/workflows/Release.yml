@@ -228,7 +228,7 @@ jobs:
           ls -lh lib/bin/Release/*.nupkg || true
 
       - name: Download all python wheel artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: python-wheel-*
           path: python-wheel-all
