@@ -67,13 +67,13 @@ All channels share fast period $F = 8$ (Fibonacci $F_6$).
 
 $$W = \max(8, 377) + 377 - 2 = 752$$
 
-The slowest channel (8, 377, 377) dictates the warmup. [`IsHot`](lib/oscillators/ttm_wave/TtmWave.cs:71) is the conjunction of all six MACD `IsHot` flags.
+The slowest channel (8, 377, 377) dictates the warmup. [`IsHot`](TtmWave.cs) is the conjunction of all six MACD `IsHot` flags.
 
 ## Architecture & Physics
 
 ### 1. Composition of Six MACD Instances
 
-[`TtmWave`](lib/oscillators/ttm_wave/TtmWave.cs:29) is implemented as a composition of six internal [`Macd`](lib/oscillators/ttm_wave/TtmWave.cs:43) instances rather than manual EMA management. This delegates bar correction, NaN handling, and state management to the battle-tested `Macd` class. The trade-off: six redundant fast EMA computations (all share period 8). The benefit: zero additional state synchronization bugs.
+[`TtmWave`](TtmWave.cs) is implemented as a composition of six internal [`Macd`](TtmWave.cs) instances rather than manual EMA management. This delegates bar correction, NaN handling, and state management to the battle-tested `Macd` class. The trade-off: six redundant fast EMA computations (all share period 8). The benefit: zero additional state synchronization bugs.
 
 ### 2. Wave Grouping
 
@@ -83,13 +83,13 @@ The six histograms map to three wave bands, each containing an inner (smaller pe
 
 | TOS Name | QuanTAlib Property | Definition |
 |----------|-------------------|------------|
-| Wave1 | [`Wave1`](lib/oscillators/ttm_wave/TtmWave.cs:95) / `WaveA2` | Channel 1 histogram (8,34,34) |
-| Wave2High | [`Wave2High`](lib/oscillators/ttm_wave/TtmWave.cs:98) | max(WaveC1, WaveC2) |
-| Wave2Low | [`Wave2Low`](lib/oscillators/ttm_wave/TtmWave.cs:101) | min(WaveC1, WaveC2) |
+| Wave1 | [`Wave1`](TtmWave.cs) / `WaveA2` | Channel 1 histogram (8,34,34) |
+| Wave2High | [`Wave2High`](TtmWave.cs) | max(WaveC1, WaveC2) |
+| Wave2Low | [`Wave2Low`](TtmWave.cs) | min(WaveC1, WaveC2) |
 
 ### 4. IDisposable Pattern
 
-Because `TtmWave` subscribes to a source publisher's events, it implements [`IDisposable`](lib/oscillators/ttm_wave/TtmWave.cs:29) to properly unsubscribe and dispose all six internal MACD instances.
+Because `TtmWave` subscribes to a source publisher's events, it implements [`IDisposable`](TtmWave.cs) to properly unsubscribe and dispose all six internal MACD instances.
 
 ### 5. Edge Cases
 
@@ -174,7 +174,7 @@ No external libraries implement TTM Wave. Validation relies on self-consistency 
 | EMA recursion | Scalar (IIR filter, sequential dependency) |
 | Histogram subtraction | Scalar (trivial, not worth vectorizing alone) |
 | Six channels | Independent but sequential (could parallelize, not worth the overhead) |
-| Vectorization potential | None — 18 IIR recursions per bar prevent SIMD |
+| Vectorization potential | None - 18 IIR recursions per bar prevent SIMD |
 
 ## Common Pitfalls
 

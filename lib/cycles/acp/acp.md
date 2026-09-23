@@ -1,6 +1,6 @@
 # ACP: Ehlers Autocorrelation Periodogram
 
-> *Autocorrelation periodogram scans every possible cycle length and ranks them by strength — a spectral fingerprint of the market.*
+> *Autocorrelation periodogram scans every possible cycle length and ranks them by strength - a spectral fingerprint of the market.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -13,14 +13,14 @@
 | **PineScript**   | [acp.pine](acp.pine)                       |
 
 - ACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem.
-- **Similar:** [CG](../cg/cg.md), [HT_DCPeriod](../ht_dcperiod/ht_dcperiod.md) | **Complementary:** EBSW for trend/cycle classification | **Trading note:** Ehlers Autocorrelation Periodogram; identifies dominant cycle length adaptively.
+- **Similar:** [CG](../cg/Cg.md), [HT_DCPeriod](../ht_dcperiod/HtDcperiod.md) | **Complementary:** EBSW for trend/cycle classification | **Trading note:** Ehlers Autocorrelation Periodogram; identifies dominant cycle length adaptively.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 ACP estimates the dominant cycle period of a financial time series by computing autocorrelation across multiple lags and transforming the result into a power spectrum via the Wiener-Khinchin theorem. The output is a continuously updating cycle period measurement (in bars) that can adaptively tune other indicators to the market's current rhythm, making fixed-period assumptions unnecessary.
 
 ## Historical Context
 
-John Ehlers introduced the Autocorrelation Periodogram to solve the fundamental problem of cycle measurement in noisy financial data. Traditional spectral methods (FFT) assume stationarity and require long data windows, making them impractical for real-time trading. Ehlers leveraged the Wiener-Khinchin theorem, which establishes that a signal's autocorrelation function and its power spectral density form a Fourier transform pair. By computing autocorrelation in the time domain and transforming to frequency via a discrete cosine transform, the algorithm identifies spectral peaks corresponding to dominant periodicities. The center-of-gravity weighting of spectral peaks provides a robust, noise-tolerant period estimate. This enables truly adaptive trading systems where RSI, Stochastic, or moving average periods track the market's actual cycle length rather than relying on fixed parameters.
+John Ehlers introduced the Autocorrelation Periodogram to solve the fundamental problem of cycle measurement in noisy financial data. Traditional spectral methods (FFT) assume stationarity and require long data windows, making them impractical for real-time trading. Ehlers applied the Wiener-Khinchin theorem, which establishes that a signal's autocorrelation function and its power spectral density form a Fourier transform pair. By computing autocorrelation in the time domain and transforming to frequency via a discrete cosine transform, the algorithm identifies spectral peaks corresponding to dominant periodicities. The center-of-gravity weighting of spectral peaks provides a robust, noise-tolerant period estimate. This enables truly adaptive trading systems where RSI, Stochastic, or moving average periods track the market's actual cycle length rather than relying on fixed parameters.
 
 ## Architecture & Physics
 

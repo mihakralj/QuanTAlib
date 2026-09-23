@@ -1,6 +1,6 @@
 # ATRBANDS: Average True Range Bands
 
-> *True range bands let volatility itself draw the envelope — wider when uncertain, tighter when resolved.*
+> *True range bands let volatility itself draw the envelope - wider when uncertain, tighter when resolved.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -97,7 +97,7 @@ ATRBANDS combines an SMA running sum (center line), True Range computation, and 
 | FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
 | MUL (multiplier × ATR) | 1 | 3 | 3 |
 | ADD/SUB (middle ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **12** | — | **~33 cycles** |
+| **Total (hot)** | **12** | - | **~33 cycles** |
 
 During warmup (compensator active):
 
@@ -107,7 +107,7 @@ During warmup (compensator active):
 | SUB (1 - e) | 1 | 1 | 1 |
 | DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
 | CMP (e > ε) | 1 | 1 | 1 |
-| **Warmup overhead** | **4** | — | **~20 cycles** |
+| **Warmup overhead** | **4** | - | **~20 cycles** |
 
 **Total during warmup:** ~53 cycles/bar; **Post-warmup:** ~33 cycles/bar.
 

@@ -98,7 +98,7 @@ The indicator requires $p$ bars to establish ATR and rolling extremes, then $x$ 
 
 ### Operation Count (Streaming Mode)
 
-Chande Kroll Stop chains ATR -> first stop -> second stop computations — O(1) per bar.
+Chande Kroll Stop chains ATR -> first stop -> second stop computations - O(1) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -107,7 +107,7 @@ Chande Kroll Stop chains ATR -> first stop -> second stop computations — O(1) 
 | Second stop: highest/lowest of first stop | 2 | 5 cy | ~10 cy |
 | Signal select (long/short) | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~30 cy** |
+| **Total** | **O(1)** | - | **~30 cy** |
 
 O(1) per bar. Two chained RingBuffer max/min operations (first stop period p, second stop q). No batch SIMD benefit due to sequential chaining.
 

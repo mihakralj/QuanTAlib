@@ -1,6 +1,6 @@
 # EDECAY: Exponential Decay
 
-> *A ratchet that only moves down gradually: price can push it up instantly, but gravity pulls it back at an exponential pace — faster when far from zero, slower as it approaches.*
+> *A ratchet that only moves down gradually: price can push it up instantly, but gravity pulls it back at an exponential pace - faster when far from zero, slower as it approaches.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -30,7 +30,7 @@ The exponential decay indicator originates from the Tulip Indicators library, a 
 
 ### 1. Pure IIR (No Buffer)
 
-The indicator requires no history buffer — only the previous output value is needed:
+The indicator requires no history buffer - only the previous output value is needed:
 
 $$
 \text{state} = \{y_{t-1}\}
@@ -150,7 +150,7 @@ The output asymptotically approaches zero but never reaches it ($v > 0$).
 
 3. **Period interpretation**: Period=5 means `scale = 4/5 = 0.8`, so each bar retains 80% of the previous value. After 5 bars, approximately 32.8% of the peak value remains.
 
-4. **First bar**: The first bar always equals the input — there is no warmup period in the traditional sense.
+4. **First bar**: The first bar always equals the input - there is no warmup period in the traditional sense.
 
 5. **Asymmetric behavior**: Upward moves are instant (output = input), but downward moves are rate-limited to multiplication by `(period-1)/period` per bar.
 
@@ -159,4 +159,4 @@ The output asymptotically approaches zero but never reaches it ($v > 0$).
 ## References
 
 - Tulip Indicators Library: https://tulipindicators.org/edecay
-- Kegel, L. "Tulip Indicators" — Open-source C library of technical indicators.
+- Kegel, L. "Tulip Indicators" - Open-source C library of technical indicators.

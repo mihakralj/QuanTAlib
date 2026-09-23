@@ -23,7 +23,7 @@ Holt's exponential smoothing extends simple exponential smoothing (EMA) by addin
 
 ## Historical Context
 
-Charles C. Holt published the method in 1957 at the Carnegie Institute of Technology, though the work remained an unpublished ONR report until 2004. The method was independently popularized by Peter Winters (who added seasonality, creating Holt-Winters), but the core two-equation system belongs to Holt. In forecasting literature, this is "double exponential smoothing" — not to be confused with DEMA (which is a different construct using two cascaded EMAs with lag compensation).
+Charles C. Holt published the method in 1957 at the Carnegie Institute of Technology, though the work remained an unpublished ONR report until 2004. The method was independently popularized by Peter Winters (who added seasonality, creating Holt-Winters), but the core two-equation system belongs to Holt. In forecasting literature, this is "double exponential smoothing" - not to be confused with DEMA (which is a different construct using two cascaded EMAs with lag compensation).
 
 The crucial difference from DEMA: Holt explicitly decomposes the signal into level and trend components, then recombines them for forecasting. DEMA applies algebraic lag correction without explicit trend modeling.
 
@@ -88,9 +88,9 @@ HOLT(N, γ) tracks both level and trend via two EMA-like updates per bar. The do
 | Level delta: new_level − prev_level | 1 | 1 | ~1 |
 | Trend: FMA(γ, delta, gammaDecay×trend) | 1 | 4 | ~4 |
 | Output: level + trend | 1 | 1 | ~1 |
-| **Total** | **4** | — | **~10 cycles** |
+| **Total** | **4** | - | **~10 cycles** |
 
-O(1) per bar. One of the fastest trends_IIR indicators — only 4 operations per bar. When γ = 0 (γ defaults to α), the trend EMA degenerates to a standard EMA with no trend correction. WarmupPeriod = N.
+O(1) per bar. One of the fastest trends_IIR indicators - only 4 operations per bar. When γ = 0 (γ defaults to α), the trend EMA degenerates to a standard EMA with no trend correction. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -104,7 +104,7 @@ Both state variables are recursive. Batch mode provides no SIMD opportunity beyo
 | Metric | Value |
 |--------|-------|
 | Time complexity | O(1) per bar |
-| Space complexity | O(1) — level + trend only |
+| Space complexity | O(1) - level + trend only |
 | Allocations | Zero in Update hot path |
 | FMA usage | Level and trend equations |
 | SIMD potential | Limited (serial dependency) |
@@ -116,7 +116,7 @@ Both state variables are recursive. Batch mode provides no SIMD opportunity beyo
 2. **Gamma sensitivity:** Small gamma changes dramatically alter behavior; requires careful tuning
 3. **No mean reversion:** The additive trend model assumes perpetual directional movement
 4. **Initialization sensitivity:** First-bar seeding (level=price, trend=0) means early outputs are biased
-5. **Not a filter:** Unlike Butterworth or SSF, Holt has no defined frequency response — it is a forecasting model applied as a filter
+5. **Not a filter:** Unlike Butterworth or SSF, Holt has no defined frequency response - it is a forecasting model applied as a filter
 
 ## References
 
@@ -127,6 +127,6 @@ Both state variables are recursive. Batch mode provides no SIMD opportunity beyo
 
 ## See Also
 
-- [EMA](../ema/Ema.md) — Single exponential smoothing (level only)
-- [DEMA](../dema/Dema.md) — Double EMA with algebraic lag correction (different approach)
-- [TEMA](../tema/Tema.md) — Triple EMA cascade
+- [EMA](../ema/Ema.md) - Single exponential smoothing (level only)
+- [DEMA](../dema/Dema.md) - Double EMA with algebraic lag correction (different approach)
+- [TEMA](../tema/Tema.md) - Triple EMA cascade

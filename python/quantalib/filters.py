@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -48,7 +50,7 @@ __all__ = [
 ]
 
 
-def gauss(close: object, sigma: float = 1.0, offset: int = 0, **kwargs) -> object:
+def gauss(close: ArrayLike, sigma: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Gaussian Filter."""
     sigma = float(sigma)
     offset = int(offset)
@@ -59,7 +61,7 @@ def gauss(close: object, sigma: float = 1.0, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, "GAUSS", "filters", offset)
 
 
-def hann(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def hann(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hann Filter."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -70,7 +72,7 @@ def hann(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HANN_{period}", "filters", offset)
 
 
-def hp(close: object, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
+def hp(close: ArrayLike, lam: float = 1600.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hodrick-Prescott Filter."""
     lam = float(lam)
     offset = int(offset)
@@ -81,7 +83,7 @@ def hp(close: object, lam: float = 1600.0, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "HP", "filters", offset)
 
 
-def hpf(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
+def hpf(close: ArrayLike, period: int = 40, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """High-Pass Filter."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -92,7 +94,7 @@ def hpf(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HPF_{period}", "filters", offset)
 
 
-def kalman(close: object, q: float = 0.01, r: float = 0.1, offset: int = 0, **kwargs) -> object:
+def kalman(close: ArrayLike, q: float = 0.01, r: float = 0.1, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Kalman Filter."""
     q = float(q)
     r = float(r)
@@ -104,7 +106,7 @@ def kalman(close: object, q: float = 0.01, r: float = 0.1, offset: int = 0, **kw
     return _wrap(output, idx, "KALMAN", "filters", offset)
 
 
-def laguerre(close: object, gamma: float = 0.8, offset: int = 0, **kwargs) -> object:
+def laguerre(close: ArrayLike, gamma: float = 0.8, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Laguerre Filter."""
     gamma = float(gamma)
     offset = int(offset)
@@ -115,7 +117,7 @@ def laguerre(close: object, gamma: float = 0.8, offset: int = 0, **kwargs) -> ob
     return _wrap(output, idx, "LAGUERRE", "filters", offset)
 
 
-def lms(close: object, order: int = 16, mu: float = 0.5, offset: int = 0, **kwargs) -> object:
+def lms(close: ArrayLike, order: int = 16, mu: float = 0.5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Least Mean Squares Filter."""
     order = int(order)
     mu = float(mu)
@@ -127,7 +129,7 @@ def lms(close: object, order: int = 16, mu: float = 0.5, offset: int = 0, **kwar
     return _wrap(output, idx, "LMS", "filters", offset)
 
 
-def loess(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def loess(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """LOESS Smoother."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -138,7 +140,7 @@ def loess(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"LOESS_{period}", "filters", offset)
 
 
-def modf(close: object, period: int = 14, beta: float = 0.8, feedback: int = 0, fbWeight: float = 0.5, offset: int = 0, **kwargs) -> object:
+def modf(close: ArrayLike, period: int = 14, beta: float = 0.8, feedback: int = 0, fbWeight: float = 0.5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Modified Filter."""
     period = int(kwargs.get("length", period))
     beta = float(beta)
@@ -152,7 +154,7 @@ def modf(close: object, period: int = 14, beta: float = 0.8, feedback: int = 0, 
     return _wrap(output, idx, f"MODF_{period}", "filters", offset)
 
 
-def notch(close: object, period: int = 14, q: float = 1.0, offset: int = 0, **kwargs) -> object:
+def notch(close: ArrayLike, period: int = 14, q: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Notch Filter."""
     period = int(kwargs.get("length", period))
     q = float(q)
@@ -164,7 +166,7 @@ def notch(close: object, period: int = 14, q: float = 1.0, offset: int = 0, **kw
     return _wrap(output, idx, f"NOTCH_{period}", "filters", offset)
 
 
-def nw(close: object, period: int = 64, bandwidth: float = 8.0, offset: int = 0, **kwargs) -> object:
+def nw(close: ArrayLike, period: int = 64, bandwidth: float = 8.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Nadaraya-Watson Filter."""
     period = int(kwargs.get("length", period))
     bandwidth = float(bandwidth)
@@ -176,7 +178,7 @@ def nw(close: object, period: int = 64, bandwidth: float = 8.0, offset: int = 0,
     return _wrap(output, idx, f"NW_{period}", "filters", offset)
 
 
-def oneeuro(close: object, minCutoff: float = 1.0, beta: float = 0.007, dCutoff: float = 1.0, offset: int = 0, **kwargs) -> object:
+def oneeuro(close: ArrayLike, minCutoff: float = 1.0, beta: float = 0.007, dCutoff: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """1€ Filter."""
     minCutoff = float(minCutoff)
     beta = float(beta)
@@ -189,7 +191,7 @@ def oneeuro(close: object, minCutoff: float = 1.0, beta: float = 0.007, dCutoff:
     return _wrap(output, idx, "ONEEURO", "filters", offset)
 
 
-def rls(close: object, order: int = 16, lam: float = 0.99, offset: int = 0, **kwargs) -> object:
+def rls(close: ArrayLike, order: int = 16, lam: float = 0.99, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Recursive Least Squares Filter."""
     order = int(order)
     lam = float(lam)
@@ -201,7 +203,7 @@ def rls(close: object, order: int = 16, lam: float = 0.99, offset: int = 0, **kw
     return _wrap(output, idx, "RLS", "filters", offset)
 
 
-def rmed(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rmed(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Running Median Filter."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -212,7 +214,7 @@ def rmed(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"RMED_{period}", "filters", offset)
 
 
-def roofing(close: object, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
+def roofing(close: ArrayLike, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Roofing Filter."""
     hpLength = int(hpLength)
     ssLength = int(ssLength)
@@ -224,7 +226,7 @@ def roofing(close: object, hpLength: int = 48, ssLength: int = 10, offset: int =
     return _wrap(output, idx, f"ROOFING_{hpLength}", "filters", offset)
 
 
-def sgf(close: object, period: int = 14, polyOrder: int = 2, offset: int = 0, **kwargs) -> object:
+def sgf(close: ArrayLike, period: int = 14, polyOrder: int = 2, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Savitzky-Golay Filter."""
     period = int(kwargs.get("length", period))
     polyOrder = int(polyOrder)
@@ -236,7 +238,7 @@ def sgf(close: object, period: int = 14, polyOrder: int = 2, offset: int = 0, **
     return _wrap(output, idx, f"SGF_{period}", "filters", offset)
 
 
-def spbf(close: object, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: int = 50, offset: int = 0, **kwargs) -> object:
+def spbf(close: ArrayLike, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: int = 50, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Short-Period Bandpass Filter."""
     shortPeriod = int(shortPeriod)
     longPeriod = int(longPeriod)
@@ -249,7 +251,7 @@ def spbf(close: object, shortPeriod: int = 40, longPeriod: int = 60, rmsPeriod: 
     return _wrap(output, idx, f"SPBF_{shortPeriod}", "filters", offset)
 
 
-def tbf(close: object, period: int = 20, bandwidth: float = 0.1, length: int = 10, offset: int = 0, **kwargs) -> object:
+def tbf(close: ArrayLike, period: int = 20, bandwidth: float = 0.1, length: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Truncated Bandpass Filter."""
     period = int(period)
     bandwidth = float(bandwidth)
@@ -262,7 +264,7 @@ def tbf(close: object, period: int = 20, bandwidth: float = 0.1, length: int = 1
     return _wrap(output, idx, f"TBF_{period}", "filters", offset)
 
 
-def ssf2(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ssf2(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Super Smoother (2-pole)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -273,7 +275,7 @@ def ssf2(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"SSF2_{period}", "filters", offset)
 
 
-def ssf3(close: object, period: int = 14, initialLast: float = 0.0, offset: int = 0, **kwargs) -> object:
+def ssf3(close: ArrayLike, period: int = 14, initialLast: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Super Smoother (3-pole)."""
     period = int(kwargs.get("length", period))
     initialLast = float(initialLast)
@@ -285,7 +287,7 @@ def ssf3(close: object, period: int = 14, initialLast: float = 0.0, offset: int 
     return _wrap(destination, idx, f"SSF3_{period}", "filters", offset)
 
 
-def usf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def usf(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Universal Smoother Filter."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -296,7 +298,7 @@ def usf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"USF_{period}", "filters", offset)
 
 
-def voss(close: object, period: int = 14, predict: int = 3, bandwidth: float = 0.25, offset: int = 0, **kwargs) -> object:
+def voss(close: ArrayLike, period: int = 14, predict: int = 3, bandwidth: float = 0.25, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Voss Predictor."""
     period = int(kwargs.get("length", period))
     predict = int(predict)
@@ -309,7 +311,7 @@ def voss(close: object, period: int = 14, predict: int = 3, bandwidth: float = 0
     return _wrap(output, idx, f"VOSS_{period}", "filters", offset)
 
 
-def wavelet(close: object, levels: int = 4, threshMult: float = 1.0, offset: int = 0, **kwargs) -> object:
+def wavelet(close: ArrayLike, levels: int = 4, threshMult: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Wavelet Filter."""
     levels = int(levels)
     threshMult = float(threshMult)
@@ -321,7 +323,7 @@ def wavelet(close: object, levels: int = 4, threshMult: float = 1.0, offset: int
     return _wrap(output, idx, "WAVELET", "filters", offset)
 
 
-def wiener(close: object, period: int = 14, smoothPeriod: int = 10, offset: int = 0, **kwargs) -> object:
+def wiener(close: ArrayLike, period: int = 14, smoothPeriod: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Wiener Filter."""
     period = int(kwargs.get("length", period))
     smoothPeriod = int(smoothPeriod)
@@ -332,7 +334,7 @@ def wiener(close: object, period: int = 14, smoothPeriod: int = 10, offset: int 
     _check(_lib.qtl_wiener(_ptr(src), _ptr(destination), n, period, smoothPeriod))
     return _wrap(destination, idx, f"WIENER_{period}", "filters", offset)
 
-def bessel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def bessel(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bessel Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -340,8 +342,8 @@ def bessel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"BESSEL_{period}", "filters", offset)
 
 
-def butter2(close: object, period: int = 14, gain: float = 1.0,
-            offset: int = 0, **kwargs) -> object:
+def butter2(close: ArrayLike, period: int = 14, gain: float = 1.0,
+            offset: int = 0, **kwargs: Any) -> ArrayLike:
     """2nd-order Butterworth."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -349,8 +351,8 @@ def butter2(close: object, period: int = 14, gain: float = 1.0,
     return _wrap(dst, idx, f"BUTTER2_{period}", "filters", offset)
 
 
-def butter3(close: object, period: int = 14, gain: float = 1.0,
-            offset: int = 0, **kwargs) -> object:
+def butter3(close: ArrayLike, period: int = 14, gain: float = 1.0,
+            offset: int = 0, **kwargs: Any) -> ArrayLike:
     """3rd-order Butterworth."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -358,8 +360,8 @@ def butter3(close: object, period: int = 14, gain: float = 1.0,
     return _wrap(dst, idx, f"BUTTER3_{period}", "filters", offset)
 
 
-def cheby1(close: object, period: int = 14, ripple: float = 0.5,
-           offset: int = 0, **kwargs) -> object:
+def cheby1(close: ArrayLike, period: int = 14, ripple: float = 0.5,
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chebyshev Type I."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -367,8 +369,8 @@ def cheby1(close: object, period: int = 14, ripple: float = 0.5,
     return _wrap(dst, idx, f"CHEBY1_{period}", "filters", offset)
 
 
-def cheby2(close: object, period: int = 14, ripple: float = 0.5,
-           offset: int = 0, **kwargs) -> object:
+def cheby2(close: ArrayLike, period: int = 14, ripple: float = 0.5,
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chebyshev Type II."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -376,7 +378,7 @@ def cheby2(close: object, period: int = 14, ripple: float = 0.5,
     return _wrap(dst, idx, f"CHEBY2_{period}", "filters", offset)
 
 
-def elliptic(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def elliptic(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Elliptic (Cauer) Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -384,7 +386,7 @@ def elliptic(close: object, period: int = 14, offset: int = 0, **kwargs) -> obje
     return _wrap(dst, idx, f"ELLIPTIC_{period}", "filters", offset)
 
 
-def edcf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def edcf(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Distance Coefficient Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -392,7 +394,7 @@ def edcf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"EDCF_{period}", "filters", offset)
 
 
-def net(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def net(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Noise Elimination Technology."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -400,8 +402,8 @@ def net(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"NET_{period}", "filters", offset)
 
 
-def bpf(close: object, period: int = 14, bandwidth: int = 5,
-        offset: int = 0, **kwargs) -> object:
+def bpf(close: ArrayLike, period: int = 14, bandwidth: int = 5,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bandpass Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -409,8 +411,8 @@ def bpf(close: object, period: int = 14, bandwidth: int = 5,
     return _wrap(dst, idx, f"BPF_{period}", "filters", offset)
 
 
-def alaguerre(close: object, period: int = 20, order: int = 5,
-              offset: int = 0, **kwargs) -> object:
+def alaguerre(close: ArrayLike, period: int = 20, order: int = 5,
+              offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Adaptive Laguerre Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -418,8 +420,8 @@ def alaguerre(close: object, period: int = 20, order: int = 5,
     return _wrap(dst, idx, f"ALAGUERRE_{period}", "filters", offset)
 
 
-def bilateral(close: object, period: int = 14, sigma_s: float = 0.5,
-              sigma_r: float = 1.0, offset: int = 0, **kwargs) -> object:
+def bilateral(close: ArrayLike, period: int = 14, sigma_s: float = 0.5,
+              sigma_r: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bilateral Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -427,8 +429,8 @@ def bilateral(close: object, period: int = 14, sigma_s: float = 0.5,
     return _wrap(dst, idx, f"BILATERAL_{period}", "filters", offset)
 
 
-def baxterking(close: object, period: int = 12, min_period: int = 6,
-               max_period: int = 32, offset: int = 0, **kwargs) -> object:
+def baxterking(close: ArrayLike, period: int = 12, min_period: int = 6,
+               max_period: int = 32, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Baxter-King Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -436,8 +438,8 @@ def baxterking(close: object, period: int = 12, min_period: int = 6,
     return _wrap(dst, idx, f"BAXTERKING_{period}", "filters", offset)
 
 
-def cfitz(close: object, period: int = 6, bw_period: int = 32,
-          offset: int = 0, **kwargs) -> object:
+def cfitz(close: ArrayLike, period: int = 6, bw_period: int = 32,
+          offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Christiano-Fitzgerald Filter."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)

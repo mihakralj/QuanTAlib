@@ -1,6 +1,6 @@
 # CTI: Ehlers Correlation Trend Indicator
 
-> *Correlation trend indicator measures the linear correlation between price and a perfect trend line — how orderly is the move.*
+> *Correlation trend indicator measures the linear correlation between price and a perfect trend line - how orderly is the move.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -82,7 +82,7 @@ CTI (Correlation Trend Indicator) computes the Pearson r between price and a lin
 | Correlation numerator: N×ΣXY − ΣX×ΣY | 3 | 3 | 9 |
 | Denominator: SQRT((N×ΣX²−ΣX²)(N×ΣY²−ΣY²)) | 6 | 20 | 120 |
 | DIV (r = num/denom) | 1 | 15 | 15 |
-| **Total** | **22** | — | **~156 cycles** |
+| **Total** | **22** | - | **~156 cycles** |
 
 The two SQRTs in the denominator dominate cost. ~156 cycles per bar.
 

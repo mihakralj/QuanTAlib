@@ -112,7 +112,7 @@ Least Mean Squares (LMS) adaptive filter: per bar updates N weight coefficients 
 | Dot product (prediction) | N | ~5 cy | ~160 cy (N=32) |
 | Error = target - prediction | 1 | ~2 cy | ~2 cy |
 | Weight update (N FMA: w += mu*err*x) | N | ~4 cy | ~128 cy |
-| **Total (N=32)** | **2N+1** | — | **~290 cycles** |
+| **Total (N=32)** | **2N+1** | - | **~290 cycles** |
 
 O(N) per bar. Both prediction and weight-update passes are O(N). LMS convergence requires many bars; adapt rate mu controls speed/stability tradeoff.
 

@@ -84,7 +84,7 @@ Modified Stochastic uses RingBuffers for high/low windows with O(1) sum-based sm
 | DIV (raw %K = position/range) | 1 | 15 | 15 |
 | FMA × 2 (smoothed %K, %D EMA updates) | 2 | 4 | 8 |
 | CMP (range > 0 guard) | 1 | 1 | 1 |
-| **Total** | **10** | — | **~30 cycles** |
+| **Total** | **10** | - | **~30 cycles** |
 
 ~30 cycles per bar. Two EMA instances on top of a sliding window min/max.
 
@@ -94,7 +94,7 @@ Modified Stochastic uses RingBuffers for high/low windows with O(1) sum-based sm
 | :--- | :---: | :--- |
 | Sliding high/low | Partial | Lemire deque O(n); SIMD scan for ArgMax/Min |
 | Raw %K | Yes | VSUBPD + VDIVPD |
-| EMA smoothing × 2 | **No** | Recursive IIR — sequential |
+| EMA smoothing × 2 | **No** | Recursive IIR - sequential |
 
 EMA smoothing blocks full vectorization; window extrema and division are SIMD-friendly.
 

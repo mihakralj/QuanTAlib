@@ -12,7 +12,7 @@
 - `IFeed` defines the standard contract for all data feeds in QuanTAlib, ensuring consistent behavior across different data sources (synthetic, file-based, or live API).
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
-- Feeds are the entry point of any indicator chain — all indicators subscribe to a feed or to another indicator's output.
+- Feeds are the entry point of any indicator chain - all indicators subscribe to a feed or to another indicator's output.
 - Common feed implementations include synthetic (GBM), file-based (CSV), and live API sources (Alpha Vantage).
 - For backtesting, pair feeds with any trend, momentum, or volatility indicator to simulate streaming bar-by-bar processing.
 

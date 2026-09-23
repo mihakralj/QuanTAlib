@@ -21,9 +21,9 @@ SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to s
 
 ## Historical Context / The Standard
 
-Abraham Savitzky and Marcel Golay published their seminal paper "Smoothing and Differentiation of Data by Simplified Least Squares Procedures" in *Analytical Chemistry* in 1964. The context was spectroscopy—scientists needed to smooth noisy absorption spectra without destroying the peaks that identified chemical compounds.
+Abraham Savitzky and Marcel Golay published their seminal paper "Smoothing and Differentiation of Data by Simplified Least Squares Procedures" in *Analytical Chemistry* in 1964. The context was spectroscopy-scientists needed to smooth noisy absorption spectra without destroying the peaks that identified chemical compounds.
 
-The Savitzky-Golay filter became the gold standard in scientific signal processing because it solved the fundamental trade-off: smoothing reduces noise but also reduces signal amplitude. SG filters preserve the signal's shape by fitting local polynomials—effectively "understanding" the curvature of the data rather than blindly averaging it.
+The Savitzky-Golay filter became the gold standard in scientific signal processing because it solved the fundamental trade-off: smoothing reduces noise but also reduces signal amplitude. SG filters preserve the signal's shape by fitting local polynomials-effectively "understanding" the curvature of the data rather than blindly averaging it.
 
 Financial markets present the same challenge. Traders want smooth lines that don't lag, and they want to preserve the actual peaks and troughs that matter for trading decisions. SGMA adapts the Savitzky-Golay approach to price series.
 
@@ -50,7 +50,7 @@ The degree parameter controls the weight distribution:
 | **3** | Cubic falloff | Aggressive center-weighting. Shape preservation. |
 | **4** | Quartic falloff | Extreme center-weighting. Maximum responsiveness. |
 
-**Critical Edge Behavior**: For degree ≥ 1, the edge positions (oldest and newest values in the window) have weight = 0 because at the edges, $|x| = 1$, so $w = 1 - 1^d = 0$. This means the filter effectively ignores the boundary values—a deliberate design choice that prevents edge artifacts from corrupting the polynomial fit.
+**Critical Edge Behavior**: For degree ≥ 1, the edge positions (oldest and newest values in the window) have weight = 0 because at the edges, $|x| = 1$, so $w = 1 - 1^d = 0$. This means the filter effectively ignores the boundary values-a deliberate design choice that prevents edge artifacts from corrupting the polynomial fit.
 
 ### The Compute Challenge
 
@@ -104,14 +104,14 @@ Per-bar cost for period $L$ (weights precomputed at construction):
 | :--- | :---: | :---: | :---: |
 | MUL | L | 3 | 3L |
 | ADD | L | 1 | L |
-| **Total** | **2L** | — | **~4L cycles** |
+| **Total** | **2L** | - | **~4L cycles** |
 
 For a typical period of 14:
 - **Total**: ~56 cycles per bar
 
 **Constructor cost** (one-time): ~80L cycles (L power operations at ~80 cycles each + L additions + normalization)
 
-**Complexity**: O(L) per bar — linear with period. Weights precomputed, runtime is pure dot product.
+**Complexity**: O(L) per bar - linear with period. Weights precomputed, runtime is pure dot product.
 
 ### Batch Mode (SIMD/FMA Analysis)
 
@@ -125,7 +125,7 @@ SGMA's dot product structure enables efficient SIMD vectorization:
 
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 56 | 28,672 | — |
+| Scalar streaming | 56 | 28,672 | - |
 | SIMD batch (FMA) | ~10 | ~5,120 | **~82%** |
 
 ### Quality Metrics
@@ -187,10 +187,10 @@ QuanTAlib validates SGMA against mathematical properties rather than external li
 
 2. **Even Period Confusion**: SGMA silently converts even periods to odd (period + 1). If you specify period=10, you get period=11. This is mathematically necessary for symmetric polynomial fitting, not a bug.
 
-3. **Edge Weight Zero**: For degree ≥ 1, the oldest and newest values in the window have zero weight. This is intentional—it prevents edge effects. But it means:
+3. **Edge Weight Zero**: For degree ≥ 1, the oldest and newest values in the window have zero weight. This is intentional-it prevents edge effects. But it means:
    - Bar corrections (`isNew=false`) have minimal effect at higher degrees
    - The effective "active" period is shorter than the nominal period
 
 4. **Cold Start**: SGMA requires a full window ($L$) to produce mathematically valid output. The first $L-1$ bars are warmup noise. Check `IsHot` before trading on the signal.
 
-5. **High Degree Instability**: Degrees 3-4 concentrate weight heavily in the center. While this preserves shape, it also means a small number of bars dominate the output—approaching the behavior of a very short moving average with extra smoothing on the tails.
+5. **High Degree Instability**: Degrees 3-4 concentrate weight heavily in the center. While this preserves shape, it also means a small number of bars dominate the output-approaching the behavior of a very short moving average with extra smoothing on the tails.

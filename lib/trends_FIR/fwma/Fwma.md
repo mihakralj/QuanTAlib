@@ -125,7 +125,7 @@ where $W = F(N+2) - 1$. This is a pure FIR filter with $N-1$ zeros and no poles 
 | Bar 7 | F(3) = 2 | 1.4% | 98.6% |
 | Bar 8 | F(2) = 1 | 0.7% | 99.3% |
 | Bar 9 (oldest) | F(1) = 1 | 0.7% | 100.0% |
-| **Total** | **143** | **100%** | — |
+| **Total** | **143** | **100%** | - |
 
 The top 3 bars capture 76.9% of total weight. The golden-ratio decay ensures the oldest third of the window contributes less than 5%.
 
@@ -140,7 +140,7 @@ FWMA requires O(N) per bar due to the weighted sum convolution. No O(1) shortcut
 | MUL (weight × price) | N | 3 | 3N |
 | ADD (accumulate) | N | 1 | N |
 | DIV (normalize) | 1 | 15 | 15 |
-| **Total** | **2N + 1** | — | **~4N + 15 cycles** |
+| **Total** | **2N + 1** | - | **~4N + 15 cycles** |
 
 For Period = 10: approximately 55 cycles per bar.
 
@@ -179,7 +179,7 @@ For small periods ($N \leq 8$), a single AVX2 register can hold the entire weigh
 
 1. **No O(1) shortcut.** Unlike WMA (dual running sums) or PWMA (triple running sums), FWMA weights follow a non-polynomial recurrence. Streaming complexity is O(N) per bar. For large periods, this matters.
 
-2. **Fibonacci overflow.** For period > 70, Fibonacci numbers exceed `double` precision ($F(71) > 2^{50}$). However, since we normalize by the sum, the relative weights remain accurate. For period > 1400, individual Fibonacci numbers exceed `double` range ($F(1477) > 10^{308}$). Use log-space computation or rational scaling for extreme periods.
+2. **Fibonacci overflow.** For period > 70, Fibonacci numbers exceed `double` precision ($F(71) > 2^{50}$). However, since the implementation normalize by the sum, the relative weights remain accurate. For period > 1400, individual Fibonacci numbers exceed `double` range ($F(1477) > 10^{308}$). Use log-space computation or rational scaling for extreme periods.
 
 3. **Weight concentration.** With period=20, the most recent bar alone captures 45% of total weight. This makes FWMA extremely sensitive to the latest price. Consider whether this concentration is desirable for your use case.
 

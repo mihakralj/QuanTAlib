@@ -1,10 +1,10 @@
-# VSTOP — Volatility Stop (Wilder's Volatility System)
+# VSTOP - Volatility Stop (Wilder's Volatility System)
 
 ## Overview
 
-**VSTOP** is an ATR-based trailing stop indicator created by J. Welles Wilder. It determines trend direction using a "Significant Close" (SIC) concept — the highest close during an uptrend or lowest close during a downtrend. The stop-and-reverse (SAR) line trails price at a fixed ATR multiple distance from the SIC.
+**VSTOP** is an ATR-based trailing stop indicator created by J. Welles Wilder. It determines trend direction using a "Significant Close" (SIC) concept - the highest close during an uptrend or lowest close during a downtrend. The stop-and-reverse (SAR) line trails price at a fixed ATR multiple distance from the SIC.
 
-When price crosses through the SAR level, the trend flips — making it suitable for trend detection, dynamic stop-loss placement, and reversal signals.
+When price crosses through the SAR level, the trend flips - making it suitable for trend detection, dynamic stop-loss placement, and reversal signals.
 
 ## Formula
 

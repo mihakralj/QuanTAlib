@@ -586,16 +586,12 @@ public class NatrTests
 
 #pragma warning disable S2699 // Tests contain assertions - analyzer false positive
     [Fact]
-    public void Prime_Works()
+    public void Prime_ScalarHistory_IsRejected()
     {
         var natr = new Natr(5);
         var values = new double[] { 1.0, 1.1, 0.9, 1.2, 0.8, 1.3, 1.0, 1.1, 0.95, 1.05 };
 
-        natr.Prime(values);
-
-        // Prime only sets ATR state (without close price, can't calculate NATR percentage)
-        // The Last value will be the ATR, not NATR percentage
-        Assert.True(double.IsFinite(natr.Last.Value), "Last value should be finite after Prime");
+        Assert.Throws<NotSupportedException>(() => natr.Prime(values));
     }
 #pragma warning restore S2699
 }

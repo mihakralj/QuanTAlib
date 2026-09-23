@@ -66,7 +66,7 @@ Two-pole Super Smooth Filter (SSF2): Ehlers 2nd-order IIR low-pass smoother. Thr
 | Input combination | 1 | ~2 cy | ~2 cy |
 | FMA output: c1*(x+x1) + c2*y1 + c3*y2 | 3 | ~4 cy | ~12 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **6** | — | **~16 cycles** |
+| **Total** | **6** | - | **~16 cycles** |
 
 O(1) per bar. Coefficients derived from period parameter; precomputed. ~16 cycles/bar.
 

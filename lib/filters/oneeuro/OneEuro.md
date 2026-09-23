@@ -1,6 +1,6 @@
-# OneEuro — One Euro Filter
+# OneEuro - One Euro Filter
 
-> *The One Euro filter adapts its cutoff frequency to signal speed — slow movements get heavy smoothing, fast ones pass through.*
+> *The One Euro filter adapts its cutoff frequency to signal speed - slow movements get heavy smoothing, fast ones pass through.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -61,7 +61,7 @@ Start with `beta = 0`, decrease `minCutoff` until jitter is acceptable, then inc
 | Type | Low-pass (adaptive IIR) |
 | Overlay | Yes (tracks price) |
 | Complexity | O(1) per bar |
-| Memory | O(1) — 3 state variables |
+| Memory | O(1) - 3 state variables |
 | Warmup Period | 1 bar |
 | Causal | Yes |
 | Zero-phase | No |
@@ -81,7 +81,7 @@ OneEuro is a speed-adaptive first-order IIR: compute derivative EMA, derive adap
 | Adaptive cutoff (fc = fmin + beta * \|dx\|) | 1 | ~5 cy | ~5 cy |
 | Alpha from cutoff (r = 2*pi*fc; alpha = r/(r+1)) | 1 | ~10 cy | ~10 cy |
 | Output EMA (1 FMA) | 1 | ~4 cy | ~4 cy |
-| **Total** | **5** | — | **~25 cycles** |
+| **Total** | **5** | - | **~25 cycles** |
 
 O(1) per bar. The adaptive alpha computation dominates (division + 2*pi multiply). ~25 cycles/bar with no branches.
 

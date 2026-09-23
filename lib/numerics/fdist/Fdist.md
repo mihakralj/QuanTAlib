@@ -1,6 +1,6 @@
 # FDIST: F-Distribution CDF
 
-> *The F-distribution CDF tests variance ratios — a cornerstone of hypothesis testing built from two chi-squared variables.*
+> *The F-distribution CDF tests variance ratios - a cornerstone of hypothesis testing built from two chi-squared variables.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -85,7 +85,7 @@ FDIST(source, period, d1, d2):
 
 ### Operation Count (Streaming Mode)
 
-F-distribution CDF uses regularized incomplete beta function — same cost structure as BetaDist.
+F-distribution CDF uses regularized incomplete beta function - same cost structure as BetaDist.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -93,7 +93,7 @@ F-distribution CDF uses regularized incomplete beta function — same cost struc
 | Transform x to beta variable | 1 | 3 cy | ~3 cy |
 | Regularized incomplete beta (Lentz CF, ~20 iter) | ~20 | 15 cy | ~300 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~311 cy** |
+| **Total** | **O(1)** | - | **~311 cy** |
 
 O(1) per evaluation. Dominated by the continued fraction solver, same as Beta/T distributions. Degrees-of-freedom parameters affect convergence speed slightly.
 

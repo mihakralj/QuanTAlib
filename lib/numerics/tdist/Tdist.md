@@ -1,6 +1,6 @@
 # TDIST: Student's t-Distribution CDF
 
-> *Student's t-distribution CDF handles small samples with heavier tails than the normal — uncertainty acknowledged in the shape itself.*
+> *Student's t-distribution CDF handles small samples with heavier tails than the normal - uncertainty acknowledged in the shape itself.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -97,7 +97,7 @@ TDIST(source, period, df):
 
 ### Operation Count (Streaming Mode)
 
-T-distribution CDF uses regularized incomplete beta — same continued fraction as BetaDist/FDist.
+T-distribution CDF uses regularized incomplete beta - same continued fraction as BetaDist/FDist.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -106,7 +106,7 @@ T-distribution CDF uses regularized incomplete beta — same continued fraction 
 | Regularized incomplete beta (Lentz CF, ~20 iter) | ~20 | 15 cy | ~300 cy |
 | Two-tailed adjustment | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~310 cy** |
+| **Total** | **O(1)** | - | **~310 cy** |
 
 O(1). Same continued fraction as FDist. For df > 30, Normal approximation is faster (~22 cy) and accurate to 1e-4.
 

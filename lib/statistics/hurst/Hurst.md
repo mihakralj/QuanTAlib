@@ -117,7 +117,7 @@ $$\ln E[R/S] = H \ln n + \ln c$$
 
 ### Operation Count (Streaming Mode)
 
-Hurst uses the Rescaled Range (R/S) statistic over the full lookback period — O(N) per bar.
+Hurst uses the Rescaled Range (R/S) statistic over the full lookback period - O(N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -127,9 +127,9 @@ Hurst uses the Rescaled Range (R/S) statistic over the full lookback period — 
 | Range (max - min cumulative) | N | 2 cy | ~2N cy |
 | Std deviation | N | 3 cy | ~3N cy |
 | log(R/S) / log(N) | 2 | 8 cy | ~16 cy |
-| **Total (N=100)** | **O(N)** | — | **~1016 cy** |
+| **Total (N=100)** | **O(N)** | - | **~1016 cy** |
 
-O(N) per update — expensive for large lookbacks. Practical throughput ~100 ns/bar at N=100. Fixed-period batch computation preferred for research workflows.
+O(N) per update - expensive for large lookbacks. Practical throughput ~100 ns/bar at N=100. Fixed-period batch computation preferred for research workflows.
 
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|

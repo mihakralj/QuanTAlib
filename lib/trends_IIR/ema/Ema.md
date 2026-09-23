@@ -26,7 +26,7 @@
 
 ## What It Measures and Why It Matters
 
-The EMA measures the exponentially weighted average trend of price action, giving more importance to recent data while never completely discarding historical information. It matters because traditional simple moving averages suffer from the "drop-off effect"—sudden jumps when old data expires from the calculation window. The EMA's infinite impulse response eliminates this discontinuity, providing smoother, more reliable trend signals. This makes it the gold standard for trend-following systems, serving as the computational backbone for most technical analysis tools.
+The EMA measures the exponentially weighted average trend of price action, giving more importance to recent data while never completely discarding historical information. It matters because traditional simple moving averages suffer from the "drop-off effect"-sudden jumps when old data expires from the calculation window. The EMA's infinite impulse response eliminates this discontinuity, providing smoother, more reliable trend signals. This makes it the gold standard for trend-following systems, serving as the computational backbone for most technical analysis tools.
 
 ## Interpretation and Signals
 
@@ -140,7 +140,7 @@ For a 20-period EMA on daily data: $f_c \approx 0.015$ cycles/day, or roughly a 
 | :-------- | ----: | ------------: | -------: |
 | FMA | 1 | 4 | 4 |
 | MUL | 1 | 3 | 3 |
-| **Total (post-warmup)** | **2** | — | **~7 cycles** |
+| **Total (post-warmup)** | **2** | - | **~7 cycles** |
 
 During warmup (first ~3N bars), additional operations for bias compensation:
 
@@ -150,7 +150,7 @@ During warmup (first ~3N bars), additional operations for bias compensation:
 | SUB | 1 | 1 | 1 |
 | DIV | 1 | 15 | 15 |
 | CMP | 2 | 1 | 2 |
-| **Warmup overhead** | **5** | — | **~21 cycles** |
+| **Warmup overhead** | **5** | - | **~21 cycles** |
 
 **Total during warmup:** ~28 cycles/bar. **Post-warmup:** ~7 cycles/bar.
 
@@ -246,7 +246,7 @@ Validated against external libraries in `Ema.Validation.Tests.cs`. Tests run aga
 | **TA-Lib** | ✅ | ✅ | ✅ | Matches after warmup (TA-Lib lacks compensator) |
 | **Skender** | ✅ | ✅ | ✅ | Matches `GetEma()` |
 | **Tulip** | ✅ | ✅ | ✅ | Matches `ema` indicator |
-| **Ooples** | ✅ | — | — | Matches `CalculateExponentialMovingAverage()` |
+| **Ooples** | ✅ | - | - | Matches `CalculateExponentialMovingAverage()` |
 
 Run validation:
 

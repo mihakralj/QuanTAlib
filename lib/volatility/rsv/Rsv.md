@@ -158,7 +158,7 @@ RSV achieves 8.4x the efficiency of close-to-close, meaning it produces the same
 | 14 | 14 bars | Complete after 14 bars |
 | 20 | 20 bars | Complete after 20 bars |
 
-SMA (unlike RMA) has no exponential tail — old values are completely dropped after exactly $period$ bars.
+SMA (unlike RMA) has no exponential tail - old values are completely dropped after exactly $period$ bars.
 
 ### Annualization Factor
 
@@ -194,7 +194,7 @@ Per-bar operations after warmup:
 | DIV (SMA) | 1 | 15 | 15 |
 | SQRT | 1 | 15 | 15 |
 | MUL (annual) | 1 | 3 | 3 |
-| **Total** | — | — | **~208 cycles** |
+| **Total** | - | - | **~208 cycles** |
 
 The dominant cost is the four LOG operations (48% of total). RSV is ~40% slower than HLV but provides drift independence.
 
@@ -277,8 +277,8 @@ Lower RSV allows larger positions; higher RSV requires smaller positions. RSV's 
 Track RSV percentile rank over lookback period:
 
 ```
-High rank (>80%): High volatility regime — reduce position size, widen stops
-Low rank (<20%): Low volatility regime — potential for breakout
+High rank (>80%): High volatility regime - reduce position size, widen stops
+Low rank (<20%): Low volatility regime - potential for breakout
 ```
 
 ### Options Pricing Input

@@ -1,6 +1,6 @@
 # MASSI: Mass Index
 
-> *The Mass Index doesn't predict direction—it predicts the moment of maximum uncertainty before clarity emerges.*
+> *The Mass Index doesn't predict direction-it predicts the moment of maximum uncertainty before clarity emerges.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ The Mass Index, developed by Donald Dorsey and introduced in the June 1992 issue
 
 ## Historical Context
 
-Donald Dorsey designed the Mass Index to detect trend reversals without predicting direction. His key insight was that range patterns—specifically, a sequence of widening followed by narrowing—often precede major trend changes. The classic signal occurs when MASSI rises above 27 (indicating expanding volatility) and then drops below 26.5 (indicating consolidation), forming what Dorsey called a "reversal bulge."
+Donald Dorsey designed the Mass Index to detect trend reversals without predicting direction. His key insight was that range patterns-specifically, a sequence of widening followed by narrowing-often precede major trend changes. The classic signal occurs when MASSI rises above 27 (indicating expanding volatility) and then drops below 26.5 (indicating consolidation), forming what Dorsey called a "reversal bulge."
 
 The indicator gained popularity because it provides advance warning of potential reversals regardless of whether the subsequent move is up or down. This makes it valuable for traders who want to tighten stops or prepare for volatility shifts.
 
@@ -34,7 +34,7 @@ $$
 \text{Range}_t = \text{High}_t - \text{Low}_t
 $$
 
-This measures the bar's trading range—the battlefield between buyers and sellers.
+This measures the bar's trading range-the battlefield between buyers and sellers.
 
 ### 2. Double EMA Smoothing
 

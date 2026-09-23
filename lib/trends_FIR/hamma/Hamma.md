@@ -1,6 +1,6 @@
 # HAMMA: Hamming-Weighted Moving Average
 
-> *Julius von Hann picked his window function to suppress spectral leakage; we're just using it to smooth price data. Same math, different trading floor.*
+> *Julius von Hann picked his window function to suppress spectral leakage; the implementation're just using it to smooth price data. Same math, different trading floor.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -23,7 +23,7 @@ HAMMA is a Finite Impulse Response (FIR) filter that applies a Hamming window to
 
 Richard Hamming developed his eponymous window function at Bell Labs in 1977, though it built on earlier work by Julius von Hann (the "Hanning" window, often confused with Hamming). The Hamming window was designed specifically to address spectral leakage in discrete Fourier transforms.
 
-The key insight was that by tweaking the coefficients of the raised cosine window, you could minimize the first side lobe amplitude at the cost of slightly wider main lobe. The result is a window that's excellent at isolating a signal from nearby interfering frequencies—exactly what traders want when separating trend from noise.
+The key insight was that by tweaking the coefficients of the raised cosine window, you could minimize the first side lobe amplitude at the cost of slightly wider main lobe. The result is a window that's excellent at isolating a signal from nearby interfering frequencies-exactly what traders want when separating trend from noise.
 
 In trading applications, HAMMA provides smoother output than SMA while maintaining good responsiveness. Its symmetric weighting gives equal consideration to recent and older prices around the center of the window.
 
@@ -104,14 +104,14 @@ Per-bar cost for period $L$ (weights precomputed at construction):
 | MUL | L | 3 | 3L |
 | ADD | L | 1 | L |
 | MUL (normalize) | 1 | 3 | 3 |
-| **Total** | **2L+1** | — | **~4L+3 cycles** |
+| **Total** | **2L+1** | - | **~4L+3 cycles** |
 
 For a typical period of 14:
 - **Total**: ~59 cycles per bar
 
 **Constructor cost** (one-time): ~80L cycles (L cosines at ~80 cycles each + L additions)
 
-**Complexity**: O(L) per bar — linear with period. Weights precomputed, runtime is pure dot product.
+**Complexity**: O(L) per bar - linear with period. Weights precomputed, runtime is pure dot product.
 
 ### Batch Mode (SIMD/FMA Analysis)
 
@@ -126,7 +126,7 @@ HAMMA's dot product structure enables efficient SIMD vectorization:
 
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 59 | 30,208 | — |
+| Scalar streaming | 59 | 30,208 | - |
 | SIMD batch (FMA) | ~10 | ~5,120 | **~83%** |
 
 ### Quality Metrics

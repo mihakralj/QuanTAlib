@@ -148,10 +148,10 @@ $$
 | Library | Status | Notes |
 | :--- | :---: | :--- |
 | **QuanTAlib** | ✅ | Ring buffer SMA implementation |
-| **TA-Lib** | — | No EOM implementation |
-| **Skender** | — | No EOM implementation |
-| **Tulip** | — | Has EMV (different formula) |
-| **Ooples** | — | No matching EOM implementation |
+| **TA-Lib** | - | No EOM implementation |
+| **Skender** | - | No EOM implementation |
+| **Tulip** | - | Has EMV (different formula) |
+| **Ooples** | - | No matching EOM implementation |
 
 Note: External library implementations vary in their handling of volume scaling and SMA period. Tulip's EMV uses a different formula without the volume scale divisor.
 

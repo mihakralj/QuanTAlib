@@ -1,6 +1,6 @@
 # STDDEV: Standard Deviation
 
-> *Volatility is not risk, but it's the only thing we can measure.*
+> *Volatility is not risk, but it's the only thing the implementation can measure.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -24,7 +24,7 @@ The concept of standard deviation was introduced by Karl Pearson in 1893. It has
 
 ## Architecture & Physics
 
-`StdDev` is implemented as a wrapper around the highly optimized `Variance` indicator. It leverages the O(1) streaming updates and SIMD-accelerated batch processing of `Variance`, applying a square root transformation to the result.
+`StdDev` is implemented as a wrapper around the highly optimized `Variance` indicator. It uses the O(1) streaming updates and SIMD-accelerated batch processing of `Variance`, applying a square root transformation to the result.
 
 ### Zero-Allocation Design
 
@@ -61,7 +61,7 @@ Standard Deviation uses Welford-style running sums of x and x^2 for exact O(1) u
 | Compute variance via shortcut formula | 1 | 5 cy | ~5 cy |
 | sqrt (variance -> std dev) | 1 | 14 cy | ~14 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~28 cy** |
+| **Total** | **O(1)** | - | **~28 cy** |
 
 O(1) per update. sqrt() dominates at ~14 cy. Periodic resync prevents catastrophic cancellation in the shortcut variance formula for near-constant series.
 

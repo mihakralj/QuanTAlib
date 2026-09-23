@@ -17,7 +17,7 @@
 - **Similar:** [DEMA](../dema/dema.md), [KAMA](../kama/kama.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Deviation-Scaled MA; adapts smoothing based on price deviation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RMS-based deviation scaling. Unlike fixed-period moving averages that treat all market conditions identically, DSMA adjusts its responsiveness based on measured volatility—accelerating when trends are strong and decelerating when prices consolidate.
+DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RMS-based deviation scaling. Unlike fixed-period moving averages that treat all market conditions identically, DSMA adjusts its responsiveness based on measured volatility-accelerating when trends are strong and decelerating when prices consolidate.
 
 ## Historical Context
 
@@ -29,7 +29,7 @@ DSMA operates in three stages, each addressing a specific signal processing chal
 
 ### Stage 1: Trend Extraction via Super Smoother
 
-The Super Smoother is a 2-pole Butterworth low-pass filter—the same topology used in analog audio circuits to eliminate high-frequency noise without phase distortion. Ehlers adapted it for financial time series by discretizing the transfer function:
+The Super Smoother is a 2-pole Butterworth low-pass filter-the same topology used in analog audio circuits to eliminate high-frequency noise without phase distortion. Ehlers adapted it for financial time series by discretizing the transfer function:
 
 $$ H(z) = \frac{c_0 + c_1 z^{-1} + c_2 z^{-2}}{1 - a_1 z^{-1} - a_2 z^{-2}} $$
 
@@ -49,7 +49,7 @@ Root Mean Square (RMS) quantifies the magnitude of oscillations around the filte
 
 $$ \text{RMS}_t = \sqrt{\frac{1}{N} \sum_{i=0}^{N-1} (\text{price}_{t-i} - \text{filt}_{t-i})^2} $$
 
-RMS is computed incrementally over a rolling window using a circular `RingBuffer` for O(1) updates. Unlike standard deviation (which measures dispersion around a mean), RMS measures absolute deviation from the trend line—a more direct proxy for volatility in trend-following contexts.
+RMS is computed incrementally over a rolling window using a circular `RingBuffer` for O(1) updates. Unlike standard deviation (which measures dispersion around a mean), RMS measures absolute deviation from the trend line-a more direct proxy for volatility in trend-following contexts.
 
 ### Stage 3: Adaptive Alpha Scaling
 
@@ -76,7 +76,7 @@ _state.Dsma = Math.FusedMultiplyAdd(_state.Dsma, 1.0 - alpha, alpha * input.Valu
 
 ## Performance Profile
 
-DSMA combines the computational cost of a 2-pole IIR filter, a rolling RMS calculation, and an EMA update—still achieving constant-time complexity through incremental ring buffer updates.
+DSMA combines the computational cost of a 2-pole IIR filter, a rolling RMS calculation, and an EMA update-still achieving constant-time complexity through incremental ring buffer updates.
 
 ### Operation Count (Streaming Mode, Scalar)
 
@@ -110,9 +110,9 @@ DSMA combines the computational cost of a 2-pole IIR filter, a rolling RMS calcu
 | **Total** | | | **~69 cycles** |
 
 **Dominant costs:**
-- SQRT (15 cycles, 22%) — RMS calculation
-- DIV (15 cycles, 22%) — alpha normalization by RMS
-- Super Smoother filter (~12 cycles, 17%) — 2-pole IIR recursion
+- SQRT (15 cycles, 22%) - RMS calculation
+- DIV (15 cycles, 22%) - alpha normalization by RMS
+- Super Smoother filter (~12 cycles, 17%) - 2-pole IIR recursion
 
 ### Batch Mode (SIMD Analysis)
 
@@ -130,7 +130,7 @@ DSMA is **not SIMD-parallelizable** across bars due to:
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
 | **Accuracy** | 7/10 | Volatile in choppy markets; shines in trends |
-| **Timeliness** | 8/10 | Adaptive lag—minimal during strong trends |
+| **Timeliness** | 8/10 | Adaptive lag-minimal during strong trends |
 | **Overshoot** | 6/10 | Can overshoot when volatility spikes suddenly |
 | **Smoothness** | 8/10 | Super Smoother baseline ensures good filtering |
 
@@ -164,7 +164,7 @@ DSMA is not implemented in mainstream libraries (TA-Lib, Skender, Tulip, Ooples)
 
 3. **Volatility Normalization**: The RMS denominator in the alpha formula can approach zero during extended flat periods, causing alpha to spike. The implementation clamps alpha at 1.0, but extremely low volatility can still produce jittery behavior. Consider a minimum RMS threshold (not implemented in this version).
 
-4. **Not a Momentum Oscillator**: DSMA is a trend filter, not a momentum indicator. Do not confuse high alpha values with strong momentum—alpha reflects signal-to-noise ratio, not directional strength. Use a separate momentum indicator (RSI, MACD) for confirmation.
+4. **Not a Momentum Oscillator**: DSMA is a trend filter, not a momentum indicator. Do not confuse high alpha values with strong momentum-alpha reflects signal-to-noise ratio, not directional strength. Use a separate momentum indicator (RSI, MACD) for confirmation.
 
 5. **Comparison with JMA**: DSMA uses a simpler adaptive mechanism than JMA (which employs fractal efficiency and phase adjustment). JMA typically offers smoother output and better overshoot control but at higher computational cost. DSMA is faster and more transparent algorithmically.
 

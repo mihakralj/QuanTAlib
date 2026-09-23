@@ -1,6 +1,6 @@
 # VWAPSD: VWAP with Standard Deviation Bands
 
-> *Standard deviation bands around VWAP measure institutional consensus — proximity signals fair value, distance signals opportunity.*
+> *Standard deviation bands around VWAP measure institutional consensus - proximity signals fair value, distance signals opportunity.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -122,7 +122,7 @@ VWAPSD is slightly simpler than VWAPBANDS (one band pair instead of two), with i
 | SQRT (σ) | 1 | 20 | 20 |
 | MUL (k × σ) | 1 | 3 | 3 |
 | ADD/SUB (VWAP ± k·σ) | 2 | 1 | 2 |
-| **Total (hot)** | **14** | — | **~71 cycles** |
+| **Total (hot)** | **14** | - | **~71 cycles** |
 
 Saves ~5 cycles vs VWAPBANDS by emitting 2 bands instead of 4. Session reset adds one CMP per bar.
 

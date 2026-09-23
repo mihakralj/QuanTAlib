@@ -111,7 +111,7 @@ TSI(long, short, signal) maintains 5 EMA states: two first-pass EMA smoothers (m
 | EMA2 abs (FMA: α_short × EMA1_abs + decay × prev) | 1 | 4 | ~4 |
 | TSI ratio (× 100 + DIV) | 2 | 9 | ~18 |
 | Signal EMA (FMA: α_sig × TSI + decay × prev) | 1 | 4 | ~4 |
-| **Total** | **9** | — | **~40 cycles** |
+| **Total** | **9** | - | **~40 cycles** |
 
 O(1) per bar. Default WarmupPeriod = longPeriod + shortPeriod + signalPeriod = 51 bars. The division is the dominant cost; Wilder-smoothed variants can replace all EMAs with RMA (same FMA count, slower convergence).
 
@@ -120,13 +120,13 @@ O(1) per bar. Default WarmupPeriod = longPeriod + shortPeriod + signalPeriod = 5
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | Price delta series | Yes | `VSUBPD` across full input span |
-| ABS series | Yes | `VABSPD` — single instruction |
+| ABS series | Yes | `VABSPD` - single instruction |
 | First EMA pass (long period) | No | Recursive IIR; each value depends on previous |
 | Second EMA pass (short period) | No | Recursive IIR on output of first pass |
 | TSI ratio | Yes | `VMULPD` + `VDIVPD` once both EMA series are computed |
 | Signal EMA | No | Recursive IIR |
 
-All three EMA passes are recursive IIR filters — inherently serial. A batch implementation can vectorize the delta and ABS computation (4 bars/cycle on AVX2) before the scalar EMA sweeps. The ratio and optional signal computation can be vectorized after the EMA passes complete. Net batch speedup for long series (~1000 bars): approximately 1.3–1.5× over fully scalar.
+All three EMA passes are recursive IIR filters - inherently serial. A batch implementation can vectorize the delta and ABS computation (4 bars/cycle on AVX2) before the scalar EMA sweeps. The ratio and optional signal computation can be vectorized after the EMA passes complete. Net batch speedup for long series (~1000 bars): approximately 1.3–1.5× over fully scalar.
 ## Validation
 
 Cross-validated against:

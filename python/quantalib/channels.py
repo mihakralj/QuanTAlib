@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -35,7 +37,7 @@ __all__ = [
 ]
 
 
-def aberr(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def aberr(close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Aberration Bands."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -49,7 +51,7 @@ def aberr(close: object, period: int = 14, multiplier: float = 2.0, offset: int 
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def accbands(high: object, low: object, close: object, period: int = 14, factor: float = 2.0, offset: int = 0, **kwargs) -> object:
+def accbands(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, factor: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Acceleration Bands."""
     period = int(kwargs.get("length", period))
     factor = float(factor)
@@ -63,7 +65,7 @@ def accbands(high: object, low: object, close: object, period: int = 14, factor:
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def apz(open: object, high: object, low: object, close: object, volume: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def apz(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Adaptive Price Zone."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -78,7 +80,7 @@ def apz(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap_multi({"dstMiddle": dstMiddle, "dstUpper": dstUpper, "dstLower": dstLower}, idx, "channels", offset)
 
 
-def dc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def dc(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Donchian Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -91,7 +93,7 @@ def dc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def decaychannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def decaychannel(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Decay Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -104,7 +106,7 @@ def decaychannel(high: object, low: object, period: int = 14, offset: int = 0, *
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def fcb(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def fcb(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fractal Chaos Bands."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -117,7 +119,7 @@ def fcb(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) 
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def jbands(close: object, period: int = 14, phase: int = 0, offset: int = 0, **kwargs) -> object:
+def jbands(close: ArrayLike, period: int = 14, phase: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """J-Line Bands."""
     period = int(kwargs.get("length", period))
     phase = int(phase)
@@ -131,7 +133,7 @@ def jbands(close: object, period: int = 14, phase: int = 0, offset: int = 0, **k
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def kc(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def kc(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Keltner Channel."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -145,7 +147,7 @@ def kc(high: object, low: object, close: object, period: int = 14, multiplier: f
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def maenv(close: object, period: int = 14, percentage: float = 2.5, maType: int = 0, offset: int = 0, **kwargs) -> object:
+def maenv(close: ArrayLike, period: int = 14, percentage: float = 2.5, maType: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Moving Average Envelope."""
     period = int(kwargs.get("length", period))
     percentage = float(percentage)
@@ -160,7 +162,7 @@ def maenv(close: object, period: int = 14, percentage: float = 2.5, maType: int 
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def mmchannel(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mmchannel(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Min-Max Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -172,7 +174,7 @@ def mmchannel(high: object, low: object, period: int = 14, offset: int = 0, **kw
     return _wrap_multi({"upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def pc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def pc(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Price Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -185,7 +187,7 @@ def pc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def regchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def regchannel(close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Regression Channel."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -199,7 +201,7 @@ def regchannel(close: object, period: int = 14, multiplier: float = 2.0, offset:
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def sdchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def sdchannel(close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Standard Deviation Channel."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -213,7 +215,7 @@ def sdchannel(close: object, period: int = 14, multiplier: float = 2.0, offset: 
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def starchannel(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, atrPeriod: int = 22, offset: int = 0, **kwargs) -> object:
+def starchannel(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, multiplier: float = 2.0, atrPeriod: int = 22, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Stoller Average Range Channel (STARC)."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -228,7 +230,7 @@ def starchannel(high: object, low: object, close: object, period: int = 14, mult
     return _wrap_multi({"middle": middle, "upper": upper, "lower": lower}, idx, "channels", offset)
 
 
-def stbands(high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def stbands(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """SuperTrend Bands."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -242,7 +244,7 @@ def stbands(high: object, low: object, close: object, period: int = 14, multipli
     return _wrap_multi({"upper": upper, "lower": lower, "trend": trend}, idx, "channels", offset)
 
 
-def ttm_lrc(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ttm_lrc(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """TTM Linear Regression Channel."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -257,7 +259,7 @@ def ttm_lrc(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap_multi({"midline": midline, "upper1": upper1, "lower1": lower1, "upper2": upper2, "lower2": lower2}, idx, "channels", offset)
 
 
-def ubands(close: object, period: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs) -> object:
+def ubands(close: ArrayLike, period: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Ultimate Bands."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -271,7 +273,7 @@ def ubands(close: object, period: int = 20, multiplier: float = 1.0, offset: int
     return _wrap_multi({"upper": upper, "middle": middle, "lower": lower}, idx, "channels", offset)
 
 
-def uchannel(high: object, low: object, close: object, strPeriod: int = 20, centerPeriod: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs) -> object:
+def uchannel(high: ArrayLike, low: ArrayLike, close: ArrayLike, strPeriod: int = 20, centerPeriod: int = 20, multiplier: float = 1.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Ultimate Channel."""
     strPeriod = int(strPeriod)
     centerPeriod = int(centerPeriod)
@@ -286,7 +288,7 @@ def uchannel(high: object, low: object, close: object, strPeriod: int = 20, cent
     return _wrap_multi({"upper": upper, "middle": middle, "lower": lower}, idx, "channels", offset)
 
 
-def vwapbands(price: object, volume: object, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def vwapbands(price: ArrayLike, volume: ArrayLike, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """VWAP Bands."""
     multiplier = float(multiplier)
     offset = int(offset)
@@ -302,7 +304,7 @@ def vwapbands(price: object, volume: object, multiplier: float = 2.0, offset: in
     return _wrap_multi({"upper1": upper1, "lower1": lower1, "upper2": upper2, "lower2": lower2, "vwap": vwap, "stdDev": stdDev}, idx, "channels", offset)
 
 
-def vwapsd(price: object, volume: object, numDevs: float = 2.0, offset: int = 0, **kwargs) -> object:
+def vwapsd(price: ArrayLike, volume: ArrayLike, numDevs: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """VWAP Standard Deviation."""
     numDevs = float(numDevs)
     offset = int(offset)
@@ -316,8 +318,8 @@ def vwapsd(price: object, volume: object, numDevs: float = 2.0, offset: int = 0,
     return _wrap_multi({"upper": upper, "lower": lower, "vwap": vwap, "stdDev": stdDev}, idx, "channels", offset)
 
 
-def bbands(close: object, period: int = 20, std: float = 2.0,
-           offset: int = 0, **kwargs) -> object:
+def bbands(close: ArrayLike, period: int = 20, std: float = 2.0,
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Bands -> (upper, mid, lower) or DataFrame."""
     period = int(kwargs.get("length", period)); std = float(std); offset = int(offset)
     src, idx = _arr(close); n = len(src)
@@ -328,9 +330,9 @@ def bbands(close: object, period: int = 20, std: float = 2.0,
         idx, "channels", offset)
 
 
-def atrbands(high: object, low: object, close: object,
+def atrbands(high: ArrayLike, low: ArrayLike, close: ArrayLike,
              length: int = 14, mult: float = 2.0,
-             offset: int = 0, **kwargs) -> object:
+             offset: int = 0, **kwargs: Any) -> ArrayLike:
     """ATR Bands -> (upper, mid, lower) or DataFrame."""
     length = int(length); mult = float(mult); offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -342,8 +344,8 @@ def atrbands(high: object, low: object, close: object,
         idx, "channels", offset)
 
 
-def apchannel(high: object, low: object, period: int = 20,
-              offset: int = 0, **kwargs) -> object:
+def apchannel(high: ArrayLike, low: ArrayLike, period: int = 20,
+              offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Average Price Channel -> (upper, lower) or DataFrame."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
@@ -353,8 +355,8 @@ def apchannel(high: object, low: object, period: int = 20,
     return _wrap_multi({f"APCU_{period}": upper, f"APCL_{period}": lower}, idx, "channels", offset)
 
 
-def hwc(close: object, period: int = 20, multiplier: float = 1.0,
-        offset: int = 0, **kwargs) -> object:
+def hwc(close: ArrayLike, period: int = 20, multiplier: float = 1.0,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Holt-Winters Channel -> (upper, middle, lower) or DataFrame."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     multiplier = float(kwargs.get("mult", multiplier))

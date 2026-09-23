@@ -1,6 +1,6 @@
 # LUNAR: Lunar Phase Indicator
 
-> *The lunar cycle maps the Moon's phase onto price — an ancient rhythm tested against modern markets.*
+> *The lunar cycle maps the Moon's phase onto price - an ancient rhythm tested against modern markets.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ LUNAR calculates the Moon's illumination fraction using precise orbital mechanic
 
 ## Historical Context
 
-Lunar cycles have guided human activity for millennia. The hypothesis that lunar phases influence human behavior—and by extension, financial markets—dates to early technical analysis and remains a subject of academic investigation. Some studies (Dichev & Janes, 2001; Yuan, Zheng & Zhu, 2006) find statistically significant correlations between lunar phases and market returns, while others dismiss such findings as data mining artifacts. Regardless of one's position, rigorous testing requires precise phase calculation. This implementation derives from Meeus' (1991) standard reference for computational positional astronomy, accounting for major orbital perturbations including the Moon's elliptical orbit (eccentricity $e \approx 0.0549$), solar perturbations, and nodal regression, achieving sub-degree accuracy sufficient for financial cycle research.
+Lunar cycles have guided human activity for millennia. The hypothesis that lunar phases influence human behavior-and by extension, financial markets-dates to early technical analysis and remains a subject of academic investigation. Some studies (Dichev & Janes, 2001; Yuan, Zheng & Zhu, 2006) find statistically significant correlations between lunar phases and market returns, while others dismiss such findings as data mining artifacts. Regardless of one's position, rigorous testing requires precise phase calculation. This implementation derives from Meeus' (1991) standard reference for computational positional astronomy, accounting for major orbital perturbations including the Moon's elliptical orbit (eccentricity $e \approx 0.0549$), solar perturbations, and nodal regression, achieving sub-degree accuracy sufficient for financial cycle research.
 
 ## Architecture & Physics
 

@@ -108,9 +108,9 @@ AHRENS(N) requires a ring buffer of its own past output values (length N). The f
 | Error: src − mid | 1 | 1 | ~1 |
 | Correction: error / N | 1 | 8 | ~8 |
 | AHRENS update: prev + correction | 1 | 1 | ~1 |
-| **Total** | **7** | — | **~22 cycles** |
+| **Total** | **7** | - | **~22 cycles** |
 
-O(1) per bar. The ring buffer stores past output values, not input values — a self-referential IIR. The division is the dominant cost. WarmupPeriod = N.
+O(1) per bar. The ring buffer stores past output values, not input values - a self-referential IIR. The division is the dominant cost. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -120,4 +120,4 @@ O(1) per bar. The ring buffer stores past output values, not input values — a 
 | Self-referential IIR update | No | AHRENS[t] depends on AHRENS[t-1] and AHRENS[t-N]; both are computed values |
 | Correction divide | No | Alpha depends on computed error; scalar only |
 
-AHRENS is strictly sequential — the output at bar t depends on the output at bar t-1 (direct feedback) AND the output at bar t-N (delayed feedback). No vectorization is possible. Batch mode runs the same scalar kernel as streaming.
+AHRENS is strictly sequential - the output at bar t depends on the output at bar t-1 (direct feedback) AND the output at bar t-N (delayed feedback). No vectorization is possible. Batch mode runs the same scalar kernel as streaming.

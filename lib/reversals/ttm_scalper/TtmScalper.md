@@ -85,7 +85,7 @@ pivotLow = close[1] < close[2] AND close[1] < close[0]
 
 ### Operation Count (Streaming Mode)
 
-TTM Scalper Alert uses a 3-bar high/low range comparison with price action pattern matching — O(1) per bar.
+TTM Scalper Alert uses a 3-bar high/low range comparison with price action pattern matching - O(1) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -95,7 +95,7 @@ TTM Scalper Alert uses a 3-bar high/low range comparison with price action patte
 | Compute 3-bar lowest low | 1 | 4 cy | ~4 cy |
 | Bar pattern comparison (buy/sell signal) | 1 | 3 cy | ~3 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~19 cy** |
+| **Total** | **O(1)** | - | **~19 cy** |
 
 O(1) per bar. All state fits in two RingBuffers of size 3. Signal logic is a branchless comparison between current price and the 3-bar extremes.
 
@@ -104,8 +104,8 @@ O(1) per bar. All state fits in two RingBuffers of size 3. Signal logic is a bra
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | 3-bar rolling max (high) | Partial | Small window; scalar faster than SIMD setup |
-| 3-bar rolling min (low) | Partial | Same — short window overhead |
+| 3-bar rolling min (low) | Partial | Same - short window overhead |
 | Signal comparison | Yes | Vector conditional-select for buy/sell |
 | Output array fill | Yes | Branchless signal assignment |
 
-Limited SIMD benefit due to 3-bar window size — setup cost exceeds savings. The comparison/signal phase is SIMD-friendly for batch output.
+Limited SIMD benefit due to 3-bar window size - setup cost exceeds savings. The comparison/signal phase is SIMD-friendly for batch output.

@@ -93,7 +93,7 @@ Granger causality fits two rolling OLS regressions (restricted and unrestricted)
 | Unrestricted OLS (AR of Y + lags of X) | 2L ops | 8 cy | ~16L cy |
 | RSS computation (2 models) | 2N | 2 cy | ~4N cy |
 | F-statistic calculation | 1 | 5 cy | ~5 cy |
-| **Total (L=2, N=30)** | **O(L*N)** | — | **~189 cy** |
+| **Total (L=2, N=30)** | **O(L*N)** | - | **~189 cy** |
 
 O(L·N) per update where L = number of lags, N = period. Heavy enough that batch mode (pre-computing all bars at once) is preferred for historical analysis.
 

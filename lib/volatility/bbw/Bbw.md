@@ -128,7 +128,7 @@ BBW is theoretically unbounded above but has practical constraints:
 | MUL (2 × k) | 1 | 3 | 3 |
 | MUL (× StdDev) | 1 | 3 | 3 |
 | DIV (/ SMA) | 1 | 15 | 15 |
-| **Total** | **5** | — | **~46 cycles** |
+| **Total** | **5** | - | **~46 cycles** |
 
 StdDev dominates due to variance calculation. Division is secondary cost.
 

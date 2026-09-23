@@ -1,6 +1,6 @@
 # VR: Volatility Ratio
 
-> *When today's range dwarfs the average, pay attention—the market is telling you something unusual is happening.*
+> *When today's range dwarfs the average, pay attention-the market is telling you something unusual is happening.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -125,9 +125,9 @@ Per-bar operations:
 | MUL | 3 | 3 | 9 |
 | DIV | 2 | 15 | 30 |
 | FMA | 1 | 5 | 5 |
-| **Total** | — | — | **~53 cycles** |
+| **Total** | - | - | **~53 cycles** |
 
-Extremely lightweight—dominated by two divisions.
+Extremely lightweight-dominated by two divisions.
 
 ### Batch Mode (512 values, SIMD/FMA)
 
@@ -193,7 +193,7 @@ Extremely lightweight—dominated by two divisions.
 
 ### Breakout Detection
 
-The primary use case—identify unusual volatility expansion:
+The primary use case-identify unusual volatility expansion:
 
 ```
 VR > 2.0: Potential breakout in progress

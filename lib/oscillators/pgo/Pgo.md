@@ -71,11 +71,11 @@ Default configuration (period=14) warms up in 14 bars.
 
 ### 1. SMA via Running Sum
 
-The [`RingBuffer`](lib/oscillators/pgo/Pgo.cs:26) maintains a circular buffer of close prices. [`SmaSum`](lib/oscillators/pgo/Pgo.cs:29) tracks the running total with O(1) incremental updates: subtract the oldest value, add the new value.
+The [`RingBuffer`](../../core/ringbuffer/RingBuffer.cs) maintains a circular buffer of close prices. [`SmaSum`](Pgo.cs) tracks the running total with O(1) incremental updates: subtract the oldest value, add the new value.
 
 ### 2. ATR via Compensated EMA
 
-True Range is computed from High, Low, Close, and previous Close using three comparisons. The EMA of TR uses [`Math.FusedMultiplyAdd`](lib/oscillators/pgo/Pgo.cs:158) for the `alpha * (tr - ema) + ema` pattern. During warmup, the geometric decay factor $e = e \times (1 - \alpha)$ provides bias correction.
+True Range is computed from High, Low, Close, and previous Close using three comparisons. The EMA of TR uses [`Math.FusedMultiplyAdd`](Pgo.cs) for the `alpha * (tr - ema) + ema` pattern. During warmup, the geometric decay factor $e = e \times (1 - \alpha)$ provides bias correction.
 
 ### 3. Single-Parameter Design
 
@@ -83,7 +83,7 @@ Both SMA lookback and ATR smoothing use the same `period`, which means a single 
 
 ### 4. Dual Update Overloads
 
-[`Update(TBar)`](lib/oscillators/pgo/Pgo.cs:115) provides full OHLC context for proper True Range computation. [`Update(TValue)`](lib/oscillators/pgo/Pgo.cs:176) creates a synthetic bar with H=L=C=value, producing TR=0, which is documented as suboptimal.
+[`Update(TBar)`](Pgo.cs) provides full OHLC context for proper True Range computation. [`Update(TValue)`](Pgo.cs) creates a synthetic bar with H=L=C=value, producing TR=0, which is documented as suboptimal.
 
 ### 5. Edge Cases
 
@@ -169,7 +169,7 @@ No external library provides a PGO implementation. Validation uses component ide
 | TR computation | Scalar (3 comparisons + abs per bar) |
 | ATR EMA | Scalar (IIR recursion, sequential dependency) |
 | PGO division | Scalar (data-dependent divisor) |
-| Vectorization potential | Low — IIR chain and conditional TR prevent SIMD |
+| Vectorization potential | Low - IIR chain and conditional TR prevent SIMD |
 
 ## Common Pitfalls
 

@@ -16,11 +16,11 @@
 - **Similar:** [Aroon](../aroon/Aroon.md), [CMO](../../momentum/cmo/Cmo.md) | **Complementary:** ADX for trend strength | **Trading note:** Aroon Up minus Aroon Down; positive = uptrend, negative = downtrend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$. This distills the temporal battle between fresh highs and fresh lows into a bounded $[-100, +100]$ metric where positive values indicate bullish recency dominance and negative values indicate bearish. Unlike recursive indicators that accumulate floating-point drift, the Aroon Oscillator is purely windowed — its value depends only on data within the lookback period, making it stateless in the long term and immune to initialization poisoning. The step-function output reflects discrete events (new extremes appearing or aging out) rather than smooth price trajectories.
+The Aroon Oscillator condenses the dual-line Aroon system into a single zero-centered value by computing $\text{AroonUp} - \text{AroonDown}$. This distills the temporal battle between fresh highs and fresh lows into a bounded $[-100, +100]$ metric where positive values indicate bullish recency dominance and negative values indicate bearish. Unlike recursive indicators that accumulate floating-point drift, the Aroon Oscillator is purely windowed - its value depends only on data within the lookback period, making it stateless in the long term and immune to initialization poisoning. The step-function output reflects discrete events (new extremes appearing or aging out) rather than smooth price trajectories.
 
 ## Historical Context
 
-Tushar Chande introduced the Aroon system in *The New Technical Trader* (1995) as a departure from price-magnitude momentum. While RSI and MACD ask "how much did price move?", Aroon asks "how long has it been since the last extreme?" The Oscillator is the net verdict of this temporal argument. Chande's key observation was that the recency of extremes carries more information about trend health than the magnitude of movements. A market making new highs every few bars is trending up regardless of the size of each increment. The Oscillator pegs at +100 when a new high appears on every bar within the window (maximum bullish freshness), and at -100 when new lows dominate. The middle ground (values near zero) indicates neither extreme is particularly fresh — the temporal signature of consolidation.
+Tushar Chande introduced the Aroon system in *The New Technical Trader* (1995) as a departure from price-magnitude momentum. While RSI and MACD ask "how much did price move?", Aroon asks "how long has it been since the last extreme?" The Oscillator is the net verdict of this temporal argument. Chande's key observation was that the recency of extremes carries more information about trend health than the magnitude of movements. A market making new highs every few bars is trending up regardless of the size of each increment. The Oscillator pegs at +100 when a new high appears on every bar within the window (maximum bullish freshness), and at -100 when new lows dominate. The middle ground (values near zero) indicates neither extreme is particularly fresh - the temporal signature of consolidation.
 
 ## Architecture & Physics
 
@@ -45,7 +45,7 @@ $$\text{AroonOsc} = \text{AroonUp} - \text{AroonDown}$$
 ### 5. Complexity
 
 - **Time:** $O(N)$ per bar for min/max scanning
-- **Space:** $O(N)$ — two ring buffers
+- **Space:** $O(N)$ - two ring buffers
 - **Warmup:** $N$ bars to fill the window
 
 ## Mathematical Foundation
@@ -72,7 +72,7 @@ Unlike EMA-based oscillators that accumulate rounding errors across thousands of
 
 ### Flatlining Behavior
 
-In strong trends, the oscillator can hold +100 or -100 for sustained periods. This indicates a continuously refreshing extreme — the market is making a new high (or low) on virtually every bar. This is not saturation; it is the temporal signature of a parabolic move.
+In strong trends, the oscillator can hold +100 or -100 for sustained periods. This indicates a continuously refreshing extreme - the market is making a new high (or low) on virtually every bar. This is not saturation; it is the temporal signature of a parabolic move.
 
 ## Performance Profile
 
@@ -86,7 +86,7 @@ AroonOsc = Aroon Up − Aroon Down, computed via the same deque-based window ext
 | :--- | :---: | :---: | :---: |
 | Aroon Up + Down computation | 1 | ~26 | 26 |
 | SUB (AroonUp − AroonDown) | 1 | 1 | 1 |
-| **Total** | **Aroon+1** | — | **~27 cycles** |
+| **Total** | **Aroon+1** | - | **~27 cycles** |
 
 AroonOsc is essentially free on top of Aroon. ~27 cycles per bar.
 
@@ -110,6 +110,6 @@ Trivially parallelizable subtraction step after Aroon computation.
 
 ## Resources
 
-- Chande, T.S. — *The New Technical Trader* (John Wiley & Sons, 1995)
-- Chande, T.S. — *Beyond Technical Analysis* (John Wiley & Sons, 1995)
+- Chande, T.S. - *The New Technical Trader* (John Wiley & Sons, 1995)
+- Chande, T.S. - *Beyond Technical Analysis* (John Wiley & Sons, 1995)
 - PineScript reference: `aroonosc.pine` in indicator directory

@@ -162,7 +162,7 @@ TRIX works best on daily charts or higher timeframes where the triple smoothing 
 
 ## Validation
 
-Validated against external libraries in [`Trix.Validation.Tests.cs`](Trix.Validation.Tests.cs). Tests run across multiple periods (5, 9, 10, 14, 20, 25, 50, 100) with self-consistency checks on 10,000-bar datasets.
+Validated against external libraries in [`Trix.Validation.Tests.cs`](tests/Trix.Validation.Tests.cs). Tests run across multiple periods (5, 9, 10, 14, 20, 25, 50, 100) with self-consistency checks on 10,000-bar datasets.
 
 | Library | Status | Notes |
 |---------|:------:|-------|

@@ -82,7 +82,7 @@ RVGI (Relative Vigor Index) computes a symmetrically-weighted sum of body change
 | RingBuffer updates × 2 (num, denom) | 4 | 1 | 4 |
 | Signal line (4-tap weighted avg) | 4 | 3 | 12 |
 | CMP (denom > 0 guard) | 1 | 1 | 1 |
-| **Total** | **18** | — | **~64 cycles** |
+| **Total** | **18** | - | **~64 cycles** |
 
 ~64 cycles per bar. Two simultaneous 4-tap FIR convolutions + a division.
 
@@ -94,7 +94,7 @@ RVGI (Relative Vigor Index) computes a symmetrically-weighted sum of body change
 | Division | Yes | VDIVPD |
 | Signal line (4-tap FIR) | Yes | Same FIR pattern |
 
-Fully vectorizable — no recursive dependencies. AVX2 achieves ~4× throughput.
+Fully vectorizable - no recursive dependencies. AVX2 achieves ~4× throughput.
 
 ### Quality Metrics
 

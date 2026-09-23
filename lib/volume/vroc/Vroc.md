@@ -22,7 +22,7 @@ VROC (Volume Rate of Change) measures the percentage or absolute change in volum
 
 The Rate of Change concept has been applied to price data since the early days of technical analysis. Gerald Appel and Fred Hitschler popularized applying ROC to volume in their 1979 work, recognizing that volume changes often precede price movements. The logic is straightforward: if volume is the fuel that drives price trends, then measuring how quickly that fuel is being consumed provides insight into trend sustainability.
 
-VROC gained traction among commodity traders who observed that volume spikes often accompanied breakouts from consolidation patterns. The indicator's simplicity—requiring only current and historical volume—made it accessible for manual calculation before electronic charting became ubiquitous.
+VROC gained traction among commodity traders who observed that volume spikes often accompanied breakouts from consolidation patterns. The indicator's simplicity-requiring only current and historical volume-made it accessible for manual calculation before electronic charting became ubiquitous.
 
 ## Architecture & Physics
 
@@ -78,7 +78,7 @@ VROC percentage values have intuitive meanings:
 
 Point mode shows absolute volume change in the same units as volume:
 - Useful when comparing volume changes across consistent timeframes
-- Not normalized—larger securities will show larger absolute changes
+- Not normalized-larger securities will show larger absolute changes
 
 ### Lookback Period Selection
 
@@ -99,7 +99,7 @@ Common period selections:
 | DIV | 1 | 15 | 15 |
 | MUL | 1 | 3 | 3 |
 | CMP | 1 | 1 | 1 |
-| **Total** | **6** | — | **~22 cycles** |
+| **Total** | **6** | - | **~22 cycles** |
 
 ### Memory Footprint
 
@@ -112,7 +112,7 @@ Per instance: `8 bytes × (period + 1)` for the ring buffer plus ~32 bytes for s
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Exact calculation, no approximations |
-| **Timeliness** | 10/10 | Zero lag—direct comparison |
+| **Timeliness** | 10/10 | Zero lag-direct comparison |
 | **Smoothness** | 3/10 | No smoothing applied; can be noisy |
 | **Simplicity** | 10/10 | Single parameter, intuitive output |
 

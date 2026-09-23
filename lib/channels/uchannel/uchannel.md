@@ -131,7 +131,7 @@ Frequency response: cutoff at approximately $f_c \approx 1/(2\pi n)$ cycles per 
 
 ### Operation Count (Streaming Mode)
 
-UCHANNEL runs two independent USF IIR recursions (one for close, one for True Range) plus True Range and band arithmetic — all $O(1)$:
+UCHANNEL runs two independent USF IIR recursions (one for close, one for True Range) plus True Range and band arithmetic - all $O(1)$:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -144,7 +144,7 @@ UCHANNEL runs two independent USF IIR recursions (one for close, one for True Ra
 | ADD (USF STR feedback, 5 terms) | 5 | 1 | 5 |
 | MUL (k × STR) | 1 | 3 | 3 |
 | ADD/SUB (center ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **24** | — | **~50 cycles** |
+| **Total (hot)** | **24** | - | **~50 cycles** |
 
 No buffers, no window scans. All state fits in ~200 bytes (two USF 2-element histories + metadata). This is the fastest ATR-class channel indicator.
 

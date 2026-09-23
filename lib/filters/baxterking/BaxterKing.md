@@ -113,7 +113,7 @@ Baxter-King is a symmetric FIR band-pass filter; the full symmetric window cover
 | :--- | :---: | :---: | :---: |
 | RingBuffer update | 1 | ~3 cy | ~3 cy |
 | Dot product over 2K+1 weights (FMA) | 2K+1 | ~5 cy | ~305 cy (K=30) |
-| **Total (K=30)** | **62** | — | **~308 cycles** |
+| **Total (K=30)** | **62** | - | **~308 cycles** |
 
 O(K) per bar. Precomputed symmetric weights; full-window convolution each bar. ~308 cycles for K=30.
 

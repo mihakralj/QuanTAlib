@@ -1,0 +1,10 @@
+//@version=5
+indicator("Volume-Weighted MACD", "VWMACD")
+fast = input.int(12, minval=1)
+slow = input.int(26, minval=1)
+signal = input.int(9, minval=1)
+line = ta.vwma(close, fast) - ta.vwma(close, slow)
+signalLine = ta.ema(line, signal)
+plot(line, "VWMACD", color=color.blue)
+plot(signalLine, "Signal", color=color.orange)
+plot(line - signalLine, "Histogram", style=plot.style_columns, color=color.gray)

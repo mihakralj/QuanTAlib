@@ -1,0 +1,10 @@
+//@version=5
+indicator("Elder Impulse System", "IMPULSE")
+emaPeriod = input.int(13, minval=1)
+fast = input.int(12, minval=1)
+slow = input.int(26, minval=1)
+signal = input.int(9, minval=1)
+emaValue = ta.ema(close, emaPeriod)
+[macd, macdSignal, histogram] = ta.macd(close, fast, slow, signal)
+impulse = emaValue > emaValue[1] and histogram > histogram[1] ? 1 : emaValue < emaValue[1] and histogram < histogram[1] ? -1 : 0
+plot(impulse, "Impulse", style=plot.style_columns, color=impulse > 0 ? color.green : impulse < 0 ? color.red : color.gray)

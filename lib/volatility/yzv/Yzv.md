@@ -1,6 +1,6 @@
 # YZV: Yang-Zhang Volatility
 
-> *The best volatility estimator uses all the information the market gives you—overnight gaps, intraday swings, and everything in between.*
+> *The best volatility estimator uses all the information the market gives you-overnight gaps, intraday swings, and everything in between.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -165,7 +165,7 @@ Per-bar operations:
 | DIV | 3 | 15 | 45 |
 | SQRT | 1 | 15 | 15 |
 | FMA candidates | 3 | 5 | 15 |
-| **Total** | — | — | **~319 cycles** |
+| **Total** | - | - | **~319 cycles** |
 
 The logarithm operations dominate the cost.
 
@@ -222,7 +222,7 @@ The logarithm operations dominate the cost.
 
 4. **Scale interpretation**: YZV output is in the same units as the log-return standard deviation (essentially a percentage in decimal form). A value of 0.02 means ~2% daily volatility.
 
-5. **Parameter sensitivity**: The optimal $k$ weight depends on period. Don't reuse $k$ values calculated for different periods—the formula must be recomputed.
+5. **Parameter sensitivity**: The optimal $k$ weight depends on period. Don't reuse $k$ values calculated for different periods-the formula must be recomputed.
 
 6. **Gap vs no-gap markets**: For instruments that trade 24/7 (crypto, forex), the overnight component may be less meaningful. Consider using only the Rogers-Satchell component for such markets.
 

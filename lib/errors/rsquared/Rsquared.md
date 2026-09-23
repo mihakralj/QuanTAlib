@@ -63,7 +63,7 @@ O(1) per bar. Single-pass scalar transformation of (actual, forecast) pair; no l
 | :--- | :---: | :---: | :---: |
 | Error computation (subtract, abs/square/log) | 1-3 | ~3-8 cy | ~5-15 cy |
 | Running accumulator update (EMA or sum) | 1 | ~4 cy | ~4 cy |
-| **Total** | **2-4** | — | **~9-19 cycles** |
+| **Total** | **2-4** | - | **~9-19 cycles** |
 
 Streaming update requires only the current actual/forecast pair and running state. ~10-15 cycles/bar typical.
 

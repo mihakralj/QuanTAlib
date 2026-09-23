@@ -190,7 +190,7 @@ Per-bar operations after warmup:
 | DIV (bias) | 1 | 15 | 15 |
 | SQRT | 1 | 15 | 15 |
 | MUL (annual) | 1 | 3 | 3 |
-| **Total** | — | — | **~94 cycles** |
+| **Total** | - | - | **~94 cycles** |
 
 The dominant cost is the two LOG operations (53% of total). HLV is ~37% faster than GKV due to requiring only 2 logs instead of 4.
 
@@ -287,8 +287,8 @@ where K is a multiplier (typically 1.5-3.0)
 Track HLV percentile rank over lookback period:
 
 ```
-High rank (>80%): High volatility regime — reduce position size, widen stops
-Low rank (<20%): Low volatility regime — potential for breakout
+High rank (>80%): High volatility regime - reduce position size, widen stops
+Low rank (<20%): Low volatility regime - potential for breakout
 ```
 
 ### Options Pricing Input

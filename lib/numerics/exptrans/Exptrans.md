@@ -1,6 +1,6 @@
 # EXPTRANS: Exponential Function
 
-> *The exponential function is the only function that is its own derivative—a mathematical curiosity that makes it indispensable for modeling growth, decay, and everything compounding.*
+> *The exponential function is the only function that is its own derivative-a mathematical curiosity that makes it indispensable for modeling growth, decay, and everything compounding.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

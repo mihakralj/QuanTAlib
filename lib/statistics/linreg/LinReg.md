@@ -82,7 +82,7 @@ LinReg uses online running sums (Sx, Sy, Sxx, Sxy) for exact O(1) linear regress
 | Solve slope + intercept (2x2 system) | 1 | 6 cy | ~6 cy |
 | Project endpoint value via FMA | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~20 cy** |
+| **Total** | **O(1)** | - | **~20 cy** |
 
 O(1) per update. The fastest OLS variant because time index is deterministic; Sx and Sxx have closed-form expressions in terms of N.
 

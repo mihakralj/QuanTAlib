@@ -23,7 +23,7 @@ RMED applies exponential smoothing to a 5-bar running median, creating a nonline
 
 John F. Ehlers published "Recursive Median Filters" in *Technical Analysis of Stocks & Commodities* (March 2018). The article addressed a fundamental limitation of linear filters: no matter how sophisticated an EMA, DEMA, or Butterworth design is, a single bad tick or flash-crash spike will corrupt the output for its entire impulse response duration.
 
-Median filters solve this problem completely for impulse noise, but traditional median filters are non-recursive (pure FIR), which means they have no "memory" between bars — each output depends only on the current window, creating a choppy, step-like output. Ehlers' innovation was to follow the median with an exponential average, combining the spike rejection of the median with the smooth continuity of the EMA.
+Median filters solve this problem completely for impulse noise, but traditional median filters are non-recursive (pure FIR), which means they have no "memory" between bars - each output depends only on the current window, creating a choppy, step-like output. Ehlers' innovation was to follow the median with an exponential average, combining the spike rejection of the median with the smooth continuity of the EMA.
 
 The 5-bar median window is a design choice: it can reject up to 2 simultaneous bad ticks in a row (the breakdown point is $\lfloor 5/2 \rfloor = 2$), while having minimal lag (centered at bar 2 of 5). Wider median windows would reject more spikes but add more lag.
 
@@ -113,7 +113,7 @@ RMED computes the median of 5 stored values (optimal 5-element sorting network: 
 | 5-element median (9 compare-swap ops) | 9 | ~3 cy | ~27 cy |
 | Alpha derivation (cos/sin of 2*pi/P) | 2 | ~10 cy | ~20 cy |
 | EMA FMA (alpha * median + (1-alpha) * prev) | 1 | ~4 cy | ~4 cy |
-| **Total** | **~13** | — | **~54 cycles** |
+| **Total** | **~13** | - | **~54 cycles** |
 
 O(1) per bar. The alpha is period-dependent and precomputed at construction; per-bar cost is the 9-comparison sorting network (~27 cy) plus EMA (~4 cy). ~54 cycles/bar.
 

@@ -1,6 +1,6 @@
 # TSF: Time Series Forecast
 
-> *The best prediction of the future is the trend that's already in motion — extended by exactly one step.*
+> *The best prediction of the future is the trend that's already in motion - extended by exactly one step.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

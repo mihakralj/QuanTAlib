@@ -20,7 +20,7 @@ The **BPF** (BandPass Filter) is a second-order IIR architecture designed to sur
 
 ## Historical Context
 
-In the signal processing evolution of technical analysis, early practitioners relied on generic smoothing (SMA, EMA) which dampened everything indiscriminately. John Ehlers and others introduced the concept of "spectral decomposition" to trading—filtering price data not just to smooth it, but to extract specific wave components.
+In the signal processing evolution of technical analysis, early practitioners relied on generic smoothing (SMA, EMA) which dampened everything indiscriminately. John Ehlers and others introduced the concept of "spectral decomposition" to trading-filtering price data not just to smooth it, but to extract specific wave components.
 
 The BPF represents a shift from "noise suppression" to "feature extraction." It acknowledges that markets often exhibit regime-specific periodicities (cycles). This implementation uses a 2nd-order Gaussian approximation, favored for its optimal trade-off between step response (timeliness) and frequency rejection (smoothness).
 
@@ -78,7 +78,7 @@ Band-Pass Filter (BPF) is a 2nd-order IIR band-pass: two poles selected by cente
 | Feedforward FMA (b0*x - b2*x2) | 2 | ~4 cy | ~8 cy |
 | Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **8** | — | **~20 cycles** |
+| **Total** | **8** | - | **~20 cycles** |
 
 O(1) per bar. ~20 cycles/bar. BPF biquad has one fewer feedforward coefficient than typical LP/HP biquads.
 

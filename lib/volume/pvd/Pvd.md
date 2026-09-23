@@ -16,7 +16,7 @@
 - **Similar:** [PVI](../pvi/Pvi.md), [NVI](../nvi/Nvi.md) | **Complementary:** Volume | **Trading note:** Price-Volume Divergence; measures disagreement between price and volume trends.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum. The indicator identifies situations where price movement lacks volume confirmation—a classic warning signal that the current trend may be weakening or about to reverse.
+Price Volume Divergence (PVD) quantifies the disagreement between price momentum and volume momentum. The indicator identifies situations where price movement lacks volume confirmation-a classic warning signal that the current trend may be weakening or about to reverse.
 
 ## Historical Context
 
@@ -103,7 +103,7 @@ where $s$ = smoothing period.
 | ↓ | ↑ | -1 × -1 = +1 | **Positive** | Bullish divergence (price down on rising volume) |
 | ↑ | ↑ | +1 × -1 = -1 | **Negative** | Bullish confirmation |
 | ↓ | ↓ | -1 × +1 = -1 | **Negative** | Bearish confirmation |
-| — | — | 0 | **Zero** | No momentum |
+| - | - | 0 | **Zero** | No momentum |
 
 ### Magnitude Weighting
 
@@ -130,7 +130,7 @@ Asymmetric periods (different pricePeriod and volumePeriod) can be useful when p
 | CMP | 4 | 1 | 4 |
 | ADD (SMA sum) | s | 1 | s |
 | DIV (SMA) | 1 | 15 | 15 |
-| **Total** | — | — | **~64 + s cycles** |
+| **Total** | - | - | **~64 + s cycles** |
 
 For default smoothingPeriod=3: ~67 cycles per bar.
 
@@ -142,7 +142,7 @@ The ROC and magnitude calculations are SIMD-friendly. However, the sign extracti
 | :--- | :---: | :---: |
 | Scalar streaming | ~67 | ~34,304 |
 | Partial SIMD | ~45 | ~23,040 |
-| **Improvement** | **33%** | — |
+| **Improvement** | **33%** | - |
 
 ### Memory Footprint
 

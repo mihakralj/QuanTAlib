@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -45,7 +47,7 @@ __all__ = [
 ]
 
 
-def fwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def fwma(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fibonacci Weighted Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -56,7 +58,7 @@ def fwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"FWMA_{period}", "trends_fir", offset)
 
 
-def gwma(close: object, period: int = 14, sigma: float = 0.4, offset: int = 0, **kwargs) -> object:
+def gwma(close: ArrayLike, period: int = 14, sigma: float = 0.4, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Gaussian Weighted Moving Average."""
     period = int(kwargs.get("length", period))
     sigma = float(sigma)
@@ -68,7 +70,7 @@ def gwma(close: object, period: int = 14, sigma: float = 0.4, offset: int = 0, *
     return _wrap(output, idx, f"GWMA_{period}", "trends_fir", offset)
 
 
-def hamma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def hamma(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hamming Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -79,7 +81,7 @@ def hamma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HAMMA_{period}", "trends_fir", offset)
 
 
-def hend(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
+def hend(close: ArrayLike, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Henderson Moving Average."""
     period = int(kwargs.get("length", period))
     nanValue = float(nanValue)
@@ -91,7 +93,7 @@ def hend(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0
     return _wrap(output, idx, f"HEND_{period}", "trends_fir", offset)
 
 
-def ilrs(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ilrs(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Integral of Linear Regression Slope."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -102,7 +104,7 @@ def ilrs(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"ILRS_{period}", "trends_fir", offset)
 
 
-def kaiser(close: object, period: int = 14, beta: float = 3.0, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
+def kaiser(close: ArrayLike, period: int = 14, beta: float = 3.0, nanValue: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Kaiser Window Moving Average."""
     period = int(kwargs.get("length", period))
     beta = float(beta)
@@ -115,7 +117,7 @@ def kaiser(close: object, period: int = 14, beta: float = 3.0, nanValue: float =
     return _wrap(output, idx, f"KAISER_{period}", "trends_fir", offset)
 
 
-def lanczos(close: object, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs) -> object:
+def lanczos(close: ArrayLike, period: int = 14, nanValue: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Lanczos Moving Average."""
     period = int(kwargs.get("length", period))
     nanValue = float(nanValue)
@@ -127,7 +129,7 @@ def lanczos(close: object, period: int = 14, nanValue: float = 0.0, offset: int 
     return _wrap(output, idx, f"LANCZOS_{period}", "trends_fir", offset)
 
 
-def nlma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def nlma(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Non-Lag Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -138,7 +140,7 @@ def nlma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"NLMA_{period}", "trends_fir", offset)
 
 
-def nyqma(close: object, period: int = 14, nyquistPeriod: int = 2, offset: int = 0, **kwargs) -> object:
+def nyqma(close: ArrayLike, period: int = 14, nyquistPeriod: int = 2, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Nyquist Moving Average."""
     period = int(kwargs.get("length", period))
     nyquistPeriod = int(nyquistPeriod)
@@ -150,7 +152,7 @@ def nyqma(close: object, period: int = 14, nyquistPeriod: int = 2, offset: int =
     return _wrap(output, idx, f"NYQMA_{period}", "trends_fir", offset)
 
 
-def pma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def pma(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Predictive Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -162,7 +164,7 @@ def pma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap_multi({"pmaOutput": pmaOutput, "triggerOutput": triggerOutput}, idx, "trends_fir", offset)
 
 
-def pwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def pwma(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Pascal Weighted Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -173,7 +175,7 @@ def pwma(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"PWMA_{period}", "trends_fir", offset)
 
 
-def qrma(close: object, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
+def qrma(close: ArrayLike, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Quick Reaction Moving Average."""
     period = int(kwargs.get("length", period))
     initialLastValid = float(initialLastValid)
@@ -185,7 +187,7 @@ def qrma(close: object, period: int = 14, initialLastValid: float = 0.0, offset:
     return _wrap(output, idx, f"QRMA_{period}", "trends_fir", offset)
 
 
-def rwma(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rwma(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Range Weighted Moving Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -195,7 +197,7 @@ def rwma(high: object, low: object, close: object, period: int = 14, offset: int
     _check(_lib.qtl_rwma(_ptr(c), _ptr(h), _ptr(l), _ptr(output), n, period))
     return _wrap(output, idx, f"RWMA_{period}", "trends_fir", offset)
 
-def sma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def sma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Simple Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -203,7 +205,7 @@ def sma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"SMA_{period}", "trends_fir", offset)
 
 
-def wma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def wma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -211,7 +213,7 @@ def wma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"WMA_{period}", "trends_fir", offset)
 
 
-def hma(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
+def hma(close: ArrayLike, period: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hull Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -219,7 +221,7 @@ def hma(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"HMA_{period}", "trends_fir", offset)
 
 
-def trima(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def trima(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Triangular Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -227,7 +229,7 @@ def trima(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"TRIMA_{period}", "trends_fir", offset)
 
 
-def swma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def swma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Symmetric Weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -235,7 +237,7 @@ def swma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"SWMA_{period}", "trends_fir", offset)
 
 
-def dwma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def dwma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Double Weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -243,7 +245,7 @@ def dwma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"DWMA_{period}", "trends_fir", offset)
 
 
-def blma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def blma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Blackman Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -251,8 +253,8 @@ def blma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"BLMA_{period}", "trends_fir", offset)
 
 
-def alma(close: object, period: int = 10, alma_offset: float = 0.85,
-         sigma: float = 6.0, offset: int = 0, **kwargs) -> object:
+def alma(close: ArrayLike, period: int = 10, alma_offset: float = 0.85,
+         sigma: float = 6.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Arnaud Legoux Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -260,7 +262,7 @@ def alma(close: object, period: int = 10, alma_offset: float = 0.85,
     return _wrap(dst, idx, f"ALMA_{period}", "trends_fir", offset)
 
 
-def lsma(close: object, period: int = 25, offset: int = 0, **kwargs) -> object:
+def lsma(close: ArrayLike, period: int = 25, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Least Squares Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -268,7 +270,7 @@ def lsma(close: object, period: int = 25, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"LSMA_{period}", "trends_fir", offset)
 
 
-def sgma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def sgma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Savitzky-Golay Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -276,7 +278,7 @@ def sgma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"SGMA_{period}", "trends_fir", offset)
 
 
-def sinema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def sinema(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Sine-weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -284,7 +286,7 @@ def sinema(close: object, period: int = 10, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"SINEMA_{period}", "trends_fir", offset)
 
 
-def hanma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def hanma(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hann-weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -292,7 +294,7 @@ def hanma(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"HANMA_{period}", "trends_fir", offset)
 
 
-def parzen(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def parzen(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Parzen-weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -300,7 +302,7 @@ def parzen(close: object, period: int = 10, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"PARZEN_{period}", "trends_fir", offset)
 
 
-def tsf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def tsf(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Time Series Forecast."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -308,8 +310,8 @@ def tsf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"TSF_{period}", "trends_fir", offset)
 
 
-def conv(close: object, kernel: list | None = None,
-         offset: int = 0, **kwargs) -> object:
+def conv(close: ArrayLike, kernel: list | None = None,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Convolution with custom kernel."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -320,8 +322,8 @@ def conv(close: object, kernel: list | None = None,
     return _wrap(dst, idx, "CONV", "trends_fir", offset)
 
 
-def bwma(close: object, period: int = 10, order: int = 0,
-         offset: int = 0, **kwargs) -> object:
+def bwma(close: ArrayLike, period: int = 10, order: int = 0,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Butterworth-weighted Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -329,8 +331,8 @@ def bwma(close: object, period: int = 10, order: int = 0,
     return _wrap(dst, idx, f"BWMA_{period}", "trends_fir", offset)
 
 
-def crma(close: object, period: int = 10, volume_factor: float = 1.0,
-         offset: int = 0, **kwargs) -> object:
+def crma(close: ArrayLike, period: int = 10, volume_factor: float = 1.0,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Cosine-Ramp Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -338,7 +340,7 @@ def crma(close: object, period: int = 10, volume_factor: float = 1.0,
     return _wrap(dst, idx, f"CRMA_{period}", "trends_fir", offset)
 
 
-def sp15(close: object, period: int = 15, offset: int = 0, **kwargs) -> object:
+def sp15(close: ArrayLike, period: int = 15, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """SP-15 Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -346,7 +348,7 @@ def sp15(close: object, period: int = 15, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"SP15_{period}", "trends_fir", offset)
 
 
-def tukey_w(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def tukey_w(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Tukey-windowed Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -354,7 +356,7 @@ def tukey_w(close: object, period: int = 10, offset: int = 0, **kwargs) -> objec
     return _wrap(dst, idx, f"TUKEY_{period}", "trends_fir", offset)
 
 
-def rain(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def rain(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """RAIN Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -362,8 +364,8 @@ def rain(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"RAIN_{period}", "trends_fir", offset)
 
 
-def afirma(close: object, period: int = 10, window_type: int = 0,
-           use_simd: bool = False, offset: int = 0, **kwargs) -> object:
+def afirma(close: ArrayLike, period: int = 10, window_type: int = 0,
+           use_simd: bool = False, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Adaptive FIR Moving Average."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)

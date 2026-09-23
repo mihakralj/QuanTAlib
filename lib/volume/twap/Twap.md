@@ -1,6 +1,6 @@
 # TWAP: Time Weighted Average Price
 
-> *Equal time, equal weight—the simplest benchmark refuses to let any single moment dominate the conversation.*
+> *Equal time, equal weight-the simplest benchmark refuses to let any single moment dominate the conversation.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - **Similar:** [VWAP](../vwap/Vwap.md) | **Complementary:** Volume | **Trading note:** Time-Weighted Average Price; equal time weighting vs volume weighting. Algorithmic execution benchmark.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume. Unlike VWAP which emphasizes high-volume periods, TWAP treats every moment as equally important. This makes it a pure temporal benchmark—ideal for evaluating execution quality when volume patterns could bias the analysis.
+Time Weighted Average Price (TWAP) calculates the average price over a period by giving equal weight to each price point, regardless of volume. Unlike VWAP which emphasizes high-volume periods, TWAP treats every moment as equally important. This makes it a pure temporal benchmark-ideal for evaluating execution quality when volume patterns could bias the analysis.
 
 The elegance of TWAP lies in its simplicity: accumulate prices, count observations, divide. No volume weighting, no complex adjustments. Just a running average that answers the question: "What was the typical price during this period?"
 
@@ -31,7 +31,7 @@ TWAP emerged from the world of algorithmic trading in the 1990s alongside its vo
 
 The indicator gained renewed interest with the rise of cryptocurrency trading, where volume data quality varies dramatically across exchanges. A TWAP benchmark remains consistent regardless of reported volume, making it valuable for cross-exchange comparisons.
 
-TWAP also serves as the basis for TWAP execution algorithms—strategies that break large orders into equal slices executed at regular intervals, aiming to achieve the time-weighted average price while minimizing market impact.
+TWAP also serves as the basis for TWAP execution algorithms-strategies that break large orders into equal slices executed at regular intervals, aiming to achieve the time-weighted average price while minimizing market impact.
 
 ## Architecture & Physics
 
@@ -147,7 +147,7 @@ High volume concentrated at higher prices during the session. Interpretation: bu
 | INC | 2 | Count and index increments |
 | **Total** | 8 | Per bar, O(1) |
 
-TWAP is one of the simplest indicators computationally—no lookback buffer, no complex mathematics.
+TWAP is one of the simplest indicators computationally-no lookback buffer, no complex mathematics.
 
 ### Batch Mode (SIMD)
 
@@ -191,7 +191,7 @@ TWAP is straightforward enough that validation focuses on internal consistency b
 
 ## Common Pitfalls
 
-1. **Period Selection**: For intraday trading, set period to match your session length (e.g., 390 for regular US equity session in 1-minute bars). Period = 0 creates a cumulative average that becomes increasingly stable—useful for long-term benchmarks but less responsive for intraday analysis.
+1. **Period Selection**: For intraday trading, set period to match your session length (e.g., 390 for regular US equity session in 1-minute bars). Period = 0 creates a cumulative average that becomes increasingly stable-useful for long-term benchmarks but less responsive for intraday analysis.
 
 2. **HLC3 vs Close**: TWAP uses typical price (HLC3), not close. This better represents the average traded price within each bar but may differ from close-only implementations in other platforms.
 

@@ -57,7 +57,7 @@ EMA mode uses O(1) space but weights recent bars more heavily than SMA.
 | Parameter | Type | Default | Constraint | Description |
 |:----------|:-----|:--------|:-----------|:------------|
 | period | int | 14 | > 0 | Lookback period for moving average |
-| useEma | bool | false | — | Use EMA (true) or SMA (false) |
+| useEma | bool | false | - | Use EMA (true) or SMA (false) |
 
 ### Zero-Crossing Interpretation
 
@@ -86,7 +86,7 @@ QStick is an SMA (or EMA) of (Close − Open), tracking average body momentum ov
 | SUB (Close − Open) | 1 | 1 | 1 |
 | RingBuffer ADD + oldest SUB (running sum) | 2 | 1 | 2 |
 | MUL × 1/N (average) | 1 | 3 | 3 |
-| **Total** | **4** | — | **~6 cycles** |
+| **Total** | **4** | - | **~6 cycles** |
 
 One of the fastest dynamics indicators: a single subtraction plus an O(1) running sum. ~6 cycles per bar.
 
@@ -94,7 +94,7 @@ One of the fastest dynamics indicators: a single subtraction plus an O(1) runnin
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Close − Open differences | Yes | VSUBPD — fully independent |
+| Close − Open differences | Yes | VSUBPD - fully independent |
 | Prefix sum | Partial | Sum scan; SIMD prefix-sum pattern |
 | Windowed average | Yes | VSUBPD on prefix + VMULPD (×1/N) |
 

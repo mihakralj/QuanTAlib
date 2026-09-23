@@ -1,6 +1,6 @@
 # DEM: DeMarker Oscillator
 
-> *The trend is your friend — right up until DeMark starts counting against it.*
+> *The trend is your friend - right up until DeMark starts counting against it.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -22,11 +22,11 @@ DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures 
 
 Tom DeMark introduced the indicator in his 1994 book *The New Science of Technical Analysis*, published by John Wiley & Sons. DeMark's central thesis was that standard momentum indicators like RSI conflate bar-level price structure with inter-bar price continuation, producing a muddied signal. His fix was surgical: extract only the directional component of each bar by asking specifically whether the current bar's extreme extended beyond the prior bar's corresponding extreme.
 
-The comparison is asymmetric by design. DeMax measures whether buyers pushed today's high above yesterday's high — pure buying initiative. DeMin measures whether sellers pushed today's low below yesterday's low — pure selling initiative. Bars where today's range falls entirely inside yesterday's range contribute zero to both, leaving the rolling SMA unchanged. This innards-of-the-range filtering is what distinguishes DEM from RSI, which responds to close-to-close changes and therefore blurs intrabar range dynamics with inter-session momentum.
+The comparison is asymmetric by design. DeMax measures whether buyers pushed today's high above yesterday's high - pure buying initiative. DeMin measures whether sellers pushed today's low below yesterday's low - pure selling initiative. Bars where today's range falls entirely inside yesterday's range contribute zero to both, leaving the rolling SMA unchanged. This innards-of-the-range filtering is what distinguishes DEM from RSI, which responds to close-to-close changes and therefore blurs intrabar range dynamics with inter-session momentum.
 
 DeMark's original publication discussed the oscillator in the context of his broader market timing research, which emphasized exhaustion patterns, sequential countdown structures (TD Sequential), and supply/demand imbalances. The 14-bar default period mirrors RSI's universal default, making side-by-side comparison natural. DEM tends to lead RSI at local turning points because it responds to bar-level range extensions rather than net close-to-close displacement.
 
-The oscillator's bounded [0, 1] output — rather than RSI's [0, 100] — is a matter of convention. Some platforms scale DEM to [0, 100] by multiplying by 100. This implementation uses [0, 1] throughout, consistent with the normalized ratio form from DeMark's original derivation.
+The oscillator's bounded [0, 1] output - rather than RSI's [0, 100] - is a matter of convention. Some platforms scale DEM to [0, 100] by multiplying by 100. This implementation uses [0, 1] throughout, consistent with the normalized ratio form from DeMark's original derivation.
 
 ## Architecture and Physics
 
@@ -42,7 +42,7 @@ $$
 \text{DeMin}_i = \max(L_{i-1} - L_i,\; 0)
 $$
 
-DeMax is positive when today's high exceeded yesterday's high — buyers extended the range. DeMin is positive when today's low undercut yesterday's low — sellers extended the range. If neither condition holds (inside bar), both contributions are zero.
+DeMax is positive when today's high exceeded yesterday's high - buyers extended the range. DeMin is positive when today's low undercut yesterday's low - sellers extended the range. If neither condition holds (inside bar), both contributions are zero.
 
 The `max(0, ...)` clamp is load-bearing: it prevents inside bars from creating phantom negative pressure in the running sums. Inside bars carry no directional information in DeMark's framework.
 
@@ -71,7 +71,7 @@ $$
 \text{DEM}_t = \frac{\overline{\text{DeMax}}_t}{\overline{\text{DeMax}}_t + \overline{\text{DeMin}}_t}
 $$
 
-When the denominator is zero (flat market or inside-bar sequence contributing nothing to either SMA), the output falls back to 0.5 — the neutral midpoint. This is the mathematically correct neutral state: zero demand pressure and zero supply pressure are indistinguishable from equilibrium.
+When the denominator is zero (flat market or inside-bar sequence contributing nothing to either SMA), the output falls back to 0.5 - the neutral midpoint. This is the mathematically correct neutral state: zero demand pressure and zero supply pressure are indistinguishable from equilibrium.
 
 ### 4. Warmup Semantics
 
@@ -107,7 +107,7 @@ $$
 \text{DEM}_t = \frac{\overline{\text{DeMax}}_t}{\overline{\text{DeMax}}_t + \overline{\text{DeMin}}_t}
 $$
 
-Both are normalized ratios with the same algebraic structure. DEM's advantage at turning points is that inside bars — which RSI treats as momentum continuation if the close is unchanged — contribute zero to DEM, reducing response to consolidation noise.
+Both are normalized ratios with the same algebraic structure. DEM's advantage at turning points is that inside bars - which RSI treats as momentum continuation if the close is unchanged - contribute zero to DEM, reducing response to consolidation noise.
 
 ### Z-Domain Transfer Function
 
@@ -133,7 +133,7 @@ DeMarker compares high/low extremes vs prior bar to build smoothed directional s
 | FMA × 2 (SMA/EMA smooth DeMax, DeMin) | 2 | 4 | 8 |
 | DIV (DeMax / (DeMax + DeMin)) | 1 | 15 | 15 |
 | CMP (div-by-zero guard) | 1 | 1 | 1 |
-| **Total** | **8** | — | **~28 cycles** |
+| **Total** | **8** | - | **~28 cycles** |
 
 ~28 cycles per bar. O(1) EMA smoothing on two running values.
 
@@ -142,7 +142,7 @@ DeMarker compares high/low extremes vs prior bar to build smoothed directional s
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | DeMax / DeMin computation | Yes | VSUBPD + VMAXPD (clip to 0) |
-| EMA smoothing × 2 | **No** | Recursive IIR — sequential |
+| EMA smoothing × 2 | **No** | Recursive IIR - sequential |
 | Division | Yes | VDIVPD after EMA passes |
 
 | Operation | Cost | Notes |
@@ -158,7 +158,7 @@ DeMarker compares high/low extremes vs prior bar to build smoothed directional s
 | :--- | :---: | :--- |
 | Smoothness | 6/10 | SMA introduces lag proportional to period |
 | Responsiveness | 7/10 | Range extensions visible before close confirms |
-| Noise rejection | 6/10 | Inside bars contribute zero — selective filtering |
+| Noise rejection | 6/10 | Inside bars contribute zero - selective filtering |
 | SMA lag | 7 bars | At period=14, approximate half-period lag |
 
 ## Validation
@@ -167,7 +167,7 @@ No external library in the QuanTAlib test suite implements the DeMarker Oscillat
 
 | Library | DEM Support | Notes |
 | :--- | :---: | :--- |
-| TA-Lib (TALib.NETCore) | No | Has DEMA (Double EMA) — different indicator |
+| TA-Lib (TALib.NETCore) | No | Has DEMA (Double EMA) - different indicator |
 | Skender.Stock.Indicators | No | Not implemented |
 | Tulip (Tulip.NETCore) | No | Not implemented |
 | OoplesFinance | No | Not implemented |
@@ -187,7 +187,7 @@ Validation relies on self-consistency checks:
 
 1. **Period sensitivity at extremes.** Period=1 produces binary output (0, 0.5, or 1.0 only), since a single bar's DeMax and DeMin directly determine the ratio. This is technically correct but produces a step function useless for trend identification. Periods below 5 are noisy in practice.
 
-2. **Misidentifying DEMA as DEM.** TA-Lib contains a function named DEMA — this is the *Double Exponential Moving Average*, not the DeMarker Oscillator. The abbreviation collision has caused real confusion in the wild. Searching "DEMA" in financial code almost always returns the wrong indicator.
+2. **Misidentifying DEMA as DEM.** TA-Lib contains a function named DEMA - this is the *Double Exponential Moving Average*, not the DeMarker Oscillator. The abbreviation collision has caused real confusion in the wild. Searching "DEMA" in financial code almost always returns the wrong indicator.
 
 3. **Inside-bar sequences produce 0.5.** When the market consolidates inside a narrow range for an extended period, DeMax and DeMin both accumulate to zero. The output locks at 0.5 indefinitely. This is correct behavior, not a bug. It means "no directional information available," not "equilibrium between bulls and bears."
 
@@ -197,7 +197,7 @@ Validation relies on self-consistency checks:
 
 6. **Warmup period is period+1, not period.** The first bar cannot contribute a DeMax or DeMin because there is no prior bar to compare against. Consumers who assume warmup equals period will have an off-by-one error in `IsHot` checks. The `WarmupPeriod` property returns `period + 1`.
 
-7. **Flat open without a gap.** When `High[i] == High[i-1]` and `Low[i] == Low[i-1]` (exact repeat bar), the indicator produces zero for both components. This is not a degenerate case — it is a correctly priced inside bar contributing zero directional information.
+7. **Flat open without a gap.** When `High[i] == High[i-1]` and `Low[i] == Low[i-1]` (exact repeat bar), the indicator produces zero for both components. This is not a degenerate case - it is a correctly priced inside bar contributing zero directional information.
 
 ## References
 

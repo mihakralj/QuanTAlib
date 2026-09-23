@@ -51,7 +51,7 @@ CHEBY2 implements a 2nd-order IIR biquad identical in structure to CHEBY1 but wi
 | Feedforward FMA (b0*x + b1*x1 + b2*x2) | 3 | ~4 cy | ~12 cy |
 | Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
 | Output store + state update | 2 | ~1 cy | ~2 cy |
-| **Total** | **10** | — | **~25 cycles** |
+| **Total** | **10** | - | **~25 cycles** |
 
 O(1) per bar. Cost profile identical to CHEBY1; differs only in coefficient calculation (stopband equiripple vs passband equiripple). ~25 cycles/bar.
 

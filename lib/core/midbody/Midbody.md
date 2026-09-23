@@ -1,6 +1,6 @@
 # MIDBODY: Open-Close Average
 
-> *The average of open and close reveals the candle body's center — where intent met execution.*
+> *The average of open and close reveals the candle body's center - where intent met execution.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -43,7 +43,7 @@ OC2 is stateless. Each bar's output depends only on that bar's Open and Close va
 |--------|-------|
 | Time (streaming) | $O(1)$ |
 | Time (batch) | $O(n)$ |
-| Space | $O(1)$ — no buffers |
+| Space | $O(1)$ - no buffers |
 | Warmup | 1 bar |
 
 ## Mathematical Foundation
@@ -99,13 +99,13 @@ The batch loop is a trivial element-wise `(a[i] + b[i]) * 0.5`. Auto-vectorizati
 | Library | Method | Tolerance | Status |
 |---------|--------|-----------|--------|
 | Skender | `CandlePart.OC2` | `1e-7` | ✅ Batch + Streaming + Span |
-| TA-Lib | N/A | — | Not available |
+| TA-Lib | N/A | - | Not available |
 | TBar.OC2 | Property | `1e-10` | ✅ All bars match |
 
 ## Common Pitfalls
 
 1. **Confusing OC2 with MEDPRICE.** MEDPRICE is `(H+L)/2`; OC2 is `(O+C)/2`. They answer different questions: range center vs. session endpoint average.
-2. **Confusing OC2 with Midpoint.** Midpoint is `(Highest(V,N) + Lowest(V,N))/2` — a rolling indicator with a period parameter. OC2 has no period.
+2. **Confusing OC2 with Midpoint.** Midpoint is `(Highest(V,N) + Lowest(V,N))/2` - a rolling indicator with a period parameter. OC2 has no period.
 3. **Using OC2 for volatility estimation.** OC2 deliberately ignores H and L. For volatility-aware price proxies, use HLC3 or OHLC4 instead.
 4. **Expecting TA-Lib compatibility.** TA-Lib does not implement OC2. Validation is against Skender only.
 5. **Gap analysis with OC2.** When Open and Close are nearly equal (doji bars), OC2 converges to Close. This is correct behavior, not a bug.

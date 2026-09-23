@@ -1,6 +1,6 @@
 # HV: Historical Volatility (Close-to-Close)
 
-> *The foundation of all volatility measures—simple, intuitive, and yet surprisingly informative when you understand what it's actually measuring.*
+> *The foundation of all volatility measures-simple, intuitive, and yet surprisingly informative when you understand what it's actually measuring.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -26,7 +26,7 @@ Louis Bachelier's 1900 thesis "Théorie de la spéculation" laid the groundwork,
 
 Despite the development of more efficient estimators (Parkinson 1980, Garman-Klass 1980, Yang-Zhang 2000), close-to-close volatility remains the most widely used and understood measure because:
 1. It requires only closing prices, universally available
-2. It directly measures what options traders care about—settlement-to-settlement variation
+2. It directly measures what options traders care about-settlement-to-settlement variation
 3. It serves as the baseline efficiency benchmark (efficiency = 1.0)
 
 ## Architecture & Physics
@@ -58,8 +58,8 @@ $$
 $$
 
 Two running sums are maintained:
-- $\sum r_i$ — sum of returns
-- $\sum r_i^2$ — sum of squared returns
+- $\sum r_i$ - sum of returns
+- $\sum r_i^2$ - sum of squared returns
 
 This enables O(1) update complexity per new bar.
 
@@ -130,7 +130,7 @@ $$
 | Rogers-Satchell | 8.4 | O, H, L, C |
 | Yang-Zhang | 14.0 | O, H, L, C |
 
-HV (close-to-close) is the efficiency baseline. A Parkinson estimator with efficiency 5.2 means you need 5.2× fewer observations to achieve the same precision—or equivalently, 5.2× better precision with the same observations.
+HV (close-to-close) is the efficiency baseline. A Parkinson estimator with efficiency 5.2 means you need 5.2× fewer observations to achieve the same precision-or equivalently, 5.2× better precision with the same observations.
 
 ### Annualization Factor
 
@@ -173,7 +173,7 @@ Per-bar operations after warmup:
 | DIV (variance) | 2 | 15 | 30 |
 | SQRT | 1 | 15 | 15 |
 | MUL (annual) | 1 | 3 | 3 |
-| **Total** | — | — | **~98 cycles** |
+| **Total** | - | - | **~98 cycles** |
 
 The dominant costs are LOG (26%) and SQRT (15%). Computational formula avoids iteration over the window.
 

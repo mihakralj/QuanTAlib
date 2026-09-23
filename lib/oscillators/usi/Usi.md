@@ -1,6 +1,6 @@
 # USI: Ehlers Ultimate Strength Index
 
-> *Where RSI plods with Wilder's smoothing, USI sprints with the UltimateSmoother — symmetric, lag-free, and ready for the modern trader.*
+> *Where RSI plods with Wilder's smoothing, USI sprints with the UltimateSmoother - symmetric, lag-free, and ready for the modern trader.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,11 +16,11 @@
 - **Similar:** [RSI](../../momentum/rsi/Rsi.md), [RRSI](../rrsi/Rrsi.md), [RSIH](../rsih/Rsih.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Bullish above 0, bearish below 0; ±0.4 levels indicate strong momentum. Typically uses longer periods than RSI (28 vs 14) for comparable behavior.
 - No external validation libraries implement USI. Validated through self-consistency and behavioral testing.
 
-USI is Ehlers' 2024 reimagining of the classic RSI. Instead of Wilder's exponential smoothing, it applies the UltimateSmoother filter — which subtracts high-frequency noise via a highpass filter — to the short-term average of upward and downward price movements. The result is an oscillator that responds to trend changes faster than RSI while maintaining comparable smoothness with a longer lookback.
+USI is Ehlers' 2024 reimagining of the classic RSI. Instead of Wilder's exponential smoothing, it applies the UltimateSmoother filter - which subtracts high-frequency noise via a highpass filter - to the short-term average of upward and downward price movements. The result is an oscillator that responds to trend changes faster than RSI while maintaining comparable smoothness with a longer lookback.
 
 ## Historical Context
 
-John F. Ehlers published the Ultimate Strength Index in the November 2024 issue of *Technical Analysis of Stocks & Commodities* magazine under the title "Ultimate Strength Index (USI)." The article presents USI as a direct replacement for Wilder's RSI, leveraging the UltimateSmoother filter (introduced earlier in April 2024 TASC) to achieve dramatically reduced lag. Unlike RSI's 0-100 range, USI is centered at zero with a [-1, +1] range, making bullish/bearish conditions immediately apparent.
+John F. Ehlers published the Ultimate Strength Index in the November 2024 issue of *Technical Analysis of Stocks & Commodities* magazine under the title "Ultimate Strength Index (USI)." The article presents USI as a direct replacement for Wilder's RSI, using the UltimateSmoother filter (introduced earlier in April 2024 TASC) to achieve dramatically reduced lag. Unlike RSI's 0-100 range, USI is centered at zero with a [-1, +1] range, making bullish/bearish conditions immediately apparent.
 
 ## Architecture & Physics
 

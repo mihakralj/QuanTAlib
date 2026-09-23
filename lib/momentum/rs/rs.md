@@ -97,7 +97,7 @@ RS with smoothing is three scalar operations: one division for the raw ratio, on
 | EMA update (FMA: α×ratio + decay×prev) | 1 | 4 | ~4 |
 | Bias factor update (1 − (1−α)^n) | 1 | 5 | ~5 |
 | Compensated output (ema / bias) | 1 | 8 | ~8 |
-| **Total** | **6** | — | **~27 cycles** |
+| **Total** | **6** | - | **~27 cycles** |
 
 O(1) per bar. The dominant cost is the two floating-point divisions (ratio + bias correction). With smoothPeriod = 1, reduces to ~10 cycles (just the ratio division). WarmupPeriod = smoothPeriod.
 

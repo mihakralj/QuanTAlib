@@ -1,6 +1,6 @@
 # IFFT: Inverse Fast Fourier Transform (Spectral Low-Pass Filter)
 
-> *Inverse FFT reconstructs a time series from selected frequency components — a spectral scalpel for noise removal.*
+> *Inverse FFT reconstructs a time series from selected frequency components - a spectral scalpel for noise removal.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -106,7 +106,7 @@ IFFT(source, windowSize, numHarmonics):
 
 ### Operation Count (Streaming Mode)
 
-IFFT performs two radix-2 FFT passes (forward + inverse) plus spectral truncation — O(N log N) per bar.
+IFFT performs two radix-2 FFT passes (forward + inverse) plus spectral truncation - O(N log N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -116,7 +116,7 @@ IFFT performs two radix-2 FFT passes (forward + inverse) plus spectral truncatio
 | Conjugation (2×) | 2N | 1 cy | ~2N cy |
 | Inverse FFT (N/2 × log₂N butterflies) | N/2 × log₂N | 8 cy | ~4N·log₂N cy |
 | Scale by 1/N | N | 1 cy | ~N cy |
-| **Total (N=64, H=5)** | **O(N log N)** | — | **~3254 cy** |
+| **Total (N=64, H=5)** | **O(N log N)** | - | **~3254 cy** |
 
 Two FFT passes dominate cost. Pre-allocated work arrays ensure zero allocation in the hot path.
 

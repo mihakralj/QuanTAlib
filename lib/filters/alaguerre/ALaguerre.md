@@ -117,7 +117,7 @@ Adaptive Laguerre combines HH/LL tracking error normalization (O(N) scan), media
 | Median via insertion sort (M elements) | M log M | ~3 cy | ~25 cy (M=5) |
 | Laguerre state update x4 (each: 2 FMA) | 8 | ~4 cy | ~32 cy |
 | Weighted output combination | 3 | ~2 cy | ~6 cy |
-| **Total** | — | — | **~106 cycles** (N=20, M=5) |
+| **Total** | - | - | **~106 cycles** (N=20, M=5) |
 
 O(N + M log M) per bar due to HH/LL scan and median sort. Dominated by the lookback scan for large N.
 

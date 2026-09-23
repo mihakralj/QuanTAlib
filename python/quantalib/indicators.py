@@ -23,6 +23,23 @@ Category submodules:
 """
 from __future__ import annotations
 
+from . import (
+    channels,
+    core,
+    cycles,
+    dynamics,
+    errors,
+    filters,
+    momentum,
+    numerics,
+    oscillators,
+    reversals,
+    statistics,
+    trends_fir,
+    trends_iir,
+    volatility,
+    volume,
+)
 from .channels import *  # noqa: F401, F403
 from .core import *  # noqa: F401, F403
 from .cycles import *  # noqa: F401, F403
@@ -38,3 +55,23 @@ from .trends_fir import *  # noqa: F401, F403
 from .trends_iir import *  # noqa: F401, F403
 from .volatility import *  # noqa: F401, F403
 from .volume import *  # noqa: F401, F403
+
+# Explicit re-export list (PEP 484 §Stub files / py.typed packages require this
+# for wildcard-imported names to be considered public by type checkers).
+__all__ = [
+    *channels.__all__,
+    *core.__all__,
+    *cycles.__all__,
+    *dynamics.__all__,
+    *errors.__all__,
+    *filters.__all__,
+    *momentum.__all__,
+    *numerics.__all__,
+    *oscillators.__all__,
+    *reversals.__all__,
+    *statistics.__all__,
+    *trends_fir.__all__,
+    *trends_iir.__all__,
+    *volatility.__all__,
+    *volume.__all__,
+]

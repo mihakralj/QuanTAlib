@@ -16,11 +16,11 @@
 - **Similar:** [DC](../dc/dc.md), [PC](../pc/pc.md) | **Complementary:** Williams Fractals for additional confirmation | **Trading note:** Based on Bill Williams' fractal theory; bands update only on fractal pivots, creating a staircase pattern.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest confirmed fractal low over a lookback period. Unlike Donchian Channels which use every bar's high and low, FCB uses only structurally significant turning points — bars where the middle element of a 3-bar pattern is a local extremum. The result is a "cleaner" channel that ignores transient spikes and focuses on confirmed support and resistance levels. The bands tend to remain flat during trends and step discretely when new structural pivots form, making them useful for identifying genuine breakouts versus noise.
+Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest confirmed fractal low over a lookback period. Unlike Donchian Channels which use every bar's high and low, FCB uses only structurally significant turning points - bars where the middle element of a 3-bar pattern is a local extremum. The result is a "cleaner" channel that ignores transient spikes and focuses on confirmed support and resistance levels. The bands tend to remain flat during trends and step discretely when new structural pivots form, making them useful for identifying genuine breakouts versus noise.
 
 ## Historical Context
 
-Bill Williams introduced fractal analysis to financial markets in *Trading Chaos* (1995) and *New Trading Dimensions* (1998), drawing inspiration from Benoit Mandelbrot's work on fractal geometry and chaos theory. Williams defined a fractal as a 5-bar pattern (later simplified to 3-bar in many implementations) where the central bar represents a local extremum — a point where supply and demand reached temporary equilibrium.
+Bill Williams introduced fractal analysis to financial markets in *Trading Chaos* (1995) and *New Trading Dimensions* (1998), drawing inspiration from Benoit Mandelbrot's work on fractal geometry and chaos theory. Williams defined a fractal as a 5-bar pattern (later simplified to 3-bar in many implementations) where the central bar represents a local extremum - a point where supply and demand reached temporary equilibrium.
 
 The Fractal Chaos Bands indicator extends Williams' fractal concept by tracking the monotonic extremes of these structural turning points over a lookback window, rather than raw price extremes. This filtering eliminates noise from transient wicks and gap spikes while preserving meaningful market structure. The 3-bar fractal requires one future bar for confirmation, providing inherent stability at the cost of a 1-bar lag.
 
@@ -95,7 +95,7 @@ FCB combines 3-bar fractal detection ($O(1)$) with two monotonic deques for slid
 | CMP (L[t-1] < L[t]) | 1 | 1 | 1 |
 | Deque ops (max, amortized) | ~2 | 1 | 2 |
 | Deque ops (min, amortized) | ~2 | 1 | 2 |
-| **Total (amortized)** | **~8** | — | **~8 cycles** |
+| **Total (amortized)** | **~8** | - | **~8 cycles** |
 
 The fractal detection requires retaining 3 bars of H and L history (6 values). Between fractals, only the deque expiry/push operations execute. Fractal confirmation adds one assignment per detected fractal.
 

@@ -1,6 +1,6 @@
 # RRSI: Ehlers Rocket RSI
 
-> *Rocket RSI strips noisy momentum down to its cyclic core, then Fisher-transforms it into a Gaussian — because reversals should announce themselves with a bang, not a whisper.*
+> *Rocket RSI strips noisy momentum down to its cyclic core, then Fisher-transforms it into a Gaussian - because reversals should announce themselves with a bang, not a whisper.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -12,8 +12,8 @@
 | **Warmup**       | `smoothLength + rsiLength` bars  |
 | **PineScript**   | [rrsi.pine](rrsi.pine)           |
 
-- Ehlers' Rocket RSI chains three transformations — momentum extraction, Super Smoother filtering, and Fisher Transform — to produce a Gaussian-distributed oscillator with sharp turning-point signals.
-- **Similar:** [Fisher](../fisher/Fisher.md), [StochRSI](../stochrsi/Stochrsi.md) | **Complementary:** Bollinger Bands for volatility context | **Trading note:** Unbounded oscillator; values beyond ±2 indicate statistical extremes. Not Wilder's RSI — uses Ehlers summation-based RSI variant.
+- Ehlers' Rocket RSI chains three transformations - momentum extraction, Super Smoother filtering, and Fisher Transform - to produce a Gaussian-distributed oscillator with sharp turning-point signals.
+- **Similar:** [Fisher](../fisher/Fisher.md), [StochRSI](../stochrsi/Stochrsi.md) | **Complementary:** Bollinger Bands for volatility context | **Trading note:** Unbounded oscillator; values beyond ±2 indicate statistical extremes. Not Wilder's RSI - uses Ehlers summation-based RSI variant.
 - Validated against manual step-by-step reference implementation of the original TASC algorithm.
 
 Rocket RSI solves a fundamental problem with conventional RSI: the bounded [0, 100] output compresses extreme readings into a narrow band, making precise reversal timing ambiguous. By applying the Fisher Transform (arctanh) to a summation-based RSI computed on Super-Smoothed momentum, Rocket RSI produces sharp Gaussian peaks at cyclic turning points. The Super Smoother pre-filter removes aliasing artifacts that corrupt cycle analysis, while the Fisher Transform stretches values near ±1 toward ±∞, creating unambiguous inflection points.
@@ -28,11 +28,11 @@ The key insight was that conventional RSI, computed on raw price data, conflates
 
 ### 1. Momentum Extraction
 
-[`Update()`](Rrsi.cs:107) computes half-cycle momentum as `Close[i] - Close[i - rsiLength + 1]` using a [`RingBuffer`](Rrsi.cs:36) of size `rsiLength` for O(1) lookback access. This captures the price change over approximately one half-cycle of the dominant period.
+[`Update()`](Rrsi.cs) computes half-cycle momentum as `Close[i] - Close[i - rsiLength + 1]` using a [`RingBuffer`](Rrsi.cs) of size `rsiLength` for O(1) lookback access. This captures the price change over approximately one half-cycle of the dominant period.
 
 ### 2. Super Smoother Filter (2-Pole Butterworth IIR)
 
-The momentum is smoothed by a 2-pole Butterworth low-pass filter with coefficients computed once in the [constructor](Rrsi.cs:82): `a1 = exp(-1.414π / smoothLength)`. The filter equation uses `(Mom + Mom[prev]) / 2` as input (simple averaging of adjacent momentum values), which provides an additional anti-aliasing effect. The filter history is stored in the [`_filtBuf`](Rrsi.cs:39) RingBuffer for RSI accumulation.
+The momentum is smoothed by a 2-pole Butterworth low-pass filter with coefficients computed once in the [constructor](Rrsi.cs): `a1 = exp(-1.414π / smoothLength)`. The filter equation uses `(Mom + Mom[prev]) / 2` as input (simple averaging of adjacent momentum values), which provides an additional anti-aliasing effect. The filter history is stored in the [`_filtBuf`](Rrsi.cs) RingBuffer for RSI accumulation.
 
 ### 3. Ehlers RSI (Summation-Based)
 
@@ -44,11 +44,11 @@ The RSI value is clamped to ±0.999 (preventing log domain errors) and passed th
 
 ### 5. State Management
 
-The [`State`](Rrsi.cs:42) record struct holds momentum history, filter state, and bar count. The `_s`/`_ps` pattern enables bar correction: when `isNew = false`, the previous state (`_ps`) is restored before recalculating, ensuring that intra-bar updates do not corrupt the indicator state.
+The [`State`](Rrsi.cs) record struct holds momentum history, filter state, and bar count. The `_s`/`_ps` pattern enables bar correction: when `isNew = false`, the previous state (`_ps`) is restored before recalculating, ensuring that intra-bar updates do not corrupt the indicator state.
 
 ### 6. Edge Cases
 
-- **NaN/Infinity inputs**: [Last-valid substitution](Rrsi.cs:112); falls back to 0.0 if no valid data has been seen.
+- **NaN/Infinity inputs**: [Last-valid substitution](Rrsi.cs); falls back to 0.0 if no valid data has been seen.
 - **Insufficient history**: Momentum defaults to 0.0 when the close buffer has fewer than `rsiLength` entries; filter passes momentum through directly for the first two bars.
 - **Zero denominator**: When CU + CD < 1e-10 (no price movement), RSI defaults to 0.0.
 
@@ -56,11 +56,11 @@ The [`State`](Rrsi.cs:42) record struct holds momentum history, filter state, an
 
 ### Core Formula
 
-**Step 1 — Half-Cycle Momentum:**
+**Step 1 - Half-Cycle Momentum:**
 
 $$\text{Mom}_i = \text{Close}_i - \text{Close}_{i - (\text{rsiLength} - 1)}$$
 
-**Step 2 — Super Smoother Filter** (2-pole Butterworth IIR):
+**Step 2 - Super Smoother Filter** (2-pole Butterworth IIR):
 
 Coefficients (computed once):
 
@@ -74,7 +74,7 @@ $$\text{Filt}_i = c_1 \cdot \frac{\text{Mom}_i + \text{Mom}_{i-1}}{2} + c_2 \cdo
 
 The DC gain constraint $c_1 + c_2 + c_3 = 1$ ensures the filter passes constant signals without attenuation.
 
-**Step 3 — Ehlers RSI** (normalized to ±1):
+**Step 3 - Ehlers RSI** (normalized to ±1):
 
 Over the last `rsiLength` bars of filter differences:
 
@@ -84,7 +84,7 @@ $$CD = \sum_{j=0}^{n-1} \max(\text{Filt}_{i-j-1} - \text{Filt}_{i-j},\ 0)$$
 
 $$\text{RSI} = \frac{CU - CD}{CU + CD} \in [-1, 1]$$
 
-**Step 4 — Fisher Transform:**
+**Step 4 - Fisher Transform:**
 
 $$\text{RocketRSI} = \text{arctanh}\!\left(\text{clamp}(\text{RSI}, \pm0.999)\right) = \frac{1}{2} \ln\!\left(\frac{1 + v}{1 - v}\right)$$
 
@@ -180,7 +180,7 @@ No external C# library implements Rocket RSI. Validation is performed against a 
 | Super Smoother filter | Scalar (IIR recursion, sequential dependency) |
 | RSI summation | Scalar (forward-looking accumulation per bar) |
 | Fisher Transform | Scalar (`Math.Log`, not vectorizable) |
-| Vectorization potential | Low — IIR chain + logarithm prevents SIMD |
+| Vectorization potential | Low - IIR chain + logarithm prevents SIMD |
 
 ## Common Pitfalls
 

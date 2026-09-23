@@ -22,7 +22,7 @@ The **Kalman Filter** is a recursive algorithm that estimates the state of a dyn
 
 ## Historical Context
 
-Developed by Rudolf E. Kalman in 1960, the Kalman Filter was crucial for the Apollo program's navigation. It solved the problem of estimating a trajectory when sensors (measurements) were noisy and the model (prediction) wasn't perfect. In finance, it applies the same logic: "Price is truth plus noise." By estimating the "truth," we get a lag-efficient smoother.
+Developed by Rudolf E. Kalman in 1960, the Kalman Filter was crucial for the Apollo program's navigation. It solved the problem of estimating a trajectory when sensors (measurements) were noisy and the model (prediction) wasn't perfect. In finance, it applies the same logic: "Price is truth plus noise." By estimating the "truth," the implementation get a lag-efficient smoother.
 
 ## Architecture & Physics
 
@@ -87,7 +87,7 @@ Where:
 | Update: Kalman gain = P/(P+R) | 1 | ~10 cy | ~10 cy |
 | Update: state = state + K*(z-state) | 1 | ~4 cy | ~4 cy |
 | Update: covariance shrink | 1 | ~3 cy | ~3 cy |
-| **Total** | **5** | — | **~21 cycles** |
+| **Total** | **5** | - | **~21 cycles** |
 
 O(1) per bar. Division for gain computation dominates. ~21 cycles/bar.
 

@@ -1,6 +1,6 @@
 # STARCHANNEL: Stoller Average Range Channel
 
-> *Stoller channels use ATR to build a corridor around the average — a volatility-aware boundary for range traders.*
+> *Stoller channels use ATR to build a corridor around the average - a volatility-aware boundary for range traders.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -104,7 +104,7 @@ Streaming: $O(1)$ per bar. The SMA uses a running sum with circular buffer (add 
 
 ### Operation Count (Streaming Mode)
 
-STARCHANNEL combines an SMA running sum (center), True Range, and Wilder's RMA with warmup compensation — identical cost to ATRBANDS:
+STARCHANNEL combines an SMA running sum (center), True Range, and Wilder's RMA with warmup compensation - identical cost to ATRBANDS:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -117,7 +117,7 @@ STARCHANNEL combines an SMA running sum (center), True Range, and Wilder's RMA w
 | FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
 | MUL (multiplier × ATR) | 1 | 3 | 3 |
 | ADD/SUB (middle ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **12** | — | **~33 cycles** |
+| **Total (hot)** | **12** | - | **~33 cycles** |
 
 During warmup (RMA compensator active):
 
@@ -127,7 +127,7 @@ During warmup (RMA compensator active):
 | SUB (1 - e) | 1 | 1 | 1 |
 | DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
 | CMP (e > ε) | 1 | 1 | 1 |
-| **Warmup overhead** | **4** | — | **~20 cycles** |
+| **Warmup overhead** | **4** | - | **~20 cycles** |
 
 **Total during warmup:** ~53 cycles/bar; **Post-warmup:** ~33 cycles/bar.
 

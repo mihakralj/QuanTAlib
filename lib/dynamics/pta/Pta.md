@@ -1,6 +1,6 @@
 # PTA: Ehlers Precision Trend Analysis
 
-> *Most trend indicators smooth price and inherit lag as a tax. PTA sidesteps the toll entirely — two highpass filters, one subtraction, and the trend arrives before the moving average even notices it moved.*
+> *Most trend indicators smooth price and inherit lag as a tax. PTA sidesteps the toll entirely - two highpass filters, one subtraction, and the trend arrives before the moving average even notices it moved.*
 
 | Property         | Value                                                  |
 | ---------------- | ------------------------------------------------------ |
@@ -13,20 +13,20 @@
 | **PineScript**   | [pta.pine](pta.pine)                                   |
 
 - PTA (Precision Trend Analysis) applies two 2-pole Butterworth highpass filters with different cutoff periods to the same input, then subtracts: Trend = HP(longPeriod) − HP(shortPeriod). This preserves cyclic components between `shortPeriod` and `longPeriod` bars, producing a zero-centered trend indicator with near-zero phase lag.
-- **Similar:** [Decycler](../../trends_IIR/decycler/Decycler.md), [DECO](../../oscillators/deco/Deco.md) | **Complementary:** ADX for trend strength confirmation, SuperTrend for directional bias | **Trading note:** Positive = uptrend, negative = downtrend; zero crossings signal reversals. Not a price overlay — plot in separate window.
+- **Similar:** [Decycler](../../trends_IIR/decycler/Decycler.md), [DECO](../../oscillators/deco/Deco.md) | **Complementary:** ADX for trend strength confirmation, SuperTrend for directional bias | **Trading note:** Positive = uptrend, negative = downtrend; zero crossings signal reversals. Not a price overlay - plot in separate window.
 - No external validation libraries implement PTA. Validated through self-consistency, behavioral testing, and PineScript reference comparison.
 
-PTA (Precision Trend Analysis) is John F. Ehlers' 2024 approach to extracting market trend with near-zero lag. Published in the September 2024 issue of *Technical Analysis of Stocks & Commodities*, the technique inverts the conventional wisdom: instead of smoothing price with a lowpass filter (which always introduces lag proportional to the filter order), PTA uses two highpass filters — which have almost no lag — and subtracts them to create a bandpass that isolates the trend-relevant frequency band. With default parameters of `longPeriod = 250` (~1 trading year) and `shortPeriod = 40` (~2 months), PTA captures intermediate-term market trends while rejecting both high-frequency noise and ultra-long-term drift. The output is zero-centered and unbounded: positive values indicate uptrend, negative values indicate downtrend, and zero crossings mark trend reversals. Each streaming bar requires only 17 floating-point operations — two IIR evaluations plus one subtraction — making PTA one of the cheapest trend indicators available.
+PTA (Precision Trend Analysis) is John F. Ehlers' 2024 approach to extracting market trend with near-zero lag. Published in the September 2024 issue of *Technical Analysis of Stocks & Commodities*, the technique inverts the conventional wisdom: instead of smoothing price with a lowpass filter (which always introduces lag proportional to the filter order), PTA uses two highpass filters - which have almost no lag - and subtracts them to create a bandpass that isolates the trend-relevant frequency band. With default parameters of `longPeriod = 250` (~1 trading year) and `shortPeriod = 40` (~2 months), PTA captures intermediate-term market trends while rejecting both high-frequency noise and ultra-long-term drift. The output is zero-centered and unbounded: positive values indicate uptrend, negative values indicate downtrend, and zero crossings mark trend reversals. Each streaming bar requires only 17 floating-point operations - two IIR evaluations plus one subtraction - making PTA one of the cheapest trend indicators available.
 
 ## Historical Context
 
-Ehlers' body of work on digital signal processing applied to financial markets spans three decades, with a consistent theme: treat price as a signal and apply engineering-grade filter design rather than ad hoc smoothing. His earlier contributions — the Decycler (2015), Super Smoother (2013), and various Hilbert Transform indicators — all apply specific filter topologies to extract actionable information from price series.
+Ehlers' body of work on digital signal processing applied to financial markets spans three decades, with a consistent theme: treat price as a signal and apply engineering-grade filter design rather than ad hoc smoothing. His earlier contributions - the Decycler (2015), Super Smoother (2013), and various Hilbert Transform indicators - all apply specific filter topologies to extract actionable information from price series.
 
 The Decycler indicator, published in TASC in 2015, subtracts a highpass filter output from the original price to obtain a lowpass-filtered trend. PTA inverts this approach: instead of keeping what the highpass *removes*, PTA operates entirely within the highpass domain. By applying two highpass filters with different cutoff frequencies and subtracting, it creates a bandpass filter that preserves only the frequency band between the two cutoffs. This is the same principle as an analog bandpass filter built from differential highpass stages.
 
 The key innovation of PTA over the Decycler is the elimination of the lowpass path entirely. The Decycler's output tracks price closely (it is a lowpass of price), which makes it useful as a trend overlay but problematic for trend *magnitude* assessment. PTA's output is zero-centered and measures trend *energy* in the selected frequency band, making it a proper trend strength and direction indicator rather than a smoothed price estimate.
 
-The default parameters — `longPeriod = 250` and `shortPeriod = 40` — correspond to approximately one trading year and two trading months respectively. This isolates the intermediate-term trend band that most swing and position traders target. Shorter `shortPeriod` values (e.g., 10–20) capture faster trends; larger `longPeriod` values extend the analysis to secular trends.
+The default parameters - `longPeriod = 250` and `shortPeriod = 40` - correspond to approximately one trading year and two trading months respectively. This isolates the intermediate-term trend band that most swing and position traders target. Shorter `shortPeriod` values (e.g., 10–20) capture faster trends; larger `longPeriod` values extend the analysis to secular trends.
 
 ## Architecture & Physics
 
@@ -50,7 +50,7 @@ Each filter applies the same 2nd-order IIR recurrence per bar:
 
 $$HP_n = c_1 \cdot (x_n - 2x_{n-1} + x_{n-2}) + c_2 \cdot HP_{n-1} + c_3 \cdot HP_{n-2}$$
 
-where $x_n$ is the current source value. The term $(x_n - 2x_{n-1} + x_{n-2})$ is the discrete second difference — it is shared between both filters since they process the same input, saving 2 operations.
+where $x_n$ is the current source value. The term $(x_n - 2x_{n-1} + x_{n-2})$ is the discrete second difference - it is shared between both filters since they process the same input, saving 2 operations.
 
 HP1 (long-period) removes only the very lowest frequencies (below $1/\text{longPeriod}$), passing everything above. HP2 (short-period) removes a wider band of low frequencies (below $1/\text{shortPeriod}$), passing only higher frequencies.
 
@@ -58,7 +58,7 @@ HP1 (long-period) removes only the very lowest frequencies (below $1/\text{longP
 
 $$\text{PTA} = HP_1 - HP_2$$
 
-HP1 passes frequencies above $f_L = 1/\text{longPeriod}$. HP2 passes frequencies above $f_S = 1/\text{shortPeriod}$ (where $f_S > f_L$). The subtraction cancels the high-frequency components that both filters pass, leaving only the band between $f_L$ and $f_S$ — the trend-relevant frequencies.
+HP1 passes frequencies above $f_L = 1/\text{longPeriod}$. HP2 passes frequencies above $f_S = 1/\text{shortPeriod}$ (where $f_S > f_L$). The subtraction cancels the high-frequency components that both filters pass, leaving only the band between $f_L$ and $f_S$ - the trend-relevant frequencies.
 
 ### State Management
 
@@ -68,7 +68,7 @@ The indicator maintains a `State` record struct containing:
 - `Src1`, `Src2`: Previous two source values (shared across both filters)
 - `Count`: Bar counter for warmup tracking
 
-A shadow state (`_p_state`) enables bar correction — when `isNew = false`, the previous state is restored before recomputing.
+A shadow state (`_p_state`) enables bar correction - when `isNew = false`, the previous state is restored before recomputing.
 
 ## Mathematical Foundation
 
@@ -84,7 +84,7 @@ The PTA bandpass response is:
 
 $$|H_{\text{PTA}}(f)| = |H_1(f)| - |H_2(f)|$$
 
-This creates a passband centered between $f_L$ and $f_S$ with smooth rolloff determined by the Butterworth characteristic — maximally flat in the passband with no ripple.
+This creates a passband centered between $f_L$ and $f_S$ with smooth rolloff determined by the Butterworth characteristic - maximally flat in the passband with no ripple.
 
 ### Parameter Mapping
 

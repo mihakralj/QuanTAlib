@@ -279,6 +279,28 @@ public sealed class TdSeq : ITValuePublisher
         return Last;
     }
 
+    /// <summary>
+    /// Updates TD Sequential from a scalar close value using a synthetic bar.
+    /// High and low equal close, so countdown comparisons use close-only data.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TValue input, bool isNew = true) =>
+        Update(new TBar(input.Time, input.Value, input.Value, input.Value, input.Value, 0), isNew);
+
+    /// <summary>
+    /// Initializes TD Sequential with scalar close history using synthetic bars.
+    /// </summary>
+    public void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
+        DateTime time = DateTime.UnixEpoch;
+        foreach (double value in source)
+        {
+            Update(new TValue(time, value), isNew: true);
+            time += interval;
+        }
+    }
+
     /// <summary>Resets all state and history to zero.</summary>
     public void Reset()
     {

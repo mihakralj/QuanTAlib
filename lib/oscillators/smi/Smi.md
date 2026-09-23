@@ -22,7 +22,7 @@
 
 ## Historical Context
 
-William Blau introduced the Stochastic Momentum Index in *Momentum, Direction, and Divergence* (1995) as an improvement over George Lane's classic Stochastic Oscillator. Blau's key insight: measuring distance from the range midpoint rather than from the low eliminates the asymmetric bias inherent in traditional stochastics. When price closes at the exact middle of its range, classic Stochastic reads 50—an arbitrary number that says nothing. SMI reads 0—neutral, centered, semantically honest.
+William Blau introduced the Stochastic Momentum Index in *Momentum, Direction, and Divergence* (1995) as an improvement over George Lane's classic Stochastic Oscillator. Blau's key insight: measuring distance from the range midpoint rather than from the low eliminates the asymmetric bias inherent in traditional stochastics. When price closes at the exact middle of its range, classic Stochastic reads 50-an arbitrary number that says nothing. SMI reads 0-neutral, centered, semantically honest.
 
 Tushar Chande and Stanley Kroll proposed a variant in *The New Technical Trader* (1994) that smooths numerator and denominator separately before computing the ratio. This subtle difference in order of operations produces different behavior during volatile periods: Blau's method smooths the ratio directly, which compresses extreme values; Chande/Kroll preserves the ratio's sensitivity by smoothing its components independently.
 

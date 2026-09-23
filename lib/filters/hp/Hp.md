@@ -1,6 +1,6 @@
 # HP - Hodrick-Prescott Filter
 
-> *Trends are not lines; they are curves that we simplify for our sanity, often at the cost of reality.*
+> *Trends are not lines; they are curves that the implementation simplify for our sanity, often at the cost of reality.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -64,7 +64,7 @@ Hodrick-Prescott filter: minimizes the sum of squared deviations plus a penalty 
 | :--- | :---: | :---: | :---: |
 | HP IIR approximation (3 FMA, 3-point recursion) | 3 | ~4 cy | ~12 cy |
 | State update (prev 2 outputs) | 2 | ~1 cy | ~2 cy |
-| **Total** | **5** | — | **~14 cycles** |
+| **Total** | **5** | - | **~14 cycles** |
 
 O(1) per bar in the IIR approximation mode. True HP requires O(N) matrix solve at each bar, making it unsuitable for streaming. ~14 cycles/bar.
 

@@ -7,7 +7,7 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 | [ADXVMA](adxvma/Adxvma.md) | ADX Variable MA | ADX-based adaptive smoothing. Adjusts speed with trend strength. |
 | [AHRENS](ahrens/Ahrens.md) | Ahrens MA | Ahrens recursive moving average. Simple IIR with minimal lag. |
 | [CORAL](coral/Coral.md) | Coral Trend Filter | Six-stage cascaded EMA with polynomial combination using Constant D parameter for adaptive smoothing. |
-| [DECYCLER](decycler/Decycler.md) | Ehlers Decycler | Ehlers Decycler — complementary HP filter that subtracts high-frequency components from price. |
+| [DECYCLER](decycler/Decycler.md) | Ehlers Decycler | Ehlers Decycler - complementary HP filter that subtracts high-frequency components from price. |
 | [DEMA](dema/Dema.md) | Double Exponential MA | Reduces lag by applying double exponential smoothing, enhancing responsiveness while maintaining signal quality. |
 | [DSMA](dsma/Dsma.md) | Deviation-Scaled MA | Adaptive IIR filter that adjusts smoothing factor based on market volatility, increasing responsiveness during high-deviation periods. |
 | [EMA](ema/Ema.md) | Exponential MA | Applies exponentially decreasing weights to price data, balancing responsiveness and stability. |

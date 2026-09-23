@@ -1,6 +1,6 @@
 # BETADIST: Beta Distribution CDF
 
-> *The Beta distribution CDF maps values onto a flexible probability curve defined by two shape parameters — versatile enough to model any bounded outcome.*
+> *The Beta distribution CDF maps values onto a flexible probability curve defined by two shape parameters - versatile enough to model any bounded outcome.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ BETADIST computes the cumulative distribution function of the Beta distribution 
 
 ## Historical Context
 
-The Beta distribution is one of the fundamental distributions in Bayesian statistics, serving as the conjugate prior for Bernoulli and binomial processes. Its application to financial time series normalization leverages the distribution's unique property of being defined on the bounded interval $[0, 1]$, making it a natural fit for min-max normalized price data. The CDF transformation converts a uniformly-distributed normalized price into a probability-weighted oscillator where the shape parameters control sensitivity to price levels within the range. When $\alpha = \beta = 1$, the Beta distribution reduces to the uniform distribution (no transformation); when $\alpha = \beta = 2$, it produces a smooth S-curve that compresses extremes and expands the midrange. The regularized incomplete beta function required for the CDF has no elementary closed form and requires numerical methods — this implementation uses Lentz's continued fraction algorithm, the standard approach in numerical libraries (NAG, CEPHES, Numerical Recipes).
+The Beta distribution is one of the fundamental distributions in Bayesian statistics, serving as the conjugate prior for Bernoulli and binomial processes. Its application to financial time series normalization uses the distribution's unique property of being defined on the bounded interval $[0, 1]$, making it a natural fit for min-max normalized price data. The CDF transformation converts a uniformly-distributed normalized price into a probability-weighted oscillator where the shape parameters control sensitivity to price levels within the range. When $\alpha = \beta = 1$, the Beta distribution reduces to the uniform distribution (no transformation); when $\alpha = \beta = 2$, it produces a smooth S-curve that compresses extremes and expands the midrange. The regularized incomplete beta function required for the CDF has no elementary closed form and requires numerical methods - this implementation uses Lentz's continued fraction algorithm, the standard approach in numerical libraries (NAG, CEPHES, Numerical Recipes).
 
 ## Architecture & Physics
 
@@ -71,9 +71,9 @@ Beta distribution CDF uses a regularized incomplete beta function evaluated via 
 | Regularized incomplete beta (Lentz CF) | ~20 iter | 15 cy | ~300 cy |
 | Log-beta normalization constant | 1 | 25 cy | ~25 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~333 cy** |
+| **Total** | **O(1)** | - | **~333 cy** |
 
-O(1) per bar — cost is fixed by the continued fraction convergence threshold regardless of input. log-Gamma dominates setup; each Lentz iteration is ~15 cy.
+O(1) per bar - cost is fixed by the continued fraction convergence threshold regardless of input. log-Gamma dominates setup; each Lentz iteration is ~15 cy.
 
 ### Batch Mode (SIMD Analysis)
 

@@ -33,7 +33,7 @@ Chaikin recommended watching for:
 
 CMF builds on the Money Flow Multiplier concept but adds a rolling summation window. Instead of accumulating forever like ADL, it asks: "Over the last N periods, what's the net money flow relative to total volume?"
 
-The key insight is **normalization by volume**. This means CMF can never exceed ±1, regardless of the absolute volume levels. A stock trading 10 million shares daily and one trading 10 thousand shares daily can both produce a CMF of 0.5—and that reading means the same thing for both.
+The key insight is **normalization by volume**. This means CMF can never exceed ±1, regardless of the absolute volume levels. A stock trading 10 million shares daily and one trading 10 thousand shares daily can both produce a CMF of 0.5-and that reading means the same thing for both.
 
 ### Component Breakdown
 

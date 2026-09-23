@@ -59,15 +59,15 @@ KAMA is very efficient, with O(1) complexity thanks to the incremental volatilit
 | FMA | 2 | 4 | 8 |
 | MUL | 1 | 3 | 3 |
 | CMP | 2 | 1 | 2 |
-| **Total** | **12** | — | **~34 cycles** |
+| **Total** | **12** | - | **~34 cycles** |
 
 The hot path consists of:
-1. Volatility update: `diff_in = |new - prev|`, `diff_out = |oldest - next_oldest|` — 2 ABS + 2 ADD/SUB
-2. Change calculation: `|current - oldest|` — 1 ABS
-3. Efficiency Ratio: `change / volatility` — 1 DIV
-4. Smoothing Constant: `FMA(er, fast-slow, slow)`, then `sc * sc` — 1 FMA + 1 MUL
-5. KAMA update: `FMA(sc, price - kama, kama)` — 1 FMA + 1 SUB
-6. Bounds checks (ER cap, div-by-zero guard) — 2 CMP
+1. Volatility update: `diff_in = |new - prev|`, `diff_out = |oldest - next_oldest|` - 2 ABS + 2 ADD/SUB
+2. Change calculation: `|current - oldest|` - 1 ABS
+3. Efficiency Ratio: `change / volatility` - 1 DIV
+4. Smoothing Constant: `FMA(er, fast-slow, slow)`, then `sc * sc` - 1 FMA + 1 MUL
+5. KAMA update: `FMA(sc, price - kama, kama)` - 1 FMA + 1 SUB
+6. Bounds checks (ER cap, div-by-zero guard) - 2 CMP
 
 **Warmup path (building volatility sum):**
 
@@ -75,13 +75,13 @@ The hot path consists of:
 | :--- | :---: | :---: | :---: |
 | ABS | 1 | 1 | 1 |
 | ADD | 1 | 1 | 1 |
-| **Total** | **2** | — | **~2 cycles** |
+| **Total** | **2** | - | **~2 cycles** |
 
 During warmup, only accumulates `diff_in` without removal.
 
 ### Batch Mode (SIMD Analysis)
 
-KAMA is an IIR filter with adaptive alpha — not vectorizable across bars due to recursive state dependency. The sliding-window volatility sum uses O(1) incremental updates rather than O(n) window scans.
+KAMA is an IIR filter with adaptive alpha - not vectorizable across bars due to recursive state dependency. The sliding-window volatility sum uses O(1) incremental updates rather than O(n) window scans.
 
 | Optimization | Benefit |
 | :--- | :--- |

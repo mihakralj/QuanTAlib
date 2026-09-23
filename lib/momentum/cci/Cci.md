@@ -1,6 +1,6 @@
 # CCI - Commodity Channel Index
 
-> *CCI measures how far price deviates from its statistical mean, scaled by mean absolute deviation — a z-score with character.*
+> *CCI measures how far price deviates from its statistical mean, scaled by mean absolute deviation - a z-score with character.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -114,7 +114,7 @@ TSeries results = Cci.Batch(barSeries, period: 20);
 
 ### Operation Count (Streaming Mode)
 
-Each `Update()` call on CCI(N) performs a full O(N) mean-deviation scan over the ring buffer. There is no closed-form running-sum decomposition for mean absolute deviation — the absolute values prevent the cancellation that makes SMA or variance incremental. The RingBuffer manages the sliding window; computing MAD requires visiting every element.
+Each `Update()` call on CCI(N) performs a full O(N) mean-deviation scan over the ring buffer. There is no closed-form running-sum decomposition for mean absolute deviation - the absolute values prevent the cancellation that makes SMA or variance incremental. The RingBuffer manages the sliding window; computing MAD requires visiting every element.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -124,7 +124,7 @@ Each `Update()` call on CCI(N) performs a full O(N) mean-deviation scan over the
 | MAD scan: N subtractions + N ABS | 2N | 2 | ~2N·2 |
 | MAD divide | 1 | 8 | ~8 |
 | Final scale + divide (0.015×MAD) | 2 | 3 | ~6 |
-| **Total** | **2N + 7** | — | **~(4N + 27) cycles** |
+| **Total** | **2N + 7** | - | **~(4N + 27) cycles** |
 
 O(N) streaming cost per bar. For the default N = 20: ~107 cycles. No incremental shortcut exists for MAD; SIMD vectorization of the scan loop is the primary optimization lever.
 
@@ -138,4 +138,4 @@ O(N) streaming cost per bar. For the default N = 20: ~107 cycles. No incremental
 | Final CCI scale | Yes | scalar multiply after reduction |
 | State dependency across bars (SMA) | Partial | prefix sum removes dependency; MAD is fully independent per bar |
 
-AVX2 processes 4 doubles per instruction. For the inner MAD loop of N=20, that is 5 SIMD passes vs 20 scalar iterations — roughly 3× throughput gain. The outer bar loop remains SIMD-friendly since each bar's TP is independent once the window positions are known.
+AVX2 processes 4 doubles per instruction. For the inner MAD loop of N=20, that is 5 SIMD passes vs 20 scalar iterations - roughly 3× throughput gain. The outer bar loop remains SIMD-friendly since each bar's TP is independent once the window positions are known.

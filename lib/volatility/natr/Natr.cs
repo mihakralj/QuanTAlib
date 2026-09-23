@@ -87,25 +87,16 @@ public sealed class Natr : AbstractBase
     public override bool IsHot => _s.E <= 0.05;
 
     /// <summary>
-    /// Initializes the indicator state using the provided history.
-    /// Note: NATR needs OHLCV data. This Prime method expects pre-calculated TR values.
+    /// Initializes the indicator state using scalar history.
+    /// NATR requires OHLC data to normalize ATR by close, so scalar priming is unsupported.
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        for (int i = 0; i < source.Length; i++)
-        {
-            double tr = source[i];
-            _s.RawRma = Math.FusedMultiplyAdd(_s.RawRma, _decay, _alpha * tr);
-            _s.E *= _decay;
-        }
-
-        if (source.Length > 0)
-        {
-            Atr = _s.E > ConvergenceThreshold ? _s.RawRma / (1.0 - _s.E) : _s.RawRma;
-            // Without close price, we can't calculate NATR percentage
-            Last = new TValue(DateTime.UtcNow.Ticks, Atr);
-        }
-        _ps = _s;
+        _ = source;
+        _ = step;
+        throw new NotSupportedException(
+            "NATR requires OHLC bar history to calculate the percentage (ATR/Close * 100). " +
+            "Use Prime(TBarSeries) instead.");
     }
 
     /// <summary>

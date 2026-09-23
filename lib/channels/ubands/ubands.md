@@ -138,7 +138,7 @@ UBANDS combines an $O(1)$ USF IIR recursion (center line) with an $O(n)$ RMS sca
 | SQRT (RMS) | 1 | 20 | 20 |
 | MUL (k × RMS) | 1 | 3 | 3 |
 | ADD/SUB (USF ± width) | 2 | 1 | 2 |
-| **Total** | **~$n + 16$** | — | **~$n + 65$ cycles** |
+| **Total** | **~$n + 16$** | - | **~$n + 65$ cycles** |
 
 For period 20: ~85 cycles/bar. The USF recursion is fast ($\sim$21 cycles); the RMS window scan at $O(n)$ dominates.
 

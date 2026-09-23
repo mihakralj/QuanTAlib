@@ -1,4 +1,4 @@
-# CORAL — Coral Trend Filter
+# CORAL - Coral Trend Filter
 
 > *Coral blends multiple EMA stages with tunable smoothing, producing a trend line that bends without breaking.*
 
@@ -26,7 +26,7 @@ The **Coral** filter is a smooth, low-lag trend indicator that chains six cascad
 
 ## Origin and Sources
 
-The Coral filter appeared in TradingView as "Coral Trend Indicator" by LazyBear, who adapted it from MetaTrader 4 code. The algorithm uses 6 cascaded EMAs — a technique similar to T3 (Tillson T3) — combined with polynomial weighting controlled by a single "Constant D" parameter.
+The Coral filter appeared in TradingView as "Coral Trend Indicator" by LazyBear, who adapted it from MetaTrader 4 code. The algorithm uses 6 cascaded EMAs - a technique similar to T3 (Tillson T3) - combined with polynomial weighting controlled by a single "Constant D" parameter.
 
 The name "Coral" is not an acronym; it refers to the smooth, organic appearance of the resulting trend line.
 
@@ -37,7 +37,7 @@ The name "Coral" is not an acronym; it refers to the smooth, organic appearance 
 | Parameter | Type | Default | Range | Description |
 |-----------|------|---------|-------|-------------|
 | period | int | 21 | > 0 | Smoothing period for the EMA cascade |
-| cd | double | 0.4 | [0, 1] | Constant D — controls polynomial combination weights |
+| cd | double | 0.4 | [0, 1] | Constant D - controls polynomial combination weights |
 
 ### Algorithm
 
@@ -81,7 +81,7 @@ The coefficients satisfy:
 c3 + c4 + c5 + (-cd³) = 1
 ```
 
-This guarantees that a constant input converges exactly to itself (unity DC gain) — no bias under flat conditions.
+This guarantees that a constant input converges exactly to itself (unity DC gain) - no bias under flat conditions.
 
 ### Special Cases
 
@@ -123,7 +123,7 @@ sealed class Coral : AbstractBase
 | Aspect | Detail |
 |--------|--------|
 | Time complexity | O(1) per update |
-| Space complexity | O(1) — 6 doubles + counter |
+| Space complexity | O(1) - 6 doubles + counter |
 | FMA usage | All 6 EMA cascades + polynomial combination |
 | SIMD | Not applicable (serial dependency chain) |
 | Batch optimization | Loop unrolling with `Unsafe.Add` |
@@ -161,7 +161,7 @@ Coral is most similar to T3 in structure (6 cascaded EMAs), but uses a different
 
 ### Operation Count (Streaming Mode)
 
-CORAL(N, cd) runs 6 cascaded EMA stages with a shared alpha. The polynomial combination (bfr = −cd³·I6 + c3·I5 + c4·I4 + c5·I3) uses 4 precomputed coefficients computed at construction — so runtime is just 4 FMAs.
+CORAL(N, cd) runs 6 cascaded EMA stages with a shared alpha. The polynomial combination (bfr = −cd³·I6 + c3·I5 + c4·I4 + c5·I3) uses 4 precomputed coefficients computed at construction - so runtime is just 4 FMAs.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -172,7 +172,7 @@ CORAL(N, cd) runs 6 cascaded EMA stages with a shared alpha. The polynomial comb
 | EMA stage 5: FMA(α, I4, decay×I5) | 1 | 4 | ~4 |
 | EMA stage 6: FMA(α, I5, decay×I6) | 1 | 4 | ~4 |
 | Polynomial combination (4 FMA) | 4 | 4 | ~16 |
-| **Total** | **10** | — | **~40 cycles** |
+| **Total** | **10** | - | **~40 cycles** |
 
 O(1) per bar. Six scalar FMAs for the cascade and 4 FMAs for the polynomial combination. WarmupPeriod = N. The shared alpha `di = (N-1)/2 + 1` slightly lengthens the effective period relative to standard EMA.
 
@@ -183,10 +183,10 @@ O(1) per bar. Six scalar FMAs for the cascade and 4 FMAs for the polynomial comb
 | 6 cascaded EMA passes | No | Each stage is a recursive IIR depending on previous output |
 | Polynomial combination | Yes | 4 FMAs with constant coefficients; vectorizable across bars once EMA stages are computed |
 
-All 6 EMA stages are recursive IIR — inherently sequential. The polynomial combination is the only vectorizable phase, but it contributes only 4 of the 40 total cycles. Batch mode coefficient: no meaningful SIMD speedup over scalar.
+All 6 EMA stages are recursive IIR - inherently sequential. The polynomial combination is the only vectorizable phase, but it contributes only 4 of the 40 total cycles. Batch mode coefficient: no meaningful SIMD speedup over scalar.
 
 ## References
 
-- LazyBear, "Coral Trend Indicator" — [TradingView](https://www.tradingview.com/u/LazyBear/)
+- LazyBear, "Coral Trend Indicator" - [TradingView](https://www.tradingview.com/u/LazyBear/)
 - Original MT4 implementation (author unknown)
-- Related: Tillson, T. "Smoothing Techniques for More Accurate Signals" — TASC, 1998 (T3 cascade technique)
+- Related: Tillson, T. "Smoothing Techniques for More Accurate Signals" - TASC, 1998 (T3 cascade technique)

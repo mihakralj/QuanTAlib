@@ -22,7 +22,7 @@ DeMark Pivot Points calculate three horizontal support and resistance levels fro
 
 Tom DeMark introduced his pivot point variant as part of a broader system of conditional indicators published in *The New Science of Technical Analysis* (1994) and *New Market Timing Techniques* (1997). Where floor trader pivots summarize the prior bar with an equal-weight HLC average, DeMark argued that the relationship between open and close carries directional information that should influence the levels.
 
-The logic is straightforward: if the bar closed below the open (bearish), the low was more "tested" and should carry more weight. If the bar closed above the open (bullish), the high was more relevant. If open equals close (a doji), the close itself — representing the equilibrium point where neither bulls nor bears won — gets the extra weight.
+The logic is straightforward: if the bar closed below the open (bearish), the low was more "tested" and should carry more weight. If the bar closed above the open (bullish), the high was more relevant. If open equals close (a doji), the close itself - representing the equilibrium point where neither bulls nor bears won - gets the extra weight.
 
 This conditional approach differs from all other pivot variants (Classic, Woodie, Camarilla, Fibonacci) which apply the same formula regardless of bar direction. DeMark's innovation was treating the prior bar as a signal, not just a data source.
 
@@ -112,7 +112,7 @@ This means R1 and S1 are always equidistant from PP, separated by one-quarter of
 
 ### Operation Count (Streaming Mode)
 
-DeMark Pivot uses a conditional pivot formula based on whether Open == Close vs C vs O > C — O(1).
+DeMark Pivot uses a conditional pivot formula based on whether Open == Close vs C vs O > C - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -121,7 +121,7 @@ DeMark Pivot uses a conditional pivot formula based on whether Open == Close vs 
 | PP = X / 4 | 1 | 2 cy | ~2 cy |
 | R1 = X/2 - L, S1 = X/2 - H | 2 | 2 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~16 cy** |
+| **Total** | **O(1)** | - | **~16 cy** |
 
 O(1) arithmetic with one 3-way conditional on price relationship. Branch predictor will learn the dominant market regime quickly.
 

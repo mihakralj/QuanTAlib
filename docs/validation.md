@@ -137,7 +137,7 @@ Next parity targets (highest impact):
 | **Detrended Price Oscillator** | [Dpo](../lib/oscillators/dpo/Dpo.md) | - | [⚠️](../lib/oscillators/dpo/Dpo.md#validation "Tulip shifts n/2+1 bars; QuanTAlib shifts period/2 bars") | [✔️](../lib/oscillators/dpo/Dpo.md#validation) | [⚠️](../lib/oscillators/dpo/Dpo.md#validation "structural test only; period alignment differs from Ooples") | ✔️ |
 | **Ehlers Detrended Synthetic Price** | [Dsp](../lib/cycles/dsp/Dsp.md) | - | - | - | [⚠️](../lib/cycles/dsp/Dsp.md#validation "structural test only; Ooples DSP uses different detrending") | - |
 | **Deviation-Scaled MA** | [Dsma](../lib/trends_IIR/dsma/Dsma.md) | - | - | - | [⚠️](../lib/trends_IIR/dsma/Dsma.md#validation "structural test only; Ooples uses different deviation scaling") | - |
-| **Directional Movement** | [Dm](../lib/dynamics/dm/Dm.md) | - | - | - | - | ❔ |
+| **Directional Movement** | Dm | - | - | - | - | ❔ |
 | **Directional Movement Index** | [Dx](../lib/dynamics/dx/Dx.md) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | [✔️](../lib/dynamics/dx/Dx.md#validation) | - |
 | **Directional Movement Index (Jurik)** | [Dmx](../lib/dynamics/dmx/Dmx.md) | - | - | - | - | - |
 | **Dirty Data Detection** | Dirty | - | - | - | - | - |
@@ -266,7 +266,7 @@ Next parity targets (highest impact):
 | **Money Flow Index** | [Mfi](../lib/volume/mfi/Mfi.md) | [✔️](../lib/volume/mfi/Mfi.md#validation) | - | [✔️](../lib/volume/mfi/Mfi.md#validation) | [✔️](../lib/volume/mfi/Mfi.md#validation) | ✔️ |
 | **Momentum** | [Mom](../lib/momentum/mom/Mom.md) | [✔️](../lib/momentum/mom/Mom.md#validation) | [✔️](../lib/momentum/mom/Mom.md#validation) | [✔️](../lib/momentum/mom/Mom.md#validation) | [⚠️](../lib/momentum/mom/Mom.md#validation "Ooples Mom = n-bar change multiplied by 100 vs absolute change") | ⚠️ |
 | **Momentum change; 2nd derivative** | [Accel](../lib/numerics/accel/Accel.md) | - | - | - | - | - |
-| **Moon Phase** | [Moon](../lib/cycles/moon/Moon.md)  | - | - | - | - | - |
+| **Moon Phase** | Moon | - | - | - | - | - |
 | **Moving Average Envelopes** | [Maenv](../lib/channels/maenv/maenv.md) | - | - | [✔️](../lib/channels/maenv/maenv.md#validation) | [⚠️](../lib/channels/maenv/maenv.md#validation "structural test only; Ooples MA Envelopes uses different percentage band") | - |
 | **Natural Moving Average** | [Nma](../lib/trends_IIR/nma/Nma.md) | - | - | - | - | - |
 | **Negative Volume Index** | [Nvi](../lib/volume/nvi/Nvi.md) | - | [✔️](../lib/volume/nvi/Nvi.md#validation) | - | - | ⚠️ |
@@ -413,6 +413,76 @@ Next parity targets (highest impact):
 | **Z-score standardization** | [Zscore](../lib/statistics/zscore/Zscore.md) | - | - | - | [✔️](../lib/statistics/zscore/Zscore.md#validation) | ⚠️ |
 | **Z-Test** | [Ztest](../lib/statistics/ztest/Ztest.md) | - | - | - | - | - |
 
+## Implementation Coverage Entries
+
+The following implemented indicators are tracked in the matrix even when no external reference library is available for numeric comparison.
+
+| Indicator | QuanTAlib | TA-Lib | Tulip | Skender | Ooples | pandas-ta |
+| :-------- | :-------- | :----- | :----- | :------ | :----- | :-------- |
+| **Crma** | [Crma](../lib/trends_FIR/crma/Crma.md) | - | - | - | - | - |
+| **Hend** | [Hend](../lib/trends_FIR/hend/Hend.md) | - | - | - | - | - |
+| **Ilrs** | [Ilrs](../lib/trends_FIR/ilrs/Ilrs.md) | - | - | - | - | - |
+| **Kaiser** | [Kaiser](../lib/trends_FIR/kaiser/Kaiser.md) | - | - | - | - | - |
+| **Lanczos** | [Lanczos](../lib/trends_FIR/lanczos/Lanczos.md) | - | - | - | - | - |
+| **Nlma** | [Nlma](../lib/trends_FIR/nlma/Nlma.md) | - | - | - | - | - |
+| **Nyqma** | [Nyqma](../lib/trends_FIR/nyqma/Nyqma.md) | - | - | - | - | - |
+| **Parzen** | [Parzen](../lib/trends_FIR/parzen/Parzen.md) | - | - | - | - | - |
+| **Pma** | [Pma](../lib/trends_FIR/pma/Pma.md) | - | - | - | - | - |
+| **Qrma** | [Qrma](../lib/trends_FIR/qrma/Qrma.md) | - | - | - | - | - |
+| **Rain** | [Rain](../lib/trends_FIR/rain/Rain.md) | - | - | - | - | - |
+| **Rwma** | [Rwma](../lib/trends_FIR/rwma/Rwma.md) | - | - | - | - | - |
+| **Sp15** | [Sp15](../lib/trends_FIR/sp15/Sp15.md) | - | - | - | - | - |
+| **Tukey W** | [Tukey W](../lib/trends_FIR/tukey_w/Tukey_w.md) | - | - | - | - | - |
+| **Adxvma** | [Adxvma](../lib/trends_IIR/adxvma/Adxvma.md) | - | - | - | - | - |
+| **Ahrens** | [Ahrens](../lib/trends_IIR/ahrens/Ahrens.md) | - | - | - | - | - |
+| **Gdema** | [Gdema](../lib/trends_IIR/gdema/Gdema.md) | - | - | - | - | - |
+| **Lema** | [Lema](../lib/trends_IIR/lema/Lema.md) | - | - | - | - | - |
+| **Mavp** | [Mavp](../lib/trends_IIR/mavp/Mavp.md) | - | - | - | - | - |
+| **Mcnma** | [Mcnma](../lib/trends_IIR/mcnma/Mcnma.md) | - | - | - | - | - |
+| **Sak** | [Sak](../lib/filters/sak/Sak.md) | - | - | - | - | - |
+| **Tbf** | [Tbf](../lib/filters/tbf/Tbf.md) | - | - | - | - | - |
+| **Bbi** | [Bbi](../lib/oscillators/bbi/Bbi.md) | - | - | - | - | - |
+| **Deco** | [Deco](../lib/oscillators/deco/Deco.md) | - | - | - | - | - |
+| **Dosc** | [Dosc](../lib/oscillators/dosc/Dosc.md) | - | - | - | - | - |
+| **Dso** | [Dso](../lib/oscillators/dso/Dso.md) | - | - | - | - | - |
+| **Fi** | [Fi](../lib/oscillators/fi/Fi.md) | - | - | - | - | - |
+| **Imi** | [Imi](../lib/oscillators/imi/Imi.md) | - | - | - | - | - |
+| **Kri** | [Kri](../lib/oscillators/kri/Kri.md) | - | - | - | - | - |
+| **Madh** | [Madh](../lib/oscillators/madh/Madh.md) | - | - | - | - | - |
+| **Mstoch** | [Mstoch](../lib/oscillators/mstoch/Mstoch.md) | - | - | - | - | - |
+| **ReverseEma** | [ReverseEma](../lib/oscillators/reverseema/ReverseEma.md) | - | - | - | - | - |
+| **Rsih** | [Rsih](../lib/oscillators/rsih/Rsih.md) | - | - | - | - | - |
+| **Td Seq** | [Td Seq](../lib/oscillators/td_seq/Td_seq.md) | - | - | - | - | - |
+| **Dmh** | [Dmh](../lib/dynamics/dmh/Dmh.md) | - | - | - | - | - |
+| **MinusDi** | [MinusDi](../lib/dynamics/minusdi/MinusDi.md) | - | - | - | - | - |
+| **MinusDm** | [MinusDm](../lib/dynamics/minusdm/MinusDm.md) | - | - | - | - | - |
+| **PlusDi** | [PlusDi](../lib/dynamics/plusdi/PlusDi.md) | - | - | - | - | - |
+| **PlusDm** | [PlusDm](../lib/dynamics/plusdm/PlusDm.md) | - | - | - | - | - |
+| **TTM Squeeze** | [Ttm Squeeze](../lib/dynamics/ttm_squeeze/TtmSqueeze.md) | - | - | - | - | - |
+| **TTM LRC** | [Ttm LRC](../lib/channels/ttm_lrc/TtmLrc.md) | - | - | - | - | - |
+| **Adf** | [Adf](../lib/statistics/adf/Adf.md) | - | - | - | - | - |
+| **Polyfit** | [Polyfit](../lib/statistics/polyfit/Polyfit.md) | - | - | - | - | - |
+| **Trim** | [Trim](../lib/statistics/trim/Trim.md) | - | - | - | - | - |
+| **Wavg** | [Wavg](../lib/statistics/wavg/Wavg.md) | - | - | - | - | - |
+| **Wins** | [Wins](../lib/statistics/wins/Wins.md) | - | - | - | - | - |
+| **Epa** | [Epa](../lib/cycles/epa/epa.md) | - | - | - | - | - |
+| **Fsi** | [Fsi](../lib/cycles/fsi/Fsi.md) | - | - | - | - | - |
+| **Decay** | [Decay](../lib/numerics/decay/Decay.md) | - | - | - | - | - |
+| **Edecay** | [Edecay](../lib/numerics/edecay/Edecay.md) | - | - | - | - | - |
+| **Fft** | [Fft](../lib/numerics/fft/Fft.md) | - | - | - | - | - |
+| **Ifft** | [Ifft](../lib/numerics/ifft/Ifft.md) | - | - | - | - | - |
+| **Slope** | [Slope](../lib/numerics/slope/Slope.md) | - | - | - | - | - |
+| **Atrstop** | [Atrstop](../lib/reversals/atrstop/Atrstop.md) | - | - | - | - | - |
+| **Convexity** | [Convexity](../lib/statistics/convexity/Convexity.md) | - | - | - | - | - |
+| **CsvFeed** | [CsvFeed](../lib/feeds/csvfeed/CsvFeed.md) | - | - | - | - | - |
+| **Dstoch** | [Dstoch](../lib/oscillators/dstoch/Dstoch.md) | - | - | - | - | - |
+| **GBM** | [GBM](../lib/feeds/gbm/GBM.md) | - | - | - | - | - |
+| **Hwc** | [Hwc](../lib/channels/hwc/Hwc.md) | - | - | - | - | - |
+| **Rrsi** | [Rrsi](../lib/oscillators/rrsi/Rrsi.md) | - | - | - | - | - |
+| **Vstop** | [Vstop](../lib/reversals/vstop/Vstop.md) | - | - | - | - | - |
+| **Vwmacd** | [Vwmacd](../lib/momentum/vwmacd/Vwmacd.md) | - | - | - | - | - |
+| **BW_MFI** | [BwMfi](../lib/oscillators/bw_mfi/BwMfi.md) | - | - | - | - | - |
+
 ## Statistical Indicators
 
 | Indicator | QuanTAlib | MathNet | TA-Lib | Tulip | Skender | pandas-ta |
@@ -553,7 +623,6 @@ The following 30 indicators are available in [pandas-ta](https://github.com/twop
 | [OoplesFinance](https://github.com/ooples/OoplesFinance.StockIndicators) | C# | Apache 2.0 | Large indicator collection. Validation coverage varies. |
 | [MathNet.Numerics](https://numerics.mathdotnet.com/) | C# | MIT | Statistical functions, not TA-specific. |
 | [pandas-ta](https://github.com/twopirllc/pandas-ta) | Python | MIT | 130+ indicators. Python-native with optional TA-Lib acceleration. |
-
 
 ## Validation Philosophy
 

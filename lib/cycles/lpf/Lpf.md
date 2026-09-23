@@ -1,6 +1,6 @@
 # LPF: Ehlers Linear Predictive Filter
 
-Griffiths-adapted dominant cycle estimator — uses LMS-predicted filter coefficients as a spectral window.
+Griffiths-adapted dominant cycle estimator - uses LMS-predicted filter coefficients as a spectral window.
 
 | Property       | Value                                                |
 |:-------------- |:---------------------------------------------------- |
@@ -18,7 +18,7 @@ Griffiths-adapted dominant cycle estimator — uses LMS-predicted filter coeffic
 
 ## Historical Context
 
-John F. Ehlers introduced the Linear Predictive Filter in "Linear Predictive Filters And Instantaneous Frequency" (*Technical Analysis of Stocks & Commodities*, January 2025). The algorithm adapts Lloyd Griffiths' "Rapid Measurement of Digital Instantaneous Frequency" (IEEE Trans. ASSP-23, 1975) — a time-domain gradient method for adaptive spectral estimation originally developed for radar and sonar signal processing. Ehlers' innovation was combining this with his roofing filter and AGC normalization to create a self-calibrating cycle detector for financial data. Unlike his earlier Autocorrelation Periodogram (ACP), LPF estimates the spectrum from the *predictor coefficients* rather than from autocorrelation lags, yielding sharper spectral resolution with fewer data points.
+John F. Ehlers introduced the Linear Predictive Filter in "Linear Predictive Filters And Instantaneous Frequency" (*Technical Analysis of Stocks & Commodities*, January 2025). The algorithm adapts Lloyd Griffiths' "Rapid Measurement of Digital Instantaneous Frequency" (IEEE Trans. ASSP-23, 1975) - a time-domain gradient method for adaptive spectral estimation originally developed for radar and sonar signal processing. Ehlers' innovation was combining this with his roofing filter and AGC normalization to create a self-calibrating cycle detector for financial data. Unlike his earlier Autocorrelation Periodogram (ACP), LPF estimates the spectrum from the *predictor coefficients* rather than from autocorrelation lags, yielding sharper spectral resolution with fewer data points.
 
 ## Mathematical Foundation
 
@@ -42,7 +42,7 @@ $$\text{Signal}_n = LP_n / \text{Peak}_n$$
 
 ### Stage 3: Griffiths LMS Predictor
 
-The heart of the algorithm — adaptive coefficient update minimizing prediction error:
+The heart of the algorithm - adaptive coefficient update minimizing prediction error:
 
 $$P_{\text{sig}} = \frac{1}{N}\sum_{i=0}^{N-1} x_i^2, \qquad \mu = \frac{0.25}{P_{\text{sig}} \cdot N}$$
 

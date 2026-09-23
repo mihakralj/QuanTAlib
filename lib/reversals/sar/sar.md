@@ -92,7 +92,7 @@ At AF = 0.20 (maximum), SAR covers 20% of the EP-SAR gap per bar.
 
 ### Operation Count (Streaming Mode)
 
-Parabolic SAR uses an adaptive acceleration factor with trend-reversal detection — O(1) per bar.
+Parabolic SAR uses an adaptive acceleration factor with trend-reversal detection - O(1) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -102,9 +102,9 @@ Parabolic SAR uses an adaptive acceleration factor with trend-reversal detection
 | SAR = SAR + AF*(EP - SAR) via FMA | 1 | 1 cy | ~1 cy |
 | Reversal detection + reset | 1 | 3 cy | ~3 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~12 cy** |
+| **Total** | **O(1)** | - | **~12 cy** |
 
-O(1) per bar. FMA computes SAR update in a single instruction. Reversal branching adds ~3 cy amortized. No SIMD in streaming — trend state is sequential.
+O(1) per bar. FMA computes SAR update in a single instruction. Reversal branching adds ~3 cy amortized. No SIMD in streaming - trend state is sequential.
 
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|

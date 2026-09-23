@@ -18,7 +18,7 @@
 
 The Average Daily Range (ADR) measures the average distance between High and Low prices over a specified period. Unlike its cousin ATR, ADR ignores gaps entirely. It answers a straightforward question: "How much does this asset typically move within a single bar?"
 
-This simplicity is ADR's strength. When you don't care about overnight gaps—perhaps you're day trading or analyzing intraday bars—ADR gives you exactly what you need without the complexity of True Range calculations.
+This simplicity is ADR's strength. When you don't care about overnight gaps-perhaps you're day trading or analyzing intraday bars-ADR gives you exactly what you need without the complexity of True Range calculations.
 
 ## Historical Context
 
@@ -48,7 +48,7 @@ $$
 
 ### The Gap Non-Problem
 
-ADR intentionally ignores gaps. This is not a flaw—it's a feature.
+ADR intentionally ignores gaps. This is not a flaw-it's a feature.
 
 - **Scenario**: Close = 100. Next Open = 110. High = 112. Low = 109.
 - **ADR Range**: $112 - 109 = 3$.
@@ -105,7 +105,7 @@ ADR (Average Daily Range) uses a RingBuffer of daily ranges with a running sum f
 | running_sum += new - evict | 2 | 1 cy | ~2 cy |
 | ADR = running_sum / N | 1 | 4 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~12 cy** |
+| **Total** | **O(1)** | - | **~12 cy** |
 
 O(1) sliding mean of daily ranges. Same running-sum pattern as SMA but applied to H-L. Throughput ~4 ns/bar.
 

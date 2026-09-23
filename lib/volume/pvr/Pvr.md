@@ -18,7 +18,7 @@
 
 Price Volume Rank distills the price-volume relationship into a simple categorical indicator. Rather than producing a continuous value, PVR returns one of five discrete states (0-4) that classify the current bar's price and volume behavior relative to the previous bar. This creates an instant "market condition" snapshot.
 
-The elegance of PVR lies in its simplicity: it answers two questions simultaneously—is price rising or falling, and is volume supporting that move? The four non-zero categories represent the classic volume confirmation matrix, while zero indicates price equilibrium.
+The elegance of PVR lies in its simplicity: it answers two questions simultaneously-is price rising or falling, and is volume supporting that move? The four non-zero categories represent the classic volume confirmation matrix, while zero indicates price equilibrium.
 
 ## Historical Context
 
@@ -31,7 +31,7 @@ Unlike cumulative indicators (OBV, PVT) or ratio-based indicators (PVO, CMF), PV
 - Volume confirmation at a glance
 - Integration with rule-based trading systems
 
-The categorical nature eliminates scale ambiguity—a PVR of 1 always means the same thing regardless of the security, timeframe, or market conditions.
+The categorical nature eliminates scale ambiguity-a PVR of 1 always means the same thing regardless of the security, timeframe, or market conditions.
 
 ## Architecture & Physics
 
@@ -83,13 +83,13 @@ where:
 
 ### Category Semantics
 
-**PVR = 1 (Strong Bullish)**: Price rises on increasing volume. Classic confirmation of buying pressure—institutional money likely entering. The most bullish single-bar signal.
+**PVR = 1 (Strong Bullish)**: Price rises on increasing volume. Classic confirmation of buying pressure-institutional money likely entering. The most bullish single-bar signal.
 
 **PVR = 2 (Weak Bullish)**: Price rises on decreasing volume. The advance lacks conviction. Could be short covering, thin trading, or distribution into strength.
 
 **PVR = 3 (Weak Bearish)**: Price falls on decreasing volume. The decline lacks selling conviction. Could be profit-taking, thin trading, or accumulation into weakness.
 
-**PVR = 4 (Strong Bearish)**: Price falls on increasing volume. Classic confirmation of selling pressure—institutional money likely exiting. The most bearish single-bar signal.
+**PVR = 4 (Strong Bearish)**: Price falls on increasing volume. Classic confirmation of selling pressure-institutional money likely exiting. The most bearish single-bar signal.
 
 **PVR = 0 (Neutral)**: Price unchanged. Volume direction is irrelevant when price hasn't moved.
 
@@ -111,7 +111,7 @@ This ensures mutual exclusivity across all price-down scenarios and handles equa
 | Branch | 2-3 | Nested conditionals |
 | **Total** | 6-7 | Per bar, O(1) |
 
-PVR is extremely lightweight—a handful of comparisons per bar with no arithmetic operations.
+PVR is extremely lightweight-a handful of comparisons per bar with no arithmetic operations.
 
 ### Batch Mode (SIMD)
 
@@ -129,7 +129,7 @@ Unlike cumulative indicators, PVR is fully vectorizable because each bar's calcu
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Exact integer classification |
-| **Timeliness** | 10/10 | Zero lag—responds immediately |
+| **Timeliness** | 10/10 | Zero lag-responds immediately |
 | **Interpretability** | 10/10 | Discrete categories, clear meaning |
 | **Noise Resistance** | 5/10 | Single-bar; no smoothing |
 | **Memory** | 10/10 | O(1) state: 4 scalar values |

@@ -12,15 +12,15 @@
 | **Warmup**       | `3` bars                          |
 | **PineScript**   | [accel.pine](accel.pine)                       |
 
-- ACCEL measures the rate of change of velocity—the acceleration of a time series.
+- ACCEL measures the rate of change of velocity-the acceleration of a time series.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-ACCEL measures the rate of change of velocity—the acceleration of a time series. As the second derivative, it reveals momentum shifts before they manifest in price direction. Positive acceleration means velocity is increasing (trend strengthening); negative means velocity is decreasing (trend weakening). This O(1) streaming implementation uses FMA optimization and SIMD batch processing.
+ACCEL measures the rate of change of velocity-the acceleration of a time series. As the second derivative, it reveals momentum shifts before they manifest in price direction. Positive acceleration means velocity is increasing (trend strengthening); negative means velocity is decreasing (trend weakening). This O(1) streaming implementation uses FMA optimization and SIMD batch processing.
 
 ## Historical Context
 
-The second derivative appears throughout physics (Newton's F=ma) and signal processing. In financial markets, acceleration precedes velocity, which precedes price. A stock can be rising (positive slope) but decelerating (negative accel)—an early warning of trend exhaustion.
+The second derivative appears throughout physics (Newton's F=ma) and signal processing. In financial markets, acceleration precedes velocity, which precedes price. A stock can be rising (positive slope) but decelerating (negative accel)-an early warning of trend exhaustion.
 
 Traders have long recognized this pattern: "the trend is slowing down." ACCEL quantifies that intuition precisely. When price makes higher highs but acceleration turns negative, the rally is losing steam. When price makes lower lows but acceleration turns positive, the selloff is exhausting.
 
@@ -90,7 +90,7 @@ This is the central difference approximation of the second derivative.
 
 ### Inflection Points
 
-Acceleration zero-crossings indicate inflection points—where the trend changes character:
+Acceleration zero-crossings indicate inflection points-where the trend changes character:
 
 $$
 A_t > 0 \text{ and } A_{t-1} < 0 \implies \text{Concave-up inflection (potential bottom)}
@@ -126,7 +126,7 @@ $$
 | ADD | 1 | 1 | 1 |
 | MOV (state update) | 3 | 1 | 3 |
 | CMP (IsFinite check) | 1 | 1 | 1 |
-| **Total** | **6** | — | **~9 cycles** |
+| **Total** | **6** | - | **~9 cycles** |
 
 ### Batch Mode (512 values, SIMD)
 
@@ -173,7 +173,7 @@ ACCEL is a fundamental operation. Validation confirms exact match with manual ca
 
 3. **Warmup Period**: ACCEL requires 3 values to produce meaningful output. The first two outputs are always 0.
 
-4. **Sign Interpretation**: Positive acceleration doesn't mean "going up"—it means "velocity increasing." A falling stock with positive acceleration is falling more slowly.
+4. **Sign Interpretation**: Positive acceleration doesn't mean "going up"-it means "velocity increasing." A falling stock with positive acceleration is falling more slowly.
 
 5. **Lagging Confirmation**: By the time acceleration confirms a trend change, much of the move may be over. Use acceleration for early warning, not entry confirmation.
 

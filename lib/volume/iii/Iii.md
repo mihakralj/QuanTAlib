@@ -1,6 +1,6 @@
 # III: Intraday Intensity Index
 
-> *Where the close lands within the day's range tells you who won the battle—bulls or bears. Volume tells you how hard they fought.*
+> *Where the close lands within the day's range tells you who won the battle-bulls or bears. Volume tells you how hard they fought.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -102,7 +102,7 @@ where $M = (H + L) / 2$ is the midpoint. This shows that PM measures how far the
 | DIV | 1 | 15 | 15 |
 | CMP | 1 | 1 | 1 |
 | Ring buffer update | 1 | ~5 | 5 |
-| **Total** | **7** | — | **~27 cycles** |
+| **Total** | **7** | - | **~27 cycles** |
 
 The algorithm is simple and efficient with O(1) streaming complexity.
 

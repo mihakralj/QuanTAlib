@@ -56,7 +56,7 @@ Median maintains a sorted buffer; each bar requires a binary-search insert plus 
 | Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
 | Extract middle element(s) | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=14)** | **O(N)** | — | **~20 cy** |
+| **Total (N=14)** | **O(N)** | - | **~20 cy** |
 
 O(N) per update. For large N, a dual-heap (min-heap + max-heap) O(log N) structure would be faster, but for typical periods (≤200) the sorted-array approach is cache-friendly.
 

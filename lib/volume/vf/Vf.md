@@ -1,6 +1,6 @@
 # VF: Volume Force
 
-> *Price without volume is like a punch without body weight behind it—VF measures the momentum of conviction.*
+> *Price without volume is like a punch without body weight behind it-VF measures the momentum of conviction.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -117,7 +117,7 @@ $$
 VF_0 = 0
 $$
 
-This is mathematically correct—there's no price change to measure.
+This is mathematically correct-there's no price change to measure.
 
 ### FMA Optimization
 
@@ -231,7 +231,7 @@ VF divergences often precede price reversals:
 | Below → Above | Bullish | Net buying pressure emerges |
 | Above → Below | Bearish | Net selling pressure emerges |
 
-Filter zero crossings in ranging markets—they generate excessive signals without follow-through.
+Filter zero crossings in ranging markets-they generate excessive signals without follow-through.
 
 ### Trend Confirmation
 
@@ -248,9 +248,9 @@ Compare VF to simple price momentum:
 | VF vs Price Momentum | Interpretation |
 | :--- | :--- |
 | VF confirms | Volume supports the move |
-| VF diverges | Volume doesn't support—potential reversal |
+| VF diverges | Volume doesn't support-potential reversal |
 | VF leads | Volume commitment precedes price |
-| VF lags | Volume follows price—chasing behavior |
+| VF lags | Volume follows price-chasing behavior |
 
 ## Parameter Selection Guide
 

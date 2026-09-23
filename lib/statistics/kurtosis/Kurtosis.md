@@ -90,9 +90,9 @@ Kurtosis uses running sums of powers 1–4 over the sliding window for O(1) upda
 | Update 4 power sums (x, x^2, x^3, x^4) | 4 | 3 cy | ~12 cy |
 | Compute excess kurtosis formula | 1 | 8 cy | ~8 cy |
 | NaN guard + N >= 4 guard | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~25 cy** |
+| **Total** | **O(1)** | - | **~25 cy** |
 
-O(1) per update using 4th-moment running sums. Numerically sensitive — periodic resync every 1000+ bars prevents power-sum drift.
+O(1) per update using 4th-moment running sums. Numerically sensitive - periodic resync every 1000+ bars prevents power-sum drift.
 
 | Operation | Complexity | Notes |
 |---|---|---|

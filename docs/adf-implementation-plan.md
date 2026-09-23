@@ -19,7 +19,7 @@ The **Augmented Dickey-Fuller (ADF)** test is the gold-standard unit root test f
 - **Dickey & Fuller (1979)** introduced the basic DF test: does an AR(1) process have a unit root?
 - **Said & Dickey (1984)** extended it to the **Augmented** DF test by including lagged difference terms to handle serial correlation.
 - **MacKinnon (1994, 2010)** derived the response surface approximations that allow computation of **p-values** from the non-standard ADF distribution (which is not normal or t-distributed).
-- The existing [`Cointegration`](../lib/statistics/cointegration/Cointegration.cs:31) indicator already uses a simplified ADF internally (no-intercept, no augmented lags) for the Engle-Granger two-step test. The new `Adf` indicator will be a **standalone, full-featured** single-input ADF test.
+- The existing [`Cointegration`](../lib/statistics/cointegration/Cointegration.cs) indicator already uses a simplified ADF internally (no-intercept, no augmented lags) for the Engle-Granger two-step test. The new `Adf` indicator will be a **standalone, full-featured** single-input ADF test.
 
 ---
 
@@ -134,7 +134,7 @@ public Adf(int period = 50, int maxLag = 0, AdfRegression regression = AdfRegres
 | `_lastValidValue` | `double` | NaN substitution |
 | `_p_lastValidValue` | `double` | Bar correction state |
 
-Unlike running-sum indicators, ADF requires **full window recomputation** each update (similar to [`Hurst`](../lib/statistics/hurst/Hurst.cs:23)). No incremental O(1) shortcut is possible due to the matrix regression.
+Unlike running-sum indicators, ADF requires **full window recomputation** each update (similar to [`Hurst`](../lib/statistics/hurst/Hurst.cs)). No incremental O(1) shortcut is possible due to the matrix regression.
 
 ### 4.5 Internal Components
 

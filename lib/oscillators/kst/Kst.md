@@ -85,7 +85,7 @@ KST sums four weighted ROC values, each smoothed by an SMA. Four SMA instances +
 | MUL × 4 (weight each RCMA) | 4 | 3 | 12 |
 | ADD × 3 (sum four weighted RCMA) | 3 | 1 | 3 |
 | Signal SMA update (add + oldest sub + 1/N) | 3 | 3 | 9 |
-| **Total** | **26** | — | **~108 cycles** |
+| **Total** | **26** | - | **~108 cycles** |
 
 For default parameters (RCM1-4, signal SMA 9): ~108 cycles per bar.
 
@@ -98,7 +98,7 @@ For default parameters (RCM1-4, signal SMA 9): ~108 cycles per bar.
 | Weighted sum | Yes | VFMADD across 4 terms |
 | Signal SMA | Yes | Same prefix-sum pattern |
 
-Fully vectorizable in batch mode — no recursive dependencies. AVX2 achieves ~4× throughput.
+Fully vectorizable in batch mode - no recursive dependencies. AVX2 achieves ~4× throughput.
 
 ### Quality Metrics
 

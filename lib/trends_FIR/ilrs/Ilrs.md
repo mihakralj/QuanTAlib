@@ -126,7 +126,7 @@ ILRS(N) uses an incremental linear regression that maintains `SumY` and `SumXY` 
 | SumXY update (add new × x, subtract evicted × x_old) | 2 | 3 | ~6 |
 | Slope: (N×SumXY − SumX×SumY) / denominator | 3 | 8 | ~24 |
 | Integral accumulation: ILRS += slope | 1 | 1 | ~1 |
-| **Total** | **9** | — | **~36 cycles** |
+| **Total** | **9** | - | **~36 cycles** |
 
 O(1) per bar after warmup (the incremental sum pattern removes the N-scan). For N = 14 default: ~36 cycles. Resync every 1000 bars prevents drift. WarmupPeriod = N.
 

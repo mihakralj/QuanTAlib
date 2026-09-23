@@ -82,7 +82,7 @@ The Voss predictor stage is an IIR filter with `Order` feedback taps, each weigh
 
 ### Operation Count (Streaming Mode)
 
-Ehlers Voss Predictive Filter: two-stage pipeline — 2-pole bandpass filter (Stage 1) + weighted feedback predictor (Stage 2). O(Order) per bar where Order = 3 × Predict.
+Ehlers Voss Predictive Filter: two-stage pipeline - 2-pole bandpass filter (Stage 1) + weighted feedback predictor (Stage 2). O(Order) per bar where Order = 3 × Predict.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -90,7 +90,7 @@ Ehlers Voss Predictive Filter: two-stage pipeline — 2-pole bandpass filter (St
 | Voss: weighted sum loop | Order | ~5 cy | ~45 cy (Order=9) |
 | Voss: gain × filt − sumC | 2 | ~4 cy | ~8 cy |
 | State update (shifts) | 4 | ~1 cy | ~4 cy |
-| **Total (Order=9)** | **Order+9** | — | **~69 cycles** |
+| **Total (Order=9)** | **Order+9** | - | **~69 cycles** |
 
 O(Order) per bar. Order = 3 × Predict; at defaults (Predict=3), Order=9. ~69 cycles/bar.
 

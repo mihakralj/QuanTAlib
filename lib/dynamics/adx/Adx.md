@@ -1,6 +1,6 @@
 # ADX: Average Directional Index
 
-> *ADX measures trend strength without regard to direction — a compass that tells you how hard the wind blows, not where.*
+> *ADX measures trend strength without regard to direction - a compass that tells you how hard the wind blows, not where.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,9 +20,9 @@ The Average Directional Index is the industry-standard measure of trend strength
 
 ## Historical Context
 
-J. Welles Wilder Jr. introduced ADX in *New Concepts in Technical Trading Systems* (1978). Wilder was a mechanical engineer, and the design reflects that discipline: a machine built from modular components where each stage has a defined transfer function. The indicator does not attempt to predict direction. It answers a single question — "Is the market trending?" — and answers it with ruthless indifference to which way.
+J. Welles Wilder Jr. introduced ADX in *New Concepts in Technical Trading Systems* (1978). Wilder was a mechanical engineer, and the design reflects that discipline: a machine built from modular components where each stage has a defined transfer function. The indicator does not attempt to predict direction. It answers a single question - "Is the market trending?" - and answers it with ruthless indifference to which way.
 
-ADX is a "derivative of a derivative." The calculation pipeline is deep: price range decomposes into directional movement, directional movement normalizes into directional indicators, directional indicators compress into DX, and DX smooths into ADX. Each layer strips noise at the cost of latency. A "cold" start requires at least $2N$ bars to produce statistically meaningful output, and often $3\text{--}4N$ bars to converge to within 4 decimal places of a mature series. The QuanTAlib implementation tracks warmup state explicitly — garbage is not published during convergence.
+ADX is a "derivative of a derivative." The calculation pipeline is deep: price range decomposes into directional movement, directional movement normalizes into directional indicators, directional indicators compress into DX, and DX smooths into ADX. Each layer strips noise at the cost of latency. A "cold" start requires at least $2N$ bars to produce statistically meaningful output, and often $3\text{--}4N$ bars to converge to within 4 decimal places of a mature series. The QuanTAlib implementation tracks warmup state explicitly - garbage is not published during convergence.
 
 ## Architecture & Physics
 
@@ -38,7 +38,7 @@ $$+DM = \begin{cases} \text{UpMove} & \text{if UpMove} > \text{DownMove and UpMo
 
 $$-DM = \begin{cases} \text{DownMove} & \text{if DownMove} > \text{UpMove and DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
 
-Only one of +DM or -DM can be non-zero per bar — the dominant direction wins.
+Only one of +DM or -DM can be non-zero per bar - the dominant direction wins.
 
 ### 2. Wilder Smoothing (RMA)
 
@@ -66,8 +66,8 @@ $$ADX = \text{RMA}(DX, N)$$
 
 ### 5. Complexity
 
-- **Time:** $O(1)$ per bar — all RMA updates are recursive
-- **Space:** $O(1)$ — scalar state only (no buffers)
+- **Time:** $O(1)$ per bar - all RMA updates are recursive
+- **Space:** $O(1)$ - scalar state only (no buffers)
 - **Warmup:** $\approx 2N$ bars minimum; $3\text{--}4N$ for full convergence
 
 ## Mathematical Foundation
@@ -80,7 +80,7 @@ $$ADX = \text{RMA}(DX, N)$$
 
 ### The Stability Problem
 
-Because ADX relies on recursive RMA at multiple stages, convergence is slow. Period 14 needs roughly 40-56 bars before matching TA-Lib to 4 decimal places. The first $2N$ values are mathematically correct but statistically immature — treat them as warmup artifacts.
+Because ADX relies on recursive RMA at multiple stages, convergence is slow. Period 14 needs roughly 40-56 bars before matching TA-Lib to 4 decimal places. The first $2N$ values are mathematically correct but statistically immature - treat them as warmup artifacts.
 
 ### ADX Interpretation
 
@@ -92,7 +92,7 @@ Because ADX relies on recursive RMA at multiple stages, convergence is slow. Per
 | 50–75 | Very strong trend |
 | > 75 | Extremely strong (rare) |
 
-ADX peaks *after* the trend has exhausted — it is a lagging indicator of trend strength, not a leading indicator of reversal.
+ADX peaks *after* the trend has exhausted - it is a lagging indicator of trend strength, not a leading indicator of reversal.
 
 ## Performance Profile
 
@@ -113,7 +113,7 @@ ADX has a two-phase pipeline: first N bars accumulate TR/+DM/−DM sums, then RM
 | MUL × 2 (scale to 100) | 2 | 3 | 6 |
 | ABS + DIV (DX = abs(+DI − −DI) / (+DI + −DI)) | 2 | 16 | 16 |
 | FMA × 1 (RMA smooth ADX) | 1 | 4 | 4 |
-| **Total** | **21** | — | **~79 cycles** |
+| **Total** | **21** | - | **~79 cycles** |
 
 ADX requires a 2N warmup period (N for TR/DM smoothing initialization, N for ADX SMA seed). For default $N=14$: ~79 cycles per bar at steady state.
 
@@ -122,10 +122,10 @@ ADX requires a 2N warmup period (N for TR/DM smoothing initialization, N for ADX
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | TR, +DM, −DM computation | Yes | Independent differences + VSUBPD, VABSPD, VMAXPD |
-| RMA smoothing (TR, +DM, −DM) | **No** | Recursive IIR — each value depends on prior; sequential only |
+| RMA smoothing (TR, +DM, −DM) | **No** | Recursive IIR - each value depends on prior; sequential only |
 | DI computation (+DI, −DI) | Yes | VDIVPD after RMA pass |
 | DX computation | Yes | VABSPD + VDIVPD |
-| ADX smoothing (RMA of DX) | **No** | Recursive IIR — sequential only |
+| ADX smoothing (RMA of DX) | **No** | Recursive IIR - sequential only |
 
 The recursive RMA passes block SIMD across bars. The TR/DM initial computation (N×3 differences) is vectorizable as a pre-pass. Full batch acceleration requires a prefix-sum or parallel-prefix RMA approximation, which trades exact equivalence for ~4× throughput on large datasets.
 
@@ -140,5 +140,5 @@ The recursive RMA passes block SIMD across bars. The TR/DM initial computation (
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `adx.pine` in indicator directory

@@ -1,0 +1,15 @@
+//@version=5
+indicator("Squeeze Pro", "SQUEEZE_PRO")
+period = input.int(20, minval=2)
+bbMult = input.float(2.0)
+kcWide = input.float(2.0)
+kcNormal = input.float(1.5)
+kcNarrow = input.float(1.0)
+middle = ta.sma(close, period)
+deviation = ta.stdev(close, period)
+atr = ta.atr(period)
+insideWide = middle + bbMult * deviation < middle + kcWide * atr and middle - bbMult * deviation > middle - kcWide * atr
+insideNormal = middle + bbMult * deviation < middle + kcNormal * atr and middle - bbMult * deviation > middle - kcNormal * atr
+insideNarrow = middle + bbMult * deviation < middle + kcNarrow * atr and middle - bbMult * deviation > middle - kcNarrow * atr
+level = insideNarrow ? 3 : insideNormal ? 2 : insideWide ? 1 : 0
+plot(level, "Squeeze Level", style=plot.style_columns, color=color.blue)

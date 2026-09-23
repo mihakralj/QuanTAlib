@@ -114,7 +114,7 @@ Rolling Sum uses a single running accumulator updated by adding the new value an
 | Ring buffer add/evict | 1 | 3 cy | ~3 cy |
 | sum += new; sum -= evict | 2 | 1 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~7 cy** |
+| **Total** | **O(1)** | - | **~7 cy** |
 
 Fastest possible O(1) sliding aggregate. Used as a building block inside SMA, stddev, and dozens of other indicators. Throughput ~2 ns/bar.
 

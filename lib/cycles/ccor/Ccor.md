@@ -116,7 +116,7 @@ Where:
 | ATAN | 1 | 20 | 20 |
 | CMP | 3 | 1 | 3 |
 | CLAMP | 1 | 1 | 1 |
-| **Total** | **~10N+8** | — | **~20N+69** |
+| **Total** | **~10N+8** | - | **~20N+69** |
 
 For default period $N = 20$: ~269 cycles per bar. The O(N) cost comes from dual Pearson correlation loops over the sliding window. Precomputed cos/sin tables eliminate per-bar trig calls.
 

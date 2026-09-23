@@ -20,7 +20,7 @@ Spearman's ρ (rho) measures the strength and direction of monotonic association
 
 ## Historical Context
 
-Charles Spearman introduced his rank correlation coefficient in 1904 while studying intelligence factor models. He needed a measure of association that did not require the assumption of normal distributions — a common problem with psychological test scores that tend toward ceiling and floor effects.
+Charles Spearman introduced his rank correlation coefficient in 1904 while studying intelligence factor models. He needed a measure of association that did not require the assumption of normal distributions - a common problem with psychological test scores that tend toward ceiling and floor effects.
 
 The insight was elegant: rank the data, then apply Pearson correlation to the ranks. This converts any monotonic relationship into a linear one, making Pearson applicable regardless of the original distribution shape. The resulting coefficient ρ inherits Pearson's bounded [-1, +1] range and its interpretation as a correlation measure, but measures monotonic rather than linear dependence.
 
@@ -38,7 +38,7 @@ For each update, the algorithm assigns ranks to both buffered series using avera
 
 $$\text{rank}(x_i) = |\{j : x_j < x_i\}| + \frac{|\{j : x_j = x_i\}| - 1}{2} + 1$$
 
-This assigns each tied value the mean of the positions those tied values would occupy if they were distinct. The ranking step is O(n²) per series — each element is compared against all others.
+This assigns each tied value the mean of the positions those tied values would occupy if they were distinct. The ranking step is O(n²) per series - each element is compared against all others.
 
 ### 3. Pearson on Ranks
 
@@ -92,7 +92,7 @@ Spearman is more sensitive to large rank differences; Kendall weights all discor
 
 ### Operation Count (Streaming Mode)
 
-Spearman rank correlation requires ranking both series each bar — O(N log N) per update.
+Spearman rank correlation requires ranking both series each bar - O(N log N) per update.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -100,7 +100,7 @@ Spearman rank correlation requires ranking both series each bar — O(N log N) p
 | Sort + assign ranks (2 series) | 2 * N log N | 2 cy | ~4N log N cy |
 | Pearson r on rank vectors | N | 3 cy | ~3N cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=14)** | **O(N log N)** | — | **~213 cy** |
+| **Total (N=14)** | **O(N log N)** | - | **~213 cy** |
 
 O(N log N) per update. Sorting two arrays per bar is the dominant cost. Tied-rank correction adds negligible overhead for typical financial data (few exact ties).
 
@@ -119,7 +119,7 @@ Limited. The ranking step involves data-dependent branching (comparison counting
 
 | Metric | Score (1-10) |
 |--------|-------------|
-| Lag | 10 (no lag — contemporaneous measurement) |
+| Lag | 10 (no lag - contemporaneous measurement) |
 | Smoothness | 3 (jumps when window slides) |
 | Responsiveness | 7 (reacts to rank changes) |
 | Robustness | 9 (outlier-resistant via ranking) |

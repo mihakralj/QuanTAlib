@@ -1,6 +1,6 @@
 # JERK: Third Derivative
 
-> *Acceleration tells you the trend is changing. Jerk tells you that change is itself changing—the earliest possible warning.*
+> *Acceleration tells you the trend is changing. Jerk tells you that change is itself changing-the earliest possible warning.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -12,17 +12,17 @@
 | **Warmup**       | `4` bars                          |
 | **PineScript**   | [jerk.pine](jerk.pine)                       |
 
-- JERK measures the rate of change of acceleration—called "jerk" in physics.
+- JERK measures the rate of change of acceleration-called "jerk" in physics.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-JERK measures the rate of change of acceleration—called "jerk" in physics. As the third derivative, it detects changes in momentum dynamics before they appear in acceleration, velocity, or price. A positive jerk means acceleration is increasing; negative means acceleration is decreasing. This O(1) streaming implementation uses dual FMA optimization and SIMD batch processing for four-point calculations.
+JERK measures the rate of change of acceleration-called "jerk" in physics. As the third derivative, it detects changes in momentum dynamics before they appear in acceleration, velocity, or price. A positive jerk means acceleration is increasing; negative means acceleration is decreasing. This O(1) streaming implementation uses dual FMA optimization and SIMD batch processing for four-point calculations.
 
 ## Historical Context
 
 The third derivative (jerk) appears in mechanical engineering, robotics, and ride comfort analysis. Roller coasters are designed to minimize jerk; elevators smooth their motion to reduce it. In financial markets, jerk reveals sudden shifts in how fast the trend is accelerating or decelerating.
 
-While first and second derivatives see wide use in technical analysis (momentum, ROC, acceleration indicators), the third derivative remains underutilized. This is partly computational—four consecutive points are needed—and partly interpretive: jerk is abstract. Yet it provides the earliest mathematical signal of trend character change.
+While first and second derivatives see wide use in technical analysis (momentum, ROC, acceleration indicators), the third derivative remains underutilized. This is partly computational-four consecutive points are needed-and partly interpretive: jerk is abstract. Yet it provides the earliest mathematical signal of trend character change.
 
 Consider: price is rising, acceleration is positive (strong uptrend). If jerk turns negative, acceleration will soon decrease, then velocity will peak, then price will top. Jerk leads the entire sequence.
 
@@ -64,7 +64,7 @@ $$
 J_t = \text{term}_1 + \text{term}_2
 $$
 
-This structure reduces rounding error and leverages pipelined FMA units on modern CPUs.
+This structure reduces rounding error and uses pipelined FMA units on modern CPUs.
 
 ### 3. State Management
 
@@ -147,7 +147,7 @@ This precedes the acceleration zero-crossing, which precedes the velocity peak/t
 | NEG | 1 | 1 | 1 |
 | MOV (state update) | 4 | 1 | 4 |
 | CMP (IsFinite check) | 1 | 1 | 1 |
-| **Total** | **9** | — | **~15 cycles** |
+| **Total** | **9** | - | **~15 cycles** |
 
 ### Batch Mode (512 values, SIMD)
 

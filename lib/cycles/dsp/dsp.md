@@ -1,6 +1,6 @@
 # DSP: Ehlers Detrended Synthetic Price
 
-> *Detrended synthetic price removes the trend to expose the oscillation underneath — the signal beneath the drift.*
+> *Detrended synthetic price removes the trend to expose the oscillation underneath - the signal beneath the drift.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -85,7 +85,7 @@ $O(1)$ per bar with $O(1)$ memory. Two EMA state variables plus two bias correct
 | MUL | 4 | 3 | 12 |
 | FMA | 2 | 4 | 8 |
 | DIV | 2 | 15 | 30 |
-| **Total** | **11** | — | **~53 cycles** |
+| **Total** | **11** | - | **~53 cycles** |
 
 O(1) per bar. Two EMA updates (fast + slow) using FMA, plus warmup bias-correction divisions. After warmup completes, the DIV cost drops to zero, reducing steady-state to ~23 cycles.
 

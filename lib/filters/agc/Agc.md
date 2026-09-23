@@ -18,7 +18,7 @@
 
 ## Introduction
 
-The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking. Unlike fixed-window normalization (min-max scaling), AGC adapts continuously: the peak decays exponentially each bar and ratchets up instantly when the signal exceeds the current peak. The result is amplitude-independent comparison of filter outputs across instruments and timeframes. Ehlers introduced AGC as the final stage of his "Universal Oscillator" — a signal-processing chain that converts any price series into a bounded, zero-mean indicator suitable for threshold-based trading signals.
+The Automatic Gain Control normalizes any oscillating signal to the \[-1, +1\] range through exponential peak tracking. Unlike fixed-window normalization (min-max scaling), AGC adapts continuously: the peak decays exponentially each bar and ratchets up instantly when the signal exceeds the current peak. The result is amplitude-independent comparison of filter outputs across instruments and timeframes. Ehlers introduced AGC as the final stage of his "Universal Oscillator" - a signal-processing chain that converts any price series into a bounded, zero-mean indicator suitable for threshold-based trading signals.
 
 ## Historical Context
 
@@ -70,10 +70,10 @@ since peak ratchets to $A$ at each cycle peak and the decay $\delta^{P/4}$ (quar
 
 | Decay ($\delta$) | Half-life (bars) | Character |
 |---|---|---|
-| 0.95 | ~14 | Aggressive — fast adaptation |
+| 0.95 | ~14 | Aggressive - fast adaptation |
 | 0.98 | ~34 | Moderate |
-| 0.991 | ~77 | Default — smooth adaptation |
-| 0.999 | ~693 | Conservative — slow adaptation |
+| 0.991 | ~77 | Default - smooth adaptation |
+| 0.999 | ~693 | Conservative - slow adaptation |
 
 ### Initialization
 
@@ -90,7 +90,7 @@ AGC uses exponential peak decay with a ratchet-up mechanism, then divides the si
 | Peak decay (multiply) | 1 | ~3 cy | ~3 cy |
 | Abs + compare (ratchet) | 1 | ~2 cy | ~2 cy |
 | Normalize (division) | 1 | ~10 cy | ~10 cy |
-| **Total** | **3** | — | **~15 cycles** |
+| **Total** | **3** | - | **~15 cycles** |
 
 O(1) per bar. The division dominates. ~15 cycles/bar.
 
@@ -117,7 +117,7 @@ Fully sequential due to data-dependent peak tracking. Batch throughput: ~15 cy/b
 |---|---|
 | Amplitude normalization | 10 |
 | Latency | 10 (zero delay) |
-| Adaptation speed | 8 (asymmetric — fast up, slow down) |
+| Adaptation speed | 8 (asymmetric - fast up, slow down) |
 | Noise sensitivity | 7 (peak tracks noise spikes) |
 
 ## Validation
@@ -136,17 +136,17 @@ AGC is a proprietary Ehlers normalizer with no external library implementations.
 
 ## Common Pitfalls
 
-1. **Feeding raw price** — AGC on close prices produces a flatline near 1.0 because the peak tracks the price. Always pre-filter with a bandpass/roofing filter first.
+1. **Feeding raw price** - AGC on close prices produces a flatline near 1.0 because the peak tracks the price. Always pre-filter with a bandpass/roofing filter first.
 
-2. **Decay too aggressive** — Low decay values (< 0.95) cause the peak to shrink rapidly between cycles, producing output that overshoots ±1 when the next peak arrives.
+2. **Decay too aggressive** - Low decay values (< 0.95) cause the peak to shrink rapidly between cycles, producing output that overshoots ±1 when the next peak arrives.
 
-3. **Decay too conservative** — High decay values (> 0.999) make the normalizer sluggish; amplitude changes take hundreds of bars to reflect.
+3. **Decay too conservative** - High decay values (> 0.999) make the normalizer sluggish; amplitude changes take hundreds of bars to reflect.
 
-4. **Noise spikes** — A single large noise spike ratchets the peak up, compressing subsequent output until the peak decays back. Pre-filtering mitigates this.
+4. **Noise spikes** - A single large noise spike ratchets the peak up, compressing subsequent output until the peak decays back. Pre-filtering mitigates this.
 
-5. **Conflating AGC with rescaling** — AGC is NOT min-max normalization. It tracks a running peak envelope, not the full range.
+5. **Conflating AGC with rescaling** - AGC is NOT min-max normalization. It tracks a running peak envelope, not the full range.
 
-6. **Expecting symmetry** — AGC responds instantly to amplitude increases but requires $t_{1/2}$ bars to adapt to decreases. This asymmetry is intentional.
+6. **Expecting symmetry** - AGC responds instantly to amplitude increases but requires $t_{1/2}$ bars to adapt to decreases. This asymmetry is intentional.
 
 ## Usage
 

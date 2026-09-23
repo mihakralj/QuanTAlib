@@ -98,7 +98,7 @@ Gamma distribution CDF uses regularized incomplete gamma function via series or 
 | Log-Gamma normalization (lgamma) | 1 | 25 cy | ~25 cy |
 | Regularized incomplete gamma (series, ~20 iter) | ~20 | 12 cy | ~240 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~273 cy** |
+| **Total** | **O(1)** | - | **~273 cy** |
 
 O(1) per evaluation. Switches between series expansion (x <= alpha+1) and continued fraction (x > alpha+1) for numerical stability. lgamma() is the setup cost.
 

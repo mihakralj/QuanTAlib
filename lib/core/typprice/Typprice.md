@@ -1,6 +1,6 @@
 # TYPPRICE: Typical Price
 
-> *Typical price weights high, low, and close equally — a three-point summary that drops the open and keeps the essential.*
+> *Typical price weights high, low, and close equally - a three-point summary that drops the open and keeps the essential.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

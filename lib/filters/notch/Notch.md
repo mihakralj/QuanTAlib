@@ -23,7 +23,7 @@ The Notch Filter is a band-stop filter with a narrow bandwidth. It passes all fr
 
 ## Architecture & Physics
 
-This implementation uses a standard **2-pole IIR (Infinite Impulse Response) Biquad** filter efficiently implemented with a Direct Form I topology (or Direct Form II Transposed for numerical stability if we were picky, but here we use a normalized difference equation).
+This implementation uses a standard **2-pole IIR (Infinite Impulse Response) Biquad** filter efficiently implemented with a Direct Form I topology (or Direct Form II Transposed for numerical stability if the implementation were picky, but here the implementation use a normalized difference equation).
 
 The filter is recursive; its current output depends on previous inputs and previous outputs. This provides a sharp cutoff (high Q) with very few calculations, but creates distinct phase delay features near the notch frequency.
 
@@ -36,7 +36,7 @@ The $Q$ factor controls the selectivity.
 
 ## Mathematical Foundation
 
-We normalize the RBJ Audio EQ Cookbook formulas for financial time series where sample rate $F_s = 1$.
+The implementation normalize the RBJ Audio EQ Cookbook formulas for financial time series where sample rate $F_s = 1$.
 
 ### 1. Frequency & Alpha
 
@@ -46,7 +46,7 @@ $$ \alpha = \frac{\sin(\omega_0)}{2Q} $$
 
 ### 2. Coefficients
 
-We calculate the normalized coefficients:
+The implementation calculate the normalized coefficients:
 
 $$ a_0 = 1 + \alpha $$
 $$ b_0 = \frac{1}{a_0}, \quad b_1 = \frac{-2\cos(\omega_0)}{a_0}, \quad b_2 = \frac{1}{a_0} $$
@@ -70,7 +70,7 @@ Notch filter: 2nd-order IIR that attenuates a narrow frequency band. Standard bi
 | Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
 | Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **9** | — | **~24 cycles** |
+| **Total** | **9** | - | **~24 cycles** |
 
 O(1) per bar. Notch coefficient set computed at construction from center frequency and Q-factor. ~24 cycles/bar.
 

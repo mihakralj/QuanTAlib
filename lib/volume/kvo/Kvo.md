@@ -134,7 +134,7 @@ $$
 | CMP | 4 | 1 | 4 |
 | ABS | 1 | 1 | 1 |
 | FMA | 3 | 4 | 12 |
-| **Total** | **39** | — | **~128 cycles** |
+| **Total** | **39** | - | **~128 cycles** |
 
 ### Quality Metrics
 

@@ -18,13 +18,13 @@
 
 Archer On-Balance Volume (AOBV) applies dual exponential smoothing to the classic On-Balance Volume indicator, creating a responsive yet noise-filtered momentum signal. The intersection of fast and slow EMAs provides actionable crossover signals while preserving OBV's core insight: volume precedes price.
 
-Developed by EverGet (known as "Archer" in the TradingView community), AOBV addresses OBV's fundamental weakness—its sensitivity to single high-volume bars that can distort the cumulative reading. By smoothing with EMAs of period 4 (fast) and 14 (slow), AOBV filters noise while maintaining responsiveness to genuine accumulation/distribution shifts.
+Developed by EverGet (known as "Archer" in the TradingView community), AOBV addresses OBV's fundamental weakness-its sensitivity to single high-volume bars that can distort the cumulative reading. By smoothing with EMAs of period 4 (fast) and 14 (slow), AOBV filters noise while maintaining responsiveness to genuine accumulation/distribution shifts.
 
 ## Historical Context
 
 On-Balance Volume (OBV) was introduced by Joseph Granville in his 1963 book "Granville's New Key to Stock Market Profits." The premise was elegant: volume is the fuel that drives price moves. If price rises on high volume, the smart money is accumulating. If it falls on high volume, they're distributing.
 
-Traditional OBV has one critical flaw: it's cumulative and unbounded, making a single aberrant volume bar (earnings, news events) create permanent distortion. AOBV solves this by applying EMAs—not to smooth the OBV value itself, but to create a dual-line system where crossovers filter false signals.
+Traditional OBV has one critical flaw: it's cumulative and unbounded, making a single aberrant volume bar (earnings, news events) create permanent distortion. AOBV solves this by applying EMAs-not to smooth the OBV value itself, but to create a dual-line system where crossovers filter false signals.
 
 The choice of periods 4 and 14 follows the Fibonacci-adjacent philosophy common in technical analysis. Period 4 captures roughly a week of market action; period 14 represents roughly three weeks. This creates natural separation between short-term noise and medium-term trends.
 
@@ -175,7 +175,7 @@ AOBV is a proprietary indicator. Validation is performed against internal consis
 
 4. **Volume Quality**: Like all volume indicators, AOBV is only as reliable as the underlying volume data. Crypto wash trading, pre/post-market volume, or adjusted historical data can produce misleading signals.
 
-5. **Fixed Parameters**: Unlike configurable indicators, AOBV uses hardcoded periods (4, 14) matching the original specification. This is intentional—the periods were chosen for their signal characteristics.
+5. **Fixed Parameters**: Unlike configurable indicators, AOBV uses hardcoded periods (4, 14) matching the original specification. This is intentional-the periods were chosen for their signal characteristics.
 
 6. **isNew Parameter**: Bar correction (isNew=false) properly rolls back state. This is critical for live trading where the current bar updates multiple times before closing.
 

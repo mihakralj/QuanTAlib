@@ -1,6 +1,6 @@
 # EWMA: Exponentially Weighted Moving Average Volatility
 
-> *The past doesn't repeat itself, but it does rhyme—and EWMA captures the rhythm of volatility with exponential memory.*
+> *The past doesn't repeat itself, but it does rhyme-and EWMA captures the rhythm of volatility with exponential memory.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -127,7 +127,7 @@ Dividing by $(1 - (1-\alpha)^t)$ produces an unbiased estimator.
 | SQRT | 1 | 15 | 15 |
 | ADD/SUB | 2 | 1 | 2 |
 | CMP | 3 | 1 | 3 |
-| **Total** | **13** | — | **~113 cycles** |
+| **Total** | **13** | - | **~113 cycles** |
 
 The LOG operation dominates the cost. For batch processing, the logarithm is unavoidable due to the sequential dependency on price ratios.
 

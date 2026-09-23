@@ -14,7 +14,7 @@
 
 - The Truncated Bandpass Filter limits the IIR bandpass filter's infinite memory to a fixed window, eliminating initialization transients and dampening false cycle triggers from price shocks.
 - **Similar:** [BPF](../bpf/bpf.md), [SPBF](../spbf/Spbf.md) | **Complementary:** Dominant cycle detection for adaptive period | **Trading note:** Oscillator around zero; rising above zero indicates upward cycle phase.
-- Based on John F. Ehlers' "Truncated Indicators" — TASC July 2020.
+- Based on John F. Ehlers' "Truncated Indicators" - TASC July 2020.
 
 ## Historical Context
 
@@ -56,7 +56,7 @@ $$
 BP_t = a_0(P_t - P_{t-2}) + a_1 \cdot BP_{t-1} + a_2 \cdot BP_{t-2}
 $$
 
-This is an IIR filter — each output depends on all previous outputs, creating infinite memory.
+This is an IIR filter - each output depends on all previous outputs, creating infinite memory.
 
 ### 3. Truncated Bandpass
 
@@ -124,7 +124,7 @@ Each bar recomputes the truncated filter over $L$ positions:
 | FMA (a2 × T[k+2]) | $L$ | 4 | $4L$ |
 | Standard BP (O(1)) | 3 | 4 | 12 |
 | Buffer add | 1 | 2 | 2 |
-| **Total** | **~$4L + 4$** | — | **~$12L + 14$ cycles** |
+| **Total** | **~$4L + 4$** | - | **~$12L + 14$ cycles** |
 
 For default $L = 10$: ~134 cycles/bar. For $L = 50$: ~614 cycles/bar.
 

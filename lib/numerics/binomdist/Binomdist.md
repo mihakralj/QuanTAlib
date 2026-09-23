@@ -1,6 +1,6 @@
 # BINOMDIST: Binomial Distribution CDF
 
-> *Binomial distribution CDF counts the probability of success in fixed trials — discrete probability at its most fundamental.*
+> *Binomial distribution CDF counts the probability of success in fixed trials - discrete probability at its most fundamental.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ BINOMDIST computes the cumulative distribution function of the Binomial distribu
 
 ## Historical Context
 
-The Binomial distribution, formalized by Jakob Bernoulli in 1713 and refined by Abraham de Moivre, is the foundational discrete probability distribution for counting successes in independent trials. Its CDF application to financial time series transforms the continuous price position into a discrete probabilistic framework: "given the current price's relative position as a probability, how likely is it that at most $k$ out of $n$ events would succeed?" This reframing provides a nonlinear transformation that is particularly sensitive around the probability values where $k/n$ transitions from unlikely to likely. The log-space summation technique used here avoids factorial overflow for large $n$, leveraging the Lanczos log-gamma approximation for $\ln(n!)$ computation.
+The Binomial distribution, formalized by Jakob Bernoulli in 1713 and refined by Abraham de Moivre, is the foundational discrete probability distribution for counting successes in independent trials. Its CDF application to financial time series transforms the continuous price position into a discrete probabilistic framework: "given the current price's relative position as a probability, how likely is it that at most $k$ out of $n$ events would succeed?" This reframing provides a nonlinear transformation that is particularly sensitive around the probability values where $k/n$ transitions from unlikely to likely. The log-space summation technique used here avoids factorial overflow for large $n$, using the Lanczos log-gamma approximation for $\ln(n!)$ computation.
 
 ## Architecture & Physics
 
@@ -66,9 +66,9 @@ Binomial distribution PMF/CDF uses log-gamma for large n; direct factorial for s
 | k * log(p) + (n-k) * log(1-p) | 2 | 8 cy | ~16 cy |
 | exp() for PMF | 1 | 20 cy | ~20 cy |
 | CDF sum over k terms (optional) | k | 90 cy | ~90k cy |
-| **Total (PMF only)** | **O(1)** | — | **~92 cy** |
+| **Total (PMF only)** | **O(1)** | - | **~92 cy** |
 
-PMF is O(1); CDF requires summing k+1 PMF values — O(k) where k = successes. For large cumulative queries, use regularized incomplete beta instead.
+PMF is O(1); CDF requires summing k+1 PMF values - O(k) where k = successes. For large cumulative queries, use regularized incomplete beta instead.
 
 ### Batch Mode (SIMD Analysis)
 

@@ -18,7 +18,7 @@
 
 ## Overview
 
-The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-varying weights that adapt to each bar's position in the sample. Unlike the symmetric Baxter-King filter, CF uses **all available data** and produces output for every bar — including endpoints — with no data loss.
+The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-varying weights that adapt to each bar's position in the sample. Unlike the symmetric Baxter-King filter, CF uses **all available data** and produces output for every bar - including endpoints - with no data loss.
 
 The filter is optimal (minimizes mean squared error) under the assumption that the input data follows a random walk. Endpoint correction weights force the total weight sum to zero, ensuring DC rejection (trend removal).
 
@@ -84,8 +84,8 @@ record struct State {
 
 ### Internal Storage
 
-- `List<double> _history` — stores all accumulated input values for lookback
-- No ring buffer — CF needs access to ALL history (position-indexed)
+- `List<double> _history` - stores all accumulated input values for lookback
+- No ring buffer - CF needs access to ALL history (position-indexed)
 - Precomputed angular frequencies `_wl`, `_wh`, and central weight `_b0`
 
 ### Streaming vs Batch
@@ -93,7 +93,7 @@ record struct State {
 | Mode | Algorithm | Complexity |
 | :--- | :--- | :--- |
 | **Streaming** (`Update()`) | Computes CF formula for last bar only, using all accumulated history | O(T) per bar |
-| **Batch** (`Batch(span)`) | True full-sample filter — computes CF for ALL bars with forward AND backward weights | O(T²) total |
+| **Batch** (`Batch(span)`) | True full-sample filter - computes CF for ALL bars with forward AND backward weights | O(T²) total |
 
 **Important**: Streaming and Batch produce different intermediate values by design. Streaming treats the accumulated history as the full sample at each step. Batch has access to the entire series and uses both forward and backward weights. They agree only on the **last bar**.
 
@@ -128,7 +128,7 @@ CFITZ accumulates O(N) ideal band-pass weights per new bar, with endpoint correc
 | Endpoint correction (sum-to-zero) | 2 | ~3 cy | ~6 cy |
 | Weighted sum (FMA) | N | ~5 cy | ~160 cy |
 | Sum normalization | 1 | ~3 cy | ~3 cy |
-| **Total** | **2N+3** | — | **~810 cycles (N=32)** |
+| **Total** | **2N+3** | - | **~810 cycles (N=32)** |
 
 At N=32 the per-bar cost is ~810 cycles. The O(N) weight recomputation each bar is the dominant cost. Batch mode can precompute a weight matrix for fixed N.
 
@@ -155,8 +155,8 @@ No external library implements CFITZ for cross-validation (not in TA-Lib, Skende
 
 ## Performance Considerations
 
-- **Streaming**: O(T) per bar — each `Update()` sums over the entire accumulated history. For very long series (T > 10000), consider using the Batch API.
-- **Batch**: O(T²) total — precomputes all ideal weights once, then applies the full-sample formula for each bar. Uses `stackalloc` for weight arrays up to 256 elements, `ArrayPool` for larger.
+- **Streaming**: O(T) per bar - each `Update()` sums over the entire accumulated history. For very long series (T > 10000), consider using the Batch API.
+- **Batch**: O(T²) total - precomputes all ideal weights once, then applies the full-sample formula for each bar. Uses `stackalloc` for weight arrays up to 256 elements, `ArrayPool` for larger.
 - **Memory**: O(T) for history storage (`List<double>`).
 - **No SIMD**: Convolution is position-dependent (asymmetric weights), making vectorization impractical.
 

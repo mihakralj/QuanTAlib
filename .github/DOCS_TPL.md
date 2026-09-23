@@ -73,7 +73,7 @@ Mermaid class diagram describing the public API of the indicator, including cons
 
 ### Methods
 
-- `Calc(TValue input)`: Updates the indicator with a new data point and returns the result.
+- `Update(TValue input)`: Updates the indicator with a new data point and returns the result.
 
 ## C# Example
 
@@ -86,7 +86,7 @@ var indicator = new [ClassName](period: 14);
 // Update Loop
 foreach (var bar in quotes)
 {
-    var result = indicator.Calc(bar.Close);
+    var result = indicator.Update(bar.Close);
     
     // Use valid results
     if (indicator.IsHot)

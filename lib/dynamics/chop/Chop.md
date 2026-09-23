@@ -1,6 +1,6 @@
 # CHOP: Choppiness Index
 
-> *Choppiness index quantifies how range-bound a market is — high values mean sideways, low values mean trending.*
+> *Choppiness index quantifies how range-bound a market is - high values mean sideways, low values mean trending.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,11 +16,11 @@
 - **Similar:** [ADX](../adx/Adx.md), [VHF](../vhf/Vhf.md) | **Complementary:** BBands for range boundaries | **Trading note:** Choppiness Index; high values = choppy/ranging, low values = trending. Range 0–100.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways. It compares total price movement (sum of True Range) to net price movement (high-low channel width) using a logarithmic ratio, producing a bounded value where high readings indicate choppy/consolidating conditions and low readings indicate trending conditions. CHOP does not indicate direction — only whether directional strategies are likely to succeed. The logarithmic scaling normalizes the output to approximately 0-100 regardless of price level or volatility magnitude.
+The Choppiness Index is a non-directional regime indicator that measures whether the market is trending or trading sideways. It compares total price movement (sum of True Range) to net price movement (high-low channel width) using a logarithmic ratio, producing a bounded value where high readings indicate choppy/consolidating conditions and low readings indicate trending conditions. CHOP does not indicate direction - only whether directional strategies are likely to succeed. The logarithmic scaling normalizes the output to approximately 0-100 regardless of price level or volatility magnitude.
 
 ## Historical Context
 
-Australian commodity trader E.W. Dreiss created the Choppiness Index to help traders avoid whipsaw losses by identifying market conditions unsuitable for trend-following strategies. The core insight is geometric: in a perfect trend, total bar-by-bar movement (sum of True Range) roughly equals the net distance traveled (channel width). In a choppy market, total movement greatly exceeds net progress — the market thrashes back and forth, accumulating True Range while the net channel stays narrow. The ratio between these two quantities, log-scaled to normalize across instruments and timeframes, produces a clean regime classifier. The conventional thresholds (38.2 and 61.8) are deliberately chosen as Fibonacci levels, though their efficacy is empirical rather than mathematical.
+Australian commodity trader E.W. Dreiss created the Choppiness Index to help traders avoid whipsaw losses by identifying market conditions unsuitable for trend-following strategies. The core insight is geometric: in a perfect trend, total bar-by-bar movement (sum of True Range) roughly equals the net distance traveled (channel width). In a choppy market, total movement greatly exceeds net progress - the market thrashes back and forth, accumulating True Range while the net channel stays narrow. The ratio between these two quantities, log-scaled to normalize across instruments and timeframes, produces a clean regime classifier. The conventional thresholds (38.2 and 61.8) are deliberately chosen as Fibonacci levels, though their efficacy is empirical rather than mathematical.
 
 ## Architecture & Physics
 
@@ -45,7 +45,7 @@ The denominator $\log_{10}(N)$ normalizes the output so that the theoretical max
 ### 4. Complexity
 
 - **Time:** $O(N)$ per bar for min/max scanning of high/low buffers; rolling sum is $O(1)$
-- **Space:** $O(N)$ — three ring buffers (TR, highs, lows)
+- **Space:** $O(N)$ - three ring buffers (TR, highs, lows)
 - **Warmup:** $N$ bars
 
 ## Mathematical Foundation
@@ -91,7 +91,7 @@ CHOP needs True Range sum over N bars (running sum from RingBuffer) and ATR-N (h
 | LOG10 (normalize to period) | 1 | 20 | 20 |
 | DIV (scale by log10(N)) | 1 | 15 | 15 |
 | MUL (scale to 100) | 1 | 3 | 3 |
-| **Total** | **18** | — | **~67 cycles** |
+| **Total** | **18** | - | **~67 cycles** |
 
 For default $N=14$: ~67 cycles per bar. The LOG10 call is the dominant cost.
 
@@ -117,5 +117,5 @@ With AVX2 and Intel SVML for vectorized log, batch mode achieves ~3× throughput
 
 ## Resources
 
-- Dreiss, E.W. — Choppiness Index (original development)
+- Dreiss, E.W. - Choppiness Index (original development)
 - PineScript reference: `chop.pine` in indicator directory

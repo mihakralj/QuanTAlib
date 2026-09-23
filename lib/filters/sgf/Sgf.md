@@ -72,7 +72,7 @@ Savitzky-Golay filter: polynomial-fitted FIR with precomputed convolution coeffi
 | :--- | :---: | :---: | :---: |
 | RingBuffer write | 1 | ~2 cy | ~2 cy |
 | Dot product FMA (N taps) | N | ~5 cy | ~200 cy (N=41) |
-| **Total (N=41)** | **N+1** | — | **~202 cycles** |
+| **Total (N=41)** | **N+1** | - | **~202 cycles** |
 
 O(N) per bar. SG coefficients precomputed via normal equations at construction. Same dot-product profile as other FIR filters.
 

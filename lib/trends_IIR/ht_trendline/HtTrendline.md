@@ -98,7 +98,7 @@ Like our MAMA implementation, QuanTAlib's HT_TRENDLINE prioritizes mathematical 
 | **Arctangent Function**  | `atan(y/x)`        | `atan2(y, x)`           | Proper quadrant handling, no division by zero |
 | **Period Calculation**   | `360/atan(...)`    | `2π/atan2(...)`         | Mathematically correct radians                |
 
-We use `atan2` for robust phase calculation and maintain full double precision throughout the pipeline.
+The implementation use `atan2` for robust phase calculation and maintain full double precision throughout the pipeline.
 
 ## Performance Profile
 
@@ -137,8 +137,8 @@ HT_TRENDLINE is computationally heavier than a simple MA but lighter than MAMA. 
 | **Total** | | | **~193 cycles** |
 
 **Dominant costs:**
-- ATAN2 (50 cycles, 26%) — phase measurement for homodyne discriminator
-- IT summation loop (~25 cycles avg, 13%) — O(N) complexity where N = dcPeriod (6-50)
+- ATAN2 (50 cycles, 26%) - phase measurement for homodyne discriminator
+- IT summation loop (~25 cycles avg, 13%) - O(N) complexity where N = dcPeriod (6-50)
 
 **Note:** The IT loop iterates `dcPeriod` times (6-50 bars). The estimate above uses 25 as the average. Worst case (dcPeriod=50) adds ~50 cycles total.
 

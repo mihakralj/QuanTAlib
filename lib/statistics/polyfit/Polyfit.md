@@ -112,7 +112,7 @@ Polyfit uses a running-sum approach via Vandermonde normal equations for degree-
 | Solve 2x2 normal system | 1 | 6 cy | ~6 cy |
 | FMA for slope/intercept | 2 | 1 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~21 cy** |
+| **Total** | **O(1)** | - | **~21 cy** |
 
 O(1) per update for linear (degree-1) fit using online normal equations. Higher-degree fits require O(degree^2) matrix solve per bar.
 

@@ -22,7 +22,7 @@ The genius of EFI lies in its integration of three essential market elements: di
 
 ## Historical Context
 
-Developed by Dr. Alexander Elder and introduced in his seminal book "Trading for a Living" (1993), the Force Index emerged from Elder's quest to measure market momentum more accurately. Unlike oscillators that focus solely on price, Elder recognized that volume provides crucial context—it measures the crowd's emotional commitment to a price move.
+Developed by Dr. Alexander Elder and introduced in his seminal book "Trading for a Living" (1993), the Force Index emerged from Elder's quest to measure market momentum more accurately. Unlike oscillators that focus solely on price, Elder recognized that volume provides crucial context-it measures the crowd's emotional commitment to a price move.
 
 Elder originally used a 2-period EMA for short-term signals and a 13-period EMA for intermediate trends. The raw force (price change × volume) is smoothed with an exponential moving average to filter noise while preserving responsiveness.
 
@@ -146,7 +146,7 @@ Note: Most libraries use standard EMA without bias correction, causing warmup di
 
 1. **First Bar**: No previous close exists, so raw force = 0. The implementation handles this gracefully.
 
-2. **Volume Scale**: EFI is not bounded—values depend on volume magnitude. Comparing EFI across securities with vastly different volume levels requires normalization.
+2. **Volume Scale**: EFI is not bounded-values depend on volume magnitude. Comparing EFI across securities with vastly different volume levels requires normalization.
 
 3. **Zero Volume**: When volume is zero, raw force is zero regardless of price change. This can create misleading readings during low-liquidity periods.
 

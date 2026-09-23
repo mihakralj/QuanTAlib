@@ -112,7 +112,7 @@ Vortex tracks rolling sums of VM+ and VM− (directional bar movements) and TR o
 | RingBuffer writes × 3 | 3 | 1 | 3 |
 | DIV × 2 (VI+ = sumVM+/sumTR, VI− = sumVM−/sumTR) | 2 | 15 | 30 |
 | CMP (sumTR > 0 guard) | 1 | 1 | 1 |
-| **Total** | **21** | — | **~49 cycles** |
+| **Total** | **21** | - | **~49 cycles** |
 
 Three parallel O(1) running sums with RingBuffers. For default $N=14$: ~49 cycles per bar. Batch mode pre-computes per-bar vectors then applies sliding sums.
 
@@ -120,8 +120,8 @@ Three parallel O(1) running sums with RingBuffers. For default $N=14$: ~49 cycle
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| VM+ / VM− computation | Yes | VSUBPD + VABSPD — fully independent per bar |
-| TR computation | Yes | VSUBPD + VABSPD + VMAXPD — independent per bar |
+| VM+ / VM− computation | Yes | VSUBPD + VABSPD - fully independent per bar |
+| TR computation | Yes | VSUBPD + VABSPD + VMAXPD - independent per bar |
 | Prefix sum (VM+, VM−, TR) | Partial | Inclusive prefix sum; SIMD assist with subtract-lag |
 | Division (VI+, VI−) | Yes | VDIVPD on prefix-sum results |
 

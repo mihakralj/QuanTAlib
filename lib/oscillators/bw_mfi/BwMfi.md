@@ -1,6 +1,6 @@
 # BW_MFI: Bill Williams Market Facilitation Index
 
-> *The market facilitates price movement when it wants to — volume tells you how hard it tried.*
+> *The market facilitates price movement when it wants to - volume tells you how hard it tried.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,11 +16,11 @@
 - **Similar:** [MARKETFI](../marketfi/Marketfi.md) (MFI value only, no zones) | **Complementary:** [OBV](../../volume/obv/Obv.md), [FI](../fi/Fi.md) | **Trading note:** Zone 4 (Squat) often precedes breakouts; Zone 1 (Green) confirms trend strength.
 - Self-validated against direct formula computation. MARKETFI provides the same MFI value; zones are the distinguishing feature.
 
-The Bill Williams Market Facilitation Index extends the basic MFI calculation $\text{MFI} = (H - L) / V$ with a four-zone classification system that compares current MFI and volume to previous bar values. This classification transforms a simple efficiency measure into an actionable market state detector. Zone 4 (Squat) — high volume with compressed range — is Williams' most important signal, indicating a battle between bulls and bears that typically resolves with a breakout. The dual-output design (continuous MFI value plus discrete zone) enables both quantitative analysis and visual bar coloring.
+The Bill Williams Market Facilitation Index extends the basic MFI calculation $\text{MFI} = (H - L) / V$ with a four-zone classification system that compares current MFI and volume to previous bar values. This classification transforms a simple efficiency measure into an actionable market state detector. Zone 4 (Squat) - high volume with compressed range - is Williams' most important signal, indicating a battle between bulls and bears that typically resolves with a breakout. The dual-output design (continuous MFI value plus discrete zone) enables both quantitative analysis and visual bar coloring.
 
 ## Historical Context
 
-Bill Williams introduced the Market Facilitation Index in *Trading Chaos* (1995), as part of his broader "Profitunity" trading system. Williams argued that traditional volume analysis was incomplete: knowing that volume increased tells you nothing without understanding whether the market *used* that volume to move price. The MFI answers this question directly — it measures how many price points the market moved per unit of volume traded.
+Bill Williams introduced the Market Facilitation Index in *Trading Chaos* (1995), as part of his broader "Profitunity" trading system. Williams argued that traditional volume analysis was incomplete: knowing that volume increased tells you nothing without understanding whether the market *used* that volume to move price. The MFI answers this question directly - it measures how many price points the market moved per unit of volume traded.
 
 The four-zone classification system was Williams' key innovation over raw MFI. By cross-referencing MFI direction with volume direction, he created a 2×2 matrix that categorizes every bar into one of four market states. This framework appears in both *Trading Chaos* (1995) and *New Trading Dimensions* (1998). The zone names (Green, Fade, Fake, Squat) became part of the standard Williams lexicon and are implemented in most professional trading platforms including MetaTrader, TradingView, and Bloomberg Terminal.
 
@@ -32,7 +32,7 @@ $$
 \text{MFI}_t = \frac{H_t - L_t}{V_t}
 $$
 
-where $H_t$, $L_t$, $V_t$ are the high, low, and volume of bar $t$. Zero-volume guard returns 0.0 (no facilitation when no trades occurred). The MFI value is unbounded above and represents price range per unit of volume — higher values indicate more efficient price movement.
+where $H_t$, $L_t$, $V_t$ are the high, low, and volume of bar $t$. Zero-volume guard returns 0.0 (no facilitation when no trades occurred). The MFI value is unbounded above and represents price range per unit of volume - higher values indicate more efficient price movement.
 
 ### 2. Zone Classification Matrix
 
@@ -51,14 +51,14 @@ $$
 
 | Zone | Name  | MFI | Volume | Market State |
 | :--: | :---- | :-: | :----: | :----------- |
-| 1    | Green | ↑   | ↑      | Trend continuation — market moves efficiently with increasing participation |
-| 2    | Fade  | ↓   | ↓      | Fading momentum — traders losing interest, trend exhaustion |
-| 3    | Fake  | ↑   | ↓      | Fake breakout — price moves on declining volume, unsupported |
-| 4    | Squat | ↓   | ↑      | Accumulation — high volume absorbed by range compression, breakout imminent |
+| 1    | Green | ↑   | ↑      | Trend continuation - market moves efficiently with increasing participation |
+| 2    | Fade  | ↓   | ↓      | Fading momentum - traders losing interest, trend exhaustion |
+| 3    | Fake  | ↑   | ↓      | Fake breakout - price moves on declining volume, unsupported |
+| 4    | Squat | ↓   | ↑      | Accumulation - high volume absorbed by range compression, breakout imminent |
 
 ### 4. Complexity
 
-O(1) per bar — single division plus two comparisons. No buffers, no period parameter. The zone classification adds only two boolean comparisons to the base MFI calculation.
+O(1) per bar - single division plus two comparisons. No buffers, no period parameter. The zone classification adds only two boolean comparisons to the base MFI calculation.
 
 ## Mathematical Foundation
 
@@ -97,10 +97,10 @@ No configurable parameters. MFI is a pure bar-level computation.
 | Metric | Score | Notes |
 | :----- | :---: | :---- |
 | Accuracy | 10/10 | Exact formula, no approximation |
-| Timeliness | 10/10 | Zero lag — current bar only |
-| Smoothness | 3/10 | No smoothing — raw bar-level measure |
+| Timeliness | 10/10 | Zero lag - current bar only |
+| Smoothness | 3/10 | No smoothing - raw bar-level measure |
 | Signal clarity | 7/10 | Discrete zones are unambiguous |
-| Memory | 10/10 | O(1) — four scalar values |
+| Memory | 10/10 | O(1) - four scalar values |
 
 ## Common Pitfalls
 
@@ -108,7 +108,7 @@ No configurable parameters. MFI is a pure bar-level computation.
 
 2. **MFI scale varies by instrument:** Raw MFI values are not comparable across instruments with different price levels or volume scales. Use percentage-based normalization for cross-instrument comparison.
 
-3. **Equal values edge case:** When MFI or volume exactly equals the previous bar, the implementation treats this as "not up" — resulting in Zone 2 (Fade) when both are equal, Zone 4 (Squat) when only volume increases, or Zone 3 (Fake) when only MFI increases.
+3. **Equal values edge case:** When MFI or volume exactly equals the previous bar, the implementation treats this as "not up" - resulting in Zone 2 (Fade) when both are equal, Zone 4 (Squat) when only volume increases, or Zone 3 (Fake) when only MFI increases.
 
 4. **First bar has no zone:** Zone 0 indicates insufficient data (first bar). Ensure downstream logic handles this sentinel value.
 

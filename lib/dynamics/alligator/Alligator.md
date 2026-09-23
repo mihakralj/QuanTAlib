@@ -1,6 +1,6 @@
 # ALLIGATOR: Williams Alligator
 
-> *Three displaced moving averages form jaw, teeth, and lips — when they diverge the Alligator feeds, when they converge it sleeps.*
+> *Three displaced moving averages form jaw, teeth, and lips - when they diverge the Alligator feeds, when they converge it sleeps.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ The Williams Alligator is a trend-following system that uses three Smoothed Movi
 
 ## Historical Context
 
-Bill Williams introduced the Alligator in *Trading Chaos* (1995) as part of his broader chaos theory framework for trading. The metaphor is biological: markets alternate between feeding (trending) and sleeping (ranging) states, and the three moving averages at different timescales reveal which phase is active. The Jaw represents the long-term balance line (the "blue line" on most charting platforms), the Teeth the intermediate balance (red), and the Lips the short-term momentum (green). Williams paired the Alligator with Fractals for entry timing and the Awesome Oscillator for momentum confirmation, creating a complete systematic framework. The forward offsets are display-only transformations — the underlying SMMA calculation uses the current bar's price — but they create visual separation that makes trend direction immediately apparent on charts.
+Bill Williams introduced the Alligator in *Trading Chaos* (1995) as part of his broader chaos theory framework for trading. The metaphor is biological: markets alternate between feeding (trending) and sleeping (ranging) states, and the three moving averages at different timescales reveal which phase is active. The Jaw represents the long-term balance line (the "blue line" on most charting platforms), the Teeth the intermediate balance (red), and the Lips the short-term momentum (green). Williams paired the Alligator with Fractals for entry timing and the Awesome Oscillator for momentum confirmation, creating a complete systematic framework. The forward offsets are display-only transformations - the underlying SMMA calculation uses the current bar's price - but they create visual separation that makes trend direction immediately apparent on charts.
 
 ## Architecture & Physics
 
@@ -50,12 +50,12 @@ $$\text{Source} = \frac{H + L + C}{3}$$
 
 ### 4. Forward Offset
 
-The offsets shift plotted values forward in time for display purposes only. The calculation itself is not shifted — the current SMMA value represents the current bar's computation.
+The offsets shift plotted values forward in time for display purposes only. The calculation itself is not shifted - the current SMMA value represents the current bar's computation.
 
 ### 5. Complexity
 
-- **Time:** $O(1)$ per bar — three parallel SMMA updates
-- **Space:** $O(1)$ — three scalar states (no buffers needed)
+- **Time:** $O(1)$ per bar - three parallel SMMA updates
+- **Space:** $O(1)$ - three scalar states (no buffers needed)
 - **Warmup:** 13 bars (Jaw period, the slowest line)
 
 ## Mathematical Foundation
@@ -86,7 +86,7 @@ The offsets shift plotted values forward in time for display purposes only. The 
 - **Three values per bar:** Jaw, Teeth, Lips (each a smoothed price level)
 - **Separation width:** Proportional to trend strength
 - **Line ordering:** Determines trend direction
-- **Intertwining:** Signals consolidation — the highest-probability losing zone for trend followers
+- **Intertwining:** Signals consolidation - the highest-probability losing zone for trend followers
 
 ## Performance Profile
 
@@ -102,7 +102,7 @@ The Alligator runs three SMMA (Wilder RMA) instances with different periods and 
 | FMA × 3 (SMMA jaw, teeth, lips updates) | 3 | 4 | 12 |
 | RingBuffer writes × 3 (shift lag storage) | 3 | 1 | 3 |
 | RingBuffer reads × 3 (shifted output) | 3 | 1 | 3 |
-| **Total** | **11** | — | **~20 cycles** |
+| **Total** | **11** | - | **~20 cycles** |
 
 Three independent SMMA streams run in parallel with look-ahead shift buffers. For default periods (13/8/5) with shifts (8/5/3): warmup is 13+8 = 21 bars. Steady state: ~20 cycles per bar.
 
@@ -111,7 +111,7 @@ Three independent SMMA streams run in parallel with look-ahead shift buffers. Fo
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | Median price computation | Yes | VADDPD + VMULPD (×0.5) |
-| SMMA (Wilder RMA) | **No** | Recursive IIR — sequential per stream |
+| SMMA (Wilder RMA) | **No** | Recursive IIR - sequential per stream |
 | Shifted output reads | Yes | Array offset reads, no dependencies |
 
 Three independent recursive streams. No cross-stream dependencies, but each stream is itself sequential. Cannot batch-vectorize across bars, but the three streams can run on separate cores.
@@ -127,6 +127,6 @@ Three independent recursive streams. No cross-stream dependencies, but each stre
 
 ## Resources
 
-- Williams, B. — *Trading Chaos* (John Wiley & Sons, 1995)
-- Williams, B. — *New Trading Dimensions* (John Wiley & Sons, 1998)
+- Williams, B. - *Trading Chaos* (John Wiley & Sons, 1995)
+- Williams, B. - *New Trading Dimensions* (John Wiley & Sons, 1998)
 - PineScript reference: `alligator.pine` in indicator directory

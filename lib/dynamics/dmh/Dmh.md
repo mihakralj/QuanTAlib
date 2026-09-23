@@ -1,6 +1,6 @@
 # DMH: Ehlers Directional Movement with Hann Windowing
 
-> *Ehlers takes Wilder's directional movement and cleans it up with EMA smoothing and a Hann-windowed FIR filter — the result is a zero-centered trend direction indicator with minimal lag and maximum smoothness.*
+> *Ehlers takes Wilder's directional movement and cleans it up with EMA smoothing and a Hann-windowed FIR filter - the result is a zero-centered trend direction indicator with minimal lag and maximum smoothness.*
 
 | Property         | Value                                    |
 | ---------------- | ---------------------------------------- |
@@ -18,7 +18,7 @@
 
 ## Historical Context
 
-John Ehlers introduced DMH in TASC Magazine (December 2021) as "An Improved Directional Movement Indicator." Ehlers recognized that Wilder's original DM system (1978) produces sparse, spiky directional movement values that require aggressive smoothing. Instead of Wilder's RMA, Ehlers applies a simple EMA followed by a Hann-windowed FIR filter. The Hann window provides excellent spectral leakage suppression — it attenuates sidelobes by ~32 dB compared to a rectangular window — resulting in a much smoother output without the lag penalty of longer RMA periods. The key innovation is decoupling the smoothing into two stages: the EMA creates a continuous signal from the sparse DM spikes, and the Hann FIR provides the final polish.
+John Ehlers introduced DMH in TASC Magazine (December 2021) as "An Improved Directional Movement Indicator." Ehlers recognized that Wilder's original DM system (1978) produces sparse, spiky directional movement values that require aggressive smoothing. Instead of Wilder's RMA, Ehlers applies a simple EMA followed by a Hann-windowed FIR filter. The Hann window provides excellent spectral leakage suppression - it attenuates sidelobes by ~32 dB compared to a rectangular window - resulting in a much smoother output without the lag penalty of longer RMA periods. The key innovation is decoupling the smoothing into two stages: the EMA creates a continuous signal from the sparse DM spikes, and the Hann FIR provides the final polish.
 
 ## Architecture & Physics
 
@@ -44,8 +44,8 @@ $$\text{DMH} = \frac{\sum_{k=1}^{N} w(k) \cdot \text{EMA}_{t-k+1}}{\sum_{k=1}^{N
 
 ### 4. Complexity
 
-- **Time:** $O(N)$ per bar — Hann FIR scan over period-length buffer
-- **Space:** $O(N)$ — RingBuffer stores EMA history
+- **Time:** $O(N)$ per bar - Hann FIR scan over period-length buffer
+- **Space:** $O(N)$ - RingBuffer stores EMA history
 - **Warmup:** $N + 1$ bars (one bar for DM calculation + $N$ EMA values in buffer)
 
 ## Mathematical Foundation
@@ -88,7 +88,7 @@ $$\text{DMH} = \frac{\sum_{k=1}^{N} w(k) \cdot \text{EMA}_{t-k+1}}{\sum_{k=1}^{N
 | FMA × N (Hann FIR scan) | N | 4 | 4N |
 | ADD × N (coef accumulation) | N | 1 | N |
 | DIV × 1 (normalize) | 1 | 15 | 15 |
-| **Total** | — | — | **~5N + 26** |
+| **Total** | - | - | **~5N + 26** |
 
 For N=14: ~96 cycles per bar.
 
@@ -97,7 +97,7 @@ For N=14: ~96 cycles per bar.
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | DM computation | Yes | VSUBPD + VCMPPD |
-| EMA smoothing | **No** | Recursive IIR — sequential |
+| EMA smoothing | **No** | Recursive IIR - sequential |
 | Hann FIR scan | Yes (per bar) | VFMADDPD inner loop |
 
 ### Quality Metrics
@@ -111,6 +111,6 @@ For N=14: ~96 cycles per bar.
 
 ## Resources
 
-- Ehlers, J.F. — "The DMH: An Improved Directional Movement Indicator" (TASC, December 2021)
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Ehlers, J.F. - "The DMH: An Improved Directional Movement Indicator" (TASC, December 2021)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `dmh.pine` in indicator directory

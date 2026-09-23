@@ -1,6 +1,6 @@
 # REGCHANNEL: Linear Regression Channel
 
-> *A regression line flanked by standard error bands — the channel where statistics meets price trajectory.*
+> *A regression line flanked by standard error bands - the channel where statistics meets price trajectory.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -130,7 +130,7 @@ REGCHANNEL requires two $O(n)$ passes per bar: one for regression sums, one for 
 | DIV (ssr / n) | 1 | 15 | 15 |
 | SQRT (σ) | 1 | 20 | 20 |
 | MUL + ADD/SUB (bands) | 3 | ~5 | 15 |
-| **Total** | **~$7n + 9$** | — | **~$14n + 86$ cycles** |
+| **Total** | **~$7n + 9$** | - | **~$14n + 86$ cycles** |
 
 For period 20: ~366 cycles/bar. The two window scans dominate. Index sums $\sum x$ and $\sum x^2$ are precomputed constants.
 

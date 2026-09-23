@@ -14,10 +14,10 @@
 | **PineScript**   | [madh.pine](madh.pine)                       |
 
 - MADH (Moving Average Difference with Hann) computes the percentage difference between a short and long Hann-windowed FIR moving average, producing a zero-crossing trend oscillator similar in concept to MACD but using FIR filters with no spectral leakage.
-- **Similar:** [MACD](../../momentum/macd/Macd.md), [APO](../apo/Apo.md), [DECO](../deco/Deco.md) | **Complementary:** [RSIH](../rsih/Rsih.md ) for momentum confirmation | **Trading note:** Zero crossings signal trend changes; peaks/valleys indicate overbought/oversold.
+- **Similar:** [MACD](../../momentum/macd/Macd.md), [APO](../apo/Apo.md), [DECO](../deco/Deco.md) | **Complementary:** [RSIH](../rsih/Rsih.md) for momentum confirmation | **Trading note:** Zero crossings signal trend changes; peaks/valleys indicate overbought/oversold.
 - No external validation libraries implement MADH. Validated through self-consistency and behavioral testing.
 
-MADH applies two separate Hann FIR filters to the close price — a short window and a long window derived from the dominant cycle estimate — then expresses their difference as a percentage: `100 × (Filt1/Filt2 - 1)`. The Hann window eliminates spectral leakage, making MADH more responsive than EMA-based MACD while avoiding Gibbs ringing artifacts.
+MADH applies two separate Hann FIR filters to the close price - a short window and a long window derived from the dominant cycle estimate - then expresses their difference as a percentage: `100 × (Filt1/Filt2 - 1)`. The Hann window eliminates spectral leakage, making MADH more responsive than EMA-based MACD while avoiding Gibbs ringing artifacts.
 
 ## Historical Context
 
@@ -63,7 +63,7 @@ filt1 = Math.FusedMultiplyAdd(w, _closeBuf[available - k], filt1);
 
 ## Performance Profile
 
-MADH is an O(LongLength) FIR filter — each bar requires scanning both windows.
+MADH is an O(LongLength) FIR filter - each bar requires scanning both windows.
 
 ### Operation Count (Streaming Mode, Scalar)
 

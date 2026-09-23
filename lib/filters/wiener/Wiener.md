@@ -74,7 +74,7 @@ Wiener (Optimal Scalar Filter): estimates signal from noisy observations by mini
 | Local variance estimate | N | ~5 cy | ~150 cy |
 | Gain = signal_var / (signal_var + noise_var) | 1 | ~10 cy | ~10 cy |
 | Output = mean + gain*(input - mean) | 1 | ~4 cy | ~4 cy |
-| **Total (N=30)** | **2N+2** | — | **~254 cycles** |
+| **Total (N=30)** | **2N+2** | - | **~254 cycles** |
 
 O(N) per bar. Local mean and variance are computable O(1) with running sums, reducing to ~20 cycles/bar if running accumulators maintained.
 
@@ -82,7 +82,7 @@ O(N) per bar. Local mean and variance are computable O(1) with running sums, red
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Local mean / variance (running) | No | Running IIR — sequential |
+| Local mean / variance (running) | No | Running IIR - sequential |
 | Local mean / variance (batch scan) | Yes | Sliding window: vectorizable with O(N) pass |
 | Gain computation | No | Scalar division |
 

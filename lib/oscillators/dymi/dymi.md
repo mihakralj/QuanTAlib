@@ -22,15 +22,15 @@ DYMI is a volatility-adaptive RSI: when recent price swings are large relative t
 
 Tushar Chande and Stanley Kroll introduced DYMI in *The New Technical Trader* (1994) as a practical answer to a genuine problem: the standard RSI's fixed period is a blunt instrument. A 14-bar RSI responds identically whether the market has been oscillating ±5% per day or ±0.2%. Chande and Kroll observed that a shorter period in high-volatility environments catches reversals earlier; a longer period in quiet conditions eliminates whipsaws.
 
-The mechanism they chose was straightforward: compute the ratio of short-term to long-term price standard deviation. When this ratio exceeds 1, the market is more volatile than its recent baseline — shorten the period. When the ratio is below 1, lengthen it. The result gets clamped to a configurable `[minPeriod, maxPeriod]` range, and a standard Wilder RSI runs on the resulting dynamic period.
+The mechanism they chose was straightforward: compute the ratio of short-term to long-term price standard deviation. When this ratio exceeds 1, the market is more volatile than its recent baseline - shorten the period. When the ratio is below 1, lengthen it. The result gets clamped to a configurable `[minPeriod, maxPeriod]` range, and a standard Wilder RSI runs on the resulting dynamic period.
 
-The indicator has no widely adopted C# open-source implementation, which is why cross-library validation is self-consistency only. The original book uses population standard deviation over rolling windows — this implementation matches that specification.
+The indicator has no widely adopted C# open-source implementation, which is why cross-library validation is self-consistency only. The original book uses population standard deviation over rolling windows - this implementation matches that specification.
 
 ### Comparison with Related Indicators
 
 | Indicator | Adaptation Mechanism | Output Range | Warmup |
 | :--- | :--- | :---: | :---: |
-| RSI (Wilder) | None — fixed period | 0–100 | period+1 |
+| RSI (Wilder) | None - fixed period | 0–100 | period+1 |
 | CRSI (Connors) | Three-component composite, no period adaptation | 0–100 | rankPeriod+rsiPeriod |
 | DYMI (Chande/Kroll) | Dual StdDev ratio drives period selection | 0–100 | longPeriod+maxPeriod |
 | LRSI (Ehlers Laguerre) | Cycle-adaptive Laguerre filter stages | 0–1 | 4 |
@@ -43,7 +43,7 @@ Two O(1) StdDev estimators maintain running sums for windows of `shortPeriod` an
 
 $$\bar{x} = \frac{\sum x_i}{n}, \quad \sigma = \sqrt{\frac{\sum x_i^2}{n} - \bar{x}^2}$$
 
-This form avoids rescanning the window on every bar. Floating-point drift is inherent but bounded — the window size keeps the accumulated error small in practice (typical window sizes 5–30 bars).
+This form avoids rescanning the window on every bar. Floating-point drift is inherent but bounded - the window size keeps the accumulated error small in practice (typical window sizes 5–30 bars).
 
 ### 3.2 Stage 2: Volatility Ratio → Dynamic Period
 
@@ -121,7 +121,7 @@ $$\text{DYMI}_t = 100 \cdot \frac{\overline{G}_t}{\overline{G}_t + \overline{L}_
 
 | Condition | $V$ | $n_{\text{dyn}}$ | Effect |
 | :--- | :---: | :---: | :--- |
-| $\sigma_l = 0$ (constant prices) | — | $n_{\max}$ | Maximally smooth; RSI→50 |
+| $\sigma_l = 0$ (constant prices) | - | $n_{\max}$ | Maximally smooth; RSI→50 |
 | $\sigma_s \gg \sigma_l$ ($V \gg 1$) | large | $n_{\min}$ | Fastest possible RSI |
 | $\sigma_s \ll \sigma_l$ ($V \ll 1$) | small | $n_{\max}$ | Slowest possible RSI |
 | $n_{\min} = n_{\max} = n_{\text{base}}$ | any | $n_{\text{base}}$ | Identical to RSI($n_{\text{base}}$) |
@@ -139,7 +139,7 @@ DYMI computes a dynamic momentum oscillator using an EMA-smoothed velocity + acc
 | SUB (velocity = fast − slow EMA) | 1 | 1 | 1 |
 | FMA (acceleration = EMA of velocity) | 1 | 4 | 4 |
 | FMA (blend velocity + acceleration) | 1 | 4 | 4 |
-| **Total** | **5** | — | **~17 cycles** |
+| **Total** | **5** | - | **~17 cycles** |
 
 Three EMA instances. ~17 cycles per bar at steady state.
 
@@ -147,7 +147,7 @@ Three EMA instances. ~17 cycles per bar at steady state.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| All EMA passes × 3 | **No** | Recursive IIR — sequential |
+| All EMA passes × 3 | **No** | Recursive IIR - sequential |
 | Subtraction + blend | Yes | VSUBPD + VFMADD after EMA arrays known |
 
 Operations per bar (streaming `Update`):
@@ -188,7 +188,7 @@ No external C# library (Skender, TA-Lib, Tulip, Ooples) implements DYMI. Validat
 | Streaming == Batch (TSeries) | GBM 300 bars | 1e-10 | Pass |
 | Streaming == Batch (Span) | GBM 300 bars | 1e-10 | Pass |
 | Streaming == Eventing | GBM 200 bars | 1e-10 | Pass |
-| Output ∈ [0,100] | GBM 500 bars, σ=0.5 | — | Pass |
+| Output ∈ [0,100] | GBM 500 bars, σ=0.5 | - | Pass |
 | Constant price → RSI=50 | 100 bars @ 100.0 | 1e-6 | Pass |
 | Fixed period identity | minPeriod=maxPeriod=basePeriod | 1e-9 | Pass |
 | Determinism | Two identical GBM seeds | 1e-10 | Pass |
@@ -199,13 +199,13 @@ No external C# library (Skender, TA-Lib, Tulip, Ooples) implements DYMI. Validat
 
 1. **`longPeriod <= shortPeriod`**: The constructor throws `ArgumentException` if this constraint is violated. The volatility ratio is undefined when both windows cover the same bars.
 
-2. **Zero-variance series (flat price)**: When `σ_long = 0`, the ratio is undefined; the implementation defaults to `V = 1` → `n_dyn = n_base`. This is correct — a flat series should produce neutral RSI(=50) at the base period rate, not a degenerate output.
+2. **Zero-variance series (flat price)**: When `σ_long = 0`, the ratio is undefined; the implementation defaults to `V = 1` → `n_dyn = n_base`. This is correct - a flat series should produce neutral RSI(=50) at the base period rate, not a degenerate output.
 
 3. **Warmup period misinterpretation**: `WarmupPeriod = longPeriod + maxPeriod`. The dominant warmup is the Wilder RMA, which takes `maxPeriod` bars to settle after the long StdDev window fills. Using DYMI output before `IsHot = true` will produce compensated but less accurate values.
 
 4. **Period clamp masking pathology**: If `minPeriod` and `maxPeriod` are very close (e.g., both 14), the adaptive behavior is effectively disabled and DYMI degenerates to standard RSI. This is a valid use case but should be intentional.
 
-5. **Floating-point drift in running sums**: The O(1) variance formula $E[x^2] - E[x]^2$ is numerically unstable for large values or large windows — specifically, catastrophic cancellation can occur. For price data in the range [0.01, 100000] and periods ≤ 100, drift is negligible in practice. For exotic inputs, a periodic full-recalculation reset (every N steps) would be appropriate; the current implementation does not perform this.
+5. **Floating-point drift in running sums**: The O(1) variance formula $E[x^2] - E[x]^2$ is numerically unstable for large values or large windows - specifically, catastrophic cancellation can occur. For price data in the range [0.01, 100000] and periods ≤ 100, drift is negligible in practice. For exotic inputs, a periodic full-recalculation reset (every N steps) would be appropriate; the current implementation does not perform this.
 
 6. **Assumption of IID returns**: The period-selection formula $n_{\text{dyn}} = n_{\text{base}} / V$ implicitly assumes that the volatility ratio directly translates to an appropriate lookback scaling. This holds approximately for Gaussian returns but can under- or over-shoot in heavy-tailed regimes where short spikes inflate $V$ transiently.
 

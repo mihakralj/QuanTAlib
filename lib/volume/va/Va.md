@@ -1,6 +1,6 @@
 # VA: Volume Accumulation
 
-> *Volume tells you who's winning the argument between bulls and bears—VA keeps a running tally of the score.*
+> *Volume tells you who's winning the argument between bulls and bears-VA keeps a running tally of the score.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -18,7 +18,7 @@
 
 Volume Accumulation (VA) measures the cumulative flow of volume weighted by where price closes relative to the bar's midpoint. When price closes above the midpoint, volume is considered buying pressure; when below, selling pressure. The cumulative sum reveals the net directional conviction of market participants over time.
 
-Unlike the Accumulation/Distribution Line (ADL) which uses the full bar range, VA simplifies to the midpoint—a cleaner measure that's less sensitive to extreme wicks. This makes VA particularly useful in markets prone to liquidity spikes that create artificial range extensions.
+Unlike the Accumulation/Distribution Line (ADL) which uses the full bar range, VA simplifies to the midpoint-a cleaner measure that's less sensitive to extreme wicks. This makes VA particularly useful in markets prone to liquidity spikes that create artificial range extensions.
 
 ## Historical Context
 
@@ -67,7 +67,7 @@ $$
 - **Close < Midpoint**: Negative contribution (selling pressure)
 - **Close = Midpoint**: Zero contribution (neutral)
 
-The magnitude scales with volume—high volume bars contribute more to the cumulative total, reflecting the intensity of conviction.
+The magnitude scales with volume-high volume bars contribute more to the cumulative total, reflecting the intensity of conviction.
 
 ## Mathematical Foundation
 
@@ -205,7 +205,7 @@ VA divergences often precede trend reversals:
 1. **Bullish divergence**: Price makes lower lows, VA makes higher lows
 2. **Bearish divergence**: Price makes higher highs, VA makes lower highs
 
-The divergence signals that volume conviction doesn't support the price extreme—a potential reversal setup.
+The divergence signals that volume conviction doesn't support the price extreme-a potential reversal setup.
 
 ### Rate of Change Analysis
 
@@ -219,7 +219,7 @@ This removes the unbounded accumulation issue and focuses on recent volume press
 
 ## Parameter Selection Guide
 
-VA has no parameters—it's a pure cumulative indicator. Usage variations include:
+VA has no parameters-it's a pure cumulative indicator. Usage variations include:
 
 | Technique | Description |
 | :--- | :--- |

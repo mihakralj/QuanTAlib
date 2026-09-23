@@ -16,11 +16,11 @@
 - **Similar:** [MACD](../../momentum/macd/Macd.md), [Stoch](../stoch/Stoch.md) | **Complementary:** ADX | **Trading note:** Schaff Trend Cycle; double Stochastic of MACD. Faster trend detection. 25/75 signal levels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden within the trend itself. The recursive normalization produces a bounded 0–100 output that reaches extremes earlier than raw MACD while suppressing Stochastic jitter. Developed for currency markets, STC's tendency to flatline at 0 or 100 during strong trends signals continuation rather than reversal — a feature that distinguishes it from conventional momentum oscillators. Output converges toward a square wave in steady-state trending conditions.
+The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden within the trend itself. The recursive normalization produces a bounded 0–100 output that reaches extremes earlier than raw MACD while suppressing Stochastic jitter. Developed for currency markets, STC's tendency to flatline at 0 or 100 during strong trends signals continuation rather than reversal - a feature that distinguishes it from conventional momentum oscillators. Output converges toward a square wave in steady-state trending conditions.
 
 ## Historical Context
 
-Doug Schaff developed STC in the 1990s while trading currency markets. His diagnosis: MACD identified trends correctly but with unacceptable lag — by signal time, much of the move had elapsed. The Stochastic oscillator was fast but noisy, generating false signals in trending markets. Schaff's synthesis recognized that trends themselves move in cycles. Rather than choosing between lagging trend detection and noisy cycle extraction, he piped MACD through the Stochastic twice. The first pass normalizes MACD within its recent range, collapsing the unbounded trend signal into a 0–100 band. The second pass normalizes the smoothed first pass, further compressing the cycle information and creating a self-normalizing oscillator. The double normalization acts as a nonlinear filter that amplifies transitions and suppresses noise during sustained moves. STC found particular traction in forex trading where the 24-hour market rewarded speed advantages over MACD. The flatline behavior at extremes — initially dismissed as a limitation — became recognized as a defining feature: sustained 0 or 100 readings indicate trend continuation with high confidence, equivalent to a digital "trend on" signal.
+Doug Schaff developed STC in the 1990s while trading currency markets. His diagnosis: MACD identified trends correctly but with unacceptable lag - by signal time, much of the move had elapsed. The Stochastic oscillator was fast but noisy, generating false signals in trending markets. Schaff's synthesis recognized that trends themselves move in cycles. Rather than choosing between lagging trend detection and noisy cycle extraction, he piped MACD through the Stochastic twice. The first pass normalizes MACD within its recent range, collapsing the unbounded trend signal into a 0–100 band. The second pass normalizes the smoothed first pass, further compressing the cycle information and creating a self-normalizing oscillator. The double normalization acts as a nonlinear filter that amplifies transitions and suppresses noise during sustained moves. STC found particular traction in forex trading where the 24-hour market rewarded speed advantages over MACD. The flatline behavior at extremes - initially dismissed as a limitation - became recognized as a defining feature: sustained 0 or 100 readings indicate trend continuation with high confidence, equivalent to a digital "trend on" signal.
 
 ## Architecture & Physics
 
@@ -70,13 +70,13 @@ Smoothing options:
 
 - **None:** Raw %K₂ output
 - **EMA:** Standard EMA smoothing with $\alpha_d$
-- **Sigmoid:** $S(x) = \frac{100}{1 + e^{-0.1(x - 50)}}$ — S-curve compression
+- **Sigmoid:** $S(x) = \frac{100}{1 + e^{-0.1(x - 50)}}$ - S-curve compression
 - **Digital:** Threshold at 50 → output snaps to 0 or 100 (square wave)
 
 ### 6. Complexity
 
 - **Time:** $O(k)$ per bar for min/max scanning over both Stochastic windows
-- **Space:** $O(k)$ — two ring buffers of size kPeriod (MACD values and %D₁ values)
+- **Space:** $O(k)$ - two ring buffers of size kPeriod (MACD values and %D₁ values)
 - **Warmup:** slowLength + kPeriod bars before output stabilizes
 
 ## Mathematical Foundation
@@ -89,7 +89,7 @@ Smoothing options:
 | $d$ | dPeriod | 3 | $d \geq 1$ |
 | $f$ | fastLength | 23 | $f \geq 1$ |
 | $s$ | slowLength | 50 | $s > f$ |
-| — | smoothing | EMA | None / EMA / Sigmoid / Digital |
+| - | smoothing | EMA | None / EMA / Sigmoid / Digital |
 
 ### Signal Characteristics
 
@@ -143,6 +143,6 @@ The recursive EMA dependencies and sequential min/max ring buffer updates preven
 
 ## Resources
 
-- Schaff, D. — "Schaff Trend Cycle" (currency trading methodology, 1990s)
+- Schaff, D. - "Schaff Trend Cycle" (currency trading methodology, 1990s)
 - PineScript reference: `stc.pine` in indicator directory
-- Ehlers, J.F. — *Cybernetic Analysis for Stocks and Futures* (cycle extraction theory)
+- Ehlers, J.F. - *Cybernetic Analysis for Stocks and Futures* (cycle extraction theory)

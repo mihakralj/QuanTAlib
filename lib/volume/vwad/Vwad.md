@@ -1,6 +1,6 @@
 # VWAD: Volume Weighted Accumulation/Distribution
 
-> *The market's memory isn't just about price—it's about who showed up with conviction.*
+> *The market's memory isn't just about price-it's about who showed up with conviction.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -18,7 +18,7 @@
 
 Volume Weighted Accumulation/Distribution (VWAD) takes the classic ADL concept and asks a sharper question: not just "where did the close fall in the range?" but "how significant was this bar's volume compared to recent activity?"
 
-Traditional ADL treats all bars equally—a 100-share bar and a 10-million-share bar contribute the same mathematical weight if their MFM is identical. VWAD recognizes that volume concentration matters. A high-volume bar during a period of thin trading represents institutional commitment; the same MFM reading during heavy volume is just noise in the crowd.
+Traditional ADL treats all bars equally-a 100-share bar and a 10-million-share bar contribute the same mathematical weight if their MFM is identical. VWAD recognizes that volume concentration matters. A high-volume bar during a period of thin trading represents institutional commitment; the same MFM reading during heavy volume is just noise in the crowd.
 
 ## Historical Context
 
@@ -80,7 +80,7 @@ $$
 VWAD_t = VWAD_{t-1} + WeightedMFV_t
 $$
 
-Like ADL, VWAD is cumulative and unbounded. Unlike CMF, it doesn't normalize to an oscillator—it's designed to show long-term accumulation/distribution trends with volume-appropriate sensitivity.
+Like ADL, VWAD is cumulative and unbounded. Unlike CMF, it doesn't normalize to an oscillator-it's designed to show long-term accumulation/distribution trends with volume-appropriate sensitivity.
 
 ## Mathematical Foundation
 
@@ -122,7 +122,7 @@ $$
 \sum_{i=t-n+1}^{t} VolWeight_i = \sum_{i=t-n+1}^{t} \frac{V_i}{SumVol_t} = 1
 $$
 
-This means the system is normalized: if you spread 1000 shares of accumulation evenly across 20 bars, you get the same total contribution as concentrating it in one bar—but the *shape* of the indicator differs dramatically.
+This means the system is normalized: if you spread 1000 shares of accumulation evenly across 20 bars, you get the same total contribution as concentrating it in one bar-but the *shape* of the indicator differs dramatically.
 
 ## Performance Profile
 
@@ -135,7 +135,7 @@ This means the system is normalized: if you spread 1000 shares of accumulation e
 | DIV | 2 | 15 | 30 |
 | MUL | 2 | 3 | 6 |
 | CMP | 2 | 1 | 2 |
-| **Total** | **13** | — | **~45 cycles** |
+| **Total** | **13** | - | **~45 cycles** |
 
 The division for volume weight dominates. Could be optimized with reciprocal approximation if sub-1% error is acceptable.
 
@@ -179,7 +179,7 @@ VWAD is a proprietary indicator. Validation is performed against the PineScript 
 
 3. **Period Selection**: The default period of 20 provides a monthly context on daily bars. Shorter periods (5-10) increase sensitivity to volume spikes; longer periods (50+) smooth out the weighting effect. Choose based on your trading timeframe.
 
-4. **Quadratic Volume Sensitivity**: Because volume appears twice in the formula (MFV × VolWeight), a bar with 10× normal volume doesn't get 10× weight—it gets closer to 100× relative impact. This is a feature, not a bug, but traders used to linear indicators may find it surprising.
+4. **Quadratic Volume Sensitivity**: Because volume appears twice in the formula (MFV × VolWeight), a bar with 10× normal volume doesn't get 10× weight-it gets closer to 100× relative impact. This is a feature, not a bug, but traders used to linear indicators may find it surprising.
 
 5. **Warmup Period**: The rolling volume sum needs `period` bars before volume weighting is fully calibrated. Before that, early bars get disproportionate weight in a smaller sum.
 

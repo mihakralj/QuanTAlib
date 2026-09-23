@@ -122,7 +122,7 @@ FFT(source, windowSize, minPeriod, maxPeriod):
 
 ### Operation Count (Streaming Mode)
 
-FFT (radix-2 Cooley-Tukey) performs N/2 butterflies per stage across log₂(N) stages — O(N log N) per bar.
+FFT (radix-2 Cooley-Tukey) performs N/2 butterflies per stage across log₂(N) stages - O(N log N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -132,7 +132,7 @@ FFT (radix-2 Cooley-Tukey) performs N/2 butterflies per stage across log₂(N) s
 | cos/sin per butterfly | N/2 × log₂N | 14 cy | ~7N·log₂N cy |
 | Magnitude search (B bins) | B | 4 cy | ~4B cy |
 | Parabolic interpolation | 1 | 10 cy | ~10 cy |
-| **Total (N=64, B=10)** | **O(N log N)** | — | **~4362 cy** |
+| **Total (N=64, B=10)** | **O(N log N)** | - | **~4362 cy** |
 
 O(N log N) per bar. Pre-allocated work arrays ensure zero allocation in the hot path. Twiddle factor computation dominates; pre-computing sin/cos tables would reduce to ~2500 cy.
 

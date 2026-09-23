@@ -119,7 +119,7 @@ BBI averages four SMA instances (3, 6, 12, 24 periods) using O(1) running sums.
 | MUL × 4 (1/N each SMA) | 4 | 3 | 12 |
 | ADD × 3 (sum four SMA values) | 3 | 1 | 3 |
 | MUL × 0.25 (divide by 4) | 1 | 3 | 3 |
-| **Total** | **16** | — | **~26 cycles** |
+| **Total** | **16** | - | **~26 cycles** |
 
 Four parallel O(1) SMA streams. ~26 cycles per bar at steady state.
 

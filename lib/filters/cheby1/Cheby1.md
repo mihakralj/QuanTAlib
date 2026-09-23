@@ -1,6 +1,6 @@
 # CHEBY1: Chebyshev Type I Lowpass Filter
 
-> *Chebyshev Type I trades passband ripple for a steeper rolloff — sharper frequency separation at the cost of amplitude wobble.*
+> *Chebyshev Type I trades passband ripple for a steeper rolloff - sharper frequency separation at the cost of amplitude wobble.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -91,7 +91,7 @@ CHEBY1 implements a 2nd-order IIR biquad: y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2]
 | Feedforward FMA (b0*x + b1*x1 + b2*x2) | 3 | ~4 cy | ~12 cy |
 | Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
 | Output store + state update | 2 | ~1 cy | ~2 cy |
-| **Total** | **10** | — | **~25 cycles** |
+| **Total** | **10** | - | **~25 cycles** |
 
 O(1) per bar. Coefficients precomputed at construction from period and ripple parameters. ~25 cycles/bar.
 

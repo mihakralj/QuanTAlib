@@ -1,6 +1,6 @@
 # MODE: Statistical Mode (Most Frequent Value)
 
-> *The mode is the value that appears most frequently in a data set — the only measure of central tendency that tells you what's actually popular, not what's average.*
+> *The mode is the value that appears most frequently in a data set - the only measure of central tendency that tells you what's actually popular, not what's average.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -21,7 +21,7 @@
 The **Mode** is a rolling statistical indicator that identifies the most frequently occurring value within
 a sliding window of recent observations. Unlike the mean and median, which find the center of a
 distribution through arithmetic, the mode finds it through frequency counting. For financial data
-this means identifying price levels where the market has spent the most time — a concept with direct
+this means identifying price levels where the market has spent the most time - a concept with direct
 implications for support/resistance identification.
 
 ## Historical Context
@@ -75,7 +75,7 @@ Where N = period, M = total data points.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `period` | `int` | — | Rolling window size (must be > 0) |
+| `period` | `int` | - | Rolling window size (must be > 0) |
 
 ## Usage
 
@@ -96,7 +96,7 @@ Mode.Batch(sourceSpan, outputSpan, 14);
 | Condition | Meaning |
 |-----------|---------|
 | Mode = specific value | Market spent most time at this price level |
-| Mode = NaN | All values unique — no dominant price level |
+| Mode = NaN | All values unique - no dominant price level |
 | Mode stable across windows | Strong support/resistance at that level |
 | Mode shifting | Distribution center is moving |
 
@@ -105,7 +105,7 @@ Mode.Batch(sourceSpan, outputSpan, 14);
 1. **Continuous data produces NaN**: Floating-point prices with many decimals rarely repeat exactly. Mode is most useful for rounded/discretized data (e.g., tick prices, integer values).
 2. **Bimodal ties**: When multiple values share the highest frequency, the smallest value wins (first in sorted order). This is deterministic but may not match all statistical software.
 3. **Period = 1**: Always returns the input value (trivially the mode).
-4. **NaN inputs**: NaN values are stored in the buffer. If a window contains NaN duplicates, NaN could become the mode — this matches the PineScript behavior.
+4. **NaN inputs**: NaN values are stored in the buffer. If a window contains NaN duplicates, NaN could become the mode - this matches the PineScript behavior.
 5. **Performance**: O(N) per update due to sorted buffer maintenance. For very large periods (>1000), consider if mode is the right tool.
 
 
@@ -122,7 +122,7 @@ Mode uses a sorted insertion buffer; each bar requires a binary search plus arra
 | Array.Copy shift | N/2 avg | 1 cy | ~64 cy (N=128) |
 | Linear scan for mode | N | 2 cy | ~256 cy (N=128) |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(N)** | — | **~340 cy (N=128)** |
+| **Total** | **O(N)** | - | **~340 cy (N=128)** |
 
 O(N) per update due to sorted buffer maintenance. Not suitable for periods >1000 in tick-streamed hot paths; use a hash-counted alternative for large windows.
 
@@ -134,11 +134,11 @@ O(N) per update due to sorted buffer maintenance. Not suitable for periods >1000
 | Linear run scan | Partial | Branchless equality check possible |
 | Outer loop over M bars | No | Each bar re-sorts; sequential dependency |
 
-No SIMD benefit — sorting and frequency counting are inherently sequential for exact-match mode. Batch complexity O(M·N log N) where M = data length, N = period.
+No SIMD benefit - sorting and frequency counting are inherently sequential for exact-match mode. Batch complexity O(M·N log N) where M = data length, N = period.
 
 ## Validation
 
-Self-consistency validation only — no external library provides rolling mode.
+Self-consistency validation only - no external library provides rolling mode.
 Verified against Wolfram Alpha for static datasets.
 
 | Test | Status |

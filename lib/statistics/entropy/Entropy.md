@@ -16,11 +16,11 @@
 - **Similar:** [Hurst](../hurst/Hurst.md), [StdDev](../stddev/StdDev.md) | **Trading note:** Shannon entropy; measures information content and randomness. High entropy = unpredictable market.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Shannon Entropy measures the unpredictability or randomness of a time series over a sliding window. A low entropy value indicates the series is highly predictable (clustered values), while a high entropy value indicates the data is spread uniformly across its range — maximum randomness.
+Shannon Entropy measures the unpredictability or randomness of a time series over a sliding window. A low entropy value indicates the series is highly predictable (clustered values), while a high entropy value indicates the data is spread uniformly across its range - maximum randomness.
 
 ## Historical Context
 
-Claude Shannon introduced the concept of information entropy in his landmark 1948 paper "A Mathematical Theory of Communication." Originally applied to communication channels, entropy has since become fundamental in information theory, statistical mechanics, and quantitative finance. In trading, entropy helps identify market regimes — low entropy suggests trending/consolidated behavior, high entropy suggests random/choppy conditions.
+Claude Shannon introduced the concept of information entropy in his landmark 1948 paper "A Mathematical Theory of Communication." Originally applied to communication channels, entropy has since become fundamental in information theory, statistical mechanics, and quantitative finance. In trading, entropy helps identify market regimes - low entropy suggests trending/consolidated behavior, high entropy suggests random/choppy conditions.
 
 ## Architecture & Physics
 
@@ -28,8 +28,8 @@ Claude Shannon introduced the concept of information entropy in his landmark 194
 
 ### Design Decisions
 
-- **O(period) per update**: Unlike indicators that can use O(1) running sums, entropy requires min/max tracking and histogram construction that must be rebuilt when the window composition changes. This is inherent to the algorithm — bin boundaries shift with the range.
-- **Bin count**: `bins = min(max(count, 2), 100)` — matches the PineScript reference. During warmup, bins scale with available data; once warmed up with period ≥ 100, always 100 bins.
+- **O(period) per update**: Unlike indicators that can use O(1) running sums, entropy requires min/max tracking and histogram construction that must be rebuilt when the window composition changes. This is inherent to the algorithm - bin boundaries shift with the range.
+- **Bin count**: `bins = min(max(count, 2), 100)` - matches the PineScript reference. During warmup, bins scale with available data; once warmed up with period ≥ 100, always 100 bins.
 - **NaN/Infinity guard**: Non-finite values are replaced with the last valid value.
 - **No SIMD**: Histogram construction involves branching and random-access bin updates that don't vectorize well.
 - **stackalloc**: Frequency arrays use stack allocation (100 ints = 400 bytes) to avoid heap pressure.
@@ -65,7 +65,7 @@ Entropy computes Shannon entropy over a sliding window after binning values into
 | Build frequency table | N | 2 cy | ~2N cy |
 | Compute sum(-p * log p) | k | 8 cy | ~8k cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=20, k=5 bins)** | **O(N)** | — | **~107 cy** |
+| **Total (N=20, k=5 bins)** | **O(N)** | - | **~107 cy** |
 
 O(N) per update due to full window rebinning each bar. No O(1) sliding-window entropy algorithm exists for exact bin counts.
 

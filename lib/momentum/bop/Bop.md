@@ -142,7 +142,7 @@ Per-bar update is minimal:
 | SUB (range) | 1 | 1 | 1 |
 | CMP (range > ε) | 1 | 1 | 1 |
 | DIV (body/range) | 1 | 15 | 15 |
-| **Total** | **4** | — | **~18 cycles** |
+| **Total** | **4** | - | **~18 cycles** |
 
 Division dominates (83%). Predictable branch (range > 0 almost always true) avoids misprediction penalties.
 
@@ -202,7 +202,7 @@ Validated against four external libraries across all operating modes.
 | **TA-Lib** | ✅ | ✅ | ✅ | Exact match with `TA_BOP` |
 | **Skender** | ✅ | ✅ | ✅ | Exact match with `GetBop` |
 | **Tulip** | ✅ | ✅ | ✅ | Exact match with `ti.bop` |
-| **Ooples** | ✅ | — | — | Exact match (batch only) |
+| **Ooples** | ✅ | - | - | Exact match (batch only) |
 
 Tolerance: exact match (ratio of integers produces identical floating-point results).
 

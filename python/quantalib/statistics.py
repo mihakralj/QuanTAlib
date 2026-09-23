@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -45,7 +47,7 @@ __all__ = [
 ]
 
 
-def adf(close: object, period: int = 50, max_lag: int = 0, regression: int = 1, offset: int = 0, **kwargs) -> object:
+def adf(close: ArrayLike, period: int = 50, max_lag: int = 0, regression: int = 1, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Augmented Dickey-Fuller test p-value."""
     period = int(kwargs.get("length", period))
     max_lag = int(max_lag)
@@ -58,7 +60,7 @@ def adf(close: object, period: int = 50, max_lag: int = 0, regression: int = 1, 
     return _wrap(output, idx, f"ADF_{period}", "statistics", offset)
 
 
-def acf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwargs) -> object:
+def acf(close: ArrayLike, period: int = 14, lag: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Autocorrelation Function."""
     period = int(kwargs.get("length", period))
     lag = int(lag)
@@ -70,7 +72,7 @@ def acf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwarg
     return _wrap(output, idx, f"ACF_{period}", "statistics", offset)
 
 
-def geomean(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def geomean(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Geometric Mean."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -81,7 +83,7 @@ def geomean(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, f"GEOMEAN_{period}", "statistics", offset)
 
 
-def granger(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def granger(x: ArrayLike, y: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Granger Causality."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -92,7 +94,7 @@ def granger(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -
     return _wrap(output, idx, f"GRANGER_{period}", "statistics", offset)
 
 
-def harmean(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def harmean(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Harmonic Mean."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -103,7 +105,7 @@ def harmean(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, f"HARMEAN_{period}", "statistics", offset)
 
 
-def hurst(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def hurst(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hurst Exponent."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -114,7 +116,7 @@ def hurst(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"HURST_{period}", "statistics", offset)
 
 
-def iqr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def iqr(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Interquartile Range."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -125,7 +127,7 @@ def iqr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"IQR_{period}", "statistics", offset)
 
 
-def jb(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def jb(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Jarque-Bera Test."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -136,7 +138,7 @@ def jb(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"JB_{period}", "statistics", offset)
 
 
-def kendall(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def kendall(x: ArrayLike, y: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Kendall Rank Correlation."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -147,7 +149,7 @@ def kendall(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -
     return _wrap(output, idx, f"KENDALL_{period}", "statistics", offset)
 
 
-def kurtosis(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs) -> object:
+def kurtosis(close: ArrayLike, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Kurtosis."""
     period = int(kwargs.get("length", period))
     isPopulation = int(isPopulation)
@@ -159,7 +161,7 @@ def kurtosis(close: object, period: int = 14, isPopulation: int = 0, offset: int
     return _wrap(output, idx, f"KURTOSIS_{period}", "statistics", offset)
 
 
-def linreg(close: object, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
+def linreg(close: ArrayLike, period: int = 14, initialLastValid: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Linear Regression."""
     period = int(kwargs.get("length", period))
     initialLastValid = float(initialLastValid)
@@ -171,7 +173,7 @@ def linreg(close: object, period: int = 14, initialLastValid: float = 0.0, offse
     return _wrap(output, idx, f"LINREG_{period}", "statistics", offset)
 
 
-def meandev(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def meandev(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Deviation."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -182,7 +184,7 @@ def meandev(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, f"MEANDEV_{period}", "statistics", offset)
 
 
-def median(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def median(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rolling Median."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -193,7 +195,7 @@ def median(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     return _wrap(output, idx, f"MEDIAN_{period}", "statistics", offset)
 
 
-def mode(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mode(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rolling Mode."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -204,7 +206,7 @@ def mode(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"MODE_{period}", "statistics", offset)
 
 
-def pacf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwargs) -> object:
+def pacf(close: ArrayLike, period: int = 14, lag: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Partial Autocorrelation Function."""
     period = int(kwargs.get("length", period))
     lag = int(lag)
@@ -216,7 +218,7 @@ def pacf(close: object, period: int = 14, lag: int = 10, offset: int = 0, **kwar
     return _wrap(output, idx, f"PACF_{period}", "statistics", offset)
 
 
-def percentile(close: object, period: int = 14, percent: float = 50.0, offset: int = 0, **kwargs) -> object:
+def percentile(close: ArrayLike, period: int = 14, percent: float = 50.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rolling Percentile."""
     period = int(kwargs.get("length", period))
     percent = float(percent)
@@ -228,7 +230,7 @@ def percentile(close: object, period: int = 14, percent: float = 50.0, offset: i
     return _wrap(output, idx, f"PERCENTILE_{period}", "statistics", offset)
 
 
-def polyfit(close: object, period: int = 14, degree: int = 2, initialLastValid: float = 0.0, offset: int = 0, **kwargs) -> object:
+def polyfit(close: ArrayLike, period: int = 14, degree: int = 2, initialLastValid: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Polynomial Fit."""
     period = int(kwargs.get("length", period))
     degree = int(degree)
@@ -241,7 +243,7 @@ def polyfit(close: object, period: int = 14, degree: int = 2, initialLastValid: 
     return _wrap(output, idx, f"POLYFIT_{period}", "statistics", offset)
 
 
-def quantile(close: object, period: int = 14, quantileLevel: float = 0.5, offset: int = 0, **kwargs) -> object:
+def quantile(close: ArrayLike, period: int = 14, quantileLevel: float = 0.5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rolling Quantile."""
     period = int(kwargs.get("length", period))
     quantileLevel = float(quantileLevel)
@@ -253,7 +255,7 @@ def quantile(close: object, period: int = 14, quantileLevel: float = 0.5, offset
     return _wrap(output, idx, f"QUANTILE_{period}", "statistics", offset)
 
 
-def skew(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs) -> object:
+def skew(close: ArrayLike, period: int = 14, isPopulation: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Skewness."""
     period = int(kwargs.get("length", period))
     isPopulation = int(isPopulation)
@@ -265,7 +267,7 @@ def skew(close: object, period: int = 14, isPopulation: int = 0, offset: int = 0
     return _wrap(output, idx, f"SKEW_{period}", "statistics", offset)
 
 
-def spearman(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def spearman(x: ArrayLike, y: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Spearman Rank Correlation."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -276,7 +278,7 @@ def spearman(x: object, y: object, period: int = 14, offset: int = 0, **kwargs) 
     return _wrap(output, idx, f"SPEARMAN_{period}", "statistics", offset)
 
 
-def stderr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def stderr(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Standard Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -287,7 +289,7 @@ def stderr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     return _wrap(output, idx, f"STDERR_{period}", "statistics", offset)
 
 
-def sum(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def sum(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rolling Sum."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -298,7 +300,7 @@ def sum(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"SUM_{period}", "statistics", offset)
 
 
-def theil(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def theil(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Theil U Statistic."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -309,7 +311,7 @@ def theil(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"THEIL_{period}", "statistics", offset)
 
 
-def trim(close: object, period: int = 14, trimPct: float = 0.1, offset: int = 0, **kwargs) -> object:
+def trim(close: ArrayLike, period: int = 14, trimPct: float = 0.1, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Trimmed Mean."""
     period = int(kwargs.get("length", period))
     trimPct = float(trimPct)
@@ -321,7 +323,7 @@ def trim(close: object, period: int = 14, trimPct: float = 0.1, offset: int = 0,
     return _wrap(output, idx, f"TRIM_{period}", "statistics", offset)
 
 
-def wavg(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def wavg(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Weighted Average."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -332,7 +334,7 @@ def wavg(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"WAVG_{period}", "statistics", offset)
 
 
-def wins(close: object, period: int = 14, winPct: float = 0.05, offset: int = 0, **kwargs) -> object:
+def wins(close: ArrayLike, period: int = 14, winPct: float = 0.05, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Winsorized Mean."""
     period = int(kwargs.get("length", period))
     winPct = float(winPct)
@@ -344,7 +346,7 @@ def wins(close: object, period: int = 14, winPct: float = 0.05, offset: int = 0,
     return _wrap(output, idx, f"WINS_{period}", "statistics", offset)
 
 
-def ztest(close: object, period: int = 14, mu0: float = 0.0, offset: int = 0, **kwargs) -> object:
+def ztest(close: ArrayLike, period: int = 14, mu0: float = 0.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Z-Test."""
     period = int(kwargs.get("length", period))
     mu0 = float(mu0)
@@ -355,7 +357,7 @@ def ztest(close: object, period: int = 14, mu0: float = 0.0, offset: int = 0, **
     _check(_lib.qtl_ztest(_ptr(src), _ptr(output), n, period, mu0))
     return _wrap(output, idx, f"ZTEST_{period}", "statistics", offset)
 
-def zscore(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def zscore(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Z-Score."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -363,7 +365,7 @@ def zscore(close: object, period: int = 20, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"ZSCORE_{period}", "statistics", offset)
 
 
-def cma(close: object, offset: int = 0, **kwargs) -> object:
+def cma(close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Cumulative Moving Average."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -371,7 +373,7 @@ def cma(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "CMA", "statistics", offset)
 
 
-def entropy(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def entropy(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Shannon Entropy."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -379,8 +381,8 @@ def entropy(close: object, period: int = 10, offset: int = 0, **kwargs) -> objec
     return _wrap(dst, idx, f"ENTROPY_{period}", "statistics", offset)
 
 
-def correl(x: object, y: object, period: int = 20,
-           offset: int = 0, **kwargs) -> object:
+def correl(x: ArrayLike, y: ArrayLike, period: int = 20,
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Pearson Correlation."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
@@ -389,8 +391,8 @@ def correl(x: object, y: object, period: int = 20,
     return _wrap(dst, idx, f"CORR_{period}", "statistics", offset)
 
 
-def covariance(x: object, y: object, period: int = 20,
-               is_sample: bool = True, offset: int = 0, **kwargs) -> object:
+def covariance(x: ArrayLike, y: ArrayLike, period: int = 20,
+               is_sample: bool = True, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Covariance."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
@@ -399,8 +401,8 @@ def covariance(x: object, y: object, period: int = 20,
     return _wrap(dst, idx, f"COV_{period}", "statistics", offset)
 
 
-def cointegration(x: object, y: object, period: int = 20,
-                  offset: int = 0, **kwargs) -> object:
+def cointegration(x: ArrayLike, y: ArrayLike, period: int = 20,
+                  offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Cointegration."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     xarr, idx = _arr(x); yarr, _ = _arr(y)
@@ -409,8 +411,8 @@ def cointegration(x: object, y: object, period: int = 20,
     return _wrap(dst, idx, f"COINT_{period}", "statistics", offset)
 
 
-def convexity(x: object, y: object, period: int = 20,
-              offset: int = 0, **kwargs) -> object:
+def convexity(x: ArrayLike, y: ArrayLike, period: int = 20,
+              offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Beta Convexity (up/down beta asymmetry).
 
     Returns dict with keys: beta_std, beta_up, beta_down, ratio, convexity.

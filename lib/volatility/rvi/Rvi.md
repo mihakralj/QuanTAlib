@@ -1,6 +1,6 @@
 # RVI: Relative Volatility Index
 
-> *Not all volatility is created equal—upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure.*
+> *Not all volatility is created equal-upward volatility feels like profit, downward volatility feels like loss. RVI separates these psychological experiences into a quantifiable measure.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -188,7 +188,7 @@ Per-bar operations after warmup:
 | DIV | 5 | 15 | 75 |
 | SQRT | 1 | 15 | 15 |
 | CMP | 3 | 1 | 3 |
-| **Total** | — | — | **~119 cycles** |
+| **Total** | - | - | **~119 cycles** |
 
 Dominant cost: five divisions (63%) for variance calculation and RMA updates.
 

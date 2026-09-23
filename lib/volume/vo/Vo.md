@@ -1,6 +1,6 @@
 # VO: Volume Oscillator
 
-> *Volume tells us the conviction behind price moves—the oscillator reveals when that conviction is accelerating or fading.*
+> *Volume tells us the conviction behind price moves-the oscillator reveals when that conviction is accelerating or fading.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -73,7 +73,7 @@ where $n_{sig}$ is the signal period (default: 10).
 
 ### Running Sum Implementation
 
-For O(1) updates, we maintain running sums rather than recalculating:
+For O(1) updates, the implementation maintain running sums rather than recalculating:
 
 $$
 \text{Sum}_t = \text{Sum}_{t-1} - V_{t-n} + V_t
@@ -112,7 +112,7 @@ This ensures the indicator measures the relationship between recent and historic
 | MUL | 1 | 3 | 3 |
 | DIV | 3 | 15 | 45 |
 | CMP/MOD | 6 | 1 | 6 |
-| **Total** | **16** | — | **~60 cycles** |
+| **Total** | **16** | - | **~60 cycles** |
 
 The running sum approach eliminates the need to iterate over the entire window each update.
 

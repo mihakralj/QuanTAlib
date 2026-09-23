@@ -143,7 +143,7 @@ NLMA(period) uses the Igorad two-phase cosine kernel with length `flen = 5×peri
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: flen FMA (flen = 5×N − 1) | 5N−1 | 4 | ~(20N−4) |
 | Normalization divide (by signed weight sum) | 1 | 8 | ~8 |
-| **Total** | **5N** | — | **~(20N + 7) cycles** |
+| **Total** | **5N** | - | **~(20N + 7) cycles** |
 
 O(N) per bar with coefficient 5× larger than simple window filters. For period = 14 (flen = 69): ~1387 cycles. WarmupPeriod = flen = 5×period − 1.
 
@@ -156,7 +156,7 @@ O(N) per bar with coefficient 5× larger than simple window filters. For period 
 | Cross-bar independence | Yes | 4 output bars per AVX2 pass |
 | Large kernel (5N taps) | Partial | At large periods, weight array exceeds L1 → cache-miss cost |
 
-For period = 14, the 69-weight array (552 bytes) fits in L1 cache. AVX2 batch throughput: ~17 cycles per bar vs ~1387 scalar — ~80× speedup in the FIR phase. At period > 40 (flen > 200), the weight array spills to L2, reducing speedup to ~20×.
+For period = 14, the 69-weight array (552 bytes) fits in L1 cache. AVX2 batch throughput: ~17 cycles per bar vs ~1387 scalar - ~80× speedup in the FIR phase. At period > 40 (flen > 200), the weight array spills to L2, reducing speedup to ~20×.
 
 ## Common Pitfalls
 

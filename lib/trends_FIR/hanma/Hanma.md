@@ -1,6 +1,6 @@
 # HANMA: Hanning-Weighted Moving Average
 
-> *Julius von Hann deserves credit for the window that bears his name—even if autocomplete keeps trying to change it to 'Hamming.' The zero-edge weights aren't a bug; they're the whole point.*
+> *Julius von Hann deserves credit for the window that bears his name-even if autocomplete keeps trying to change it to 'Hamming.' The zero-edge weights aren't a bug; they're the whole point.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -25,7 +25,7 @@ Julius von Hann, an Austrian meteorologist, developed this window function in th
 
 The Hanning window is sometimes called "Hann" to avoid confusion with Hamming (a different window with different coefficients). The key distinction: Hanning uses 0.5/0.5 coefficients producing edge weights of exactly zero, while Hamming uses 0.54/0.46 coefficients producing edge weights of 0.08.
 
-In trading applications, HANMA provides smooth output with no boundary artifacts. The zero edge weights mean the first and last samples in the window contribute nothing—a property that eliminates discontinuities when the window slides across the data.
+In trading applications, HANMA provides smooth output with no boundary artifacts. The zero edge weights mean the first and last samples in the window contribute nothing-a property that eliminates discontinuities when the window slides across the data.
 
 ## Architecture & Physics
 
@@ -105,14 +105,14 @@ Per-bar cost for period $L$ (weights precomputed at construction):
 | MUL | L | 3 | 3L |
 | ADD | L | 1 | L |
 | MUL (normalize) | 1 | 3 | 3 |
-| **Total** | **2L+1** | — | **~4L+3 cycles** |
+| **Total** | **2L+1** | - | **~4L+3 cycles** |
 
 For a typical period of 14:
 - **Total**: ~59 cycles per bar
 
 **Constructor cost** (one-time): ~80L cycles (L cosines at ~80 cycles each + L additions)
 
-**Complexity**: O(L) per bar — linear with period. Weights precomputed, runtime is pure dot product.
+**Complexity**: O(L) per bar - linear with period. Weights precomputed, runtime is pure dot product.
 
 ### Batch Mode (SIMD/FMA Analysis)
 
@@ -127,7 +127,7 @@ HANMA's dot product structure enables efficient SIMD vectorization:
 
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 59 | 30,208 | — |
+| Scalar streaming | 59 | 30,208 | - |
 | SIMD batch (FMA) | ~10 | ~5,120 | **~83%** |
 
 ### Quality Metrics
@@ -187,12 +187,12 @@ QuanTAlib validates HANMA against its mathematical definition and internal consi
 
 1. **Confusing Hanning and Hamming**: Hanning uses 0.5 coefficient with edge weights of exactly 0.0. Hamming uses 0.54/0.46 with edge weights of 0.08. They're different windows with different properties.
 
-2. **Zero Edge Weights**: The edge weights being exactly zero means the first and last prices in the window are ignored completely. This is intentional—it eliminates boundary discontinuities.
+2. **Zero Edge Weights**: The edge weights being exactly zero means the first and last prices in the window are ignored completely. This is intentional-it eliminates boundary discontinuities.
 
 3. **Lag Acceptance**: HANMA has inherent lag of approximately $(L-1)/2$ bars. This is the price of symmetric smoothing. If you need faster response, consider asymmetric windows like ALMA.
 
 4. **Cold Start**: HANMA requires a full window ($L$) to be mathematically valid. First $L-1$ bars are convergence noise.
 
-5. **Small Periods**: With very small periods (e.g., 3), the window shape degenerates. A period of 3 produces weights [0, 1, 0]—essentially just the middle value. Consider period >= 5 for meaningful Hanning characteristics.
+5. **Small Periods**: With very small periods (e.g., 3), the window shape degenerates. A period of 3 produces weights [0, 1, 0]-essentially just the middle value. Consider period >= 5 for meaningful Hanning characteristics.
 
 6. **Side Lobe Trade-off**: The -32 dB first side lobe is worse than Hamming's -43 dB, but the narrower main lobe provides better frequency resolution. Choose based on whether you prioritize frequency resolution or side lobe suppression.

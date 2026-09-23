@@ -104,7 +104,7 @@ RWMA(N) maintains two running sums: `SumCR` (close × range) and `SumR` (range).
 | SumCR update (subtract evicted, add new) | 2 | 1 | ~2 |
 | SumR update (subtract evicted, add new) | 2 | 1 | ~2 |
 | RWMA: SumCR / SumR (with zero-guard) | 1 | 8 | ~8 |
-| **Total** | **8** | — | **~17 cycles** |
+| **Total** | **8** | - | **~17 cycles** |
 
 O(1) per bar. The division is the dominant cost. Resync every 1000 bars prevents floating-point drift in the running sums. WarmupPeriod = N.
 

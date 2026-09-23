@@ -107,7 +107,7 @@ Streaming: $O(1)$ per bar. Three additions to running sums, one division, one sq
 
 ### Operation Count (Streaming Mode)
 
-VWAPBANDS maintains three cumulative running sums plus variance computation and dual band construction — all $O(1)$:
+VWAPBANDS maintains three cumulative running sums plus variance computation and dual band construction - all $O(1)$:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -121,9 +121,9 @@ VWAPBANDS maintains three cumulative running sums plus variance computation and 
 | SQRT (σ) | 1 | 20 | 20 |
 | MUL (k × σ, 2k × σ) | 2 | 3 | 6 |
 | ADD/SUB (VWAP ± 1σ, ± 2σ, 4 bands) | 4 | 1 | 4 |
-| **Total (hot)** | **17** | — | **~76 cycles** |
+| **Total (hot)** | **17** | - | **~76 cycles** |
 
-Session reset adds a CMP per bar. The two DIV operations and SQRT dominate. No buffers required — purely cumulative sums.
+Session reset adds a CMP per bar. The two DIV operations and SQRT dominate. No buffers required - purely cumulative sums.
 
 ### Batch Mode (SIMD Analysis)
 

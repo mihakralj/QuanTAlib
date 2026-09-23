@@ -14,7 +14,7 @@
 | **Signature**    | [mcnma_signature](mcnma_signature.md) |
 
 - MCNMA computes $2 \times \text{TEMA}(x, N) - \text{TEMA}(\text{TEMA}(x, N), N)$, applying the DEMA lag-cancellation technique to TEMA itself.
-- **Similar:** [SMA](../sma/sma.md) | **Complementary:** Trend detection | **Trading note:** McNicholl MA; modified SMA calculation for improved response.
+- **Similar:** [SMA](../../trends_FIR/sma/Sma.md) | **Complementary:** Trend detection | **Trading note:** McNicholl MA; modified SMA calculation for improved response.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MCNMA computes $2 \times \text{TEMA}(x, N) - \text{TEMA}(\text{TEMA}(x, N), N)$, applying the DEMA lag-cancellation technique to TEMA itself. This requires six cascaded EMA stages: three for the inner TEMA and three for the outer TEMA of the inner TEMA's output. The result is an extremely responsive moving average that tracks fast trends with minimal lag, at the cost of significant overshoot on reversals. Published by Dennis McNicholl in "Better Bollinger Bands" (*Futures Magazine*, October 1998) as a component for improved volatility band construction.
@@ -136,7 +136,7 @@ MCNMA(N) applies zero-lag TEMA composition: `2×TEMA(src,N) − TEMA(TEMA(src,N)
 | EMA stage 6 (outer): FMA(α, s5, decay×s6) | 1 | 4 | ~4 |
 | Outer TEMA: 3s4 − 3s5 + s6 (3 FMA) | 3 | 4 | ~12 |
 | MCNMA: 2×TEMA₁ − TEMA₂ (FMA) | 1 | 4 | ~4 |
-| **Total** | **13** | — | **~52 cycles** |
+| **Total** | **13** | - | **~52 cycles** |
 
 O(1) per bar. Six EMA stages plus two TEMA constructions and the final difference. No warmup compensator (all stages seed to first source value). Valid from bar 1. WarmupPeriod = N.
 
@@ -144,8 +144,8 @@ O(1) per bar. Six EMA stages plus two TEMA constructions and the final differenc
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| 6 cascaded EMA passes | No | Recursive IIR — all 6 stages sequential |
+| 6 cascaded EMA passes | No | Recursive IIR - all 6 stages sequential |
 | TEMA combinations (×2) | Yes | `VFNMADD` after EMA stages; constant coefficients |
 | Final 2×TEMA₁ − TEMA₂ | Yes | `VFNMADD231PD` across bar series |
 
-All EMA stages must complete sequentially. TEMA combinations and the final subtraction are vectorizable but represent ~28 of 52 cycles — approximately 54% of compute. Batch speedup: ~1.3× (vectorizing only the combination phases).
+All EMA stages must complete sequentially. TEMA combinations and the final subtraction are vectorizable but represent ~28 of 52 cycles - approximately 54% of compute. Batch speedup: ~1.3× (vectorizing only the combination phases).

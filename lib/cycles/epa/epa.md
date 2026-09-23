@@ -1,4 +1,4 @@
-# EPA — Ehlers Phasor Analysis
+# EPA - Ehlers Phasor Analysis
 
 ## Overview
 
@@ -50,8 +50,8 @@ The primary output (`Last.Value`) is the **Angle**.
 ## Algorithm
 
 1. **Dual Pearson Correlation** over a sliding window of `period` bars:
-   - `Real = corr(price, cos(2πk/N))` — correlation with cosine
-   - `Imag = corr(price, -sin(2πk/N))` — correlation with negative sine
+   - `Real = corr(price, cos(2πk/N))` - correlation with cosine
+   - `Imag = corr(price, -sin(2πk/N))` - correlation with negative sine
 
 2. **Angle Calculation**: `Angle = 90° - atan(Imag/Real)` with quadrant fix: if `Real < 0`, subtract 180°.
 
@@ -79,14 +79,14 @@ The primary output (`Last.Value`) is the **Angle**.
 | Property       | Value                                       |
 |:-------------- |:------------------------------------------- |
 | Complexity     | O(period) per bar                            |
-| Memory         | O(period) — RingBuffer + trig tables         |
+| Memory         | O(period) - RingBuffer + trig tables         |
 | Warmup         | `period` bars                                |
 | Output Range   | Angle: unbounded; DerivedPeriod: [0, 60]; TrendState: {−1, 0, +1} |
 | Zero Alloc     | ✅ Hot path allocates nothing                |
 
 ## Related Indicators
 
-- [CCOR](../ccor/ccor.md) — Ehlers Correlation Cycle (TASC June 2020) — earlier version with simpler angle logic
-- [HT_PHASOR](../ht_phasor/ht_phasor.md) — Hilbert Transform Phasor Components — different algorithm
-- [FSI](../fsi/fsi.md) — Ehlers Fourier Series Indicator
-- [EBSW](../ebsw/ebsw.md) — Ehlers Even Better Sine Wave
+- [CCOR](../ccor/ccor.md) - Ehlers Correlation Cycle (TASC June 2020) - earlier version with simpler angle logic
+- [HT_PHASOR](../ht_phasor/HtPhasor.md) - Hilbert Transform Phasor Components - different algorithm
+- [FSI](../fsi/fsi.md) - Ehlers Fourier Series Indicator
+- [EBSW](../ebsw/ebsw.md) - Ehlers Even Better Sine Wave

@@ -1,6 +1,6 @@
 # WRMSE: Weighted Root Mean Squared Error
 
-> *Not all errors are created equal—WRMSE lets you decide which ones matter most.*
+> *Not all errors are created equal-WRMSE lets you decide which ones matter most.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -113,7 +113,7 @@ $$
 | DIV | 1 | 15 | 15 |
 | SQRT | 1 | 15 | 15 |
 | CMP (weight threshold) | 1 | 1 | 1 |
-| **Total** | **~13** | — | **~45 cycles** |
+| **Total** | **~13** | - | **~45 cycles** |
 
 The dominant costs are DIV and SQRT (67% combined), consistent with other RMSE-family indicators.
 

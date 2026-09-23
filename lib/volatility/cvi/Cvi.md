@@ -1,6 +1,6 @@
 # CVI: Chaikin's Volatility
 
-> *Volatility expansion precedes major moves—when the trading range starts widening, pay attention.*
+> *Volatility expansion precedes major moves-when the trading range starts widening, pay attention.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -145,7 +145,7 @@ Per-bar operations after warmup:
 | SUB | 1 | 1 | 1 |
 | DIV | 1 | 15 | 15 |
 | MUL (×100) | 1 | 3 | 3 |
-| **Total** | — | — | **~27 cycles** |
+| **Total** | - | - | **~27 cycles** |
 
 The primary cost is the division for the ROC calculation.
 

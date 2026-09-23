@@ -105,7 +105,7 @@ TValue is a 16-byte struct (DateTime + double). Construction and field access ar
 | Struct construction (2 fields) | 2 | 1 cy | ~2 cy |
 | Field read (Tm or Val) | 1 | 0 cy | ~0 cy |
 | IsNaN check on Val | 1 | 1 cy | ~1 cy |
-| **Total** | **O(1)** | — | **~3 cy** |
+| **Total** | **O(1)** | - | **~3 cy** |
 
 16-byte struct fits in a single XMM register. Zero heap allocation. All operations are register-bound when JIT-promoted.
 

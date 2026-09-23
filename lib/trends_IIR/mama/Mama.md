@@ -1,6 +1,6 @@
 # MAMA: Ehlers MESA Adaptive Moving Average
 
-> *John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility—it adapts to the phase of the market cycle. It's like having a GPS for your trend.*
+> *John Ehlers again. This time, he built a moving average that doesn't just adapt to volatility-it adapts to the phase of the market cycle. It's like having a GPS for your trend.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -128,7 +128,7 @@ $$ \text{FAMA}_t = 0.5\alpha \cdot \text{MAMA}_t + (1 - 0.5\alpha) \cdot \text{F
 
 ## Mathematical Precision & Implementation Philosophy
 
-QuanTAlib's MAMA differs from every other implementation in circulation. Not because we wanted to be clever. Because we read the original paper, transcribed the EasyLanguage code by hand, and noticed that TradeStation returns arctangent *in degrees*, while C#'s `Math.Atan` returns radians.
+QuanTAlib's MAMA differs from every other implementation in circulation. Not because the implementation wanted to be clever. Because the implementation read the original paper, transcribed the EasyLanguage code by hand, and noticed that TradeStation returns arctangent *in degrees*, while C#'s `Math.Atan` returns radians.
 
 Most libraries ported Ehlers' numbers blindly. TA-Lib hardcodes `a = 0.0962` and `b = 0.5769`. But Ehlers' EasyLanguage code shows these as `5/52` and `15/26`. The difference is about 0.04% per coefficient, which compounds over long recursive smoothing runs. QuanTAlib uses the exact fractions instead.
 
@@ -146,7 +146,7 @@ An earlier revision of this indicator also replaced Ehlers' `atan(Q/I)` phase di
 
 ### The Atan Discriminator
 
-Ehlers used `atan(Q/I)` (single-quadrant, with a zero-check on `I`) together with a **signed, unwrapped** phase delta: `DeltaPhase = Phase[t-1] - Phase[t]`, floored at 1 degree (never taking an absolute value). When the discriminator's quadrant flips, that signed delta swings sharply negative, which forces `alpha` all the way up to `FastLimit` for one bar. This asymmetric "snap to full speed" behavior on quadrant flips is a deliberate part of Ehlers' design — it's how MAMA re-acquires the cycle quickly when the phase model breaks down.
+Ehlers used `atan(Q/I)` (single-quadrant, with a zero-check on `I`) together with a **signed, unwrapped** phase delta: `DeltaPhase = Phase[t-1] - Phase[t]`, floored at 1 degree (never taking an absolute value). When the discriminator's quadrant flips, that signed delta swings sharply negative, which forces `alpha` all the way up to `FastLimit` for one bar. This asymmetric "snap to full speed" behavior on quadrant flips is a deliberate part of Ehlers' design - it's how MAMA re-acquires the cycle quickly when the phase model breaks down.
 
 An `atan2(Q, I)` + phase-wrapping formulation (normalizing the delta back into `[-π, π]`) looks more "mathematically correct" but it removes exactly this snap behavior, since wrapping keeps the delta small and positive across quadrant flips instead of letting it spike negative. That single change was enough to make QuanTAlib disagree with TA-Lib and Skender by as much as 11%, even though both of those libraries agree with each other to ~1e-11. QuanTAlib now uses the same `atan(Q/I)` + signed-delta formulation as Ehlers/TA-Lib/Skender:
 
@@ -160,15 +160,15 @@ if (deltaPhase < 1.0) { deltaPhase = 1.0; }
 double alpha = deltaPhase > 1.0 ? Math.Max(_fastLimit / deltaPhase, _slowLimit) : _fastLimit;
 ```
 
-The period discriminator follows the same rule: `Period = 360 / atan(Im/Re)` (degrees, no absolute value). A negative result is not an error — it simply falls outside `[periodFloor, periodCap]` and gets clamped back into range by the existing bounds check, exactly as in TA-Lib.
+The period discriminator follows the same rule: `Period = 360 / atan(Im/Re)` (degrees, no absolute value). A negative result is not an error - it simply falls outside `[periodFloor, periodCap]` and gets clamped back into range by the existing bounds check, exactly as in TA-Lib.
 
 ### Convergence with Other Libraries
 
-With the atan-based discriminator, QuanTAlib tracks TA-Lib and Skender to within ~1e-2 absolute at steady state (bars 100+), on price series in the low thousands. The residual comes from warmup/priming differences — TA-Lib primes its Hilbert Transform state with a 32-bar WMA-based unstable period, while QuanTAlib uses a running average of the first 6 bars — not from a discriminator mismatch. MAMA/FAMA crossovers match essentially all of the time.
+With the atan-based discriminator, QuanTAlib tracks TA-Lib and Skender to within ~1e-2 absolute at steady state (bars 100+), on price series in the low thousands. The residual comes from warmup/priming differences - TA-Lib primes its Hilbert Transform state with a 32-bar WMA-based unstable period, while QuanTAlib uses a running average of the first 6 bars - not from a discriminator mismatch. MAMA/FAMA crossovers match essentially all of the time.
 
 ### Initialization Philosophy
 
-Ehlers' original paper initializes MAMA and FAMA to zero. This causes massive convergence errors for the first 100-300 bars. Skender initializes to the 6-bar SMA. We initialize to the running average of the first 6 bars:
+Ehlers' original paper initializes MAMA and FAMA to zero. This causes massive convergence errors for the first 100-300 bars. Skender initializes to the 6-bar SMA. The implementation initialize to the running average of the first 6 bars:
 
 ```csharp
 if (_state.Index <= 6)
@@ -198,22 +198,22 @@ MAMA is computationally intensive. Each bar requires four Hilbert Transform pass
 | DIV | 1 | 15 | 15 |
 | ATAN | 3 | 45 | 135 |
 | CMP/CLAMP | 8 | 1 | 8 |
-| **Total** | **72** | — | **~290 cycles** |
+| **Total** | **72** | - | **~290 cycles** |
 
 The hot path consists of:
-1. Pre-smoothing (4-tap FIR): 4 MUL + 3 ADD — 15 cycles
-2. Detrender Hilbert: 4 MUL + 3 ADD/SUB — 15 cycles
-3. Q1 Hilbert: 4 MUL + 3 ADD/SUB — 15 cycles
-4. jI/jQ Hilbert: 8 MUL + 6 ADD/SUB — 30 cycles
-5. Phasor addition: 2 ADD/SUB — 2 cycles
-6. I2/Q2 smoothing: 2 FMA — 8 cycles
-7. Homodyne discriminator (Re/Im): 2 FMA + 2 MUL + 2 ADD/SUB — 22 cycles
-8. Re/Im smoothing: 2 FMA — 8 cycles
-9. Period calculation: 1 ATAN + 1 DIV + 4 CMP — 64 cycles
-10. Period smoothing: 1 FMA — 4 cycles
-11. Phase calculation: 1 ATAN — 45 cycles
-12. Alpha calculation: 3 CMP + 1 DIV — 18 cycles
-13. MAMA/FAMA update: 2 MUL + 2 ADD/SUB — 8 cycles
+1. Pre-smoothing (4-tap FIR): 4 MUL + 3 ADD - 15 cycles
+2. Detrender Hilbert: 4 MUL + 3 ADD/SUB - 15 cycles
+3. Q1 Hilbert: 4 MUL + 3 ADD/SUB - 15 cycles
+4. jI/jQ Hilbert: 8 MUL + 6 ADD/SUB - 30 cycles
+5. Phasor addition: 2 ADD/SUB - 2 cycles
+6. I2/Q2 smoothing: 2 FMA - 8 cycles
+7. Homodyne discriminator (Re/Im): 2 FMA + 2 MUL + 2 ADD/SUB - 22 cycles
+8. Re/Im smoothing: 2 FMA - 8 cycles
+9. Period calculation: 1 ATAN + 1 DIV + 4 CMP - 64 cycles
+10. Period smoothing: 1 FMA - 4 cycles
+11. Phase calculation: 1 ATAN - 45 cycles
+12. Alpha calculation: 3 CMP + 1 DIV - 18 cycles
+13. MAMA/FAMA update: 2 MUL + 2 ADD/SUB - 8 cycles
 
 **Warmup path (bars ≤ 6):**
 
@@ -221,11 +221,11 @@ The hot path consists of:
 | :--- | :---: | :---: | :---: |
 | ADD | 1 | 1 | 1 |
 | DIV | 1 | 15 | 15 |
-| **Total** | **2** | — | **~16 cycles** |
+| **Total** | **2** | - | **~16 cycles** |
 
 ### Batch Mode (SIMD Analysis)
 
-MAMA is an IIR filter with complex phase state — **not vectorizable** across bars due to:
+MAMA is an IIR filter with complex phase state - **not vectorizable** across bars due to:
 1. Recursive smoothing dependencies (I2, Q2, Re, Im, Period)
 2. ATAN calls with data-dependent branching
 3. Phase delta calculation requiring previous state
@@ -261,7 +261,7 @@ Validated against Skender, TA-Lib and Ooples, all within an absolute tolerance o
 | **TA-Lib**    | ✔️      | Matches within 0.01 absolute at steady state; residual from WMA-based 32-bar unstable period vs QuanTAlib's 6-bar average warmup |
 | **Tulip**     | N/A    | Not implemented                                                                          |
 
-QuanTAlib still uses exact fractions (`5/52`, `15/26`) instead of TA-Lib's truncated decimals (`0.0962`, `0.5769`), which avoids coefficient rounding error compounding over long runs. That is a genuine, if small, precision improvement — but it is independent of, and much smaller than, the phase-discriminator bug this indicator previously had.
+QuanTAlib still uses exact fractions (`5/52`, `15/26`) instead of TA-Lib's truncated decimals (`0.0962`, `0.5769`), which avoids coefficient rounding error compounding over long runs. That is a genuine, if small, precision improvement - but it is independent of, and much smaller than, the phase-discriminator bug this indicator previously had.
 
 ## Usage Guidelines
 
@@ -272,7 +272,7 @@ MAMA excels in specific market conditions where its cycle-adaptive nature provid
 - **Trending markets with regular cycles**: Equities, forex pairs, and futures that exhibit measurable cyclical behavior (10-40 bar dominant cycles)
 - **Swing trading timeframes**: Daily, 4-hour, and hourly charts where cycle periods have time to develop. Intraday scalping on 1-minute charts rarely has clean cycles for MAMA to lock onto.
 - **Mean-reversion strategies**: The MAMA/FAMA crossover signals work well for identifying cycle turning points
-- **Adaptive position sizing**: Use the alpha value directly as a confidence metric—high alpha means uncertainty, reduce position size
+- **Adaptive position sizing**: Use the alpha value directly as a confidence metric-high alpha means uncertainty, reduce position size
 - **Trend confirmation**: MAMA below FAMA confirms bearish bias; MAMA above FAMA confirms bullish bias
 
 ### Limitations
@@ -301,7 +301,7 @@ MAMA works best when combined with indicators that cover its blind spots:
 
 ### Common Pitfalls
 
-1. **Crossover Signal Misuse**: The MAMA/FAMA crossover is the primary signal. MAMA crossing above FAMA is bullish. Crossing below is bearish. This is more reliable than a single MA because FAMA acts as confirmation. However, don't trade every crossover—filter with trend strength indicators.
+1. **Crossover Signal Misuse**: The MAMA/FAMA crossover is the primary signal. MAMA crossing above FAMA is bullish. Crossing below is bearish. This is more reliable than a single MA because FAMA acts as confirmation. However, don't trade every crossover-filter with trend strength indicators.
 
 2. **Parameter Tuning Mistakes**: `FastLimit` (default 0.5) controls maximum responsiveness. Higher = faster but choppier. `SlowLimit` (default 0.05) sets minimum smoothing. Lower = smoother but laggier. The 10:1 ratio is Ehlers' recommendation. Don't mess with it unless you understand phase rate of change dynamics.
 
@@ -311,4 +311,4 @@ MAMA works best when combined with indicators that cover its blind spots:
 
 5. **Precision Expectations**: QuanTAlib tracks TA-Lib and Skender within ~0.01 absolute at steady state, but won't match them to the sixth decimal. The residual comes from warmup/priming differences (TA-Lib primes with a 32-bar WMA-based unstable period; QuanTAlib uses a 6-bar running average), not from the phase discriminator. If this breaks your backtests, the backtests were fragile.
 
-6. **Ignoring the Alpha Output**: Many traders only look at MAMA and FAMA values. The adaptive alpha itself is valuable information—it tells you how confident MAMA is in its cycle estimate. High alpha (near FastLimit) means rapid phase change and uncertainty. Low alpha (near SlowLimit) means stable, established trend.
+6. **Ignoring the Alpha Output**: Many traders only look at MAMA and FAMA values. The adaptive alpha itself is valuable information-it tells you how confident MAMA is in its cycle estimate. High alpha (near FastLimit) means rapid phase change and uncertainty. Low alpha (near SlowLimit) means stable, established trend.

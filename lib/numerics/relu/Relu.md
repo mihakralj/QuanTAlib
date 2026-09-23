@@ -1,6 +1,6 @@
 # RELU: Rectified Linear Unit
 
-> *The simplest non-linearity that works—ReLU's computational efficiency and gradient-friendly properties made deep learning practical.*
+> *The simplest non-linearity that works-ReLU's computational efficiency and gradient-friendly properties made deep learning practical.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -156,7 +156,7 @@ Relu.Calculate(source.AsSpan(), output.AsSpan());
 
 ## Common Pitfalls
 
-1. **Dead Neurons**: In neural network contexts, neurons with ReLU can "die" if they receive consistently negative inputs during training—they output zero and have zero gradient.
+1. **Dead Neurons**: In neural network contexts, neurons with ReLU can "die" if they receive consistently negative inputs during training-they output zero and have zero gradient.
 
 2. **Unbounded Output**: Unlike sigmoid, ReLU has no upper bound. Large positive inputs pass through unchanged, potentially causing numerical issues downstream.
 

@@ -106,7 +106,7 @@ NW computes a Gaussian-weighted sum over N historical bars. The kernel weights K
 | Weighted sum FMA | N | ~4 cy | ~800 cy |
 | Sum normalization | 1 | ~3 cy | ~3 cy |
 | RingBuffer update | 1 | ~2 cy | ~2 cy |
-| **Total (N=200)** | **2N+2** | — | **~1205 cycles** |
+| **Total (N=200)** | **2N+2** | - | **~1205 cycles** |
 
 O(N) per bar. Dominant cost is the N-length dot product over the RingBuffer. Larger bandwidth h requires larger effective N for accurate coverage.
 

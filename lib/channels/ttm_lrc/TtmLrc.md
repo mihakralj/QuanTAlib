@@ -118,7 +118,7 @@ TTM_LRC extends REGCHANNEL with dual bands and $R^2$ computation. Two $O(n)$ pas
 | DIV (ssr/n, sst check, R²) | 3 | 15 | 45 |
 | SQRT (σ) | 1 | 20 | 20 |
 | MUL + ADD/SUB (4 bands: ±1σ, ±kσ) | 6 | ~2 | 12 |
-| **Total** | **~$9n + 15$** | — | **~$18n + 122$ cycles** |
+| **Total** | **~$9n + 15$** | - | **~$18n + 122$ cycles** |
 
 For period 100: ~1922 cycles/bar. The longer default period (100 vs 20) makes the window scans significantly more expensive than REGCHANNEL.
 

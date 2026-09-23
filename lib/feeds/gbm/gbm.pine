@@ -1,0 +1,4 @@
+//@version=5
+indicator("Geometric Brownian Motion Reference", "GBM")
+drift = input.float(0.0)
+plot(close * math.exp(drift), "GBM Reference", color=color.blue)

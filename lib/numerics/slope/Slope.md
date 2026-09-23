@@ -12,11 +12,11 @@
 | **Warmup**       | `2` bars                          |
 | **PineScript**   | [slope.pine](slope.pine)                       |
 
-- SLOPE measures the instantaneous rate of change—the velocity of a time series.
+- SLOPE measures the instantaneous rate of change-the velocity of a time series.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-SLOPE measures the instantaneous rate of change—the velocity of a time series. As the first derivative, it answers the fundamental question: how fast is the value changing right now? A positive slope means ascending; negative means descending; zero means flat. This O(1) streaming implementation uses SIMD optimization for batch calculations and handles bar corrections via state rollback.
+SLOPE measures the instantaneous rate of change-the velocity of a time series. As the first derivative, it answers the fundamental question: how fast is the value changing right now? A positive slope means ascending; negative means descending; zero means flat. This O(1) streaming implementation uses SIMD optimization for batch calculations and handles bar corrections via state rollback.
 
 ## Historical Context
 
@@ -102,9 +102,9 @@ $$
 | SUB | 1 | 1 | 1 |
 | MOV (state update) | 2 | 1 | 2 |
 | CMP (IsFinite check) | 1 | 1 | 1 |
-| **Total** | **4** | — | **~4 cycles** |
+| **Total** | **4** | - | **~4 cycles** |
 
-SLOPE is one of the fastest possible indicators—a single subtraction plus state bookkeeping.
+SLOPE is one of the fastest possible indicators-a single subtraction plus state bookkeeping.
 
 ### Batch Mode (512 values, SIMD)
 

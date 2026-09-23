@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -61,7 +63,7 @@ __all__ = [
 ]
 
 
-def ac(high: object, low: object, fastPeriod: int = 12, slowPeriod: int = 26, acPeriod: int = 5, offset: int = 0, **kwargs) -> object:
+def ac(high: ArrayLike, low: ArrayLike, fastPeriod: int = 12, slowPeriod: int = 26, acPeriod: int = 5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Accelerator Oscillator."""
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
@@ -74,7 +76,7 @@ def ac(high: object, low: object, fastPeriod: int = 12, slowPeriod: int = 26, ac
     return _wrap(destination, idx, f"AC_{fastPeriod}", "oscillators", offset)
 
 
-def ao(high: object, low: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:
+def ao(high: ArrayLike, low: ArrayLike, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Awesome Oscillator."""
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
@@ -86,7 +88,7 @@ def ao(high: object, low: object, fastPeriod: int = 12, slowPeriod: int = 26, of
     return _wrap(destination, idx, f"AO_{fastPeriod}", "oscillators", offset)
 
 
-def bbs(high: object, low: object, close: object, bbPeriod: int = 20, bbMult: float = 2.0, offset: int = 0, **kwargs) -> object:
+def bbs(high: ArrayLike, low: ArrayLike, close: ArrayLike, bbPeriod: int = 20, bbMult: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Band Squeeze."""
     bbPeriod = int(bbPeriod)
     bbMult = float(bbMult)
@@ -98,7 +100,7 @@ def bbs(high: object, low: object, close: object, bbPeriod: int = 20, bbMult: fl
     return _wrap(output, idx, f"BBS_{bbPeriod}", "oscillators", offset)
 
 
-def coppock(close: object, longRoc: int = 14, shortRoc: int = 11, wmaPeriod: int = 10, offset: int = 0, **kwargs) -> object:
+def coppock(close: ArrayLike, longRoc: int = 14, shortRoc: int = 11, wmaPeriod: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Coppock Curve."""
     longRoc = int(longRoc)
     shortRoc = int(shortRoc)
@@ -111,7 +113,7 @@ def coppock(close: object, longRoc: int = 14, shortRoc: int = 11, wmaPeriod: int
     return _wrap(output, idx, f"COPPOCK_{wmaPeriod}", "oscillators", offset)
 
 
-def eri(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def eri(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Elder Ray Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -122,7 +124,7 @@ def eri(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"ERI_{period}", "oscillators", offset)
 
 
-def fi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def fi(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Force Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -133,7 +135,7 @@ def fi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"FI_{period}", "oscillators", offset)
 
 
-def gator(close: object, jawPeriod: int = 13, jawShift: int = 8, teethPeriod: int = 8, teethShift: int = 5, lipsPeriod: int = 5, lipsShift: int = 3, offset: int = 0, **kwargs) -> object:
+def gator(close: ArrayLike, jawPeriod: int = 13, jawShift: int = 8, teethPeriod: int = 8, teethShift: int = 5, lipsPeriod: int = 5, lipsShift: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Gator Oscillator."""
     jawPeriod = int(jawPeriod)
     jawShift = int(jawShift)
@@ -149,7 +151,7 @@ def gator(close: object, jawPeriod: int = 13, jawShift: int = 8, teethPeriod: in
     return _wrap(output, idx, f"GATOR_{jawPeriod}", "oscillators", offset)
 
 
-def imi(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def imi(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Intraday Momentum Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -161,7 +163,7 @@ def imi(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap(dst, idx, f"IMI_{period}", "oscillators", offset)
 
 
-def kdj(high: object, low: object, close: object, period: int = 14, signal: int = 3, offset: int = 0, **kwargs) -> object:
+def kdj(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, signal: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """KDJ Indicator."""
     period = int(kwargs.get("length", period))
     signal = int(signal)
@@ -175,7 +177,7 @@ def kdj(high: object, low: object, close: object, period: int = 14, signal: int 
     return _wrap_multi({"kOut": kOut, "dOut": dOut, "jOut": jOut}, idx, "oscillators", offset)
 
 
-def kst(close: object, r1: int = 10, r2: int = 15, r3: int = 20, r4: int = 30, s1: int = 10, s2: int = 10, s3: int = 10, s4: int = 15, sigPeriod: int = 9, offset: int = 0, **kwargs) -> object:
+def kst(close: ArrayLike, r1: int = 10, r2: int = 15, r3: int = 20, r4: int = 30, s1: int = 10, s2: int = 10, s3: int = 10, s4: int = 15, sigPeriod: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Know Sure Thing."""
     r1 = int(r1)
     r2 = int(r2)
@@ -195,7 +197,7 @@ def kst(close: object, r1: int = 10, r2: int = 15, r3: int = 20, r4: int = 30, s
     return _wrap_multi({"kstOut": kstOut, "sigOut": sigOut}, idx, "oscillators", offset)
 
 
-def marketfi(high: object, low: object, volume: object, offset: int = 0, **kwargs) -> object:
+def marketfi(high: ArrayLike, low: ArrayLike, volume: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Market Facilitation Index."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); v, _ = _arr(volume)
@@ -205,7 +207,7 @@ def marketfi(high: object, low: object, volume: object, offset: int = 0, **kwarg
     return _wrap(output, idx, "MARKETFI", "oscillators", offset)
 
 
-def bw_mfi(high: object, low: object, volume: object, offset: int = 0, **kwargs) -> object:
+def bw_mfi(high: ArrayLike, low: ArrayLike, volume: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bill Williams Market Facilitation Index with 4-zone classification."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); v, _ = _arr(volume)
@@ -216,7 +218,7 @@ def bw_mfi(high: object, low: object, volume: object, offset: int = 0, **kwargs)
     return _wrap_multi({"mfiOut": mfiOut, "zoneOut": zoneOut}, idx, "oscillators", offset)
 
 
-def dstoch(high: object, low: object, close: object, period: int = 21, offset: int = 0, **kwargs) -> object:
+def dstoch(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 21, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Double Stochastic (Bressert DSS)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -227,7 +229,7 @@ def dstoch(high: object, low: object, close: object, period: int = 21, offset: i
     return _wrap(output, idx, f"DSTOCH_{period}", "oscillators", offset)
 
 
-def mstoch(close: object, stochLength: int = 20, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs) -> object:
+def mstoch(close: ArrayLike, stochLength: int = 20, hpLength: int = 48, ssLength: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Modified Stochastic."""
     stochLength = int(stochLength)
     hpLength = int(hpLength)
@@ -240,7 +242,7 @@ def mstoch(close: object, stochLength: int = 20, hpLength: int = 48, ssLength: i
     return _wrap(output, idx, f"MSTOCH_{stochLength}", "oscillators", offset)
 
 
-def pgo(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def pgo(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Pretty Good Oscillator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -251,7 +253,7 @@ def pgo(high: object, low: object, close: object, period: int = 14, offset: int 
     return _wrap(destination, idx, f"PGO_{period}", "oscillators", offset)
 
 
-def qqe(close: object, rsiPeriod: int = 14, smoothFactor: int = 5, qqeFactor: float = 4.236, offset: int = 0, **kwargs) -> object:
+def qqe(close: ArrayLike, rsiPeriod: int = 14, smoothFactor: int = 5, qqeFactor: float = 4.236, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Quantitative Qualitative Estimation."""
     rsiPeriod = int(rsiPeriod)
     smoothFactor = int(smoothFactor)
@@ -264,7 +266,7 @@ def qqe(close: object, rsiPeriod: int = 14, smoothFactor: int = 5, qqeFactor: fl
     return _wrap(output, idx, f"QQE_{rsiPeriod}", "oscillators", offset)
 
 
-def reverseema(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def reverseema(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Reverse EMA."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -275,7 +277,7 @@ def reverseema(close: object, period: int = 14, offset: int = 0, **kwargs) -> ob
     return _wrap(output, idx, f"REVERSEEMA_{period}", "oscillators", offset)
 
 
-def rvgi(open: object, high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rvgi(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Vigor Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -287,7 +289,7 @@ def rvgi(open: object, high: object, low: object, close: object, period: int = 1
     return _wrap_multi({"rvgiOutput": rvgiOutput, "signalOutput": signalOutput}, idx, "oscillators", offset)
 
 
-def rrsi(close: object, smoothLength: int = 10, rsiLength: int = 10, offset: int = 0, **kwargs) -> object:
+def rrsi(close: ArrayLike, smoothLength: int = 10, rsiLength: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rocket RSI (Ehlers) — Fisher Transform of Super Smoother–filtered RSI."""
     src = _to_np(close)
     n = len(src)
@@ -298,7 +300,7 @@ def rrsi(close: object, smoothLength: int = 10, rsiLength: int = 10, offset: int
     return _shift(out, offset)
 
 
-def smi(high: object, low: object, close: object, kPeriod: int = 14, kSmooth: int = 3, dSmooth: int = 3, blau: int = 3, offset: int = 0, **kwargs) -> object:
+def smi(high: ArrayLike, low: ArrayLike, close: ArrayLike, kPeriod: int = 14, kSmooth: int = 3, dSmooth: int = 3, blau: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Stochastic Momentum Index."""
     kPeriod = int(kPeriod)
     kSmooth = int(kSmooth)
@@ -313,7 +315,7 @@ def smi(high: object, low: object, close: object, kPeriod: int = 14, kSmooth: in
     return _wrap_multi({"kOut": kOut, "dOut": dOut}, idx, "oscillators", offset)
 
 
-def squeeze(high: object, low: object, close: object, period: int = 14, bbMult: float = 2.0, kcMult: float = 1.5, offset: int = 0, **kwargs) -> object:
+def squeeze(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, bbMult: float = 2.0, kcMult: float = 1.5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Squeeze Momentum."""
     period = int(kwargs.get("length", period))
     bbMult = float(bbMult)
@@ -327,7 +329,7 @@ def squeeze(high: object, low: object, close: object, period: int = 14, bbMult: 
     return _wrap_multi({"momOut": momOut, "sqOut": sqOut}, idx, "oscillators", offset)
 
 
-def squeeze_pro(high: object, low: object, close: object, period: int = 20, bbMult: float = 2.0, kcMultWide: float = 2.0, kcMultNormal: float = 1.5, kcMultNarrow: float = 1.0, momLength: int = 12, momSmooth: int = 6, useSma: bool = True, offset: int = 0, **kwargs) -> object:
+def squeeze_pro(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 20, bbMult: float = 2.0, kcMultWide: float = 2.0, kcMultNormal: float = 1.5, kcMultNarrow: float = 1.0, momLength: int = 12, momSmooth: int = 6, useSma: bool = True, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Squeeze Pro (LazyBear enhanced TTM Squeeze with 3 KC widths)."""
     period = int(kwargs.get("length", period))
     bbMult = float(bbMult)
@@ -346,7 +348,7 @@ def squeeze_pro(high: object, low: object, close: object, period: int = 20, bbMu
     return _wrap_multi({"momOut": momOut, "sqOut": sqOut}, idx, "oscillators", offset)
 
 
-def stc(close: object, kPeriod: int = 14, dPeriod: int = 3, fastLength: int = 23, slowLength: int = 50, smoothing: int = 10, offset: int = 0, **kwargs) -> object:
+def stc(close: ArrayLike, kPeriod: int = 14, dPeriod: int = 3, fastLength: int = 23, slowLength: int = 50, smoothing: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Schaff Trend Cycle."""
     kPeriod = int(kPeriod)
     dPeriod = int(dPeriod)
@@ -361,7 +363,7 @@ def stc(close: object, kPeriod: int = 14, dPeriod: int = 3, fastLength: int = 23
     return _wrap(output, idx, f"STC_{kPeriod}", "oscillators", offset)
 
 
-def stoch(high: object, low: object, close: object, kLength: int = 14, dPeriod: int = 3, offset: int = 0, **kwargs) -> object:
+def stoch(high: ArrayLike, low: ArrayLike, close: ArrayLike, kLength: int = 14, dPeriod: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Stochastic Oscillator."""
     kLength = int(kLength)
     dPeriod = int(dPeriod)
@@ -374,7 +376,7 @@ def stoch(high: object, low: object, close: object, kLength: int = 14, dPeriod: 
     return _wrap_multi({"kOut": kOut, "dOut": dOut}, idx, "oscillators", offset)
 
 
-def stochf(high: object, low: object, close: object, kLength: int = 14, dPeriod: int = 3, offset: int = 0, **kwargs) -> object:
+def stochf(high: ArrayLike, low: ArrayLike, close: ArrayLike, kLength: int = 14, dPeriod: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fast Stochastic."""
     kLength = int(kLength)
     dPeriod = int(dPeriod)
@@ -387,7 +389,7 @@ def stochf(high: object, low: object, close: object, kLength: int = 14, dPeriod:
     return _wrap_multi({"kOut": kOut, "dOut": dOut}, idx, "oscillators", offset)
 
 
-def stochrsi(close: object, rsiLength: int = 14, stochLength: int = 14, kSmooth: int = 3, dSmooth: int = 3, offset: int = 0, **kwargs) -> object:
+def stochrsi(close: ArrayLike, rsiLength: int = 14, stochLength: int = 14, kSmooth: int = 3, dSmooth: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Stochastic RSI."""
     rsiLength = int(rsiLength)
     stochLength = int(stochLength)
@@ -401,7 +403,7 @@ def stochrsi(close: object, rsiLength: int = 14, stochLength: int = 14, kSmooth:
     return _wrap(output, idx, f"STOCHRSI_{rsiLength}", "oscillators", offset)
 
 
-def ttm_wave(close: object, offset: int = 0, **kwargs) -> object:
+def ttm_wave(close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """TTM Wave."""
     offset = int(offset)
     src, idx = _arr(close)
@@ -411,7 +413,7 @@ def ttm_wave(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "TTM_WAVE", "oscillators", offset)
 
 
-def ultosc(high: object, low: object, close: object, period1: int = 14, period2: int = 14, period3: int = 14, offset: int = 0, **kwargs) -> object:
+def ultosc(high: ArrayLike, low: ArrayLike, close: ArrayLike, period1: int = 14, period2: int = 14, period3: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ultimate Oscillator."""
     period1 = int(period1)
     period2 = int(period2)
@@ -424,7 +426,7 @@ def ultosc(high: object, low: object, close: object, period1: int = 14, period2:
     return _wrap(output, idx, f"ULTOSC_{period1}", "oscillators", offset)
 
 
-def willr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def willr(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Williams %R."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -434,7 +436,7 @@ def willr(high: object, low: object, close: object, period: int = 14, offset: in
     _check(_lib.qtl_willr(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period))
     return _wrap(output, idx, f"WILLR_{period}", "oscillators", offset)
 
-def fisher(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
+def fisher(close: ArrayLike, period: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fisher Transform."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -442,7 +444,7 @@ def fisher(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"FISHER_{period}", "oscillators", offset)
 
 
-def fisher04(close: object, period: int = 9, offset: int = 0, **kwargs) -> object:
+def fisher04(close: ArrayLike, period: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fisher Transform (0.4 variant)."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -450,7 +452,7 @@ def fisher04(close: object, period: int = 9, offset: int = 0, **kwargs) -> objec
     return _wrap(dst, idx, f"FISHER04_{period}", "oscillators", offset)
 
 
-def dpo(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def dpo(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Detrended Price Oscillator."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -458,7 +460,7 @@ def dpo(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"DPO_{period}", "oscillators", offset)
 
 
-def trix(close: object, period: int = 18, offset: int = 0, **kwargs) -> object:
+def trix(close: ArrayLike, period: int = 18, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Triple EMA Rate of Change."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -466,7 +468,7 @@ def trix(close: object, period: int = 18, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"TRIX_{period}", "oscillators", offset)
 
 
-def inertia(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def inertia(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Inertia."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -474,7 +476,7 @@ def inertia(close: object, period: int = 20, offset: int = 0, **kwargs) -> objec
     return _wrap(dst, idx, f"INERTIA_{period}", "oscillators", offset)
 
 
-def rsx(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rsx(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Strength Xtra."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -482,7 +484,7 @@ def rsx(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"RSX_{period}", "oscillators", offset)
 
 
-def er(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def er(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Efficiency Ratio."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -490,7 +492,7 @@ def er(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"ER_{period}", "oscillators", offset)
 
 
-def cti(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
+def cti(close: ArrayLike, period: int = 12, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Correlation Trend Indicator."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -498,7 +500,7 @@ def cti(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"CTI_{period}", "oscillators", offset)
 
 
-def reflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def reflex(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Reflex."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -506,7 +508,7 @@ def reflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"REFLEX_{period}", "oscillators", offset)
 
 
-def trendflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def trendflex(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Trendflex."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -514,7 +516,7 @@ def trendflex(close: object, period: int = 20, offset: int = 0, **kwargs) -> obj
     return _wrap(dst, idx, f"TRENDFLEX_{period}", "oscillators", offset)
 
 
-def kri(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def kri(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Kairi Relative Index."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -522,7 +524,7 @@ def kri(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"KRI_{period}", "oscillators", offset)
 
 
-def psl(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
+def psl(close: ArrayLike, period: int = 12, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Psychological Line."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -530,8 +532,8 @@ def psl(close: object, period: int = 12, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"PSL_{period}", "oscillators", offset)
 
 
-def deco(close: object, short_period: int = 30, long_period: int = 60,
-         offset: int = 0, **kwargs) -> object:
+def deco(close: ArrayLike, short_period: int = 30, long_period: int = 60,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """DECO."""
     short_period = int(short_period); long_period = int(long_period); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -539,9 +541,9 @@ def deco(close: object, short_period: int = 30, long_period: int = 60,
     return _wrap(dst, idx, f"DECO_{short_period}_{long_period}", "oscillators", offset)
 
 
-def dosc(close: object, rsi_period: int = 14, ema1_period: int = 5,
+def dosc(close: ArrayLike, rsi_period: int = 14, ema1_period: int = 5,
          ema2_period: int = 3, signal_period: int = 9,
-         offset: int = 0, **kwargs) -> object:
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """DeMarker Oscillator."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -550,7 +552,7 @@ def dosc(close: object, rsi_period: int = 14, ema1_period: int = 5,
     return _wrap(dst, idx, f"DOSC_{rsi_period}", "oscillators", offset)
 
 
-def dso(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
+def dso(close: ArrayLike, period: int = 40, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Deviation-Scaled Oscillator."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -558,7 +560,7 @@ def dso(close: object, period: int = 40, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"DSO_{period}", "oscillators", offset)
 
 
-def rsih(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rsih(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Hann-Windowed RSI."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -566,14 +568,14 @@ def rsih(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"RSIH_{period}", "oscillators", offset)
 
 
-def madh(close: object, shortLength: int = 8, dominantCycle: int = 27, offset: int = 0, **kwargs) -> object:
+def madh(close: ArrayLike, shortLength: int = 8, dominantCycle: int = 27, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Moving Average Difference with Hann Windowing."""
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_madh(_ptr(src), n, _ptr(dst), int(shortLength), int(dominantCycle)))
     return _wrap(dst, idx, f"MADH_{shortLength}_{dominantCycle}", "oscillators", int(offset))
 
 
-def eeo(close: object, bandEdge: int = 20, offset: int = 0, **kwargs) -> object:
+def eeo(close: ArrayLike, bandEdge: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Elegant Oscillator."""
     bandEdge = int(kwargs.get("length", bandEdge)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -581,9 +583,9 @@ def eeo(close: object, bandEdge: int = 20, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"EEO_{bandEdge}", "oscillators", offset)
 
 
-def dymi(close: object, base_period: int = 14, short_period: int = 5,
+def dymi(close: ArrayLike, base_period: int = 14, short_period: int = 5,
          long_period: int = 10, min_period: int = 3, max_period: int = 30,
-         offset: int = 0, **kwargs) -> object:
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Dynamic Momentum Index."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -593,8 +595,8 @@ def dymi(close: object, base_period: int = 14, short_period: int = 5,
     return _wrap(dst, idx, "DYMI", "oscillators", offset)
 
 
-def crsi(close: object, rsi_period: int = 3, streak_period: int = 2,
-         rank_period: int = 100, offset: int = 0, **kwargs) -> object:
+def crsi(close: ArrayLike, rsi_period: int = 3, streak_period: int = 2,
+         rank_period: int = 100, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Connors RSI."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -603,8 +605,8 @@ def crsi(close: object, rsi_period: int = 3, streak_period: int = 2,
     return _wrap(dst, idx, f"CRSI_{rsi_period}", "oscillators", offset)
 
 
-def bbb(close: object, period: int = 20, mult: float = 2.0,
-        offset: int = 0, **kwargs) -> object:
+def bbb(close: ArrayLike, period: int = 20, mult: float = 2.0,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Band Bounce."""
     period = int(kwargs.get("length", period)); mult = float(mult); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -612,8 +614,8 @@ def bbb(close: object, period: int = 20, mult: float = 2.0,
     return _wrap(dst, idx, f"BBB_{period}", "oscillators", offset)
 
 
-def bbi(close: object, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
-        offset: int = 0, **kwargs) -> object:
+def bbi(close: ArrayLike, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bull Bear Index."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -621,8 +623,8 @@ def bbi(close: object, p1: int = 3, p2: int = 6, p3: int = 12, p4: int = 24,
     return _wrap(dst, idx, "BBI", "oscillators", offset)
 
 
-def dem(high: object, low: object, period: int = 14,
-        offset: int = 0, **kwargs) -> object:
+def dem(high: ArrayLike, low: ArrayLike, period: int = 14,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """DeMarker."""
     period = int(kwargs.get("length", period))
     h, idx = _arr(high); l, _ = _arr(low)
@@ -631,8 +633,8 @@ def dem(high: object, low: object, period: int = 14,
     return _wrap(dst, idx, f"DEM_{period}", "oscillators", int(offset))
 
 
-def brar(open: object, high: object, low: object, close: object,
-         length: int = 26, offset: int = 0, **kwargs) -> object:
+def brar(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike,
+         length: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bull-Bear Ratio (BRAR)."""
     length = int(length); offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -641,7 +643,7 @@ def brar(open: object, high: object, low: object, close: object,
     return _wrap_multi({f"BR_{length}": br, f"AR_{length}": ar}, idx, "oscillators", offset)
 
 
-def usi(close: object, period: int = 28, offset: int = 0, **kwargs) -> object:
+def usi(close: ArrayLike, period: int = 28, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Ultimate Strength Index (USI)."""
     period = int(period); offset = int(offset)
     c, idx = _arr(close); n = len(c); dst = _out(n)

@@ -1,6 +1,6 @@
 # BESSEL: Bessel Filter
 
-> *The Bessel filter preserves the shape of the input signal — maximum flatness in the time domain at the cost of a gentler rolloff.*
+> *The Bessel filter preserves the shape of the input signal - maximum flatness in the time domain at the cost of a gentler rolloff.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -111,7 +111,7 @@ Bessel implements a maximally flat group-delay 2nd-order IIR biquad. Five coeffi
 | Feedforward FMA (b0*x + b1*x1 + b2*x2) | 3 | ~4 cy | ~12 cy |
 | Feedback FMA (a1*y1 + a2*y2) | 2 | ~4 cy | ~8 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **9** | — | **~24 cycles** |
+| **Total** | **9** | - | **~24 cycles** |
 
 O(1) per bar. Coefficients precomputed from the period parameter. ~24 cycles/bar.
 

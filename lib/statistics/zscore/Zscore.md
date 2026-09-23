@@ -22,7 +22,7 @@ The Z-Score measures how many population standard deviations a value lies from t
 
 ## Historical Context
 
-The z-score originates from Karl Pearson's work in the 1890s on the theory of statistics. It transforms any distribution into units of standard deviation, making cross-series comparison possible. In trading, z-scores power mean-reversion strategies (enter when |z| > 2, exit when |z| < 0.5), pairs trading (z-score of spread), and anomaly detection. The population variant (N denominator) is standard in PineScript and most trading platforms because the rolling window IS the population of interest — not a sample from a larger population.
+The z-score originates from Karl Pearson's work in the 1890s on the theory of statistics. It transforms any distribution into units of standard deviation, making cross-series comparison possible. In trading, z-scores power mean-reversion strategies (enter when |z| > 2, exit when |z| < 0.5), pairs trading (z-score of spread), and anomaly detection. The population variant (N denominator) is standard in PineScript and most trading platforms because the rolling window IS the population of interest - not a sample from a larger population.
 
 ## Architecture and Physics
 

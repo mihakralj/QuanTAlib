@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -37,7 +39,7 @@ __all__ = [
 ]
 
 
-def adx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def adx(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Average Directional Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -48,7 +50,7 @@ def adx(high: object, low: object, close: object, period: int = 14, offset: int 
     return _wrap(destination, idx, f"ADX_{period}", "dynamics", offset)
 
 
-def adxr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def adxr(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """ADX Rating."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -59,7 +61,7 @@ def adxr(high: object, low: object, close: object, period: int = 14, offset: int
     return _wrap(destination, idx, f"ADXR_{period}", "dynamics", offset)
 
 
-def alligator(open: object, high: object, low: object, close: object, volume: object, jawPeriod: int = 13, jawOffset: int = 8, teethPeriod: int = 8, teethOffset: int = 5, lipsPeriod: int = 5, lipsOffset: int = 3, offset: int = 0, **kwargs) -> object:
+def alligator(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, jawPeriod: int = 13, jawOffset: int = 8, teethPeriod: int = 8, teethOffset: int = 5, lipsPeriod: int = 5, lipsOffset: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Williams Alligator."""
     jawPeriod = int(jawPeriod)
     jawOffset = int(jawOffset)
@@ -76,7 +78,7 @@ def alligator(open: object, high: object, low: object, close: object, volume: ob
     return _wrap(dst, idx, f"ALLIGATOR_{jawPeriod}", "dynamics", offset)
 
 
-def amat(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:
+def amat(close: ArrayLike, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Archer Moving Average Trends."""
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
@@ -89,7 +91,7 @@ def amat(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int 
     return _wrap_multi({"trend": trend, "strength": strength}, idx, "dynamics", offset)
 
 
-def aroon(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def aroon(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Aroon."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -100,7 +102,7 @@ def aroon(high: object, low: object, period: int = 14, offset: int = 0, **kwargs
     return _wrap(destination, idx, f"AROON_{period}", "dynamics", offset)
 
 
-def aroonosc(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def aroonosc(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Aroon Oscillator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -111,7 +113,7 @@ def aroonosc(high: object, low: object, period: int = 14, offset: int = 0, **kwa
     return _wrap(destination, idx, f"AROONOSC_{period}", "dynamics", offset)
 
 
-def chop(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def chop(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Choppiness Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -123,7 +125,7 @@ def chop(open: object, high: object, low: object, close: object, volume: object,
     return _wrap(dst, idx, f"CHOP_{period}", "dynamics", offset)
 
 
-def dmh(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def dmh(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Directional Movement with Hann Windowing."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -134,7 +136,7 @@ def dmh(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) 
     return _wrap(dst, idx, f"DMH_{period}", "dynamics", offset)
 
 
-def dmx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def dmx(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Directional Movement Extended."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -145,7 +147,7 @@ def dmx(high: object, low: object, close: object, period: int = 14, offset: int 
     return _wrap(destination, idx, f"DMX_{period}", "dynamics", offset)
 
 
-def dx(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def dx(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Directional Movement Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -156,7 +158,7 @@ def dx(high: object, low: object, close: object, period: int = 14, offset: int =
     return _wrap(destination, idx, f"DX_{period}", "dynamics", offset)
 
 
-def minus_di(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def minus_di(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Minus Directional Indicator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -167,7 +169,7 @@ def minus_di(high: object, low: object, close: object, period: int = 14, offset:
     return _wrap(destination, idx, f"MINUS_DI_{period}", "dynamics", offset)
 
 
-def minus_dm(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def minus_dm(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Minus Directional Movement."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -178,7 +180,7 @@ def minus_dm(high: object, low: object, close: object, period: int = 14, offset:
     return _wrap(destination, idx, f"MINUS_DM_{period}", "dynamics", offset)
 
 
-def ghla(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ghla(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Gann Hi-Lo Activator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -189,7 +191,7 @@ def ghla(high: object, low: object, close: object, period: int = 14, offset: int
     return _wrap(output, idx, f"GHLA_{period}", "dynamics", offset)
 
 
-def ht_trendmode(close: object, offset: int = 0, **kwargs) -> object:
+def ht_trendmode(close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Hilbert Transform Trend Mode."""
     offset = int(offset)
     src, idx = _arr(close)
@@ -199,7 +201,7 @@ def ht_trendmode(close: object, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, "HT_TRENDMODE", "dynamics", offset)
 
 
-def ichimoku(open: object, high: object, low: object, close: object, volume: object, tenkanPeriod: int = 9, kijunPeriod: int = 26, senkouBPeriod: int = 52, displacement: int = 26, offset: int = 0, **kwargs) -> object:
+def ichimoku(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, tenkanPeriod: int = 9, kijunPeriod: int = 26, senkouBPeriod: int = 52, displacement: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ichimoku Cloud."""
     tenkanPeriod = int(tenkanPeriod)
     kijunPeriod = int(kijunPeriod)
@@ -218,7 +220,7 @@ def ichimoku(open: object, high: object, low: object, close: object, volume: obj
     return _wrap_multi({"dstTenkan": dstTenkan, "dstKijun": dstKijun, "dstSenkouA": dstSenkouA, "dstSenkouB": dstSenkouB, "dstChikou": dstChikou}, idx, "dynamics", offset)
 
 
-def impulse(close: object, emaPeriod: int = 13, macdFast: int = 12, macdSlow: int = 26, macdSignal: int = 9, offset: int = 0, **kwargs) -> object:
+def impulse(close: ArrayLike, emaPeriod: int = 13, macdFast: int = 12, macdSlow: int = 26, macdSignal: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Elder Impulse System."""
     emaPeriod = int(emaPeriod)
     macdFast = int(macdFast)
@@ -232,7 +234,7 @@ def impulse(close: object, emaPeriod: int = 13, macdFast: int = 12, macdSlow: in
     return _wrap(dst, idx, f"IMPULSE_{emaPeriod}", "dynamics", offset)
 
 
-def pfe(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
+def pfe(close: ArrayLike, period: int = 14, smoothPeriod: int = 5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Polarized Fractal Efficiency."""
     period = int(kwargs.get("length", period))
     smoothPeriod = int(smoothPeriod)
@@ -244,7 +246,7 @@ def pfe(close: object, period: int = 14, smoothPeriod: int = 5, offset: int = 0,
     return _wrap(output, idx, f"PFE_{period}", "dynamics", offset)
 
 
-def plus_di(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def plus_di(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Plus Directional Indicator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -255,7 +257,7 @@ def plus_di(high: object, low: object, close: object, period: int = 14, offset: 
     return _wrap(destination, idx, f"PLUS_DI_{period}", "dynamics", offset)
 
 
-def plus_dm(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def plus_dm(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Plus Directional Movement."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -266,7 +268,7 @@ def plus_dm(high: object, low: object, close: object, period: int = 14, offset: 
     return _wrap(destination, idx, f"PLUS_DM_{period}", "dynamics", offset)
 
 
-def pta(close: object, longPeriod: int = 250, shortPeriod: int = 40, offset: int = 0, **kwargs) -> object:
+def pta(close: ArrayLike, longPeriod: int = 250, shortPeriod: int = 40, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Precision Trend Analysis."""
     longPeriod = int(kwargs.get("long_period", longPeriod))
     shortPeriod = int(kwargs.get("short_period", shortPeriod))
@@ -278,7 +280,7 @@ def pta(close: object, longPeriod: int = 250, shortPeriod: int = 40, offset: int
     return _wrap(output, idx, f"PTA_{longPeriod}_{shortPeriod}", "dynamics", offset)
 
 
-def qstick(open: object, high: object, low: object, close: object, volume: object, period: int = 14, useEma: int = 0, offset: int = 0, **kwargs) -> object:
+def qstick(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, useEma: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """QStick."""
     period = int(kwargs.get("length", period))
     useEma = int(useEma)
@@ -291,7 +293,7 @@ def qstick(open: object, high: object, low: object, close: object, volume: objec
     return _wrap(dst, idx, f"QSTICK_{period}", "dynamics", offset)
 
 
-def ravi(close: object, shortPeriod: int = 12, longPeriod: int = 26, offset: int = 0, **kwargs) -> object:
+def ravi(close: ArrayLike, shortPeriod: int = 12, longPeriod: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Range Action Verification Index."""
     shortPeriod = int(shortPeriod)
     longPeriod = int(longPeriod)
@@ -303,7 +305,7 @@ def ravi(close: object, shortPeriod: int = 12, longPeriod: int = 26, offset: int
     return _wrap(output, idx, f"RAVI_{shortPeriod}", "dynamics", offset)
 
 
-def supertrend(open: object, high: object, low: object, close: object, volume: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def supertrend(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """SuperTrend."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -316,7 +318,7 @@ def supertrend(open: object, high: object, low: object, close: object, volume: o
     return _wrap(dst, idx, f"SUPER_{period}", "dynamics", offset)
 
 
-def ttm_squeeze(open: object, high: object, low: object, close: object, volume: object, bbPeriod: int = 20, bbMult: float = 2.0, kcPeriod: int = 10, kcMult: float = 1.5, momPeriod: int = 12, offset: int = 0, **kwargs) -> object:
+def ttm_squeeze(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, bbPeriod: int = 20, bbMult: float = 2.0, kcPeriod: int = 10, kcMult: float = 1.5, momPeriod: int = 12, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """TTM Squeeze."""
     bbPeriod = int(bbPeriod)
     bbMult = float(bbMult)
@@ -332,7 +334,7 @@ def ttm_squeeze(open: object, high: object, low: object, close: object, volume: 
     return _wrap(dst, idx, f"TTM_SQUEEZE_{bbPeriod}", "dynamics", offset)
 
 
-def ttm_trend(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ttm_trend(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """TTM Trend."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -344,7 +346,7 @@ def ttm_trend(open: object, high: object, low: object, close: object, volume: ob
     return _wrap(dst, idx, f"TTM_TREND_{period}", "dynamics", offset)
 
 
-def vhf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def vhf(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Vertical Horizontal Filter."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -355,7 +357,7 @@ def vhf(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"VHF_{period}", "dynamics", offset)
 
 
-def vortex(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def vortex(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Vortex Indicator."""
     period = int(kwargs.get("length", period))
     offset = int(offset)

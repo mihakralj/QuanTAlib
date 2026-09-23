@@ -114,7 +114,7 @@ LogCosh: L = log(cosh(e)) = log((exp(e)+exp(-e))/2). Numerically stabilized as |
 | log() call | 1 | ~15 cy | ~15 cy |
 | Arithmetic combination | 3 | ~3 cy | ~9 cy |
 | Running accumulator update | 1 | ~4 cy | ~4 cy |
-| **Total** | **~8** | — | **~60 cycles** |
+| **Total** | **~8** | - | **~60 cycles** |
 
 O(1) per bar. LogCosh is dominated by transcendental function costs (exp, log). ~60 cycles/bar.
 

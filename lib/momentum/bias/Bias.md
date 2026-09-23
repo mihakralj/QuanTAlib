@@ -101,7 +101,7 @@ $$\text{SMA}_t = \frac{P_t}{1 + \text{Bias}_t}$$
 | MUL | 0 | 3 | 0 |
 | DIV | 2 | 15 | 30 |
 | Buffer Access | 2 | 3 | 6 |
-| **Total** | **7** | — | **~39 cycles** |
+| **Total** | **7** | - | **~39 cycles** |
 
 Division dominates the cost (two divisions: one for SMA, one for bias ratio).
 

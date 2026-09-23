@@ -212,6 +212,20 @@ public sealed class Lrsi : ITValuePublisher
     }
 
     /// <summary>
+    /// Initializes the indicator with scalar history.
+    /// </summary>
+    public void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
+        DateTime time = DateTime.UnixEpoch;
+        foreach (double value in source)
+        {
+            Update(new TValue(time, value), isNew: true);
+            time += interval;
+        }
+    }
+
+    /// <summary>
     /// Batch-computes LRSI over a TSeries source.
     /// </summary>
     public static TSeries Calculate(TSeries source, double gamma = 0.5)

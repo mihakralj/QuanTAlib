@@ -1,6 +1,6 @@
 # BWMA: Bessel-Weighted Moving Average
 
-> *The Bessel function appears in problems involving cylindrical symmetry—heat flow in pipes, vibration of drumheads, and apparently, the smoothing of financial time series. Mathematics doesn't care about your asset class.*
+> *The Bessel function appears in problems involving cylindrical symmetry-heat flow in pipes, vibration of drumheads, and apparently, the smoothing of financial time series. Mathematics doesn't care about your asset class.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -21,7 +21,7 @@ BWMA is a Finite Impulse Response (FIR) filter that applies a Bessel-derived win
 
 ## Historical Context
 
-The Bessel window function derives from the modified Bessel function of the first kind, $I_0$, which Friedrich Bessel studied in the early 19th century while analyzing planetary motion perturbations. The simplified polynomial approximation used in BWMA—$(1 - x^2)^{\text{power}}$—captures the essential shape without requiring the full Bessel function computation.
+The Bessel window function derives from the modified Bessel function of the first kind, $I_0$, which Friedrich Bessel studied in the early 19th century while analyzing planetary motion perturbations. The simplified polynomial approximation used in BWMA-$(1 - x^2)^{\text{power}}$-captures the essential shape without requiring the full Bessel function computation.
 
 In signal processing, Bessel-derived windows are prized for their smooth rolloff characteristics. The Kaiser window (a close relative) is standard in FIR filter design for its ability to trade off between main lobe width and side lobe attenuation. BWMA brings this engineering discipline to technical analysis.
 
@@ -37,11 +37,11 @@ The window is inherently symmetric around the center, creating a bell-shaped wei
 
 Think of BWMA as a mass-spring system where:
 
-* **Order 0** (parabolic): The weight distribution follows a simple parabola—gentle tapering, broad response
+* **Order 0** (parabolic): The weight distribution follows a simple parabola-gentle tapering, broad response
 * **Order 1**: The curve steepens, emphasizing center values more strongly
 * **Order 2+**: Increasingly focused on the center, approaching a "soft" impulse response
 
-The key advantage over rectangular windows (SMA) is the elimination of the "boxcar" effect—the abrupt inclusion/exclusion of data points that causes artificial oscillations in the frequency response.
+The key advantage over rectangular windows (SMA) is the elimination of the "boxcar" effect-the abrupt inclusion/exclusion of data points that causes artificial oscillations in the frequency response.
 
 ### The Compute Challenge
 
@@ -106,7 +106,7 @@ Where $W_{\text{sum}} = \sum w_i$.
 | MUL | 2L | 3 | 6L |
 | ADD/SUB | 2L | 1 | 2L |
 | POW | L | 80 | 80L |
-| **Total (init)** | — | — | **~88L cycles** |
+| **Total (init)** | - | - | **~88L cycles** |
 
 For period=20: ~1,760 cycles (one-time).
 
@@ -116,7 +116,7 @@ For period=20: ~1,760 cycles (one-time).
 | :--- | :---: | :---: | :---: |
 | MUL | L + 1 | 3 | 3L + 3 |
 | ADD | L | 1 | L |
-| **Total** | **2L + 1** | — | **~4L + 3 cycles** |
+| **Total** | **2L + 1** | - | **~4L + 3 cycles** |
 
 For period=20: ~83 cycles per bar.
 
@@ -139,7 +139,7 @@ The dot product is highly vectorizable:
 | :--- | :---: | :---: | :--- |
 | Scalar streaming | ~83 | ~42,496 | O(L) per bar |
 | SIMD batch | ~22 | ~11,264 | Vectorized dot product |
-| **Improvement** | **~4×** | **~31K saved** | — |
+| **Improvement** | **~4×** | **~31K saved** | - |
 
 ### Quality Metrics
 

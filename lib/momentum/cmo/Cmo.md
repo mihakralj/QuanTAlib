@@ -96,7 +96,7 @@ var cmo = new Cmo(sourceIndicator, period: 14);
 
 ### Operation Count (Streaming Mode)
 
-CMO(N) maintains two ring buffers — `_upBuffer` (gains) and `_downBuffer` (losses) — and derives its value from the running sums already tracked by each buffer. The per-bar cost is dominated by the ring buffer updates and the single division.
+CMO(N) maintains two ring buffers - `_upBuffer` (gains) and `_downBuffer` (losses) - and derives its value from the running sums already tracked by each buffer. The per-bar cost is dominated by the ring buffer updates and the single division.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -107,7 +107,7 @@ CMO(N) maintains two ring buffers — `_upBuffer` (gains) and `_downBuffer` (los
 | Sum subtraction (SumUp − SumDown) | 1 | 1 | ~1 |
 | Sum addition (SumUp + SumDown) | 1 | 1 | ~1 |
 | Scale (× 100) + division | 2 | 8 | ~16 |
-| **Total** | **12** | — | **~30 cycles** |
+| **Total** | **12** | - | **~30 cycles** |
 
 O(1) per bar. At N = 14 (default), WarmupPeriod = 15 bars (one extra for the initial delta). Typical measured cost: 28–32 cycles on a Zen 4 core with turbo.
 

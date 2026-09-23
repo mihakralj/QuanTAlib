@@ -1,6 +1,6 @@
 # HT_SINE: Ehlers Hilbert Transform SineWave (also known as SINE)
 
-> *The Hilbert sine wave renders cycle timing visible — crossovers of sine and lead-sine mark turning points.*
+> *The Hilbert sine wave renders cycle timing visible - crossovers of sine and lead-sine mark turning points.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

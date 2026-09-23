@@ -121,7 +121,7 @@ All R/S level computations use `Math.FusedMultiplyAdd` for the `multiplier * off
 
 ### Operation Count (Streaming Mode)
 
-Extended Pivot Points adds R4/S4 levels beyond Classic — O(1) with 4 support/resistance pairs.
+Extended Pivot Points adds R4/S4 levels beyond Classic - O(1) with 4 support/resistance pairs.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -129,7 +129,7 @@ Extended Pivot Points adds R4/S4 levels beyond Classic — O(1) with 4 support/r
 | PP = (H + L + C) / 3 | 1 | 2 cy | ~2 cy |
 | R1..R4 arithmetic + S1..S4 | 8 | 2 cy | ~16 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~23 cy** |
+| **Total** | **O(1)** | - | **~23 cy** |
 
 O(1) pure arithmetic. Extended variant generates 4 pairs vs Classic 3 pairs, adding ~4 cy. All levels SIMD-parallel in batch mode.
 

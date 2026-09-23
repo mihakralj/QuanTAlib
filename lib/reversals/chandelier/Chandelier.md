@@ -90,7 +90,7 @@ The indicator requires $N$ bars to establish ATR and rolling extremes. With defa
 
 ### Operation Count (Streaming Mode)
 
-Chandelier Exit uses rolling ATR + highest high / lowest low tracking — O(1) per bar.
+Chandelier Exit uses rolling ATR + highest high / lowest low tracking - O(1) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -101,7 +101,7 @@ Chandelier Exit uses rolling ATR + highest high / lowest low tracking — O(1) p
 | Long stop = highest - mult*ATR | 1 | 2 cy | ~2 cy |
 | Short stop = lowest + mult*ATR | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~23 cy** |
+| **Total** | **O(1)** | - | **~23 cy** |
 
 O(1) per bar. ATR uses Wilder smoothing (RMA). Highest/lowest tracked via O(1) RingBuffer max/min monotonic deque.
 

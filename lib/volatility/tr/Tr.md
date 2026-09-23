@@ -23,7 +23,7 @@ True Range (TR) is a volatility measure that captures the maximum price movement
 
 J. Welles Wilder Jr. introduced True Range in his seminal 1978 book "New Concepts in Technical Trading Systems." This same work introduced many other foundational indicators including RSI, ATR, Parabolic SAR, and the ADX family.
 
-Wilder recognized that the traditional High-Low range fails to capture the full extent of price movement when markets gap at the open. A stock might have a narrow intraday range but a massive overnight gap—the simple High-Low would miss this volatility entirely. True Range solves this by considering the previous close as a potential extreme.
+Wilder recognized that the traditional High-Low range fails to capture the full extent of price movement when markets gap at the open. A stock might have a narrow intraday range but a massive overnight gap-the simple High-Low would miss this volatility entirely. True Range solves this by considering the previous close as a potential extreme.
 
 The elegance of TR lies in its simplicity: take the maximum of three simple calculations. This approach captures all possible price extremes while requiring minimal data (just High, Low, Close, and the previous Close). TR became the building block for ATR, which Wilder used extensively for stop-loss placement and position sizing.
 
@@ -165,9 +165,9 @@ Per-bar operations:
 | SUB | 3 | 1 | 3 |
 | ABS | 2 | 1 | 2 |
 | MAX | 2 | 1 | 2 |
-| **Total** | — | — | **~7 cycles** |
+| **Total** | - | - | **~7 cycles** |
 
-TR is extremely lightweight—one of the cheapest indicators to compute. No logarithms, no division, no transcendental functions.
+TR is extremely lightweight-one of the cheapest indicators to compute. No logarithms, no division, no transcendental functions.
 
 ### Batch Mode (512 values, SIMD/FMA)
 
@@ -212,7 +212,7 @@ TR is one of the most consistently implemented indicators across all libraries.
 
 ## Common Pitfalls
 
-1. **First bar handling**: The first bar has no previous close. The implementation uses High-Low for the first bar. Some implementations return NaN for the first bar—this one returns a valid (though incomplete) value.
+1. **First bar handling**: The first bar has no previous close. The implementation uses High-Low for the first bar. Some implementations return NaN for the first bar-this one returns a valid (though incomplete) value.
 
 2. **Confusing TR with ATR**: TR is the raw, unsmoothed value per bar. ATR is TR smoothed over a period. TR can be very volatile; ATR provides a more stable volatility estimate.
 

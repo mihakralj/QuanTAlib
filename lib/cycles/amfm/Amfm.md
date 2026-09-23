@@ -1,6 +1,6 @@
 # AMFM: Ehlers AM Detector / FM Demodulator
 
-> *Treat price like a radio wave — demodulate amplitude for volatility, demodulate frequency for timing.*
+> *Treat price like a radio wave - demodulate amplitude for volatility, demodulate frequency for timing.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -12,7 +12,7 @@
 | **Warmup**       | `max(12, period)` bars           |
 | **PineScript**   | [amfm.pine](amfm.pine)          |
 
-- AMFM decomposes price movement into amplitude (AM) and frequency (FM) components using DSP techniques from radio engineering — AM measures volatility, FM tracks timing of price variations.
+- AMFM decomposes price movement into amplitude (AM) and frequency (FM) components using DSP techniques from radio engineering - AM measures volatility, FM tracks timing of price variations.
 - **Similar:** [EEO](../../oscillators/eeo/Eeo.md), [DSO](../../oscillators/dso/Dso.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** AM provides volatility context; FM zero crossings signal direction changes. FM is more robust for strategy optimization (smoother parameter surface).
 - No external validation libraries implement AMFM. Validated through self-consistency and behavioral testing.
 
@@ -20,7 +20,7 @@ Ehlers applies radio engineering signal processing to financial data, treating t
 
 ## Historical Context
 
-John F. Ehlers published "A Technical Description of Market Data for Traders" in the May 2021 issue of *Technical Analysis of Stocks & Commodities*. The article applies classical radio engineering concepts — amplitude modulation (AM) and frequency modulation (FM) — to financial time series analysis. In the June 2021 follow-up, "Creating More Robust Trading Strategies With The FM Demodulator," Ehlers demonstrated that incorporating the FM demodulator into a simple momentum strategy produced significantly smoother parameter optimization surfaces, leading to more robust strategy configurations.
+John F. Ehlers published "A Technical Description of Market Data for Traders" in the May 2021 issue of *Technical Analysis of Stocks & Commodities*. The article applies classical radio engineering concepts - amplitude modulation (AM) and frequency modulation (FM) - to financial time series analysis. In the June 2021 follow-up, "Creating More Robust Trading Strategies With The FM Demodulator," Ehlers demonstrated that incorporating the FM demodulator into a simple momentum strategy produced significantly smoother parameter optimization surfaces, leading to more robust strategy configurations.
 
 ## Architecture & Physics
 

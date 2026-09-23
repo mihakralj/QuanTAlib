@@ -1,0 +1,4 @@
+//@version=5
+indicator("Rolling Minimum Index", "MININDEX")
+period = input.int(14, minval=2)
+plot(ta.lowestbars(close, period), "Min Index", color=color.red)

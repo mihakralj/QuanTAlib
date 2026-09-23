@@ -561,4 +561,18 @@ Reversal indicators identify potential turning points, compute adaptive stop lev
 | [**SWINGS**](../lib/reversals/swings/Swings.md) | Swing High/Low Detection | Configurable-lookback pattern detector; dual SwingHigh/SwingLow with persistent levels |
 | [**TTM_SCALPER**](../lib/reversals/ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries; John Carter |
 
+### Catalog Entries Added After Category Tables
 
+| Indicator | Full Name | Category |
+| :-------- | :-------- | :------- |
+| [**ATRSTOP**](../lib/reversals/atrstop/Atrstop.md) | ATR Trailing Stop | Reversals |
+| [**CONVEXITY**](../lib/statistics/convexity/Convexity.md) | Beta Convexity | Statistics |
+| [**CSVFEED**](../lib/feeds/csvfeed/CsvFeed.md) | CSV Data Feed | Feeds |
+| [**DSTOCH**](../lib/oscillators/dstoch/Dstoch.md) | Double Stochastic | Oscillators |
+| [**GBM**](../lib/feeds/gbm/GBM.md) | Geometric Brownian Motion Feed | Feeds |
+| [**HWC**](../lib/channels/hwc/Hwc.md) | Holt-Winters Channel | Channels |
+| [**RRSI**](../lib/oscillators/rrsi/Rrsi.md) | Ehlers Rocket RSI | Oscillators |
+| [**VSTOP**](../lib/reversals/vstop/Vstop.md) | Volatility Stop | Reversals |
+| [**VWMACD**](../lib/momentum/vwmacd/Vwmacd.md) | Volume-Weighted MACD | Momentum |
+| [**BW_MFI**](../lib/oscillators/bw_mfi/BwMfi.md) | Bill Williams Market Facilitation Index | Oscillators |
+| [**SQUEEZE_PRO**](../lib/oscillators/squeeze_pro/squeeze_pro.md) | Squeeze Pro | Oscillators |

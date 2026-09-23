@@ -1,6 +1,6 @@
 # AROON: Aroon Indicator
 
-> *Aroon measures how recently the highest high and lowest low occurred — recency as a proxy for trend vitality.*
+> *Aroon measures how recently the highest high and lowest low occurred - recency as a proxy for trend vitality.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - **Similar:** [AroonOsc](../aroonosc/AroonOsc.md), [ADX](../adx/Adx.md) | **Complementary:** Volume for confirmation | **Trading note:** Aroon Up/Down measures time since highest high or lowest low; 100 = new high/low this period.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Aroon indicator measures the temporal freshness of price extremes, answering not "how much did price move?" but "how long ago did it make a new high or low?" Aroon Up tracks the recency of the highest high within the lookback window; Aroon Down tracks the recency of the lowest low. Both are normalized to 0-100 where 100 means the extreme occurred on the current bar and 0 means it occurred at the far edge of the window. A companion Aroon Oscillator (Up minus Down) provides a single zero-centered metric for trend bias. Unlike recursive indicators that accumulate floating-point drift, Aroon is purely windowed — its value depends only on data within the lookback period, making it immune to initialization artifacts.
+The Aroon indicator measures the temporal freshness of price extremes, answering not "how much did price move?" but "how long ago did it make a new high or low?" Aroon Up tracks the recency of the highest high within the lookback window; Aroon Down tracks the recency of the lowest low. Both are normalized to 0-100 where 100 means the extreme occurred on the current bar and 0 means it occurred at the far edge of the window. A companion Aroon Oscillator (Up minus Down) provides a single zero-centered metric for trend bias. Unlike recursive indicators that accumulate floating-point drift, Aroon is purely windowed - its value depends only on data within the lookback period, making it immune to initialization artifacts.
 
 ## Historical Context
 
@@ -51,7 +51,7 @@ Range: $[-100, +100]$.
 ### 6. Complexity
 
 - **Time:** $O(N)$ per bar for the min/max linear scan (monotonic deque optimization possible for amortized $O(1)$)
-- **Space:** $O(N)$ — ring buffers for High and Low
+- **Space:** $O(N)$ - ring buffers for High and Low
 - **Warmup:** $N$ bars to fill the window
 
 ## Mathematical Foundation
@@ -75,7 +75,7 @@ Range: $[-100, +100]$.
 
 ### Step-Function Behavior
 
-Aroon produces discrete jumps rather than smooth curves. When a new extreme occurs, the corresponding line snaps to 100. Between new extremes, the line decays linearly by $100/N$ per bar. This staircase pattern is a natural consequence of the temporal measurement and should not be smoothed away — it carries information about the periodicity of extremes.
+Aroon produces discrete jumps rather than smooth curves. When a new extreme occurs, the corresponding line snaps to 100. Between new extremes, the line decays linearly by $100/N$ per bar. This staircase pattern is a natural consequence of the temporal measurement and should not be smoothed away - it carries information about the periodicity of extremes.
 
 ## Performance Profile
 
@@ -91,7 +91,7 @@ Aroon tracks the bar-ago position of the highest high and lowest low using deque
 | Deque update (low deque, amortized) | 2 | 1 | 2 |
 | Index arithmetic (bars since high/low) | 2 | 1 | 2 |
 | MUL × 2 + DIV × 2 (scale to 0–100) | 4 | 5 | 20 |
-| **Total** | **10** | — | **~26 cycles** |
+| **Total** | **10** | - | **~26 cycles** |
 
 ~26 cycles per bar at steady state. With naive linear scan: O(N) per bar = 2N comparisons.
 
@@ -116,6 +116,6 @@ Batch mode with SIMD prefix-max/min and horizontal ArgMax achieves ~4× throughp
 
 ## Resources
 
-- Chande, T.S. — *Beyond Technical Analysis* (John Wiley & Sons, 1995)
-- Chande, T.S. — *The New Technical Trader* (John Wiley & Sons, 1995)
+- Chande, T.S. - *Beyond Technical Analysis* (John Wiley & Sons, 1995)
+- Chande, T.S. - *The New Technical Trader* (John Wiley & Sons, 1995)
 - PineScript reference: `aroon.pine` in indicator directory

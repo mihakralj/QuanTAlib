@@ -130,9 +130,9 @@ SAM runs a 5-stage pipeline fully O(1) per bar. All state is scalar; the `RingBu
 | InstPeriod + DcPeriod EMA (2 FMA) | 2 | 4 | ~8 |
 | Adaptive momentum: ring buffer read + SUB | 2 | 3 | ~6 |
 | Super Smoother (2 FMA) | 2 | 4 | ~8 |
-| **Total** | **56** | — | **~271 cycles** |
+| **Total** | **56** | - | **~271 cycles** |
 
-O(1) per bar. The `ATAN2` call dominates (~25 cycles on modern x86). WarmupPeriod ≈ 40 bars for stable cycle detection. All 56 operations are scalar — the `record struct State` with 36 fields is promoted to registers by the JIT using the local-copy pattern.
+O(1) per bar. The `ATAN2` call dominates (~25 cycles on modern x86). WarmupPeriod ≈ 40 bars for stable cycle detection. All 56 operations are scalar - the `record struct State` with 36 fields is promoted to registers by the JIT using the local-copy pattern.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -146,4 +146,4 @@ O(1) per bar. The `ATAN2` call dominates (~25 cycles on modern x86). WarmupPerio
 | Super Smoother | No | 2-pole IIR; z-transform has poles inside unit circle, inherently serial |
 | Adaptive indexing (ring buffer) | No | Index depends on computed dcPeriod |
 
-SAM cannot be meaningfully vectorized — every stage except the FIR smoother has a data dependency that threads through the recursive EMA states. The dominant SIMD opportunity is the batch computation of candidate FIR outputs using strided AVX2 loads, but the downstream homodyne feedback loop negates it. Batch mode runs the same scalar kernel as streaming.
+SAM cannot be meaningfully vectorized - every stage except the FIR smoother has a data dependency that threads through the recursive EMA states. The dominant SIMD opportunity is the batch computation of candidate FIR outputs using strided AVX2 loads, but the downstream homodyne feedback loop negates it. Batch mode runs the same scalar kernel as streaming.

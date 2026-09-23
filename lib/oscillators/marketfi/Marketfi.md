@@ -16,17 +16,17 @@
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Market Facilitation Index answers a single question with arithmetic directness: how much price moved per unit of volume traded? One division. No lookback period. No smoothing. No parameter to debate. What you get is raw market efficiency — the price range a market delivers for each unit of liquidity consumed.
+The Market Facilitation Index answers a single question with arithmetic directness: how much price moved per unit of volume traded? One division. No lookback period. No smoothing. No parameter to debate. What you get is raw market efficiency - the price range a market delivers for each unit of liquidity consumed.
 
-Bill Williams introduced BW MFI in *Trading Chaos* (1995) as part of his Profitunity trading system, alongside the Awesome Oscillator and Accelerator Oscillator. His central insight was that price and volume carry independent signals, and only their *combination* reveals whether a trend has genuine participation. A wide range bar on thin volume suggests ease of movement but not conviction. A narrow range bar on heavy volume suggests absorption — large players defending a level.
+Bill Williams introduced BW MFI in *Trading Chaos* (1995) as part of his Profitunity trading system, alongside the Awesome Oscillator and Accelerator Oscillator. His central insight was that price and volume carry independent signals, and only their *combination* reveals whether a trend has genuine participation. A wide range bar on thin volume suggests ease of movement but not conviction. A narrow range bar on heavy volume suggests absorption - large players defending a level.
 
 ## Historical Context
 
-Williams drew on the earlier work of Mark Chakin, Jesse Livermore's tape-reading intuitions, and his own experience in commodities markets to argue that most technical indicators analyze price alone — a single dimension of a fundamentally two-dimensional market. Volume, he argued, is the missing dimension. The MFI is his most direct formulation of that intuition: strip everything away until you have a pure ratio.
+Williams drew on the earlier work of Mark Chakin, Jesse Livermore's tape-reading intuitions, and his own experience in commodities markets to argue that most technical indicators analyze price alone - a single dimension of a fundamentally two-dimensional market. Volume, he argued, is the missing dimension. The MFI is his most direct formulation of that intuition: strip everything away until you have a pure ratio.
 
 The index predates modern market microstructure theory but anticipated it. Economists later formalized the Kyle lambda (price impact per unit of order flow) and Amihud's illiquidity ratio, both of which are statistical close relatives of MFI's per-bar instantiation. Williams was doing microstructure analysis with a pocket calculator thirty years before the term was fashionable.
 
-Two objections are legitimate. First, raw volume is not normalized across instruments or time — a bitcoin MFI reading is incommensurable with a T-bill MFI reading. Second, the formula is sensitive to bar granularity: the same market on 1-minute bars versus daily bars produces categorically different MFI values on the same trade. Williams intended daily bars. Users who apply MFI to intraday data are extrapolating beyond its design envelope.
+Two objections are legitimate. First, raw volume is not normalized across instruments or time - a bitcoin MFI reading is incommensurable with a T-bill MFI reading. Second, the formula is sensitive to bar granularity: the same market on 1-minute bars versus daily bars produces categorically different MFI values on the same trade. Williams intended daily bars. Users who apply MFI to intraday data are extrapolating beyond its design envelope.
 
 ## Architecture & Physics
 
@@ -34,7 +34,7 @@ Two objections are legitimate. First, raw volume is not normalized across instru
 
 $$\text{MARKETFI} = \frac{\text{High} - \text{Low}}{\text{Volume}}$$
 
-**Zero-volume guard:** When `Volume = 0`, the result is `0.0`. Dividing by zero is undefined; returning `0.0` is the correct semantic choice — if no trades occurred, the market delivered zero facilitation per trade unit.
+**Zero-volume guard:** When `Volume = 0`, the result is `0.0`. Dividing by zero is undefined; returning `0.0` is the correct semantic choice - if no trades occurred, the market delivered zero facilitation per trade unit.
 
 ### 2. State
 
@@ -56,7 +56,7 @@ State = { LastValid: double, Count: int }
 
 ### 4. Bar Correction (`isNew = false`)
 
-The `isNew` parameter follows the standard QuanTAlib rollback contract. On `isNew = true`, `_ps = _s` is saved. On `isNew = false`, `_s = _ps` is restored before recomputing. Since MARKETFI state is entirely scalar (no buffers), rollback is a single struct copy — the cheapest possible correction.
+The `isNew` parameter follows the standard QuanTAlib rollback contract. On `isNew = true`, `_ps = _s` is saved. On `isNew = false`, `_s = _ps` is restored before recomputing. Since MARKETFI state is entirely scalar (no buffers), rollback is a single struct copy - the cheapest possible correction.
 
 ## Mathematical Foundation
 
@@ -72,22 +72,22 @@ The four-quadrant interpretation Williams used:
 
 | MFI vs Previous | Volume vs Previous | Quadrant | Interpretation |
 |-----------------|-------------------|----------|----------------|
-| ↑ | ↑ | Green | Trend acceleration — price and volume agree |
+| ↑ | ↑ | Green | Trend acceleration - price and volume agree |
 | ↑ | ↓ | Fade | Price moves easily; volume not confirming |
 | ↓ | ↑ | Squat | Volume absorbed; breakout pending (brown) |
-| ↓ | ↓ | Fake | No trend, no volume — false move likely |
+| ↓ | ↓ | Fake | No trend, no volume - false move likely |
 
-QuanTAlib computes the raw scalar index. The four-quadrant coloring requires comparing current bar against prior bar — implementable in the Quantower adapter or downstream.
+QuanTAlib computes the raw scalar index. The four-quadrant coloring requires comparing current bar against prior bar - implementable in the Quantower adapter or downstream.
 
 ## Performance Profile
 
 | Aspect | Detail |
 |--------|--------|
 | Time complexity | O(1) per bar |
-| Space complexity | O(1) — 2 scalar fields |
+| Space complexity | O(1) - 2 scalar fields |
 | Allocations (hot path) | 0 |
-| SIMD applicable | No — single division, no vectorizable loop |
-| FMA applicable | No — no `a*b + c` pattern |
+| SIMD applicable | No - single division, no vectorizable loop |
+| FMA applicable | No - no `a*b + c` pattern |
 | Warmup bars | 1 |
 | Buffer | None |
 
@@ -100,9 +100,9 @@ MarketFi is pure O(1): a single division of range by volume, no lookback or stat
 | Range = High - Low | 1 | 1 cy | ~1 cy |
 | MFI = Range / Volume | 1 | 5 cy | ~5 cy |
 | Zero-volume guard | 1 | 1 cy | ~1 cy |
-| **Total** | **O(1)** | — | **~7 cycles** |
+| **Total** | **O(1)** | - | **~7 cycles** |
 
-Absolute minimum complexity — one subtraction and one division per bar. No circular buffers, no warmup, no state.
+Absolute minimum complexity - one subtraction and one division per bar. No circular buffers, no warmup, no state.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -111,7 +111,7 @@ Absolute minimum complexity — one subtraction and one division per bar. No cir
 | Range = High - Low | Yes | `Vector<double>` subtract |
 | MFI = Range / Volume | Yes | `Vector` divide with zero-guard mask |
 
-Fully vectorizable — both operations are elementwise with no data dependencies across bars.
+Fully vectorizable - both operations are elementwise with no data dependencies across bars.
 
 **Operation count per bar:** 1 subtraction + 1 division + 1 comparison (zero guard) = 3 FP ops. This is the minimum possible for any meaningful price indicator.
 
@@ -119,11 +119,11 @@ Fully vectorizable — both operations are elementwise with no data dependencies
 
 | Dimension | Score | Note |
 |-----------|-------|------|
-| Mathematical precision | 9 | Exact division — no approximation |
+| Mathematical precision | 9 | Exact division - no approximation |
 | Interpretability | 7 | Simple ratio; requires context to act on |
-| Lag | 10 | Zero lag — pure current-bar measure |
+| Lag | 10 | Zero lag - pure current-bar measure |
 | Noise sensitivity | 4 | Sensitive to outlier bars; no smoothing |
-| Volume dependency | — | Requires real volume data; meaningless on synthetic feeds |
+| Volume dependency | - | Requires real volume data; meaningless on synthetic feeds |
 
 ## Validation
 
@@ -142,7 +142,7 @@ No external library (TA-Lib, Skender.Stock.Indicators, Tulip, OoplesFinance) imp
 
 1. **Zero volume on data gaps.** Many data providers fill weekend or holiday bars with `Volume = 0`. These produce `MFI = 0`, which is correct but may be misread as a "squat" signal. Guard your data feed or filter these bars upstream.
 
-2. **Tick data vs bar data.** MFI on tick bars is nonsensical — range is nearly always nonzero, volume is always 1. Use OHLCV bars with meaningful aggregation periods.
+2. **Tick data vs bar data.** MFI on tick bars is nonsensical - range is nearly always nonzero, volume is always 1. Use OHLCV bars with meaningful aggregation periods.
 
 3. **Cross-instrument comparison.** A crude oil MFI of 0.0001 and a gold MFI of 0.00003 say nothing relative to each other. Normalize by ATR or recent MFI average before comparing instruments.
 

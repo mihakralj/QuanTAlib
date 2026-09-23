@@ -1,6 +1,6 @@
 # HT_DCPHASE: Ehlers Hilbert Transform Dominant Cycle Phase
 
-> *Dominant cycle phase tracks where price sits within its current cycle — the angular position of the market's heartbeat.*
+> *Dominant cycle phase tracks where price sits within its current cycle - the angular position of the market's heartbeat.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

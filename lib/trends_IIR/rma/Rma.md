@@ -14,7 +14,7 @@
 | **Signature**    | [rma_signature](rma_signature.md) |
 
 - The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Wilder's Moving Average, is the backbone of J.
-- **Similar:** [SMMA](../smma/smma.md), [MMA](../mma/mma.md) | **Complementary:** RSI/ATR | **Trading note:** Running MA (identical to SMMA); Wilders original smoothing method.
+- **Similar:** [SMMA](Rma.md), [MMA](../mma/Mma.md) | **Complementary:** RSI/ATR | **Trading note:** Running MA (identical to SMMA); Wilders original smoothing method.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Wilder's Moving Average, is the backbone of J. Welles Wilder's most famous indicators: RSI, ATR, and ADX. It is functionally identical to an Exponential Moving Average (EMA), but with a smoothing factor ($\alpha$) of $1/N$ instead of $2/(N+1)$. This results in a longer "memory" and slower decay than a standard EMA of the same period.
@@ -62,7 +62,7 @@ RMA is implemented as a zero-cost wrapper around EMA with modified alpha ($\alph
 | :--- | :---: | :---: | :---: |
 | FMA | 1 | 4 | 4 |
 | MUL | 1 | 3 | 3 |
-| **Total (hot)** | **2** | — | **~7 cycles** |
+| **Total (hot)** | **2** | - | **~7 cycles** |
 
 During warmup (first ~3N bars), additional operations:
 
@@ -72,7 +72,7 @@ During warmup (first ~3N bars), additional operations:
 | SUB | 1 | 1 | 1 |
 | DIV | 1 | 15 | 15 |
 | CMP | 2 | 1 | 2 |
-| **Warmup overhead** | **5** | — | **~21 cycles** |
+| **Warmup overhead** | **5** | - | **~21 cycles** |
 
 **Total during warmup:** ~28 cycles/bar; **Post-warmup:** ~7 cycles/bar.
 

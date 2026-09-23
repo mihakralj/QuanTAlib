@@ -1,6 +1,6 @@
 # LOGNORMDIST: Log-Normal Distribution CDF
 
-> *The log-normal CDF models variables whose logarithm is normal — the natural distribution of prices and multiplicative processes.*
+> *The log-normal CDF models variables whose logarithm is normal - the natural distribution of prices and multiplicative processes.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -87,7 +87,7 @@ LOGNORMDIST(source, period, mu, sigma):
 
 ### Operation Count (Streaming Mode)
 
-Log-Normal CDF = Normal CDF of (ln(x) - mu) / sigma — one log() plus an erfc() evaluation.
+Log-Normal CDF = Normal CDF of (ln(x) - mu) / sigma - one log() plus an erfc() evaluation.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -96,9 +96,9 @@ Log-Normal CDF = Normal CDF of (ln(x) - mu) / sigma — one log() plus an erfc()
 | z = (log(x) - mu) / sigma | 1 | 4 cy | ~4 cy |
 | Normal CDF via erfc (rational approximation) | 1 | 15 cy | ~15 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~33 cy** |
+| **Total** | **O(1)** | - | **~33 cy** |
 
-O(1) — reduces to Normal CDF after log transform. erfc() rational approximation dominates; log() is secondary cost.
+O(1) - reduces to Normal CDF after log transform. erfc() rational approximation dominates; log() is secondary cost.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -108,7 +108,7 @@ O(1) — reduces to Normal CDF after log transform. erfc() rational approximatio
 | z normalization | Yes | Vector FMA |
 | erfc() | No | Rational polynomial; scalar |
 
-Limited vectorization — erfc blocks full SIMD. With SVML log: partial vectorization for the transform step.
+Limited vectorization - erfc blocks full SIMD. With SVML log: partial vectorization for the transform step.
 
 ## Resources
 

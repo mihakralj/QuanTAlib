@@ -113,7 +113,7 @@ TSeries stores timestamps and values as parallel List<long> + List<double> (SoA)
 | isNew check + rollback | 1 | 2 cy | ~2 cy |
 | Pub event fire | 1 | 5 cy | ~5 cy |
 | AsSpan (CollectionsMarshal) | 1 | 2 cy | ~2 cy |
-| **Total per bar** | **O(1)** | — | **~15 cy** |
+| **Total per bar** | **O(1)** | - | **~15 cy** |
 
 The Pub/Sub dispatch dominates practical throughput when multiple subscribers are chained. Solo update without subscribers: ~8 cy.
 

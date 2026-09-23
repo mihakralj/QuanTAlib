@@ -80,7 +80,7 @@ Detrended Oscillator subtracts a shifted (N/2+1) SMA from current price.
 | MUL × 1/N (SMA) | 1 | 3 | 3 |
 | RingBuffer read (shift N/2+1 bars back) | 1 | 1 | 1 |
 | SUB (price − shifted SMA) | 1 | 1 | 1 |
-| **Total** | **5** | — | **~7 cycles** |
+| **Total** | **5** | - | **~7 cycles** |
 
 One of the cheapest oscillators: ~7 cycles per bar.
 

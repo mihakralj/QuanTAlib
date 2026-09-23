@@ -1,6 +1,6 @@
 # AFIRMA: Autoregressive FIR Moving Average
 
-> *Standard Moving Averages assume linear or exponential weights. AFIRMA asks: what if we used signal processing window functions instead?*
+> *Standard Moving Averages assume linear or exponential weights. AFIRMA asks: what if the implementation used signal processing window functions instead?*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -24,7 +24,7 @@ The optional Least Squares mode fits a linear regression to recent bars and blen
 
 Moving averages traditionally use Simple (rectangular window), Weighted (triangular window), or Exponential (recursive) forms. The DSP community solved finite filter design decades ago using window functions to minimize spectral leakage (ringing artifacts at discontinuities).
 
-AFIRMA applies these well-understood coefficients directly to price series. It is effectively an FIR filter where coefficients are determined solely by the chosen window function—no manual coefficient calculation required.
+AFIRMA applies these well-understood coefficients directly to price series. It is effectively an FIR filter where coefficients are determined solely by the chosen window function-no manual coefficient calculation required.
 
 ## Architecture & Physics
 
@@ -126,7 +126,7 @@ $$
 
 | Parameter | Default | Range | Description |
 | :--- | :---: | :--- | :--- |
-| **Period** | — | ≥ 1 | Window length (number of taps) |
+| **Period** | - | ≥ 1 | Window length (number of taps) |
 | **Window** | BlackmanHarris | Enum | Window function for weight generation |
 | **LeastSquares** | false | bool | Enable linear regression blending |
 
@@ -134,7 +134,7 @@ $$
 
 ### Operation Count (Streaming Mode)
 
-Windowed FIR convolution — O(P) per bar where P = period (window length).
+Windowed FIR convolution - O(P) per bar where P = period (window length).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -143,7 +143,7 @@ Windowed FIR convolution — O(P) per bar where P = period (window length).
 | Weight normalization | 1 | ~1 cy | ~1 cy |
 | LS regression (if enabled) | n | ~2 cy | ~2n cy |
 | NaN guard + state update | 1 | ~2 cy | ~2 cy |
-| **Total (P=20)** | **O(P)** | — | **~25 cy** |
+| **Total (P=20)** | **O(P)** | - | **~25 cy** |
 
 O(P) per bar where P = window length. FMA-fused dot product dominates; LS regression adds O(n) where n = min(⌊(P−1)/2⌋, 50).
 

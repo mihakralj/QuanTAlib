@@ -1,6 +1,6 @@
 # POISSONDIST: Poisson Distribution CDF
 
-> *Poisson distribution CDF counts rare events in fixed intervals — the mathematics of arrivals, defaults, and surprises.*
+> *Poisson distribution CDF counts rare events in fixed intervals - the mathematics of arrivals, defaults, and surprises.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -93,9 +93,9 @@ Poisson PMF = e^(-lambda) * lambda^k / k! computed via log-space to avoid overfl
 | k * log(lambda) - lgamma(k+1) - lambda | 3 | 10 cy | ~30 cy |
 | exp() of log-PMF | 1 | 20 cy | ~20 cy |
 | CDF cumulative sum (k terms) | k | 50 cy | ~50k cy |
-| **Total (PMF only)** | **O(1)** | — | **~54 cy** |
+| **Total (PMF only)** | **O(1)** | - | **~54 cy** |
 
-PMF is O(1) via log-space computation. CDF is O(k) — expensive for large k. For k > 30, use Normal approximation. lgamma() dominates for small k.
+PMF is O(1) via log-space computation. CDF is O(k) - expensive for large k. For k > 30, use Normal approximation. lgamma() dominates for small k.
 
 ### Batch Mode (SIMD Analysis)
 

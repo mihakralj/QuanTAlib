@@ -219,8 +219,8 @@ public class RsTests
 
         for (int i = 0; i < 20; i++)
         {
-            baseSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-            compSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 50.0 + i));
+            baseSeries.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i));
+            compSeries.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 50.0 + i));
         }
 
         var result = Rs.Batch(baseSeries, compSeries, 5);
@@ -236,11 +236,11 @@ public class RsTests
 
         for (int i = 0; i < 10; i++)
         {
-            baseSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
+            baseSeries.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i));
         }
         for (int i = 0; i < 5; i++)
         {
-            compSeries.Add(new TValue(DateTime.Now.AddMinutes(i), 50.0 + i));
+            compSeries.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 50.0 + i));
         }
 
         Assert.Throws<ArgumentException>(() => Rs.Batch(baseSeries, compSeries));
@@ -358,7 +358,7 @@ public class RsTests
     public void Update_SingleInput_ThrowsNotSupported()
     {
         var rs = new Rs();
-        var input = new TValue(DateTime.Now, 100.0);
+        var input = new TValue(DateTime.UtcNow, 100.0);
 
         Assert.Throws<NotSupportedException>(() => rs.Update(input));
     }
@@ -368,7 +368,7 @@ public class RsTests
     {
         var rs = new Rs();
         var source = new TSeries();
-        source.Add(new TValue(DateTime.Now, 100.0));
+        source.Add(new TValue(DateTime.UtcNow, 100.0));
 
         Assert.Throws<NotSupportedException>(() => rs.Update(source));
     }

@@ -148,7 +148,7 @@ Floating-point drift accumulates in running sums. Every 1,000 ticks (controlled 
 
 ## Validation
 
-Validated against external libraries in [`Bbb.Validation.Tests.cs`](Bbb.Validation.Tests.cs).
+Validated against external libraries in [`Bbb.Validation.Tests.cs`](tests/Bbb.Validation.Tests.cs).
 
 | Library | Status | Notes |
 |---------|:------:|-------|

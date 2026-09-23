@@ -1,6 +1,6 @@
 # CCYC: Ehlers Cyber Cycle
 
-> *The Cyber Cycle isolator extracts the dominant cycle component while suppressing trend — pure periodicity distilled.*
+> *The Cyber Cycle isolator extracts the dominant cycle component while suppressing trend - pure periodicity distilled.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -131,7 +131,7 @@ has a double pole at $z = 1 - \alpha$. For $\alpha = 0.07$, the pole is at $z = 
 | ADD/SUB | 5 | 1 | 5 |
 | MUL | 6 | 3 | 18 |
 | FMA | 2 | 4 | 8 |
-| **Total** | **13** | — | **~31 cycles** |
+| **Total** | **13** | - | **~31 cycles** |
 
 O(1) per bar. The 4-tap FIR smoother uses 3 MUL + 2 ADD; the 2-pole IIR high-pass uses 2 FMA + 1 MUL. Bootstrap path (bars < 7) is even cheaper: 2 MUL + 1 SUB.
 

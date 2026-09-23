@@ -38,11 +38,11 @@ Calculating higher moments (like $x^3$) can lead to precision issues with large 
 
 ## Mathematical Foundation
 
-We use the **Fisher-Pearson Coefficient of Skewness** (Sample Skewness), which is the standard in statistical software (like Excel's `SKEW`, Python's `scipy.stats.skew(bias=False)`).
+The implementation use the **Fisher-Pearson Coefficient of Skewness** (Sample Skewness), which is the standard in statistical software (like Excel's `SKEW`, Python's `scipy.stats.skew(bias=False)`).
 
 ### 1. Moments
 
-First, we calculate the raw moments from the running sums:
+First, the implementation calculate the raw moments from the running sums:
 $$ \text{Mean} (\bar{x}) = \frac{\sum x}{n} $$
 $$ \text{Variance} (m_2) = \frac{\sum x^2 - \frac{(\sum x)^2}{n}}{n} $$
 $$ \text{3rd Moment} (m_3) = \frac{\sum x^3 - 3\bar{x}\sum x^2 + 2n\bar{x}^3}{n} $$
@@ -53,7 +53,7 @@ $$ g_1 = \frac{m_3}{m_2^{3/2}} $$
 
 ### 3. Sample Skewness ($G_1$)
 
-For sample skewness (unbiased estimator), we apply a correction factor:
+For sample skewness (unbiased estimator), the implementation apply a correction factor:
 $$ G_1 = \frac{\sqrt{n(n-1)}}{n-2} \cdot g_1 $$
 
 ## Performance Profile
@@ -68,7 +68,7 @@ Skewness uses running sums of powers 1–3 over the sliding window for O(1) upda
 | Update 3 power sums (x, x^2, x^3) | 3 | 3 cy | ~9 cy |
 | Compute skewness formula | 1 | 8 cy | ~8 cy |
 | NaN guard + N >= 3 guard | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~22 cy** |
+| **Total** | **O(1)** | - | **~22 cy** |
 
 O(1) per update using 3rd-moment running sums. The sample skewness correction factor N/((N-1)(N-2)) is precomputed in the constructor.
 

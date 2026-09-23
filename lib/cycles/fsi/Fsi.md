@@ -42,7 +42,7 @@ $$\text{FSI} = BP_1 + \sqrt{\frac{P_2}{P_1}} \cdot BP_2 + \sqrt{\frac{P_3}{P_1}}
 
 ### 6. Complexity
 
-- **Streaming:** O(1) per bar — three IIR evaluations + O(1) rolling power sums
+- **Streaming:** O(1) per bar - three IIR evaluations + O(1) rolling power sums
 - **Batch (span):** O(N) total, zero allocation via `stackalloc`
 
 ## Parameters
@@ -57,7 +57,7 @@ $$\text{FSI} = BP_1 + \sqrt{\frac{P_2}{P_1}} \cdot BP_2 + \sqrt{\frac{P_3}{P_1}}
 - **Zero crossings:** Potential cycle turning points
 - **Peaks/troughs:** Local cycle extremes
 - **Amplitude:** Reflects the strength of the dominant cycle
-- **The output is zero-centered** — positive values indicate upward cycle phase, negative values indicate downward
+- **The output is zero-centered** - positive values indicate upward cycle phase, negative values indicate downward
 
 ## Operation Count (Streaming Mode)
 

@@ -120,7 +120,7 @@ For $n \geq 2$, $D > 0$ always holds, so the slope denominator is never zero.
 
 ### Operation Count (Streaming Mode)
 
-SDCHANNEL is algorithmically identical to REGCHANNEL — two $O(n)$ passes per bar:
+SDCHANNEL is algorithmically identical to REGCHANNEL - two $O(n)$ passes per bar:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -134,7 +134,7 @@ SDCHANNEL is algorithmically identical to REGCHANNEL — two $O(n)$ passes per b
 | DIV (ssr / n) | 1 | 15 | 15 |
 | SQRT (σ) | 1 | 20 | 20 |
 | MUL + ADD/SUB (bands) | 3 | ~5 | 15 |
-| **Total** | **~$7n + 9$** | — | **~$14n + 86$ cycles** |
+| **Total** | **~$7n + 9$** | - | **~$14n + 86$ cycles** |
 
 For period 20: ~366 cycles/bar. Identical performance characteristics to REGCHANNEL.
 

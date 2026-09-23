@@ -14,7 +14,7 @@
 | **Signature**    | [mma_signature](mma_signature.md) |
 
 - MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the ...
-- **Similar:** [SMMA](../smma/smma.md), [EMA](../ema/ema.md) | **Complementary:** RSI/ATR (use MMA internally) | **Trading note:** Modified MA (identical to SMMA/RMA); Wilders smoothing.
+- **Similar:** [SMMA](../rma/Rma.md), [EMA](../ema/Ema.md) | **Complementary:** RSI/ATR (use MMA internally) | **Trading note:** Modified MA (identical to SMMA/RMA); Wilders smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the buffer. The weighting tilts toward newer bars without fully discarding older ones, creating a filter that sits between SMA (equal weights) and WMA (linear weights) in both lag and smoothness characteristics.
@@ -104,7 +104,7 @@ MMA is closely related to the Linear Weighted Moving Average (LWMA), but with a 
 | Running sum update | 2 | 1 | 2 |
 | Weighted sum pass | N | 4 | 4N |
 | Final calculation | 3 | 3 | 9 |
-| **Total** | **N+6** | — | **~4N+14 cycles** |
+| **Total** | **N+6** | - | **~4N+14 cycles** |
 
 For typical $N=20$: approximately 94 cycles/bar.
 

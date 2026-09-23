@@ -18,17 +18,17 @@
 
 On Balance Volume distills the relationship between price and volume into a single cumulative indicator. The premise is elegantly simple: volume flows into a security when it closes higher, and flows out when it closes lower. OBV tracks this flow as a running total, creating a momentum indicator that often leads price movements.
 
-Granville's insight was that volume precedes price. Institutional buying or selling shows up in volume before it manifests in price trends. When OBV rises while price remains flat, accumulation is occurring—a potential bullish signal. When OBV falls despite stable prices, distribution may be underway.
+Granville's insight was that volume precedes price. Institutional buying or selling shows up in volume before it manifests in price trends. When OBV rises while price remains flat, accumulation is occurring-a potential bullish signal. When OBV falls despite stable prices, distribution may be underway.
 
 ## Historical Context
 
-Joseph Granville introduced On Balance Volume in his 1963 book *Granville's New Key to Stock Market Profits*. The indicator emerged from Granville's observation that volume changes often preceded price changes—what he called "On Balance Volume" because the cumulative total showed whether buying or selling pressure was "on balance" dominant.
+Joseph Granville introduced On Balance Volume in his 1963 book *Granville's New Key to Stock Market Profits*. The indicator emerged from Granville's observation that volume changes often preceded price changes-what he called "On Balance Volume" because the cumulative total showed whether buying or selling pressure was "on balance" dominant.
 
 Granville was a colorful market technician who made bold predictions and drew large crowds to his seminars. While some of his market calls proved spectacularly wrong, OBV survived and thrived because of its fundamental soundness: it measures the conviction behind price movements.
 
 The indicator became a staple of technical analysis because:
 
-- It requires no parameters—pure price and volume
+- It requires no parameters-pure price and volume
 - It leads price action rather than lagging
 - It reveals accumulation/distribution before price confirmation
 - It generates clear divergence signals
@@ -104,7 +104,7 @@ Unlike other volume indicators (like Accumulation/Distribution or Chaikin Money 
 | ADD/SUB | 0-1 | Conditional volume addition |
 | **Total** | 2-3 | Per bar, O(1) |
 
-OBV is one of the lightest indicators—two comparisons and at most one addition per bar.
+OBV is one of the lightest indicators-two comparisons and at most one addition per bar.
 
 ### Batch Mode (SIMD)
 
@@ -141,7 +141,7 @@ QuanTAlib implementation validated against all four external libraries with tigh
 
 ## Common Pitfalls
 
-1. **Absolute Value Meaningless**: OBV's numeric value has no intrinsic meaning—only its direction and divergences matter. Don't compare OBV values across different securities or time periods.
+1. **Absolute Value Meaningless**: OBV's numeric value has no intrinsic meaning-only its direction and divergences matter. Don't compare OBV values across different securities or time periods.
 
 2. **Not Bounded**: OBV can reach any value, positive or negative. It has no overbought/oversold levels. Use trend analysis, not absolute thresholds.
 

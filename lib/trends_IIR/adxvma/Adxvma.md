@@ -131,7 +131,7 @@ ADXVMA(N) runs a full 4-RMA ADX pipeline internally, then uses the resulting ADX
 | RMA DX: FMA | 1 | 4 | ~4 |
 | ADX-to-alpha conversion | 2 | 3 | ~6 |
 | Adaptive VMA update: FMA | 1 | 4 | ~4 |
-| **Total** | **21** | — | **~66 cycles** |
+| **Total** | **21** | - | **~66 cycles** |
 
 O(1) per bar. State is 4 RMA scalars + OHLC history + VMA output. WarmupPeriod = 2 × period (ADX requires full ADX convergence before meaningful adaptive tracking).
 
@@ -145,4 +145,4 @@ O(1) per bar. State is 4 RMA scalars + OHLC history + VMA output. WarmupPeriod =
 | ADX computation | Partial | Vectorizable ratio except for recursive RMA |
 | Adaptive VMA | No | Recursive IIR (alpha depends on computed ADX) |
 
-All four RMA passes and the adaptive VMA are recursive IIR — inherently sequential. Batch mode can vectorize TR and DM computation (pure per-bar arithmetic) then run scalar RMA sweeps. Net batch speedup for large series: ~1.5× (TR/DM vectorization only).
+All four RMA passes and the adaptive VMA are recursive IIR - inherently sequential. Batch mode can vectorize TR and DM computation (pure per-bar arithmetic) then run scalar RMA sweeps. Net batch speedup for large series: ~1.5× (TR/DM vectorization only).

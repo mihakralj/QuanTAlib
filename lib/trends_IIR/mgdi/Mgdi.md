@@ -17,7 +17,7 @@
 - **Similar:** [JMA](../jma/jma.md), [KAMA](../kama/kama.md) | **Complementary:** Momentum oscillators | **Trading note:** McGinley Dynamic; self-adjusts to market speed.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle. Rather than using a fixed smoothing factor, it dynamically adjusts based on the ratio between price and the indicator's current value. The result is a filter that accelerates to catch breakouts while decelerating to avoid overshooting reversals—a behavior that fixed-alpha filters cannot achieve.
+MGDI (McGinley Dynamic Indicator) looks like a moving average but operates on a fundamentally different principle. Rather than using a fixed smoothing factor, it dynamically adjusts based on the ratio between price and the indicator's current value. The result is a filter that accelerates to catch breakouts while decelerating to avoid overshooting reversals-a behavior that fixed-alpha filters cannot achieve.
 
 ## Historical Context
 
@@ -35,7 +35,7 @@ The update formula resembles an EMA but with a dynamic denominator:
 
 $$\text{MGDI}_t = \text{MGDI}_{t-1} + \frac{P_t - \text{MGDI}_{t-1}}{k \times N \times \left(\frac{P_t}{\text{MGDI}_{t-1}}\right)^4}$$
 
-The numerator $(P_t - \text{MGDI}_{t-1})$ is the standard "error" term—how far price is from the current estimate.
+The numerator $(P_t - \text{MGDI}_{t-1})$ is the standard "error" term-how far price is from the current estimate.
 
 ### 2. The Adaptive Denominator
 
@@ -100,7 +100,7 @@ The first value is typically set to the first price: $\text{MGDI}_0 = P_0$.
 | POW (x^4) | 1 | ~12 | 12 |
 | MUL | 2 | 3 | 6 |
 | ADD/SUB | 2 | 1 | 2 |
-| **Total** | **6** | — | **~35 cycles** |
+| **Total** | **6** | - | **~35 cycles** |
 
 The fourth power can be computed as two squarings: $(x^2)^2$, avoiding the expensive `Math.Pow` call.
 
@@ -149,7 +149,7 @@ MGDI is inherently recursive (each value depends on the previous), limiting SIMD
 
 1. **Not an EMA**: MGDI does not have a fixed alpha. Period comparisons with EMA are approximate at best. MGDI(14) does not equal EMA(14) in behavior or lag characteristics.
 
-2. **Period Is Calibration**: The "Period" $N$ is a calibration constant, not a lookback window. MGDI(14) doesn't examine 14 bars of history—it's tuned to track instruments that typically move in 14-bar cycles.
+2. **Period Is Calibration**: The "Period" $N$ is a calibration constant, not a lookback window. MGDI(14) doesn't examine 14 bars of history-it's tuned to track instruments that typically move in 14-bar cycles.
 
 3. **K Factor Sensitivity**: The constant $k=0.6$ is McGinley's recommended value. Reducing it (e.g., 0.4) makes the indicator more responsive but increases overshoot risk. Increasing it (e.g., 0.8) smooths further but adds lag.
 

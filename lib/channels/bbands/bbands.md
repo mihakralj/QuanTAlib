@@ -106,7 +106,7 @@ BBANDS maintains running sums of $x$ and $x^2$ via a circular buffer for $O(1)$ 
 | SQRT (σ from variance) | 1 | 20 | 20 |
 | MUL (k × σ) | 1 | 3 | 3 |
 | ADD/SUB (middle ± dev) | 2 | 1 | 2 |
-| **Total (hot)** | **13** | — | **~66 cycles** |
+| **Total (hot)** | **13** | - | **~66 cycles** |
 
 The SQRT dominates. Derived metrics (%B, BandWidth) add 2 DIV + 2 SUB (~34 cycles) when requested.
 

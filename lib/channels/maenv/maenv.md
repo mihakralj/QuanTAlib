@@ -1,6 +1,6 @@
 # MAENV: Moving Average Envelope
 
-> *A fixed percentage above and below a moving average — the simplest envelope assumes symmetry in price behavior.*
+> *A fixed percentage above and below a moving average - the simplest envelope assumes symmetry in price behavior.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -94,7 +94,7 @@ MAENV complexity depends on the MA type. Band arithmetic is identical for all th
 | DIV (sum / count for SMA) | 1 | 15 | 15 |
 | MUL (middle × pct/100) | 1 | 3 | 3 |
 | ADD/SUB (middle ± distance) | 2 | 1 | 2 |
-| **Total (SMA, hot)** | **6** | — | **~22 cycles** |
+| **Total (SMA, hot)** | **6** | - | **~22 cycles** |
 
 **EMA mode** (type = 1):
 
@@ -105,7 +105,7 @@ MAENV complexity depends on the MA type. Band arithmetic is identical for all th
 | DIV (raw / weight) | 1 | 15 | 15 |
 | MUL (middle × pct/100) | 1 | 3 | 3 |
 | ADD/SUB (middle ± distance) | 2 | 1 | 2 |
-| **Total (EMA, hot)** | **6** | — | **~28 cycles** |
+| **Total (EMA, hot)** | **6** | - | **~28 cycles** |
 
 **WMA mode** (type = 2): $O(n)$ weighted sum per bar, ~$4n + 20$ cycles.
 

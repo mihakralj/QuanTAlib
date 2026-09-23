@@ -23,25 +23,25 @@ Locally Estimated Scatterplot Smoothing (LOESS) applies a weighted linear regres
 
 Introduced by William S. Cleveland in 1979, LOESS (or LOWESS) bridges the gap between simple averaging and complex parametric regression. While statistical packages often solve this iteratively (O(N²) or O(N log N)), Causal LOESS for time-series filtering optimizes strictly for the most recent data point.
 
-In high-frequency finance, the challenge is cost: standard LOESS involves solving a system of linear equations at every bar. We optimized this away.
+In high-frequency finance, the challenge is cost: standard LOESS involves solving a system of linear equations at every bar. The implementation optimized this away.
 
 ## Architecture & Physics
 
 Our implementation is a **Causal LOESS Filter** optimized for streaming data.
 
-* **Fixed Kernel Convolution:** Since the independent variable $x$ (time/index) is uniform and relative to the window, the regression weights for the target point are constant. We pre-compute these into a single convolution kernel.
-* **Tricube Weighting:** We use the classic tricube function, which is continuous and has continuous derivatives, offering superior smoothness compared to box/triangular weights.
+* **Fixed Kernel Convolution:** Since the independent variable $x$ (time/index) is uniform and relative to the window, the regression weights for the target point are constant. The implementation pre-compute these into a single convolution kernel.
+* **Tricube Weighting:** The implementation use the classic tricube function, which is continuous and has continuous derivatives, offering superior smoothness compared to box/triangular weights.
 * **Robustness:** The filter actively monitors inputs for `NaN` and replaces them with the last known finite value, enforcing stability in volatile data streams (e.g., during connection drops).
 * **Symmetry Enforcement:** The internal window size adjusts automatically to the nearest odd number, establishing a perfect center point for the kernel.
 
 ### The Convolution Optimization
 
 The naive approach solves $\beta = (X^T W X)^{-1} X^T W y$ for every update.
-By observing that $X$ (relative positions) and $W$ (tricube weights) are static for a fixed window size, we reduce the runtime complexity from $O(N \cdot k^2)$ to a simple $O(N)$ dot product.
+By observing that $X$ (relative positions) and $W$ (tricube weights) are static for a fixed window size, the implementation reduce the runtime complexity from $O(N \cdot k^2)$ to a simple $O(N)$ dot product.
 
 ## Mathematical Foundation
 
-For a window size $N$ and current point $i=0$ (newest), we define weights for neighbors $j \in [0, N-1]$.
+For a window size $N$ and current point $i=0$ (newest), the implementation define weights for neighbors $j \in [0, N-1]$.
 
 ### 1. Tricube Weight Function
 
@@ -51,7 +51,7 @@ where $d = \frac{j - \text{center}}{\text{half\_width}}$.
 
 ### 2. Regression Solution
 
-We minimize the localized squared error:
+The implementation minimize the localized squared error:
 
 $$ \min_{\beta} \sum_{j} w_j (y_j - (\beta_0 + \beta_1 x_j))^2 $$
 
@@ -74,7 +74,7 @@ LOESS (Locally Estimated Scatterplot Smoothing): tricube-weighted local polynomi
 | Tricube weight computation | N | ~10 cy | ~300 cy (N=30) |
 | Weighted sums (Sx, Sy, Sxx, Sxy) | 4N | ~4 cy | ~480 cy |
 | Linear regression solve (2x2 system) | 4 | ~5 cy | ~20 cy |
-| **Total (N=30)** | **5N+4** | — | **~800 cycles** |
+| **Total (N=30)** | **5N+4** | - | **~800 cycles** |
 
 O(N) per bar. Dominant cost: 4-accumulator pass over N-element window. ~800 cycles for N=30.
 

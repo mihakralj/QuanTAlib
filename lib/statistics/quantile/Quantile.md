@@ -87,7 +87,7 @@ Quantile uses the same sorted-buffer approach as Percentile, with fraction [0,1]
 | Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
 | Rank interpolation (linear) | 1 | 3 cy | ~3 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=20)** | **O(N)** | — | **~28 cy** |
+| **Total (N=20)** | **O(N)** | - | **~28 cy** |
 
 O(N) per update. Linear interpolation between adjacent order statistics matches the standard R-7 quantile method used by NumPy and R by default.
 
@@ -101,11 +101,11 @@ O(N) per update. Linear interpolation between adjacent order statistics matches 
 
 | Quality | Score (1-10) |
 |---------|-------------|
-| Precision | 10 — exact within IEEE 754 double precision |
-| Latency | 7 — O(N) per update, fast for typical periods (5-50) |
-| Memory | 8 — two double arrays + RingBuffer |
-| Robustness | 9 — NaN/Infinity guarded, bar correction supported |
-| SIMD applicability | 2 — comparison-heavy algorithm not vectorizable |
+| Precision | 10 - exact within IEEE 754 double precision |
+| Latency | 7 - O(N) per update, fast for typical periods (5-50) |
+| Memory | 8 - two double arrays + RingBuffer |
+| Robustness | 9 - NaN/Infinity guarded, bar correction supported |
+| SIMD applicability | 2 - comparison-heavy algorithm not vectorizable |
 
 ## Validation
 
@@ -127,7 +127,7 @@ O(N) per update. Linear interpolation between adjacent order statistics matches 
 
 4. **Window not full.** Before reaching full period, the quantile is computed over the available values. This gives valid but potentially misleading results during warmup.
 
-5. **q=0.5 vs Median.** For even-length windows, Quantile(q=0.5) uses linear interpolation which yields the average of two middle values — identical to Median. For odd-length windows, both return the middle value directly.
+5. **q=0.5 vs Median.** For even-length windows, Quantile(q=0.5) uses linear interpolation which yields the average of two middle values - identical to Median. For odd-length windows, both return the middle value directly.
 
 6. **Floating-point accumulation.** Since quantile uses direct sorted-buffer access (not running sums), there is no floating-point drift. The result is always computed fresh from the sorted values.
 

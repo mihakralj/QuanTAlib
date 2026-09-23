@@ -35,6 +35,7 @@ public class CciTests
     {
         var cci = new Cci(14);
         Assert.Equal(14, cci.Period);
+        Assert.Equal("Cci(14)", cci.Name);
     }
 
     [Fact]
@@ -63,6 +64,19 @@ public class CciTests
 
         // With only one bar, CCI should be 0 (no deviation possible)
         Assert.Equal(0, result.Value);
+    }
+
+    [Fact]
+    public void Update_ScalarValue_IsSupportedForChaining()
+    {
+        var source = new TSeries();
+        var cci = new Cci(3);
+        source.Pub += (object? _, in TValueEventArgs args) => cci.Update(args.Value, args.IsNew);
+
+        source.Add(new TValue(DateTime.UnixEpoch, 100));
+        source.Add(new TValue(DateTime.UnixEpoch.AddMinutes(1), 101));
+
+        Assert.Equal(DateTime.UnixEpoch.AddMinutes(1).Ticks, cci.Last.Time);
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 # JVOLTYN: Normalized Jurik Volatility
 
-> *When you need to compare apples to apples, normalize your volatility—0 is calm, 100 is chaos.*
+> *When you need to compare apples to apples, normalize your volatility-0 is calm, 100 is chaos.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ Normalized Jurik Volatility (JVOLTYN) maps the raw JVOLTY dynamic exponent to a 
 
 ## Historical Context
 
-JVOLTY extracts the adaptive volatility component from Mark Jurik's JMA algorithm. The raw output—a dynamic exponent clamped between 1.0 and logParam—is meaningful within the JMA context but awkward for standalone analysis. A period-7 JVOLTY might reach 3.5 at maximum while a period-50 JVOLTY peaks at 4.8. Comparing these raw values across instruments or timeframes requires mental gymnastics.
+JVOLTY extracts the adaptive volatility component from Mark Jurik's JMA algorithm. The raw output-a dynamic exponent clamped between 1.0 and logParam-is meaningful within the JMA context but awkward for standalone analysis. A period-7 JVOLTY might reach 3.5 at maximum while a period-50 JVOLTY peaks at 4.8. Comparing these raw values across instruments or timeframes requires mental gymnastics.
 
 JVOLTYN applies a simple linear normalization that maps the entire valid range to [0, 100]. Now a reading of 50 means "halfway between minimum and maximum volatility" regardless of the underlying period. This makes JVOLTYN suitable for:
 
@@ -171,7 +171,7 @@ JVOLTYN is validated against JVOLTY with manual normalization verification.
 
 5. **Using RawVolatility for JMA**: If feeding JVOLTYN output to JMA or other algorithms expecting raw JVOLTY values, use `RawVolatility` property, not `Last.Value`.
 
-6. **Threshold Interpretation**: A threshold like "JVOLTYN > 70" means different absolute volatility levels for different periods. Period-14 at JVOLTYN=70 implies raw d ≈ 3.0, while period-50 at JVOLTYN=70 implies raw d ≈ 3.6. For cross-period consistency, this is correct—both represent "70% of maximum possible adaptation."
+6. **Threshold Interpretation**: A threshold like "JVOLTYN > 70" means different absolute volatility levels for different periods. Period-14 at JVOLTYN=70 implies raw d ≈ 3.0, while period-50 at JVOLTYN=70 implies raw d ≈ 3.6. For cross-period consistency, this is correct-both represent "70% of maximum possible adaptation."
 
 ## Use Cases
 
@@ -180,7 +180,7 @@ JVOLTYN is validated against JVOLTY with manual normalization verification.
    - JVOLTYN 30-60: 75% position size
    - JVOLTYN > 60: 50% position size
 
-2. **Portfolio Heatmap**: Display JVOLTYN across multiple instruments on a 0-100 color scale. Red indicates high volatility, green indicates low volatility—no per-instrument calibration needed.
+2. **Portfolio Heatmap**: Display JVOLTYN across multiple instruments on a 0-100 color scale. Red indicates high volatility, green indicates low volatility-no per-instrument calibration needed.
 
 3. **Regime Classification**: Classify market regimes using consistent thresholds:
    ```

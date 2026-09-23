@@ -131,9 +131,9 @@ LEMA(N) runs two EMA stages with bias compensation. Stage 1 tracks source. Stage
 | EMA₂: FMA(α, error, decay×ema2) | 1 | 4 | ~4 |
 | Bias E₂ update | 1 | 3 | ~3 |
 | Output: EMA₁ + EMA₂ | 1 | 1 | ~1 |
-| **Total** | **6** | — | **~16 cycles** |
+| **Total** | **6** | - | **~16 cycles** |
 
-O(1) per bar. The error-tracking EMA (stage 2) reacts faster than it would as a standard cascade because it processes `src − EMA₁` directly — the residual signal. WarmupPeriod = N.
+O(1) per bar. The error-tracking EMA (stage 2) reacts faster than it would as a standard cascade because it processes `src − EMA₁` directly - the residual signal. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 

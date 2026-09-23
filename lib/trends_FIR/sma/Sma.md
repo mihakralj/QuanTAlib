@@ -58,7 +58,7 @@ $$ SMA_t = \frac{1}{N} \sum_{i=0}^{N-1} P_{t-i} $$
 | SUB (Sum - oldest) | 1 | 1 | 1 |
 | ADD (Sum + newest) | 1 | 1 | 1 |
 | DIV (Sum / N) | 1 | 15 | 15 |
-| **Total (hot)** | **3** | — | **~17 cycles** |
+| **Total (hot)** | **3** | - | **~17 cycles** |
 
 Every 1000 bars, a resync recalculates the sum to prevent drift:
 
@@ -66,7 +66,7 @@ Every 1000 bars, a resync recalculates the sum to prevent drift:
 | :--- | :---: | :---: | :---: |
 | ADD (N values) | N | 1 | N |
 | DIV (Sum / N) | 1 | 15 | 15 |
-| **Resync cost** | **N+1** | — | **~N+15 cycles** |
+| **Resync cost** | **N+1** | - | **~N+15 cycles** |
 
 **Amortized cost:** ~17 + (N+15)/1000 ≈ **~17 cycles/bar** for typical use.
 
@@ -86,7 +86,7 @@ For 512 bars:
 | :--- | :---: | :---: | :--- |
 | Scalar streaming | ~17 | ~8,700 | O(1) per bar |
 | SIMD batch | ~3 | ~1,500 | Vectorized running sum |
-| **Improvement** | **5.8×** | — | Batch wins for large N |
+| **Improvement** | **5.8×** | - | Batch wins for large N |
 
 ### Quality Metrics
 

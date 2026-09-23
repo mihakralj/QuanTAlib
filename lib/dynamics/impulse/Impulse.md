@@ -101,7 +101,7 @@ Impulse System combines an EMA (or JMA) of close with a MACD histogram to produc
 | SUB (MACD histogram = MACD − signal) | 1 | 1 | 1 |
 | CMP × 2 (EMA up/down, histogram up/down) | 2 | 1 | 2 |
 | Ternary encoding (+1/0/−1) | 1 | 1 | 1 |
-| **Total** | **8** | — | **~20 cycles** |
+| **Total** | **8** | - | **~20 cycles** |
 
 Four independent EMA streams. ~20 cycles per bar at steady state.
 
@@ -109,7 +109,7 @@ Four independent EMA streams. ~20 cycles per bar at steady state.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| All EMA passes × 4 | **No** | Recursive IIR — sequential |
+| All EMA passes × 4 | **No** | Recursive IIR - sequential |
 | Histogram subtraction | Yes | VSUBPD after EMA arrays complete |
 | Signal comparison | Yes | VCMPPD |
 

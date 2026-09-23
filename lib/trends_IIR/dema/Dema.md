@@ -25,7 +25,7 @@
 
 ## What It Measures and Why It Matters
 
-DEMA measures the smoothed trend of price action with significantly reduced lag compared to traditional moving averages. It matters because lag is the enemy of timely signals—traditional EMAs lag by roughly N/2 bars, making them slow to react to trend changes. DEMA's extrapolation formula (2×EMA₁ - EMA₂) mathematically projects the EMA forward by one lag unit, creating a "lead indicator" that anticipates rather than follows.
+DEMA measures the smoothed trend of price action with significantly reduced lag compared to traditional moving averages. It matters because lag is the enemy of timely signals-traditional EMAs lag by roughly N/2 bars, making them slow to react to trend changes. DEMA's extrapolation formula (2×EMA₁ - EMA₂) mathematically projects the EMA forward by one lag unit, creating a "lead indicator" that anticipates rather than follows.
 
 This makes DEMA particularly valuable for:
 
@@ -130,7 +130,7 @@ where $H_{EMA}(z) = \frac{\alpha}{1 - (1-\alpha)z^{-1}}$
 | :--- | :---: | :---: | :---: |
 | MUL | 4 | 3 | 12 |
 | ADD/SUB | 4 | 1 | 4 |
-| **Total** | **8** | — | **~16 cycles** |
+| **Total** | **8** | - | **~16 cycles** |
 
 DEMA requires exactly 2× the operations of a single EMA.
 
@@ -142,7 +142,7 @@ Due to the recursive nature of EMA, SIMD vectorization is limited. However, FMA 
 | :--- | :---: | :---: |
 | FMA for EMA1 update | 1 FMA vs MUL+ADD | ~2 |
 | FMA for EMA2 update | 1 FMA vs MUL+ADD | ~2 |
-| **Per-bar savings** | — | **~4 cycles** |
+| **Per-bar savings** | - | **~4 cycles** |
 
 *Effective throughput: ~12 cycles/bar with FMA optimization.*
 
@@ -234,7 +234,7 @@ var dema = new Dema(source, period);
 A: DEMA(N) responds roughly like EMA(N×0.7) but with more overshoot. The lag reduction makes it faster but noisier.
 
 **Q: When should I use DEMA vs TEMA?**
-A: DEMA for most cases—it's 80% of TEMA's lag reduction with 50% less computation. Use TEMA only if DEMA still lags too much.
+A: DEMA for most cases-it's 80% of TEMA's lag reduction with 50% less computation. Use TEMA only if DEMA still lags too much.
 
 **Q: Does DEMA work well in sideways markets?**
 A: Poorly. The extrapolation amplifies noise, creating false signals. Combine with trend strength filters.
@@ -247,7 +247,7 @@ A: When `isNew=false`, QuanTAlib rolls back both EMA states to pre-update values
 
 ## Common Pitfalls
 
-1. **Overshoot on Reversals**: Because DEMA extrapolates using the EMA "velocity," it overshoots when price reverses direction. This is the fundamental tradeoff for reduced lag—the filter commits to trends and resists reversals.
+1. **Overshoot on Reversals**: Because DEMA extrapolates using the EMA "velocity," it overshoots when price reverses direction. This is the fundamental tradeoff for reduced lag-the filter commits to trends and resists reversals.
 
 2. **"Double" Misconception**: DEMA is *not* a double-smoothed average (EMA of EMA). That would increase lag. DEMA uses the double-smooth as a correction term to reduce lag.
 

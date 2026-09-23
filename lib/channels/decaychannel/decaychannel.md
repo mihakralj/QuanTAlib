@@ -20,7 +20,7 @@ Decay Channel combines the absolute price boundaries of Donchian Channels with e
 
 ## Historical Context
 
-The Decay Channel is a QuanTAlib design that applies principles from physics — specifically radioactive decay and Newton's Law of Cooling — to price channel construction. Standard Donchian Channels exhibit a discontinuous "cliff edge" behavior: bands remain static until an old extreme exits the lookback window, then jump abruptly. This doesn't reflect how markets work: traders naturally give less weight to older price extremes as time passes.
+The Decay Channel is a QuanTAlib design that applies principles from physics - specifically radioactive decay and Newton's Law of Cooling - to price channel construction. Standard Donchian Channels exhibit a discontinuous "cliff edge" behavior: bands remain static until an old extreme exits the lookback window, then jump abruptly. This doesn't reflect how markets work: traders naturally give less weight to older price extremes as time passes.
 
 The mathematical foundation uses the decay constant $\lambda = \ln(2)/T$, the same formula used in carbon dating and thermal cooling. A signal extreme from $T$ bars ago retains exactly half its influence on band width. This produces asymmetric behavior that matches market reality: breakouts are sudden (bands snap to new extremes), consolidations are gradual (bands decay smoothly).
 
@@ -105,7 +105,7 @@ DECAYCHANNEL scans the circular buffer for Donchian bounds ($O(n)$) plus exponen
 | ADD (midpoint) | 1 | 1 | 1 |
 | MUL (× 0.5) | 1 | 3 | 3 |
 | CMP (clamp to Donchian) | 2 | 1 | 2 |
-| **Total** | **$2n + 14$** | — | **~$2n + 74$ cycles** |
+| **Total** | **$2n + 14$** | - | **~$2n + 74$ cycles** |
 
 For period 100: ~274 cycles/bar. The two EXP calls and the $O(n)$ Donchian scan dominate.
 

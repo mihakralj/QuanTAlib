@@ -1,6 +1,6 @@
 # AVGPRICE: Average Price
 
-> *The four-point average distills an entire bar into a single representative price — open, high, low, and close in equal measure.*
+> *The four-point average distills an entire bar into a single representative price - open, high, low, and close in equal measure.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

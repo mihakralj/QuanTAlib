@@ -1,6 +1,6 @@
 # CV: Conditional Volatility (GARCH(1,1))
 
-> *Volatility begets volatility—the GARCH model captures what traders have always known: calm markets stay calm, turbulent markets stay turbulent.*
+> *Volatility begets volatility-the GARCH model captures what traders have always known: calm markets stay calm, turbulent markets stay turbulent.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ Conditional Volatility (CV) implements the GARCH(1,1) model for volatility forec
 
 ## Historical Context
 
-Robert Engle introduced ARCH (Autoregressive Conditional Heteroskedasticity) in 1982, earning him the 2003 Nobel Prize in Economics. Tim Bollerslev generalized this to GARCH (Generalized ARCH) in 1986. The GARCH(1,1) specification—with one lag of squared returns and one lag of variance—became the workhorse model because it captures the essential dynamics while remaining parsimonious.
+Robert Engle introduced ARCH (Autoregressive Conditional Heteroskedasticity) in 1982, earning him the 2003 Nobel Prize in Economics. Tim Bollerslev generalized this to GARCH (Generalized ARCH) in 1986. The GARCH(1,1) specification-with one lag of squared returns and one lag of variance-became the workhorse model because it captures the essential dynamics while remaining parsimonious.
 
 The key insight was that volatility is not constant over time but evolves predictably. A large price shock today increases tomorrow's expected volatility, which then decays gradually back to the long-run level. This "persistence" in volatility is captured by the β coefficient, while the immediate reaction to shocks is captured by α.
 
@@ -153,7 +153,7 @@ Per-bar operations after warmup:
 | FMA | 2 | 4 | 8 |
 | SQRT | 1 | 15 | 15 |
 | MAX | 1 | 1 | 1 |
-| **Total** | — | — | **~104 cycles** |
+| **Total** | - | - | **~104 cycles** |
 
 ### Batch Mode (512 values)
 
@@ -202,7 +202,7 @@ CV/GARCH is proprietary with no direct open-source equivalents using the same ap
    E[\sigma^2_{t+h}] = \bar{\sigma}^2 + (\alpha + \beta)^h (\sigma^2_t - \bar{\sigma}^2)
    $$
 
-5. **Memory footprint**: Minimal—only stores previous variance and previous close. No rolling buffers required.
+5. **Memory footprint**: Minimal-only stores previous variance and previous close. No rolling buffers required.
 
 6. **Annualization assumption**: Uses 252 trading days. For crypto (365 days) or other markets, the annualization factor may need adjustment in the calling code.
 

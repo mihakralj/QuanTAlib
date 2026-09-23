@@ -62,7 +62,7 @@ The O(1) algorithm eliminates the $O(N)$ weighted sum on each bar:
 | ADD/SUB | 4 | 1 | 4 |
 | MUL | 1 | 3 | 3 |
 | DIV | 1 | 15 | 15 |
-| **Total** | **6** | — | **~22 cycles** |
+| **Total** | **6** | - | **~22 cycles** |
 
 **Hot path breakdown:**
 - `WSum_new = WSum_old - Sum_old + (N × Price_new)`: 2 SUB + 1 MUL
@@ -75,7 +75,7 @@ The O(1) algorithm eliminates the $O(N)$ weighted sum on each bar:
 | :--- | :---: | :---: |
 | Naive (recalculate) | O(N) | ~400 cycles |
 | QuanTAlib O(1) | O(1) | ~22 cycles |
-| **Improvement** | **—** | **~18× faster** |
+| **Improvement** | **-** | **~18× faster** |
 
 ### Batch Mode (SIMD/FMA)
 

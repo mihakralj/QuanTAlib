@@ -14,16 +14,16 @@
 ### Key takeaways
 
 - Combines **buying pressure ratios across three timeframes** with 4:2:1 weighting, reducing the false signals inherent in single-period oscillators.
-- The buying pressure concept (Close - True Low) measures **demand efficiency** — what fraction of each bar's total range was captured by buyers.
+- The buying pressure concept (Close - True Low) measures **demand efficiency** - what fraction of each bar's total range was captured by buyers.
 - Output is **bounded [0, 100]**, with readings above 70 suggesting overbought and below 30 suggesting oversold conditions.
 - Designed primarily for **divergence detection**: when price makes a new extreme but UltOsc does not, the trend is exhausted.
-- Extensively validated against **TA-Lib, Skender, Tulip, and Ooples** — one of the best-supported indicators in the oscillator suite.
+- Extensively validated against **TA-Lib, Skender, Tulip, and Ooples** - one of the best-supported indicators in the oscillator suite.
 
 ## Historical Context
 
 Larry Williams introduced the Ultimate Oscillator in his 1985 article for *Technical Analysis of Stocks & Commodities* magazine. Williams, a legendary trader who famously turned $10,000 into over $1 million in a single year, designed UltOsc to solve a specific problem: single-period oscillators like RSI suffer from two fatal flaws. First, they generate false signals during trends (RSI can stay overbought for weeks in a strong uptrend). Second, they are period-sensitive (a 7-period RSI behaves differently from a 14-period RSI, and neither is objectively "right").
 
-Williams' solution was to use three periods (7, 14, 28) and weight them 4:2:1, giving the most influence to the shortest period for responsiveness while still respecting the broader context. The doubling ratio between periods (7→14→28) ensures each timeframe captures a distinct frequency band. The buying pressure concept — measuring how much of each bar's range was "bought" — provides a more nuanced momentum reading than simple price-change-based oscillators.
+Williams' solution was to use three periods (7, 14, 28) and weight them 4:2:1, giving the most influence to the shortest period for responsiveness while still respecting the broader context. The doubling ratio between periods (7→14→28) ensures each timeframe captures a distinct frequency band. The buying pressure concept - measuring how much of each bar's range was "bought" - provides a more nuanced momentum reading than simple price-change-based oscillators.
 
 ## What It Measures and Why It Matters
 
@@ -75,19 +75,19 @@ Default configuration (7, 14, 28) warms up in 28 bars.
 
 ### 1. Six Ring Buffers
 
-The implementation maintains six [`RingBuffer`](lib/oscillators/ultosc/Ultosc.cs:35) instances: three for buying pressure (one per period) and three for true range. Each buffer tracks its own running sum, providing O(period) `Sum()` calls per update.
+The implementation maintains six [`RingBuffer`](../../core/ringbuffer/RingBuffer.cs) instances: three for buying pressure (one per period) and three for true range. Each buffer tracks its own running sum, providing O(period) `Sum()` calls per update.
 
 ### 2. Buying Pressure Concept
 
-Buying pressure measures how much of the True Range was captured by buyers. If Close equals True High, BP equals TR (maximum buying). If Close equals True Low, BP equals zero (no buying). The ratio BP/TR represents buying "efficiency" — the percentage of total range movement attributable to demand.
+Buying pressure measures how much of the True Range was captured by buyers. If Close equals True High, BP equals TR (maximum buying). If Close equals True Low, BP equals zero (no buying). The ratio BP/TR represents buying "efficiency" - the percentage of total range movement attributable to demand.
 
 ### 3. FMA in Weighted Average
 
-The final weighted combination uses nested [`Math.FusedMultiplyAdd`](lib/oscillators/ultosc/Ultosc.cs:183) calls: `FMA(4, avg1, FMA(2, avg2, 1 * avg3))`, combining the three period averages in a single expression with improved numerical precision.
+The final weighted combination uses nested [`Math.FusedMultiplyAdd`](Ultosc.cs) calls: `FMA(4, avg1, FMA(2, avg2, 1 * avg3))`, combining the three period averages in a single expression with improved numerical precision.
 
 ### 4. OHLC Requirement
 
-Unlike most oscillators that accept single values, UltOsc requires full OHLC data for True Range and Buying Pressure computation. The [`Update(TValue)`](lib/oscillators/ultosc/Ultosc.cs:192) overload returns a fixed 50.0 (neutral) as a safety fallback — it cannot compute meaningful results without High/Low context.
+Unlike most oscillators that accept single values, UltOsc requires full OHLC data for True Range and Buying Pressure computation. The [`Update(TValue)`](Ultosc.cs) overload returns a fixed 50.0 (neutral) as a safety fallback - it cannot compute meaningful results without High/Low context.
 
 ### 5. Edge Cases
 
@@ -111,7 +111,7 @@ Unlike most oscillators that accept single values, UltOsc requires full OHLC dat
 - **Bullish divergence**: Price makes a lower low while UltOsc makes a higher low (with UltOsc < 30). Classic Williams buy setup.
 - **Bearish divergence**: Price makes a higher high while UltOsc makes a lower high (with UltOsc > 70). Classic Williams sell setup.
 - **Breakout confirmation**: After bullish divergence, UltOsc breaks above the divergence high to confirm the signal.
-- **Zero-line context**: UltOsc at 50 means buying pressure exactly equals half of true range — neutral equilibrium.
+- **Zero-line context**: UltOsc at 50 means buying pressure exactly equals half of true range - neutral equilibrium.
 - **Exit rule**: Williams' original rules specify exiting when UltOsc reaches 70 or when price hits the target.
 
 ### Practical Notes
@@ -175,7 +175,7 @@ UltOsc has the broadest external validation coverage of any oscillator in the li
 | Period average divisions | Scalar (3 per bar) |
 | Weighted average | FMA scalar |
 | ArrayPool strategy | `ArrayPool<double>.Shared.Rent/Return` for BP and TR arrays |
-| Vectorization potential | Low — running sums and per-bar divisions prevent SIMD |
+| Vectorization potential | Low - running sums and per-bar divisions prevent SIMD |
 
 ## Common Pitfalls
 

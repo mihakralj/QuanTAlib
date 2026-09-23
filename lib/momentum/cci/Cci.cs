@@ -27,7 +27,7 @@ namespace QuanTAlib;
 /// </remarks>
 /// <seealso href="Cci.md">Detailed documentation</seealso>
 [SkipLocalsInit]
-public sealed class Cci : ITValuePublisher
+public sealed class Cci : AbstractBase
 {
     private const int DefaultPeriod = 20;
     private const double LambertConstant = 0.015;
@@ -36,37 +36,18 @@ public sealed class Cci : ITValuePublisher
     private readonly RingBuffer _tpBuffer;
     private int _sampleCount;
     private double _lastValid;
-    private TValue _last;
 
     // State for bar correction
     [StructLayout(LayoutKind.Auto)]
     private record struct State(int SampleCount, double LastValid, double Sum);
     private State _state, _p_state;
 
-    /// <summary>
-    /// Event fired when a new CCI value is calculated.
-    /// </summary>
-    public event TValuePublishedHandler? Pub;
-
-    /// <summary>
-    /// Most recently calculated CCI value.
-    /// </summary>
-    public TValue Last => _last;
-
-    /// <summary>
-    /// True when the indicator has enough data for valid calculations.
-    /// </summary>
-    public bool IsHot => _sampleCount >= _period;
+    public override bool IsHot => _sampleCount >= _period;
 
     /// <summary>
     /// The lookback period.
     /// </summary>
     public int Period => _period;
-
-    /// <summary>
-    /// Number of bars required for warmup.
-    /// </summary>
-    public int WarmupPeriod => _period;
 
     /// <summary>
     /// Creates a CCI indicator with specified period.
@@ -83,18 +64,19 @@ public sealed class Cci : ITValuePublisher
         _tpBuffer = new RingBuffer(period);
         _sampleCount = 0;
         _lastValid = 0;
-        _last = new TValue(DateTime.MinValue, 0);
+        Name = $"Cci({period})";
+        WarmupPeriod = period;
     }
 
     /// <summary>
     /// Resets the indicator to its initial state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _tpBuffer.Clear();
         _sampleCount = 0;
         _lastValid = 0;
-        _last = default;
+        Last = default;
         _state = default;
         _p_state = default;
     }
@@ -142,10 +124,14 @@ public sealed class Cci : ITValuePublisher
         // Save state
         _state = new State(_sampleCount, _lastValid, 0);
 
-        _last = new TValue(bar.Time, result);
-        Pub?.Invoke(this, new TValueEventArgs { Value = _last, IsNew = isNew });
-        return _last;
+        Last = new TValue(bar.Time, result);
+        PubEvent(Last, isNew);
+        return Last;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override TValue Update(TValue input, bool isNew = true) =>
+        Update(new TBar(input.Time, input.Value, input.Value, input.Value, input.Value, 0), isNew);
 
     /// <summary>
     /// Updates CCI from a TBarSeries.
@@ -161,6 +147,17 @@ public sealed class Cci : ITValuePublisher
         return result;
     }
 
+    public override TSeries Update(TSeries source)
+    {
+        var result = new TSeries(source.Count);
+        for (int i = 0; i < source.Count; i++)
+        {
+            result.Add(Update(source[i]), true);
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Primes the indicator with historical bars.
     /// </summary>
@@ -169,6 +166,17 @@ public sealed class Cci : ITValuePublisher
         for (int i = 0; i < source.Count; i++)
         {
             Update(source[i], true);
+        }
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
+        DateTime time = DateTime.UnixEpoch;
+        for (int i = 0; i < source.Length; i++)
+        {
+            Update(new TValue(time, source[i]), true);
+            time += interval;
         }
     }
 

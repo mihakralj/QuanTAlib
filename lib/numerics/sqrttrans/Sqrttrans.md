@@ -1,6 +1,6 @@
 # SQRTTRANS: Square Root Transform
 
-> *The square root is nature's variance-stabilizing trick—halving the exponent space while preserving monotonicity. When price volatility scales with level, sqrt compresses the noise.*
+> *The square root is nature's variance-stabilizing trick-halving the exponent space while preserving monotonicity. When price volatility scales with level, sqrt compresses the noise.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -179,9 +179,9 @@ var recovered = Sqrttrans.Calculate(squared);
 
 ## Common Pitfalls
 
-1. **Negative Input**: Prices are always positive, but derived values (returns, differences) can be negative. Sqrt is undefined for negatives—this implementation returns last valid value.
+1. **Negative Input**: Prices are always positive, but derived values (returns, differences) can be negative. Sqrt is undefined for negatives-this implementation returns last valid value.
 
-2. **Zero Amplification**: Near zero, small changes in input cause large changes in sqrt output. $\sqrt{0.01} = 0.1$ but $\sqrt{0.0001} = 0.01$—a 100x input change yields only 10x output change.
+2. **Zero Amplification**: Near zero, small changes in input cause large changes in sqrt output. $\sqrt{0.01} = 0.1$ but $\sqrt{0.0001} = 0.01$-a 100x input change yields only 10x output change.
 
 3. **Reversal Requires Squaring**: To undo sqrt, square the result. Unlike log/exp which are inverses, sqrt/square are only one-way inverses for non-negative values.
 

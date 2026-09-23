@@ -181,7 +181,7 @@ BBS is a timing tool, not a directional indicator. Pair it with a momentum oscil
 
 ## Validation
 
-Validated against external libraries in [`Bbs.Validation.Tests.cs`](Bbs.Validation.Tests.cs).
+Validated against external libraries in [`Bbs.Validation.Tests.cs`](tests/Bbs.Validation.Tests.cs).
 
 | Library | Status | Notes |
 |---------|:------:|-------|

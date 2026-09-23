@@ -1,6 +1,6 @@
 # MININDEX: Rolling Minimum Index
 
-> *Finding support isn't just about the price — it's about *when* the floor was set.*
+> *Finding support isn't just about the price - it's about *when* the floor was set.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -29,7 +29,7 @@ The MININDEX function originates from TA-Lib (TA_MININDEX), used in quantitative
 
 ## Architecture & Physics
 
-### 1. Streaming Mode — Bars-Ago Offset
+### 1. Streaming Mode - Bars-Ago Offset
 
 In streaming mode, the output represents how many bars ago the minimum occurred:
 
@@ -39,7 +39,7 @@ $$
 
 where $n$ is the lookback period. A value of 0 means the current bar is the minimum; a value of $n-1$ means the oldest bar in the window holds the minimum.
 
-### 2. Batch Span Mode — Absolute Index
+### 2. Batch Span Mode - Absolute Index
 
 In the `Batch(ReadOnlySpan)` method, output is the absolute array index:
 
@@ -101,7 +101,7 @@ $$
 | Per-update (amortized) | O(n) | O(1) |
 | Total for N updates | O(N×n) | O(N) |
 
-Streaming uses a linear scan of the RingBuffer, which is O(period) per bar — acceptable for typical periods (5–30). Batch mode uses the monotonic deque for O(1) amortized.
+Streaming uses a linear scan of the RingBuffer, which is O(period) per bar - acceptable for typical periods (5–30). Batch mode uses the monotonic deque for O(1) amortized.
 
 ## Performance Profile
 
@@ -112,7 +112,7 @@ Streaming uses a linear scan of the RingBuffer, which is O(period) per bar — a
 | CMP (scan) | period | 1 | period |
 | Array access | period | 3 | 3×period |
 | Index arithmetic | 2 | 1 | 2 |
-| **Total** | — | — | **~4×period cycles** |
+| **Total** | - | - | **~4×period cycles** |
 
 ### Batch Mode (Monotonic Deque)
 
@@ -122,7 +122,7 @@ Streaming uses a linear scan of the RingBuffer, which is O(period) per bar — a
 | CMP (monotonicity) | ~2 avg | 1 | 2 |
 | Array access | 3 | 3 | 9 |
 | Index arithmetic | 2 | 1 | 2 |
-| **Total** | **~8** | — | **~14 cycles** |
+| **Total** | **~8** | - | **~14 cycles** |
 
 ### Quality Metrics
 

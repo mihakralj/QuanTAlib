@@ -60,7 +60,7 @@ $$
 
 ### Operation Count (Streaming Mode)
 
-AD computes Money Flow Multiplier (MFM) from bar data, multiplies by volume, and accumulates cumulatively — O(1).
+AD computes Money Flow Multiplier (MFM) from bar data, multiplies by volume, and accumulates cumulatively - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -69,9 +69,9 @@ AD computes Money Flow Multiplier (MFM) from bar data, multiplies by volume, and
 | AD += MFV (cumulative sum) | 1 | 1 cy | ~1 cy |
 | Zero guard on H-L | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~13 cy** |
+| **Total** | **O(1)** | - | **~13 cy** |
 
-O(1) cumulative indicator — no window, no buffer. Throughput ~4 ns/bar. Division is the critical path (H-L guard prevents divide-by-zero on doji bars).
+O(1) cumulative indicator - no window, no buffer. Throughput ~4 ns/bar. Division is the critical path (H-L guard prevents divide-by-zero on doji bars).
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

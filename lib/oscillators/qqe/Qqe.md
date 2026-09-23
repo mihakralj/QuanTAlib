@@ -90,7 +90,7 @@ QQE applies a Wilder RSI, then smooths the RSI with two layers of EMA, and compu
 | EMA of ABS-delta (ATR proxy) | 1 | 4 | 4 |
 | MUL (factor × ATR proxy = QQE band) | 1 | 3 | 3 |
 | Trailing stop ratchet (MAX/MIN + CMP) | 4 | 1 | 4 |
-| **Total** | **13** | — | **~60 cycles** |
+| **Total** | **13** | - | **~60 cycles** |
 
 Six EMA instances + one ratchet. ~60 cycles per bar.
 
@@ -98,7 +98,7 @@ Six EMA instances + one ratchet. ~60 cycles per bar.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| All EMA/RMA passes × 6 | **No** | Recursive IIR — sequential |
+| All EMA/RMA passes × 6 | **No** | Recursive IIR - sequential |
 | RSI division | Yes | VDIVPD after EMA pass |
 | Band arithmetic | Yes | VMULPD + VADDPD/VSUBPD |
 | Ratchet state | **No** | State-dependent MAX/MIN |

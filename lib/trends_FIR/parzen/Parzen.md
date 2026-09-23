@@ -111,15 +111,15 @@ return Σ buffer[j] * w[j]
 
 ### Operation Count (Streaming Mode)
 
-PARZEN(N) is a direct FIR convolution using precomputed Parzen (de la Vallée Poussin) window weights. The Parzen window is piecewise cubic — always non-negative, infinite differentiability at endpoints — with zero negative sidelobes. Each `Update()` is a pure N-tap FMA dot product.
+PARZEN(N) is a direct FIR convolution using precomputed Parzen (de la Vallée Poussin) window weights. The Parzen window is piecewise cubic - always non-negative, infinite differentiability at endpoints - with zero negative sidelobes. Each `Update()` is a pure N-tap FMA dot product.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
-O(N) per bar. For default N = 14: ~59 cycles. No negative weights — normalization is a simple sum. WarmupPeriod = N.
+O(N) per bar. For default N = 14: ~59 cycles. No negative weights - normalization is a simple sum. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 

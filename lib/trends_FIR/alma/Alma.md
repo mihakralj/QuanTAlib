@@ -23,7 +23,7 @@ ALMA is a Finite Impulse Response (FIR) filter that applies a Gaussian window to
 
 Arnaud Legoux and Dimitris Kouzis-Loukas published ALMA in 2009. The context was a trading world drowning in "adaptive" moving averages (KAMA, FRAMA) that often adapted too late or overshot the turn.
 
-While Hull (HMA) attempted to solve lag through algebraic subtraction (and created overshoot), and Jurik (JMA) hid behind proprietary black-box math, Legoux returned to first principles: Signal Processing. He applied the Gaussian filter—standard in electrical engineering for noise reduction—to financial time series. It is not a "modern" invention so much as the correct application of established math to a messy domain.
+While Hull (HMA) attempted to solve lag through algebraic subtraction (and created overshoot), and Jurik (JMA) hid behind proprietary black-box math, Legoux returned to first principles: Signal Processing. He applied the Gaussian filter-standard in electrical engineering for noise reduction-to financial time series. It is not a "modern" invention so much as the correct application of established math to a messy domain.
 
 ## Architecture & Physics
 
@@ -88,7 +88,7 @@ $$ \text{ALMA}_t = \frac{\sum_{i=0}^{L-1} P_{t-i} \cdot w_{L-1-i}}{W_{sum}} $$
 | DIV | N | 15 | 15N |
 | EXP | N | 50 | 50N |
 | ADD/SUB | 2N | 1 | 2N |
-| **Total (init)** | — | — | **~73N cycles** |
+| **Total (init)** | - | - | **~73N cycles** |
 
 For period=20: ~1,460 cycles (one-time).
 
@@ -99,7 +99,7 @@ For period=20: ~1,460 cycles (one-time).
 | MUL | N | 3 | 3N |
 | ADD | N | 1 | N |
 | DIV | 1 | 15 | 15 |
-| **Total** | **2N + 1** | — | **~4N + 15 cycles** |
+| **Total** | **2N + 1** | - | **~4N + 15 cycles** |
 
 For period=20: ~95 cycles per bar.
 
@@ -122,7 +122,7 @@ The dot product `∑(buffer[i] × weights[i])` is highly vectorizable:
 | :--- | :---: | :---: | :--- |
 | Scalar streaming | ~95 | ~48,640 | O(N) per bar |
 | SIMD batch | ~25 | ~12,800 | Vectorized dot product |
-| **Improvement** | **~4×** | **~36K saved** | — |
+| **Improvement** | **~4×** | **~36K saved** | - |
 
 ### Quality Metrics
 

@@ -85,7 +85,7 @@ ConnorsRSI = average of RSI(3), StreakRSI(2), PercentRank(100). Three sub-indica
 | StreakRSI(2) update (2 EMA + ratio) | 6 | 4 | 24 |
 | PercentRank scan (O(N), N=100) | 100 | 1 | 100 |
 | ADD × 2 + MUL ÷3 (average) | 3 | 3 | 9 |
-| **Total** | **117** | — | **~159 cycles** |
+| **Total** | **117** | - | **~159 cycles** |
 
 The O(100) PercentRank linear scan dominates. For N=100: ~159 cycles per bar.
 
@@ -93,7 +93,7 @@ The O(100) PercentRank linear scan dominates. For N=100: ~159 cycles per bar.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| RSI(3) / StreakRSI(2) EMA passes | **No** | Recursive IIR — sequential |
+| RSI(3) / StreakRSI(2) EMA passes | **No** | Recursive IIR - sequential |
 | PercentRank scan | Yes | SIMD comparison count: VCMPPD + VPCNT per window |
 | Final averaging | Yes | VADDPD + VMULPD |
 

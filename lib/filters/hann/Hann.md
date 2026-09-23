@@ -69,7 +69,7 @@ Hann-windowed FIR: N weights with Hann taper w[i] = sin^2(pi*i/(N-1)), precomput
 | :--- | :---: | :---: | :---: |
 | RingBuffer write | 1 | ~2 cy | ~2 cy |
 | Weighted sum FMA (N taps) | N | ~5 cy | ~250 cy (N=50) |
-| **Total (N=50)** | **N+1** | — | **~252 cycles** |
+| **Total (N=50)** | **N+1** | - | **~252 cycles** |
 
 O(N) per bar. Hann weights precomputed at construction; identical per-bar cost to rectangular SMA of same length except zero-allocation.
 

@@ -25,7 +25,7 @@ Named after the Jacobian Elliptic functions used in their complex design, these 
 
 ## Architecture & Physics
 
-Structure matters. This filter is implemented as a Direct Form II Transposed structure—not because it's trendy, but because it minimizes state variables and operations. It uses a set of hardcoded, normalized coefficients derived from the pre-warped cutoff frequency to hit the specific Rp=1dB / Rs=40dB target.
+Structure matters. This filter is implemented as a Direct Form II Transposed structure-not because it's trendy, but because it minimizes state variables and operations. It uses a set of hardcoded, normalized coefficients derived from the pre-warped cutoff frequency to hit the specific Rp=1dB / Rs=40dB target.
 
 * **Order**: 2nd Order IIR (Infinite Impulse Response).
 * **Complexity**: O(1). 5 multiplies, 4 adds. Fast.
@@ -33,7 +33,7 @@ Structure matters. This filter is implemented as a Direct Form II Transposed str
 
 ### Specific Architectural Challenge
 
-The primary headache in IIR filter design is balancing stability with sharpness. The Elliptic filter achieves its steep descent by allowing the gain to wobble (ripple) in the passband. This means a flat input signal might produce a slightly wavy output even if the frequency is low—a necessary evil to achieve 40dB attenuation with only 2 poles.
+The primary headache in IIR filter design is balancing stability with sharpness. The Elliptic filter achieves its steep descent by allowing the gain to wobble (ripple) in the passband. This means a flat input signal might produce a slightly wavy output even if the frequency is low-a necessary evil to achieve 40dB attenuation with only 2 poles.
 
 ## Mathematical Foundation
 
@@ -59,7 +59,7 @@ Elliptic (Cauer) filter: equiripple in both passband and stopband. Implemented a
 | Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
 | Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **9** | — | **~24 cycles** |
+| **Total** | **9** | - | **~24 cycles** |
 
 O(1) per bar. Same biquad structure as Butterworth/Chebyshev; only coefficients differ. ~24 cycles/bar.
 

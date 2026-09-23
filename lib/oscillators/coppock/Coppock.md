@@ -80,7 +80,7 @@ Coppock Curve = WMA of (ROC(11) + ROC(14)). Both ROC values need ring buffers of
 | ADD (ROC11 + ROC14) | 1 | 1 | 1 |
 | WMA accumulation (N=10 weighted taps) | 10 | 3 | 30 |
 | DIV (divide by weight sum) | 1 | 15 | 15 |
-| **Total (N=10 WMA)** | **14** | — | **~78 cycles** |
+| **Total (N=10 WMA)** | **14** | - | **~78 cycles** |
 
 For default parameters (ROC 11+14, WMA 10): ~78 cycles per bar. WMA taps dominate.
 
@@ -90,7 +90,7 @@ For default parameters (ROC 11+14, WMA 10): ~78 cycles per bar. WMA taps dominat
 | :--- | :---: | :--- |
 | ROC computation | Yes | VDIVPD on lag-offset arrays |
 | Sum of ROCs | Yes | VADDPD |
-| WMA (convolution) | Yes | FIR convolution — VDPPS or manual dot product |
+| WMA (convolution) | Yes | FIR convolution - VDPPS or manual dot product |
 
 Both ROC and WMA are non-recursive and fully vectorizable. AVX2 dot-product acceleration applies to the WMA convolution.
 

@@ -1,6 +1,6 @@
 # HT_TRENDMODE: Hilbert Transform Trend vs Cycle Mode
 
-> *Hilbert trend mode classifies the market as trending or cycling — a binary answer from the analytic signal's behavior.*
+> *Hilbert trend mode classifies the market as trending or cycling - a binary answer from the analytic signal's behavior.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (output = 1) or cyclical/mean-reverting behavior (output = 0). It uses the full Ehlers Hilbert Transform pipeline — 4-bar WMA smoothing, Hilbert FIR filters, homodyne discriminator for period estimation, DC phase extraction, and SineWave indicators — then applies four decision criteria to classify the current regime. The implementation follows TA-Lib's Ehlers-faithful algorithm from the February 2002 publication. Output is discrete {0, 1}, making it a direct strategy selector: deploy trend-following logic when mode = 1, and mean-reversion logic when mode = 0.
+The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (output = 1) or cyclical/mean-reverting behavior (output = 0). It uses the full Ehlers Hilbert Transform pipeline - 4-bar WMA smoothing, Hilbert FIR filters, homodyne discriminator for period estimation, DC phase extraction, and SineWave indicators - then applies four decision criteria to classify the current regime. The implementation follows TA-Lib's Ehlers-faithful algorithm from the February 2002 publication. Output is discrete {0, 1}, making it a direct strategy selector: deploy trend-following logic when mode = 1, and mean-reversion logic when mode = 0.
 
 ## Historical Context
 
@@ -80,7 +80,7 @@ Criterion 4: Price deviation override
 ### 5. Complexity
 
 - **Time:** $O(P)$ per bar for the SMA over dominant cycle period; Hilbert pipeline is $O(1)$
-- **Space:** $O(P_{\max})$ — circular buffers for price history and Hilbert state ($P_{\max} = 50$)
+- **Space:** $O(P_{\max})$ - circular buffers for price history and Hilbert state ($P_{\max} = 50$)
 - **Warmup:** 63 bars (TA-Lib compatible)
 
 ## Mathematical Foundation
@@ -93,7 +93,7 @@ No user-configurable parameters. The algorithm self-tunes based on the detected 
 
 | Criterion | Purpose |
 |-----------|---------|
-| SineWave crossing | Resets trend counter — new cycle detected |
+| SineWave crossing | Resets trend counter - new cycle detected |
 | Duration threshold | Requires sustained trending before declaration |
 | Phase rate check | Normal phase advance indicates cycle mode |
 | Price deviation | Large deviation from trendline forces trend mode |
@@ -105,7 +105,7 @@ No user-configurable parameters. The algorithm self-tunes based on the detected 
 | 0→1 after breakout | Trend confirmed; deploy momentum strategy |
 | 1→0 at extremes | Cycle started; switch to mean-reversion |
 | Long run of 1s | Strong, sustained trend |
-| Rapid 0/1 flipping | Transitional/choppy — reduce exposure |
+| Rapid 0/1 flipping | Transitional/choppy - reduce exposure |
 
 ## Performance Profile
 
@@ -122,7 +122,7 @@ HtTrendmode uses the Hilbert Transform DC Period estimation and compares it agai
 | Period smoothing (EMA on period estimate) | 2 | 4 | 8 |
 | Trend period threshold comparison | 1 | 1 | 1 |
 | History buffer shifts × 4 | 4 | 1 | 4 |
-| **Total** | **16** | — | **~57 cycles** |
+| **Total** | **16** | - | **~57 cycles** |
 
 The ATAN2-equivalent phase computation is the dominant cost. For default parameters: ~57 cycles per bar.
 
@@ -131,7 +131,7 @@ The ATAN2-equivalent phase computation is the dominant cost. For default paramet
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | Hilbert FIR (windowed taps) | Partial | Each tap independent; cross-bar state dependency limits |
-| Period EMA smoothing | **No** | Recursive IIR — sequential |
+| Period EMA smoothing | **No** | Recursive IIR - sequential |
 | Threshold comparison | Yes | VCMPPD |
 
 The recursive EMA smoothing of the period estimate blocks full vectorization.
@@ -142,12 +142,12 @@ The recursive EMA smoothing of the period estimate blocks full vectorization.
 | :--- | :---: | :--- |
 | **Accuracy** | 7/10 | Phase estimation inherent noise; binary output loses detail |
 | **Timeliness** | 6/10 | Hilbert requires ~32 bar warmup for phase stabilization |
-| **Smoothness** | 10/10 | Binary 0/1 output — maximally smooth |
+| **Smoothness** | 10/10 | Binary 0/1 output - maximally smooth |
 | **Noise Rejection** | 7/10 | EMA-smoothed period estimate reduces mode-flip chatter |
 
 ## Resources
 
-- Ehlers, J.F. — "The Instantaneous Trendline" (February 2002)
-- Ehlers, J.F. — *MESA and Trading Market Cycles* (John Wiley & Sons, 2002)
-- Ehlers, J.F. — *Rocket Science for Traders* (John Wiley & Sons, 2001)
+- Ehlers, J.F. - "The Instantaneous Trendline" (February 2002)
+- Ehlers, J.F. - *MESA and Trading Market Cycles* (John Wiley & Sons, 2002)
+- Ehlers, J.F. - *Rocket Science for Traders* (John Wiley & Sons, 2001)
 - PineScript reference: `ht_trendmode.pine` in indicator directory

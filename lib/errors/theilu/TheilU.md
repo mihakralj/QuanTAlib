@@ -109,7 +109,7 @@ Theil's U statistic: U = sqrt(MSE_forecast) / sqrt(MSE_naive). Requires two runn
 | Forecast MSE update (e^2 + EMA) | 2 | ~5 cy | ~10 cy |
 | Naive MSE update (naive_e^2 + EMA) | 2 | ~5 cy | ~10 cy |
 | U = sqrt(MSE_f) / sqrt(MSE_n) | 2 | ~15 cy | ~30 cy |
-| **Total** | **~6** | — | **~50 cycles** |
+| **Total** | **~6** | - | **~50 cycles** |
 
 O(1) per bar. Two parallel EMA accumulators + ratio with sqrt. ~50 cycles/bar.
 

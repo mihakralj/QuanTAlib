@@ -1,6 +1,6 @@
 # CCV: Close-to-Close Volatility
 
-> *The simplest volatility measure is often the most robust—when all you have is closing prices, make the most of them.*
+> *The simplest volatility measure is often the most robust-when all you have is closing prices, make the most of them.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ Close-to-Close Volatility (CCV) calculates the annualized standard deviation of 
 
 ## Historical Context
 
-Close-to-close volatility has been the workhorse of volatility estimation since the earliest days of quantitative finance. Its simplicity—requiring only closing prices—made it practical for analysis when intraday data was unavailable or expensive. While modern volatility estimators like Parkinson (1980), Garman-Klass (1980), and Yang-Zhang (2000) leverage high/low/open data for improved efficiency, CCV remains the standard reference point.
+Close-to-close volatility has been the workhorse of volatility estimation since the earliest days of quantitative finance. Its simplicity-requiring only closing prices-made it practical for analysis when intraday data was unavailable or expensive. While modern volatility estimators like Parkinson (1980), Garman-Klass (1980), and Yang-Zhang (2000) exposure high/low/open data for improved efficiency, CCV remains the standard reference point.
 
 The mathematical foundation rests on the assumption that log returns follow a normal distribution with constant volatility over the estimation window. When this assumption holds, CCV is the maximum likelihood estimator. When it doesn't (which is most of the time in real markets), CCV still provides a reasonable baseline that's easy to interpret and compare across assets.
 
@@ -74,7 +74,7 @@ The factor 252 represents the typical number of trading days in a year. This ann
 Three smoothing options are available:
 
 **Method 1 - SMA (Simple Moving Average):**
-Reports the raw annualized standard deviation—no additional smoothing.
+Reports the raw annualized standard deviation-no additional smoothing.
 
 **Method 2 - EMA/RMA with Warmup Compensation:**
 
@@ -122,7 +122,7 @@ This means:
 
 ### Annualization Derivation
 
-If daily volatility is $\sigma_d$ and we assume independence:
+If daily volatility is $\sigma_d$ and the implementation assume independence:
 
 $$
 \text{Var}[\text{annual return}] = 252 \times \text{Var}[\text{daily return}]
@@ -160,7 +160,7 @@ Per-bar operations for SMA method:
 | ADD/SUB | ~2n | 1 | ~2n |
 | MUL | n | 3 | 3n |
 | SQRT | 1 | 15 | 15 |
-| **Total** | — | — | **~80 + 5n cycles** |
+| **Total** | - | - | **~80 + 5n cycles** |
 
 For period=20: approximately 180 cycles per bar.
 

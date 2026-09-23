@@ -106,9 +106,9 @@ LANCZOS(N) is a direct FIR convolution using precomputed sinc weights. The sinc 
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
-O(N) per bar. For default N = 14: ~59 cycles. Sinc weights are computed once at construction (involves `Math.Sin`/division per weight — one-time O(N) cost). WarmupPeriod = N.
+O(N) per bar. For default N = 14: ~59 cycles. Sinc weights are computed once at construction (involves `Math.Sin`/division per weight - one-time O(N) cost). WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 

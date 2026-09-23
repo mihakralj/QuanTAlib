@@ -64,7 +64,7 @@ public class TsiTests
         // Feed constant prices
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), constantPrice));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), constantPrice));
         }
 
         // TSI should be 0 when no price change
@@ -79,7 +79,7 @@ public class TsiTests
         // Feed rising prices
         for (int i = 0; i < 30; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i));
         }
 
         // TSI should be positive (approaching +100) for consistent rising prices
@@ -94,7 +94,7 @@ public class TsiTests
         // Feed falling prices
         for (int i = 0; i < 30; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 200.0 - i));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - i));
         }
 
         // TSI should be negative (approaching -100) for consistent falling prices
@@ -124,7 +124,7 @@ public class TsiTests
 
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         // Signal should be a smoothed version of TSI
@@ -148,7 +148,7 @@ public class TsiTests
         // Feed enough data to warm up all EMAs
         for (int i = 0; i < 50; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         Assert.True(tsi.IsHot);
@@ -163,15 +163,15 @@ public class TsiTests
         // Initial values - building up momentum history
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         // Update with new bar (large spike)
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(20), 180.0), isNew: true);
+        tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(20), 180.0), isNew: true);
         var valueAfterSpike = tsi.Last.Value;
 
         // Correct the bar to smaller value (isNew=false)
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(20), 105.0), isNew: false);
+        tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(20), 105.0), isNew: false);
         var valueAfterCorrection = tsi.Last.Value;
 
         // The spike value should be higher than the corrected value
@@ -187,7 +187,7 @@ public class TsiTests
 
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i));
         }
 
         Assert.NotEqual(default, tsi.Last);
@@ -206,7 +206,7 @@ public class TsiTests
         var source = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         var result = Tsi.Batch(source);
@@ -243,7 +243,7 @@ public class TsiTests
     public void Update_SingleValue_ReturnsZero()
     {
         var tsi = new Tsi(5, 3, 3);
-        var result = tsi.Update(new TValue(DateTime.Now, 100.0));
+        var result = tsi.Update(new TValue(DateTime.UtcNow, 100.0));
 
         // First value has no momentum
         Assert.Equal(0, result.Value);
@@ -257,11 +257,11 @@ public class TsiTests
         // Stable prices
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0));
         }
 
         // Large price swing
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(21), 200.0));
+        tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(21), 200.0));
 
         // Should handle without overflow/underflow
         Assert.True(!double.IsNaN(tsi.Last.Value));
@@ -276,7 +276,7 @@ public class TsiTests
         // Negative prices (like temperature or P&L)
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), -10.0 + (i * 0.5)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), -10.0 + (i * 0.5)));
         }
 
         Assert.True(!double.IsNaN(tsi.Last.Value));
@@ -291,7 +291,7 @@ public class TsiTests
         // Very small price changes
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 1e-8)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 1e-8)));
         }
 
         Assert.True(!double.IsNaN(tsi.Last.Value));
@@ -341,7 +341,7 @@ public class TsiTests
         var series = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            series.Add(new TValue(DateTime.Now.AddMinutes(i), source[i]));
+            series.Add(new TValue(DateTime.UtcNow.AddMinutes(i), source[i]));
         }
 
         var batchResult = Tsi.Batch(series, 5, 3, 3);
@@ -395,7 +395,7 @@ public class TsiTests
             isNewReceived = args.IsNew;
         };
 
-        tsi.Update(new TValue(DateTime.Now, 100.0));
+        tsi.Update(new TValue(DateTime.UtcNow, 100.0));
 
         Assert.NotNull(receivedValue);
         Assert.True(isNewReceived);
@@ -412,7 +412,7 @@ public class TsiTests
 
         for (int i = 0; i < 20; i++)
         {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            source.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         Assert.Equal(20, receivedValues.Count);
@@ -427,14 +427,14 @@ public class TsiTests
         // Rising prices
         for (int i = 0; i < 15; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 2)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 2)));
         }
         Assert.True(tsi.Last.Value > 0);
 
         // Falling prices
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(15 + i), 128.0 - (i * 2)));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(15 + i), 128.0 - (i * 2)));
         }
         Assert.True(tsi.Last.Value < 0);
     }
@@ -452,7 +452,7 @@ public class TsiTests
             double price = i < 20
                 ? 100.0 + (i * 2)        // Rising
                 : 140.0 - ((i - 20) * 2);  // Falling
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), price));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             tsiValues.Add(tsi.Last.Value);
             signalValues.Add(tsi.Signal);
         }

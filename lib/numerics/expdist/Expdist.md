@@ -1,6 +1,6 @@
 # EXPDIST: Exponential Distribution CDF
 
-> *The exponential distribution models the time between events — memoryless waiting distilled into a single rate parameter.*
+> *The exponential distribution models the time between events - memoryless waiting distilled into a single rate parameter.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -84,7 +84,7 @@ EXPDIST(source, period, lambda):
 
 ### Operation Count (Streaming Mode)
 
-Exponential distribution CDF = 1 - exp(-lambda * x) — a trivially cheap closed-form evaluation.
+Exponential distribution CDF = 1 - exp(-lambda * x) - a trivially cheap closed-form evaluation.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -93,9 +93,9 @@ Exponential distribution CDF = 1 - exp(-lambda * x) — a trivially cheap closed
 | exp(-lambda*x) | 1 | 20 cy | ~20 cy |
 | 1 - exp result | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~30 cy** |
+| **Total** | **O(1)** | - | **~30 cy** |
 
-Cheapest distribution implementation — single exp() call dominates. No series expansion, no iterative solver.
+Cheapest distribution implementation - single exp() call dominates. No series expansion, no iterative solver.
 
 ### Batch Mode (SIMD Analysis)
 

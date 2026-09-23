@@ -1,6 +1,6 @@
 # KDJ: Enhanced Stochastic Oscillator
 
-> *K leads, D confirms, J exaggerates — three perspectives on momentum condensed into one indicator.*
+> *K leads, D confirms, J exaggerates - three perspectives on momentum condensed into one indicator.*
 
 | Property | Value |
 |----------|-------|
@@ -64,11 +64,11 @@ Default configuration (9, 3) warms up in 11 bars.
 
 ### 1. Three-Output Design
 
-KDJ produces three correlated outputs per bar. [`K`](lib/oscillators/kdj/Kdj.cs:49) and [`D`](lib/oscillators/kdj/Kdj.cs:50) are stored as separate `TValue` properties; [`Last`](lib/oscillators/kdj/Kdj.cs:48) holds the J line. The `Update(TBarSeries)` method returns a named tuple `(TSeries K, TSeries D, TSeries J)`.
+KDJ produces three correlated outputs per bar. [`K`](Kdj.cs) and [`D`](Kdj.cs) are stored as separate `TValue` properties; [`Last`](Kdj.cs) holds the J line. The `Update(TBarSeries)` method returns a named tuple `(TSeries K, TSeries D, TSeries J)`.
 
 ### 2. Monotonic Deque Min/Max
 
-Instead of scanning the entire lookback window on each bar, [`MonotonicDeque`](lib/oscillators/kdj/Kdj.cs:30) maintains sorted candidates so that highest-high and lowest-low queries are O(1). On correction (`isNew=false`), the deque is rebuilt from the circular buffer without heap allocation.
+Instead of scanning the entire lookback window on each bar, [`MonotonicDeque`](Kdj.cs) maintains sorted candidates so that highest-high and lowest-low queries are O(1). On correction (`isNew=false`), the deque is rebuilt from the circular buffer without heap allocation.
 
 ### 3. RMA with Warmup Compensator
 
@@ -76,7 +76,7 @@ The exponential warmup compensator tracks the geometric decay factor $e_K = e_K 
 
 ### 4. FMA Hot Path
 
-Both RMA updates use [`Math.FusedMultiplyAdd`](lib/oscillators/kdj/Kdj.cs:131) for the `decay * prev + alpha * input` pattern, and the J computation uses FMA for `3.0 * K + (-2.0 * D)`.
+Both RMA updates use [`Math.FusedMultiplyAdd`](Kdj.cs) for the `decay * prev + alpha * input` pattern, and the J computation uses FMA for `3.0 * K + (-2.0 * D)`.
 
 ### 5. Edge Cases
 

@@ -1,6 +1,6 @@
 # DWT: Discrete Wavelet Transform
 
-> *The discrete wavelet transform splits a signal into approximation and detail at each scale — multiresolution analysis in action.*
+> *The discrete wavelet transform splits a signal into approximation and detail at each scale - multiresolution analysis in action.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -81,7 +81,7 @@ DWT(source, levels, output):
 
 ### Operation Count (Streaming Mode)
 
-DWT (Discrete Wavelet Transform) applies a 2-band filter bank recursively — O(N) per bar for a single decomposition level.
+DWT (Discrete Wavelet Transform) applies a 2-band filter bank recursively - O(N) per bar for a single decomposition level.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -89,7 +89,7 @@ DWT (Discrete Wavelet Transform) applies a 2-band filter bank recursively — O(
 | Low-pass filter convolution (N/2 outputs) | N/2 * L | 2 cy | ~N*L cy |
 | High-pass filter convolution (N/2 outputs) | N/2 * L | 2 cy | ~N*L cy |
 | Downsampling (stride-2 access) | N | 0 cy | ~0 cy |
-| **Total (N=32, L=4 Haar/D4)** | **O(N*L)** | — | **~256 cy** |
+| **Total (N=32, L=4 Haar/D4)** | **O(N*L)** | - | **~256 cy** |
 
 O(N*L) per bar where L = filter length. Haar wavelet (L=2) is cheapest; Daubechies D4 (L=4) doubles cost. Single decomposition level.
 

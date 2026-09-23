@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -26,7 +28,7 @@ __all__ = [
 ]
 
 
-def atrstop(high: object, low: object, close: object, period: int = 21, multiplier: float = 3.0, offset: int = 0, **kwargs) -> object:
+def atrstop(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 21, multiplier: float = 3.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """ATR Trailing Stop."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -38,7 +40,7 @@ def atrstop(high: object, low: object, close: object, period: int = 21, multipli
     return _wrap(output, idx, f"ATRSTOP_{period}", "reversals", offset)
 
 
-def chandelier(open: object, high: object, low: object, close: object, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs) -> object:
+def chandelier(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, multiplier: float = 2.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chandelier Exit."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)
@@ -50,7 +52,7 @@ def chandelier(open: object, high: object, low: object, close: object, period: i
     return _wrap(output, idx, f"CHANDELIER_{period}", "reversals", offset)
 
 
-def ckstop(open: object, high: object, low: object, close: object, atrPeriod: int = 22, multiplier: float = 2.0, stopPeriod: int = 3, offset: int = 0, **kwargs) -> object:
+def ckstop(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, atrPeriod: int = 22, multiplier: float = 2.0, stopPeriod: int = 3, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chuck LeBeau Stop."""
     atrPeriod = int(atrPeriod)
     multiplier = float(multiplier)
@@ -63,7 +65,7 @@ def ckstop(open: object, high: object, low: object, close: object, atrPeriod: in
     return _wrap(output, idx, f"CKSTOP_{atrPeriod}", "reversals", offset)
 
 
-def fractals(high: object, low: object, offset: int = 0, **kwargs) -> object:
+def fractals(high: ArrayLike, low: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Williams Fractals."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low)
@@ -74,7 +76,7 @@ def fractals(high: object, low: object, offset: int = 0, **kwargs) -> object:
     return _wrap_multi({"upOutput": upOutput, "downOutput": downOutput}, idx, "reversals", offset)
 
 
-def pivot(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivot(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Pivot Points (Traditional)."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -84,7 +86,7 @@ def pivot(high: object, low: object, close: object, offset: int = 0, **kwargs) -
     return _wrap(ppOutput, idx, "PIVOT", "reversals", offset)
 
 
-def pivotcam(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivotcam(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Camarilla Pivot Points."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -94,7 +96,7 @@ def pivotcam(high: object, low: object, close: object, offset: int = 0, **kwargs
     return _wrap(ppOutput, idx, "PIVOTCAM", "reversals", offset)
 
 
-def pivotdem(open: object, high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivotdem(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """DeMark Pivot Points."""
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -104,7 +106,7 @@ def pivotdem(open: object, high: object, low: object, close: object, offset: int
     return _wrap(ppOutput, idx, "PIVOTDEM", "reversals", offset)
 
 
-def pivotext(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivotext(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Extended Pivot Points."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -114,7 +116,7 @@ def pivotext(high: object, low: object, close: object, offset: int = 0, **kwargs
     return _wrap(ppOutput, idx, "PIVOTEXT", "reversals", offset)
 
 
-def pivotfib(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivotfib(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Fibonacci Pivot Points."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -124,7 +126,7 @@ def pivotfib(high: object, low: object, close: object, offset: int = 0, **kwargs
     return _wrap(ppOutput, idx, "PIVOTFIB", "reversals", offset)
 
 
-def pivotwood(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def pivotwood(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Woodie Pivot Points."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -134,7 +136,7 @@ def pivotwood(high: object, low: object, close: object, offset: int = 0, **kwarg
     return _wrap(ppOutput, idx, "PIVOTWOOD", "reversals", offset)
 
 
-def sar(open: object, high: object, low: object, close: object, afStart: float = 0.02, afIncrement: float = 0.02, afMax: float = 0.2, offset: int = 0, **kwargs) -> object:
+def sar(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, afStart: float = 0.02, afIncrement: float = 0.02, afMax: float = 0.2, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Parabolic SAR."""
     afStart = float(afStart)
     afIncrement = float(afIncrement)
@@ -147,7 +149,7 @@ def sar(open: object, high: object, low: object, close: object, afStart: float =
     return _wrap(output, idx, "SAR", "reversals", offset)
 
 
-def sarext(open: object, high: object, low: object, close: object, startValue: float = 0.0, offsetOnReverse: float = 0.0, afInitLong: float = 0.02, afLong: float = 0.02, afMaxLong: float = 0.2, afInitShort: float = 0.02, afShort: float = 0.02, afMaxShort: float = 0.2, offset: int = 0, **kwargs) -> object:
+def sarext(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, startValue: float = 0.0, offsetOnReverse: float = 0.0, afInitLong: float = 0.02, afLong: float = 0.02, afMaxLong: float = 0.2, afInitShort: float = 0.02, afShort: float = 0.02, afMaxShort: float = 0.2, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Parabolic SAR Extended."""
     startValue = float(startValue)
     offsetOnReverse = float(offsetOnReverse)
@@ -165,7 +167,7 @@ def sarext(open: object, high: object, low: object, close: object, startValue: f
     return _wrap(output, idx, "SAREXT", "reversals", offset)
 
 
-def swings(high: object, low: object, lookback: int = 5, offset: int = 0, **kwargs) -> object:
+def swings(high: ArrayLike, low: ArrayLike, lookback: int = 5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Swing High/Low."""
     lookback = int(lookback)
     offset = int(offset)
@@ -177,7 +179,7 @@ def swings(high: object, low: object, lookback: int = 5, offset: int = 0, **kwar
     return _wrap_multi({"highOutput": highOutput, "lowOutput": lowOutput}, idx, "reversals", offset)
 
 
-def ttm_scalper(high: object, low: object, close: object, useCloses: int = 0, offset: int = 0, **kwargs) -> object:
+def ttm_scalper(high: ArrayLike, low: ArrayLike, close: ArrayLike, useCloses: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """TTM Scalper."""
     useCloses = int(useCloses)
     offset = int(offset)
@@ -189,7 +191,7 @@ def ttm_scalper(high: object, low: object, close: object, useCloses: int = 0, of
     return _wrap_multi({"highOutput": highOutput, "lowOutput": lowOutput}, idx, "reversals", offset)
 
 
-def vstop(high: object, low: object, close: object, period: int = 7, multiplier: float = 3.0, offset: int = 0, **kwargs) -> object:
+def vstop(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 7, multiplier: float = 3.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Volatility Stop."""
     period = int(kwargs.get("length", period))
     multiplier = float(multiplier)

@@ -52,7 +52,7 @@ The 0.5 default covers the degenerate flat-market case where all stages are iden
 
 | γ | Behaviour |
 |---|-----------|
-| 0.0 | No memory: L0 = price, L1 = L0⁻¹, L2 = L1⁻¹, L3 = L2⁻¹ — essentially a 4-tap FIR |
+| 0.0 | No memory: L0 = price, L1 = L0⁻¹, L2 = L1⁻¹, L3 = L2⁻¹ - essentially a 4-tap FIR |
 | 0.5 | Default: balanced responsiveness and smoothing |
 | → 1.0 | Extreme smoothing; stages converge toward price mean; LRSI approaches 0.5 everywhere |
 
@@ -62,7 +62,7 @@ The 0.5 default covers the degenerate flat-market case where all stages are iden
 record struct State { L0, L1, L2, L3, LastValid }
 ```
 
-Five doubles only. No circular buffers. Bar correction (`isNew=false`) reduces to a single struct copy — the simplest possible rollback in the library.
+Five doubles only. No circular buffers. Bar correction (`isNew=false`) reduces to a single struct copy - the simplest possible rollback in the library.
 
 ### 5. FMA Usage
 
@@ -101,7 +101,7 @@ Laguerre RSI uses a 4-pole Laguerre filter to compute a fast RSI-like oscillator
 | ADD × 2 (CU, CD sums) | 2 | 1 | 2 |
 | DIV (CU / (CU+CD)) | 1 | 15 | 15 |
 | CMP (div-by-zero guard) | 1 | 1 | 1 |
-| **Total** | **12** | — | **~38 cycles** |
+| **Total** | **12** | - | **~38 cycles** |
 
 Four recursive Laguerre poles + RSI ratio. ~38 cycles per bar.
 
@@ -109,7 +109,7 @@ Four recursive Laguerre poles + RSI ratio. ~38 cycles per bar.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Laguerre poles × 4 | **No** | Recursive IIR — each pole depends on prior value |
+| Laguerre poles × 4 | **No** | Recursive IIR - each pole depends on prior value |
 | CU/CD classification | Yes | VCMPPD + masked accumulate |
 | RSI ratio | Yes | VDIVPD after poles computed |
 
@@ -152,15 +152,15 @@ No external C# library implements Laguerre RSI. Validation protocol:
 
 2. **γ = 1.0 produces constant 0.5**: All stages converge to a weighted mean; cu = cd = 0 for any non-spike input. The implementation returns 0.5 by convention; this is mathematically correct but operationally useless. Warn users who set γ ≥ 0.95.
 
-3. **Expecting WarmupPeriod to gate output**: LRSI emits valid output from bar 1 (stages begin updating immediately). `WarmupPeriod = 4` is informational — it marks when all four stages have received at least one distinct value. Unlike period-based indicators, there is no discontinuity at the warmup boundary.
+3. **Expecting WarmupPeriod to gate output**: LRSI emits valid output from bar 1 (stages begin updating immediately). `WarmupPeriod = 4` is informational - it marks when all four stages have received at least one distinct value. Unlike period-based indicators, there is no discontinuity at the warmup boundary.
 
-4. **Bar correction rollback is trivially cheap**: Because state is five scalars, `isNew=false` is just `_s = _ps` — no Array.Copy required. Any performance concerns from frequent bar corrections are unfounded for LRSI.
+4. **Bar correction rollback is trivially cheap**: Because state is five scalars, `isNew=false` is just `_s = _ps` - no Array.Copy required. Any performance concerns from frequent bar corrections are unfounded for LRSI.
 
 5. **Recursive filter cannot be vectorised**: Do not attempt a SIMD batch path. The stage-to-stage dependency chain is a strict serial recurrence. The only valid performance improvement is FMA (already applied) and ensuring the JIT promotes the state struct to registers (enabled by the local copy pattern).
 
-6. **NaN substitution uses last valid close, not 0.5**: Substituting 0 or 0.5 on a NaN bar would distort the filter state. The last seen finite price is the correct substitution — it keeps the filter state continuous.
+6. **NaN substitution uses last valid close, not 0.5**: Substituting 0 or 0.5 on a NaN bar would distort the filter state. The last seen finite price is the correct substitution - it keeps the filter state continuous.
 
-7. **γ behaviour is not monotone in lag for all signals**: Lower γ produces a faster filter, but also a noisier RSI signal. The optimum γ for a given instrument depends on frequency content of the underlying price series — there is no universally correct value.
+7. **γ behaviour is not monotone in lag for all signals**: Lower γ produces a faster filter, but also a noisier RSI signal. The optimum γ for a given instrument depends on frequency content of the underlying price series - there is no universally correct value.
 
 ## References
 

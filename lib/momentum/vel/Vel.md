@@ -143,7 +143,7 @@ VEL delegates to PWMA and WMA, each maintaining running sums for O(1) updates:
 | PWMA Update | 1 | ~15 | 15 |
 | WMA Update | 1 | ~12 | 12 |
 | SUB (difference) | 1 | 1 | 1 |
-| **Total** | **3** | — | **~28 cycles** |
+| **Total** | **3** | - | **~28 cycles** |
 
 Both PWMA and WMA use incremental running sum updates, avoiding full window re-computation.
 

@@ -418,6 +418,7 @@
 | [WINS](statistics/wins/Wins.md)                            | Winsorized Mean MA                                                        | Statistics   |
 | [WMA](trends_FIR/wma/Wma.md)                               | Weighted MA                                                               | Trends (FIR) |
 | [WMAPE](errors/wmape/Wmape.md)                             | Weighted MAPE                                                             | Errors       |
+| [SQUEEZE_PRO](oscillators/squeeze_pro/squeeze_pro.md)       | Squeeze Pro                                                               | Oscillators  |
 | [WRMSE](errors/wrmse/Wrmse.md)                             | Weighted RMSE                                                             | Errors       |
 | [YZV](volatility/yzv/Yzv.md)                               | Yang-Zhang Volatility                                                     | Volatility   |
 | [YZVAMA](trends_IIR/yzvama/Yzvama.md)                      | Yang-Zhang Volatility Adjusted MA                                         | Trends (IIR) |

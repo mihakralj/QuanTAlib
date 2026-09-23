@@ -72,25 +72,25 @@ $$ FRAMA_t = \alpha \cdot HL2_t + (1-\alpha) \cdot FRAMA_{t-1} $$
 | EXP | 1 | 50 | 50 |
 | MUL | 2 | 3 | 6 |
 | FMA | 1 | 4 | 4 |
-| **Total** | — | — | **~251 cycles** |
+| **Total** | - | - | **~251 cycles** |
 
 The hot path consists of:
-1. HL2 price: `(high + low) * 0.5` — 1 ADD + 1 MUL
-2. Range scans (3 windows): min/max over N, N/2, N/2 — 3×N CMP (60 for period=20)
+1. HL2 price: `(high + low) * 0.5` - 1 ADD + 1 MUL
+2. Range scans (3 windows): min/max over N, N/2, N/2 - 3×N CMP (60 for period=20)
 3. Range normalization: 3 DIV operations
-4. Fractal dimension: `(ln(N1+N2) - ln(N3)) / ln(2)` — 2 LOG + 1 ADD + 1 SUB + 1 DIV
-5. Alpha calculation: `exp(-4.6 * (D - 1))` — 1 EXP + 1 MUL + 1 SUB
-6. EMA update: `FMA(prev, 1-alpha, alpha * price)` — 1 FMA + 1 MUL
+4. Fractal dimension: `(ln(N1+N2) - ln(N3)) / ln(2)` - 2 LOG + 1 ADD + 1 SUB + 1 DIV
+5. Alpha calculation: `exp(-4.6 * (D - 1))` - 1 EXP + 1 MUL + 1 SUB
+6. EMA update: `FMA(prev, 1-alpha, alpha * price)` - 1 FMA + 1 MUL
 
 **Complexity note:** Range scans are O(N) per update. For period=20, this is ~60 comparisons. For period=50, ~150 comparisons.
 
 **Warmup path:**
 
-During warmup (bars < period), only buffer fills occur — O(1) per bar.
+During warmup (bars < period), only buffer fills occur - O(1) per bar.
 
 ### Batch Mode (SIMD Analysis)
 
-FRAMA is an IIR filter with sliding window min/max — **not vectorizable** across bars due to:
+FRAMA is an IIR filter with sliding window min/max - **not vectorizable** across bars due to:
 1. Recursive EMA state dependency
 2. O(N) range scans that don't benefit from SIMD without monotonic deque optimization
 

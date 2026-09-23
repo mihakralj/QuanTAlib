@@ -103,7 +103,7 @@ PC uses two monotonic deques for $O(1)$ amortized sliding-window max/min plus a 
 | CMP (remove dominated back, min deque) | ~1 avg | 1 | 1 |
 | ADD (upper + lower) | 1 | 1 | 1 |
 | MUL (× 0.5 for middle) | 1 | 3 | 3 |
-| **Total (amortized)** | **~6** | — | **~8 cycles** |
+| **Total (amortized)** | **~6** | - | **~8 cycles** |
 
 Identical to DC in cost. Each element enters and exits each deque exactly once over the full series, yielding $O(N)$ total work across $N$ bars regardless of period.
 

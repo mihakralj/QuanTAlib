@@ -42,7 +42,7 @@ where $\alpha$ is the intercept (constant model), $\beta t$ is the linear trend 
 
 ### 3. OLS Estimation via Cholesky
 
-The normal equations $X'X \hat{\beta} = X'y$ are solved via Cholesky decomposition $X'X = LL'$ with forward-backward substitution. For $k \leq 8$ regressors, all matrices fit in `stackalloc` — zero heap allocation.
+The normal equations $X'X \hat{\beta} = X'y$ are solved via Cholesky decomposition $X'X = LL'$ with forward-backward substitution. For $k \leq 8$ regressors, all matrices fit in `stackalloc` - zero heap allocation.
 
 ### 4. Test Statistic
 
@@ -135,7 +135,7 @@ Maximum relative error: $\pm 1.5 \times 10^{-7}$, providing at least 6 decimal p
 |-------------|--------|----------|----------------------|
 | `period`    | $n$    | 50       | $n \geq 20$          |
 | `maxLag`    | $p$    | 0 (auto) | $p \geq 0$           |
-| `regression`| —      | Constant | {NoConstant, Constant, ConstantAndTrend} |
+| `regression`| -      | Constant | {NoConstant, Constant, ConstantAndTrend} |
 
 ### Regression Models
 
@@ -157,10 +157,10 @@ Maximum relative error: $\pm 1.5 \times 10^{-7}$, providing at least 6 decimal p
 
 | P-Value | Interpretation |
 |---------|---------------|
-| < 0.01 | Strong evidence of stationarity — reject unit root at 1% |
-| < 0.05 | Evidence of stationarity — reject unit root at 5% |
-| < 0.10 | Weak evidence of stationarity — reject at 10% |
-| ≥ 0.10 | Cannot reject unit root — series may be non-stationary |
+| < 0.01 | Strong evidence of stationarity - reject unit root at 1% |
+| < 0.05 | Evidence of stationarity - reject unit root at 5% |
+| < 0.10 | Weak evidence of stationarity - reject at 10% |
+| ≥ 0.10 | Cannot reject unit root - series may be non-stationary |
 
 ## Performance Profile
 
@@ -174,7 +174,7 @@ Maximum relative error: $\pm 1.5 \times 10^{-7}$, providing at least 6 decimal p
 | DIV (triangular solve) | $k^2$ | 15 | $15k^2$ |
 | LN (AIC) | $p_{\max}$ | 50 | $50p_{\max}$ |
 | EXP (NormCdf) | 1 | 50 | 50 |
-| **Total** | — | — | **~$3nk^2 + 50$** |
+| **Total** | - | - | **~$3nk^2 + 50$** |
 
 ### SIMD Analysis (Batch Mode)
 
@@ -190,7 +190,7 @@ Maximum relative error: $\pm 1.5 \times 10^{-7}$, providing at least 6 decimal p
 
 | Library | Status | Notes |
 |---------|:------:|-------|
-| **statsmodels** | ✅ | `adfuller()` — primary reference |
+| **statsmodels** | ✅ | `adfuller()` - primary reference |
 | **TA-Lib** | N/A | Not available |
 | **Skender** | N/A | Not available |
 | **Self-consistency** | ✅ | Batch/streaming/span match |
@@ -200,7 +200,7 @@ Maximum relative error: $\pm 1.5 \times 10^{-7}$, providing at least 6 decimal p
 1. **Warmup period**: Requires at least 20 bars. Results before warmup return p=1.0 (assume unit root).
 2. **Lag selection**: Auto-lag (maxLag=0) uses AIC which may overfit on short windows. For periods < 50, consider fixing maxLag=1.
 3. **Regression model**: Using `ConstantAndTrend` when no trend exists reduces power (higher p-values). Default `Constant` is correct for most financial series.
-4. **Non-standard distribution**: The test statistic does NOT follow a t-distribution — MacKinnon critical values are mandatory.
+4. **Non-standard distribution**: The test statistic does NOT follow a t-distribution - MacKinnon critical values are mandatory.
 5. **Window size**: Period < 30 gives unreliable results. Period ≥ 50 recommended for financial data.
 6. **Multiple testing**: Running ADF on many series without Bonferroni correction inflates false positives.
 7. **Structural breaks**: ADF has low power against alternatives with structural breaks. Consider using Zivot-Andrews test instead.

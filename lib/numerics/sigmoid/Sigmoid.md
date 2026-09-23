@@ -1,6 +1,6 @@
 # SIGMOID: Logistic Function
 
-> *The sigmoid function is the S-curve that turns messy reality into neat probabilities—a mathematical diplomat that insists every answer must be between 0 and 1.*
+> *The sigmoid function is the S-curve that turns messy reality into neat probabilities-a mathematical diplomat that insists every answer must be between 0 and 1.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

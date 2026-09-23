@@ -20,7 +20,7 @@ LOWEST calculates the minimum value over a rolling lookback window. This O(1) am
 
 ## Historical Context
 
-Rolling minimum is fundamental to technical analysis—support detection, drawdown calculation, and trailing stop placement all depend on tracking minimum values efficiently. The naive approach scans all values in the window on each update, requiring O(n) time per bar.
+Rolling minimum is fundamental to technical analysis-support detection, drawdown calculation, and trailing stop placement all depend on tracking minimum values efficiently. The naive approach scans all values in the window on each update, requiring O(n) time per bar.
 
 The monotonic deque algorithm, popularized by Lemire (2006), reduces this to O(1) amortized time by maintaining an increasing sequence of candidates. Values that can never become the minimum (because they're larger and will expire before smaller values) are immediately discarded.
 
@@ -105,7 +105,7 @@ Each element is pushed and popped from the deque at most once across all operati
 | CMP (monotonicity) | ~2 avg | 1 | 2 |
 | Array access | 3 | 3 | 9 |
 | Index arithmetic | 2 | 1 | 2 |
-| **Total** | **~8** | — | **~14 cycles** |
+| **Total** | **~8** | - | **~14 cycles** |
 
 ### Batch Mode (SIMD)
 

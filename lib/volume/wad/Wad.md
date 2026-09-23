@@ -30,7 +30,7 @@ WAD is a cumulative indicator that measures buying/selling pressure using the re
 
 ### 1. True Range Boundaries
 
-For each bar, we establish boundaries that account for gaps:
+For each bar, the implementation establish boundaries that account for gaps:
 
 $$
 TrueHigh = \max(High_t, Close_{t-1})
@@ -69,10 +69,10 @@ $$
 The genius of WAD lies in how it handles different market conditions:
 
 **Upward Movement (Close > Previous Close)**:
-When price closes higher than yesterday, we measure from the True Low (which could be below the current bar's low if we gapped up). This captures the full extent of buying pressure.
+When price closes higher than yesterday, the implementation measure from the True Low (which could be below the current bar's low if the implementation gapped up). This captures the full extent of buying pressure.
 
 **Downward Movement (Close < Previous Close)**:
-When price closes lower than yesterday, we measure from the True High (which could be above the current bar's high if we gapped down). This captures the full extent of selling pressure.
+When price closes lower than yesterday, the implementation measure from the True High (which could be above the current bar's high if the implementation gapped down). This captures the full extent of selling pressure.
 
 **Unchanged (Close = Previous Close)**:
 No price movement detected; no volume impact on WAD.
@@ -81,7 +81,7 @@ No price movement detected; no volume impact on WAD.
 
 ### Operation Count (Streaming Mode)
 
-Williams Accumulation/Distribution uses directional price comparison to select a TrueRange component, then accumulates — O(1).
+Williams Accumulation/Distribution uses directional price comparison to select a TrueRange component, then accumulates - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -90,7 +90,7 @@ Williams Accumulation/Distribution uses directional price comparison to select a
 | WAD_bar = C - TrueRange selected | 1 | 1 cy | ~1 cy |
 | WAD cumulative += WAD_bar | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~9 cy** |
+| **Total** | **O(1)** | - | **~9 cy** |
 
 O(1) cumulative. No window, no smoothing. The conditional branch (up day vs down day vs unchanged) is predicted by the CPU after a few bars.
 

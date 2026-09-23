@@ -120,7 +120,7 @@ TUKEY_W(N) is a direct FIR convolution using precomputed Tukey biweight window w
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
 O(N) per bar. For default N = 14: ~59 cycles. Non-negative quartic weights; no special sign handling. WarmupPeriod = N.
 

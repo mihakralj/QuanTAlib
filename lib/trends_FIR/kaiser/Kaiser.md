@@ -112,15 +112,15 @@ return Σ buffer[j] * w[j]
 
 ### Operation Count (Streaming Mode)
 
-KAISER(N, β) is a direct FIR convolution using precomputed Kaiser-Bessel window weights (computed once in the constructor via a 25-term modified Bessel function series). Each `Update()` call is a pure length-N dot product — identical in structure to any other windowed FIR.
+KAISER(N, β) is a direct FIR convolution using precomputed Kaiser-Bessel window weights (computed once in the constructor via a 25-term modified Bessel function series). Each `Update()` call is a pure length-N dot product - identical in structure to any other windowed FIR.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA (weight × value + acc) | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
-O(N) per bar. For default N = 14: ~59 cycles. Weight computation at construction: O(N × 25) for I₀ series — acceptable one-time cost. WarmupPeriod = N.
+O(N) per bar. For default N = 14: ~59 cycles. Weight computation at construction: O(N × 25) for I₀ series - acceptable one-time cost. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 
@@ -131,4 +131,4 @@ O(N) per bar. For default N = 14: ~59 cycles. Weight computation at construction
 | Symmetric weight exploitation | Yes | Kaiser weights are symmetric: w[i] = w[N-1-i]; SIMD can fuse pairs |
 | Cross-bar independence | Yes | Each bar fully independent; outer-loop SIMD viable |
 
-Due to symmetric weights (w[i] = w[N-1-i]), the FIR can be folded: each pair (oldest + newest) shares the same weight, halving the multiply count to N/2 FMA. AVX2 batch throughput: approximately N/8 cycles per bar — for N = 14, ~1.75 cycles/bar at peak.
+Due to symmetric weights (w[i] = w[N-1-i]), the FIR can be folded: each pair (oldest + newest) shares the same weight, halving the multiply count to N/2 FMA. AVX2 batch throughput: approximately N/8 cycles per bar - for N = 14, ~1.75 cycles/bar at peak.

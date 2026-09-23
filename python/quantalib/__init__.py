@@ -77,6 +77,7 @@ __all__ = [
     "QtlInternalError",
     "version",
     "__version__",
+    *indicators.__all__,
 ]
 
 

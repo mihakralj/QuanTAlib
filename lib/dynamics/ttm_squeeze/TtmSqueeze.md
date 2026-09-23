@@ -107,7 +107,7 @@ TTM Squeeze detects when Bollinger Bands are inside Keltner Channels (the "squee
 | KC upper/lower (EMA + ATR × mul, ADD/SUB × 2) | 4 | 4 | 16 |
 | CMP × 2 (BB inside KC?) | 2 | 1 | 2 |
 | Linear regression oscillator (O(N)) | ~3N | 3 | ~3N |
-| **Total** | **~4N+35** | — | **~4N+49** |
+| **Total** | **~4N+35** | - | **~4N+49** |
 
 For default $N=20$: ~129 cycles per bar. The O(N) variance + O(N) linear regression scan dominate.
 

@@ -30,7 +30,7 @@ The linear decay indicator originates from the Tulip Indicators library, a high-
 
 ### 1. Pure IIR (No Buffer)
 
-The indicator requires no history buffer — only the previous output value is needed:
+The indicator requires no history buffer - only the previous output value is needed:
 
 $$
 \text{state} = \{y_{t-1}\}
@@ -123,7 +123,7 @@ reaching zero after $k = v \cdot p$ bars (assuming $v > 0$).
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Exact arithmetic, no approximation |
 | **Timeliness** | 10/10 | Zero lag on upward moves |
-| **Smoothness** | 2/10 | No smoothing — linear staircase |
+| **Smoothness** | 2/10 | No smoothing - linear staircase |
 | **Simplicity** | 10/10 | Single subtraction + compare |
 
 ## Validation
@@ -140,11 +140,11 @@ reaching zero after $k = v \cdot p$ bars (assuming $v > 0$).
 
 3. **Period interpretation**: Period=5 means the output decays by 1.0 over 5 bars (0.2 per bar), not that it looks back 5 bars.
 
-4. **First bar**: The first bar always equals the input — there is no warmup period in the traditional sense.
+4. **First bar**: The first bar always equals the input - there is no warmup period in the traditional sense.
 
 5. **Asymmetric behavior**: Upward moves are instant (output = input), but downward moves are rate-limited to `1/period` per bar.
 
 ## References
 
 - Tulip Indicators Library: https://tulipindicators.org/decay
-- Kegel, L. "Tulip Indicators" — Open-source C library of technical indicators.
+- Kegel, L. "Tulip Indicators" - Open-source C library of technical indicators.

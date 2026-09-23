@@ -16,11 +16,11 @@
 - **Similar:** [ADX](../adx/Adx.md), [ADXR](../adxr/Adxr.md) | **Complementary:** +DI/-DI for direction | **Trading note:** Directional Index; unsmoothed ADX. More responsive but noisier.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance — making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.
+The Directional Movement Index is the raw, unsmoothed measure of trend strength from Wilder's directional movement system. It decomposes price expansion into +DM and -DM, normalizes against True Range using RMA smoothing to produce +DI and -DI, then computes the ratio $DX = 100 \times |{+DI - {-DI}}| / ({+DI + {-DI}})$. Unlike ADX, which applies a final RMA pass to DX, the raw DX responds immediately to changes in directional dominance - making it noisier but approximately one full period faster. Output ranges from 0 to 100, where high values indicate strong directional movement regardless of up/down direction. DX is the building block from which ADX is derived.
 
 ## Historical Context
 
-J. Welles Wilder Jr. introduced the complete Directional Movement System in *New Concepts in Technical Trading Systems* (1978). The system's pipeline produces several intermediate values — +DM, -DM, TR, +DI, -DI, DX — before reaching the final ADX. Most traders skip directly to ADX, but DX occupies a useful middle ground: it contains all the directional normalization logic (the hard part) without the final smoothing layer (which adds lag). For traders who can tolerate more noise in exchange for faster response, DX provides trend strength signals roughly $N$ bars ahead of ADX. The tradeoff is straightforward: DX spikes on volatile bars and can produce false readings during whipsaw, while ADX absorbs these transients through its additional RMA pass.
+J. Welles Wilder Jr. introduced the complete Directional Movement System in *New Concepts in Technical Trading Systems* (1978). The system's pipeline produces several intermediate values - +DM, -DM, TR, +DI, -DI, DX - before reaching the final ADX. Most traders skip directly to ADX, but DX occupies a useful middle ground: it contains all the directional normalization logic (the hard part) without the final smoothing layer (which adds lag). For traders who can tolerate more noise in exchange for faster response, DX provides trend strength signals roughly $N$ bars ahead of ADX. The tradeoff is straightforward: DX spikes on volatile bars and can produce false readings during whipsaw, while ADX absorbs these transients through its additional RMA pass.
 
 ## Architecture & Physics
 
@@ -60,8 +60,8 @@ When $+DI + (-DI) = 0$ (no directional movement), DX = 0.
 
 ### 6. Complexity
 
-- **Time:** $O(1)$ per bar — all RMA updates are recursive
-- **Space:** $O(1)$ — scalar state only
+- **Time:** $O(1)$ per bar - all RMA updates are recursive
+- **Space:** $O(1)$ - scalar state only
 - **Warmup:** $N$ bars
 
 ## Mathematical Foundation
@@ -111,7 +111,7 @@ DX is an intermediate step in the ADX calculation: it computes the directional m
 | DIV × 2 (+DI, −DI) | 2 | 15 | 30 |
 | MUL × 2 (×100) | 2 | 3 | 6 |
 | ABS + ADD + DIV (DX formula) | 3 | 16 | 16 |
-| **Total** | **23** | — | **~75 cycles** |
+| **Total** | **23** | - | **~75 cycles** |
 
 DX requires N bars warmup (vs 2N for ADX). ~75 cycles per bar.
 
@@ -136,5 +136,5 @@ Same RMA bottleneck as ADX. The DX formula itself is fully vectorizable.
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `dx.pine` in indicator directory

@@ -1,6 +1,6 @@
 # DECO: Ehlers Decycler Oscillator
 
-> *Ehlers' decycler oscillator removes the trend and isolates residual oscillation — what remains when the drift is subtracted.*
+> *Ehlers' decycler oscillator removes the trend and isolates residual oscillation - what remains when the drift is subtracted.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -87,11 +87,11 @@ The indicator requires `longPeriod` bars before producing reliable output. The f
 
 - **Range:** Unbounded (oscillates around zero)
 - **Complexity:** O(1) per bar (pure IIR filter, no lookback buffer needed)
-- **Memory:** O(1) — only stores filter state variables
+- **Memory:** O(1) - only stores filter state variables
 
 ## Related Indicators
 
-- **Decycler (DECYCLER):** The low-pass complement — removes cycles, keeps trend
+- **Decycler (DECYCLER):** The low-pass complement - removes cycles, keeps trend
 - **SSF-DSP:** Similar concept using Super Smooth Filters instead of HP filters
 - **Roofing Filter:** HP + SSF combination for cycle isolation
 - **BandPass Filter:** Ehlers' direct bandpass approach
@@ -107,7 +107,7 @@ DECO (Detrended Correlation Oscillator) subtracts a linear regression from price
 | Linear regression (O(N) or O(1) with prefix sums) | ~4 | 1 | 4 |
 | SUB (detrend: price − regression) | 1 | 1 | 1 |
 | Correlation pipeline (see CTI) | ~22 | 7 | 156 |
-| **Total** | **~27** | — | **~161 cycles** |
+| **Total** | **~27** | - | **~161 cycles** |
 
 Dominated by the correlation computation. ~161 cycles per bar.
 

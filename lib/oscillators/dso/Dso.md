@@ -1,6 +1,6 @@
 # DSO: Ehlers Deviation-Scaled Oscillator
 
-> *When price deviates from its smoothed norm, DSO amplifies the signal through Fisher transformation—producing sharp, decisive oscillator readings that compress during noise and expand during trends.*
+> *When price deviates from its smoothed norm, DSO amplifies the signal through Fisher transformation-producing sharp, decisive oscillator readings that compress during noise and expand during trends.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ DSO applies three stages of signal processing: (1) input whitening to remove DC 
 
 ## Historical Context
 
-The Deviation-Scaled Oscillator was published by John F. Ehlers in the October 2018 issue of *Technical Analysis of Stocks & Commodities* magazine. Ehlers described it as a "Fisherized" version of his deviation-scaled approach, combining the Super Smoother filter (his signature contribution to technical analysis) with RMS normalization and the Fisher Transform (inverse hyperbolic tangent) to produce an oscillator with Gaussian-distributed output—ideal for statistical threshold-based trading.
+The Deviation-Scaled Oscillator was published by John F. Ehlers in the October 2018 issue of *Technical Analysis of Stocks & Commodities* magazine. Ehlers described it as a "Fisherized" version of his deviation-scaled approach, combining the Super Smoother filter (his signature contribution to technical analysis) with RMS normalization and the Fisher Transform (inverse hyperbolic tangent) to produce an oscillator with Gaussian-distributed output-ideal for statistical threshold-based trading.
 
 ## Architecture & Physics
 
@@ -101,9 +101,9 @@ DSO combines a 2-pole IIR filter, O(1) RMS via ring buffer, and the Fisher Trans
 | **Total** | | | **~97 cycles** |
 
 **Dominant costs:**
-- LOG (20 cycles, 21%) — Fisher Transform
-- SQRT (15 cycles, 15%) — RMS calculation
-- DIV (2×15 cycles, 31%) — RMS normalization + Fisher ratio
+- LOG (20 cycles, 21%) - Fisher Transform
+- SQRT (15 cycles, 15%) - RMS calculation
+- DIV (2×15 cycles, 31%) - RMS normalization + Fisher ratio
 
 ### Batch Mode (SIMD Analysis)
 
@@ -136,7 +136,7 @@ DSO is not implemented in mainstream libraries. Validation relies on behavioral 
 ### Behavioral Test Summary
 
 - **Constant Input → Zero**: Constant close → zeros=0 → filt=0 → scaledFilt=0 → Fisher(0)=0
-- **Fisher Symmetry**: DSO(-x) = -DSO(x) — output is antisymmetric
+- **Fisher Symmetry**: DSO(-x) = -DSO(x) - output is antisymmetric
 - **Trending Input**: Strong trend produces non-zero DSO values
 - **Mode Consistency**: Streaming, batch, span, and event-driven modes produce identical results
 - **Bar Correction**: Snapshot/Restore via RingBuffer produces exact rollback
@@ -151,7 +151,7 @@ DSO is not implemented in mainstream libraries. Validation relies on behavioral 
 
 4. **RMS Floor**: During perfectly flat markets (zero volatility), RMS approaches zero. The `MinRms = 1e-10` floor prevents division by zero but may produce large scaled values. The ±0.99 Fisher clamp provides a second safety net.
 
-5. **Not a Bounded Oscillator**: Unlike RSI or Stochastics, DSO is unbounded. Values beyond ±2 indicate extreme deviation—roughly equivalent to a 2-sigma event in the Fisher-transformed space.
+5. **Not a Bounded Oscillator**: Unlike RSI or Stochastics, DSO is unbounded. Values beyond ±2 indicate extreme deviation-roughly equivalent to a 2-sigma event in the Fisher-transformed space.
 
 6. **Period Selection**: Ehlers recommends period=40 (approximately one market month of bars on daily charts). Shorter periods increase sensitivity but also noise; longer periods add lag.
 

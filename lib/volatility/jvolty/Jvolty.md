@@ -1,6 +1,6 @@
 # JVOLTY: Jurik Volatility
 
-> *The volatility measure that ignores the noise—because sometimes, the best signal comes from knowing what to throw away.*
+> *The volatility measure that ignores the noise-because sometimes, the best signal comes from knowing what to throw away.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -98,7 +98,7 @@ $$
 
 During warmup, the trim ratio adapts dynamically based on available samples.
 
-**Why trimmed mean?** A 5% gap-up creates a massive spike in traditional volatility measures. With exponential smoothing, this spike persists—half its effect remains after the EMA period, a quarter after two periods. With trimmed mean, a single spike falls outside the 25th-75th percentile and gets discarded entirely. JVOLTY asks: "Is this volatility reading unusual relative to recent history?" If yes, ignore it.
+**Why trimmed mean?** A 5% gap-up creates a massive spike in traditional volatility measures. With exponential smoothing, this spike persists-half its effect remains after the EMA period, a quarter after two periods. With trimmed mean, a single spike falls outside the 25th-75th percentile and gets discarded entirely. JVOLTY asks: "Is this volatility reading unusual relative to recent history?" If yes, ignore it.
 
 ### 5. Dynamic Exponent (Output)
 
@@ -176,13 +176,13 @@ Per-bar operations:
 | EXP | 2 | 50 | 100 |
 | POW | 1 | 80 | 80 |
 | SORT (128 elem) | 1 | ~900 | 900 |
-| **Total** | **65** | — | **~1,207 cycles** |
+| **Total** | **65** | - | **~1,207 cycles** |
 
 The 128-element sort dominates (~75% of total cycles).
 
 ### Batch Mode (512 values, SIMD/FMA)
 
-JVOLTY is inherently recursive—each bar depends on previous state. Within-bar vectorization is limited:
+JVOLTY is inherently recursive-each bar depends on previous state. Within-bar vectorization is limited:
 
 | Optimization | Cycles Saved | New Total |
 | :--- | :---: | :---: |
@@ -194,7 +194,7 @@ JVOLTY is inherently recursive—each bar depends on previous state. Within-bar 
 
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 1,207 | 617,984 | — |
+| Scalar streaming | 1,207 | 617,984 | - |
 | SIMD/FMA streaming | 1,143 | 585,216 | 5.3% |
 
 The modest improvement reflects sort dominance and recursive dependencies.

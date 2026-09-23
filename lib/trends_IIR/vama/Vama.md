@@ -147,7 +147,7 @@ VAMA has three computational phases: True Range, dual ATR updates, and dynamic S
 | SUB (L - Cprev) | 1 | 1 | 1 |
 | ABS (×2) | 2 | 1 | 2 |
 | CMP (max of 3) | 2 | 1 | 2 |
-| **Phase 1 subtotal** | **7** | — | **~7 cycles** |
+| **Phase 1 subtotal** | **7** | - | **~7 cycles** |
 
 **Phase 2: Dual ATR (RMA) Updates**
 
@@ -157,7 +157,7 @@ VAMA has three computational phases: True Range, dual ATR updates, and dynamic S
 | FMA (long ATR) | 1 | 4 | 4 |
 | MUL (compensator ×2) | 2 | 3 | 6 |
 | DIV (bias correction ×2) | 2 | 15 | 30 |
-| **Phase 2 subtotal** | **6** | — | **~44 cycles** |
+| **Phase 2 subtotal** | **6** | - | **~44 cycles** |
 
 **Phase 3: Dynamic SMA (O(L) where L = adjusted_length)**
 
@@ -168,7 +168,7 @@ VAMA has three computational phases: True Range, dual ATR updates, and dynamic S
 | CLAMP (2 CMP) | 2 | 1 | 2 |
 | ADD (sum L values) | L | 1 | L |
 | DIV (sum / L) | 1 | 15 | 15 |
-| **Phase 3 subtotal** | **5 + L** | — | **~35 + L cycles** |
+| **Phase 3 subtotal** | **5 + L** | - | **~35 + L cycles** |
 
 **Total per bar:** ~86 + L cycles where L = adjusted_length (typically 15-30).
 
@@ -195,7 +195,7 @@ For SMA with L ≥ 8, AVX2 can reduce ADD operations by ~4×:
 | Optimization | Operations | Cycles Saved |
 | :--- | :---: | :---: |
 | SIMD sum (L=32) | 32 → 8 ops | ~24 cycles |
-| FMA for ATR | Already optimal | — |
+| FMA for ATR | Already optimal | - |
 
 ### Benchmark Results
 

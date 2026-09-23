@@ -16,13 +16,13 @@
 - **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** Momentum oscillators for reversal timing | **Trading note:** Uses JMA (Jurik Moving Average) as center line for smoother, lower-lag bands compared to standard Bollinger.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation. Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetric width around a center line, JBANDS feature "snap-and-decay" hysteresis: expansion is instantaneous (plasticity), contraction is gradual (elasticity). The decay rate is dynamically modulated by a two-stage volatility estimator — a 10-bar SMA feeding a 128-bar trimmed mean — making the bands tight during quiet markets and expansive during trends. The center line is the full JMA: a 2-pole IIR filter with phase control and adaptive alpha.
+JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation. Unlike standard volatility bands (Bollinger, Keltner) which maintain symmetric width around a center line, JBANDS feature "snap-and-decay" hysteresis: expansion is instantaneous (plasticity), contraction is gradual (elasticity). The decay rate is dynamically modulated by a two-stage volatility estimator - a 10-bar SMA feeding a 128-bar trimmed mean - making the bands tight during quiet markets and expansive during trends. The center line is the full JMA: a 2-pole IIR filter with phase control and adaptive alpha.
 
 ## Historical Context
 
 Mark Jurik of Jurik Research developed the Jurik Moving Average and its associated bands in the 1990s as a proprietary commercial tool optimized for real-world trading. Unlike academic indicators, JMA was designed with emphasis on reducing lag while maintaining smoothness, using adaptive volatility modulation to adjust bandwidth dynamically.
 
-The "snap-and-decay" behavior draws from hysteresis in physics — systems that respond differently to increasing versus decreasing inputs. When price moves to a new extreme, the band deforms immediately (plastic response). When price retreats, the band recovers gradually (elastic response). This asymmetry matches empirical market behavior: breakouts are sudden, consolidations are gradual. The two-stage volatility engine (local deviation → SMA → trimmed mean) provides robust reference volatility that resists contamination by outliers.
+The "snap-and-decay" behavior draws from hysteresis in physics - systems that respond differently to increasing versus decreasing inputs. When price moves to a new extreme, the band deforms immediately (plastic response). When price retreats, the band recovers gradually (elastic response). This asymmetry matches empirical market behavior: breakouts are sudden, consolidations are gradual. The two-stage volatility engine (local deviation → SMA → trimmed mean) provides robust reference volatility that resists contamination by outliers.
 
 ## Architecture & Physics
 
@@ -126,7 +126,7 @@ JBANDS is the most complex channel indicator, combining snap-and-decay bands, a 
 | POW (sqrtDiv^√d for adapt) | 2 | 30 | 60 |
 | MUL + SUB (snap-decay, 2 bands) | 4 | 3 | 12 |
 | JMA IIR (3 recursion stages) | ~8 | 4 | 32 |
-| **Total** | **~930** | — | **~1141 cycles** |
+| **Total** | **~930** | - | **~1141 cycles** |
 
 The 128-element trimmed mean (partial sort) dominates. In practice, the sort operates on a cache-friendly 1 KB buffer, making actual latency lower than raw cycle count suggests. The JMA IIR adds ~32 cycles per bar, comparable to a double-EMA.
 

@@ -14,7 +14,7 @@
 | **Signature**    | [gwma_signature](gwma_signature.md) |
 
 - GWMA is a symmetric FIR filter applying a centered Gaussian window to price data, providing optimal noise reduction with zero phase distortion at the cost of fixed lag equal to half the window length.
-- Similar to [ALMA](../alma/Alma.md) (offset Gaussian), [SINEMA](../sinema/Sinema.md) (sine window), and [Kaiser](../kaiser/Kaiser.md) — all windowed FIR filters with different smoothing profiles.
+- Similar to [ALMA](../alma/Alma.md) (offset Gaussian), [SINEMA](../sinema/Sinema.md) (sine window), and [Kaiser](../kaiser/Kaiser.md) - all windowed FIR filters with different smoothing profiles.
 - Pair with RSI or Stochastic to confirm trend strength; GWMA excels at defining trend direction but not momentum.
 - The sigma parameter controls weight concentration: lower sigma sharpens the center peak for cycle detection, higher sigma broadens toward SMA-like behavior.
 - **Similar:** [ALMA](../alma/alma.md), [WMA](../wma/wma.md) | **Complementary:** Volume indicators | **Trading note:** Gaussian-Weighted MA; bell-curve weights for symmetric smoothing.
@@ -110,7 +110,7 @@ Note the symmetry around the center (index 2).
 | ADD/SUB | L | 1 | L |
 | EXP | L | 50 | 50L |
 | DIV | 1 | 15 | 15 |
-| **Total (init)** | — | — | **~57L + 15 cycles** |
+| **Total (init)** | - | - | **~57L + 15 cycles** |
 
 For period=20: ~1,155 cycles (one-time).
 
@@ -120,7 +120,7 @@ For period=20: ~1,155 cycles (one-time).
 | :--- | :---: | :---: | :---: |
 | MUL | L + 1 | 3 | 3L + 3 |
 | ADD | L | 1 | L |
-| **Total** | **2L + 1** | — | **~4L + 3 cycles** |
+| **Total** | **2L + 1** | - | **~4L + 3 cycles** |
 
 For period=20: ~83 cycles per bar.
 
@@ -143,7 +143,7 @@ The dot product is highly vectorizable:
 | :--- | :---: | :---: | :--- |
 | Scalar streaming | ~83 | ~42,496 | O(L) per bar |
 | SIMD batch | ~22 | ~11,264 | Vectorized dot product |
-| **Improvement** | **~4×** | **~31K saved** | — |
+| **Improvement** | **~4×** | **~31K saved** | - |
 
 ### Quality Metrics
 

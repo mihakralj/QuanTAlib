@@ -1,6 +1,6 @@
 # VWMA: Volume Weighted Moving Average
 
-> *VWMA reveals where the smart money traded—not just where price went, but where conviction backed the moves.*
+> *VWMA reveals where the smart money traded-not just where price went, but where conviction backed the moves.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -118,7 +118,7 @@ This maintains O(1) complexity regardless of period length.
 | DIV | 1 | 15 | 15 |
 | MOD | 1 | 10 | 10 |
 | Array access | 4 | 2 | 8 |
-| **Total** | **11** | — | **~40 cycles** |
+| **Total** | **11** | - | **~40 cycles** |
 
 ### Memory Footprint
 
@@ -127,7 +127,7 @@ This maintains O(1) complexity regardless of period length.
 - **Period 20 (default)**: 40 + 320 = 360 bytes
 - **Period 200**: 40 + 3200 = 3240 bytes
 
-Buffer memory scales linearly with period—this is unavoidable for sliding window semantics.
+Buffer memory scales linearly with period-this is unavoidable for sliding window semantics.
 
 ### SIMD Potential (Batch Mode)
 
@@ -169,7 +169,7 @@ For batch calculation from scratch, SIMD can parallelize:
 
 3. **Zero Volume Handling**: When total volume in window is zero, VWMA returns current price. This is rare in liquid markets but can occur with filtered or synthetic data.
 
-4. **VWAP Confusion**: VWMA uses sliding window (drops old values); VWAP uses cumulative window (never drops). They serve different purposes—don't interchange them.
+4. **VWAP Confusion**: VWMA uses sliding window (drops old values); VWAP uses cumulative window (never drops). They serve different purposes-don't interchange them.
 
 5. **TBar vs TValue**: `Update(TBar)` uses close price and bar volume. `Update(TValue)` uses value as price with synthetic volume=1, losing volume-weighting benefits. Prefer TBar input for meaningful VWMA.
 

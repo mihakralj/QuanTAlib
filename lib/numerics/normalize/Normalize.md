@@ -1,6 +1,6 @@
 # NORMALIZE: Min-Max Normalization
 
-> *Normalization is the art of making apples and oranges comparable—by insisting that everything lives on the same scale from 0 to 1.*
+> *Normalization is the art of making apples and oranges comparable-by insisting that everything lives on the same scale from 0 to 1.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

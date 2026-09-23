@@ -156,11 +156,11 @@ CFO is best used on daily or weekly charts where price tends to follow more line
 
 - **[DPO](../dpo/Dpo.md)**: Detrended Price Oscillator. DPO removes trend by subtracting a shifted SMA; CFO removes trend by subtracting a regression forecast. Different detrending methods, similar concept.
 - **[APO](../apo/Apo.md)**: Absolute Price Oscillator. APO uses EMA difference for momentum; CFO uses regression deviation. CFO is mathematically more rigorous but more computationally complex.
-- **[Inertia](../inertia/Inertia.md)**: Uses RVI (Relative Vigor Index) smoothed by linear regression. CFO and Inertia both leverage regression but in different ways.
+- **[Inertia](../inertia/Inertia.md)**: Uses RVI (Relative Vigor Index) smoothed by linear regression. CFO and Inertia both exposure regression but in different ways.
 
 ## Validation
 
-Validated via cross-referencing in [`Cfo.Validation.Tests.cs`](Cfo.Validation.Tests.cs).
+Validated via cross-referencing in [`Cfo.Validation.Tests.cs`](tests/Cfo.Validation.Tests.cs).
 
 | Library | Status | Notes |
 |---------|:------:|-------|

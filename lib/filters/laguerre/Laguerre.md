@@ -167,6 +167,6 @@ Since the Laguerre Filter is not available in standard external validation libra
 ## References
 
 1. Ehlers, J.F. (2004). *Cybernetic Analysis for Stocks and Futures*. Wiley. ISBN: 978-0-471-46307-8
-2. Ehlers, J.F. "EhlersFilters.pdf" — MESA Software technical papers. [mesasoftware.com](https://www.mesasoftware.com/papers/EhlersFilters.pdf)
+2. Ehlers, J.F. "EhlersFilters.pdf" - MESA Software technical papers. [mesasoftware.com](https://www.mesasoftware.com/papers/EhlersFilters.pdf)
 3. Ehlers, J.F. (2001). *Rocket Science for Traders*. Wiley. ISBN: 978-0-471-40567-1
 4. Laguerre, E. (1898). "Sur les fonctions du genre de Laguerre." *Comptes Rendus de l'Académie des Sciences.*

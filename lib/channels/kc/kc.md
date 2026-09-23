@@ -1,6 +1,6 @@
 # KC: Keltner Channel
 
-> *Keltner wraps an EMA in ATR-scaled bands — a volatility envelope that responds to both trend and range.*
+> *Keltner wraps an EMA in ATR-scaled bands - a volatility envelope that responds to both trend and range.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -22,7 +22,7 @@ Keltner Channel constructs a volatility-adaptive envelope by projecting Average 
 
 Chester Keltner introduced the original "Ten-Day Moving Average Trading Rule" in his 1960 book *How to Make Money in Commodities*. Keltner's original channel used a 10-day SMA of the "typical price" (HLC/3) as the center, with the band width based on the 10-day SMA of the daily range (High - Low, without gap adjustment).
 
-Linda Bradford Raschke modernized the indicator in the 1990s by replacing the SMA center with an EMA and the simple range with Average True Range. This modern version became widely known as "Keltner Channels" and is the standard implementation in most platforms. The switch to EMA reduces lag in the center line, and the switch to ATR ensures that gaps contribute to band width — critical for futures and stocks that gap regularly. The ATR component uses Wilder's smoothing ($\alpha = 1/n$), providing infinite memory that makes the channel particularly stable after sufficient warmup.
+Linda Bradford Raschke modernized the indicator in the 1990s by replacing the SMA center with an EMA and the simple range with Average True Range. This modern version became widely known as "Keltner Channels" and is the standard implementation in most platforms. The switch to EMA reduces lag in the center line, and the switch to ATR ensures that gaps contribute to band width - critical for futures and stocks that gap regularly. The ATR component uses Wilder's smoothing ($\alpha = 1/n$), providing infinite memory that makes the channel particularly stable after sufficient warmup.
 
 ## Architecture & Physics
 
@@ -106,7 +106,7 @@ KC combines an EMA with warmup compensation (center), True Range computation, an
 | FMA (RMA: prev×(n-1)/n + TR/n) | 1 | 4 | 4 |
 | MUL (multiplier × ATR) | 1 | 3 | 3 |
 | ADD/SUB (EMA ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **12** | — | **~39 cycles** |
+| **Total (hot)** | **12** | - | **~39 cycles** |
 
 During warmup (RMA compensator active):
 
@@ -116,7 +116,7 @@ During warmup (RMA compensator active):
 | SUB (1 - e) | 1 | 1 | 1 |
 | DIV (raw_rma / (1 - e)) | 1 | 15 | 15 |
 | CMP (e > ε) | 1 | 1 | 1 |
-| **Warmup overhead** | **4** | — | **~20 cycles** |
+| **Warmup overhead** | **4** | - | **~20 cycles** |
 
 **Total during warmup:** ~59 cycles/bar; **Post-warmup:** ~39 cycles/bar.
 

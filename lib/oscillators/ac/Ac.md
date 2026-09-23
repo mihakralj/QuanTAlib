@@ -141,7 +141,7 @@ AC signals are most reliable when filtered by a trend indicator (Williams uses t
 
 ## Validation
 
-Validated via self-consistency in [`Ac.Validation.Tests.cs`](Ac.Validation.Tests.cs). No external library implements the Williams AC with identical SMA methodology.
+Validated via self-consistency in [`Ac.Validation.Tests.cs`](tests/Ac.Validation.Tests.cs). No external library implements the Williams AC with identical SMA methodology.
 
 | Library | Status | Notes |
 |---------|:------:|-------|

@@ -1,6 +1,6 @@
 # PVO: Percentage Volume Oscillator
 
-> *Volume precedes price—PVO measures whether the market is inhaling or exhaling.*
+> *Volume precedes price-PVO measures whether the market is inhaling or exhaling.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ The Percentage Volume Oscillator (PVO) measures the difference between two expon
 
 ## Historical Context
 
-PVO emerged as analysts sought to apply the successful MACD framework to volume analysis. While MACD identifies price momentum through the convergence and divergence of moving averages, PVO does the same for volume momentum. The percentage expression (rather than absolute difference) was a deliberate design choice—it allows meaningful comparison whether you're analyzing a penny stock averaging 50,000 shares daily or a mega-cap trading 50 million.
+PVO emerged as analysts sought to apply the successful MACD framework to volume analysis. While MACD identifies price momentum through the convergence and divergence of moving averages, PVO does the same for volume momentum. The percentage expression (rather than absolute difference) was a deliberate design choice-it allows meaningful comparison whether you're analyzing a penny stock averaging 50,000 shares daily or a mega-cap trading 50 million.
 
 The indicator gained traction in the 1990s as electronic trading made volume data more accessible and reliable. Its three-component structure (PVO line, signal line, histogram) mirrors MACD, making it intuitive for traders already familiar with that framework.
 
@@ -142,7 +142,7 @@ Warmup ends when `e_slowest < 1e-10`, ensuring all three EMAs have converged.
 | DIV | 2 | 15 | 30 |
 | CMP | 3 | 1 | 3 |
 | FMA | 3 | 4 | 12 |
-| **Total** | **22** | — | **~71 cycles** |
+| **Total** | **22** | - | **~71 cycles** |
 
 ### Batch Mode (SIMD Considerations)
 
@@ -180,7 +180,7 @@ PVO's recursive EMA structure limits SIMD parallelization. The span-based `Calcu
 
 3. **Zero Volume Handling**: Markets with extended periods of zero volume (pre-market, halted stocks) will produce zero PVO values. Negative volumes are clamped to zero.
 
-4. **Scale Interpretation**: Unlike price-based MACD, PVO values are percentages. A PVO of 10 means the fast EMA is 10% above the slow EMA—significant for volume but not comparable to MACD values.
+4. **Scale Interpretation**: Unlike price-based MACD, PVO values are percentages. A PVO of 10 means the fast EMA is 10% above the slow EMA-significant for volume but not comparable to MACD values.
 
 5. **Signal Crossovers**: The signal line lags PVO, so crossovers occur after the underlying momentum shift. The histogram turning positive/negative precedes the crossover.
 

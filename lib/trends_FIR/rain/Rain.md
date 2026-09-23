@@ -110,7 +110,7 @@ return (5*MA[1] + 4*MA[2] + 3*MA[3] + 2*MA[4] + MA[5] + MA[6] + MA[7] + MA[8] + 
 
 ### Operation Count (Streaming Mode)
 
-RAIN(N) composes 10 independent SMA(N) instances in parallel. Each SMA uses O(1) running-sum via its ring buffer. The composite output is a weighted sum of the 10 SMA results — all computed from the same input value.
+RAIN(N) composes 10 independent SMA(N) instances in parallel. Each SMA uses O(1) running-sum via its ring buffer. The composite output is a weighted sum of the 10 SMA results - all computed from the same input value.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -119,7 +119,7 @@ RAIN(N) composes 10 independent SMA(N) instances in parallel. Each SMA uses O(1)
 | Per-layer SMA divide × 10 | 10 | 8 | ~80 |
 | Weighted composite (10 FMA with weights 5,4,3,2,1,1,1,1,1,1) | 10 | 4 | ~40 |
 | Final divide by 20 | 1 | 8 | ~8 |
-| **Total** | **51** | — | **~178 cycles** |
+| **Total** | **51** | - | **~178 cycles** |
 
 O(1) per bar. Each of the 10 SMA layers is O(1); the composite sum is 10 FMA operations. WarmupPeriod = period × 10 (all layers must reach steady state).
 

@@ -1,6 +1,6 @@
 # FISHER: Ehlers Fisher Transform
 
-> *The Fisher Transform turns price into a well-behaved Gaussian — because sometimes, the best way to see a reversal is to force the data to confess.*
+> *The Fisher Transform turns price into a well-behaved Gaussian - because sometimes, the best way to see a reversal is to force the data to confess.*
 
 | Property | Value |
 |----------|-------|
@@ -72,19 +72,19 @@ Default configuration (period=10) warms up in 10 bars.
 
 ### 1. Normalization via RingBuffer
 
-The [`RingBuffer`](lib/oscillators/fisher/Fisher.cs:27) stores the last `period` values. On each update, the buffer is scanned for highest/lowest to normalize price to [-1, 1]. This O(period) scan runs on each bar; for typical period values (5-50), the cost is negligible.
+The [`RingBuffer`](../../core/ringbuffer/RingBuffer.cs) stores the last `period` values. On each update, the buffer is scanned for highest/lowest to normalize price to [-1, 1]. This O(period) scan runs on each bar; for typical period values (5-50), the cost is negligible.
 
 ### 2. EMA Pre-Smoothing
 
-Before applying arctanh, the normalized value is smoothed with an EMA using [`Math.FusedMultiplyAdd`](lib/oscillators/fisher/Fisher.cs:133) for the `decay * prev + alpha * input` pattern. This prevents single-bar noise from producing false Fisher spikes.
+Before applying arctanh, the normalized value is smoothed with an EMA using [`Math.FusedMultiplyAdd`](Fisher.cs) for the `decay * prev + alpha * input` pattern. This prevents single-bar noise from producing false Fisher spikes.
 
 ### 3. Domain Clamping
 
-The arctanh function diverges at ±1. [`Math.Clamp`](lib/oscillators/fisher/Fisher.cs:136) restricts the EMA-smoothed value to (-0.999, 0.999), ensuring finite output. The 0.001 margin is sufficient for double-precision arithmetic.
+The arctanh function diverges at ±1. [`Math.Clamp`](Fisher.cs) restricts the EMA-smoothed value to (-0.999, 0.999), ensuring finite output. The 0.001 margin is sufficient for double-precision arithmetic.
 
 ### 4. Dual Output
 
-[`FisherValue`](lib/oscillators/fisher/Fisher.cs:88) holds the primary Fisher Transform output; [`Signal`](lib/oscillators/fisher/Fisher.cs:93) holds the EMA-smoothed signal line. Both are updated atomically on each [`Update`](lib/oscillators/fisher/Fisher.cs:97) call.
+[`FisherValue`](Fisher.cs) holds the primary Fisher Transform output; [`Signal`](Fisher.cs) holds the EMA-smoothed signal line. Both are updated atomically on each [`Update`](Fisher.cs) call.
 
 ### 5. Edge Cases
 
@@ -174,7 +174,7 @@ Skender uses the same Ehlers 2002 IIR algorithm (`Fish = arctanh(Value1) + 0.5 �
 | Normalization | Scalar (data-dependent division) |
 | EMA smoothing | Scalar (IIR recursion, sequential dependency) |
 | arctanh | Scalar (`Math.Log`, not vectorizable) |
-| Vectorization potential | Low — logarithm + IIR chain prevents SIMD |
+| Vectorization potential | Low - logarithm + IIR chain prevents SIMD |
 
 ## Common Pitfalls
 

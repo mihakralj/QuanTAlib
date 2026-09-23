@@ -92,7 +92,7 @@ TTM Trend colors bars based on whether close is above/below a short SMA, with mo
 | CMP (close vs SMA) | 1 | 1 | 1 |
 | Histogram momentum (FMA EMA update) | 1 | 4 | 4 |
 | Color encoding (ternary +1/0/−1) | 1 | 1 | 1 |
-| **Total** | **6** | — | **~11 cycles** |
+| **Total** | **6** | - | **~11 cycles** |
 
 Very cheap: ~11 cycles per bar at steady state.
 
@@ -112,7 +112,7 @@ The EMA histogram is the only sequential step. SMA and comparison are fully vect
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | SMA exact arithmetic; EMA FMA-precise |
 | **Timeliness** | 8/10 | Short SMA period dominates; near-instantaneous response |
-| **Smoothness** | 10/10 | Ternary output — maximally smooth |
+| **Smoothness** | 10/10 | Ternary output - maximally smooth |
 | **Noise Rejection** | 6/10 | Short SMA period makes it sensitive to noise in choppy markets |
 
 ## Resources

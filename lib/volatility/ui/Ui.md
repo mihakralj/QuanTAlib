@@ -1,6 +1,6 @@
 # UI: Ulcer Index
 
-> *The ulcer-inducing anxiety of watching your portfolio decline—now quantified.*
+> *The ulcer-inducing anxiety of watching your portfolio decline-now quantified.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,13 +16,13 @@
 - **Similar:** [HV](../hv/hv.md) | **Complementary:** Martin ratio | **Trading note:** Ulcer Index; measures drawdown depth and duration.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs. Developed by Peter G. Martin in 1987, UI captures what most volatility measures miss: the pain of being underwater. Unlike standard deviation or ATR that treat upside and downside moves equally, UI measures only the decline from peaks—the psychological stress that keeps investors awake at night.
+Ulcer Index (UI) is a downside volatility measure that quantifies the depth and duration of drawdowns from recent highs. Developed by Peter G. Martin in 1987, UI captures what most volatility measures miss: the pain of being underwater. Unlike standard deviation or ATR that treat upside and downside moves equally, UI measures only the decline from peaks-the psychological stress that keeps investors awake at night.
 
 ## Historical Context
 
 Peter G. Martin introduced the Ulcer Index in 1987, with the full methodology published in his 1989 book "The Investor's Guide to Fidelity Funds" co-authored with Byron McCann. The name comes from the stress-induced ulcers that investors might develop watching their portfolios decline.
 
-Martin developed UI as a risk metric specifically for evaluating mutual fund performance. He recognized that traditional volatility measures (like standard deviation) penalize upside volatility equally with downside—but investors don't mind upside "volatility." The problem is drawdowns: how far below the recent high, and for how long.
+Martin developed UI as a risk metric specifically for evaluating mutual fund performance. He recognized that traditional volatility measures (like standard deviation) penalize upside volatility equally with downside-but investors don't mind upside "volatility." The problem is drawdowns: how far below the recent high, and for how long.
 
 The Ulcer Index became the denominator for the Martin Ratio (also called the Ulcer Performance Index or UPI), a risk-adjusted return measure analogous to the Sharpe Ratio but using UI instead of standard deviation:
 
@@ -57,7 +57,7 @@ $$
 
 Note: $D_t \leq 0$ always (price cannot exceed its own maximum).
 
-For computation, we use the absolute percentage:
+For computation, the implementation use the absolute percentage:
 
 $$
 |D_t| = \left|\frac{C_t - H_t}{H_t}\right| \times 100
@@ -96,7 +96,7 @@ The squaring serves two purposes:
 1. **Eliminates sign**: All drawdowns become positive contributions
 2. **Penalizes large drawdowns**: A 20% drawdown contributes 400 to the sum; a 10% drawdown contributes only 100
 
-This quadratic penalty means UI is highly sensitive to severe drawdowns—exactly what investors fear most.
+This quadratic penalty means UI is highly sensitive to severe drawdowns-exactly what investors fear most.
 
 ### RMS Interpretation
 
@@ -140,7 +140,7 @@ Per-bar operations:
 | MUL | 2 | 3 | 6 |
 | SQRT | 1 | 15 | 15 |
 | Ring buffer ops | 2 | 2 | 4 |
-| **Total** | — | — | **~57 + n cycles** |
+| **Total** | - | - | **~57 + n cycles** |
 
 The MAX scan dominates for larger periods. For period=14, approximately 71 cycles per bar.
 
@@ -186,7 +186,7 @@ Rolling maximum has limited SIMD benefit due to sequential dependency, but arith
 
 1. **Warmup period**: UI requires a full period of data before producing valid results. During warmup, values represent partial-period calculations that may underestimate true UI.
 
-2. **Zero interpretation**: UI=0 means price is at or above the period high—no drawdown. This doesn't mean low risk; the market might be at a blow-off top.
+2. **Zero interpretation**: UI=0 means price is at or above the period high-no drawdown. This doesn't mean low risk; the market might be at a blow-off top.
 
 3. **Period selection**: Shorter periods (7-14) react quickly to recent drawdowns but may miss longer declines. Longer periods (21-50) capture extended bear markets but lag on recovery.
 
@@ -194,7 +194,7 @@ Rolling maximum has limited SIMD benefit due to sequential dependency, but arith
 
 5. **Trend bias**: In strong uptrends, UI approaches zero (constantly at new highs). This might mask lurking risk when the trend eventually breaks.
 
-6. **Not a timing indicator**: UI measures risk, not direction. High UI during a decline doesn't predict reversal—it just confirms you're underwater.
+6. **Not a timing indicator**: UI measures risk, not direction. High UI during a decline doesn't predict reversal-it just confirms you're underwater.
 
 ## Trading Applications
 

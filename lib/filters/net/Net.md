@@ -1,6 +1,6 @@
 # NET: Ehlers Noise Elimination Technology
 
-> *Rank the bars. Count the agreements. If the market is trending, the ranks will tell you — without a single moving average.*
+> *Rank the bars. Count the agreements. If the market is trending, the ranks will tell you - without a single moving average.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,11 +16,11 @@
 - **Similar:** [CTI](../../oscillators/cti/Cti.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** Values above +0.5 or below −0.5 indicate strong monotonic trend; zero crossings signal direction changes.
 - No external validation libraries implement NET. Validated through self-consistency and behavioral testing.
 
-NET measures the degree of monotonic ordering within a rolling window using Kendall's Tau-a concordance statistic. For each pair of bars in the window, it checks whether both price and time agree on direction (concordant) or disagree (discordant). The normalized difference (concordant − discordant) / total_pairs produces a bounded [-1, +1] output with zero lag — no smoothing filters involved.
+NET measures the degree of monotonic ordering within a rolling window using Kendall's Tau-a concordance statistic. For each pair of bars in the window, it checks whether both price and time agree on direction (concordant) or disagree (discordant). The normalized difference (concordant − discordant) / total_pairs produces a bounded [-1, +1] output with zero lag - no smoothing filters involved.
 
 ## Historical Context
 
-Published in *Technical Analysis of Stocks & Commodities* (December 2020), "Noise Elimination Technology — Clarify Your Indicators Using Kendall Correlation." Ehlers applies rank-order statistics to filter noise from any indicator output or price series without adding lag (unlike smoothing filters).
+Published in *Technical Analysis of Stocks & Commodities* (December 2020), "Noise Elimination Technology - Clarify Your Indicators Using Kendall Correlation." Ehlers applies rank-order statistics to filter noise from any indicator output or price series without adding lag (unlike smoothing filters).
 
 ## Architecture & Physics
 
@@ -34,7 +34,7 @@ Where $i$ indexes older values and $k$ indexes newer values. When the series is 
 
 ### No IIR State
 
-NET is purely FIR — the output depends only on the current window contents. No recursive state means:
+NET is purely FIR - the output depends only on the current window contents. No recursive state means:
 - Zero floating-point drift
 - Perfect reset/restart behavior
 - Bar correction is trivial (just replace newest buffer value)
@@ -68,7 +68,7 @@ Not SIMD-friendly: the inner loop has data-dependent branching (`Math.Sign`). Th
 | Overshoot              | None (bounded output) |
 | Noise sensitivity      | Low (rank-based, immune to outlier magnitudes) |
 | Computational cost     | O(N²) per bar |
-| Memory                 | O(N) — one RingBuffer |
+| Memory                 | O(N) - one RingBuffer |
 
 ## Validation
 
@@ -96,7 +96,7 @@ Validated against mathematical properties of Kendall Tau-a:
 ## Common Pitfalls
 
 1. **Period too large**: O(N²) cost grows quadratically. Keep $N \leq 50$ for real-time use.
-2. **Not a smoother**: NET does not smooth the input — it measures monotonic trend strength. Use it to filter *decisions*, not to filter *price*.
+2. **Not a smoother**: NET does not smooth the input - it measures monotonic trend strength. Use it to filter *decisions*, not to filter *price*.
 3. **Ties**: Tau-a does not adjust for ties. In continuous financial data, exact ties are rare. If ties are common (e.g., rounded data), consider Tau-b.
 4. **Zero during warmup**: Before the buffer fills, NET returns 0 (not NaN). Check `IsHot` for valid readings.
 

@@ -87,7 +87,7 @@ The result is clamped to $[0, 1]$ to ensure bounds.
 
 ### Operation Count (Streaming Mode)
 
-BBWN chains BBW computation (SMA + StdDev of N bars) with min/max normalization over a lookback window — O(1) amortized.
+BBWN chains BBW computation (SMA + StdDev of N bars) with min/max normalization over a lookback window - O(1) amortized.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -99,7 +99,7 @@ BBWN chains BBW computation (SMA + StdDev of N bars) with min/max normalization 
 | BBWN = (BBW - min) / (max - min) | 1 | 5 cy | ~5 cy |
 | Zero-range guard (constant series) | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~40 cy** |
+| **Total** | **O(1)** | - | **~40 cy** |
 
 O(1) per bar. Two chained O(1) computations: BBW (running variance) + min/max normalization (RingBuffer monotonic deque). sqrt() is the dominant latency.
 

@@ -1,4 +1,4 @@
-# ATRSTOP — ATR Trailing Stop
+# ATRSTOP - ATR Trailing Stop
 
 ## Overview
 

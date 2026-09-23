@@ -1,6 +1,6 @@
 # INERTIA: Inertia Oscillator
 
-> *Price tends to keep doing what it's been doing — until it doesn't. Inertia measures the gap between reality and the regression's expectations.*
+> *Price tends to keep doing what it's been doing - until it doesn't. Inertia measures the gap between reality and the regression's expectations.*
 
 | Property | Value |
 |----------|-------|
@@ -65,19 +65,19 @@ Default configuration (period=20) warms up in 20 bars.
 
 ### 1. O(1) Incremental Linear Regression
 
-Rather than recomputing $\sum y_i$ and $\sum x_i y_i$ from scratch each bar, the implementation maintains running accumulators. When the [`RingBuffer`](lib/oscillators/inertia/Inertia.cs:26) is full, the oldest value is subtracted from `SumY`, then `SumXY` is decremented by `SumY` (shifting all x-indices down by one) and incremented by `(period - 1) * newValue`. This is the PineScript algorithm adapted for C#.
+Rather than recomputing $\sum y_i$ and $\sum x_i y_i$ from scratch each bar, the implementation maintains running accumulators. When the [`RingBuffer`](../../core/ringbuffer/RingBuffer.cs) is full, the oldest value is subtracted from `SumY`, then `SumXY` is decremented by `SumY` (shifting all x-indices down by one) and incremented by `(period - 1) * newValue`. This is the PineScript algorithm adapted for C#.
 
 ### 2. Precomputed Constants
 
-The sums $\sum x_i$ and $\sum x_i^2$ are constants for a fixed period. [`_sumX`](lib/oscillators/inertia/Inertia.cs:29) and [`_denomX`](lib/oscillators/inertia/Inertia.cs:30) are computed once in the constructor to eliminate redundant arithmetic on every update.
+The sums $\sum x_i$ and $\sum x_i^2$ are constants for a fixed period. [`_sumX`](Inertia.cs) and [`_denomX`](Inertia.cs) are computed once in the constructor to eliminate redundant arithmetic on every update.
 
 ### 3. FMA for TSF
 
-The regression endpoint computation uses [`Math.FusedMultiplyAdd`](lib/oscillators/inertia/Inertia.cs:131) for `slope * (period - 1) + intercept`, combining the multiply-add into a single fused operation.
+The regression endpoint computation uses [`Math.FusedMultiplyAdd`](Inertia.cs) for `slope * (period - 1) + intercept`, combining the multiply-add into a single fused operation.
 
 ### 4. Periodic Resync
 
-Incremental floating-point accumulation drifts over thousands of updates. [`RecalculateSums`](lib/oscillators/inertia/Inertia.cs:150) performs a full O(period) resync every 1000 ticks, bounding drift to approximately 1e-5 between resyncs.
+Incremental floating-point accumulation drifts over thousands of updates. [`RecalculateSums`](Inertia.cs) performs a full O(period) resync every 1000 ticks, bounding drift to approximately 1e-5 between resyncs.
 
 ### 5. Edge Cases
 
@@ -156,7 +156,7 @@ No external library provides a direct Inertia equivalent. Validation uses mathem
 | sumY/sumXY accumulation | Scalar (sequential dependency via incremental update) |
 | Regression computation | Scalar (3 divisions per bar) |
 | Residual subtraction | Scalar (trivial, not worth vectorizing alone) |
-| Vectorization potential | Low — sequential accumulation prevents SIMD |
+| Vectorization potential | Low - sequential accumulation prevents SIMD |
 
 ## Common Pitfalls
 
@@ -175,7 +175,7 @@ A: They compute the same residual (source - TSF). CFO divides by source and mult
 A: The O(1) incremental sumXY maintenance accumulates floating-point cancellation errors over time. The periodic resync (every 1000 bars) resets these accumulators from the buffer, bounding the drift to approximately 1e-5 between resyncs.
 
 **Q: What does Inertia = 0 mean?**
-A: Price is exactly at the linear regression's forecast point. This happens when price perfectly follows the regression trend. It does not mean "no momentum" — a strongly trending stock can have Inertia near zero if the trend is perfectly linear.
+A: Price is exactly at the linear regression's forecast point. This happens when price perfectly follows the regression trend. It does not mean "no momentum" - a strongly trending stock can have Inertia near zero if the trend is perfectly linear.
 
 ## References
 

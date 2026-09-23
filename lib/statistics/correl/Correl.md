@@ -1,6 +1,6 @@
 # CORR: Pearson Correlation Coefficient
 
-> *Correlation is not causation, but it sure is a hint. The market doesn't care why two instruments move together—only that they do, and whether that relationship will persist long enough for you to profit from it.*
+> *Correlation is not causation, but it sure is a hint. The market doesn't care why two instruments move together-only that they do, and whether that relationship will persist long enough for you to profit from it.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -22,7 +22,7 @@ The Pearson Correlation Coefficient measures the linear relationship between two
 
 Karl Pearson formalized the correlation coefficient in the 1890s, building on earlier work by Francis Galton. The formula has remained unchanged for over a century because it elegantly captures what traders intuitively understand: when two instruments move together, there's an exploitable relationship.
 
-Unlike cointegration (which tests for long-run equilibrium), correlation measures instantaneous co-movement. Two stocks can be highly correlated yet drift apart permanently—correlation tells you about direction, not destination. This distinction matters enormously for pairs trading: correlation helps with hedging and timing, but cointegration determines whether mean-reversion is statistically justified.
+Unlike cointegration (which tests for long-run equilibrium), correlation measures instantaneous co-movement. Two stocks can be highly correlated yet drift apart permanently-correlation tells you about direction, not destination. This distinction matters enormously for pairs trading: correlation helps with hedging and timing, but cointegration determines whether mean-reversion is statistically justified.
 
 This implementation follows the PineScript reference, using circular buffers and running sums to achieve constant-time updates regardless of lookback period.
 
@@ -42,7 +42,7 @@ The indicator maintains five running sums updated incrementally:
 
 ### 2. Circular Buffer
 
-A `RingBuffer` of capacity `period` stores paired values. When full, the oldest pair is subtracted from running sums before adding the new pair—maintaining O(1) complexity regardless of period length.
+A `RingBuffer` of capacity `period` stores paired values. When full, the oldest pair is subtracted from running sums before adding the new pair-maintaining O(1) complexity regardless of period length.
 
 ### 3. Correlation Formula
 
@@ -60,7 +60,7 @@ Where $n$ is the number of observations (capped at `period`).
 
 | Condition | Result | Rationale |
 | :--- | :--- | :--- |
-| Zero variance in X or Y | NaN | Division by zero—undefined correlation |
+| Zero variance in X or Y | NaN | Division by zero-undefined correlation |
 | Insufficient data | NaN | Need at least 2 points |
 | NaN/Infinity input | Last valid value | Substitution preserves series continuity |
 
@@ -111,7 +111,7 @@ This achieves O(1) per-bar complexity.
 | DIV | 1 | 15 | 15 |
 | SQRT | 1 | 15 | 15 |
 | Buffer Access | 2 | 3 | 6 |
-| **Total** | **24** | — | **~72 cycles** |
+| **Total** | **24** | - | **~72 cycles** |
 
 Correlation is significantly cheaper than cointegration (~72 vs ~282 cycles) because it doesn't require the ADF regression step.
 

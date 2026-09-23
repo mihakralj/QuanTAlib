@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -32,7 +34,7 @@ __all__ = [
 ]
 
 
-def bop(open: object, high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def bop(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Balance of Power."""
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -42,7 +44,7 @@ def bop(open: object, high: object, low: object, close: object, offset: int = 0,
     return _wrap(destination, idx, "BOP", "momentum", offset)
 
 
-def cci(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def cci(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Commodity Channel Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -54,7 +56,7 @@ def cci(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap(dst, idx, f"CCI_{period}", "momentum", offset)
 
 
-def macd(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:
+def macd(close: ArrayLike, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Moving Average Convergence Divergence."""
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
@@ -66,7 +68,7 @@ def macd(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int 
     return _wrap(destination, idx, f"MACD_{fastPeriod}", "momentum", offset)
 
 
-def pmo(close: object, timePeriods: int = 14, smoothPeriods: int = 14, signalPeriods: int = 14, offset: int = 0, **kwargs) -> object:
+def pmo(close: ArrayLike, timePeriods: int = 14, smoothPeriods: int = 14, signalPeriods: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Price Momentum Oscillator."""
     timePeriods = int(timePeriods)
     smoothPeriods = int(smoothPeriods)
@@ -79,7 +81,7 @@ def pmo(close: object, timePeriods: int = 14, smoothPeriods: int = 14, signalPer
     return _wrap(output, idx, f"PMO_{timePeriods}", "momentum", offset)
 
 
-def ppo(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs) -> object:
+def ppo(close: ArrayLike, fastPeriod: int = 12, slowPeriod: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Percentage Price Oscillator."""
     fastPeriod = int(fastPeriod)
     slowPeriod = int(slowPeriod)
@@ -91,7 +93,7 @@ def ppo(close: object, fastPeriod: int = 12, slowPeriod: int = 26, offset: int =
     return _wrap(destination, idx, f"PPO_{fastPeriod}", "momentum", offset)
 
 
-def rs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) -> object:
+def rs(x: ArrayLike, y: ArrayLike, smoothPeriod: int = 5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Price Relative Strength."""
     smoothPeriod = int(smoothPeriod)
     offset = int(offset)
@@ -102,7 +104,7 @@ def rs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) -
     return _wrap(output, idx, f"RS_{smoothPeriod}", "momentum", offset)
 
 
-def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rocp(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rate of Change (Fractional). Matches TA-Lib's ROCP (0.05 = 5%)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -113,7 +115,7 @@ def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"ROCP_{period}", "momentum", offset)
 
 
-def rocr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rocr(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rate of Change (Ratio)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -124,7 +126,7 @@ def rocr(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"ROCR_{period}", "momentum", offset)
 
 
-def sam(close: object, alpha: float = 0.07, cutoff: int = 8, offset: int = 0, **kwargs) -> object:
+def sam(close: ArrayLike, alpha: float = 0.07, cutoff: int = 8, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Simple Alpha Momentum."""
     alpha = float(alpha)
     cutoff = int(cutoff)
@@ -136,7 +138,7 @@ def sam(close: object, alpha: float = 0.07, cutoff: int = 8, offset: int = 0, **
     return _wrap(output, idx, "SAM", "momentum", offset)
 
 
-def vel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def vel(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Velocity."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -146,7 +148,7 @@ def vel(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     _check(_lib.qtl_vel(_ptr(src), _ptr(output), n, period))
     return _wrap(output, idx, f"VEL_{period}", "momentum", offset)
 
-def rsi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rsi(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Strength Index."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -154,7 +156,7 @@ def rsi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"RSI_{period}", "momentum", offset)
 
 
-def roc(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def roc(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rate of Change (Percentage). Matches TA-Lib's ROC (5.0 = 5%)."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -162,7 +164,7 @@ def roc(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"ROC_{period}", "momentum", offset)
 
 
-def mom(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
+def mom(close: ArrayLike, period: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Momentum."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -170,7 +172,7 @@ def mom(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"MOM_{period}", "momentum", offset)
 
 
-def cmo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def cmo(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chande Momentum Oscillator."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -178,8 +180,8 @@ def cmo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"CMO_{period}", "momentum", offset)
 
 
-def tsi(close: object, long_period: int = 25, short_period: int = 13,
-        offset: int = 0, **kwargs) -> object:
+def tsi(close: ArrayLike, long_period: int = 25, short_period: int = 13,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """True Strength Index."""
     long_period = int(long_period); short_period = int(short_period); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -187,8 +189,8 @@ def tsi(close: object, long_period: int = 25, short_period: int = 13,
     return _wrap(dst, idx, f"TSI_{long_period}_{short_period}", "momentum", offset)
 
 
-def apo(close: object, fast: int = 12, slow: int = 26,
-        offset: int = 0, **kwargs) -> object:
+def apo(close: ArrayLike, fast: int = 12, slow: int = 26,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Absolute Price Oscillator."""
     fast = int(fast); slow = int(slow); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -196,7 +198,7 @@ def apo(close: object, fast: int = 12, slow: int = 26,
     return _wrap(dst, idx, f"APO_{fast}_{slow}", "momentum", offset)
 
 
-def bias(close: object, period: int = 26, offset: int = 0, **kwargs) -> object:
+def bias(close: ArrayLike, period: int = 26, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bias."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -204,7 +206,7 @@ def bias(close: object, period: int = 26, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"BIAS_{period}", "momentum", offset)
 
 
-def cfo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def cfo(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chande Forecast Oscillator."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -212,8 +214,8 @@ def cfo(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, f"CFO_{period}", "momentum", offset)
 
 
-def cfb(close: object, lengths: list | None = None,
-        offset: int = 0, **kwargs) -> object:
+def cfb(close: ArrayLike, lengths: list | None = None,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Composite Fractal Behavior."""
     offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -225,8 +227,8 @@ def cfb(close: object, lengths: list | None = None,
     return _wrap(dst, idx, "CFB", "momentum", offset)
 
 
-def asi(open: object, high: object, low: object, close: object,
-        limit: float = 3.0, offset: int = 0, **kwargs) -> object:
+def asi(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike,
+        limit: float = 3.0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Accumulative Swing Index."""
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(o); dst = _out(n)
@@ -234,9 +236,9 @@ def asi(open: object, high: object, low: object, close: object,
     return _wrap(dst, idx, "ASI", "momentum", int(offset))
 
 
-def vwmacd(close: object, volume: object, fastPeriod: int = 12,
+def vwmacd(close: ArrayLike, volume: ArrayLike, fastPeriod: int = 12,
            slowPeriod: int = 26, signalPeriod: int = 9,
-           offset: int = 0, **kwargs) -> object:
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Volume-Weighted MACD -> (vwmacd, signal, histogram) or DataFrame."""
     fastPeriod = int(kwargs.get("fast", fastPeriod))
     slowPeriod = int(kwargs.get("slow", slowPeriod))

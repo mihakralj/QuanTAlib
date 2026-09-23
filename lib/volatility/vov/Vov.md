@@ -22,7 +22,7 @@ Volatility of Volatility (VOV) measures the standard deviation of volatility its
 
 The concept of "vol of vol" emerged from options pricing and derivatives trading, where understanding the stability of volatility became crucial for pricing exotic options and managing portfolio risk. The Heston stochastic volatility model (1993) introduced a dedicated parameter (σ, often called "vol of vol") to capture this phenomenon, recognizing that volatility itself follows a random process.
 
-In practice, traders noticed that implied volatility surfaces exhibit their own dynamics—sometimes stable, sometimes wildly fluctuating. The 2008 financial crisis and subsequent "flash crashes" demonstrated that periods of extreme VOV correlate with market stress and liquidity crises. When volatility becomes volatile, hedging becomes difficult and option pricing models break down.
+In practice, traders noticed that implied volatility surfaces exhibit their own dynamics-sometimes stable, sometimes wildly fluctuating. The 2008 financial crisis and subsequent "flash crashes" demonstrated that periods of extreme VOV correlate with market stress and liquidity crises. When volatility becomes volatile, hedging becomes difficult and option pricing models break down.
 
 This implementation uses a straightforward approach: compute rolling standard deviation (inner volatility), then compute the standard deviation of those values (outer VOV). Simple, interpretable, and effective for detecting volatility regime changes.
 
@@ -131,9 +131,9 @@ Per-bar operations:
 | DIV | 4 | 15 | 60 |
 | SQRT | 2 | 15 | 30 |
 | Ring buffer ops | 4 | 2 | 8 |
-| **Total** | — | — | **~124 cycles** |
+| **Total** | - | - | **~124 cycles** |
 
-O(1) complexity per bar—no iteration over window required.
+O(1) complexity per bar-no iteration over window required.
 
 ### Batch Mode (512 values, SIMD/FMA)
 
@@ -178,7 +178,7 @@ The nested nature limits SIMD benefit for streaming, but batch mode can vectoriz
 
 1. **Warmup period confusion**: VOV requires (volatilityPeriod + vovPeriod - 1) bars before producing valid output. Default (20, 10) needs 29 bars. Early values during warmup may be misleading.
 
-2. **Interpretation**: Low VOV doesn't mean low volatility—it means volatility is *stable* (could be stably high). High VOV means volatility is unpredictable, regardless of its absolute level.
+2. **Interpretation**: Low VOV doesn't mean low volatility-it means volatility is *stable* (could be stably high). High VOV means volatility is unpredictable, regardless of its absolute level.
 
 3. **Parameter selection**: 
    - Shorter volatilityPeriod captures faster price dynamics but noisier inner vol
@@ -227,7 +227,7 @@ Use VOV as an early warning signal:
 
 ```
 If VOV > 2 × average: Consider hedging
-If VOV crosses threshold: Reduce leverage
+If VOV crosses threshold: Reduce exposure
 ```
 
 ### Mean Reversion Strategies

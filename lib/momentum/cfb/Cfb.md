@@ -149,7 +149,7 @@ Per-bar update with 96 lengths:
 | Comparison (threshold) | 96 | 1 | 96 |
 | Weighted sum accumulation | ~48* | 3 | 144 |
 | Final division + round | 2 | 20 | 40 |
-| **Total** | **~435** | — | **~2,491 cycles** |
+| **Total** | **~435** | - | **~2,491 cycles** |
 
 *Assuming ~50% of timeframes qualify on average.
 
@@ -210,10 +210,10 @@ CFB is a proprietary Jurik algorithm. No external libraries implement it.
 | Library | Batch | Streaming | Span | Notes |
 | :------ | :---: | :-------: | :--: | :---- |
 | **QuanTAlib** | ✅ | ✅ | ✅ | Internal consistency verified |
-| **TA-Lib** | — | — | — | Not implemented |
-| **Skender** | — | — | — | Not implemented |
-| **Tulip** | — | — | — | Not implemented |
-| **Ooples** | — | — | — | Not implemented |
+| **TA-Lib** | - | - | - | Not implemented |
+| **Skender** | - | - | - | Not implemented |
+| **Tulip** | - | - | - | Not implemented |
+| **Ooples** | - | - | - | Not implemented |
 
 Validation approach: verify batch mode matches streaming mode bar-by-bar. Cross-reference with Jurik's published methodology.
 

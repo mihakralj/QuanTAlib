@@ -66,7 +66,7 @@ Ehlers Ultimate Smoother Filter (USF): 2-pole IIR low-pass filter with high-pass
 | Input combination (3 taps) | 3 | ~4 cy | ~12 cy |
 | Feedback (2 taps) | 2 | ~4 cy | ~8 cy |
 | State update | 4 | ~1 cy | ~4 cy |
-| **Total** | **9** | — | **~24 cycles** |
+| **Total** | **9** | - | **~24 cycles** |
 
 O(1) per bar. Coefficients derived from period parameter; precomputed. ~24 cycles/bar.
 

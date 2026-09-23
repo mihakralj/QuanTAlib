@@ -1,6 +1,6 @@
 # LOGTRANS: Natural Logarithm Transformer
 
-> *The logarithm is one of the most useful mathematical functions, turning multiplicative relationships into additive ones—a property that makes many financial calculations tractable.*
+> *The logarithm is one of the most useful mathematical functions, turning multiplicative relationships into additive ones-a property that makes many financial calculations tractable.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -78,7 +78,7 @@ $$
 \text{Domain}: x > 0
 $$
 
-Invalid inputs (zero, negative, NaN, Infinity) return the last valid output value—a common pattern in financial indicators to prevent propagation of invalid data.
+Invalid inputs (zero, negative, NaN, Infinity) return the last valid output value-a common pattern in financial indicators to prevent propagation of invalid data.
 
 ## Performance Profile
 
@@ -131,7 +131,7 @@ var logTransform = new Logtrans(priceSource);
 
 3. **Overflow Potential**: $\exp(\ln(x)) = x$ only within floating-point precision limits.
 
-4. **Inverse Relationship**: Remember that LOG compresses large values—a 10x price increase only doubles the log value.
+4. **Inverse Relationship**: Remember that LOG compresses large values-a 10x price increase only doubles the log value.
 
 ## References
 

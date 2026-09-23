@@ -13,7 +13,7 @@
 | **PineScript**   | [homod.pine](homod.pine)                       |
 
 - HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a d...
-- **Similar:** [HT_Phasor](../ht_phasor/ht_phasor.md), [HT_Sine](../ht_sine/ht_sine.md) | **Complementary:** Cycle period for context | **Trading note:** Homodyne discriminator; Ehlers' phase detection for cycle turning points.
+- **Similar:** [HT_Phasor](../ht_phasor/HtPhasor.md), [HT_Sine](../ht_sine/HtSine.md) | **Complementary:** Cycle period for context | **Trading note:** Homodyne discriminator; Ehlers' phase detection for cycle turning points.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 HOMOD estimates the dominant cycle period of a market using homodyne mixing, a technique from radio engineering where a signal is multiplied by a delayed copy of itself to expose the angular phase change between samples. The output is a continuously varying period measurement (in bars) that tracks the market's instantaneous cycle length, enabling adaptive indicator tuning. Developed by John Ehlers, it offers better noise rejection and stability than the raw Hilbert Transform period estimator.

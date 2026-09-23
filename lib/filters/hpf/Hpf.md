@@ -72,7 +72,7 @@ High-Pass Filter (HPF): 2nd-order IIR; output = input minus the low-pass compone
 | LP IIR update (2 FMA) | 2 | ~4 cy | ~8 cy |
 | HP output = input - LP | 1 | ~2 cy | ~2 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **5** | — | **~12 cycles** |
+| **Total** | **5** | - | **~12 cycles** |
 
 O(1) per bar. Subtract-from-LP architecture means only one IIR recursion needed. ~12 cycles/bar.
 

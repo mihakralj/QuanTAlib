@@ -131,7 +131,7 @@ AO signals are most reliable when filtered by a trend indicator. In Williams' sy
 
 ## Validation
 
-Validated against external libraries in [`Ao.Validation.Tests.cs`](Ao.Validation.Tests.cs).
+Validated against external libraries in [`Ao.Validation.Tests.cs`](tests/Ao.Validation.Tests.cs).
 
 | Library | Status | Notes |
 |---------|:------:|-------|

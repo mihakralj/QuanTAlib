@@ -16,7 +16,7 @@
 - **Similar:** [NVI](../nvi/Nvi.md), [OBV](../vwad/Vwad.md) | **Complementary:** MA crossover | **Trading note:** Positive Volume Index; tracks price on high-volume days. Used with NVI for smart/uninformed money.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day. The underlying theory: retail investors—the "uninformed crowd"—drive high-volume trading days, often reacting emotionally to news and price movements. Institutional investors prefer to operate during quieter periods to avoid moving markets.
+The Positive Volume Index tracks price changes exclusively on days when trading volume increases compared to the previous day. The underlying theory: retail investors-the "uninformed crowd"-drive high-volume trading days, often reacting emotionally to news and price movements. Institutional investors prefer to operate during quieter periods to avoid moving markets.
 
 PVI essentially asks: "What are prices doing when the crowd is most active?" If PVI rises on high volume, retail enthusiasm is driving prices up. If PVI falls on high volume, retail panic may be pushing prices down. Either way, this represents the emotional, less-informed segment of the market.
 
@@ -26,7 +26,7 @@ Paul Dysart developed the Positive Volume Index alongside the Negative Volume In
 
 While NVI focuses on smart money activity during quiet periods, PVI captures the retail investor's footprint. Fosback's research showed that PVI alone has less predictive power than NVI because retail-driven moves are more random and noise-filled. However, PVI becomes valuable when combined with NVI to paint a complete picture of market participation.
 
-The key insight: divergences between PVI and NVI often signal significant market transitions. When smart money (NVI) and retail (PVI) disagree, one group is likely wrong—and it's usually the crowd.
+The key insight: divergences between PVI and NVI often signal significant market transitions. When smart money (NVI) and retail (PVI) disagree, one group is likely wrong-and it's usually the crowd.
 
 ## Architecture & Physics
 
@@ -97,7 +97,7 @@ The multiplicative structure (×) rather than additive (+) ensures:
 | MUL | 0-1 | PVI × ratio (conditional) |
 | **Total** | ~1-3 | Per bar, O(1) |
 
-PVI is exceptionally lightweight—one comparison per bar, with division and multiplication only occurring on high-volume days.
+PVI is exceptionally lightweight-one comparison per bar, with division and multiplication only occurring on high-volume days.
 
 ### Batch Mode (SIMD)
 
@@ -140,7 +140,7 @@ QuanTAlib implementation validated against:
 
 2. **Not Bounded**: Unlike oscillators (RSI, MFI), PVI has no upper or lower bounds. It can theoretically reach any positive value. Use signal lines (moving averages of PVI) for interpretation rather than absolute levels.
 
-3. **Equal Volume Ignored**: When `Volume_t == Volume_{t-1}`, PVI remains unchanged—same behavior as volume decrease. Some implementations use ≥; QuanTAlib uses strict > per the original formula.
+3. **Equal Volume Ignored**: When `Volume_t == Volume_{t-1}`, PVI remains unchanged-same behavior as volume decrease. Some implementations use ≥; QuanTAlib uses strict > per the original formula.
 
 4. **Requires Two Bars**: PVI needs at least two bars to make a comparison. First bar always returns the start value.
 
@@ -182,9 +182,9 @@ PVI and NVI provide complementary signals:
 | Falling | Rising | Retail buying, smart money exiting (caution!) |
 | Falling | Falling | Broad distribution, weak market |
 
-The most valuable signal: **NVI rising while PVI falling**. This suggests smart money accumulation during retail pessimism—often precedes significant rallies.
+The most valuable signal: **NVI rising while PVI falling**. This suggests smart money accumulation during retail pessimism-often precedes significant rallies.
 
-The danger signal: **PVI rising while NVI falling**. Retail enthusiasm without institutional support—a setup for potential corrections.
+The danger signal: **PVI rising while NVI falling**. Retail enthusiasm without institutional support-a setup for potential corrections.
 
 ## References
 

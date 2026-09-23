@@ -20,7 +20,7 @@ The Archer Moving Averages Trends indicator is a triple-confirmation trend ident
 
 ## Historical Context
 
-AMAT emerged from concepts attributed to Mark Whistler ("Archer" in trading circles) and was formalized by Tom Joseph in 2009. The indicator addresses a specific failure mode of traditional MA crossover systems: they generate excessive false signals during sideways markets because a crossover only measures relative position, not directional agreement. A fast EMA can cross above a slow EMA while both are falling — technically a "bullish crossover" but practically meaningless. AMAT's innovation is requiring all three conditions to align before committing to a directional call. The neutral state (output = 0) captures market indecision explicitly: when EMAs disagree on direction or their relative position contradicts their momentum, AMAT stays flat. Markets trend roughly 30% of the time. AMAT is designed to identify that 30% with high confidence and stay silent the other 70%.
+AMAT emerged from concepts attributed to Mark Whistler ("Archer" in trading circles) and was formalized by Tom Joseph in 2009. The indicator addresses a specific failure mode of traditional MA crossover systems: they generate excessive false signals during sideways markets because a crossover only measures relative position, not directional agreement. A fast EMA can cross above a slow EMA while both are falling - technically a "bullish crossover" but practically meaningless. AMAT's innovation is requiring all three conditions to align before committing to a directional call. The neutral state (output = 0) captures market indecision explicitly: when EMAs disagree on direction or their relative position contradicts their momentum, AMAT stays flat. Markets trend roughly 30% of the time. AMAT is designed to identify that 30% with high confidence and stay silent the other 70%.
 
 ## Architecture & Physics
 
@@ -50,8 +50,8 @@ $$\text{Strength}_t = \frac{|\text{Fast}_t - \text{Slow}_t|}{\text{Slow}_t} \tim
 
 ### 5. Complexity
 
-- **Time:** $O(1)$ per bar — two EMA updates plus comparisons
-- **Space:** $O(1)$ — scalar state only
+- **Time:** $O(1)$ per bar - two EMA updates plus comparisons
+- **Space:** $O(1)$ - scalar state only
 - **Warmup:** slowPeriod bars
 
 ## Mathematical Foundation
@@ -76,9 +76,9 @@ Fast periods too close to slow periods produce excessive neutral readings. A rat
 
 ### Discrete Output Properties
 
-- **+1:** All three conditions align bullish — high-confidence uptrend
-- **-1:** All three conditions align bearish — high-confidence downtrend
-- **0:** Any disagreement — indeterminate; no position recommended
+- **+1:** All three conditions align bullish - high-confidence uptrend
+- **-1:** All three conditions align bearish - high-confidence downtrend
+- **0:** Any disagreement - indeterminate; no position recommended
 - **Strength:** Quantifies EMA separation as percentage of slow EMA; useful for position sizing but not directional signal
 
 ## Performance Profile
@@ -93,7 +93,7 @@ AMAT compares a fast EMA against a slow EMA to determine trend direction.
 | :--- | :---: | :---: | :---: |
 | FMA × 2 (fast EMA, slow EMA updates) | 2 | 4 | 8 |
 | CMP (fast > slow → trend = 1 else 0) | 1 | 1 | 1 |
-| **Total** | **3** | — | **~9 cycles** |
+| **Total** | **3** | - | **~9 cycles** |
 
 Two independent EMA streams with a single comparison. One of the cheapest dynamics indicators: ~9 cycles per bar at steady state.
 
@@ -101,8 +101,8 @@ Two independent EMA streams with a single comparison. One of the cheapest dynami
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| EMA (fast) | **No** | Recursive IIR — sequential |
-| EMA (slow) | **No** | Recursive IIR — sequential |
+| EMA (fast) | **No** | Recursive IIR - sequential |
+| EMA (slow) | **No** | Recursive IIR - sequential |
 | Comparison | Yes | VCMPPD after both EMA arrays computed |
 
 Both EMA passes are recursive and sequential. The final comparison step is trivially vectorizable once both arrays exist.
@@ -118,5 +118,5 @@ Both EMA passes are recursive and sequential. The final comparison step is trivi
 
 ## Resources
 
-- Joseph, T. — AMAT trend confirmation methodology (2009)
+- Joseph, T. - AMAT trend confirmation methodology (2009)
 - PineScript reference: `amat.pine` in indicator directory

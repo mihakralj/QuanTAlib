@@ -1,0 +1,6 @@
+//@version=5
+indicator("Beta Convexity", "CONVEXITY")
+period = input.int(20, minval=2)
+fit = ta.linreg(close, period, 0)
+plot(fit - 2.0 * fit[1] + fit[2], "Convexity", color=color.orange)
+plot(0, "Zero", color=color.gray)

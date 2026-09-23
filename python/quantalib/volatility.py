@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -39,7 +41,7 @@ __all__ = [
 ]
 
 
-def adr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, method: int = 0, offset: int = 0, **kwargs) -> object:
+def adr(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, method: int = 0, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Average Daily Range."""
     period = int(kwargs.get("length", period))
     method = int(method)
@@ -52,7 +54,7 @@ def adr(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap(dst, idx, f"ADR_{period}", "volatility", offset)
 
 
-def atr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def atr(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Average True Range."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -64,7 +66,7 @@ def atr(open: object, high: object, low: object, close: object, volume: object, 
     return _wrap(dst, idx, f"ATR_{period}", "volatility", offset)
 
 
-def atrn(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def atrn(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Normalized ATR."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -76,7 +78,7 @@ def atrn(open: object, high: object, low: object, close: object, volume: object,
     return _wrap(dst, idx, f"ATRN_{period}", "volatility", offset)
 
 
-def gkv(open: object, high: object, low: object, close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
+def gkv(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Garman-Klass Volatility."""
     period = int(kwargs.get("length", period))
     annualize = int(annualize)
@@ -89,7 +91,7 @@ def gkv(open: object, high: object, low: object, close: object, period: int = 14
     return _wrap(output, idx, f"GKV_{period}", "volatility", offset)
 
 
-def hlv(high: object, low: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
+def hlv(high: ArrayLike, low: ArrayLike, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """High-Low Volatility."""
     period = int(kwargs.get("length", period))
     annualize = int(annualize)
@@ -102,7 +104,7 @@ def hlv(high: object, low: object, period: int = 14, annualize: int = 1, annualP
     return _wrap(output, idx, f"HLV_{period}", "volatility", offset)
 
 
-def hv(close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
+def hv(close: ArrayLike, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Historical Volatility."""
     period = int(kwargs.get("length", period))
     annualize = int(annualize)
@@ -115,7 +117,7 @@ def hv(close: object, period: int = 14, annualize: int = 1, annualPeriods: int =
     return _wrap(output, idx, f"HV_{period}", "volatility", offset)
 
 
-def jvolty(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def jvolty(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Jurik Volatility."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -126,7 +128,7 @@ def jvolty(close: object, period: int = 14, offset: int = 0, **kwargs) -> object
     return _wrap(output, idx, f"JVOLTY_{period}", "volatility", offset)
 
 
-def jvoltyn(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def jvoltyn(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Jurik Volatility Normalized."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -137,7 +139,7 @@ def jvoltyn(close: object, period: int = 14, offset: int = 0, **kwargs) -> objec
     return _wrap(output, idx, f"JVOLTYN_{period}", "volatility", offset)
 
 
-def massi(close: object, emaLength: int = 9, sumLength: int = 25, offset: int = 0, **kwargs) -> object:
+def massi(close: ArrayLike, emaLength: int = 9, sumLength: int = 25, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mass Index."""
     emaLength = int(emaLength)
     sumLength = int(sumLength)
@@ -149,7 +151,7 @@ def massi(close: object, emaLength: int = 9, sumLength: int = 25, offset: int = 
     return _wrap(output, idx, f"MASSI_{emaLength}", "volatility", offset)
 
 
-def natr(open: object, high: object, low: object, close: object, volume: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def natr(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, volume: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Normalized ATR."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -161,7 +163,7 @@ def natr(open: object, high: object, low: object, close: object, volume: object,
     return _wrap(dst, idx, f"NATR_{period}", "volatility", offset)
 
 
-def rsv(open: object, high: object, low: object, close: object, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
+def rsv(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Rogers-Satchell Volatility."""
     period = int(kwargs.get("length", period))
     annualize = int(annualize)
@@ -174,7 +176,7 @@ def rsv(open: object, high: object, low: object, close: object, period: int = 14
     return _wrap(output, idx, f"RSV_{period}", "volatility", offset)
 
 
-def rv(close: object, period: int = 14, smoothingPeriod: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs) -> object:
+def rv(close: ArrayLike, period: int = 14, smoothingPeriod: int = 14, annualize: int = 1, annualPeriods: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Realized Volatility."""
     period = int(kwargs.get("length", period))
     smoothingPeriod = int(smoothingPeriod)
@@ -188,7 +190,7 @@ def rv(close: object, period: int = 14, smoothingPeriod: int = 14, annualize: in
     return _wrap(output, idx, f"RV_{period}", "volatility", offset)
 
 
-def rvi(close: object, stdevLength: int = 10, rmaLength: int = 14, offset: int = 0, **kwargs) -> object:
+def rvi(close: ArrayLike, stdevLength: int = 10, rmaLength: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Volatility Index."""
     stdevLength = int(stdevLength)
     rmaLength = int(rmaLength)
@@ -200,7 +202,7 @@ def rvi(close: object, stdevLength: int = 10, rmaLength: int = 14, offset: int =
     return _wrap(output, idx, f"RVI_{stdevLength}", "volatility", offset)
 
 
-def ui(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def ui(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ulcer Index."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -211,7 +213,7 @@ def ui(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
     return _wrap(output, idx, f"UI_{period}", "volatility", offset)
 
 
-def vov(close: object, volatilityPeriod: int = 20, vovPeriod: int = 20, offset: int = 0, **kwargs) -> object:
+def vov(close: ArrayLike, volatilityPeriod: int = 20, vovPeriod: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Volatility of Volatility."""
     volatilityPeriod = int(volatilityPeriod)
     vovPeriod = int(vovPeriod)
@@ -223,7 +225,7 @@ def vov(close: object, volatilityPeriod: int = 20, vovPeriod: int = 20, offset: 
     return _wrap(output, idx, f"VOV_{volatilityPeriod}", "volatility", offset)
 
 
-def vr(high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def vr(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Volatility Ratio."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -234,7 +236,7 @@ def vr(high: object, low: object, close: object, period: int = 14, offset: int =
     return _wrap(output, idx, f"VR_{period}", "volatility", offset)
 
 
-def yzv(open: object, high: object, low: object, close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def yzv(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Yang-Zhang Volatility."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -244,7 +246,7 @@ def yzv(open: object, high: object, low: object, close: object, period: int = 14
     _check(_lib.qtl_yzv(_ptr(o), _ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period))
     return _wrap(output, idx, f"YZV_{period}", "volatility", offset)
 
-def tr(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def tr(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """True Range."""
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
     n = len(h); dst = _out(n)
@@ -252,8 +254,8 @@ def tr(high: object, low: object, close: object, offset: int = 0, **kwargs) -> o
     return _wrap(dst, idx, "TR", "volatility", int(offset))
 
 
-def bbw(close: object, period: int = 20, mult: float = 2.0,
-        offset: int = 0, **kwargs) -> object:
+def bbw(close: ArrayLike, period: int = 20, mult: float = 2.0,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Band Width."""
     period = int(kwargs.get("length", period)); mult = float(mult); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -261,8 +263,8 @@ def bbw(close: object, period: int = 20, mult: float = 2.0,
     return _wrap(dst, idx, f"BBW_{period}", "volatility", offset)
 
 
-def bbwn(close: object, period: int = 20, mult: float = 2.0,
-         lookback: int = 252, offset: int = 0, **kwargs) -> object:
+def bbwn(close: ArrayLike, period: int = 20, mult: float = 2.0,
+         lookback: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Band Width Normalized."""
     period = int(kwargs.get("length", period)); mult = float(mult); lookback = int(lookback); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -270,8 +272,8 @@ def bbwn(close: object, period: int = 20, mult: float = 2.0,
     return _wrap(dst, idx, f"BBWN_{period}", "volatility", offset)
 
 
-def bbwp(close: object, period: int = 20, mult: float = 2.0,
-         lookback: int = 252, offset: int = 0, **kwargs) -> object:
+def bbwp(close: ArrayLike, period: int = 20, mult: float = 2.0,
+         lookback: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Bollinger Band Width Percentile."""
     period = int(kwargs.get("length", period)); mult = float(mult); lookback = int(lookback); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -279,7 +281,7 @@ def bbwp(close: object, period: int = 20, mult: float = 2.0,
     return _wrap(dst, idx, f"BBWP_{period}", "volatility", offset)
 
 
-def stddev(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def stddev(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Standard Deviation."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -287,7 +289,7 @@ def stddev(close: object, period: int = 20, offset: int = 0, **kwargs) -> object
     return _wrap(dst, idx, f"STDDEV_{period}", "volatility", offset)
 
 
-def variance(close: object, period: int = 20, offset: int = 0, **kwargs) -> object:
+def variance(close: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Variance."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -295,8 +297,8 @@ def variance(close: object, period: int = 20, offset: int = 0, **kwargs) -> obje
     return _wrap(dst, idx, f"VAR_{period}", "volatility", offset)
 
 
-def etherm(high: object, low: object, period: int = 14,
-           offset: int = 0, **kwargs) -> object:
+def etherm(high: ArrayLike, low: ArrayLike, period: int = 14,
+           offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Elder Thermometer."""
     period = int(kwargs.get("length", period))
     h, idx = _arr(high); l, _ = _arr(low)
@@ -305,8 +307,8 @@ def etherm(high: object, low: object, period: int = 14,
     return _wrap(dst, idx, f"ETHERM_{period}", "volatility", int(offset))
 
 
-def ccv(close: object, short_period: int = 20, long_period: int = 1,
-        offset: int = 0, **kwargs) -> object:
+def ccv(close: ArrayLike, short_period: int = 20, long_period: int = 1,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Close-to-Close Volatility."""
     short_period = int(short_period); long_period = int(long_period); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -314,8 +316,8 @@ def ccv(close: object, short_period: int = 20, long_period: int = 1,
     return _wrap(dst, idx, f"CCV_{short_period}", "volatility", offset)
 
 
-def cv(close: object, period: int = 20, min_vol: float = 0.2,
-       max_vol: float = 0.7, offset: int = 0, **kwargs) -> object:
+def cv(close: ArrayLike, period: int = 20, min_vol: float = 0.2,
+       max_vol: float = 0.7, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Coefficient of Variation."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -323,8 +325,8 @@ def cv(close: object, period: int = 20, min_vol: float = 0.2,
     return _wrap(dst, idx, f"CV_{period}", "volatility", offset)
 
 
-def cvi(close: object, ema_period: int = 10, roc_period: int = 10,
-        offset: int = 0, **kwargs) -> object:
+def cvi(close: ArrayLike, ema_period: int = 10, roc_period: int = 10,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Chaikin Volatility Index."""
     ema_period = int(ema_period); roc_period = int(roc_period); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
@@ -332,8 +334,8 @@ def cvi(close: object, ema_period: int = 10, roc_period: int = 10,
     return _wrap(dst, idx, f"CVI_{ema_period}", "volatility", offset)
 
 
-def ewma(close: object, period: int = 20, is_pop: int = 1,
-         ann_factor: int = 252, offset: int = 0, **kwargs) -> object:
+def ewma(close: ArrayLike, period: int = 20, is_pop: int = 1,
+         ann_factor: int = 252, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Exponentially Weighted Moving Average (volatility)."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)

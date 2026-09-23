@@ -52,7 +52,7 @@ Covariance uses a dual-input sliding window with running cross-product sums for 
 | Update 3 running sums (Sx, Sy, Sxy) | 3 | 2 cy | ~6 cy |
 | Compute covariance formula | 1 | 5 cy | ~5 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~19 cy** |
+| **Total** | **O(1)** | - | **~19 cy** |
 
 O(1) per update using online running sums. Periodic resync every 1000 bars prevents floating-point drift accumulation.
 

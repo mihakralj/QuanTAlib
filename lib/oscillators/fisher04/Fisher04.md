@@ -13,7 +13,7 @@
 | **PineScript**   | [fisher04.pine](fisher04.pine)   |
 
 - Fisher04 implements the revised Fisher Transform from Ehlers' 2004 *Cybernetic Analysis for Stocks and Futures*, converting price data to a Gaussian distribution via arctanh with wider normalization and gentler IIR smoothing than the original 2002 article.
-- **Similar:** [Fisher](../fisher/Fisher.md), [RRSI](../rrsi/Rrsi.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** Unbounded oscillator; values beyond ±2 indicate extremes. Uses 2004 coefficients (1.0 normalization, 0.5 IIR, 0.25 arctanh multiplier) — distinct from the 2002 version.
+- **Similar:** [Fisher](../fisher/Fisher.md), [RRSI](../rrsi/Rrsi.md) | **Complementary:** Moving averages for trend confirmation | **Trading note:** Unbounded oscillator; values beyond ±2 indicate extremes. Uses 2004 coefficients (1.0 normalization, 0.5 IIR, 0.25 arctanh multiplier) - distinct from the 2002 version.
 - No external validation libraries implement the 2004 Fisher variant. Validated through self-consistency and behavioral testing.
 
 Fisher04 uses wider normalization bandwidth, gentler IIR smoothing (0.5 vs 0.67 feedback), and a halved arctanh multiplier (0.25 vs 0.5) compared to the original 2002 TASC formulation. The result is a smoother oscillator with less noise while retaining the sharp turning-point characteristics of the Fisher Transform.

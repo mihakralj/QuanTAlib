@@ -54,12 +54,12 @@ Per-bar cost for kernel length $N$:
 | :--- | :---: | :---: | :---: |
 | MUL | N | 3 | 3N |
 | ADD | N | 1 | N |
-| **Total** | **2N** | — | **~4N cycles** |
+| **Total** | **2N** | - | **~4N cycles** |
 
 For a typical kernel length of 14:
 - **Total**: ~56 cycles per bar
 
-**Complexity**: O(N) — linear with kernel length. No recursion, pure FIR convolution.
+**Complexity**: O(N) - linear with kernel length. No recursion, pure FIR convolution.
 
 ### Batch Mode (SIMD/FMA Analysis)
 
@@ -68,13 +68,13 @@ CONV's dot product structure is ideal for SIMD vectorization:
 | Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
 | :--- | :---: | :---: | :---: |
 | MUL+ADD (FMA) | 2N | N/4 (FMA256) | 8× |
-| Horizontal sum | — | 1 | — |
+| Horizontal sum | - | 1 | - |
 
 **Batch efficiency (512 bars, N=14):**
 
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 56 | 28,672 | — |
+| Scalar streaming | 56 | 28,672 | - |
 | SIMD batch (FMA) | ~10 | ~5,120 | **~82%** |
 
 SIMD achieves excellent speedup because the dot product is embarrassingly parallel.

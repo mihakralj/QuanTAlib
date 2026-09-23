@@ -1,6 +1,6 @@
 # RV: Realized Volatility
 
-> *The sum of squared returns—a direct measure of how much the market actually moved, free from the assumptions embedded in standard deviation.*
+> *The sum of squared returns-a direct measure of how much the market actually moved, free from the assumptions embedded in standard deviation.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,13 +16,13 @@
 - **Similar:** [HV](../hv/hv.md), [EWMA](../ewma/ewma.md) | **Complementary:** High-frequency analysis | **Trading note:** Realized Volatility; sum of squared returns.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing for stability. Unlike traditional Historical Volatility (HV) which calculates standard deviation of returns, RV directly accumulates squared returns—the raw building blocks of variance—providing a more direct measure of realized price variation.
+Realized Volatility (RV) measures price volatility using the sum of squared logarithmic returns over a rolling window, then applying SMA smoothing for stability. Unlike traditional Historical Volatility (HV) which calculates standard deviation of returns, RV directly accumulates squared returns-the raw building blocks of variance-providing a more direct measure of realized price variation.
 
 ## Historical Context
 
 Realized volatility emerged from the academic literature on high-frequency econometrics in the late 1990s and early 2000s, most notably through the work of Andersen, Bollerslev, Diebold, and Labys (2001). The concept was developed to provide model-free volatility estimates using intraday data, addressing limitations of parametric approaches like GARCH.
 
-The key insight was that as sampling frequency increases, the sum of squared returns converges to the quadratic variation of the price process—the true integrated variance. While the original formulation targeted tick-by-tick or 5-minute returns, the concept applies at any frequency.
+The key insight was that as sampling frequency increases, the sum of squared returns converges to the quadratic variation of the price process-the true integrated variance. While the original formulation targeted tick-by-tick or 5-minute returns, the concept applies at any frequency.
 
 This implementation adapts the realized volatility concept to standard bar data:
 - Calculate squared log returns within a rolling window (period)
@@ -151,7 +151,7 @@ Per-bar operations after warmup:
 | ADD/SUB (SMA) | 2 | 1 | 2 |
 | DIV (SMA) | 1 | 15 | 15 |
 | MUL (annualize) | 1 | 3 | 3 |
-| **Total** | — | — | **~80 cycles** |
+| **Total** | - | - | **~80 cycles** |
 
 The dominant costs are LOG (31%) and SQRT/DIV (19% each).
 
@@ -197,7 +197,7 @@ The implementation is validated against the mathematical formula and internal co
 
 4. **Smoothing vs responsiveness trade-off**: Higher smoothingPeriod reduces noise but increases lag. For trading signals, consider shorter smoothing (5-10); for regime detection, longer smoothing (20-50).
 
-5. **Comparison with HV**: RV measures total squared returns; HV measures dispersion around mean. During strong trends, RV > HV because it captures the directional move. Neither is "better"—they measure different things.
+5. **Comparison with HV**: RV measures total squared returns; HV measures dispersion around mean. During strong trends, RV > HV because it captures the directional move. Neither is "better"-they measure different things.
 
 6. **Annualization assumptions**: Default annualization assumes 252 trading days. Adjust for intraday data, cryptocurrency (365 days), or weekly data.
 

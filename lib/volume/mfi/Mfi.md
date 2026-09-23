@@ -22,7 +22,7 @@ The innovation of MFI is answering not just "Is price going up?" but "Is signifi
 
 ## Historical Context
 
-Developed by Gene Quong and Avrum Soudack, MFI was introduced as "volume-weighted RSI" to address a fundamental limitation of price-only momentum indicators. RSI treats a 1% move on 100 shares the same as a 1% move on 10 million shares—MFI does not.
+Developed by Gene Quong and Avrum Soudack, MFI was introduced as "volume-weighted RSI" to address a fundamental limitation of price-only momentum indicators. RSI treats a 1% move on 100 shares the same as a 1% move on 10 million shares-MFI does not.
 
 The indicator gained popularity because it:
 - Incorporates volume into momentum analysis
@@ -36,7 +36,7 @@ Traditional interpretation uses:
 
 ## Architecture & Physics
 
-MFI operates on the concept of "money flow"—the product of typical price and volume. By comparing periods where typical price rises (positive money flow) versus falls (negative money flow), MFI measures the balance of buying and selling pressure over a rolling window.
+MFI operates on the concept of "money flow"-the product of typical price and volume. By comparing periods where typical price rises (positive money flow) versus falls (negative money flow), MFI measures the balance of buying and selling pressure over a rolling window.
 
 The key insight is **directional volume weighting**. When typical price increases, all volume for that bar is considered "positive money flow." When typical price decreases, all volume becomes "negative money flow." The ratio of these accumulated flows produces the final oscillator value.
 

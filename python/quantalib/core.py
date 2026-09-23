@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -19,7 +21,7 @@ __all__ = [
 ]
 
 
-def ha(open: object, high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def ha(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Heikin-Ashi Candles."""
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -32,7 +34,7 @@ def ha(open: object, high: object, low: object, close: object, offset: int = 0, 
     return _wrap_multi({"haOpenOut": haOpenOut, "haHighOut": haHighOut, "haLowOut": haLowOut, "haCloseOut": haCloseOut}, idx, "core", offset)
 
 
-def midpoint(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def midpoint(close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Midpoint = src[i] over period."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -43,7 +45,7 @@ def midpoint(close: object, period: int = 14, offset: int = 0, **kwargs) -> obje
     return _wrap(output, idx, f"MIDPOINT_{period}", "core", offset)
 
 
-def midprice(high: object, low: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def midprice(high: ArrayLike, low: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mid Price = (High+Low)/2 over period."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -54,7 +56,7 @@ def midprice(high: object, low: object, period: int = 14, offset: int = 0, **kwa
     return _wrap(output, idx, f"MIDPRICE_{period}", "core", offset)
 
 
-def wclprice(high: object, low: object, close: object, offset: int = 0, **kwargs) -> object:
+def wclprice(high: ArrayLike, low: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Weighted Close Price = (H+L+2*C)/4."""
     offset = int(offset)
     h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -63,8 +65,8 @@ def wclprice(high: object, low: object, close: object, offset: int = 0, **kwargs
     _check(_lib.qtl_wclprice(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n))
     return _wrap(output, idx, "WCLPRICE", "core", offset)
 
-def avgprice(open: object, high: object, low: object, close: object,
-             offset: int = 0, **kwargs) -> object:
+def avgprice(open: ArrayLike, high: ArrayLike, low: ArrayLike, close: ArrayLike,
+             offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Average Price = (O+H+L+C)/4."""
     offset = int(offset)
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low); c, _ = _arr(close)
@@ -73,7 +75,7 @@ def avgprice(open: object, high: object, low: object, close: object,
     return _wrap(dst, idx, "AVGPRICE", "core", offset)
 
 
-def medprice(high: object, low: object, offset: int = 0, **kwargs) -> object:
+def medprice(high: ArrayLike, low: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Median Price = (H+L)/2."""
     h, idx = _arr(high); l, _ = _arr(low)
     n = len(h); dst = _out(n)
@@ -81,8 +83,8 @@ def medprice(high: object, low: object, offset: int = 0, **kwargs) -> object:
     return _wrap(dst, idx, "MEDPRICE", "core", int(offset))
 
 
-def typprice(open: object, high: object, low: object,
-             offset: int = 0, **kwargs) -> object:
+def typprice(open: ArrayLike, high: ArrayLike, low: ArrayLike,
+             offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Typical Price = (O+H+L)/3 (QuanTAlib variant)."""
     o, idx = _arr(open); h, _ = _arr(high); l, _ = _arr(low)
     n = len(o); dst = _out(n)
@@ -90,7 +92,7 @@ def typprice(open: object, high: object, low: object,
     return _wrap(dst, idx, "TYPPRICE", "core", int(offset))
 
 
-def midbody(open: object, close: object, offset: int = 0, **kwargs) -> object:
+def midbody(open: ArrayLike, close: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mid Body = (O+C)/2."""
     o, idx = _arr(open); c, _ = _arr(close)
     n = len(o); dst = _out(n)

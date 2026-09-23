@@ -1,6 +1,6 @@
 # ZTEST: One-Sample t-Test Statistic
 
-> *The purpose of hypothesis testing is not to prove what we believe, but to measure what we observe.*
+> *The purpose of hypothesis testing is not to prove what the implementation believe, but to measure what the implementation observe.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |

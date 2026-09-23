@@ -52,7 +52,7 @@ Where:
 
 ### Operation Count (Streaming Mode)
 
-ADOSC = short EMA of ADL minus long EMA of ADL. Two parallel EMA updates per bar — O(1).
+ADOSC = short EMA of ADL minus long EMA of ADL. Two parallel EMA updates per bar - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -61,7 +61,7 @@ ADOSC = short EMA of ADL minus long EMA of ADL. Two parallel EMA updates per bar
 | Long EMA update (FMA) | 1 | 1 cy | ~1 cy |
 | ADOSC = shortEMA - longEMA | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~13 cy** |
+| **Total** | **O(1)** | - | **~13 cy** |
 
 O(1) per bar. Two EMA states maintained in parallel. After warmup (longPeriod bars), both EMAs are hot. FMA used for EMA update: new = FMA(prev, decay, alpha*adl).
 

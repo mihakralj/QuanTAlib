@@ -160,7 +160,7 @@ The batch path uses a simple loop over `CalculateCore`. Since the algorithm is i
 | Skender | N/A | Not implemented |
 | Tulip | N/A | Not implemented |
 | Ooples | N/A | Not implemented |
-| PineScript | Reference | `reverseema.pine` — validated self-consistency |
+| PineScript | Reference | `reverseema.pine` - validated self-consistency |
 
 Self-consistency validation: Streaming, Batch (TSeries), and Span Batch modes produce identical results to machine precision ($< 10^{-12}$).
 

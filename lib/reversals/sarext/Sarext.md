@@ -1,6 +1,6 @@
 # SAREXT: Parabolic SAR Extended
 
-> *The trend is your friend — but which way it accelerates depends on whether you're long or short.*
+> *The trend is your friend - but which way it accelerates depends on whether you're long or short.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -22,7 +22,7 @@
 
 The Parabolic SAR Extended (SAREXT) is an enhanced version of Wilder's Parabolic Stop And Reverse that allows **separate acceleration factor configurations for long and short positions**. While standard PSAR uses the same AF start, increment, and maximum for both trend directions, SAREXT provides six independent AF parameters (three for long, three for short), plus a `startValue` to force initial direction and `offsetOnReverse` to add a gap buffer when the indicator reverses.
 
-This design makes SAREXT suitable for markets where bullish and bearish trends have different characteristics — for example, equity markets where rallies tend to be gradual (lower AF) and selloffs tend to be sharp (higher AF).
+This design makes SAREXT suitable for markets where bullish and bearish trends have different characteristics - for example, equity markets where rallies tend to be gradual (lower AF) and selloffs tend to be sharp (higher AF).
 
 ## Historical Context
 
@@ -114,7 +114,7 @@ $$\text{AF}_t^{(\text{short})} = \min(\text{afInitShort} + n_{\text{short}} \tim
 
 ### Operation Count (Streaming Mode)
 
-SAREXT is O(1) per bar — identical to PSAR with minor overhead for parameter selection.
+SAREXT is O(1) per bar - identical to PSAR with minor overhead for parameter selection.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -124,7 +124,7 @@ SAREXT is O(1) per bar — identical to PSAR with minor overhead for parameter s
 | SAR = SAR + AF*(EP - SAR) via FMA | 1 | 1 cy | ~1 cy |
 | Reversal detection + offset | 1 | 4 cy | ~4 cy |
 | Sign encoding + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~14 cy** |
+| **Total** | **O(1)** | - | **~14 cy** |
 
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|
@@ -170,6 +170,6 @@ SAREXT cannot be vectorized. The state machine has data-dependent branches (reve
 
 ## References
 
-- TA-Lib. "TA_SAREXT — SAR Extended." Open-source technical analysis library.
+- TA-Lib. "TA_SAREXT - SAR Extended." Open-source technical analysis library.
 - Wilder, J. W. Jr. (1978). *New Concepts in Technical Trading Systems*. Trend Research. ISBN 978-0894590276.
 - Kaufman, P. J. (2013). *Trading Systems and Methods*, 5th ed. Wiley.

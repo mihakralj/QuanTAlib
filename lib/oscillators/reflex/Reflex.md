@@ -22,7 +22,7 @@ REFLEX is a zero-lag oscillator that measures the reversal tendency of price by 
 
 John F. Ehlers published REFLEX in "Reflex: A New Zero-Lag Indicator" (*Technical Analysis of Stocks & Commodities*, February 2020). Ehlers' motivation was to create a cycle-based oscillator that responds to trend reversals with zero lag, unlike traditional oscillators (RSI, stochastic) that inherently lag price due to their smoothing components.
 
-The core idea is that linear extrapolation of a smoothed series will overshoot (undershoot) when the trend is decelerating (accelerating). By measuring the sum of these overshoots, REFLEX detects curvature changes — exactly the inflection points where trends reverse. This is mathematically similar to measuring the second derivative (acceleration), but the linear-extrapolation approach is more numerically stable and naturally adapts to the trend's own slope.
+The core idea is that linear extrapolation of a smoothed series will overshoot (undershoot) when the trend is decelerating (accelerating). By measuring the sum of these overshoots, REFLEX detects curvature changes - exactly the inflection points where trends reverse. This is mathematically similar to measuring the second derivative (acceleration), but the linear-extrapolation approach is more numerically stable and naturally adapts to the trend's own slope.
 
 The 2-pole Super Smoother pre-filter (at half the specified period) removes high-frequency noise before the reflex computation, preventing false signals from bar-to-bar price noise. The exponential RMS normalization ensures the output has consistent scale regardless of the instrument's volatility.
 
@@ -124,7 +124,7 @@ Reflex (Ehlers) uses a Super Smoother and a slope sum to detect cycles.
 | RMS normalization (variance accumulation) | 4 | 3 | 12 |
 | SQRT (RMS divisor) | 1 | 20 | 20 |
 | DIV (normalize) | 1 | 15 | 15 |
-| **Total** | **10** | — | **~57 cycles** |
+| **Total** | **10** | - | **~57 cycles** |
 
 SQRT dominates. ~57 cycles per bar.
 
@@ -132,7 +132,7 @@ SQRT dominates. ~57 cycles per bar.
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| SSF IIR passes × 2 | **No** | Recursive 2-pole IIR — sequential |
+| SSF IIR passes × 2 | **No** | Recursive 2-pole IIR - sequential |
 | Slope sum | Partial | Prefix-sum assist after SSF computed |
 | RMS computation | Yes | VFMADD for variance; VSQRTPD |
 

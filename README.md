@@ -31,7 +31,7 @@
 
 393 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
 
-[⭐ Documentation pages →](mihakralj.github.io/QuanTAlib/)
+[⭐ Documentation pages →](https://mihakralj.github.io/QuanTAlib/)
 
 QuanTAlib exists because I got tired of validating other people's indicators. Every implementation is cross-checked against TA-Lib, Tulip, Skender, and Pandas-TA. Where they disagree, we went to the original papers. Where the papers disagree, we picked the math that doesn't lie.
 

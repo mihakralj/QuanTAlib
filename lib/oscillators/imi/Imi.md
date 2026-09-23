@@ -1,6 +1,6 @@
 # IMI: Intraday Momentum Index
 
-> *Intraday momentum index applies RSI logic to candle bodies — bullish closes accumulate strength, bearish closes accumulate weakness.*
+> *Intraday momentum index applies RSI logic to candle bodies - bullish closes accumulate strength, bearish closes accumulate weakness.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ The Intraday Momentum Index measures buying and selling pressure using the open-
 
 ## Historical Context
 
-Tushar Chande introduced the Intraday Momentum Index in *The New Technical Trader* (1994), alongside innovations like the Chande Momentum Oscillator. Chande observed that traditional momentum indicators like RSI ignored the intraday price action captured by candlestick patterns. By using the open-close relationship instead of close-close changes, IMI measures a fundamentally different quantity: the directional conviction *within* each bar rather than the change *between* bars. On daily charts, the open-close relationship has clear meaning — it captures overnight positioning gaps plus session direction. The indicator is self-contained within each bar, requiring no previous bar's close, which makes it particularly clean for session-based analysis. The formula structure deliberately mirrors RSI (sum of gains over total) to provide familiar overbought/oversold levels while measuring intra-session momentum.
+Tushar Chande introduced the Intraday Momentum Index in *The New Technical Trader* (1994), alongside innovations like the Chande Momentum Oscillator. Chande observed that traditional momentum indicators like RSI ignored the intraday price action captured by candlestick patterns. By using the open-close relationship instead of close-close changes, IMI measures a fundamentally different quantity: the directional conviction *within* each bar rather than the change *between* bars. On daily charts, the open-close relationship has clear meaning - it captures overnight positioning gaps plus session direction. The indicator is self-contained within each bar, requiring no previous bar's close, which makes it particularly clean for session-based analysis. The formula structure deliberately mirrors RSI (sum of gains over total) to provide familiar overbought/oversold levels while measuring intra-session momentum.
 
 ## Architecture & Physics
 
@@ -52,8 +52,8 @@ When both sums are zero (all doji bars in window), IMI defaults to 50.0 (neutral
 
 ### 4. Complexity
 
-- **Time:** $O(1)$ per bar — rolling sum add/subtract
-- **Space:** $O(N)$ — two ring buffers for gain and loss history
+- **Time:** $O(1)$ per bar - rolling sum add/subtract
+- **Space:** $O(N)$ - two ring buffers for gain and loss history
 - **Warmup:** $N$ bars
 
 ## Mathematical Foundation
@@ -79,15 +79,15 @@ When both sums are zero (all doji bars in window), IMI defaults to 50.0 (neutral
 
 | IMI Value | Meaning |
 |-----------|---------|
-| > 70 | Overbought — strong bullish intra-session pressure |
-| < 30 | Oversold — strong bearish intra-session pressure |
-| 50 | Neutral — balanced buying/selling within bars |
+| > 70 | Overbought - strong bullish intra-session pressure |
+| < 30 | Oversold - strong bearish intra-session pressure |
+| 50 | Neutral - balanced buying/selling within bars |
 | Rising toward 70 | Increasing proportion of bullish candles |
 | Falling toward 30 | Increasing proportion of bearish candles |
 
 ### Timeframe Sensitivity
 
-On daily charts, the open-close relationship captures overnight gaps plus session direction — the most informative timeframe for IMI. On very short intraday charts (1-minute), the open-close relationship carries less structural information since the open price has minimal gap significance. Choose timeframes where the opening price carries genuine information about session sentiment.
+On daily charts, the open-close relationship captures overnight gaps plus session direction - the most informative timeframe for IMI. On very short intraday charts (1-minute), the open-close relationship carries less structural information since the open price has minimal gap significance. Choose timeframes where the opening price carries genuine information about session sentiment.
 
 ### OHLC Requirement
 
@@ -107,7 +107,7 @@ IMI (Intraday Momentum Index) tracks rolling sums of up-body and total-body cand
 | DIV (ΣUp / ΣTotal) | 1 | 15 | 15 |
 | MUL × 100 | 1 | 3 | 3 |
 | CMP (guard div-by-zero) | 1 | 1 | 1 |
-| **Total** | **9** | — | **~25 cycles** |
+| **Total** | **9** | - | **~25 cycles** |
 
 ~25 cycles per bar. Fast O(1) running sums.
 
@@ -115,7 +115,7 @@ IMI (Intraday Momentum Index) tracks rolling sums of up-body and total-body cand
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Body computation | Yes | VSUBPD — independent per bar |
+| Body computation | Yes | VSUBPD - independent per bar |
 | Up/total conditional accumulation | Partial | VCMPPD mask + VADDPD (masked add) |
 | Prefix-sum sliding window | Partial | Sum scan with subtract-lag |
 | Division + scale | Yes | VDIVPD + VMULPD |
@@ -133,5 +133,5 @@ The conditional accumulation (masked add for up bodies) is SIMD-friendly with AV
 
 ## Resources
 
-- Chande, T.S. & Kroll, S. — *The New Technical Trader* (John Wiley & Sons, 1994)
+- Chande, T.S. & Kroll, S. - *The New Technical Trader* (John Wiley & Sons, 1994)
 - PineScript reference: `imi.pine` in indicator directory

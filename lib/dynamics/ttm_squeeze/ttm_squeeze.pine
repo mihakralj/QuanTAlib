@@ -1,0 +1,9 @@
+//@version=5
+indicator("TTM Squeeze", "TTM_SQUEEZE")
+period = input.int(20, minval=2)
+bbMult = input.float(2.0)
+kcMult = input.float(1.5)
+middle = ta.sma(close, period)
+bbWidth = bbMult * ta.stdev(close, period)
+kcWidth = kcMult * ta.atr(period)
+plot(bbWidth < kcWidth ? 1 : 0, "Squeeze", style=plot.style_columns, color=bbWidth < kcWidth ? color.red : color.gray)

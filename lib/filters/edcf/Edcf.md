@@ -87,10 +87,10 @@ var edcf = new Edcf(source, 15);
 ```
 AbstractBase (ITValuePublisher, IDisposable)
   └── Edcf (sealed)
-        ├── RingBuffer[2*length-1]  — price history window
-        ├── State record struct     — minimal state (LastValid, Count)
-        ├── CalcDistanceFilter()    — O(n²) nested loop computation
-        └── Snapshot/Restore        — bar correction support
+        ├── RingBuffer[2*length-1]  - price history window
+        ├── State record struct     - minimal state (LastValid, Count)
+        ├── CalcDistanceFilter()    - O(n²) nested loop computation
+        └── Snapshot/Restore        - bar correction support
 ```
 
 ### State Management
@@ -104,7 +104,7 @@ AbstractBase (ITValuePublisher, IDisposable)
 | Operation | Complexity |
 |-----------|-----------|
 | Per-bar update | O(n²) where n = Length |
-| Memory | O(n) — single RingBuffer |
+| Memory | O(n) - single RingBuffer |
 | Warmup | `Length` bars |
 
 ## Quality Metrics
@@ -120,14 +120,14 @@ AbstractBase (ITValuePublisher, IDisposable)
 
 1. **O(n²) complexity**: For large `Length` values (> 50), the nested loop becomes expensive. Consider keeping Length ≤ 30 for real-time use.
 2. **All-zero coefficients**: When all prices in the window are identical, all distance-squared coefficients are zero. The implementation falls back to the current price.
-3. **Not an IIR filter**: Despite being classified under Filters, EDCF is a nonlinear FIR filter — it uses a finite observation window with no feedback.
+3. **Not an IIR filter**: Despite being classified under Filters, EDCF is a nonlinear FIR filter - it uses a finite observation window with no feedback.
 4. **Asymmetric response**: In a strong trend, the filter weights recent bars heavily, creating trailing-stop-like behavior. In ranges, it approximates SMA.
 
 ## See Also
 
-- [Wiener Filter](../wiener/Wiener.md) — adaptive noise-reduction filter
-- [Laguerre Filter](../laguerre/Laguerre.md) — Ehlers IIR filter with gamma damping
-- [LMS Filter](../lms/Lms.md) — Least Mean Squares adaptive filter
+- [Wiener Filter](../wiener/Wiener.md) - adaptive noise-reduction filter
+- [Laguerre Filter](../laguerre/Laguerre.md) - Ehlers IIR filter with gamma damping
+- [LMS Filter](../lms/Lms.md) - Least Mean Squares adaptive filter
 
 
 ## Performance Profile
@@ -141,7 +141,7 @@ EDCF computes a pairwise squared-distance sum for each of the N window positions
 | Distance-squared computation (inner loop) | N(N-1)/2 | ~5 cy | ~120 cy (N=7) |
 | Weight accumulation | N | ~3 cy | ~21 cy |
 | Weighted sum + normalization | N+1 | ~4 cy | ~32 cy |
-| **Total (N=7)** | **~50** | — | **~173 cycles** |
+| **Total (N=7)** | **~50** | - | **~173 cycles** |
 
 For larger N this grows quadratically: N=14 => ~600 cy, N=20 => ~1200 cy. Avoid N > 20 in real-time tick processing.
 

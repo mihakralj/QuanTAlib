@@ -57,7 +57,7 @@ public class TsiIndicatorTests
 
         foreach (var price in prices)
         {
-            core.Update(new TValue(DateTime.Now, price));
+            core.Update(new TValue(DateTime.UtcNow, price));
         }
 
         // TSI should be positive for rising prices
@@ -81,7 +81,7 @@ public class TsiIndicatorTests
 
         for (int i = 0; i < 20; i++)
         {
-            core.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + (i * 0.5)));
+            core.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + (i * 0.5)));
         }
 
         // Signal property should return signal line value

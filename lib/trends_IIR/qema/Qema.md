@@ -141,7 +141,7 @@ $$L_3 = \tau_1 + \tau_2 + \tau_3$$
 
 $$L_4 = \tau_1 + \tau_2 + \tau_3 + \tau_4$$
 
-These $L_i$ represent the "time centers" (first moments) of the impulse responses—the effective delay of each stage's output.
+These $L_i$ represent the "time centers" (first moments) of the impulse responses-the effective delay of each stage's output.
 
 ### 5. Option A Weights (Minimum-Energy, Zero-Lag)
 
@@ -185,7 +185,7 @@ And the weights become:
 
 $$w_i = \frac{C - B \cdot L_i}{D}$$
 
-This is the "properly balanced" replacement for fixed Pascal coefficients $(4, -6, 4, -1)$ used in TEMA—weights that adapt to the geometric alpha structure.
+This is the "properly balanced" replacement for fixed Pascal coefficients $(4, -6, 4, -1)$ used in TEMA-weights that adapt to the geometric alpha structure.
 
 **Degenerate Case**: If $D \approx 0$ (all lags equal, theoretically impossible with geometric alphas), fall back to equal weights $w_i = 0.25$.
 
@@ -259,16 +259,16 @@ QEMA(N) runs 4 EMA stages with progressively increasing alphas (α₁ < α₂ < 
 | EMA stage 4: FMA(α₄, src, decay₄×ema4) | 1 | 4 | ~4 |
 | Bias E₄ update | 1 | 3 | ~3 |
 | Weighted combination (4 FMA) | 4 | 4 | ~16 |
-| **Total** | **12** | — | **~44 cycles** |
+| **Total** | **12** | - | **~44 cycles** |
 
-O(1) per bar. All four EMA stages operate independently on the same source input (not cascaded like DEMA/TEMA) — hence progressive alphas rather than identical ones. WarmupPeriod determined by slowest EMA (stage 1, α₁ = 2/(N+1)).
+O(1) per bar. All four EMA stages operate independently on the same source input (not cascaded like DEMA/TEMA) - hence progressive alphas rather than identical ones. WarmupPeriod determined by slowest EMA (stage 1, α₁ = 2/(N+1)).
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | 4 EMA passes (independent α values) | No | Each is a recursive IIR; sequential per stage |
-| EMA stages independent (same source) | Partial | 4 EMA passes can run in sequence independently — no cascade dependency |
+| EMA stages independent (same source) | Partial | 4 EMA passes can run in sequence independently - no cascade dependency |
 | Weighted combination | Yes | `VFMADD231PD` across 4 EMA series once complete |
 
 Because QEMA's 4 EMA stages take the same source input (not cascade), they can each be run independently in separate passes. A SIMD implementation could interleave all 4 EMA states in a single vector register (4 doubles in AVX2), processing all 4 stages simultaneously. This gives ~4× speedup for the EMA phase. Weighted combination is also vectorizable.
@@ -344,9 +344,9 @@ Run validation: `dotnet test --filter "FullyQualifiedName~QemaValidation"`
 
 ## Common Pitfalls
 
-1. **Expecting Zero Lag on All Signals**: QEMA eliminates lag for DC (constant) and linear (ramp) components. Oscillatory signals still experience phase shift. Don't expect QEMA to predict reversals—it tracks trends.
+1. **Expecting Zero Lag on All Signals**: QEMA eliminates lag for DC (constant) and linear (ramp) components. Oscillatory signals still experience phase shift. Don't expect QEMA to predict reversals-it tracks trends.
 
-2. **Negative Weights Aren't a Bug**: The optimization can produce negative weights. This is mathematically correct—it's how the filter extrapolates to cancel lag. If you're uncomfortable with weights outside [0,1], QEMA isn't for you. Use a different filter.
+2. **Negative Weights Aren't a Bug**: The optimization can produce negative weights. This is mathematically correct-it's how the filter extrapolates to cancel lag. If you're uncomfortable with weights outside [0,1], QEMA isn't for you. Use a different filter.
 
 3. **Short Periods Produce Wild Results**: With period < 5, the alphas compress and weights become extreme. QEMA is designed for trend-following on moderate to long periods (10+). For scalping, stick with simple EMA.
 

@@ -85,7 +85,7 @@ Percentile maintains a sorted buffer for O(log N) insert and O(1) lookup of the 
 | Binary search + array shift insert | log N + N/2 | 2 cy | ~N cy |
 | Index computation for rank | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=20)** | **O(N)** | — | **~27 cy** |
+| **Total (N=20)** | **O(N)** | - | **~27 cy** |
 
 O(N) per update due to sorted-array shift. A skip-list or order-statistics tree would achieve O(log N), but for periods ≤500 the sorted array is faster in practice due to cache locality.
 
@@ -99,11 +99,11 @@ O(N) per update due to sorted-array shift. A skip-list or order-statistics tree 
 
 | Quality | Score (1-10) |
 |---------|-------------|
-| Precision | 10 — exact within IEEE 754 double precision |
-| Latency | 7 — O(N) per update, fast for typical periods (5-50) |
-| Memory | 8 — two double arrays + RingBuffer |
-| Robustness | 9 — NaN/Infinity guarded, bar correction supported |
-| SIMD applicability | 2 — comparison-heavy algorithm not vectorizable |
+| Precision | 10 - exact within IEEE 754 double precision |
+| Latency | 7 - O(N) per update, fast for typical periods (5-50) |
+| Memory | 8 - two double arrays + RingBuffer |
+| Robustness | 9 - NaN/Infinity guarded, bar correction supported |
+| SIMD applicability | 2 - comparison-heavy algorithm not vectorizable |
 
 ## Validation
 
@@ -122,7 +122,7 @@ O(N) per update due to sorted-array shift. A skip-list or order-statistics tree 
 
 3. **Window not full.** Before reaching full period, the percentile is computed over the available values. This gives valid but potentially misleading results during warmup.
 
-4. **Percent=50 vs Median.** For even-length windows, Percentile(p=50) uses linear interpolation which yields the average of two middle values — identical to Median. For odd-length windows, both return the middle value directly.
+4. **Percent=50 vs Median.** For even-length windows, Percentile(p=50) uses linear interpolation which yields the average of two middle values - identical to Median. For odd-length windows, both return the middle value directly.
 
 5. **NaN propagation.** NaN inputs are replaced with the last valid value. This prevents NaN from contaminating the sorted buffer and producing incorrect percentiles.
 

@@ -93,7 +93,7 @@ TEMA requires 3 cascaded EMA updates plus the combination formula:
 | MUL (3×e1, 3×e2) | 2 | 3 | 6 |
 | SUB (3×e1 - 3×e2) | 1 | 1 | 1 |
 | ADD (+ e3) | 1 | 1 | 1 |
-| **Total (hot)** | **7** | — | **~29 cycles** |
+| **Total (hot)** | **7** | - | **~29 cycles** |
 
 During warmup, each EMA stage has additional compensator overhead (~21 cycles × 3 = ~63 cycles).
 
@@ -124,7 +124,7 @@ TEMA is inherently recursive due to cascaded EMAs. SIMD parallelization across b
 - **[EMA](../../trends_IIR/ema/Ema.md)**: Single exponential smoothing; TEMA is essentially EMA with lag cancellation.
 - **[DEMA](../../trends_IIR/dema/Dema.md)**: Double exponential smoothing; TEMA extends this to triple smoothing.
 - **[T3](../../trends_IIR/t3/T3.md)**: Generalized Tillson moving average; TEMA is T3 with volume factor = 1.
-- **[MACD](../../oscillators/macd/Macd.md)**: Often uses TEMA instead of EMA for faster signals.
+- **[MACD](../../momentum/macd/Macd.md)**: Often uses TEMA instead of EMA for faster signals.
 - **[KAMA](../../trends_IIR/kama/Kama.md)**: Adaptive smoothing; complementary approach to fixed-period TEMA.
 
 ### Benchmark Results

@@ -1,0 +1,17 @@
+//@version=5
+indicator("ATR Trailing Stop", "ATRSTOP", overlay=true)
+period = input.int(21, minval=1)
+multiplier = input.float(3.0, minval=0.0)
+atr = ta.atr(period)
+var float stop = na
+var bool rising = true
+upper = close + multiplier * atr
+lower = close - multiplier * atr
+stop := rising ? math.max(nz(stop, lower), lower) : math.min(nz(stop, upper), upper)
+if rising and close < stop
+    rising := false
+    stop := upper
+if not rising and close > stop
+    rising := true
+    stop := lower
+plot(stop, "ATR Stop", color=rising ? color.green : color.red, linewidth=2)

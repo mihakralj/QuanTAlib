@@ -85,7 +85,7 @@ $$T_{total} = T_{between} + \sum_k \frac{n_k}{n} \cdot \frac{\mu_k}{\mu} \cdot T
 
 ### Operation Count (Streaming Mode)
 
-Theil-Sen slope estimates the median of all pairwise slopes — O(N^2) per bar for exact computation.
+Theil-Sen slope estimates the median of all pairwise slopes - O(N^2) per bar for exact computation.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -93,9 +93,9 @@ Theil-Sen slope estimates the median of all pairwise slopes — O(N^2) per bar f
 | Compute N*(N-1)/2 pairwise slopes | N^2/2 | 3 cy | ~1.5N^2 cy |
 | Sort slopes for median | N^2/2 log(N^2/2) | 2 cy | ~N^2 log N cy |
 | Extract median | 1 | 1 cy | ~1 cy |
-| **Total (N=20)** | **O(N^2 log N)** | — | **~7000 cy** |
+| **Total (N=20)** | **O(N^2 log N)** | - | **~7000 cy** |
 
-O(N^2 log N) per update — expensive for N > 30. Use only where robustness to outliers justifies compute cost. Batch pre-computation strongly preferred for historical analysis.
+O(N^2 log N) per update - expensive for N > 30. Use only where robustness to outliers justifies compute cost. Batch pre-computation strongly preferred for historical analysis.
 
 | Operation | Complexity | Notes |
 |-----------|------------|-------|

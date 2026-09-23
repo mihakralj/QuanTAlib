@@ -73,7 +73,7 @@ Streaming uses running sums for both numerator and denominator: $O(1)$ per bar w
 | ADD/SUB | 2×N | 1 | 2N |
 | MUL | N | 3 | 3N |
 | DIV | 1 | 15 | 15 |
-| **Total** | **~3N+1** | — | **~5N+15** |
+| **Total** | **~3N+1** | - | **~5N+15** |
 
 The `RecalculateSums()` loop iterates over the full buffer each bar, making this O(N) per bar. For default $N = 10$: ~65 cycles. A periodic resync every 1000 bars maintains numerical stability.
 

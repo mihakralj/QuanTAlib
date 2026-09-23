@@ -16,9 +16,9 @@
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Price Volume Trend refines the OBV concept by weighting volume according to the percentage price change rather than using an all-or-nothing approach. Where OBV assigns the entire bar's volume to either buyers or sellers, PVT scales the volume contribution by the relative price movement—a 1% move adds only 1% of volume to the running total.
+Price Volume Trend refines the OBV concept by weighting volume according to the percentage price change rather than using an all-or-nothing approach. Where OBV assigns the entire bar's volume to either buyers or sellers, PVT scales the volume contribution by the relative price movement-a 1% move adds only 1% of volume to the running total.
 
-This proportional weighting makes PVT more sensitive to the magnitude of price changes, not just their direction. A large price move with moderate volume registers more strongly than a tiny price move with massive volume—aligning the indicator more closely with price momentum.
+This proportional weighting makes PVT more sensitive to the magnitude of price changes, not just their direction. A large price move with moderate volume registers more strongly than a tiny price move with massive volume-aligning the indicator more closely with price momentum.
 
 ## Historical Context
 
@@ -155,7 +155,7 @@ QuanTAlib implementation validated against Skender and Ooples with tight toleran
 
 ## Common Pitfalls
 
-1. **Absolute Value Meaningless**: Like OBV, PVT's numeric value has no intrinsic meaning—only direction and divergences matter. Don't compare PVT values across different securities.
+1. **Absolute Value Meaningless**: Like OBV, PVT's numeric value has no intrinsic meaning-only direction and divergences matter. Don't compare PVT values across different securities.
 
 2. **Not Bounded**: PVT can reach any value, positive or negative. There are no overbought/oversold levels.
 

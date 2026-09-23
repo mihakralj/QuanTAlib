@@ -1,6 +1,6 @@
 # PLUS_DI: Plus Directional Indicator
 
-> *+DI isolates upward directional thrust as a fraction of true range — the bullish arm of Wilder's directional system.*
+> *+DI isolates upward directional thrust as a fraction of true range - the bullish arm of Wilder's directional system.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ The Plus Directional Indicator (+DI) is one component of J. Welles Wilder Jr.'s 
 
 ## Historical Context
 
-J. Welles Wilder Jr. introduced the Directional Movement System in *New Concepts in Technical Trading Systems* (1978). The system decomposes price range into directional components. +DI and -DI are the normalized indicators from which DX and ADX are derived. While most traders focus on ADX for trend strength, +DI and -DI remain essential for determining trend *direction* — a bullish signal occurs when +DI crosses above -DI, bearish when -DI crosses above +DI.
+J. Welles Wilder Jr. introduced the Directional Movement System in *New Concepts in Technical Trading Systems* (1978). The system decomposes price range into directional components. +DI and -DI are the normalized indicators from which DX and ADX are derived. While most traders focus on ADX for trend strength, +DI and -DI remain essential for determining trend *direction* - a bullish signal occurs when +DI crosses above -DI, bearish when -DI crosses above +DI.
 
 ## Architecture & Physics
 
@@ -46,8 +46,8 @@ When $TR_{\text{smooth}} = 0$ (no price movement), +DI = 0.
 
 ### 5. Complexity
 
-- **Time:** $O(1)$ per bar — all RMA updates are recursive
-- **Space:** $O(1)$ — scalar state only (delegates to Dx)
+- **Time:** $O(1)$ per bar - all RMA updates are recursive
+- **Space:** $O(1)$ - scalar state only (delegates to Dx)
 - **Warmup:** $N$ bars
 
 ## Mathematical Foundation
@@ -81,7 +81,7 @@ When $TR_{\text{smooth}} = 0$ (no price movement), +DI = 0.
 | :--- | :---: | :---: | :---: |
 | Dx.Update (full pipeline) | 1 | 75 | 75 |
 | Property extraction | 1 | 1 | 1 |
-| **Total** | **2** | — | **~76 cycles** |
+| **Total** | **2** | - | **~76 cycles** |
 
 ### Quality Metrics
 
@@ -94,5 +94,5 @@ When $TR_{\text{smooth}} = 0$ (no price movement), +DI = 0.
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `plusdi.pine` in indicator directory

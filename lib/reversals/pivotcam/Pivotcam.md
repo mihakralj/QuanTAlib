@@ -127,7 +127,7 @@ All levels use `Math.FusedMultiplyAdd` for the `close + range * constant` comput
 
 ### Operation Count (Streaming Mode)
 
-Camarilla Pivot uses a fixed multiplier series (1.1/12, 1.1/6, ...) applied to previous-bar range — O(1).
+Camarilla Pivot uses a fixed multiplier series (1.1/12, 1.1/6, ...) applied to previous-bar range - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -136,7 +136,7 @@ Camarilla Pivot uses a fixed multiplier series (1.1/12, 1.1/6, ...) applied to p
 | R1..R4 via FMA (C + k*range) | 4 | 1 cy | ~4 cy |
 | S1..S4 via FMA (C - k*range) | 4 | 1 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~15 cy** |
+| **Total** | **O(1)** | - | **~15 cy** |
 
 O(1) pure arithmetic. Precomputed Camarilla multipliers [1.1/12, 1.1/6, 1.1/4, 1.1/2] applied via FMA(C, 1, k*range).
 

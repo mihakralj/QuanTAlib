@@ -1,6 +1,6 @@
 # ABERR: Aberration Bands
 
-> *Aberration measures the distance between price and its smoothed self — when the gap grows extreme, reversion whispers.*
+> *Aberration measures the distance between price and its smoothed self - when the gap grows extreme, reversion whispers.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -98,7 +98,7 @@ ABERR maintains two running-sum ring buffers (SMA of price and SMA of absolute d
 | ABS (deviation) | 1 | 1 | 1 |
 | MUL (multiplier × avgDev) | 1 | 3 | 3 |
 | ADD/SUB (middle ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **11** | — | **~41 cycles** |
+| **Total (hot)** | **11** | - | **~41 cycles** |
 
 Warmup overhead is negligible: the ring buffer tracks count, adding one CMP per bar until full.
 

@@ -22,7 +22,7 @@ Most adaptive moving averages measure volatility using close-to-close changes (s
 
 YZVAMA solves this by using Yang-Zhang volatility, a gap-aware OHLC-based estimator that properly accounts for overnight and intrabar components. But here's the twist: instead of using the raw volatility level to adjust smoothing (which breaks when volatility regimes shift), YZVAMA uses the *percentile rank* of current volatility within its recent history.
 
-The result: adaptation that works regardless of whether you're trading a 10% daily volatility crypto or a 0.5% daily volatility bond ETF. The scale is always "where does current volatility sit within recent experience" rather than "how many ATR units are we moving."
+The result: adaptation that works regardless of whether you're trading a 10% daily volatility crypto or a 0.5% daily volatility bond ETF. The scale is always "where does current volatility sit within recent experience" rather than "how many ATR units are the implementation moving."
 
 ## Historical Context
 
@@ -228,7 +228,7 @@ YZVAMA has four computational phases: YZ variance, RMA smoothing, percentile ran
 | MUL (squares, products) | 6 | 3 | 18 |
 | SUB (differences) | 4 | 1 | 4 |
 | ADD (combination) | 3 | 1 | 3 |
-| **Phase 1 subtotal** | **17** | — | **~185 cycles** |
+| **Phase 1 subtotal** | **17** | - | **~185 cycles** |
 
 **Phase 2: Dual RMA Smoothing**
 
@@ -239,7 +239,7 @@ YZVAMA has four computational phases: YZ variance, RMA smoothing, percentile ran
 | MUL (compensator ×2) | 2 | 3 | 6 |
 | DIV (bias correction ×2) | 2 | 15 | 30 |
 | SQRT (YZV from variance) | 1 | 15 | 15 |
-| **Phase 2 subtotal** | **7** | — | **~59 cycles** |
+| **Phase 2 subtotal** | **7** | - | **~59 cycles** |
 
 **Phase 3: Percentile Ranking (O(n log n) where n = percentileLookback)**
 
@@ -249,7 +249,7 @@ YZVAMA has four computational phases: YZ variance, RMA smoothing, percentile ran
 | SORT (comparison-based) | n log n | ~1 | n log n |
 | Binary search | log n | ~3 | 3 log n |
 | DIV (rank / count) | 1 | 15 | 15 |
-| **Phase 3 subtotal** | — | — | **~n log n + n + 15** |
+| **Phase 3 subtotal** | - | - | **~n log n + n + 15** |
 
 For n = 100: ~100 × 6.6 + 100 + 15 ≈ **~775 cycles**.
 
@@ -260,7 +260,7 @@ For n = 100: ~100 × 6.6 + 100 + 15 ≈ **~775 cycles**.
 | MUL/SUB (percentile → length) | 3 | 3 | 9 |
 | ADD (sum L values) | L | 1 | L |
 | DIV (sum / L) | 1 | 15 | 15 |
-| **Phase 4 subtotal** | **4 + L** | — | **~24 + L cycles** |
+| **Phase 4 subtotal** | **4 + L** | - | **~24 + L cycles** |
 
 **Total per bar:** ~185 + 59 + 775 + 24 + L ≈ **~1043 + L cycles** (n=100, typical L=20).
 

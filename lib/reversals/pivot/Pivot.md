@@ -116,7 +116,7 @@ R2/S2 add the full range to/from PP. R3/S3 extend beyond the previous extremes b
 
 ### Operation Count (Streaming Mode)
 
-Classic Pivot Points compute PP and 6 support/resistance levels from previous bar HLC — O(1).
+Classic Pivot Points compute PP and 6 support/resistance levels from previous bar HLC - O(1).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -128,9 +128,9 @@ Classic Pivot Points compute PP and 6 support/resistance levels from previous ba
 | S2 = PP - (H - L) | 1 | 2 cy | ~2 cy |
 | R3/S3 extensions | 2 | 2 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~19 cy** |
+| **Total** | **O(1)** | - | **~19 cy** |
 
-Cheapest O(1) pivot variant — pure previous-bar arithmetic, no smoothing, no buffers beyond a 1-bar state.
+Cheapest O(1) pivot variant - pure previous-bar arithmetic, no smoothing, no buffers beyond a 1-bar state.
 
 ### Implementation Design
 

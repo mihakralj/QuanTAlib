@@ -72,7 +72,7 @@ Bilateral filter applies a 2D Gaussian kernel in both spatial (time index) and r
 | Range kernel weight (exp of value^2) | N | ~15 cy | ~450 cy |
 | Combined weight x value FMA | N | ~4 cy | ~120 cy |
 | Normalization | 1 | ~3 cy | ~3 cy |
-| **Total (N=30)** | **3N+1** | — | **~1023 cycles** |
+| **Total (N=30)** | **3N+1** | - | **~1023 cycles** |
 
 O(N) per bar. The two exp() calls per element dominate. Precomputing the spatial kernel (time-invariant) halves the exp() count. ~1023 cycles/bar for N=30 without optimization.
 

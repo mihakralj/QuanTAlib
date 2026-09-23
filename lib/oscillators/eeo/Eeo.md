@@ -1,6 +1,6 @@
 # EEO: Ehlers Elegant Oscillator
 
-> *Where DSO shouts through a megaphone, EEO whispers through a compressor — the Inverse Fisher Transform tames extremes into a clean bounded signal.*
+> *Where DSO shouts through a megaphone, EEO whispers through a compressor - the Inverse Fisher Transform tames extremes into a clean bounded signal.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ EEO is Ehlers' 2022 refinement of his earlier DSO (2018). Where DSO applies the 
 
 ## Historical Context
 
-John F. Ehlers published the Elegant Oscillator in the February 2022 issue of *Technical Analysis of Stocks & Commodities* magazine under the title "An Elegant Oscillator: Inverse Fisher Transform Redux." The article presents EEO as a deliberate counterpart to his 2018 Deviation-Scaled Oscillator (DSO). While DSO uses the Fisher Transform (arctanh) to stretch readings near zero into large excursions, EEO uses the Inverse Fisher Transform (tanh) to compress them — producing a naturally bounded output without the artificial clamping that DSO requires.
+John F. Ehlers published the Elegant Oscillator in the February 2022 issue of *Technical Analysis of Stocks & Commodities* magazine under the title "An Elegant Oscillator: Inverse Fisher Transform Redux." The article presents EEO as a deliberate counterpart to his 2018 Deviation-Scaled Oscillator (DSO). While DSO uses the Fisher Transform (arctanh) to stretch readings near zero into large excursions, EEO uses the Inverse Fisher Transform (tanh) to compress them - producing a naturally bounded output without the artificial clamping that DSO requires.
 
 ## Architecture & Physics
 
@@ -28,7 +28,7 @@ John F. Ehlers published the Elegant Oscillator in the February 2022 issue of *T
 
 $$\text{Deriv} = \text{Close} - \text{Close}[2]$$
 
-This is the same "zeros" whitening used in DSO — it removes DC and Nyquist components, creating a band-limited derivative.
+This is the same "zeros" whitening used in DSO - it removes DC and Nyquist components, creating a band-limited derivative.
 
 ### Stage 2: RMS Normalization (Fixed 50-Bar Window)
 
@@ -103,7 +103,7 @@ EEO is validated through self-consistency tests (streaming ≡ batch ≡ span �
 
 ## Common Pitfalls
 
-1. **Fixed RMS window**: The 50-bar window is hardcoded per Ehlers' specification. Do not parameterize it — it provides a stable normalization base independent of BandEdge.
+1. **Fixed RMS window**: The 50-bar window is hardcoded per Ehlers' specification. Do not parameterize it - it provides a stable normalization base independent of BandEdge.
 
 2. **BandEdge vs Period**: BandEdge is the Super Smoother cutoff, not an RMS lookback. Higher BandEdge = more smoothing but more lag.
 

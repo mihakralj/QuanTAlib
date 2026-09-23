@@ -61,7 +61,7 @@ Butterworth 3rd-order LPF: implemented as two cascaded sections (one 2nd-order +
 | State update stage 1 | 2 | ~1 cy | ~2 cy |
 | Stage 2: 1st-order section (3 ops) | 3 | ~4 cy | ~12 cy |
 | State update stage 2 | 1 | ~1 cy | ~1 cy |
-| **Total** | **11** | — | **~35 cycles** |
+| **Total** | **11** | - | **~35 cycles** |
 
 O(1) per bar. Two cascaded recursive sections. ~35 cycles/bar.
 

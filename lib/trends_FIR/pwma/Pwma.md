@@ -1,6 +1,6 @@
 # PWMA: Parabolic Weighted Moving Average
 
-> *Linear weighting is for people who think the world is flat. PWMA squares the weights, because recent data isn't just more important—it's exponentially more important.*
+> *Linear weighting is for people who think the world is flat. PWMA squares the weights, because recent data isn't just more important-it's exponentially more important.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -48,7 +48,7 @@ The O(1) algorithm uses triple cascading sums:
 | ADD/SUB | 9 | 1 | 9 |
 | MUL | 3 | 3 | 9 |
 | DIV | 1 | 15 | 15 |
-| **Total** | **13** | — | **~33 cycles** |
+| **Total** | **13** | - | **~33 cycles** |
 
 **Hot path breakdown:**
 - S1 update: `S1_new = S1_old - oldest + newest` → 2 ADD/SUB
@@ -62,7 +62,7 @@ The O(1) algorithm uses triple cascading sums:
 | :--- | :---: | :---: |
 | Naive (recalculate) | O(N) | ~700 cycles |
 | QuanTAlib O(1) | O(1) | ~33 cycles |
-| **Improvement** | **—** | **~21× faster** |
+| **Improvement** | **-** | **~21× faster** |
 
 ### Batch Mode (SIMD)
 

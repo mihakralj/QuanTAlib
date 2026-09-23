@@ -101,7 +101,7 @@ Spectral Band-Pass FIR: FIR filter designed in the frequency domain. Coefficient
 | :--- | :---: | :---: | :---: |
 | RingBuffer write | 1 | ~2 cy | ~2 cy |
 | Dot product FMA (N taps) | N | ~5 cy | ~250 cy (N=50) |
-| **Total (N=50)** | **N+1** | — | **~252 cycles** |
+| **Total (N=50)** | **N+1** | - | **~252 cycles** |
 
 O(N) per bar. FIR coefficient table precomputed from spectral specification. ~252 cycles for N=50.
 

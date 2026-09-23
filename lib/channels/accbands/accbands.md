@@ -95,7 +95,7 @@ ACCBANDS computes per-bar normalized width, two adjusted prices, and three indep
 | SUB (oldest from 3 running sums) | 3 | 1 | 3 |
 | ADD (new value to 3 running sums) | 3 | 1 | 3 |
 | DIV (sum / count, three SMAs) | 3 | 15 | 45 |
-| **Total (hot)** | **15** | — | **~77 cycles** |
+| **Total (hot)** | **15** | - | **~77 cycles** |
 
 The three DIV operations dominate. When the denominator is zero ($H + L = 0$), a branch sets $w = 0$, adding one CMP.
 

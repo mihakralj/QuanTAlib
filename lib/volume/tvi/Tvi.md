@@ -22,7 +22,7 @@ The insight behind TVI is that small price movements within the bid-ask spread o
 
 ## Historical Context
 
-Trade Volume Index was developed by William Blau and described in his work on technical analysis. Blau was known for developing indicators that filter market noise while preserving meaningful signals. TVI emerged from the recognition that OBV's sensitivity to any price change—even a single tick—could create false signals in choppy or range-bound markets.
+Trade Volume Index was developed by William Blau and described in his work on technical analysis. Blau was known for developing indicators that filter market noise while preserving meaningful signals. TVI emerged from the recognition that OBV's sensitivity to any price change-even a single tick-could create false signals in choppy or range-bound markets.
 
 The indicator gained popularity among futures and forex traders where minimum tick sizes are well-defined and market noise within the spread is common. By requiring price to exceed the minimum tick before changing direction, TVI:
 
@@ -31,11 +31,11 @@ The indicator gained popularity among futures and forex traders where minimum ti
 - Maintains direction during consolidation phases
 - Provides cleaner divergence signals than OBV
 
-The "sticky direction" concept means that once TVI establishes a direction (up or down), it maintains that bias until price convincingly moves the other way—exceeding the minimum tick threshold in the opposite direction.
+The "sticky direction" concept means that once TVI establishes a direction (up or down), it maintains that bias until price convincingly moves the other way-exceeding the minimum tick threshold in the opposite direction.
 
 ## Architecture & Physics
 
-TVI operates as a directional accumulator with hysteresis. The direction state is "sticky"—it persists through small price movements and only flips when price change exceeds the minimum tick threshold.
+TVI operates as a directional accumulator with hysteresis. The direction state is "sticky"-it persists through small price movements and only flips when price change exceeds the minimum tick threshold.
 
 This creates a filtered money flow indicator that ignores noise and only responds to meaningful price movements.
 
@@ -95,7 +95,7 @@ where:
 
 ### Why Sticky Direction?
 
-The sticky direction behavior creates hysteresis—a form of memory that resists rapid direction changes. This is analogous to a Schmitt trigger in electronics, which prevents oscillation by requiring the input to cross a threshold before changing state.
+The sticky direction behavior creates hysteresis-a form of memory that resists rapid direction changes. This is analogous to a Schmitt trigger in electronics, which prevents oscillation by requiring the input to cross a threshold before changing state.
 
 Benefits:
 
@@ -155,13 +155,13 @@ TVI is not a standard indicator in most libraries. QuanTAlib implementation is b
 
 1. **MinTick Selection**: Choosing an appropriate minTick value is critical. Too small reduces TVI to OBV behavior; too large makes direction changes rare. For stocks, 0.01–0.10 is typical. For futures, use the contract's minimum tick size.
 
-2. **Absolute Value Meaningless**: Like OBV, TVI's numeric value has no intrinsic meaning—only direction and divergences matter. Don't compare TVI values across different securities.
+2. **Absolute Value Meaningless**: Like OBV, TVI's numeric value has no intrinsic meaning-only direction and divergences matter. Don't compare TVI values across different securities.
 
 3. **Not Bounded**: TVI can reach any value, positive or negative. It has no overbought/oversold levels. Use trend analysis, not absolute thresholds.
 
 4. **Default MinTick**: The default minTick of 0.125 (1/8) was historical for stock trading in eighths. Modern decimalized markets may need adjustment.
 
-5. **Zero MinTick**: Setting minTick = 0 makes TVI behave similarly to OBV, but not identically—TVI adds volume even on unchanged prices (using the sticky direction), while OBV adds zero.
+5. **Zero MinTick**: Setting minTick = 0 makes TVI behave similarly to OBV, but not identically-TVI adds volume even on unchanged prices (using the sticky direction), while OBV adds zero.
 
 6. **Initial Direction**: TVI starts with direction = +1 (up). The first bar's volume is always added positively. This matches standard implementations.
 

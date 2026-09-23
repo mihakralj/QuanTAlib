@@ -81,7 +81,7 @@ TD Sequential counts sequential close comparisons (Setup: 9 bars; Countdown: 13 
 | Counter increment/reset | 2 | 1 | 2 |
 | RingBuffer reads × 2 (lag 2 and lag 4) | 2 | 1 | 2 |
 | State encode (setup bar, countdown bar) | 2 | 1 | 2 |
-| **Total** | **8** | — | **~8 cycles** |
+| **Total** | **8** | - | **~8 cycles** |
 
 The cheapest oscillator in the library: purely integer comparisons and counters. ~8 cycles per bar.
 
@@ -91,7 +91,7 @@ The cheapest oscillator in the library: purely integer comparisons and counters.
 | :--- | :---: | :--- |
 | Lag-4 comparison (Setup) | Yes | VCMPPD on offset arrays |
 | Lag-2 comparison (Countdown) | Yes | VCMPPD on offset arrays |
-| Sequential counter | **No** | State-dependent — each bar depends on prior count |
+| Sequential counter | **No** | State-dependent - each bar depends on prior count |
 
 The counter state is inherently sequential. The individual comparisons are vectorizable in a pre-pass, but the sequential counting dependency prevents full SIMD acceleration.
 

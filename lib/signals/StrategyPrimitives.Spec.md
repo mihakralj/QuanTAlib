@@ -94,7 +94,7 @@ public readonly record struct TOrder(long Time, OrderAction Action, bool IsHot);
 
 ```
 
-`SizeFactor` is normalized to `[0, 1]`. A host may translate it to quantity, notional, or risk budget. A primitive must not assume account size, leverage, margin, or broker semantics.
+`SizeFactor` is normalized to `[0, 1]`. A host may translate it to quantity, notional, or risk budget. A primitive must not assume account size, exposure, margin, or broker semantics.
 
 ## Lifecycle Contract
 

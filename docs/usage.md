@@ -43,7 +43,7 @@ Console.WriteLine($"Last SMA: {smaResults[^1]:F4}");
 Console.WriteLine($"Last EMA: {emaResults[^1]:F4}");
 ```
 
-**Performance note:** Span mode processes 500,000 bars in approximately 300 ¼s (0.6 ns/bar) for simple indicators like SMA. Complex indicators like JMA take longer but still measure in microseconds.
+**Performance note:** Span mode processes 500,000 bars in approximately 300 microseconds (0.6 ns/bar) for simple indicators like SMA. Complex indicators like JMA take longer but still measure in microseconds.
 
 **Gotcha:** The destination span must be at least as long as the source span. Passing mismatched lengths throws `ArgumentException`.
 
@@ -166,7 +166,7 @@ crossover.Pub += (sender, args) =>
         Console.WriteLine("Bearish crossover detected");
 };
 
-// Feed data (propagates automatically: source ’ SMAs ’ crossover ’ event)
+// Feed data (propagates automatically: source -> SMAs -> crossover -> event)
 source.Add(DateTime.UtcNow, 105.0);
 ```
 
@@ -271,7 +271,7 @@ Measured on Intel i7-12700K, .NET 8.0, 500,000 bars:
 
 | Mode | SMA(14) Time | Allocations |
 | :--- | -----------: | ----------: |
-| Span | 298 ¼s | 0 bytes |
+| Span | 298 microseconds | 0 bytes |
 | Streaming | 12.4 ms | 0 bytes |
 | Batch (TSeries) | 15.1 ms | 8 MB |
 | Event-Driven | 18.7 ms | 12 MB |

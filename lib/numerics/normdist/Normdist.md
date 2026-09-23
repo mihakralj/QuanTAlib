@@ -1,6 +1,6 @@
 # NORMDIST: Normal Distribution CDF
 
-> *The normal distribution CDF is the bell curve's integral — the universal reference for probabilistic reasoning.*
+> *The normal distribution CDF is the bell curve's integral - the universal reference for probabilistic reasoning.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -107,7 +107,7 @@ NORMDIST(source, period, mu, sigma):
 
 ### Operation Count (Streaming Mode)
 
-Normal distribution CDF uses an erfc() rational approximation (Abramowitz & Stegun) — O(1) closed form.
+Normal distribution CDF uses an erfc() rational approximation (Abramowitz & Stegun) - O(1) closed form.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -115,7 +115,7 @@ Normal distribution CDF uses an erfc() rational approximation (Abramowitz & Steg
 | erfc(z / sqrt(2)) rational approx | 1 | 15 cy | ~15 cy |
 | Scale by 0.5 | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~22 cy** |
+| **Total** | **O(1)** | - | **~22 cy** |
 
 O(1) per evaluation. The rational polynomial erfc approximation has 7-term expansion, accurate to 1e-7. Division by sigma precomputed as multiplication by 1/sigma.
 

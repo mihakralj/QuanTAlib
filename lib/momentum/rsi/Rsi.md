@@ -124,7 +124,7 @@ RSI requires $N + 1$ bars minimum: one bar to establish the first change, then $
 | ADD (1 + RS) | 1 | 1 | 1 |
 | DIV (100 / (1+RS)) | 1 | 15 | 15 |
 | SUB (100 - result) | 1 | 1 | 1 |
-| **Total** | **13** | — | **~73 cycles** |
+| **Total** | **13** | - | **~73 cycles** |
 
 The three divisions dominate (~82% of cycles). FMA optimization provides minimal benefit here.
 
@@ -179,7 +179,7 @@ Validated against external libraries in `Rsi.Validation.Tests.cs`. Tests run aga
 | **TA-Lib** | ✅ | ✅ | ✅ | Matches `TA_RSI` after warmup |
 | **Skender** | ✅ | ✅ | ✅ | Matches `GetRsi` |
 | **Tulip** | ✅ | ✅ | ✅ | Matches `rsi` |
-| **Ooples** | ✅ | — | — | Matches `CalculateRelativeStrengthIndex` |
+| **Ooples** | ✅ | - | - | Matches `CalculateRelativeStrengthIndex` |
 
 ## Common Pitfalls
 

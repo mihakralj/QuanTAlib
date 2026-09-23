@@ -16,7 +16,7 @@
 - **Similar:** [PVI](../pvi/Pvi.md), [OBV](../vwad/Vwad.md) | **Complementary:** 255-day MA of NVI | **Trading note:** Negative Volume Index; tracks price on low-volume days where smart money operates.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day. The underlying theory: institutional investors—the "smart money"—prefer to accumulate or distribute positions during quiet, low-volume periods, while retail traders drive high-volume days with more emotional, less informed decisions.
+The Negative Volume Index tracks price changes exclusively on days when trading volume decreases compared to the previous day. The underlying theory: institutional investors-the "smart money"-prefer to accumulate or distribute positions during quiet, low-volume periods, while retail traders drive high-volume days with more emotional, less informed decisions.
 
 NVI essentially asks: "What are prices doing when the crowd isn't participating?" If NVI rises while volume falls, smart money may be quietly buying. If NVI falls on low volume, institutions might be exiting positions without attracting attention.
 
@@ -101,7 +101,7 @@ The multiplicative structure (×) rather than additive (+) ensures:
 | MUL | 0-1 | NVI × ratio (conditional) |
 | **Total** | ~1-3 | Per bar, O(1) |
 
-NVI is exceptionally lightweight—one comparison per bar, with division and multiplication only occurring on low-volume days.
+NVI is exceptionally lightweight-one comparison per bar, with division and multiplication only occurring on low-volume days.
 
 ### Batch Mode (SIMD)
 
@@ -118,7 +118,7 @@ The cumulative nature prevents full SIMD vectorization, but preprocessing volume
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Simple formula, exact computation |
-| **Timeliness** | 5/10 | Intentionally slow—filters out noise |
+| **Timeliness** | 5/10 | Intentionally slow-filters out noise |
 | **Overshoot** | N/A | No bounds; cumulative indicator |
 | **Smoothness** | 9/10 | Only changes on subset of bars |
 | **Memory** | 10/10 | O(1) state: 3 scalar values |
@@ -144,7 +144,7 @@ QuanTAlib implementation validated against:
 
 2. **Not Bounded**: Unlike oscillators (RSI, MFI), NVI has no upper or lower bounds. It can theoretically reach any positive value. Use signal lines (moving averages of NVI) for interpretation rather than absolute levels.
 
-3. **Equal Volume Ignored**: When `Volume_t == Volume_{t-1}`, NVI remains unchanged—same behavior as volume increase. Some implementations use ≤; QuanTAlib uses strict < per the original formula.
+3. **Equal Volume Ignored**: When `Volume_t == Volume_{t-1}`, NVI remains unchanged-same behavior as volume increase. Some implementations use ≤; QuanTAlib uses strict < per the original formula.
 
 4. **Requires Two Bars**: NVI needs at least two bars to make a comparison. First bar always returns the start value.
 

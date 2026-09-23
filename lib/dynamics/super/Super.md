@@ -98,7 +98,7 @@ Supertrend uses ATR-based bands with a state-machine ratchet: upper/lower bands 
 | MAX/MIN (ratchet: clamp to prev band) | 2 | 1 | 2 |
 | CMP × 2 (trend flip conditions) | 2 | 1 | 2 |
 | CMP × 2 (final band selection) | 2 | 1 | 2 |
-| **Total** | **19** | — | **~22 cycles** |
+| **Total** | **19** | - | **~22 cycles** |
 
 The ratchet logic adds branch overhead (~3 cycles average from the CMPs), but overall ~22 cycles per bar.
 
@@ -106,9 +106,9 @@ The ratchet logic adds branch overhead (~3 cycles average from the CMPs), but ov
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| TR + ATR (RMA) | **No** | Recursive RMA — sequential |
+| TR + ATR (RMA) | **No** | Recursive RMA - sequential |
 | Band arithmetic | Yes | VADDPD + VSUBPD + VMULPD after ATR pass |
-| Ratchet clamp | **No** | State-dependent MAX/MIN — depends on prior band value |
+| Ratchet clamp | **No** | State-dependent MAX/MIN - depends on prior band value |
 | Trend flip state machine | **No** | Branch-heavy flip logic depends on prior trend state |
 
 The ratchet and trend-flip logic create strong sequential dependencies. The ATR and band arithmetic sub-steps are vectorizable as intermediate passes.

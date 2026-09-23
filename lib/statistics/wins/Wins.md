@@ -20,7 +20,7 @@ The Winsorized Mean Moving Average computes a rolling average after replacing (n
 
 ## Historical Context
 
-Winsorization is named after Charles P. Winsor, a biostatistician at Harvard, though the technique was popularized by John Tukey (1962) who credited Winsor with the idea. The concept arises naturally from the question: "what if instead of throwing away extreme values, we replace them with the most extreme non-discarded value?" This produces an estimator that is more efficient than the trimmed mean under light contamination models while retaining comparable robustness.
+Winsorization is named after Charles P. Winsor, a biostatistician at Harvard, though the technique was popularized by John Tukey (1962) who credited Winsor with the idea. The concept arises naturally from the question: "what if instead of throwing away extreme values, the implementation replace them with the most extreme non-discarded value?" This produces an estimator that is more efficient than the trimmed mean under light contamination models while retaining comparable robustness.
 
 The distinction between trimming and Winsorizing is subtle but consequential. Consider a 20-bar window with 10% processing: TRIM discards the 2 lowest and 2 highest values, averaging the remaining 16. WINS replaces the 2 lowest with the 3rd-lowest value and the 2 highest with the 3rd-highest, averaging all 20. Both have the same breakdown point (10%), but WINS has higher asymptotic efficiency because it uses all $n$ observations in the average.
 
@@ -111,7 +111,7 @@ Winsorized mean collects the window, sorts it, replaces the tails with boundary 
 | Sum all N values | N | 2 cy | ~2N cy |
 | Divide for mean | 1 | 4 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=20, k=2)** | **O(N log N)** | — | **~230 cy** |
+| **Total (N=20, k=2)** | **O(N log N)** | - | **~230 cy** |
 
 O(N log N) per update due to sort. Slightly higher total cost than TRIM because the sum includes all N values (not N-2k), but both are dominated by the sort.
 
@@ -124,7 +124,7 @@ O(N log N) per update due to sort. Slightly higher total cost than TRIM because 
 | Clamping tail values | Yes | Vector conditional-select possible post-sort |
 | Full-window sum | Yes | Vector<double> sum over N values |
 
-Sort blocks SIMD on the main path. The sum phase can use Vector<double> for modest gains. Outer loop (across M bars) has no cross-bar dependency — suitable for parallel batch.
+Sort blocks SIMD on the main path. The sum phase can use Vector<double> for modest gains. Outer loop (across M bars) has no cross-bar dependency - suitable for parallel batch.
 
 ## Resources
 

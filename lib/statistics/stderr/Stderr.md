@@ -59,10 +59,10 @@ $$ b = \frac{\sum y - m \sum x}{N} $$
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| Running-sum updates | O(1) | — | small |
+| Running-sum updates | O(1) | - | small |
 | Residual SSR scan | O(N) | dominant | dominant |
-| Final sqrt/divide | O(1) | — | small |
-| **Total** | **O(N)** | — | period-dependent |
+| Final sqrt/divide | O(1) | - | small |
+| **Total** | **O(N)** | - | period-dependent |
 
 Per-update complexity is O(N) because residuals must be re-evaluated for the current window.
 
@@ -98,5 +98,5 @@ double value = stderr.Last.Value;
 
 ## See Also
 
-* **LinReg** — Linear Regression Curve (the trend line itself).
-- **StdDev** — Standard Deviation (dispersion from the mean, not from a regression line).
+* **LinReg** - Linear Regression Curve (the trend line itself).
+- **StdDev** - Standard Deviation (dispersion from the mean, not from a regression line).

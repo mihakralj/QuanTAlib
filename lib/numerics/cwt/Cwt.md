@@ -1,6 +1,6 @@
 # CWT: Continuous Wavelet Transform
 
-> *The continuous wavelet transform decomposes a signal across scale and time simultaneously — frequency analysis with temporal precision.*
+> *The continuous wavelet transform decomposes a signal across scale and time simultaneously - frequency analysis with temporal precision.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -20,7 +20,7 @@ CWT computes the magnitude of the Continuous Wavelet Transform at a specified sc
 
 ## Historical Context
 
-The wavelet transform emerged from seismology and signal processing in the 1980s, with foundational work by Jean Morlet (a geophysicist analyzing seismic reflections) and Alex Grossmann. The Morlet wavelet — a complex sinusoid modulated by a Gaussian envelope — became the standard analyzing wavelet due to its optimal time-frequency resolution (it achieves the Heisenberg uncertainty lower bound). In financial applications, CWT provides multi-resolution analysis: by varying the scale parameter, traders can identify dominant cycles at different timeframes without the windowing artifacts of short-time Fourier transforms. The scale parameter directly controls which frequency band is analyzed: larger scales capture lower frequencies (longer cycles), smaller scales capture higher frequencies (shorter cycles). The relationship between scale $s$ and approximate cycle period is $P \approx \frac{2\pi s}{\omega_0}$ where $\omega_0$ is the central frequency (default 6.0).
+The wavelet transform emerged from seismology and signal processing in the 1980s, with foundational work by Jean Morlet (a geophysicist analyzing seismic reflections) and Alex Grossmann. The Morlet wavelet - a complex sinusoid modulated by a Gaussian envelope - became the standard analyzing wavelet due to its optimal time-frequency resolution (it achieves the Heisenberg uncertainty lower bound). In financial applications, CWT provides multi-resolution analysis: by varying the scale parameter, traders can identify dominant cycles at different timeframes without the windowing artifacts of short-time Fourier transforms. The scale parameter directly controls which frequency band is analyzed: larger scales capture lower frequencies (longer cycles), smaller scales capture higher frequencies (shorter cycles). The relationship between scale $s$ and approximate cycle period is $P \approx \frac{2\pi s}{\omega_0}$ where $\omega_0$ is the central frequency (default 6.0).
 
 ## Architecture & Physics
 
@@ -69,7 +69,7 @@ $$P \approx \frac{2\pi s}{\omega_0}$$
 
 ### Operation Count (Streaming Mode)
 
-CWT (Continuous Wavelet Transform) computes inner products of the signal against scaled/shifted wavelets — O(N*S) per bar where S = scale count.
+CWT (Continuous Wavelet Transform) computes inner products of the signal against scaled/shifted wavelets - O(N*S) per bar where S = scale count.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -77,15 +77,15 @@ CWT (Continuous Wavelet Transform) computes inner products of the signal against
 | Wavelet coefficient computation (N*S inner products) | N*S | 3 cy | ~3*N*S cy |
 | Scale normalization (1/sqrt(scale)) | S | 14 cy | ~14S cy |
 | Peak scale identification | S | 2 cy | ~2S cy |
-| **Total (N=64, S=16)** | **O(N*S)** | — | **~3128 cy** |
+| **Total (N=64, S=16)** | **O(N*S)** | - | **~3128 cy** |
 
-O(N*S) per bar — expensive. Suitable for batch analysis, not tick-by-tick hot paths. Precomputed wavelet tables reduce the inner loop to multiply-accumulate only.
+O(N*S) per bar - expensive. Suitable for batch analysis, not tick-by-tick hot paths. Precomputed wavelet tables reduce the inner loop to multiply-accumulate only.
 
 ### Batch Mode (SIMD Analysis)
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| Inner product (dot product) per scale | Yes | Vector<double> FMA — dominant operation |
+| Inner product (dot product) per scale | Yes | Vector<double> FMA - dominant operation |
 | Scale normalization | Yes | Vector divide by precomputed sqrt table |
 | All scales independent | Yes | Outer scale loop parallelizable |
 

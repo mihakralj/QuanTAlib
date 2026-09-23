@@ -88,7 +88,7 @@ Squeeze Momentum Indicator uses Bollinger Bands, Keltner Channels, and a momentu
 | BB bands (SMA ± k×stddev) | 4 | 3 | 12 |
 | CMP × 2 (BB inside KC?) | 2 | 1 | 2 |
 | LR oscillator (O(N) scan) | ~3N | 3 | ~3N |
-| **Total** | **~4N+22** | — | **~4N+84** |
+| **Total** | **~4N+22** | - | **~4N+84** |
 
 For default $N=20$: ~164 cycles per bar. O(N) variance + O(N) regression dominate.
 

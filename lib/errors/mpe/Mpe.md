@@ -16,7 +16,7 @@
 - **Similar:** [ME](../me/Me.md), [MAPE](../mape/Mape.md) | **Trading note:** Mean Percentage Error; reveals directional bias as percentage. Positive/negative cancellation is a feature.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign. Unlike MAPE, which takes absolute values, MPE reveals systematic bias in predictions—whether a model consistently over-predicts or under-predicts.
+Mean Percentage Error measures the average percentage difference between actual and predicted values while preserving the sign. Unlike MAPE, which takes absolute values, MPE reveals systematic bias in predictions-whether a model consistently over-predicts or under-predicts.
 
 ## Architecture & Physics
 
@@ -70,7 +70,7 @@ O(1) per bar. Single-pass scalar transformation of (actual, forecast) pair; no l
 | :--- | :---: | :---: | :---: |
 | Error computation (subtract, abs/square/log) | 1-3 | ~3-8 cy | ~5-15 cy |
 | Running accumulator update (EMA or sum) | 1 | ~4 cy | ~4 cy |
-| **Total** | **2-4** | — | **~9-19 cycles** |
+| **Total** | **2-4** | - | **~9-19 cycles** |
 
 Streaming update requires only the current actual/forecast pair and running state. ~10-15 cycles/bar typical.
 

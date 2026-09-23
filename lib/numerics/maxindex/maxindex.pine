@@ -1,0 +1,4 @@
+//@version=5
+indicator("Rolling Maximum Index", "MAXINDEX")
+period = input.int(14, minval=2)
+plot(ta.highestbars(close, period), "Max Index", color=color.green)

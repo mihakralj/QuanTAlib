@@ -16,11 +16,11 @@
 - **Similar:** [Correl](../correl/Correl.md), [Granger](../granger/Granger.md) | **Trading note:** Tests if two series share a long-run equilibrium. Foundation of statistical arbitrage (pairs trading).
 - Validated against TradingView PineScript reference and statistical property tests.
 
-The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an Augmented Dickey-Fuller (ADF) test. Unlike correlation, which measures short-term co-movement, cointegration tests whether two non-stationary series share a common stochastic trend—meaning they may diverge temporarily but are statistically bound to revert to their equilibrium relationship.
+The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an Augmented Dickey-Fuller (ADF) test. Unlike correlation, which measures short-term co-movement, cointegration tests whether two non-stationary series share a common stochastic trend-meaning they may diverge temporarily but are statistically bound to revert to their equilibrium relationship.
 
 ## Historical Context
 
-Cointegration was developed by Nobel laureates Clive Granger and Robert Engle in the 1980s, fundamentally changing how economists and traders think about relationships between time series. Their work addressed a critical problem: traditional regression on non-stationary data (like stock prices) produces spurious results—apparent relationships that are statistically meaningless.
+Cointegration was developed by Nobel laureates Clive Granger and Robert Engle in the 1980s, fundamentally changing how economists and traders think about relationships between time series. Their work addressed a critical problem: traditional regression on non-stationary data (like stock prices) produces spurious results-apparent relationships that are statistically meaningless.
 
 The Engle-Granger (1987) two-step method remains the most widely used approach:
 1. Estimate the cointegrating regression
@@ -135,7 +135,7 @@ where $u_t = \Delta\epsilon_t - \gamma \cdot \epsilon_{t-1}$
 | SQRT | 3 | 15 | 45 |
 | Buffer Access | 8 | 3 | 24 |
 | FMA | 8 | 4 | 32 |
-| **Total** | **64** | — | **~282 cycles** |
+| **Total** | **64** | - | **~282 cycles** |
 
 Division and square root operations dominate the cost profile.
 
@@ -255,9 +255,9 @@ coint.Update(101.0, 51.0, isNew: false); // Recalculates without advancing state
 
 3. **Critical Values**: ADF critical values are approximate: -3.43 (1%), -2.86 (5%), -2.57 (10%). These differ from standard t-distribution values due to the unit root null hypothesis.
 
-4. **Zero-Variance Edge Cases**: Perfectly linear relationships (A = β×B + α with no noise) produce zero-variance residuals, resulting in NaN. This is mathematically correct—perfect cointegration has no estimation uncertainty.
+4. **Zero-Variance Edge Cases**: Perfectly linear relationships (A = β×B + α with no noise) produce zero-variance residuals, resulting in NaN. This is mathematically correct-perfect cointegration has no estimation uncertainty.
 
-5. **Non-Stationarity Requirement**: Both input series should be integrated of order 1 (I(1))—non-stationary but with stationary first differences. Applying cointegration to already-stationary series is meaningless.
+5. **Non-Stationarity Requirement**: Both input series should be integrated of order 1 (I(1))-non-stationary but with stationary first differences. Applying cointegration to already-stationary series is meaningless.
 
 6. **Period Selection**: Short periods (10-20) respond faster but may produce unstable estimates. Longer periods (50-100) are more stable but slower to adapt. Consider the expected holding period for your trading strategy.
 

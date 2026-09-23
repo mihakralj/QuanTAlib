@@ -4,7 +4,9 @@ Auto-generated — DO NOT EDIT.
 """
 from __future__ import annotations
 
-from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib
+from typing import Any
+
+from ._helpers import _arr, _ptr, _out, _wrap, _wrap_multi, _check, _lib, ArrayLike
 
 
 __all__ = [
@@ -37,7 +39,7 @@ __all__ = [
 ]
 
 
-def huber(actual: object, predicted: object, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs) -> object:
+def huber(actual: ArrayLike, predicted: ArrayLike, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Huber Loss."""
     period = int(kwargs.get("length", period))
     delta = float(delta)
@@ -49,7 +51,7 @@ def huber(actual: object, predicted: object, period: int = 14, delta: float = 1.
     return _wrap(output, idx, f"HUBER_{period}", "errors", offset)
 
 
-def logcosh(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def logcosh(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Log-Cosh Loss."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -60,7 +62,7 @@ def logcosh(actual: object, predicted: object, period: int = 14, offset: int = 0
     return _wrap(output, idx, f"LOGCOSH_{period}", "errors", offset)
 
 
-def maape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def maape(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Arctangent Absolute Percentage Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -71,7 +73,7 @@ def maape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     return _wrap(output, idx, f"MAAPE_{period}", "errors", offset)
 
 
-def mapd(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mapd(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Absolute Percentage Deviation."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -82,7 +84,7 @@ def mapd(actual: object, predicted: object, period: int = 14, offset: int = 0, *
     return _wrap(output, idx, f"MAPD_{period}", "errors", offset)
 
 
-def mase(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mase(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Absolute Scaled Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -93,7 +95,7 @@ def mase(actual: object, predicted: object, period: int = 14, offset: int = 0, *
     return _wrap(output, idx, f"MASE_{period}", "errors", offset)
 
 
-def mdae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mdae(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Median Absolute Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -104,7 +106,7 @@ def mdae(actual: object, predicted: object, period: int = 14, offset: int = 0, *
     return _wrap(output, idx, f"MDAE_{period}", "errors", offset)
 
 
-def mdape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mdape(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Median Absolute Percentage Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -115,7 +117,7 @@ def mdape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     return _wrap(output, idx, f"MDAPE_{period}", "errors", offset)
 
 
-def me(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def me(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -126,7 +128,7 @@ def me(actual: object, predicted: object, period: int = 14, offset: int = 0, **k
     return _wrap(output, idx, f"ME_{period}", "errors", offset)
 
 
-def mpe(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mpe(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Percentage Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -137,7 +139,7 @@ def mpe(actual: object, predicted: object, period: int = 14, offset: int = 0, **
     return _wrap(output, idx, f"MPE_{period}", "errors", offset)
 
 
-def mrae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def mrae(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Relative Absolute Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -148,7 +150,7 @@ def mrae(actual: object, predicted: object, period: int = 14, offset: int = 0, *
     return _wrap(output, idx, f"MRAE_{period}", "errors", offset)
 
 
-def msle(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def msle(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Squared Logarithmic Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -159,7 +161,7 @@ def msle(actual: object, predicted: object, period: int = 14, offset: int = 0, *
     return _wrap(output, idx, f"MSLE_{period}", "errors", offset)
 
 
-def pseudohuber(actual: object, predicted: object, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs) -> object:
+def pseudohuber(actual: ArrayLike, predicted: ArrayLike, period: int = 14, delta: float = 1.35, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Pseudo-Huber Loss."""
     period = int(kwargs.get("length", period))
     delta = float(delta)
@@ -171,7 +173,7 @@ def pseudohuber(actual: object, predicted: object, period: int = 14, delta: floa
     return _wrap(output, idx, f"PSEUDOHUBER_{period}", "errors", offset)
 
 
-def quantileloss(actual: object, predicted: object, period: int = 14, quantile: float = 0.5, offset: int = 0, **kwargs) -> object:
+def quantileloss(actual: ArrayLike, predicted: ArrayLike, period: int = 14, quantile: float = 0.5, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Quantile Loss (Pinball Loss)."""
     period = int(kwargs.get("length", period))
     quantile = float(quantile)
@@ -183,7 +185,7 @@ def quantileloss(actual: object, predicted: object, period: int = 14, quantile: 
     return _wrap(output, idx, f"QUANTILELOSS_{period}", "errors", offset)
 
 
-def rae(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rae(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Absolute Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -194,7 +196,7 @@ def rae(actual: object, predicted: object, period: int = 14, offset: int = 0, **
     return _wrap(output, idx, f"RAE_{period}", "errors", offset)
 
 
-def rmsle(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rmsle(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Root Mean Squared Logarithmic Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -205,7 +207,7 @@ def rmsle(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     return _wrap(output, idx, f"RMSLE_{period}", "errors", offset)
 
 
-def rse(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rse(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Relative Squared Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -216,7 +218,7 @@ def rse(actual: object, predicted: object, period: int = 14, offset: int = 0, **
     return _wrap(output, idx, f"RSE_{period}", "errors", offset)
 
 
-def rsquared(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def rsquared(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """R-Squared (Coefficient of Determination)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -227,7 +229,7 @@ def rsquared(actual: object, predicted: object, period: int = 14, offset: int = 
     return _wrap(output, idx, f"RSQUARED_{period}", "errors", offset)
 
 
-def smape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def smape(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Symmetric Mean Absolute Percentage Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -238,7 +240,7 @@ def smape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     return _wrap(output, idx, f"SMAPE_{period}", "errors", offset)
 
 
-def theilu(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def theilu(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Theil U Statistic (Error)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -249,7 +251,7 @@ def theilu(actual: object, predicted: object, period: int = 14, offset: int = 0,
     return _wrap(output, idx, f"THEILU_{period}", "errors", offset)
 
 
-def tukeybiweight(actual: object, predicted: object, period: int = 14, c: float = 4.685, offset: int = 0, **kwargs) -> object:
+def tukeybiweight(actual: ArrayLike, predicted: ArrayLike, period: int = 14, c: float = 4.685, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Tukey Biweight Loss."""
     period = int(kwargs.get("length", period))
     c = float(c)
@@ -261,7 +263,7 @@ def tukeybiweight(actual: object, predicted: object, period: int = 14, c: float 
     return _wrap(output, idx, f"TUKEYBIWEIGHT_{period}", "errors", offset)
 
 
-def wmape(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def wmape(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Weighted Mean Absolute Percentage Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -272,7 +274,7 @@ def wmape(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     return _wrap(output, idx, f"WMAPE_{period}", "errors", offset)
 
 
-def wrmse(actual: object, predicted: object, period: int = 14, offset: int = 0, **kwargs) -> object:
+def wrmse(actual: ArrayLike, predicted: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Weighted Root Mean Squared Error."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
@@ -282,8 +284,8 @@ def wrmse(actual: object, predicted: object, period: int = 14, offset: int = 0, 
     _check(_lib.qtl_wrmse(_ptr(a), _ptr(p), _ptr(output), n, period))
     return _wrap(output, idx, f"WRMSE_{period}", "errors", offset)
 
-def mse(actual: object, predicted: object, period: int = 20,
-        offset: int = 0, **kwargs) -> object:
+def mse(actual: ArrayLike, predicted: ArrayLike, period: int = 20,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Squared Error."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -292,8 +294,8 @@ def mse(actual: object, predicted: object, period: int = 20,
     return _wrap(dst, idx, f"MSE_{period}", "errors", offset)
 
 
-def rmse(actual: object, predicted: object, period: int = 20,
-         offset: int = 0, **kwargs) -> object:
+def rmse(actual: ArrayLike, predicted: ArrayLike, period: int = 20,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Root Mean Squared Error."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -302,8 +304,8 @@ def rmse(actual: object, predicted: object, period: int = 20,
     return _wrap(dst, idx, f"RMSE_{period}", "errors", offset)
 
 
-def mae(actual: object, predicted: object, period: int = 20,
-        offset: int = 0, **kwargs) -> object:
+def mae(actual: ArrayLike, predicted: ArrayLike, period: int = 20,
+        offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Absolute Error."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)
@@ -312,8 +314,8 @@ def mae(actual: object, predicted: object, period: int = 20,
     return _wrap(dst, idx, f"MAE_{period}", "errors", offset)
 
 
-def mape(actual: object, predicted: object, period: int = 20,
-         offset: int = 0, **kwargs) -> object:
+def mape(actual: ArrayLike, predicted: ArrayLike, period: int = 20,
+         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Mean Absolute Percentage Error."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     a, idx = _arr(actual); p, _ = _arr(predicted)

@@ -151,7 +151,7 @@ STBANDS computes True Range, an SMA of TR via running sum, basic band math from 
 | CMP (ratchet: upper tightens?) | 2 | 1 | 2 |
 | CMP (ratchet: lower tightens?) | 2 | 1 | 2 |
 | CMP (trend: close vs bands) | 2 | 1 | 2 |
-| **Total (hot)** | **19** | — | **~39 cycles** |
+| **Total (hot)** | **19** | - | **~39 cycles** |
 
 The ratchet logic is pure comparisons with no expensive math. The DIV for ATR is the costliest single operation.
 

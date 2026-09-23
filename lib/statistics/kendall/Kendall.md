@@ -128,7 +128,7 @@ Kendall Tau works best with moderate lookback periods (10-30). Very short period
 
 ## Related Indicators
 
-- **[Correlation](../correlation/Correlation.md)**: Pearson coefficient. Measures linear (not just monotonic) relationships. Faster O(1) updates but sensitive to outliers.
+- **[Correlation](../correl/Correl.md)**: Pearson coefficient. Measures linear (not just monotonic) relationships. Faster O(1) updates but sensitive to outliers.
 - **[Covariance](../covariance/Covariance.md)**: Unstandardized measure of joint variability. Building block for Pearson but not rank-based.
 
 ## Validation

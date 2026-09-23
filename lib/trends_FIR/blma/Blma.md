@@ -57,7 +57,7 @@ $$ BLMA_t = \frac{\sum_{i=0}^{N-1} P_{t-i} \cdot w(i)}{\sum_{i=0}^{N-1} w(i)} $$
 | COS | 2N | 40 | 80N |
 | MUL | 4N | 3 | 12N |
 | ADD/SUB | 3N | 1 | 3N |
-| **Total (init)** | — | — | **~95N cycles** |
+| **Total (init)** | - | - | **~95N cycles** |
 
 For period=20: ~1,900 cycles (one-time).
 
@@ -68,7 +68,7 @@ For period=20: ~1,900 cycles (one-time).
 | MUL | N | 3 | 3N |
 | ADD | N | 1 | N |
 | DIV | 1 | 15 | 15 |
-| **Total** | **2N + 1** | — | **~4N + 15 cycles** |
+| **Total** | **2N + 1** | - | **~4N + 15 cycles** |
 
 For period=20: ~95 cycles per bar.
 
@@ -91,7 +91,7 @@ The convolution is highly vectorizable:
 | :--- | :---: | :---: | :--- |
 | Scalar streaming | ~95 | ~48,640 | O(N) per bar |
 | SIMD batch | ~25 | ~12,800 | Vectorized dot product |
-| **Improvement** | **~4×** | **~36K saved** | — |
+| **Improvement** | **~4×** | **~36K saved** | - |
 
 ### Quality Metrics
 

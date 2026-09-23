@@ -22,7 +22,7 @@ While ATR tells you *how much* an asset moves, ATRN tells you *how unusual* that
 
 ## Historical Context
 
-ATRN is a practical extension of Wilder's ATR, developed to solve the **context problem** in volatility analysis. Raw ATR values are meaningless in isolation—you need to compare them to something. Some traders compare ATR to price (NATR), which gives a percentage. ATRN takes a different approach: it compares ATR to its own recent range.
+ATRN is a practical extension of Wilder's ATR, developed to solve the **context problem** in volatility analysis. Raw ATR values are meaningless in isolation-you need to compare them to something. Some traders compare ATR to price (NATR), which gives a percentage. ATRN takes a different approach: it compares ATR to its own recent range.
 
 This normalization approach is common in machine learning and signal processing, where inputs are scaled to [0,1] for better model performance. ATRN applies the same principle to volatility measurement.
 
@@ -43,7 +43,7 @@ The lookback window is set to $10 \times period$. For the default period of 14:
 
 ### Edge Case: Constant Volatility
 
-When max ATR equals min ATR (perfectly constant volatility), the denominator becomes zero. ATRN returns 0.5 in this case—the midpoint—indicating "average" volatility by default.
+When max ATR equals min ATR (perfectly constant volatility), the denominator becomes zero. ATRN returns 0.5 in this case-the midpoint-indicating "average" volatility by default.
 
 ## Mathematical Foundation
 
@@ -80,7 +80,7 @@ $$
 
 ### Operation Count (Streaming Mode)
 
-ATRN normalizes ATR to [0,1] using min/max over a lookback window — O(1) chained computation.
+ATRN normalizes ATR to [0,1] using min/max over a lookback window - O(1) chained computation.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -90,7 +90,7 @@ ATRN normalizes ATR to [0,1] using min/max over a lookback window — O(1) chain
 | ATRN = (ATR - min) / (max - min) | 1 | 5 cy | ~5 cy |
 | Zero-range guard | 1 | 2 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~25 cy** |
+| **Total** | **O(1)** | - | **~25 cy** |
 
 O(1) chained ATR + normalization. Two separate warmup phases: ATR needs period bars, then ATRN needs lookback bars for valid min/max range.
 
@@ -133,7 +133,7 @@ ATRN is a QuanTAlib-specific indicator. Validation confirms:
 
 ## Common Pitfalls
 
-* **Scale Independence**: ATRN is relative to the asset's own history. An ATRN of 0.8 on AAPL is not comparable to 0.8 on BTC—they're measuring different things.
+* **Scale Independence**: ATRN is relative to the asset's own history. An ATRN of 0.8 on AAPL is not comparable to 0.8 on BTC-they're measuring different things.
 
 * **Lookback Sensitivity**: The 10×period lookback window defines "recent history." Shorter lookbacks react faster but may produce whipsaw signals. The default balances responsiveness and stability.
 
@@ -143,7 +143,7 @@ ATRN is a QuanTAlib-specific indicator. Validation confirms:
 
 ## Use Cases
 
-1. **Position Sizing**: Scale position size inversely with ATRN—smaller positions when ATRN is high, larger when low.
+1. **Position Sizing**: Scale position size inversely with ATRN-smaller positions when ATRN is high, larger when low.
 
 2. **Stop Loss Adaptation**: Tighter stops when ATRN is low (quiet market), wider stops when ATRN is high (volatile market).
 

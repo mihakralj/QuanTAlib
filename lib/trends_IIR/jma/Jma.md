@@ -192,13 +192,13 @@ One JMA value requires the following operations:
 | EXP | 2 | 50 | 100 |
 | POW | 1 | 80 | 80 |
 | SORT (128 elem) | 1 | ~900 | 900 |
-| **Total** | **99** | — | **~1,245 cycles** |
+| **Total** | **99** | - | **~1,245 cycles** |
 
 The 128-element sort dominates computational cost (~72% of total cycles).
 
 ### Batch Mode (512 values, SIMD/FMA)
 
-JMA is inherently recursive—each bar depends on previous state. SIMD parallelization across bars is not possible. However, within-bar operations can be vectorized:
+JMA is inherently recursive-each bar depends on previous state. SIMD parallelization across bars is not possible. However, within-bar operations can be vectorized:
 
 | Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
 | :--- | :---: | :---: | :---: |
@@ -218,9 +218,9 @@ JMA is inherently recursive—each bar depends on previous state. SIMD paralleli
 
 | Mode | Cycles/bar | Total (512 bars) | Overhead |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 1,245 | 637,440 | — |
-| SIMD/FMA streaming | 1,173 | 600,576 | — |
-| **Improvement** | **5.8%** | **36,864 saved** | — |
+| Scalar streaming | 1,245 | 637,440 | - |
+| SIMD/FMA streaming | 1,173 | 600,576 | - |
+| **Improvement** | **5.8%** | **36,864 saved** | - |
 
 The modest 5.8% improvement reflects JMA's inherent limitations:
 1. **Sort dominates**: 900 of 1,245 cycles are spent sorting (comparison-based, not SIMD-friendly)

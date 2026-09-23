@@ -20,7 +20,7 @@ The DMX is Mark Jurik's modernized overhaul of Wilder's Directional Movement sys
 
 ## Historical Context
 
-Wilder's original ADX/DMI system (1978) is foundational but mathematically primitive — its RMA smoothing introduces substantial lag that delays trend detection. Jurik's contribution was recognizing that the directional movement decomposition itself is sound; only the smoothing pipeline needed upgrading. JMA is an adaptive filter that tracks signal closely during transitions (low lag) and smooths aggressively during stable periods (high noise reduction). This dynamic behavior means DMX signals trend changes significantly earlier than DMI without the whipsaw penalty typically associated with faster indicators. DMX is not available in standard TA libraries (TA-Lib, Skender, Tulip) since JMA is a proprietary algorithm. The QuanTAlib implementation uses its own JMA recreation.
+Wilder's original ADX/DMI system (1978) is foundational but mathematically primitive - its RMA smoothing introduces substantial lag that delays trend detection. Jurik's contribution was recognizing that the directional movement decomposition itself is sound; only the smoothing pipeline needed upgrading. JMA is an adaptive filter that tracks signal closely during transitions (low lag) and smooths aggressively during stable periods (high noise reduction). This dynamic behavior means DMX signals trend changes significantly earlier than DMI without the whipsaw penalty typically associated with faster indicators. DMX is not available in standard TA libraries (TA-Lib, Skender, Tulip) since JMA is a proprietary algorithm. The QuanTAlib implementation uses its own JMA recreation.
 
 ## Architecture & Physics
 
@@ -58,8 +58,8 @@ Positive values indicate bullish directional dominance; negative values indicate
 
 ### 6. Complexity
 
-- **Time:** $O(1)$ per bar — three JMA updates (each $O(1)$)
-- **Space:** $O(1)$ — JMA maintains fixed-size internal state
+- **Time:** $O(1)$ per bar - three JMA updates (each $O(1)$)
+- **Space:** $O(1)$ - JMA maintains fixed-size internal state
 - **Warmup:** $\approx N$ bars (JMA converges faster than RMA)
 
 ## Mathematical Foundation
@@ -88,7 +88,7 @@ Because JMA is more efficient than RMA, slightly longer periods (e.g., 20 instea
 
 ### Operation Count (Streaming Mode)
 
-DMX (Directional Movement Index) computes +DM and −DM only, without ADX smoothing — a lighter version of ADX.
+DMX (Directional Movement Index) computes +DM and −DM only, without ADX smoothing - a lighter version of ADX.
 
 **Post-warmup steady state (per bar):**
 
@@ -102,7 +102,7 @@ DMX (Directional Movement Index) computes +DM and −DM only, without ADX smooth
 | FMA × 1 (RMA smooth TR) | 1 | 4 | 4 |
 | DIV × 2 (+DI, −DI from smoothed values) | 2 | 15 | 30 |
 | MUL × 2 (scale to 100) | 2 | 3 | 6 |
-| **Total** | **19** | — | **~58 cycles** |
+| **Total** | **19** | - | **~58 cycles** |
 
 DMX skips the DX/ADX second smoothing phase. ~58 cycles per bar vs ~79 for full ADX.
 
@@ -111,7 +111,7 @@ DMX skips the DX/ADX second smoothing phase. ~58 cycles per bar vs ~79 for full 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
 | TR/DM computation | Yes | VSUBPD + VABSPD + VMAXPD + VCMPPD |
-| RMA smoothing × 3 | **No** | Recursive IIR — sequential |
+| RMA smoothing × 3 | **No** | Recursive IIR - sequential |
 | DI scaling | Yes | VDIVPD + VMULPD after RMA pass |
 
 Same constraint as ADX: the recursive RMA smoothing blocks cross-bar SIMD.
@@ -127,6 +127,6 @@ Same constraint as ADX: the recursive RMA smoothing blocks cross-bar SIMD.
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
-- Jurik, M. — JMA adaptive smoothing methodology
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Jurik, M. - JMA adaptive smoothing methodology
 - PineScript reference: `dmx.pine` in indicator directory

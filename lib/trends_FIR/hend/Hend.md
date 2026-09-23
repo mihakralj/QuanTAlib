@@ -102,7 +102,7 @@ HEND(N) is a direct FIR convolution using precomputed Henderson weights (compute
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA (weight × value + acc) | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
 O(N) per bar. For default N = 7 (5-term odd period): ~31 cycles. For N = 23 (common seasonal use): ~95 cycles. WarmupPeriod = N.
 
@@ -115,4 +115,4 @@ O(N) per bar. For default N = 7 (5-term odd period): ~31 cycles. For N = 23 (com
 | Negative-weight handling | Yes | No special treatment needed; signed FMA handles negatives |
 | Cross-bar independence | Yes | Each bar's output is independent; full outer-loop vectorization |
 
-With AVX2, 4 bars can be processed simultaneously (each is an N-tap dot product). Total batch throughput: ~N/4 cycles per bar for large series. For N = 23 and 1000-bar batch: ~5750 cycles vs ~95000 scalar — approximately 16.5× speedup (memory-bound at larger N).
+With AVX2, 4 bars can be processed simultaneously (each is an N-tap dot product). Total batch throughput: ~N/4 cycles per bar for large series. For N = 23 and 1000-bar batch: ~5750 cycles vs ~95000 scalar - approximately 16.5× speedup (memory-bound at larger N).

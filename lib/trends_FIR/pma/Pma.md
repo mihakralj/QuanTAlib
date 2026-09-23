@@ -1,6 +1,6 @@
 # PMA: Ehlers Predictive Moving Average
 
-> *John Ehlers looked at WMA's lag and said: 'What if we just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been.*
+> *John Ehlers looked at WMA's lag and said: 'What if the implementation just extrapolated it away?' The result is a moving average that actually tries to predict where price is going, not where it has been.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -23,7 +23,7 @@ PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear ex
 
 John F. Ehlers introduced the Predictive Moving Average in his 2004 work on cycle-based indicators. The core insight is borrowed from signal processing: if you know how much a filter lags, you can extrapolate forward by that amount to cancel the lag entirely.
 
-WMA inherently lags by approximately $(N-1)/3$ bars for period $N$. A WMA of a WMA (what we call DWMA) lags by roughly $2(N-1)/3$. The difference between WMA and DWMA captures the rate of lag accumulation, which Ehlers uses as a linear extrapolation coefficient.
+WMA inherently lags by approximately $(N-1)/3$ bars for period $N$. A WMA of a WMA (what the implementation call DWMA) lags by roughly $2(N-1)/3$. The difference between WMA and DWMA captures the rate of lag accumulation, which Ehlers uses as a linear extrapolation coefficient.
 
 This is not the same trick as Hull Moving Average (HMA), which uses WMA of period $N/2$ minus WMA of period $N$. PMA uses the same period for both WMA passes, which makes the extrapolation purely about lag cancellation rather than period blending. The distinction matters: PMA's extrapolation is geometrically cleaner, though HMA's period-blending produces less overshoot in choppy markets.
 
@@ -120,7 +120,7 @@ PMA(N) composes two WMA(N) instances in sequence: WMA₁ processes the raw input
 | WMA₂ divide by weight sum | 1 | 8 | ~8 |
 | PMA: FMA(2, WMA₁, −WMA₂) | 1 | 4 | ~4 |
 | Trigger: FMA(4, WMA₁, −WMA₂) / 3 | 2 | 6 | ~12 |
-| **Total** | **11** | — | **~50 cycles** |
+| **Total** | **11** | - | **~50 cycles** |
 
 O(1) per bar. Both WMA instances use O(1) ring-buffer running sums; no N-scan. WarmupPeriod = 2×N − 1 (second WMA needs N bars of WMA₁ output).
 
@@ -132,7 +132,7 @@ O(1) per bar. Both WMA instances use O(1) ring-buffer running sums; no N-scan. W
 | WMA₂ (depends on WMA₁ output) | No | Sequential dependency: WMA₂[i] depends on WMA₁[i] |
 | PMA and Trigger formulae | Yes | Linear combination of two scalars per bar |
 
-WMA₂ creates a pipeline dependency — it cannot start until WMA₁ is complete for the full series. In batch mode: compute WMA₁ for all bars first (vectorizable prefix weighted sum), then WMA₂ (second pass, also vectorizable). Final PMA/Trigger formulae are fully vectorizable. Estimated batch speedup: ~3× for large series.
+WMA₂ creates a pipeline dependency - it cannot start until WMA₁ is complete for the full series. In batch mode: compute WMA₁ for all bars first (vectorizable prefix weighted sum), then WMA₂ (second pass, also vectorizable). Final PMA/Trigger formulae are fully vectorizable. Estimated batch speedup: ~3× for large series.
 | Metric | Value |
 |--------|-------|
 | Update complexity | O(1) per bar |

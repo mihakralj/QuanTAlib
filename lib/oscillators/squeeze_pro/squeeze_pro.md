@@ -1,6 +1,6 @@
 # SQUEEZE_PRO: LazyBear's Squeeze Pro
 
-> *Standard Squeeze uses one Keltner width. Squeeze Pro adds two more — because the market doesn't only compress one way.*
+> *Standard Squeeze uses one Keltner width. Squeeze Pro adds two more - because the market doesn't only compress one way.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -18,7 +18,7 @@
 
 ## Historical Context
 
-LazyBear's Squeeze Pro appeared on TradingView as an enhanced version of John Carter's TTM Squeeze, addressing a fundamental limitation: the original Squeeze only uses a single Keltner Channel width, providing a binary "squeeze on/off" signal. In practice, volatility compression exists on a spectrum — a market can be lightly compressed (BB barely inside KC) or severely compressed (BB well inside even a narrow KC). The three-level classification captures this gradient: wide squeeze (initial compression), normal squeeze (significant compression), and narrow squeeze (extreme compression that often precedes the largest moves). The momentum component was simplified from Carter's linear regression approach to a straightforward MOM(close, n) smoothed by SMA or EMA, making the indicator more responsive and easier to interpret.
+LazyBear's Squeeze Pro appeared on TradingView as an enhanced version of John Carter's TTM Squeeze, addressing a fundamental limitation: the original Squeeze only uses a single Keltner Channel width, providing a binary "squeeze on/off" signal. In practice, volatility compression exists on a spectrum - a market can be lightly compressed (BB barely inside KC) or severely compressed (BB well inside even a narrow KC). The three-level classification captures this gradient: wide squeeze (initial compression), normal squeeze (significant compression), and narrow squeeze (extreme compression that often precedes the largest moves). The momentum component was simplified from Carter's linear regression approach to a straightforward MOM(close, n) smoothed by SMA or EMA, making the indicator more responsive and easier to interpret.
 
 ## Architecture & Physics
 
@@ -97,11 +97,11 @@ Three circular buffers (`period` + `momLength` + `momSmooth`) with snapshot/roll
 1. **KC multiplier ordering:** Ensure kcMultWide > kcMultNormal > kcMultNarrow for meaningful level classification. The algorithm works with any positive values, but inverted ordering produces unintuitive results.
 2. **Momentum warmup:** First `momLength` bars produce MOM = 0 (no lagged close available). Full momentum accuracy requires `momLength + momSmooth` bars.
 3. **SMA vs EMA smoothing:** SMA produces equal-weight smoothing (more stable); EMA gives more weight to recent momentum (more responsive). Both produce valid signals but differ numerically.
-4. **Squeeze level vs squeeze state:** Level 0 doesn't mean "no squeeze ever happened" — it means BB is currently outside KC_wide (expansion phase). The transition from level 3→0 is the breakout signal.
+4. **Squeeze level vs squeeze state:** Level 0 doesn't mean "no squeeze ever happened" - it means BB is currently outside KC_wide (expansion phase). The transition from level 3→0 is the breakout signal.
 5. **Memory footprint:** Three circular buffers plus three snapshot arrays. For very large `period`, ArrayPool is used automatically in batch mode.
 
 ## References
 
 - LazyBear, "Squeeze Momentum Indicator [LazyBear]" (TradingView)
 - pandas-ta `squeeze_pro` implementation (GitHub)
-- John Carter, *Mastering the Trade* (2005) — original TTM Squeeze concept
+- John Carter, *Mastering the Trade* (2005) - original TTM Squeeze concept

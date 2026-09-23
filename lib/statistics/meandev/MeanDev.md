@@ -1,6 +1,6 @@
 # MeanDev: Mean Deviation (Average Absolute Deviation)
 
-> *Not all dispersion is created equal — some prefer robustness over elegance.*
+> *Not all dispersion is created equal - some prefer robustness over elegance.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -56,7 +56,7 @@ Mean Deviation is always less than or equal to Standard Deviation for the same d
 
 ### Operation Count (Streaming Mode)
 
-Mean Deviation (MAD about the mean) requires computing the window mean first, then summing absolute deviations — O(N) per bar.
+Mean Deviation (MAD about the mean) requires computing the window mean first, then summing absolute deviations - O(N) per bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -65,9 +65,9 @@ Mean Deviation (MAD about the mean) requires computing the window mean first, th
 | Sum absolute deviations | N | 3 cy | ~3N cy |
 | Divide by N | 1 | 4 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=14)** | **O(N)** | — | **~53 cy** |
+| **Total (N=14)** | **O(N)** | - | **~53 cy** |
 
-O(N) per update — no O(1) formulation for mean absolute deviation (unlike variance). The abs() required for each deviation prevents the running-sum trick.
+O(N) per update - no O(1) formulation for mean absolute deviation (unlike variance). The abs() required for each deviation prevents the running-sum trick.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
@@ -100,7 +100,7 @@ double value = meanDev.Last.Value;
 
 ## See Also
 
-* **StdDev** — Standard Deviation (quadratic weighting of deviations).
-* **Variance** — Variance (squared deviations from mean).
-* **Cci** — Commodity Channel Index (uses Mean Deviation as a normalizer).
+* **StdDev** - Standard Deviation (quadratic weighting of deviations).
+* **Variance** - Variance (squared deviations from mean).
+* **Cci** - Commodity Channel Index (uses Mean Deviation as a normalizer).
 ````

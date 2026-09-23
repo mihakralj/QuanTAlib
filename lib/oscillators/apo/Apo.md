@@ -128,7 +128,7 @@ APO is best used on a single instrument over a consistent price range. For multi
 
 ## Validation
 
-Validated against external libraries in [`Apo.Validation.Tests.cs`](Apo.Validation.Tests.cs). Tests run batch, streaming, and span modes against each reference library.
+Validated against external libraries in [`Apo.Validation.Tests.cs`](tests/Apo.Validation.Tests.cs). Tests run batch, streaming, and span modes against each reference library.
 
 | Library | Status | Notes |
 |---------|:------:|-------|

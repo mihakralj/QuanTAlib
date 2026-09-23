@@ -84,7 +84,7 @@ Pivotfib.BatchAll(high, low, close, ppOut, r1Out, s1Out, r2Out, s2Out, r3Out, s3
 
 ### Operation Count (Streaming Mode)
 
-PivotFib computes PP and 6 Fibonacci S/R levels from previous bar's HLC — O(1) pure arithmetic.
+PivotFib computes PP and 6 Fibonacci S/R levels from previous bar's HLC - O(1) pure arithmetic.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -95,7 +95,7 @@ PivotFib computes PP and 6 Fibonacci S/R levels from previous bar's HLC — O(1)
 | R2/S2 via FMA (0.618 * range) | 2 | 1 cy | ~2 cy |
 | R3/S3 = PP +/- range | 2 | 1 cy | ~2 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~14 cy** |
+| **Total** | **O(1)** | - | **~14 cy** |
 
 Pure O(1) arithmetic on previous-bar data. Fibonacci multipliers 0.382 and 0.618 are precomputed constants; FMA fuses multiply-add into a single instruction.
 
@@ -106,9 +106,9 @@ Pure O(1) arithmetic on previous-bar data. Fibonacci multipliers 0.382 and 0.618
 | PP computation | Yes | Vector<double> (H+L+C)/3 across all bars |
 | Range calculation | Yes | Vector subtract H-L |
 | Fibonacci level projection | Yes | FMA with broadcast constants 0.382, 0.618 |
-| All 7 output spans | Yes | Full SIMD pass — no data dependencies |
+| All 7 output spans | Yes | Full SIMD pass - no data dependencies |
 
-Excellent SIMD candidate — all 7 output levels are independent. BatchAll span overload processes 4 bars per AVX2 cycle. Expected 4× throughput vs scalar.
+Excellent SIMD candidate - all 7 output levels are independent. BatchAll span overload processes 4 bars per AVX2 cycle. Expected 4× throughput vs scalar.
 
 ## Implementation Details
 - **WarmupPeriod**: 2 bars (need previous bar's HLC)

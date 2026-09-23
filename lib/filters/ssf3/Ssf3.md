@@ -64,14 +64,14 @@ The key difference from BUTTER3: the feedforward is `coef1 * x[n]` (single sampl
 
 ### Operation Count (Streaming Mode)
 
-Three-pole Super Smooth Filter (SSF3): Ehlers 3rd-order IIR low-pass smoother. Four FMA operations per bar — feedforward plus three-tap feedback.
+Three-pole Super Smooth Filter (SSF3): Ehlers 3rd-order IIR low-pass smoother. Four FMA operations per bar - feedforward plus three-tap feedback.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | Input combination | 1 | ~2 cy | ~2 cy |
 | FMA: c1*(x+x1) + c2*y1 + c3*y2 + c4*y3 | 4 | ~4 cy | ~16 cy |
 | State update | 3 | ~1 cy | ~3 cy |
-| **Total** | **8** | — | **~21 cycles** |
+| **Total** | **8** | - | **~21 cycles** |
 
 O(1) per bar. Additional pole vs SSF2 gives marginally better smoothing with ~30% more compute. ~21 cycles/bar.
 

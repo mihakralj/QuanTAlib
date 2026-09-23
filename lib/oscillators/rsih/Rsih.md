@@ -1,6 +1,6 @@
 # RSIH: Ehlers Hann-Windowed RSI
 
-> *By replacing Wilder's exponential smoothing with a Hann window, Ehlers produces an RSI that is zero-mean, bounded, and inherently smooth—no supplemental filtering required.*
+> *By replacing Wilder's exponential smoothing with a Hann window, Ehlers produces an RSI that is zero-mean, bounded, and inherently smooth-no supplemental filtering required.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -57,7 +57,7 @@ cu = Math.FusedMultiplyAdd(w, diff, cu);
 
 ## Performance Profile
 
-RSIH is an O(N) FIR filter — each bar requires scanning the full window.
+RSIH is an O(N) FIR filter - each bar requires scanning the full window.
 
 ### Operation Count (Streaming Mode, Scalar)
 
@@ -87,7 +87,7 @@ RSIH is **not SIMD-parallelizable** across bars because each bar's window overla
 | :--- | :---: | :--- |
 | **Accuracy** | 9/10 | Hann window provides excellent spectral properties |
 | **Timeliness** | 8/10 | FIR filter with minimal lag for oscillator class |
-| **Overshoot** | 9/10 | Bounded [-1, +1] — no possibility of divergence |
+| **Overshoot** | 9/10 | Bounded [-1, +1] - no possibility of divergence |
 | **Smoothness** | 8/10 | Hann window provides inherent anti-aliasing |
 
 ## Validation
@@ -105,7 +105,7 @@ RSIH is not implemented in mainstream libraries. Validation relies on behavioral
 ### Behavioral Test Summary
 
 - **Constant Input → Zero**: Constant close → all diffs = 0 → CU = CD = 0 → RSIH = 0
-- **Output Symmetry**: RSIH(ascending) = -RSIH(descending) — output is antisymmetric
+- **Output Symmetry**: RSIH(ascending) = -RSIH(descending) - output is antisymmetric
 - **Bounded Output**: All outputs in [-1, +1] regardless of input magnitude
 - **Mode Consistency**: Streaming, batch, span, and event-driven modes produce identical results
 - **Bar Correction**: Snapshot/Restore via RingBuffer produces exact rollback

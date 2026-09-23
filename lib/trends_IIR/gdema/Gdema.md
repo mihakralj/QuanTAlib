@@ -108,7 +108,7 @@ return (1 + v) * ema1 - v * ema2
 
 ### Operation Count (Streaming Mode)
 
-GDEMA(N, v) runs two cascaded EMA stages. The output is `(1+v)×EMA₁ - v×EMA₂` — a linear combination with precomputed coefficient `_onePlusV`. Both EMAs use bias-compensated warmup (E factor).
+GDEMA(N, v) runs two cascaded EMA stages. The output is `(1+v)×EMA₁ - v×EMA₂` - a linear combination with precomputed coefficient `_onePlusV`. Both EMAs use bias-compensated warmup (E factor).
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -117,7 +117,7 @@ GDEMA(N, v) runs two cascaded EMA stages. The output is `(1+v)×EMA₁ - v×EMA�
 | EMA₂: FMA(α, ema1, decay×ema2) | 1 | 4 | ~4 |
 | Bias factor update E₂ | 1 | 3 | ~3 |
 | Output: FMA(onePlusV, ema1, −v×ema2) | 1 | 4 | ~4 |
-| **Total** | **5** | — | **~18 cycles** |
+| **Total** | **5** | - | **~18 cycles** |
 
 O(1) per bar. Two FMAs for EMA stages, one FMA for the combination. Fastest of the multi-stage EMA indicators. WarmupPeriod = N.
 

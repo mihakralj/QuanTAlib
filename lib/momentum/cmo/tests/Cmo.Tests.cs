@@ -55,7 +55,7 @@ public class CmoTests
 
         for (int i = 0; i < 4; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         Assert.False(cmo.IsHot);
@@ -68,7 +68,7 @@ public class CmoTests
 
         for (int i = 0; i < 6; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         Assert.True(cmo.IsHot);
@@ -83,7 +83,7 @@ public class CmoTests
     {
         var cmo = new Cmo(5);
 
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks, 100.0));
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100.0));
 
         Assert.Equal(0, result.Value);
     }
@@ -94,12 +94,12 @@ public class CmoTests
         var cmo = new Cmo(5);
 
         // All upward moves should give CMO = 100
-        cmo.Update(new TValue(DateTime.Now.Ticks, 100));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 101));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 102));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 103));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 4, 104));
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks + 5, 105));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 101));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 102));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 103));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 4, 104));
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 105));
 
         Assert.Equal(100.0, result.Value, Epsilon);
     }
@@ -110,12 +110,12 @@ public class CmoTests
         var cmo = new Cmo(5);
 
         // All downward moves should give CMO = -100
-        cmo.Update(new TValue(DateTime.Now.Ticks, 105));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 104));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 103));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 102));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 4, 101));
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks + 5, 100));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 105));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 104));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 103));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 102));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 4, 101));
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 100));
 
         Assert.Equal(-100.0, result.Value, Epsilon);
     }
@@ -126,11 +126,11 @@ public class CmoTests
         var cmo = new Cmo(4);
 
         // Pattern: up 2, down 2, up 2, down 2 = equal
-        cmo.Update(new TValue(DateTime.Now.Ticks, 100));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 102)); // up 2
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 100)); // down 2
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 102)); // up 2
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks + 4, 100)); // down 2
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 102)); // up 2
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 100)); // down 2
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 102)); // up 2
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + 4, 100)); // down 2
 
         // sumUp = 4, sumDown = 4, CMO = 0
         Assert.Equal(0.0, result.Value, Epsilon);
@@ -144,7 +144,7 @@ public class CmoTests
         // No change in prices
         for (int i = 0; i < 10; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100));
         }
 
         Assert.Equal(0, cmo.Last.Value);
@@ -156,12 +156,12 @@ public class CmoTests
         var cmo = new Cmo(5);
 
         // Construct specific pattern
-        cmo.Update(new TValue(DateTime.Now.Ticks, 100));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 105)); // up 5
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 102)); // down 3
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 107)); // up 5
-        cmo.Update(new TValue(DateTime.Now.Ticks + 4, 104)); // down 3
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks + 5, 106)); // up 2
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 105)); // up 5
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 102)); // down 3
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 107)); // up 5
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 4, 104)); // down 3
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 106)); // up 2
 
         // sumUp = 5+5+2 = 12, sumDown = 3+3 = 6
         // CMO = 100 * (12-6)/(12+6) = 100 * 6/18 = 33.333...
@@ -177,10 +177,10 @@ public class CmoTests
     {
         var cmo = new Cmo(3);
 
-        cmo.Update(new TValue(DateTime.Now.Ticks, 100));      // no change (first value)
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 110));  // up 10
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 105));  // down 5
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 108));  // up 3, window now has: up 10, down 5, up 3
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100));      // no change (first value)
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 110));  // up 10
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 105));  // down 5
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 108));  // up 3, window now has: up 10, down 5, up 3
 
         // Window contains changes from last 3 bars: up 10, down 5, up 3
         // sumUp = 10 + 3 = 13, sumDown = 5
@@ -199,17 +199,17 @@ public class CmoTests
         var cmo = new Cmo(5);
 
         // Initial values: alternating to mix up/down
-        cmo.Update(new TValue(DateTime.Now.Ticks, 100));
-        cmo.Update(new TValue(DateTime.Now.Ticks + 1, 105));  // up 5
-        cmo.Update(new TValue(DateTime.Now.Ticks + 2, 102));  // down 3
-        cmo.Update(new TValue(DateTime.Now.Ticks + 3, 106));  // up 4
-        cmo.Update(new TValue(DateTime.Now.Ticks + 4, 104));  // down 2
-        cmo.Update(new TValue(DateTime.Now.Ticks + 5, 108));  // up 4, isNew
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks, 100));
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 1, 105));  // up 5
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 2, 102));  // down 3
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 3, 106));  // up 4
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 4, 104));  // down 2
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 108));  // up 4, isNew
 
         var beforeUpdate = cmo.Last;
 
         // Update current bar with different value (isNew = false)
-        cmo.Update(new TValue(DateTime.Now.Ticks + 5, 100), isNew: false); // now down 4 instead of up 4
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 100), isNew: false); // now down 4 instead of up 4
         var afterUpdate = cmo.Last;
 
         // Value should change since we updated the last bar
@@ -224,13 +224,13 @@ public class CmoTests
         // Initial values
         for (int i = 0; i < 5; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100.0));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100.0));
         }
 
         // Multiple updates with isNew = false
-        cmo.Update(new TValue(DateTime.Now.Ticks + 5, 110), isNew: false);
-        cmo.Update(new TValue(DateTime.Now.Ticks + 5, 115), isNew: false);
-        cmo.Update(new TValue(DateTime.Now.Ticks + 5, 120), isNew: false);
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 110), isNew: false);
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 115), isNew: false);
+        cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, 120), isNew: false);
 
         // Final state should reflect the last update only
         // Since all previous values were 100, the only "up" is the current bar update
@@ -248,7 +248,7 @@ public class CmoTests
 
         for (int i = 0; i < 10; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         cmo.Reset();
@@ -264,13 +264,13 @@ public class CmoTests
 
         for (int i = 0; i < 10; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         cmo.Reset();
 
         // Should work after reset
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks, 50));
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks, 50));
         Assert.Equal(0, result.Value); // First value, no change yet
     }
 
@@ -284,7 +284,7 @@ public class CmoTests
         var prices = new TSeries();
         for (int i = 0; i < 20; i++)
         {
-            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + (Math.Sin(i) * 10)));
+            prices.Add(new TValue(DateTime.UtcNow.Ticks + i, 100 + (Math.Sin(i) * 10)));
         }
 
         var results = Cmo.Batch(prices, 5);
@@ -298,7 +298,7 @@ public class CmoTests
         var prices = new TSeries();
         for (int i = 0; i < 50; i++)
         {
-            prices.Add(new TValue(DateTime.Now.Ticks + i, 100 + (Math.Sin(i * 0.5) * 20)));
+            prices.Add(new TValue(DateTime.UtcNow.Ticks + i, 100 + (Math.Sin(i * 0.5) * 20)));
         }
 
         var batchResults = Cmo.Batch(prices, 14);
@@ -328,11 +328,11 @@ public class CmoTests
 
         for (int i = 0; i < 5; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100));
         }
 
         // NaN input should not throw
-        var result = cmo.Update(new TValue(DateTime.Now.Ticks + 5, double.NaN));
+        var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + 5, double.NaN));
 
         // The result is a valid TValue (struct is never null)
         Assert.True(result.Time > 0);
@@ -346,7 +346,7 @@ public class CmoTests
         double largeBase = 1e15;
         for (int i = 0; i < 6; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, largeBase + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, largeBase + i));
         }
 
         // All up moves, should be 100
@@ -362,7 +362,7 @@ public class CmoTests
         double smallChange = 1e-10;
         for (int i = 0; i < 6; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, baseVal + (i * smallChange)));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, baseVal + (i * smallChange)));
         }
 
         // All tiny up moves, should still be 100
@@ -386,7 +386,7 @@ public class CmoTests
 
         for (int i = 0; i < 6; i++)
         {
-            cmo.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         Assert.NotNull(received);
@@ -401,7 +401,7 @@ public class CmoTests
 
         for (int i = 0; i < 10; i++)
         {
-            source.Update(new TValue(DateTime.Now.Ticks + i, 100 + i));
+            source.Update(new TValue(DateTime.UtcNow.Ticks + i, 100 + i));
         }
 
         Assert.True(cmo.IsHot);
@@ -438,7 +438,7 @@ public class CmoTests
         var cmo = new Cmo(5);
         for (int i = 0; i < source.Length; i++)
         {
-            var result = cmo.Update(new TValue(DateTime.Now.Ticks + i, source[i]));
+            var result = cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, source[i]));
             Assert.Equal(output[i], result.Value, 1e-9);
         }
     }

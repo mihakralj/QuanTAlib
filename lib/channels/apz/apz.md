@@ -111,7 +111,7 @@ APZ runs four EMA updates (double-smoothed price + double-smoothed range) plus w
 | FMA (EMA2 range → smoothRange) | 1 | 4 | 4 |
 | MUL (multiplier × smoothRange) | 1 | 3 | 3 |
 | ADD/SUB (center ± width) | 2 | 1 | 2 |
-| **Total (hot)** | **8** | — | **~22 cycles** |
+| **Total (hot)** | **8** | - | **~22 cycles** |
 
 During warmup (compensator active):
 
@@ -122,7 +122,7 @@ During warmup (compensator active):
 | DIV (center / compensator) | 1 | 15 | 15 |
 | DIV (smoothRange / compensator) | 1 | 15 | 15 |
 | CMP (e > threshold) | 1 | 1 | 1 |
-| **Warmup overhead** | **5** | — | **~35 cycles** |
+| **Warmup overhead** | **5** | - | **~35 cycles** |
 
 **Total during warmup:** ~57 cycles/bar; **Post-warmup:** ~22 cycles/bar.
 

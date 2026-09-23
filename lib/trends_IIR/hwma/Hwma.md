@@ -1,6 +1,6 @@
 # HWMA: Holt-Winters Moving Average
 
-> *Triple exponential smoothing: because sometimes tracking level, velocity, and acceleration is exactly what a price series needs—and sometimes it's overkill. Holt and Winters figured this out for inventory forecasting in the 1950s. Traders rediscovered it decades later.*
+> *Triple exponential smoothing: because sometimes tracking level, velocity, and acceleration is exactly what a price series needs-and sometimes it's overkill. Holt and Winters figured this out for inventory forecasting in the 1950s. Traders rediscovered it decades later.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -50,7 +50,7 @@ The physics of HWMA reveal several key properties:
 
 ### The Compute Challenge
 
-HWMA is computationally lightweight. Each update requires only a handful of multiplications and additions—no buffer management, no weight precomputation. The recursive nature means constant time regardless of the conceptual "period."
+HWMA is computationally lightweight. Each update requires only a handful of multiplications and additions-no buffer management, no weight precomputation. The recursive nature means constant time regardless of the conceptual "period."
 
 $$ \text{Runtime Cost} = O(1) \text{ per bar} $$
 
@@ -82,7 +82,7 @@ The acceleration blends the observed change in velocity with the previous accele
 
 $$ \text{HWMA}_t = F_t + V_t + 0.5 \cdot A_t $$
 
-The output extrapolates the level by adding velocity and half the acceleration—a one-step forecast.
+The output extrapolates the level by adding velocity and half the acceleration-a one-step forecast.
 
 ### Example Calculation
 
@@ -100,14 +100,14 @@ Given $F_{t-1}=100$, $V_{t-1}=2$, $A_{t-1}=0.5$, and new price $P_t=105$:
 
 ### Operation Count (Streaming Mode, Scalar)
 
-HWMA is extremely lightweight—O(1) with minimal operations:
+HWMA is extremely lightweight-O(1) with minimal operations:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
 | FMA | 3 | 4 | 12 |
 | MUL | 3 | 3 | 9 |
 | ADD/SUB | 4 | 1 | 4 |
-| **Total** | **10** | — | **~25 cycles** |
+| **Total** | **10** | - | **~25 cycles** |
 
 **Hot path breakdown:**
 - Level update: `FMA(prevF + prevV + 0.5×prevA, decayAlpha, alpha×val)` → 1 FMA + 2 MUL + 2 ADD
@@ -117,7 +117,7 @@ HWMA is extremely lightweight—O(1) with minimal operations:
 
 ### Batch Mode (SIMD)
 
-HWMA is recursive (IIR)—SIMD parallelization across bars is not possible. Each output depends on the previous state.
+HWMA is recursive (IIR)-SIMD parallelization across bars is not possible. Each output depends on the previous state.
 
 | Mode | Cycles/bar | Notes |
 | :--- | :---: | :--- |

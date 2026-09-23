@@ -1,0 +1,3 @@
+//@version=5
+indicator("CSV Feed Reference", "CSVFEED")
+plot(close, "Close", color=color.blue)

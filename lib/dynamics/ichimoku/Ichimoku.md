@@ -1,6 +1,6 @@
 # ICHIMOKU: Ichimoku Kinko Hyo
 
-> *Five lines, one cloud, and a time-shifted perspective — Ichimoku maps support, resistance, and momentum in a single glance.*
+> *Five lines, one cloud, and a time-shifted perspective - Ichimoku maps support, resistance, and momentum in a single glance.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - **Similar:** [Alligator](../alligator/Alligator.md), [AMAT](../amat/Amat.md) | **Complementary:** Volume for cloud breakout confirmation | **Trading note:** Five-line system: Tenkan, Kijun, Senkou A/B, Chikou. Cloud defines support/resistance zones.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-Ichimoku Kinko Hyo ("One Glance Equilibrium Chart") is a comprehensive trend-following system that provides five distinct components revealing trend direction, momentum, support/resistance levels, and potential future price zones simultaneously. The Tenkan-sen and Kijun-sen are midpoints of high-low ranges at different timescales (not moving averages of closes). Senkou Span A and B form the "cloud" (Kumo) — a projected equilibrium zone displaced forward in time. Chikou Span is simply the current close displaced backward. All components use sliding window min/max arithmetic, producing step-function behavior on breakouts rather than the smooth curves of EMA-based systems. The system requires OHLC bar input.
+Ichimoku Kinko Hyo ("One Glance Equilibrium Chart") is a comprehensive trend-following system that provides five distinct components revealing trend direction, momentum, support/resistance levels, and potential future price zones simultaneously. The Tenkan-sen and Kijun-sen are midpoints of high-low ranges at different timescales (not moving averages of closes). Senkou Span A and B form the "cloud" (Kumo) - a projected equilibrium zone displaced forward in time. Chikou Span is simply the current close displaced backward. All components use sliding window min/max arithmetic, producing step-function behavior on breakouts rather than the smooth curves of EMA-based systems. The system requires OHLC bar input.
 
 ## Historical Context
 
@@ -26,7 +26,7 @@ Japanese journalist Goichi Hosoda (pen name "Ichimoku Sanjin") began developing 
 
 ### 1. Tenkan-sen (Conversion Line)
 
-Short-term equilibrium — midpoint of the highest high and lowest low over the Tenkan period:
+Short-term equilibrium - midpoint of the highest high and lowest low over the Tenkan period:
 
 $$\text{Tenkan}_t = \frac{\max(H_{t-8:t}) + \min(L_{t-8:t})}{2}$$
 
@@ -34,7 +34,7 @@ This is a range midpoint, not a moving average. It responds to breakouts (new hi
 
 ### 2. Kijun-sen (Base Line)
 
-Medium-term equilibrium — same formula over a longer period:
+Medium-term equilibrium - same formula over a longer period:
 
 $$\text{Kijun}_t = \frac{\max(H_{t-25:t}) + \min(L_{t-25:t})}{2}$$
 
@@ -67,7 +67,7 @@ Confirms trend by comparing current price to the price from 26 bars ago.
 ### 6. Complexity
 
 - **Time:** $O(N_{\text{senkou}})$ per bar for min/max scanning over the longest window (52)
-- **Space:** $O(N_{\text{senkou}})$ — ring buffers for high and low histories
+- **Space:** $O(N_{\text{senkou}})$ - ring buffers for high and low histories
 - **Warmup:** $\max(N_{\text{tenkan}}, N_{\text{kijun}}, N_{\text{senkou}}) = 52$ bars
 
 ## Mathematical Foundation
@@ -85,18 +85,18 @@ Confirms trend by comparing current price to the price from 26 bars ago.
 
 | Condition | Meaning |
 |-----------|---------|
-| SenkouA > SenkouB | Bullish cloud (green) — uptrend structure |
-| SenkouA < SenkouB | Bearish cloud (red) — downtrend structure |
+| SenkouA > SenkouB | Bullish cloud (green) - uptrend structure |
+| SenkouA < SenkouB | Bearish cloud (red) - downtrend structure |
 | Cloud twist (A crosses B) | Potential trend reversal (leading signal) |
 | Thick cloud | Strong support/resistance zone |
-| Thin cloud | Weak equilibrium — vulnerable to breakout |
+| Thin cloud | Weak equilibrium - vulnerable to breakout |
 | Price above cloud | Bullish bias |
 | Price below cloud | Bearish bias |
-| Price inside cloud | Indeterminate — consolidation |
+| Price inside cloud | Indeterminate - consolidation |
 
 ### Displacement Note
 
-Senkou Span A and B are computed at the current bar but displayed shifted forward by `displacement` bars on charts. Chikou Span is the current close displayed shifted backward. The implementation computes current-bar values only — the charting layer handles the visual displacement.
+Senkou Span A and B are computed at the current bar but displayed shifted forward by `displacement` bars on charts. Chikou Span is the current close displayed shifted backward. The implementation computes current-bar values only - the charting layer handles the visual displacement.
 
 ### Multi-Output Structure
 
@@ -118,7 +118,7 @@ Ichimoku draws five lines from three sliding window min/max operations and two E
 | ADD + MUL×0.5 (Senkou A = (T+K)/2) | 2 | 3 | 6 |
 | ADD + MUL×0.5 (Chikou = close[26]) | 2 | 1 | 2 |
 | Buffer shift reads × 2 (Senkou A/B lag 26) | 2 | 1 | 2 |
-| **Total** | **24** | — | **~40 cycles** |
+| **Total** | **24** | - | **~40 cycles** |
 
 Five output lines, three window scans, two lag buffers. For default periods (9/26/52): ~40 cycles per bar at steady state.
 
@@ -143,7 +143,7 @@ Three independent window extremum computations can be parallelized. The midpoint
 
 ## Resources
 
-- Hosoda, G. — *Ichimoku Kinko Hyo* (7-volume series, Tokyo, 1969)
-- Patel, M. — *Trading with Ichimoku Clouds* (John Wiley & Sons, 2010)
-- Elliott, N. — *Ichimoku Charts: An Introduction* (Harriman House, 2007)
+- Hosoda, G. - *Ichimoku Kinko Hyo* (7-volume series, Tokyo, 1969)
+- Patel, M. - *Trading with Ichimoku Clouds* (John Wiley & Sons, 2010)
+- Elliott, N. - *Ichimoku Charts: An Introduction* (Harriman House, 2007)
 - PineScript reference: `ichimoku.pine` in indicator directory

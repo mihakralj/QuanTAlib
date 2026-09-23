@@ -75,7 +75,7 @@ As an FIR filter, SINEMA has linear phase response (no phase distortion) but $O(
 | ADD | N | 1 | N |
 | MUL | N | 3 | 3N |
 | DIV | 1 | 15 | 15 |
-| **Total** | **2N+1** | — | **~4N+15 cycles** |
+| **Total** | **2N+1** | - | **~4N+15 cycles** |
 
 Pre-calculated weights eliminate `sin()` calls in steady state.
 

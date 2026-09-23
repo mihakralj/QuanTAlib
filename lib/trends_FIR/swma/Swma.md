@@ -112,9 +112,9 @@ SWMA(N) is an O(N) FIR convolution using symmetric triangular weights (ascending
 | :--- | :---: | :---: | :---: |
 | Ring buffer push | 1 | 3 | ~3 |
 | FIR dot product: N FMA | N | 4 | ~4N |
-| **Total** | **N + 1** | — | **~(4N + 3) cycles** |
+| **Total** | **N + 1** | - | **~(4N + 3) cycles** |
 
-O(N) per bar. For default N = 14: ~59 cycles. Triangular weights are strictly positive — numerically clean. WarmupPeriod = N.
+O(N) per bar. For default N = 14: ~59 cycles. Triangular weights are strictly positive - numerically clean. WarmupPeriod = N.
 
 ### Batch Mode (SIMD Analysis)
 

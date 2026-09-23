@@ -13,7 +13,7 @@
 | **PineScript**   | [huber.pine](huber.pine)                       |
 
 - Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE).
-- **Similar:** [PseudoHuber](../pseudohuber/PseudoHuber.md), [MAE](../mae/Mae.md) | **Trading note:** Huber loss; robust to outliers — quadratic for small errors, linear for large. Used in ML-based trading models.
+- **Similar:** [PseudoHuber](../pseudohuber/PseudoHuber.md), [MAE](../mae/Mae.md) | **Trading note:** Huber loss; robust to outliers - quadratic for small errors, linear for large. Used in ML-based trading models.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 Huber Loss is a hybrid loss function that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE). For small errors, it behaves quadratically like MSE; for large errors, it behaves linearly like MAE.
@@ -111,7 +111,7 @@ Huber loss: L = 0.5*e^2 if |e|<=delta, else delta*(|e| - 0.5*delta). Conditional
 | Quadratic path: 0.5*e^2 | 1 | ~4 cy | ~4 cy |
 | Linear path: delta*(|e| - 0.5*delta) | 2 | ~4 cy | ~8 cy |
 | Running accumulator update | 1 | ~4 cy | ~4 cy |
-| **Total** | **~5** | — | **~15 cycles** |
+| **Total** | **~5** | - | **~15 cycles** |
 
 O(1) per bar. Branch prediction favors the quadratic path for small errors. ~15 cycles/bar.
 

@@ -102,7 +102,7 @@ Pivotwood.BatchAll(high, low, close, ppOut, r1Out, s1Out, r2Out, s2Out, r3Out, s
 
 ### Operation Count (Streaming Mode)
 
-Pivot Woodie uses a distinctive formula weighting Close *2 in the pivot — O(1) arithmetic on previous bar.
+Pivot Woodie uses a distinctive formula weighting Close *2 in the pivot - O(1) arithmetic on previous bar.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -114,7 +114,7 @@ Pivot Woodie uses a distinctive formula weighting Close *2 in the pivot — O(1)
 | S2 = PP - (H - L) | 1 | 2 cy | ~2 cy |
 | R3/S3 additional levels | 2 | 2 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~19 cy** |
+| **Total** | **O(1)** | - | **~19 cy** |
 
 O(1) per bar. Woodie pivot uses `(H + L + 2×Close) / 4` instead of `(H + L + C) / 3`, giving close price double weight. FMA-friendly.
 
@@ -127,7 +127,7 @@ O(1) per bar. Woodie pivot uses `(H + L + 2×Close) / 4` instead of `(H + L + C)
 | R2/S2 range-based | Yes | Vector<double> subtract and add |
 | All output spans | Yes | Full SIMD pass across all bars |
 
-Full vectorization possible. All output levels computed from previous-bar constants — no streaming dependency between bars in batch mode.
+Full vectorization possible. All output levels computed from previous-bar constants - no streaming dependency between bars in batch mode.
 
 ## Implementation Details
 

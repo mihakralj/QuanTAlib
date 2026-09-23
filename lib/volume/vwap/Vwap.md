@@ -1,6 +1,6 @@
 # VWAP: Volume Weighted Average Price
 
-> *VWAP doesn't predict where price will go—it reveals where institutional money has already committed.*
+> *VWAP doesn't predict where price will go-it reveals where institutional money has already committed.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -22,7 +22,7 @@ VWAP (Volume Weighted Average Price) calculates the cumulative average price wei
 
 VWAP emerged in the 1980s as institutional traders sought benchmarks for execution quality. Before electronic trading, large orders moved markets significantly, and traders needed a way to measure whether their executions were favorable relative to the day's overall trading activity.
 
-The concept gained prominence with the rise of algorithmic trading in the 1990s. Portfolio managers began using VWAP as a benchmark for their brokers—if you bought shares at a price below VWAP, you outperformed the average buyer that day. This created an entire industry of "VWAP execution algorithms" designed to spread large orders across time to minimize market impact.
+The concept gained prominence with the rise of algorithmic trading in the 1990s. Portfolio managers began using VWAP as a benchmark for their brokers-if you bought shares at a price below VWAP, you outperformed the average buyer that day. This created an entire industry of "VWAP execution algorithms" designed to spread large orders across time to minimize market impact.
 
 Traditional implementations anchor VWAP to market session boundaries (daily, weekly, monthly). This QuanTAlib implementation extends the concept with configurable period-based resets, enabling intraday applications and backtesting scenarios where session boundaries aren't meaningful.
 
@@ -121,7 +121,7 @@ When $V_t = 0$:
 | MUL | 1 | 3 | 3 |
 | DIV | 2 | 15 | 30 |
 | CMP | 3 | 1 | 3 |
-| **Total** | **11** | — | **~41 cycles** |
+| **Total** | **11** | - | **~41 cycles** |
 
 Division dominates the cost profile (73% of cycles).
 
@@ -169,7 +169,7 @@ VWAP implementations vary primarily in reset behavior. This implementation uses 
 
 2. **Cumulative Error Accumulation**: While mathematically exact, floating-point arithmetic accumulates error over thousands of bars. Difference of ~1e-10 per 5000 bars is typical and acceptable.
 
-3. **Zero Volume Bars**: Bars with zero volume don't affect VWAP. This is correct behavior—no trades means no price discovery contribution.
+3. **Zero Volume Bars**: Bars with zero volume don't affect VWAP. This is correct behavior-no trades means no price discovery contribution.
 
 4. **Intraday Interpretation**: VWAP is most meaningful when reset at consistent intervals. Comparing VWAP values across different reset periods is not meaningful.
 

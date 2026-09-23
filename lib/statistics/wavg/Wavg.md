@@ -104,9 +104,9 @@ Weighted Average (WAVG) applies linearly increasing weights [1, 2, 3, ..., N] to
 | Weighted sum via FMA | N | 1 cy | ~N cy |
 | Divide by weight sum | 1 | 4 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total (N=14)** | **O(N)** | — | **~23 cy** |
+| **Total (N=14)** | **O(N)** | - | **~23 cy** |
 
-O(N) per update; weight sum denominator N(N+1)/2 precomputed in constructor. Hot path is a FMA loop over the window — amenable to vectorization.
+O(N) per update; weight sum denominator N(N+1)/2 precomputed in constructor. Hot path is a FMA loop over the window - amenable to vectorization.
 
 ### Batch Mode (SIMD Analysis)
 

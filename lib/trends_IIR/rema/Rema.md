@@ -1,6 +1,6 @@
 # REMA: Regularized Exponential Moving Average
 
-> *Someone looked at the EMA and thought: 'What if we punished it for changing its mind?' The result is REMA—an EMA with a conscience that remembers where it was going and resists the temptation to chase every price wiggle.*
+> *Someone looked at the EMA and thought: 'What if the implementation punished it for changing its mind?' The result is REMA-an EMA with a conscience that remembers where it was going and resists the temptation to chase every price wiggle.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -21,7 +21,7 @@ REMA (Regularized Exponential Moving Average) combines exponential smoothing wit
 
 ## Historical Context
 
-The concept of regularization comes from machine learning and signal processing, where it's used to prevent overfitting by penalizing model complexity. REMA applies this principle to moving averages: the "complexity" being penalized is deviation from the established trend. When price noise tries to yank the average in a new direction, the regularization term pushes back, saying "prove it." The lambda parameter controls how much proof is required—at lambda=1, REMA believes everything (standard EMA); at lambda=0, it's pure momentum that ignores new information entirely.
+The concept of regularization comes from machine learning and signal processing, where it's used to prevent overfitting by penalizing model complexity. REMA applies this principle to moving averages: the "complexity" being penalized is deviation from the established trend. When price noise tries to yank the average in a new direction, the regularization term pushes back, saying "prove it." The lambda parameter controls how much proof is required-at lambda=1, REMA believes everything (standard EMA); at lambda=0, it's pure momentum that ignores new information entirely.
 
 ## Architecture & Physics
 
@@ -40,7 +40,7 @@ The regularization component calculates where the average *would be* if the curr
 
 ### The Compensator (Warmup Correction)
 
-Like QuanTAlib's EMA implementation, REMA includes a mathematical compensator that corrects for initialization bias. The first N bars aren't approximations—they're mathematically valid from bar one. This means REMA(lambda=1) will match QuanTAlib's EMA implementation exactly, including the bias-corrected warmup period.
+Like QuanTAlib's EMA implementation, REMA includes a mathematical compensator that corrects for initialization bias. The first N bars aren't approximations-they're mathematically valid from bar one. This means REMA(lambda=1) will match QuanTAlib's EMA implementation exactly, including the bias-corrected warmup period.
 
 ## Mathematical Foundation
 
@@ -90,7 +90,7 @@ REMA combines EMA with a regularization term that extrapolates trend:
 | ADD (REG: prev + momentum) | 1 | 1 | 1 |
 | SUB (EMA - REG) | 1 | 1 | 1 |
 | FMA (λ × diff + REG) | 1 | 4 | 4 |
-| **Total (hot)** | **6** | — | **~12 cycles** |
+| **Total (hot)** | **6** | - | **~12 cycles** |
 
 During warmup (bias compensation active):
 
@@ -100,7 +100,7 @@ During warmup (bias compensation active):
 | SUB (1 - E) | 1 | 1 | 1 |
 | DIV (correction) | 1 | 15 | 15 |
 | CMP (warmup check) | 1 | 1 | 1 |
-| **Warmup overhead** | **4** | — | **~20 cycles** |
+| **Warmup overhead** | **4** | - | **~20 cycles** |
 
 **Total during warmup:** ~32 cycles/bar; **Post-warmup:** ~12 cycles/bar.
 
@@ -129,7 +129,7 @@ REMA is inherently recursive due to state dependency on previous two values. SIM
 | :--- | :---: | :--- |
 | **Accuracy** | 8 | Tracks price well when lambda > 0.5 |
 | **Timeliness** | 7 | Regularization adds slight lag vs pure EMA |
-| **Smoothness** | 9 | Primary benefit—significantly smoother than EMA |
+| **Smoothness** | 9 | Primary benefit-significantly smoother than EMA |
 | **Overshoot** | 3 | Low overshoot due to momentum awareness |
 
 ## Usage Examples

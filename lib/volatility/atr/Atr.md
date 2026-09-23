@@ -110,7 +110,7 @@ ATR requires $N$ bars for RMA initialization. The first $N$ values are progressi
 | MUL (ATR × (N-1)) | 1 | 3 | 3 |
 | ADD (+ TR) | 1 | 1 | 1 |
 | DIV (/ N) | 1 | 15 | 15 |
-| **Total** | **10** | — | **~26 cycles** |
+| **Total** | **10** | - | **~26 cycles** |
 
 The division dominates (~58% of cycles). The three-way max is typically implemented as two comparisons.
 
@@ -163,7 +163,7 @@ Validated against external libraries in `Atr.Validation.Tests.cs`. Tests run aga
 | **TA-Lib** | ✅ | ✅ | ✅ | Matches `TA_ATR` exactly |
 | **Skender** | ✅ | ✅ | ✅ | Matches `GetAtr` |
 | **Tulip** | ✅ | ✅ | ✅ | Matches `atr` |
-| **Ooples** | ✅ | — | — | Matches `CalculateAverageTrueRange` |
+| **Ooples** | ✅ | - | - | Matches `CalculateAverageTrueRange` |
 
 ## Common Pitfalls
 

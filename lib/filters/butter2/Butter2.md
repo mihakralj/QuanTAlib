@@ -58,7 +58,7 @@ Butterworth 2nd-order LPF: maximally flat magnitude response. Implemented as a d
 | Feedforward FMA x3 | 3 | ~4 cy | ~12 cy |
 | Feedback FMA x2 | 2 | ~4 cy | ~8 cy |
 | State update | 2 | ~1 cy | ~2 cy |
-| **Total** | **9** | — | **~24 cycles** |
+| **Total** | **9** | - | **~24 cycles** |
 
 O(1) per bar. Coefficients computed from Butterworth poles at construction. ~24 cycles/bar.
 

@@ -22,7 +22,7 @@
 
 ## Historical Context
 
-George C. Lane's Stochastic Oscillator (late 1950s) was originally this: the raw, unsmoothed position-in-range calculation with a simple SMA signal line. The "Fast" label was applied retroactively when traders began smoothing %K with an additional SMA to create the "Slow" variant. What Lane invented is what we now call Fast Stochastic.
+George C. Lane's Stochastic Oscillator (late 1950s) was originally this: the raw, unsmoothed position-in-range calculation with a simple SMA signal line. The "Fast" label was applied retroactively when traders began smoothing %K with an additional SMA to create the "Slow" variant. What Lane invented is what the implementation now call Fast Stochastic.
 
 TA-Lib codified the distinction by providing separate functions: `STOCH` (slow, with configurable smoothing on %K) and `STOCHF` (fast, raw %K). QuanTAlib follows this convention. The `Stoch` class defaults to `kLength=14`; the `Stochf` class defaults to `kLength=5` for faster response. Both produce raw %K internally; the difference is the default parameterization and the explicit naming that signals intent.
 

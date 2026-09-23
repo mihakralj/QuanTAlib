@@ -24,7 +24,7 @@ The Recursive Least Squares (RLS) adaptive filter is the Rolls-Royce of adaptive
 
 ## Historical Context
 
-RLS traces its lineage to Gauss's method of least squares (1795) and Kalman's recursive state estimation (1960). The exponentially-weighted RLS form — with forgetting factor $\lambda$ — was formalized in the signal processing literature of the 1970s and 1980s, primarily by Haykin, Widrow, and Ljung. Unlike LMS, which adapts proportionally to the instantaneous gradient, RLS minimizes the weighted sum of all past squared errors, making it optimal in a least-squares sense at every time step.
+RLS traces its lineage to Gauss's method of least squares (1795) and Kalman's recursive state estimation (1960). The exponentially-weighted RLS form - with forgetting factor $\lambda$ - was formalized in the signal processing literature of the 1970s and 1980s, primarily by Haykin, Widrow, and Ljung. Unlike LMS, which adapts proportionally to the instantaneous gradient, RLS minimizes the weighted sum of all past squared errors, making it optimal in a least-squares sense at every time step.
 
 In financial applications, RLS excels at tracking non-stationary price dynamics. The forgetting factor $\lambda$ controls the effective memory horizon: $\lambda = 0.99$ gives a memory of roughly $1/(1-\lambda) = 100$ bars, while $\lambda = 0.95$ compresses memory to 20 bars. This makes RLS particularly suited for regime changes and structural breaks where LMS's fixed step size is too slow to react.
 
@@ -38,7 +38,7 @@ The filter maintains $n$ weights $w_0, w_1, \ldots, w_{n-1}$ that adapt to predi
 
 $$\hat{y}(t) = \sum_{i=0}^{n-1} w_i \cdot x(t-i-1)$$
 
-The prediction uses values $x(t-1)$ through $x(t-n)$ — no look-ahead.
+The prediction uses values $x(t-1)$ through $x(t-n)$ - no look-ahead.
 
 ### 2. Inverse Correlation Matrix
 

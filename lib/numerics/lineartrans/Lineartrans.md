@@ -1,6 +1,6 @@
 # LINEARTRANS: Linear Scaling Transformer
 
-> *The simplest transformations are often the most powerful—linear scaling is the mathematical equivalent of adjusting the volume and tuning the dial.*
+> *The simplest transformations are often the most powerful-linear scaling is the mathematical equivalent of adjusting the volume and tuning the dial.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - **Trading note:** Linear transformation; scales and shifts values. Used for indicator normalization and rescaling.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series. This fundamental operation enables scaling, offsetting, unit conversion, and normalization—the building blocks for preparing data for analysis or combining signals from different sources.
+The Linear transformer applies an affine transformation $y = \text{slope} \cdot x + \text{intercept}$ to each value in a time series. This fundamental operation enables scaling, offsetting, unit conversion, and normalization-the building blocks for preparing data for analysis or combining signals from different sources.
 
 ## Mathematical Foundation
 

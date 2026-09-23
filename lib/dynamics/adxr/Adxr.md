@@ -20,7 +20,7 @@ The Average Directional Movement Rating is a smoothed version of ADX that dampen
 
 ## Historical Context
 
-J. Welles Wilder Jr. introduced ADXR alongside ADX in *New Concepts in Technical Trading Systems* (1978). His reasoning was pragmatic: ADX itself can be erratic during transitions between trending and ranging regimes, producing whipsaw readings that confuse systematic allocation. By averaging the current ADX with its value from $N-1$ bars ago, Wilder created a "momentum of momentum" indicator smoothed to geological stability. The ADXR found its architectural niche not as a trading signal but as a capital allocation filter — determining whether a trend-following system should be active at all. Its double lag (ADX already lags price; ADXR lags ADX) makes it useless for entry timing by design.
+J. Welles Wilder Jr. introduced ADXR alongside ADX in *New Concepts in Technical Trading Systems* (1978). His reasoning was pragmatic: ADX itself can be erratic during transitions between trending and ranging regimes, producing whipsaw readings that confuse systematic allocation. By averaging the current ADX with its value from $N-1$ bars ago, Wilder created a "momentum of momentum" indicator smoothed to geological stability. The ADXR found its architectural niche not as a trading signal but as a capital allocation filter - determining whether a trend-following system should be active at all. Its double lag (ADX already lags price; ADXR lags ADX) makes it useless for entry timing by design.
 
 ## Architecture & Physics
 
@@ -42,8 +42,8 @@ The $N-1$ lag (rather than $N$) matches TA-Lib's reference implementation exactl
 
 ### 4. Complexity
 
-- **Time:** $O(1)$ per bar — ADX update plus one buffer lookup and one average
-- **Space:** $O(N)$ — circular buffer for ADX history
+- **Time:** $O(1)$ per bar - ADX update plus one buffer lookup and one average
+- **Space:** $O(N)$ - circular buffer for ADX history
 - **Warmup:** $\approx 3N$ bars (ADX convergence + buffer fill)
 
 ## Mathematical Foundation
@@ -65,7 +65,7 @@ The period controls both the internal ADX calculation and the historical lookbac
 | ADX → ADXR | $N-1$ bars (historical average) |
 | **Total effective lag** | $\approx 3N - 1$ bars |
 
-For the default period of 14, ADXR carries roughly 41 bars of effective lag. This is a feature, not a limitation — it ensures that only sustained regime changes register in the output.
+For the default period of 14, ADXR carries roughly 41 bars of effective lag. This is a feature, not a limitation - it ensures that only sustained regime changes register in the output.
 
 ### Regime Classification
 
@@ -79,7 +79,7 @@ For the default period of 14, ADXR carries roughly 41 bars of effective lag. Thi
 
 ### Operation Count (Streaming Mode)
 
-ADXR is ADX averaged with its value N bars ago — it wraps ADX with a RingBuffer for the lag.
+ADXR is ADX averaged with its value N bars ago - it wraps ADX with a RingBuffer for the lag.
 
 **Post-warmup steady state (per bar):**
 
@@ -89,7 +89,7 @@ ADXR is ADX averaged with its value N bars ago — it wraps ADX with a RingBuffe
 | RingBuffer write + oldest read | 2 | 1 | 2 |
 | ADD + MUL×0.5 (average: (ADX + ADX[N]) / 2) | 2 | 3 | 6 |
 | CMP (IsHot guard) | 1 | 1 | 1 |
-| **Total** | **6+ADX** | — | **~88 cycles** |
+| **Total** | **6+ADX** | - | **~88 cycles** |
 
 ADXR requires 3N bars of warmup: N for ADX initialization, N for ADX smoothing, N for the lookback buffer. For default $N=14$: ~88 cycles per bar.
 
@@ -97,7 +97,7 @@ ADXR requires 3N bars of warmup: N for ADX initialization, N for ADX smoothing, 
 
 | Operation | Vectorizable? | Notes |
 | :--- | :---: | :--- |
-| ADX calculation | Partial | See ADX analysis — recursive RMA blocks |
+| ADX calculation | Partial | See ADX analysis - recursive RMA blocks |
 | Lag-N average | Yes | VADDPD + multiply by 0.5 once ADX array is known |
 
 The final averaging step is trivially vectorizable once the ADX time series is materialized. The bottleneck remains the ADX RMA recursion.
@@ -113,5 +113,5 @@ The final averaging step is trivially vectorizable once the ADX time series is m
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `adxr.pine` in indicator directory

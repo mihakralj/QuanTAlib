@@ -125,9 +125,9 @@ QRMA(N) fits a degree-2 polynomial via OLS. Power sums S0..S4 and three cross-pr
 | Cross-product updates (3 × dot) | ~3N | 2 | ~6N |
 | Cramer 3×3 solution (fixed ~30 ops) | ~30 | 3 | ~90 |
 | Polynomial evaluation at newest point | 3 | 3 | ~9 |
-| **Total** | **~(5N + 30)** | — | **~(8N + 102) cycles** |
+| **Total** | **~(5N + 30)** | - | **~(8N + 102) cycles** |
 
-O(N) per bar from power sum accumulation. For default N = 14: ~214 cycles. Compared to CRMA (cubic): 2 fewer power sums, simpler solve — approximately 40% faster.
+O(N) per bar from power sum accumulation. For default N = 14: ~214 cycles. Compared to CRMA (cubic): 2 fewer power sums, simpler solve - approximately 40% faster.
 
 ### Batch Mode (SIMD Analysis)
 

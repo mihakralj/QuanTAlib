@@ -73,7 +73,7 @@ Gaussian filter is a truncated FIR: N = 2*ceil(3*sigma)+1 weights. Per bar: O(N)
 | RingBuffer write | 1 | ~2 cy | ~2 cy |
 | Weighted sum FMA (N taps) | N | ~5 cy | ~35 cy (N=7, sigma=1) |
 | Sum normalization | 1 | ~3 cy | ~3 cy |
-| **Total (sigma=1, N=7)** | **N+2** | — | **~40 cycles** |
+| **Total (sigma=1, N=7)** | **N+2** | - | **~40 cycles** |
 
 O(N) per bar. Weights precomputed at construction. Linear scaling with sigma: sigma=2 => N=13 => ~75 cy.
 

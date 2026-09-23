@@ -1,6 +1,6 @@
 # MMCHANNEL: Min-Max Channel
 
-> *The raw min-max channel captures absolute extremes — no smoothing, no forgiveness, just the bounds of recent history.*
+> *The raw min-max channel captures absolute extremes - no smoothing, no forgiveness, just the bounds of recent history.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -115,9 +115,9 @@ MMCHANNEL uses two monotonic deques for $O(1)$ amortized sliding-window max/min 
 | CMP (remove dominated back, max deque) | ~1 avg | 1 | 1 |
 | CMP (expire stale front, min deque) | 1 | 1 | 1 |
 | CMP (remove dominated back, min deque) | ~1 avg | 1 | 1 |
-| **Total (amortized)** | **~4** | — | **~4 cycles** |
+| **Total (amortized)** | **~4** | - | **~4 cycles** |
 
-MMCHANNEL is the lightest channel indicator — no midpoint computation, no band arithmetic. Each element enters and exits each deque exactly once over the full series.
+MMCHANNEL is the lightest channel indicator - no midpoint computation, no band arithmetic. Each element enters and exits each deque exactly once over the full series.
 
 ### Batch Mode (SIMD Analysis)
 

@@ -1,6 +1,6 @@
 # WEIBULLDIST: Weibull Distribution CDF
 
-> *The Weibull distribution models failure rates that change over time — a flexible tool for reliability and survival analysis.*
+> *The Weibull distribution models failure rates that change over time - a flexible tool for reliability and survival analysis.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -98,7 +98,7 @@ WEIBULLDIST(source, period, shape, scale):
 
 ### Operation Count (Streaming Mode)
 
-Weibull CDF = 1 - exp(-(x/lambda)^k) — closed form with one pow() + one exp().
+Weibull CDF = 1 - exp(-(x/lambda)^k) - closed form with one pow() + one exp().
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -107,7 +107,7 @@ Weibull CDF = 1 - exp(-(x/lambda)^k) — closed form with one pow() + one exp().
 | exp(negated power) | 1 | 20 cy | ~20 cy |
 | 1 - exp result | 1 | 1 cy | ~1 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~59 cy** |
+| **Total** | **O(1)** | - | **~59 cy** |
 
 O(1) closed-form evaluation. pow() via exp(k*log(x)) is the dominant cost (~30 cy). When k is an integer, integer pow() reduces to repeated multiply (~5 cy).
 

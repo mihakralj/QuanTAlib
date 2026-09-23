@@ -1,6 +1,6 @@
 # MINUS_DM: Minus Directional Movement
 
-> *-DM captures the raw downward price extension, smoothed by Wilder's RMA — the building block before normalization to -DI.*
+> *-DM captures the raw downward price extension, smoothed by Wilder's RMA - the building block before normalization to -DI.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -16,7 +16,7 @@
 - **Similar:** [PlusDm](../plusdm/PlusDm.md), [DX](../dx/Dx.md) | **Complementary:** ATR for normalization | **Trading note:** Minus Directional Movement; raw downward price expansion before smoothing.
 - Validated against TA-Lib and Dx equivalence.
 
-Minus Directional Movement (-DM) measures the magnitude of downward price movement, smoothed using Wilder's method. Unlike -DI which normalizes by true range to produce a percentage, -DM outputs raw smoothed values in price units. -DM captures when the previous bar's low exceeds the current bar's low by more than the current bar's high exceeds the previous bar's high. It is the raw building block of the Directional Movement System — the unnormalized signal before division by True Range converts it to -DI.
+Minus Directional Movement (-DM) measures the magnitude of downward price movement, smoothed using Wilder's method. Unlike -DI which normalizes by true range to produce a percentage, -DM outputs raw smoothed values in price units. -DM captures when the previous bar's low exceeds the current bar's low by more than the current bar's high exceeds the previous bar's high. It is the raw building block of the Directional Movement System - the unnormalized signal before division by True Range converts it to -DI.
 
 ## Historical Context
 
@@ -30,7 +30,7 @@ $$\text{UpMove} = H_t - H_{t-1}, \quad \text{DownMove} = L_{t-1} - L_t$$
 
 $$-DM = \begin{cases} \text{DownMove} & \text{if DownMove} > \text{UpMove and DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}$$
 
-Only one of +DM or -DM can be non-zero per bar — the dominant direction wins.
+Only one of +DM or -DM can be non-zero per bar - the dominant direction wins.
 
 ### 2. Wilder Smoothing (RMA)
 
@@ -38,8 +38,8 @@ $$-DM_{\text{smooth}} = \text{RMA}(-DM, N), \quad \alpha = 1/N$$
 
 ### 3. Complexity
 
-- **Time:** $O(1)$ per bar — recursive RMA update
-- **Space:** $O(1)$ — scalar state only (delegates to Dx)
+- **Time:** $O(1)$ per bar - recursive RMA update
+- **Space:** $O(1)$ - scalar state only (delegates to Dx)
 - **Warmup:** $N$ bars
 
 ## Mathematical Foundation
@@ -73,7 +73,7 @@ $$-DM_{\text{smooth}} = \text{RMA}(-DM, N), \quad \alpha = 1/N$$
 | :--- | :---: | :---: | :---: |
 | Dx.Update (full pipeline) | 1 | 75 | 75 |
 | Property extraction | 1 | 1 | 1 |
-| **Total** | **2** | — | **~76 cycles** |
+| **Total** | **2** | - | **~76 cycles** |
 
 ### Quality Metrics
 
@@ -86,5 +86,5 @@ $$-DM_{\text{smooth}} = \text{RMA}(-DM, N), \quad \alpha = 1/N$$
 
 ## Resources
 
-- Wilder, J.W. — *New Concepts in Technical Trading Systems* (Trend Research, 1978)
+- Wilder, J.W. - *New Concepts in Technical Trading Systems* (Trend Research, 1978)
 - PineScript reference: `minusdm.pine` in indicator directory

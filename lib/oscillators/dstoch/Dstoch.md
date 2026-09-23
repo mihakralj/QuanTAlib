@@ -1,6 +1,6 @@
 # DSTOCH: Double Stochastic (Bressert DSS)
 
-> *Apply the Stochastic formula twice — once to price, once to the result — and the oscillator sharpens from a gentle hill into a decisive cliff.*
+> *Apply the Stochastic formula twice - once to price, once to the result - and the oscillator sharpens from a gentle hill into a decisive cliff.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -60,8 +60,8 @@ $$
 
 | Zone      | Meaning                                |
 | :-------- | :------------------------------------- |
-| DSS > 80  | Overbought — potential bearish reversal|
-| DSS < 20  | Oversold — potential bullish reversal  |
+| DSS > 80  | Overbought - potential bearish reversal|
+| DSS < 20  | Oversold - potential bullish reversal  |
 | Cross 50↑ | Bullish momentum shift                 |
 | Cross 50↓ | Bearish momentum shift                 |
 

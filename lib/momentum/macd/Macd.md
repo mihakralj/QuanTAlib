@@ -89,8 +89,8 @@ Total system lag accumulates from all three EMAs:
 | Fast EMA | 12 | 5.5 |
 | Slow EMA | 26 | 12.5 |
 | Signal EMA | 9 | 4.0 |
-| **MACD Line** | — | **~7** (weighted average) |
-| **Full System** | — | **~11** (to histogram) |
+| **MACD Line** | - | **~7** (weighted average) |
+| **Full System** | - | **~11** (to histogram) |
 
 The MACD line inherits lag from both source EMAs. Signal line adds additional smoothing delay. Histogram responds fastest to price changes since it measures the rate of MACD change.
 
@@ -161,7 +161,7 @@ Per-bar update requires three EMA updates plus arithmetic:
 | Histogram subtract | 1 | 1 | 1 |
 | State loads | 6 | 3 | 18 |
 | State stores | 6 | 3 | 18 |
-| **Total** | **26** | — | **~62 cycles** |
+| **Total** | **26** | - | **~62 cycles** |
 
 Dominated by state management (58%). No divisions, no transcendentals. Pure arithmetic operations.
 
@@ -221,7 +221,7 @@ Validated against four external libraries across all operating modes.
 | **TA-Lib** | ✅ | ✅ | ✅ | Exact match with `TA_MACD` |
 | **Skender** | ✅ | ✅ | ✅ | Exact match with `GetMacd` |
 | **Tulip** | ✅ | ✅ | ✅ | Exact match with `macd` |
-| **Ooples** | ✅ | — | — | Exact match (batch only) |
+| **Ooples** | ✅ | - | - | Exact match (batch only) |
 
 Tolerance: 1e-9 for all comparisons. Zero discrepancies found across 100K bar test series.
 

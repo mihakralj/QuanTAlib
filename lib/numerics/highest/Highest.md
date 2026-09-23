@@ -20,7 +20,7 @@ HIGHEST calculates the maximum value over a rolling lookback window. This O(1) a
 
 ## Historical Context
 
-Rolling maximum is a foundational concept in technical analysis, underpinning Donchian Channels, breakout detection, and trailing stop calculations. The naive approach scans all values in the window on each update—O(n) per bar. For a 200-period window processing 10,000 bars, that's 2 million comparisons.
+Rolling maximum is a foundational concept in technical analysis, underpinning Donchian Channels, breakout detection, and trailing stop calculations. The naive approach scans all values in the window on each update-O(n) per bar. For a 200-period window processing 10,000 bars, that's 2 million comparisons.
 
 The monotonic deque algorithm reduces this to O(1) amortized time by maintaining a decreasing sequence of candidates. Only values that could potentially be the maximum are kept; smaller values that can never become maximum (because they'll expire before the larger values) are discarded.
 
@@ -105,7 +105,7 @@ Each element is pushed and popped from the deque at most once across all operati
 | CMP (monotonicity) | ~2 avg | 1 | 2 |
 | Array access | 3 | 3 | 9 |
 | Index arithmetic | 2 | 1 | 2 |
-| **Total** | **~8** | — | **~14 cycles** |
+| **Total** | **~8** | - | **~14 cycles** |
 
 ### Batch Mode (SIMD)
 

@@ -184,7 +184,7 @@ Per-bar operations after warmup:
 | DIV (bias) | 1 | 15 | 15 |
 | SQRT | 1 | 15 | 15 |
 | MUL (annual) | 1 | 3 | 3 |
-| **Total** | — | — | **~149 cycles** |
+| **Total** | - | - | **~149 cycles** |
 
 The dominant cost is the four LOG operations (67% of total).
 
@@ -272,8 +272,8 @@ If IV < GKV significantly: Options may be underpriced (buy vol)
 Track GKV percentile rank over lookback period:
 
 ```
-High rank (>80%): High volatility regime — reduce position size, widen stops
-Low rank (<20%): Low volatility regime — potential for breakout
+High rank (>80%): High volatility regime - reduce position size, widen stops
+Low rank (<20%): Low volatility regime - potential for breakout
 ```
 
 ### Volatility Breakout Filter

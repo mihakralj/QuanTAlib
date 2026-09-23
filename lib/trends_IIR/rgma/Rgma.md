@@ -1,6 +1,6 @@
 # RGMA: Recursive Gaussian Moving Average
 
-> *The statisticians wanted Gaussian smoothing. The HFT folks wanted O(1) updates. RGMA splits the difference: chain enough cheap EMAs together and the impulse response starts looking suspiciously bell-shaped. It's not real Gaussian—but the market doesn't know that.*
+> *The statisticians wanted Gaussian smoothing. The HFT folks wanted O(1) updates. RGMA splits the difference: chain enough cheap EMAs together and the impulse response starts looking suspiciously bell-shaped. It's not real Gaussian-but the market doesn't know that.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -17,7 +17,7 @@
 - **Similar:** [DEMA](../dema/dema.md), [TEMA](../tema/tema.md) | **Complementary:** Trend confirmation | **Trading note:** Recursive Gaussian MA; Gaussian IIR approximation for smooth trend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages. Each pass through an EMA filter smooths the signal further, and the mathematical magic is that cascaded low-pass filters push the impulse response toward a Gaussian-like shape. You get the desirable properties of Gaussian smoothing—smooth frequency roll-off, minimal ringing, symmetric lag—without the computational cost of a true FIR convolution.
+RGMA (Recursive Gaussian Moving Average) approximates Gaussian smoothing by cascading multiple identical exponential moving averages. Each pass through an EMA filter smooths the signal further, and the mathematical magic is that cascaded low-pass filters push the impulse response toward a Gaussian-like shape. You get the desirable properties of Gaussian smoothing-smooth frequency roll-off, minimal ringing, symmetric lag-without the computational cost of a true FIR convolution.
 
 ## Historical Context
 
@@ -39,7 +39,7 @@ The key innovation is the alpha calculation. To achieve equivalent smoothing to 
 
 $$\alpha = \frac{2}{\frac{N}{\sqrt{\text{passes}}} + 1}$$
 
-The $\sqrt{\text{passes}}$ factor compensates for the fact that cascading filters increases effective smoothing. Without this adjustment, RGMA with 3 passes would be much smoother than a comparable EMA—possibly too smooth. The square root normalization keeps the effective period roughly equivalent while delivering the improved impulse response shape.
+The $\sqrt{\text{passes}}$ factor compensates for the fact that cascading filters increases effective smoothing. Without this adjustment, RGMA with 3 passes would be much smoother than a comparable EMA-possibly too smooth. The square root normalization keeps the effective period roughly equivalent while delivering the improved impulse response shape.
 
 ### Why It Works: The Math Behind the Magic
 
@@ -47,7 +47,7 @@ When you cascade identical low-pass filters, the frequency response multiplies:
 
 $$H_{\text{total}}(f) = H_{\text{single}}(f)^{\text{passes}}$$
 
-A single EMA has a 6 dB/octave roll-off—gentle, but with significant energy leaking through at high frequencies. Three cascaded EMAs give you 18 dB/octave—much steeper, much cleaner. The time-domain impulse response transitions from the sharp exponential decay of a single EMA toward the smooth bell curve of a Gaussian.
+A single EMA has a 6 dB/octave roll-off-gentle, but with significant energy leaking through at high frequencies. Three cascaded EMAs give you 18 dB/octave-much steeper, much cleaner. The time-domain impulse response transitions from the sharp exponential decay of a single EMA toward the smooth bell curve of a Gaussian.
 
 ## Mathematical Foundation
 
@@ -87,7 +87,7 @@ RGMA cascades P identical EMA stages. Each stage requires one FMA operation:
 | :--- | :---: | :---: | :---: |
 | SUB (input - prev_stage) per stage | P | 1 | P |
 | FMA (α × diff + prev) per stage | P | 4 | 4P |
-| **Total (hot)** | **2P** | — | **~5P cycles** |
+| **Total (hot)** | **2P** | - | **~5P cycles** |
 
 For typical passes values:
 
@@ -105,7 +105,7 @@ During warmup, each EMA stage has additional compensator overhead (~20 cycles ×
 
 ### Batch Mode (SIMD Analysis)
 
-RGMA is inherently recursive—each stage depends on its previous output, and each bar depends on the previous bar. SIMD parallelization across bars is not possible:
+RGMA is inherently recursive-each stage depends on its previous output, and each bar depends on the previous bar. SIMD parallelization across bars is not possible:
 
 | Optimization | Benefit |
 | :--- | :--- |
@@ -129,8 +129,8 @@ RGMA is inherently recursive—each stage depends on its previous output, and ea
 | :--- | :---: | :--- |
 | **Accuracy** | 8 | Tracks trends well, minimal distortion |
 | **Timeliness** | 6 | More lag than single EMA (expected) |
-| **Smoothness** | 9 | Primary benefit—Gaussian-like smooth |
-| **Overshoot** | 2 | Very low—Gaussian response minimizes ringing |
+| **Smoothness** | 9 | Primary benefit-Gaussian-like smooth |
+| **Overshoot** | 2 | Very low-Gaussian response minimizes ringing |
 
 ### Passes Trade-offs
 
@@ -138,7 +138,7 @@ RGMA is inherently recursive—each stage depends on its previous output, and ea
 | :---: | :---: | :---: | :--- |
 | 1 | Low | Low | Equivalent to EMA |
 | 2 | Medium | Medium | Smoother EMA alternative |
-| 3 | High | Medium-High | Default—good balance |
+| 3 | High | Medium-High | Default-good balance |
 | 4+ | Very High | High | When maximum smoothness is priority |
 
 ## Usage Examples
@@ -200,7 +200,7 @@ Run validation: `dotnet test --filter "FullyQualifiedName~RgmaValidation"`
 
 ## Common Pitfalls
 
-1. **Confusing with DEMA/TEMA**: RGMA is NOT Double or Triple EMA. DEMA and TEMA use algebraic combinations to reduce lag. RGMA cascades EMAs to improve impulse response shape—it trades lag for smoothness, not the other way around.
+1. **Confusing with DEMA/TEMA**: RGMA is NOT Double or Triple EMA. DEMA and TEMA use algebraic combinations to reduce lag. RGMA cascades EMAs to improve impulse response shape-it trades lag for smoothness, not the other way around.
 
 2. **Expecting EMA-Equivalent Period**: Due to the $\sqrt{\text{passes}}$ normalization in alpha, RGMA(20, 3) has similar *smoothing* to EMA(20), but not identical response. The cascade changes the shape of the filter, not just its magnitude.
 

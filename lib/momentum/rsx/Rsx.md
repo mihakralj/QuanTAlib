@@ -181,7 +181,7 @@ RSX converges faster than equivalent smoothing applied post-hoc to RSI. Effectiv
 | DIV (ratio) | 1 | 15 | 15 |
 | ADD/MUL (normalize) | 2 | 3 | 6 |
 | Clamp (branch) | 1 | 2 | 2 |
-| **Total** | **31** | — | **~100 cycles** |
+| **Total** | **31** | - | **~100 cycles** |
 
 FMA operations dominate, accounting for 48% of compute. Filter chain updates are the critical path.
 

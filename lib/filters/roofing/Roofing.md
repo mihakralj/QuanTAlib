@@ -82,7 +82,7 @@ $$G_{ss} = 1 - C_{2,ss} - C_{3,ss}$$
 
 ### Operation Count (Streaming Mode)
 
-Roofing filter: Ehlers 2-stage cascade — first a high-pass filter removes low-frequency drift, then a super-smooth filter removes high-frequency noise. Two O(1) IIR stages in series.
+Roofing filter: Ehlers 2-stage cascade - first a high-pass filter removes low-frequency drift, then a super-smooth filter removes high-frequency noise. Two O(1) IIR stages in series.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -90,7 +90,7 @@ Roofing filter: Ehlers 2-stage cascade — first a high-pass filter removes low-
 | HP state update | 1 | ~1 cy | ~1 cy |
 | SuperSmooth stage: 2-pole IIR (3 FMA) | 3 | ~4 cy | ~12 cy |
 | SS state update | 2 | ~1 cy | ~2 cy |
-| **Total** | **9** | — | **~27 cycles** |
+| **Total** | **9** | - | **~27 cycles** |
 
 O(1) per bar. Two cascaded IIR stages with precomputed coefficients. ~27 cycles/bar.
 

@@ -1,6 +1,6 @@
 # Convexity: Beta Convexity
 
-> *The asymmetry between upside and downside beta reveals whether an asset delivers convex payoffs — the holy grail of portfolio construction.*
+> *The asymmetry between upside and downside beta reveals whether an asset delivers convex payoffs - the holy grail of portfolio construction.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -15,11 +15,11 @@
 - **Similar:** [Beta](../beta/Beta.md), [Correl](../correl/Correl.md) | **Trading note:** Convexity > 0 signals favorable payoff asymmetry. Ratio > 1 = asset amplifies gains more than losses.
 - Based on Skender.Stock.Indicators `GetBeta(BetaType.All)` implementation.
 
-Beta Convexity decomposes the standard beta coefficient into its upside and downside components, then measures their squared difference. An asset with positive convexity captures more upside than downside — the ideal characteristic for portfolio construction. Harry Markowitz's Modern Portfolio Theory shows that investors should seek assets that maximise `(β⁺ - β⁻)²`.
+Beta Convexity decomposes the standard beta coefficient into its upside and downside components, then measures their squared difference. An asset with positive convexity captures more upside than downside - the ideal characteristic for portfolio construction. Harry Markowitz's Modern Portfolio Theory shows that investors should seek assets that maximise `(β⁺ - β⁻)²`.
 
 ## Historical Context
 
-The concept of separating upside and downside beta was pioneered by Bawa and Lindenberg (1977) in their work on lower partial moments. It gained mainstream traction through Ang, Chen, and Xing's landmark 2006 paper "Downside Risk," which demonstrated that stocks with high downside beta earn higher returns — the so-called "downside risk premium." Skender's .NET implementation packages this as `BetaType.All`, computing standard, upside, downside, ratio, and convexity in a single pass.
+The concept of separating upside and downside beta was pioneered by Bawa and Lindenberg (1977) in their work on lower partial moments. It gained mainstream traction through Ang, Chen, and Xing's landmark 2006 paper "Downside Risk," which demonstrated that stocks with high downside beta earn higher returns - the so-called "downside risk premium." Skender's .NET implementation packages this as `BetaType.All`, computing standard, upside, downside, ratio, and convexity in a single pass.
 
 ## Architecture & Physics
 
@@ -67,7 +67,7 @@ $$ \text{Convexity} = (\beta^+ - \beta^-)^2 $$
 | Compute standard beta (FMA) | 1 | 5 cy | ~5 cy |
 | O(period) scan for Up/Down beta | period | 4 cy | ~80 cy* |
 | Compute ratio + convexity | 2 | 3 cy | ~6 cy |
-| **Total** | **O(period)** | — | **~119 cy** |
+| **Total** | **O(period)** | - | **~119 cy** |
 
 *Assuming period = 20. The O(period) scan is a simple branch-free iteration with no allocations.
 
@@ -85,7 +85,7 @@ $$ \text{Convexity} = (\beta^+ - \beta^-)^2 $$
 | Library | Status | Notes |
 | :--- | :--- | :--- |
 | **QuanTAlib** | ✅ | Reference implementation. |
-| **Skender** | ✅ | Matches `GetBeta(BetaType.All)` — 5-output bundle. |
+| **Skender** | ✅ | Matches `GetBeta(BetaType.All)` - 5-output bundle. |
 
 ### Common Pitfalls
 
@@ -128,6 +128,6 @@ conv.Update(correctedAsset, correctedMarket, isNew: false);
 
 ## Resources
 
-- [Skender GetBeta](https://dotnet.stockindicators.dev/indicators/Beta/) — BetaType.All returns all 5 outputs.
-- Ang, Chen, Xing (2006). ["Downside Risk"](https://academic.oup.com/rfs/article/19/4/1191/1572624) — Empirical evidence for downside risk premium.
-- Bawa, Lindenberg (1977). "Capital Market Equilibrium in a Mean-Lower Partial Moment Framework" — Original lower partial moment theory.
+- [Skender GetBeta](https://dotnet.stockindicators.dev/indicators/Beta/) - BetaType.All returns all 5 outputs.
+- Ang, Chen, Xing (2006). ["Downside Risk"](https://academic.oup.com/rfs/article/19/4/1191/1572624) - Empirical evidence for downside risk premium.
+- Bawa, Lindenberg (1977). "Capital Market Equilibrium in a Mean-Lower Partial Moment Framework" - Original lower partial moment theory.

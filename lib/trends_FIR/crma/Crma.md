@@ -117,7 +117,7 @@ CRMA(N) fits a degree-3 polynomial via least squares. The O(N) cost is in accumu
 | Cross-product updates (4 × dot products) | ~4N | 2 | ~8N |
 | 4×4 Gaussian elimination (fixed) | ~64 | 3 | ~192 |
 | Polynomial evaluation at newest point | 4 | 3 | ~12 |
-| **Total** | **~(6N + 64)** | — | **~(10N + 207) cycles** |
+| **Total** | **~(6N + 64)** | - | **~(10N + 207) cycles** |
 
 O(N) per bar. For default N = 14: ~347 cycles. Resync re-computes sums every 1000 ticks to prevent floating-point drift.
 

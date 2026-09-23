@@ -13,7 +13,7 @@
 | **PineScript**   | [apchannel.pine](apchannel.pine)                       |
 
 - APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes wh...
-- **Similar:** [RegChannel](../regchannel/regchannel.md), [PChannel](../pchannel/pchannel.md) | **Complementary:** Volume for breakout confirmation | **Trading note:** Based on pivot points; useful for identifying median price paths and potential support/resistance.
+- **Similar:** [RegChannel](../regchannel/regchannel.md) | **Complementary:** Volume for breakout confirmation | **Trading note:** Based on pivot points; useful for identifying median price paths and potential support/resistance.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes while gradually fading their influence over time. Unlike rigid Donchian channels that drop price extremes abruptly when they exit the lookback window (the "cliff effect"), APCHANNEL decays them smoothly through leaky integration. The result is a channel with continuously sloping boundaries that responds to volatility without the discontinuous jumps that plague fixed-window approaches. The algorithm is $O(1)$ per bar with only two state variables and no buffers.
@@ -94,7 +94,7 @@ APCHANNEL is pure IIR with no buffers. Two independent EMA updates plus a midpoi
 | FMA (decay × Lower + α × L) | 1 | 4 | 4 |
 | ADD (Upper + Lower) | 1 | 1 | 1 |
 | MUL (× 0.5 for midpoint) | 1 | 3 | 3 |
-| **Total (hot)** | **4** | — | **~12 cycles** |
+| **Total (hot)** | **4** | - | **~12 cycles** |
 
 No warmup overhead. First bar initializes directly from input, adding one CMP.
 

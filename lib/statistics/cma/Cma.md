@@ -77,7 +77,7 @@ $$ M_n = \frac{1}{n} \sum_{i=1}^{n} x_i = \frac{(n-1) \cdot M_{n-1} + x_n}{n} $$
 
 ### Operation Count (Streaming Mode)
 
-Cumulative Mean Arithmetic uses a simple running sum divided by count — no window, no buffer.
+Cumulative Mean Arithmetic uses a simple running sum divided by count - no window, no buffer.
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -85,9 +85,9 @@ Cumulative Mean Arithmetic uses a simple running sum divided by count — no win
 | Increment count | 1 | 1 cy | ~1 cy |
 | Divide sum by count | 1 | 4 cy | ~4 cy |
 | NaN guard + state update | 1 | 2 cy | ~2 cy |
-| **Total** | **O(1)** | — | **~8 cy** |
+| **Total** | **O(1)** | - | **~8 cy** |
 
-Cheapest mean variant — no buffer, no window management. Throughput limited by division latency (~4 cy on modern x86).
+Cheapest mean variant - no buffer, no window management. Throughput limited by division latency (~4 cy on modern x86).
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

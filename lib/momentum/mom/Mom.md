@@ -145,7 +145,7 @@ $$
 
 5. **Sign interpretation**: Positive MOM indicates price increase over the lookback window; negative indicates decrease. The magnitude indicates the size of the move.
 
-6. **MOM vs ROC naming**: In QuanTAlib, `Mom` (absolute change, matches TA-Lib `MOM`) and `Roc` (percentage, matches TA-Lib `ROC`) are distinct indicators computing different formulas — do not assume they are interchangeable.
+6. **MOM vs ROC naming**: In QuanTAlib, `Mom` (absolute change, matches TA-Lib `MOM`) and `Roc` (percentage, matches TA-Lib `ROC`) are distinct indicators computing different formulas - do not assume they are interchangeable.
 
 ## References
 
