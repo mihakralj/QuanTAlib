@@ -13,6 +13,11 @@ public sealed class SumValidationTests : IDisposable
     private readonly ITestOutputHelper _output;
     private bool _disposed;
 
+    // Rolling sums over large windows (period=100) reach large magnitudes (~1e5-1e6) where
+    // summation-order FP rounding differs slightly across platforms/architectures (observed
+    // on Linux x64 CI but not macOS ARM64), exceeding the 1e-9 default. Not algorithmic.
+    private const double RollingWindowTolerance = 1e-7;
+
     public SumValidationTests(ITestOutputHelper output)
     {
         _output = output;
@@ -55,7 +60,7 @@ public sealed class SumValidationTests : IDisposable
 
             int lookback = Functions.SumLookback(period);
 
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback, ValidationHelper.DefaultVerificationCount, ValidationHelper.TalibTolerance);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, ValidationHelper.DefaultVerificationCount, RollingWindowTolerance);
         }
         _output.WriteLine("Sum Batch(TSeries) validated against TA-Lib");
     }
@@ -81,7 +86,7 @@ public sealed class SumValidationTests : IDisposable
 
             int lookback = Functions.SumLookback(period);
 
-            ValidationHelper.VerifyData(qResults, output, outRange, lookback, ValidationHelper.DefaultVerificationCount, ValidationHelper.TalibTolerance);
+            ValidationHelper.VerifyData(qResults, output, outRange, lookback, ValidationHelper.DefaultVerificationCount, RollingWindowTolerance);
         }
         _output.WriteLine("Sum Streaming validated against TA-Lib");
     }
@@ -103,7 +108,7 @@ public sealed class SumValidationTests : IDisposable
 
             int lookback = Functions.SumLookback(period);
 
-            ValidationHelper.VerifyData(qOutput, tOutput, outRange, lookback, ValidationHelper.DefaultVerificationCount, ValidationHelper.TalibTolerance);
+            ValidationHelper.VerifyData(qOutput, tOutput, outRange, lookback, ValidationHelper.DefaultVerificationCount, RollingWindowTolerance);
         }
         _output.WriteLine("Sum Span validated against TA-Lib");
     }
@@ -392,7 +397,7 @@ public sealed class SumValidationTests : IDisposable
             sumIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
-            ValidationHelper.VerifyData(qResult, tResult, lookback, ValidationHelper.DefaultVerificationCount, ValidationHelper.TulipTolerance);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, ValidationHelper.DefaultVerificationCount, RollingWindowTolerance);
         }
         _output.WriteLine("Sum Batch validated against Tulip");
     }
