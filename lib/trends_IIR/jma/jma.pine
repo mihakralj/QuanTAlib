@@ -8,6 +8,11 @@ indicator("Jurik Moving Average", "JMA", overlay=true)
 //@param   period Number of bars used in the calculation (>= 1)
 //@param   phase  Phase shift (-100 to 100). Negative = smoother, positive = more leading
 //@returns JMA value with Jurik-style spectral volatility adaptation
+//
+// The 128-bar volatility distribution is held permanently sorted and mutated by one
+// binary-searched remove + insert per bar, and the middle-65 trimmed mean is carried as a
+// running sum updated by boundary-crossing deltas. This replaces the per-bar rebuild,
+// array.sort() and 65-element summation of the naive formulation.
 jma(series float source, simple int period, simple int phase = 0) =>
     // ---- Precomputed length/phase parameters (constant per series) ----
     simple float _PHASE      = phase < -100 ? 0.5 : phase > 100 ? 2.5 : (phase * 0.01) + 1.5
@@ -18,6 +23,12 @@ jma(series float source, simple int period, simple int phase = 0) =>
     simple float _LEN_DIV    = _LEN_ADJ / (_LEN_ADJ + 2.0)
     simple float _SQRT_DIV   = _SQRT_PARAM / (_SQRT_PARAM + 1.0)
     simple float _P_EXP      = math.max(_LOG_PARAM - 2.0, 0.5)
+
+    // Trimmed-mean core: middle 65 of the 128 sorted volatility samples -> ranks 32..96
+    simple int _CORE_LO  = 32
+    simple int _CORE_HI  = 96
+    simple int _CORE_CNT = 65
+    simple int _REFRESH  = 1024   // periodic exact re-sum to bound float drift
 
     // ---- Internal state (persists across bars) ----
     var float  paramA      = na
@@ -34,11 +45,14 @@ jma(series float source, simple int period, simple int phase = 0) =>
     var int    volCount    = 0
     var array<float> volWindow  = array.new_float(10, 0.0)
 
-    // 128-bar volatility distribution
-    var int    distIndex   = 0
+    // 128-bar volatility distribution, held as a permanently sorted array plus a
+    // chronological circular buffer that only identifies the expiring sample.
+    var array<float> chrono    = array.new_float(128, 0.0)
+    var array<float> sortedArr = array.new_float(0)
+    var int    chronoIdx   = 0
     var int    distCount   = 0
-    var array<float> distWindow = array.new_float(128, 0.0)
-    var array<float> sorted     = array.new_float(0)
+    var float  coreSum     = 0.0
+    var int    refreshTick = 0
 
     float current_jma = na
 
@@ -75,44 +89,89 @@ jma(series float source, simple int period, simple int phase = 0) =>
             float highD = volCount > 0 ? cycleDelta / (volCount < 10 ? volCount : 10) : dLocal
 
             // 3) 128-bar volatility distribution + trimmed mean
-            array.set(distWindow, distIndex, highD)
-            distIndex += 1
-            if distIndex >= 128
-                distIndex := 0
+            float dRef = highD
+
             if distCount < 128
+                // Warmup: insert in order; trim boundaries are still expanding every bar.
+                int wLo = 0
+                int wHi = distCount
+                while wLo < wHi
+                    int wMid = int((wLo + wHi) / 2)
+                    if array.get(sortedArr, wMid) > highD
+                        wHi := wMid
+                    else
+                        wLo := wMid + 1
+                array.insert(sortedArr, wLo, highD)
+                array.set(chrono, chronoIdx, highD)
+                chronoIdx := (chronoIdx + 1) % 128
                 distCount += 1
 
-            float dRef = highD
-            if distCount >= 16
-                int count = distCount
-                array.clear(sorted)
-                for i = 0 to count - 1
-                    int idx = distIndex - 1 - i
-                    if idx < 0
-                        idx += 128
-                    array.push(sorted, array.get(distWindow, idx))
-                array.sort(sorted)
+                if distCount == 128
+                    float sSeed = 0.0
+                    for i = _CORE_LO to _CORE_HI
+                        sSeed += array.get(sortedArr, i)
+                    coreSum := sSeed
+                    refreshTick := 0
+                    dRef := coreSum / float(_CORE_CNT)
+                else if distCount >= 16
+                    int slice = int(math.max(5.0, math.round(distCount * 0.5)))
+                    int drop  = (distCount - slice) / 2
+                    int idxLo = math.max(drop, 0)
+                    int idxHi = math.min(drop + slice - 1, distCount - 1)
+                    float sWarm = 0.0
+                    for i = idxLo to idxHi
+                        sWarm += array.get(sortedArr, i)
+                    dRef := sWarm / float(idxHi - idxLo + 1)
+            else
+                // Steady state: one delete + one insert, O(1) core-sum update.
+                float oldVal = array.get(chrono, chronoIdx)
 
-                int idxLo = 0
-                int idxHi = 0
-                if count >= 128
-                    idxLo := 32
-                    idxHi := 96
-                else
-                    int slice = int(math.max(5.0, math.round(count * 0.5)))
-                    int drop  = (count - slice) / 2
-                    idxLo := drop
-                    idxHi := drop + slice - 1
+                // Leftmost rank holding oldVal (any equal element yields the same multiset).
+                int rLo = 0
+                int rHi = 128
+                while rLo < rHi
+                    int rMid = int((rLo + rHi) / 2)
+                    if array.get(sortedArr, rMid) < oldVal
+                        rLo := rMid + 1
+                    else
+                        rHi := rMid
 
-                if idxLo < 0
-                    idxLo := 0
-                if idxHi >= count
-                    idxHi := count - 1
+                // Deletion delta against the current 128-element sorted array.
+                float dRem = 0.0
+                if rLo <= _CORE_HI
+                    float displaced = rLo < _CORE_LO ? array.get(sortedArr, _CORE_LO) : oldVal
+                    dRem := array.get(sortedArr, _CORE_HI + 1) - displaced
+                array.remove(sortedArr, rLo)
 
-                float sum = 0.0
-                for i = idxLo to idxHi
-                    sum += array.get(sorted, i)
-                dRef := sum / float(idxHi - idxLo + 1)
+                // Insertion rank in the 127-element post-deletion array.
+                int iLo = 0
+                int iHi = 127
+                while iLo < iHi
+                    int iMid = int((iLo + iHi) / 2)
+                    if array.get(sortedArr, iMid) > highD
+                        iHi := iMid
+                    else
+                        iLo := iMid + 1
+
+                // Insertion delta against that same 127-element array.
+                float dIns = 0.0
+                if iLo <= _CORE_HI
+                    float entering = iLo < _CORE_LO ? array.get(sortedArr, _CORE_LO - 1) : highD
+                    dIns := entering - array.get(sortedArr, _CORE_HI)
+                array.insert(sortedArr, iLo, highD)
+
+                array.set(chrono, chronoIdx, highD)
+                chronoIdx := (chronoIdx + 1) % 128
+
+                coreSum += dRem + dIns
+                refreshTick += 1
+                if refreshTick >= _REFRESH
+                    refreshTick := 0
+                    float sFix = 0.0
+                    for i = _CORE_LO to _CORE_HI
+                        sFix += array.get(sortedArr, i)
+                    coreSum := sFix
+                dRef := coreSum / float(_CORE_CNT)
 
             if dRef <= 0.0
                 dRef := dLocal

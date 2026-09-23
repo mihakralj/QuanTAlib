@@ -25,6 +25,7 @@ from . import (  # noqa: F401
     cycles,
     dynamics,
     errors,
+    feeds,
     filters,
     momentum,
     numerics,
@@ -36,6 +37,7 @@ from . import (  # noqa: F401
     volatility,
     volume,
 )
+from .feeds import *  # noqa: F401, F403 — re-export gbm() at top level
 
 from ._compat import ALIASES, get_compat
 from ._bridge import (
@@ -54,6 +56,8 @@ __all__ = [
     "cycles",
     "dynamics",
     "errors",
+    "feeds",
+    "gbm",
     "filters",
     "momentum",
     "numerics",

@@ -121,3 +121,5 @@ fix-bullets.ps1
 fix_bullets.py
 fix_read.py
 .aider*
+
+sandbox/**

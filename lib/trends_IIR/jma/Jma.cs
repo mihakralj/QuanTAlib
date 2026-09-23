@@ -11,6 +11,12 @@ namespace QuanTAlib;
 /// Combines 2-pole IIR core with trimmed-mean volatility estimation.
 ///
 /// Key features: phase control [-100,100], adaptive band tracking, dynamic exponent.
+///
+/// The 128-sample volatility window uses Index-Linked Sorted Arrays (ILSA): a chronological
+/// circular buffer plus two integer rank/position maps kept permanently sorted, so each bar
+/// costs one 7-step binary search and a single memmove of 4-byte indices instead of a full
+/// re-sort. The middle-65 trimmed mean is maintained as a running sum updated by deterministic
+/// boundary-crossing deltas rather than 65 sequential additions.
 /// </remarks>
 /// <seealso href="Jma.md">Detailed documentation</seealso>
 /// <seealso href="jma.pine">Reference Pine Script implementation</seealso>
@@ -18,7 +24,16 @@ namespace QuanTAlib;
 public sealed class Jma : AbstractBase
 {
     private const int VolWindowSize = 128; // volatility history length
+    private const int VolIndexMask = VolWindowSize - 1;
     private const int DevWindowSize = 10;  // short SMA length for deviation
+
+    private const int JurikTrimCount = 65;                   // canonical JMA: middle 65 of 128 samples
+    private const int CoreLo = 32;                           // ceil((128-65)/2)
+    private const int CoreHi = CoreLo + JurikTrimCount - 1;  // 96
+    private const int MinVolSamples = 16;                    // below this, volatility is passed through
+
+    // Periodic exact re-sum to bound floating-point drift of the incremental core sum.
+    private const int SumRefreshInterval = 1024;
 
     // Jurik core parameters derived from period/phase
     private readonly double _phaseParam;     // 0.5 .. 2.5
@@ -28,15 +43,26 @@ public sealed class Jma : AbstractBase
     private readonly double _logLengthDivider; // Precomputed log(_lengthDivider) for Exp optimization
     private readonly double _pExponent;      // max(logParam - 2, 0.5)
 
-    // Constants for trimmed mean
-    private const int JurikTrimCount = 65; // canonical JMA: middle 65 of 128 samples
-
-    // Buffers
     private readonly RingBuffer _devBuffer;
-    private readonly RingBuffer _volBuffer;
     private readonly TValuePublishedHandler _handler;
     private readonly ITValuePublisher? _source;
     private bool _disposed;
+
+    // --- ILSA: three contiguous 128-element arrays (1,536 bytes, L1-resident) ---
+    private readonly double[] _chrono;   // C: chronological circular buffer of volatility values
+    private readonly int[] _sortedToC;   // S_to_C: sorted rank -> chronological position
+    private readonly int[] _cToSorted;   // C_to_S: chronological position -> sorted rank
+
+    private int _volCount;
+    private int _oldestC;   // chronological position of the expiring element (valid once full)
+    private double _coreSum;
+    private int _sumTicks;
+
+    // --- Undo journal: restores the ILSA to the pre-update state for isNew=false replays ---
+    private bool _undoValid;
+    private bool _undoWasAppend;
+    private int _undoOldC, _undoOldS, _undoNewS, _undoOldestC, _undoCount, _undoSumTicks;
+    private double _undoOldVal, _undoCoreSum;
 
     // Streaming state (current + previous snapshot for isNew=false)
     private State _state;
@@ -113,7 +139,9 @@ public sealed class Jma : AbstractBase
         Name = $"Jma({period},{phase})";
 
         _devBuffer = new RingBuffer(DevWindowSize);
-        _volBuffer = new RingBuffer(VolWindowSize);
+        _chrono = GC.AllocateArray<double>(VolWindowSize, pinned: true);
+        _sortedToC = GC.AllocateArray<int>(VolWindowSize, pinned: true);
+        _cToSorted = GC.AllocateArray<int>(VolWindowSize, pinned: true);
 
         Reset();
     }
@@ -125,15 +153,260 @@ public sealed class Jma : AbstractBase
         source.Pub += _handler;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Reset()
     {
         _state = default;
         _p_state = default;
         _devBuffer.Clear();
-        _volBuffer.Clear();
+        _volCount = 0;
+        _oldestC = 0;
+        _coreSum = 0.0;
+        _sumTicks = 0;
+        _undoValid = false;
         Last = default;
     }
+
+    #region ILSA volatility window
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double SortedAt(int rank) => _chrono[_sortedToC[rank]];
+
+    /// <summary>Value at <paramref name="rank"/> of the conceptual 127-element array with rank <paramref name="holeS"/> removed.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GapAt(int rank, int holeS) => SortedAt(rank < holeS ? rank : rank + 1);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ResyncReverseMap(int fromRank, int toRank)
+    {
+        for (int i = fromRank; i <= toRank; i++)
+        {
+            _cToSorted[_sortedToC[i]] = i;
+        }
+    }
+
+    /// <summary>First rank in [0,count) whose value exceeds <paramref name="value"/>.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int UpperBound(double value, int count)
+    {
+        int lo = 0;
+        int hi = count;
+        while (lo < hi)
+        {
+            int mid = (int)(((uint)lo + (uint)hi) >> 1);
+            if (SortedAt(mid) > value)
+            {
+                hi = mid;
+            }
+            else
+            {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    /// <summary>Binary search over the 127-element array that logically skips rank <paramref name="holeS"/>. Exactly 7 iterations.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int UpperBoundWithHole(double value, int holeS)
+    {
+        int lo = 0;
+        int hi = VolWindowSize - 1;
+        while (lo < hi)
+        {
+            int mid = (int)(((uint)lo + (uint)hi) >> 1);
+            if (GapAt(mid, holeS) > value)
+            {
+                hi = mid;
+            }
+            else
+            {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    private double RecomputeCoreSum()
+    {
+        double sum = 0.0;
+        for (int i = CoreLo; i <= CoreHi; i++)
+        {
+            sum += SortedAt(i);
+        }
+        return sum;
+    }
+
+    /// <summary>Pushes one volatility sample and returns the reference volatility (trimmed mean).</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double PushVolatility(double value)
+        => _volCount < VolWindowSize ? AppendVolatility(value) : ReplaceOldestVolatility(value);
+
+    private double AppendVolatility(double value)
+    {
+        int n = _volCount;
+        int newS = UpperBound(value, n);
+
+        _undoWasAppend = true;
+        _undoNewS = newS;
+        _undoCount = n;
+        _undoOldestC = _oldestC;
+        _undoCoreSum = _coreSum;
+        _undoSumTicks = _sumTicks;
+        _undoValid = true;
+
+        if (n > newS)
+        {
+            Array.Copy(_sortedToC, newS, _sortedToC, newS + 1, n - newS);
+        }
+        _sortedToC[newS] = n;
+        _chrono[n] = value;
+        _volCount = n + 1;
+        ResyncReverseMap(newS, n);
+
+        if (_volCount == VolWindowSize)
+        {
+            _oldestC = 0;
+            _sumTicks = 0;
+            _coreSum = RecomputeCoreSum();
+            return _coreSum / JurikTrimCount;
+        }
+
+        return _volCount < MinVolSamples ? value : WarmupTrimmedMean(_volCount);
+    }
+
+    private double ReplaceOldestVolatility(double value)
+    {
+        int oldC = _oldestC;
+        int oldS = _cToSorted[oldC];
+        double oldVal = _chrono[oldC];
+
+        // Deletion delta, evaluated against the current 128-element sorted array.
+        double deltaRemove = 0.0;
+        if (oldS <= CoreHi)
+        {
+            double displaced = oldS < CoreLo ? SortedAt(CoreLo) : oldVal;
+            deltaRemove = SortedAt(CoreHi + 1) - displaced;
+        }
+
+        // Insertion rank, and insertion delta against the 127-element post-deletion array.
+        int newS = UpperBoundWithHole(value, oldS);
+        double deltaInsert = 0.0;
+        if (newS <= CoreHi)
+        {
+            double entering = newS < CoreLo ? GapAt(CoreLo - 1, oldS) : value;
+            deltaInsert = entering - GapAt(CoreHi, oldS);
+        }
+
+        _undoWasAppend = false;
+        _undoOldC = oldC;
+        _undoOldS = oldS;
+        _undoNewS = newS;
+        _undoOldVal = oldVal;
+        _undoOldestC = oldC;
+        _undoCount = _volCount;
+        _undoCoreSum = _coreSum;
+        _undoSumTicks = _sumTicks;
+        _undoValid = true;
+
+        // Single contiguous shift of 4-byte indices closes the deletion gap and opens the insertion slot.
+        if (newS <= oldS)
+        {
+            if (oldS > newS)
+            {
+                Array.Copy(_sortedToC, newS, _sortedToC, newS + 1, oldS - newS);
+            }
+            _sortedToC[newS] = oldC;
+            ResyncReverseMap(newS, oldS);
+        }
+        else
+        {
+            Array.Copy(_sortedToC, oldS + 1, _sortedToC, oldS, newS - oldS);
+            _sortedToC[newS] = oldC;
+            ResyncReverseMap(oldS, newS);
+        }
+
+        _chrono[oldC] = value;
+        _oldestC = (oldC + 1) & VolIndexMask;
+
+        _coreSum += deltaRemove + deltaInsert;
+        if (++_sumTicks >= SumRefreshInterval)
+        {
+            _sumTicks = 0;
+            _coreSum = RecomputeCoreSum();
+        }
+
+        return _coreSum / JurikTrimCount;
+    }
+
+    /// <summary>Dynamic trim boundaries used while the 128-sample window is still filling.</summary>
+    private double WarmupTrimmedMean(int count)
+    {
+        int slice = (int)Math.Max(5, Math.Round(count * 0.5));
+        int drop = (count - slice) / 2;
+        int start = drop < 0 ? 0 : drop;
+        int end = drop + slice - 1;
+        if (end >= count)
+        {
+            end = count - 1;
+        }
+
+        double sum = 0.0;
+        for (int i = start; i <= end; i++)
+        {
+            sum += SortedAt(i);
+        }
+        return sum / (end - start + 1);
+    }
+
+    /// <summary>Reverses the most recent ILSA mutation (intrabar replay support).</summary>
+    private void UndoVolatility()
+    {
+        if (!_undoValid)
+        {
+            return;
+        }
+
+        if (_undoWasAppend)
+        {
+            int n = _undoCount;
+            int newS = _undoNewS;
+            if (n > newS)
+            {
+                Array.Copy(_sortedToC, newS + 1, _sortedToC, newS, n - newS);
+            }
+            _volCount = n;
+            ResyncReverseMap(newS, n - 1);
+        }
+        else
+        {
+            int oldS = _undoOldS;
+            int newS = _undoNewS;
+            int oldC = _undoOldC;
+            if (newS <= oldS)
+            {
+                if (oldS > newS)
+                {
+                    Array.Copy(_sortedToC, newS + 1, _sortedToC, newS, oldS - newS);
+                }
+                _sortedToC[oldS] = oldC;
+                ResyncReverseMap(newS, oldS);
+            }
+            else
+            {
+                Array.Copy(_sortedToC, oldS, _sortedToC, oldS + 1, newS - oldS);
+                _sortedToC[oldS] = oldC;
+                ResyncReverseMap(oldS, newS);
+            }
+            _chrono[oldC] = _undoOldVal;
+        }
+
+        _oldestC = _undoOldestC;
+        _coreSum = _undoCoreSum;
+        _sumTicks = _undoSumTicks;
+        _undoValid = false;
+    }
+
+    #endregion
 
     /// <summary>
     /// Core streaming step: feed a single value, get JMA.
@@ -173,13 +446,13 @@ public sealed class Jma : AbstractBase
         {
             _p_state = _state;
             _devBuffer.Snapshot();
-            _volBuffer.Snapshot();
+            _undoValid = false;
         }
         else
         {
             _state = _p_state;
             _devBuffer.Restore();
-            _volBuffer.Restore();
+            UndoVolatility();
         }
     }
 
@@ -211,8 +484,7 @@ public sealed class Jma : AbstractBase
         double volatility = _devBuffer.Average;
 
         // 3. 128-bar volatility history + middle-65 trimmed mean
-        _volBuffer.Add(volatility);
-        double refVolatility = CalculateTrimmedMean(volatility);
+        double refVolatility = PushVolatility(volatility);
         refVolatility = refVolatility <= 0.0 ? deviation : refVolatility;
 
         // 4. Jurik dynamic exponent d from abs/refVolatility
@@ -324,7 +596,7 @@ public sealed class Jma : AbstractBase
         // so subsequent streaming Update calls with isNew=false will use correct _p_state
         _p_state = _state;
         _devBuffer.Snapshot();
-        _volBuffer.Snapshot();
+        _undoValid = false;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -389,52 +661,5 @@ public sealed class Jma : AbstractBase
         var indicator = new Jma(period, phase);
         TSeries results = indicator.Update(source);
         return (results, indicator);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateTrimmedMean(double fallback)
-    {
-        int count = _volBuffer.Count;
-        if (count < 16)
-        {
-            return fallback;
-        }
-
-        // Stack-allocate scratch buffer for sorting (max 128 * 8 bytes = 1KB)
-        // This eliminates the heap-allocated _sorted field and improves cache locality
-        Span<double> sorted = stackalloc double[count];
-        _volBuffer.CopyTo(sorted);
-        sorted.Sort();
-
-        int start, end;
-        if (count >= VolWindowSize)
-        {
-            // canonical JMA: central 65 of 128 -> indices 32..96
-            // Approximately removes the outer 25% on each tail
-            int leftSkip = (int)Math.Ceiling((VolWindowSize - JurikTrimCount) / 2.0);
-            start = leftSkip;
-            end = start + JurikTrimCount - 1;
-        }
-        else
-        {
-            // for shorter history, use central ~50% as a reasonable proxy
-            int slice = (int)Math.Max(5, Math.Round(count * 0.5));
-            int drop = (count - slice) / 2;
-            start = drop;
-            end = drop + slice - 1;
-        }
-
-        if (start < 0)
-        {
-            start = 0;
-        }
-
-        if (end >= count)
-        {
-            end = count - 1;
-        }
-
-        int len = end - start + 1;
-        return sorted.Slice(start, len).SumSIMD() / len;
     }
 }
