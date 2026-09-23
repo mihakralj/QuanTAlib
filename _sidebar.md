@@ -225,7 +225,7 @@
   * [PPO - Percentage Price Oscillator](/lib/momentum/ppo/Ppo.md)
   * [RS - Price Relative Strength](/lib/momentum/rs/Rs.md)
   * [ROC - Rate of Change](/lib/momentum/roc/Roc.md)
-  * [ROCP - Rate of Change Percentage](/lib/momentum/rocp/Rocp.md)
+  * [ROCP - Rate of Change (Fractional)](/lib/momentum/rocp/Rocp.md)
   * [ROCR - Rate of Change Ratio](/lib/momentum/rocr/Rocr.md)
   * [RSI - Relative Strength Index](/lib/momentum/rsi/Rsi.md)
   * [RSX - Jurik Relative Strength X](/lib/momentum/rsx/Rsx.md)

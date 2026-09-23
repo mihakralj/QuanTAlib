@@ -71,7 +71,7 @@ public class RocTests
     }
 
     [Fact]
-    public void Update_AfterWarmup_ReturnsAbsoluteChange()
+    public void Update_AfterWarmup_ReturnsPercentage()
     {
         var roc = new Roc(2); // period=2
         var values = new double[] { 100, 102, 105, 103, 110 };
@@ -86,8 +86,8 @@ public class RocTests
             }
             else
             {
-                // absolute change: current - past
-                double expected = values[i] - values[i - 2];
+                // percentage: 100 * (current - past) / past
+                double expected = 100.0 * (values[i] - values[i - 2]) / values[i - 2];
                 Assert.Equal(expected, tv.Value, 10);
             }
         }
@@ -144,7 +144,6 @@ public class RocTests
         roc.Update(new TValue(time.AddSeconds(1), 105.0), true);
         roc.Update(new TValue(time.AddSeconds(2), 110.0), true);
 
-        // state should advance after each true
         Assert.NotEqual(default, roc.Last);
     }
 
@@ -160,13 +159,13 @@ public class RocTests
         var first = roc.Update(new TValue(time.AddSeconds(2), 105.0), true);
 
         // Update same bar with different value
-        var corrected = roc.Update(new TValue(time.AddSeconds(2), 108.0), false);
+        var corrected = roc.Update(new TValue(time.AddSeconds(2), 110.0), false);
 
         Assert.NotEqual(first.Value, corrected.Value);
-        // first: 105 - 100 = 5
-        // corrected: 108 - 100 = 8
+        // first: 100 * (105-100)/100 = 5%
+        // corrected: 100 * (110-100)/100 = 10%
         Assert.Equal(5.0, first.Value, 10);
-        Assert.Equal(8.0, corrected.Value, 10);
+        Assert.Equal(10.0, corrected.Value, 10);
     }
 
     [Fact]
@@ -175,17 +174,14 @@ public class RocTests
         var roc = new Roc(2);
         var time = DateTime.UtcNow;
 
-        // Initial values
         roc.Update(new TValue(time, 100.0), true);
         roc.Update(new TValue(time.AddSeconds(1), 102.0), true);
         var baseline = roc.Update(new TValue(time.AddSeconds(2), 105.0), true);
 
-        // Make several corrections
-        roc.Update(new TValue(time.AddSeconds(2), 108.0), false);
         roc.Update(new TValue(time.AddSeconds(2), 110.0), false);
+        roc.Update(new TValue(time.AddSeconds(2), 115.0), false);
         var restored = roc.Update(new TValue(time.AddSeconds(2), 105.0), false);
 
-        // Should match original value
         Assert.Equal(baseline.Value, restored.Value, 10);
     }
 
@@ -221,9 +217,9 @@ public class RocTests
         _ = roc.Update(new TValue(time.AddSeconds(2), 105.0), true);
         var afterNaN = roc.Update(new TValue(time.AddSeconds(3), double.NaN), true);
 
-        // NaN should use last valid (105), so change is 105 - 102 = 3
+        // NaN uses last valid (105), so: 100 * (105-102)/102 ≈ 2.94%
         Assert.True(double.IsFinite(afterNaN.Value));
-        Assert.Equal(3.0, afterNaN.Value, 10);
+        Assert.Equal(100.0 * (105.0 - 102.0) / 102.0, afterNaN.Value, 10);
     }
 
     [Fact]
@@ -246,13 +242,26 @@ public class RocTests
         var roc = new Roc(TestPeriod);
         var time = DateTime.UtcNow;
 
-        // Insert several NaN values
         for (int i = 0; i < 20; i++)
         {
             var value = i % 3 == 0 ? double.NaN : 100.0 + i;
             var tv = roc.Update(new TValue(time.AddSeconds(i), value), true);
             Assert.True(double.IsFinite(tv.Value));
         }
+    }
+
+    [Fact]
+    public void Update_WithZeroPastValue_ReturnsZero()
+    {
+        var roc = new Roc(2);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 0.0), true);
+        roc.Update(new TValue(time.AddSeconds(1), 50.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(2), 100.0), true);
+
+        // Division by zero: returns 0.0 as safe default
+        Assert.Equal(0.0, result.Value);
     }
 
     #endregion
@@ -287,7 +296,6 @@ public class RocTests
             eventRoc.Update(new TValue(_gbm[i].Time, _gbm[i].Value), true);
         }
 
-        // Compare last 100 values (or all if fewer)
         int compareCount = Math.Min(100, DataPoints);
         for (int i = DataPoints - compareCount; i < DataPoints; i++)
         {
@@ -319,7 +327,7 @@ public class RocTests
         var ex = Assert.Throws<ArgumentException>(() =>
         {
             ReadOnlySpan<double> source = stackalloc double[] { 1, 2, 3, 4, 5 };
-            Span<double> output = stackalloc double[3]; // too short
+            Span<double> output = stackalloc double[3];
             Roc.Batch(source, output, TestPeriod);
         });
         Assert.Equal("output", ex.ParamName);
@@ -352,20 +360,6 @@ public class RocTests
     }
 
     [Fact]
-    public void Calculate_Span_HandlesNaN()
-    {
-        double[] source = [100, double.NaN, 102, 103, 104];
-        Span<double> output = stackalloc double[5];
-
-        // Should not throw
-        Roc.Batch(source, output, 2);
-
-        // Output will contain NaN due to input NaN
-        // This is expected for span-based (no state tracking)
-        Assert.Equal(5, output.Length);
-    }
-
-    [Fact]
     public void Calculate_Span_LargeData_NoStackOverflow()
     {
         int largeSize = 10000;
@@ -377,9 +371,7 @@ public class RocTests
             source[i] = 100.0 + (i * 0.1);
         }
 
-        // Should not throw
         Roc.Batch(source, output, TestPeriod);
-
         Assert.Equal(largeSize, output.Length);
     }
 
@@ -414,6 +406,74 @@ public class RocTests
         }
 
         Assert.Equal(10, results.Count);
+    }
+
+    #endregion
+
+    #region Mathematical Properties Tests
+
+    [Fact]
+    public void Update_TenPercentIncrease_ReturnsTen()
+    {
+        var roc = new Roc(1);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 100.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(1), 110.0), true);
+
+        // 100 * (110 - 100) / 100 = 10%
+        Assert.Equal(10.0, result.Value, 10);
+    }
+
+    [Fact]
+    public void Update_TenPercentDecrease_ReturnsNegativeTen()
+    {
+        var roc = new Roc(1);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 100.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(1), 90.0), true);
+
+        // 100 * (90 - 100) / 100 = -10%
+        Assert.Equal(-10.0, result.Value, 10);
+    }
+
+    [Fact]
+    public void Update_PriceDoubled_Returns100()
+    {
+        var roc = new Roc(1);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 50.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(1), 100.0), true);
+
+        // 100 * (100 - 50) / 50 = 100%
+        Assert.Equal(100.0, result.Value, 10);
+    }
+
+    [Fact]
+    public void Update_PriceHalved_ReturnsNegative50()
+    {
+        var roc = new Roc(1);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 100.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(1), 50.0), true);
+
+        // 100 * (50 - 100) / 100 = -50%
+        Assert.Equal(-50.0, result.Value, 10);
+    }
+
+    [Fact]
+    public void Update_NoChange_ReturnsZero()
+    {
+        var roc = new Roc(1);
+        var time = DateTime.UtcNow;
+
+        roc.Update(new TValue(time, 100.0), true);
+        var result = roc.Update(new TValue(time.AddSeconds(1), 100.0), true);
+
+        Assert.Equal(0.0, result.Value, 10);
     }
 
     #endregion

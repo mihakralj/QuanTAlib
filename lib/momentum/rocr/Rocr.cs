@@ -8,7 +8,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// Price ratio momentum: ratio between current and N-period-ago value.
 /// Returns 1.0 for no change, greater than 1 for increase, less than 1 for decrease.
-/// See ROC for absolute change, ROCP for percentage.
+/// See ROC for percentage change, ROCP for fractional change.
 ///
 /// Calculation: <c>ROCR = Price / Price[N]</c>.
 /// </remarks>

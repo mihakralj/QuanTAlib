@@ -11,6 +11,12 @@ public class MamaValidationTests
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 
+    // QuanTAlib implements Ehlers' original atan(Q1/I1) phase discriminator (matching
+    // Skender/TA-Lib), instead of atan2 + angle wrapping. The remaining ~1e-2 residual below
+    // comes from warmup/priming differences (WMA-based unstable period vs simple averaging
+    // over the first 6 bars), not from an algorithmic mismatch.
+    private const double CrossLibraryTolerance = 0.01;
+
     public MamaValidationTests(ITestOutputHelper output)
     {
         _output = output;
@@ -41,10 +47,7 @@ public class MamaValidationTests
         var sResult = _testData.SkenderQuotes.GetMama(fastLimit, slowLimit).ToList();
 
         // 3. Verify MAMA
-        // Tolerance increased to 40.0 due to optimized Phase calculation (Atan2 vs Atan) and Phase Wrapping correction.
-        // The optimized version handles quadrants correctly (-pi to pi) and wraps phase differences (-pi to pi),
-        // while original (and Skender) uses Atan (-pi/2 to pi/2) and ignores phase wrapping, causing divergence.
-        ValidationHelper.VerifyData(qResult, sResult, x => x.Mama, skip: 100, tolerance: 70.0);
+        ValidationHelper.VerifyData(qResult, sResult, x => x.Mama, skip: 100, tolerance: CrossLibraryTolerance);
 
         _output.WriteLine("MAMA Batch validated successfully against Skender");
     }
@@ -72,11 +75,10 @@ public class MamaValidationTests
         var sResult = _testData.SkenderQuotes.GetMama(fastLimit, slowLimit).ToList();
 
         // 3. Verify MAMA
-        // Tolerance increased to 40.0 due to optimized Phase calculation and Phase Wrapping correction.
-        ValidationHelper.VerifyData(qMamaResults, sResult, x => x.Mama, skip: 100, tolerance: 70.0);
+        ValidationHelper.VerifyData(qMamaResults, sResult, x => x.Mama, skip: 100, tolerance: CrossLibraryTolerance);
 
         // 4. Verify FAMA
-        ValidationHelper.VerifyData(qFamaResults, sResult, x => x.Fama, skip: 100, tolerance: 70.0);
+        ValidationHelper.VerifyData(qFamaResults, sResult, x => x.Fama, skip: 100, tolerance: CrossLibraryTolerance);
 
         _output.WriteLine("MAMA/FAMA Streaming validated successfully against Skender");
     }
@@ -108,34 +110,20 @@ public class MamaValidationTests
         var qResult = mama.Update(_testData.Data); // _testData.Data is Close prices
 
         // 3. Verify MAMA
-        // Tolerance set to 40.0 due to significant divergence caused by:
-        // 1. Initialization: Ooples starts from 0, QuanTAlib warms up with Average.
-        // 2. Precision: Ooples uses 4-decimal constants, QuanTAlib uses exact fractions.
-        // 3. Phase Wrapping: QuanTAlib correctly handles phase wrapping, Ooples does not.
-        ValidationHelper.VerifyData(qResult, oMama, x => x, skip: 100, tolerance: 70.0);
+        ValidationHelper.VerifyData(qResult, oMama, x => x, skip: 100, tolerance: CrossLibraryTolerance);
 
         // 4. Verify FAMA
-        // QuanTAlib stores Fama in a separate property, not in the main TSeries result
-        // We need to extract Fama from the indicator instance or capture it during streaming
-        // But Update(TSeries) returns only the main series (Mama).
-        // To verify Fama batch, we might need to iterate or expose it.
-        // For now, let's verify Mama.
+        // QuanTAlib stores Fama in a separate property, not in the main TSeries result,
+        // and batch Update(TSeries) only returns the Mama series, so FAMA batch comparison
+        // is not exercised here (covered by the Skender streaming test instead).
 
         _output.WriteLine("MAMA Batch validated successfully against Ooples");
     }
 
     [Fact]
-    public void Validate_Talib_Mama_Structural()
+    public void Validate_Talib_Mama()
     {
-        // TALib MAMA uses Atan (single-quadrant, range -π/2..π/2) for phase calculation.
-        // QuanTAlib MAMA uses Atan2 (full-quadrant, range -π..π) + phase-difference wrapping.
-        // The two phase methods diverge increasingly over time.
-        // This test verifies:
-        //   1. TALib MAMA runs successfully and produces finite outputs.
-        //   2. QuanTAlib MAMA also produces finite outputs.
-        //   3. Both outputs stay within 0..200 (sanity range for typical price data).
-        // Numeric equality is NOT asserted — algorithmic divergence is documented and expected.
-
+        // TA-Lib and QuanTAlib both implement Ehlers' atan(Q1/I1) phase discriminator.
         const double fastLimit = 0.5;
         const double slowLimit = 0.05;
 
@@ -161,13 +149,6 @@ public class MamaValidationTests
         (int offset, int length) = outRange.GetOffsetAndLength(taMama.Length);
         Assert.True(length > 50, $"TALib MAMA produced only {length} values");
 
-        // Verify TALib outputs are finite
-        for (int j = 0; j < length; j++)
-        {
-            Assert.True(double.IsFinite(taMama[j]), $"TALib MAMA[{j + offset}] = {taMama[j]} is not finite");
-            Assert.True(double.IsFinite(taFama[j]), $"TALib FAMA[{j + offset}] = {taFama[j]} is not finite");
-        }
-
         // QuanTAlib MAMA (using HL2)
         var hl2Times = new List<long>();
         var hl2Vals = new List<double>(hl2);
@@ -178,14 +159,16 @@ public class MamaValidationTests
         var mama = new Mama(fastLimit, slowLimit);
         var qResult = mama.Update(hl2Series);
 
-        // Verify QuanTAlib outputs are finite after warmup
-        int hotCount = 0;
-        for (int i = 32; i < qResult.Count; i++)
+        // Verify MAMA against TA-Lib over the last 100 converged bars.
+        int start = Math.Max(0, length - 100);
+        for (int j = start; j < length; j++)
         {
-            if (double.IsFinite(qResult[i].Value)) { hotCount++; }
+            int qi = j + offset;
+            Assert.True(
+                Math.Abs(qResult[qi].Value - taMama[j]) <= CrossLibraryTolerance,
+                $"Mismatch at index {qi}: QuanTAlib={qResult[qi].Value:G17}, TALib={taMama[j]:G17}");
         }
-        Assert.True(hotCount > 50, $"QuanTAlib MAMA produced only {hotCount} finite values");
 
-        _output.WriteLine($"MAMA structural TALib check: TALib={length} values, QuanTAlib={hotCount} finite values. Numeric divergence documented (Atan2 vs Atan phase calc).");
+        _output.WriteLine($"MAMA validated successfully against TALib ({length} values compared)");
     }
 }

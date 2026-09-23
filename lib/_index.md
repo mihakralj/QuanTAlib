@@ -307,7 +307,7 @@
 | [RMSE](errors/rmse/Rmse.md)                                | Root Mean Squared Error                                                   | Errors       |
 | [RMSLE](errors/rmsle/Rmsle.md)                             | Root Mean Squared Log Error                                               | Errors       |
 | [ROC](momentum/roc/Roc.md)                                 | Rate of Change                                                            | Momentum     |
-| [ROCP](momentum/rocp/Rocp.md)                              | Rate of Change Percentage                                                 | Momentum     |
+| [ROCP](momentum/rocp/Rocp.md)                              | Rate of Change (Fractional)                                               | Momentum     |
 | [ROCR](momentum/rocr/Rocr.md)                              | Rate of Change Ratio                                                      | Momentum     |
 | [ROOFING](filters/roofing/Roofing.md)                      | Ehlers Roofing Filter                                                     | Filters      |
 | [RRSI](oscillators/rrsi/Rrsi.md)                           | Ehlers Rocket RSI                                                         | Oscillators  |

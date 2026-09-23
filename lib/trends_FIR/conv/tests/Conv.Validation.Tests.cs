@@ -160,7 +160,8 @@ public sealed class ConvValidationTests : IDisposable
         var conv = new Conv(kernel);
         var result = conv.Update(_testData.Data);
 
-        ValidationHelper.VerifyData(result, output, outRange, lookback: period - 1);
+        // Conv-as-WMA vs library WMA: different summation order, FP rounding exceeds 1e-9.
+        ValidationHelper.VerifyData(result, output, outRange, lookback: period - 1, tolerance: 1e-8);
     }
 
     [Fact]
@@ -181,7 +182,8 @@ public sealed class ConvValidationTests : IDisposable
         var conv = new Conv(kernel);
         var result = conv.Update(_testData.Data);
 
-        ValidationHelper.VerifyData(result, output, lookback: period - 1);
+        // Conv-as-WMA vs library WMA: different summation order, FP rounding exceeds 1e-9.
+        ValidationHelper.VerifyData(result, output, lookback: period - 1, tolerance: 1e-8);
     }
 
     [Fact]

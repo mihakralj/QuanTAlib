@@ -130,9 +130,9 @@ $$ \text{FAMA}_t = 0.5\alpha \cdot \text{MAMA}_t + (1 - 0.5\alpha) \cdot \text{F
 
 QuanTAlib's MAMA differs from every other implementation in circulation. Not because we wanted to be clever. Because we read the original paper, transcribed the EasyLanguage code by hand, and noticed that TradeStation returns arctangent *in degrees*, while C#'s `Math.Atan` returns radians.
 
-Most libraries ported Ehlers' numbers blindly. TA-Lib hardcodes `a = 0.0962` and `b = 0.5769`. But Ehlers' EasyLanguage code shows these as `5/52` and `15/26`. The difference? About 0.04% per coefficient. Small, but compounding. After 100 bars of recursive smoothing, your MAMA is off by 0.5%. After 500 bars, 2-3%. This is why TA-Lib's MAMA doesn't quite match TradingView, which doesn't quite match Skender, which doesn't quite match anything.
+Most libraries ported Ehlers' numbers blindly. TA-Lib hardcodes `a = 0.0962` and `b = 0.5769`. But Ehlers' EasyLanguage code shows these as `5/52` and `15/26`. The difference is about 0.04% per coefficient, which compounds over long recursive smoothing runs. QuanTAlib uses the exact fractions instead.
 
-We chose precision.
+An earlier revision of this indicator also replaced Ehlers' `atan(Q/I)` phase discriminator with `atan2(Q, I)` plus angle-wrapping, believing that was a "more correct" quadrant-aware version. It was not: TA-Lib and Skender.Stock.Indicators independently agree with each other to ~1e-11, because both implement Ehlers' plain `atan` discriminator (including its sign-driven asymmetric clamp on the phase delta). The `atan2` variant broke that clamp and diverged from all reference libraries by up to 11%. QuanTAlib now uses the same `atan(Q/I)` formulation as Ehlers/TA-Lib/Skender.
 
 ### Precision Improvements
 
@@ -141,74 +141,30 @@ We chose precision.
 | **Hilbert Coefficients** | `0.0962`, `0.5769`             | `5.0/52.0`, `15.0/26.0` | Exact fractions avoid rounding accumulation |
 | **Adjustment Slope**     | `0.075`                        | `3.0/40.0`              | Preserves rational arithmetic precision     |
 | **Adjustment Intercept** | `0.54`                         | `27.0/50.0`             | Ditto                                       |
-| **Phase Units**          | Degrees                        | Radians                 | Eliminates conversion overhead              |
-| **Arctangent Function**  | `atan(y/x)` + zero-check       | `atan2(y, x)`           | Proper quadrant handling, no division       |
-| **Period Calculation**   | `360/atan(...)` or mixed units | `2π/atan2(...)`         | Mathematically correct radians              |
-| **Minimum Delta**        | `1.0` (degree equivalent)      | `π/180` (radians)       | Maintains Ehlers' intent with correct units |
+| **Arctangent Function**  | `atan(y/x)` + zero-check       | `atan(y/x)` + zero-check | Matches Ehlers' original discriminator (same as TA-Lib/Skender) |
+| **Minimum Delta**        | `1.0` degree                   | `1.0` degree             | Matches Ehlers' asymmetric clamp on phase delta |
 
-### The Radians Strategy
+### The Atan Discriminator
 
-Ehlers worked in TradeStation, where `ArcTangent` returns degrees. His formulas assume this. When you port to C#, `Math.Atan` returns radians. If you don't convert, your period calculation is off by a factor of ~57.3 (180/π). If you convert inconsistently, phase and period drift out of sync.
+Ehlers used `atan(Q/I)` (single-quadrant, with a zero-check on `I`) together with a **signed, unwrapped** phase delta: `DeltaPhase = Phase[t-1] - Phase[t]`, floored at 1 degree (never taking an absolute value). When the discriminator's quadrant flips, that signed delta swings sharply negative, which forces `alpha` all the way up to `FastLimit` for one bar. This asymmetric "snap to full speed" behavior on quadrant flips is a deliberate part of Ehlers' design — it's how MAMA re-acquires the cycle quickly when the phase model breaks down.
 
-QuanTAlib uses radians everywhere. Phase, period, angle—all radians. The minimum delta is `π/180` (1 degree in radians). The alpha calculation becomes:
+An `atan2(Q, I)` + phase-wrapping formulation (normalizing the delta back into `[-π, π]`) looks more "mathematically correct" but it removes exactly this snap behavior, since wrapping keeps the delta small and positive across quadrant flips instead of letting it spike negative. That single change was enough to make QuanTAlib disagree with TA-Lib and Skender by as much as 11%, even though both of those libraries agree with each other to ~1e-11. QuanTAlib now uses the same `atan(Q/I)` + signed-delta formulation as Ehlers/TA-Lib/Skender:
 
 ```csharp
-// Pre-scale fastLimit to radians-space: preserves degree-based semantics
-// while using radians internally for all trig operations
-_scaledFastLimit = fastLimit * (Math.PI / 180.0);
+// Phase calculation (degrees, matches TA-Lib atan(Q1/I1), not atan2)
+_state.Phase = i1 != 0.0 ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
 
-// Phase delta with signed difference and minimum clamp (Ehlers' design)
-double delta = Math.Max(_p_state.Phase - _state.Phase, Math.PI / 180.0);
-
-// Alpha inversely proportional to phase change rate
-double alpha = _scaledFastLimit / delta;
-alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
+// Signed delta, no wrapping: quadrant flips intentionally spike alpha to FastLimit
+double deltaPhase = _p_state.Phase - _state.Phase;
+if (deltaPhase < 1.0) { deltaPhase = 1.0; }
+double alpha = deltaPhase > 1.0 ? Math.Max(_fastLimit / deltaPhase, _slowLimit) : _fastLimit;
 ```
 
-This preserves Ehlers' parameter semantics (`fastLimit = 0.5` still means "max alpha at 1-degree phase change") while eliminating unit conversion overhead.
-
-### The Atan2 Decision
-
-Ehlers used `atan(Q/I)` with manual zero-checks because TradeStation's `atan2` didn't exist when he wrote this in 2001. Modern implementations cargo-culted the division. QuanTAlib uses `atan2(Q, I)`:
-
-```csharp
-// Period calculation: atan2 handles all quadrants correctly
-double angle = Math.Atan2(_state.Im, _state.Re);
-double period = Math.Abs(angle) > MinDeltaRadians
-    ? TwoPi / Math.Abs(angle)
-    : _p_state.Period;
-
-// Phase calculation: no division-by-zero risk
-_state.Phase = Math.Atan2(q1, i1);
-```
-
-Benefits:
-
-* No conditional branches (atan2 handles i1=0 internally)
-* Proper quadrant handling (range [-π, π] instead of [-π/2, π/2])
-* Fewer edge cases during quadrant crossings
-
-The absolute value in period calculation ensures we always get positive periods, even when the angle is in quadrants 3 or 4. Ehlers' original could produce negative periods that got clamped to 6.0. We handle it mathematically.
+The period discriminator follows the same rule: `Period = 360 / atan(Im/Re)` (degrees, no absolute value). A negative result is not an error — it simply falls outside `[periodFloor, periodCap]` and gets clamped back into range by the existing bounds check, exactly as in TA-Lib.
 
 ### Convergence with Other Libraries
 
-QuanTALib MAMA values will diverge slightly from TA-Lib and Skender libraries. Expected differences:
-
-**Early period (bars 0-100):**
-
-* ±1-5% difference due to initialization and coefficient accumulation
-
-**Steady state (bars 100+):**
-
-* ±0.01-0.05% difference from constant precision errors
-* Larger spikes (±0.1-1%) during quadrant transitions where atan2's range helps
-
-**Trading signals:**
-
-* MAMA/FAMA crossovers will match 98%+ of the time
-* Exact numerical values will differ
-
-This is a feature, not a bug. QuanTAlib is computing the mathematically correct MAMA. Everyone else is computing an approximation that accumulated 20 years of copy-paste errors.
+With the atan-based discriminator, QuanTAlib tracks TA-Lib and Skender to within ~1e-2 absolute at steady state (bars 100+), on price series in the low thousands. The residual comes from warmup/priming differences — TA-Lib primes its Hilbert Transform state with a 32-bar WMA-based unstable period, while QuanTAlib uses a running average of the first 6 bars — not from a discriminator mismatch. MAMA/FAMA crossovers match essentially all of the time.
 
 ### Initialization Philosophy
 
@@ -240,9 +196,9 @@ MAMA is computationally intensive. Each bar requires four Hilbert Transform pass
 | MUL | 24 | 3 | 72 |
 | FMA | 8 | 4 | 32 |
 | DIV | 1 | 15 | 15 |
-| ATAN2 | 3 | 50 | 150 |
+| ATAN | 3 | 45 | 135 |
 | CMP/CLAMP | 8 | 1 | 8 |
-| **Total** | **72** | — | **~305 cycles** |
+| **Total** | **72** | — | **~290 cycles** |
 
 The hot path consists of:
 1. Pre-smoothing (4-tap FIR): 4 MUL + 3 ADD — 15 cycles
@@ -253,10 +209,10 @@ The hot path consists of:
 6. I2/Q2 smoothing: 2 FMA — 8 cycles
 7. Homodyne discriminator (Re/Im): 2 FMA + 2 MUL + 2 ADD/SUB — 22 cycles
 8. Re/Im smoothing: 2 FMA — 8 cycles
-9. Period calculation: 1 ATAN2 + 1 DIV + 4 CMP — 69 cycles
+9. Period calculation: 1 ATAN + 1 DIV + 4 CMP — 64 cycles
 10. Period smoothing: 1 FMA — 4 cycles
-11. Phase calculation: 1 ATAN2 — 50 cycles
-12. Alpha calculation: 1 ATAN2 + 3 CMP + 1 DIV — 66 cycles
+11. Phase calculation: 1 ATAN — 45 cycles
+12. Alpha calculation: 3 CMP + 1 DIV — 18 cycles
 13. MAMA/FAMA update: 2 MUL + 2 ADD/SUB — 8 cycles
 
 **Warmup path (bars ≤ 6):**
@@ -271,7 +227,7 @@ The hot path consists of:
 
 MAMA is an IIR filter with complex phase state — **not vectorizable** across bars due to:
 1. Recursive smoothing dependencies (I2, Q2, Re, Im, Period)
-2. ATAN2 calls with data-dependent branching
+2. ATAN calls with data-dependent branching
 3. Phase delta calculation requiring previous state
 
 | Optimization | Benefit |
@@ -295,19 +251,17 @@ The batch `Calculate` method processes entire arrays in ~180 nanoseconds per bar
 
 ## Validation
 
-Validated against Skender, TA-Lib and Ooples. Divergence is expected and *correct*.
+Validated against Skender, TA-Lib and Ooples, all within an absolute tolerance of 0.01 at steady state (bars 100+).
 
-| Library       | Status       | Notes                                                         |
-| :------------ | :----------- | :------------------------------------------------------------ |
-| **QuanTAlib** | ✅ Reference | Mathematically correct implementation                         |
-| **Skender**   | ⚠️           | Diverges 0.02-0.05% at steady state due to constant precision |
-| **Ooples**    | ⚠️           | High divergence (different initialization strategy)           |
-| **TA-Lib**    | ⚠️           | Diverges 0.02-0.1% due to hardcoded decimals                  |
-| **Tulip**     | N/A          | Not implemented                                               |
+| Library       | Status | Notes                                                                                   |
+| :------------ | :----- | :--------------------------------------------------------------------------------------- |
+| **QuanTAlib** | ✅      | Same `atan(Q/I)` phase discriminator as Ehlers/TA-Lib/Skender                             |
+| **Skender**   | ✔️      | Matches within 0.01 absolute at steady state; residual from warmup/priming differences   |
+| **Ooples**    | ✔️      | Matches within 0.01 absolute at steady state; Ooples also uses truncated 4-decimal constants |
+| **TA-Lib**    | ✔️      | Matches within 0.01 absolute at steady state; residual from WMA-based 32-bar unstable period vs QuanTAlib's 6-bar average warmup |
+| **Tulip**     | N/A    | Not implemented                                                                          |
 
-The divergence is not a bug. TA-Lib uses `a = 0.0962` instead of `5.0/52.0 = 0.09615384...`. After 100 recursive smoothing passes, this 0.04% coefficient error compounds to 0.5-2% in the final value. Skender correctly uses `2π/atan(...)` for period but still uses hardcoded decimals. Only QuanTAlib uses exact fractions throughout.
-
-If you need bit-for-bit compatibility with TA-Lib for legacy backtests, use TA-Lib. If you want the mathematically correct MAMA that Ehlers intended, use QuanTAlib.
+QuanTAlib still uses exact fractions (`5/52`, `15/26`) instead of TA-Lib's truncated decimals (`0.0962`, `0.5769`), which avoids coefficient rounding error compounding over long runs. That is a genuine, if small, precision improvement — but it is independent of, and much smaller than, the phase-discriminator bug this indicator previously had.
 
 ## Usage Guidelines
 
@@ -355,6 +309,6 @@ MAMA works best when combined with indicators that cover its blind spots:
 
 4. **Initialization Bias**: The first 50-100 bars are unreliable. MAMA needs time for the Hilbert Transform to stabilize and for period estimates to converge. Always discard or ignore the first `WarmupPeriod` (set to 50 for safety).
 
-5. **Precision Expectations**: Don't expect your MAMA to match TradingView or TA-Lib to the sixth decimal. It won't. Those implementations have accumulated rounding errors from 20 years of cargo-cult porting. Your values will be more accurate but numerically different. If this breaks your backtests, the backtests were fragile.
+5. **Precision Expectations**: QuanTAlib tracks TA-Lib and Skender within ~0.01 absolute at steady state, but won't match them to the sixth decimal. The residual comes from warmup/priming differences (TA-Lib primes with a 32-bar WMA-based unstable period; QuanTAlib uses a 6-bar running average), not from the phase discriminator. If this breaks your backtests, the backtests were fragile.
 
 6. **Ignoring the Alpha Output**: Many traders only look at MAMA and FAMA values. The adaptive alpha itself is valuable information—it tells you how confident MAMA is in its cycle estimate. High alpha (near FastLimit) means rapid phase change and uncertainty. Low alpha (near SlowLimit) means stable, established trend.

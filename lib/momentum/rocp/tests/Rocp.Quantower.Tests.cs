@@ -12,8 +12,8 @@ public class RocpIndicatorTests
         Assert.Equal(9, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("ROCP - Rate of Change Percentage", indicator.Name);
-        Assert.Contains("100 × (current - past) / past", indicator.Description, StringComparison.Ordinal);
+        Assert.Equal("ROCP - Rate of Change Fractional", indicator.Name);
+        Assert.Contains("(current - past) / past", indicator.Description, StringComparison.Ordinal);
         Assert.True(indicator.SeparateWindow);
         Assert.False(indicator.OnBackGround);
     }
@@ -186,7 +186,7 @@ public class RocpIndicatorTests
     }
 
     [Fact]
-    public void Uptrend_ProducesPositiveRocp()
+    public void Uptrend_ProducesPositiveRoc()
     {
         var indicator = new RocpIndicator { Period = 1 };
         indicator.Initialize();
@@ -200,12 +200,12 @@ public class RocpIndicatorTests
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 
-        double lastRocp = indicator.LinesSeries[0].GetValue(0);
-        Assert.True(lastRocp > 0);
+        double lastRoc = indicator.LinesSeries[0].GetValue(0);
+        Assert.True(lastRoc > 0);
     }
 
     [Fact]
-    public void Downtrend_ProducesNegativeRocp()
+    public void Downtrend_ProducesNegativeRoc()
     {
         var indicator = new RocpIndicator { Period = 1 };
         indicator.Initialize();
@@ -219,12 +219,12 @@ public class RocpIndicatorTests
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 
-        double lastRocp = indicator.LinesSeries[0].GetValue(0);
-        Assert.True(lastRocp < 0);
+        double lastRoc = indicator.LinesSeries[0].GetValue(0);
+        Assert.True(lastRoc < 0);
     }
 
     [Fact]
-    public void FlatPrices_ProducesZeroRocp()
+    public void FlatPrices_ProducesZeroRoc()
     {
         var indicator = new RocpIndicator { Period = 1 };
         indicator.Initialize();
@@ -237,8 +237,8 @@ public class RocpIndicatorTests
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         }
 
-        double lastRocp = indicator.LinesSeries[0].GetValue(0);
-        Assert.Equal(0, lastRocp);
+        double lastRoc = indicator.LinesSeries[0].GetValue(0);
+        Assert.Equal(0, lastRoc);
     }
 
     [Fact]

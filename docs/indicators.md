@@ -273,8 +273,8 @@ Rate of change and velocity measurements. First derivatives of price.
 | [**PMO**](../lib/momentum/pmo/Pmo.md) | Price Momentum Oscillator | Double-smoothed ROC |
 | [**PPO**](../lib/momentum/ppo/Ppo.md) | Percentage Price Oscillator | Percentage EMA difference |
 | [**RS**](../lib/momentum/rs/Rs.md) | Price Relative Strength | Dual-input ratio comparison |
-| [**ROC**](../lib/momentum/roc/Roc.md) | Rate of Change | Absolute price change over N periods |
-| [**ROCP**](../lib/momentum/rocp/Rocp.md) | Rate of Change Percentage | Percentage price change over N periods |
+| [**ROC**](../lib/momentum/roc/Roc.md) | Rate of Change | Percentage price change over N periods |
+| [**ROCP**](../lib/momentum/rocp/Rocp.md) | Rate of Change (Fractional) | Decimal fractional price change over N periods |
 | [**ROCR**](../lib/momentum/rocr/Rocr.md) | Rate of Change Ratio | Price ratio over N periods |
 | [**RSI**](../lib/momentum/rsi/Rsi.md) | Relative Strength Index | Bounded 0-100 momentum |
 | [**RSX**](../lib/momentum/rsx/Rsx.md) | Jurik RSX | Smoothed RSI variant |

@@ -71,7 +71,7 @@ public class RocpTests
     }
 
     [Fact]
-    public void Update_AfterWarmup_ReturnsPercentage()
+    public void Update_AfterWarmup_ReturnsFraction()
     {
         var rocp = new Rocp(2); // period=2
         var values = new double[] { 100, 102, 105, 103, 110 };
@@ -86,8 +86,8 @@ public class RocpTests
             }
             else
             {
-                // percentage: 100 * (current - past) / past
-                double expected = 100.0 * (values[i] - values[i - 2]) / values[i - 2];
+                // fraction: (current - past) / past
+                double expected = (values[i] - values[i - 2]) / values[i - 2];
                 Assert.Equal(expected, tv.Value, 10);
             }
         }
@@ -162,10 +162,10 @@ public class RocpTests
         var corrected = rocp.Update(new TValue(time.AddSeconds(2), 110.0), false);
 
         Assert.NotEqual(first.Value, corrected.Value);
-        // first: 100 * (105-100)/100 = 5%
-        // corrected: 100 * (110-100)/100 = 10%
-        Assert.Equal(5.0, first.Value, 10);
-        Assert.Equal(10.0, corrected.Value, 10);
+        // first: (105-100)/100 = 0.05
+        // corrected: (110-100)/100 = 0.10
+        Assert.Equal(0.05, first.Value, 10);
+        Assert.Equal(0.10, corrected.Value, 10);
     }
 
     [Fact]
@@ -217,9 +217,9 @@ public class RocpTests
         _ = rocp.Update(new TValue(time.AddSeconds(2), 105.0), true);
         var afterNaN = rocp.Update(new TValue(time.AddSeconds(3), double.NaN), true);
 
-        // NaN uses last valid (105), so: 100 * (105-102)/102 ≈ 2.94%
+        // NaN uses last valid (105), so: (105-102)/102 ≈ 0.0294
         Assert.True(double.IsFinite(afterNaN.Value));
-        Assert.Equal(100.0 * (105.0 - 102.0) / 102.0, afterNaN.Value, 10);
+        Assert.Equal((105.0 - 102.0) / 102.0, afterNaN.Value, 10);
     }
 
     [Fact]
@@ -413,7 +413,7 @@ public class RocpTests
     #region Mathematical Properties Tests
 
     [Fact]
-    public void Update_TenPercentIncrease_ReturnsTen()
+    public void Update_TenPercentIncrease_ReturnsPointOne()
     {
         var rocp = new Rocp(1);
         var time = DateTime.UtcNow;
@@ -421,12 +421,12 @@ public class RocpTests
         rocp.Update(new TValue(time, 100.0), true);
         var result = rocp.Update(new TValue(time.AddSeconds(1), 110.0), true);
 
-        // 100 * (110 - 100) / 100 = 10%
-        Assert.Equal(10.0, result.Value, 10);
+        // (110 - 100) / 100 = 0.10
+        Assert.Equal(0.10, result.Value, 10);
     }
 
     [Fact]
-    public void Update_TenPercentDecrease_ReturnsNegativeTen()
+    public void Update_TenPercentDecrease_ReturnsNegativePointOne()
     {
         var rocp = new Rocp(1);
         var time = DateTime.UtcNow;
@@ -434,12 +434,12 @@ public class RocpTests
         rocp.Update(new TValue(time, 100.0), true);
         var result = rocp.Update(new TValue(time.AddSeconds(1), 90.0), true);
 
-        // 100 * (90 - 100) / 100 = -10%
-        Assert.Equal(-10.0, result.Value, 10);
+        // (90 - 100) / 100 = -0.10
+        Assert.Equal(-0.10, result.Value, 10);
     }
 
     [Fact]
-    public void Update_PriceDoubled_Returns100()
+    public void Update_PriceDoubled_Returns1()
     {
         var rocp = new Rocp(1);
         var time = DateTime.UtcNow;
@@ -447,12 +447,12 @@ public class RocpTests
         rocp.Update(new TValue(time, 50.0), true);
         var result = rocp.Update(new TValue(time.AddSeconds(1), 100.0), true);
 
-        // 100 * (100 - 50) / 50 = 100%
-        Assert.Equal(100.0, result.Value, 10);
+        // (100 - 50) / 50 = 1.0
+        Assert.Equal(1.0, result.Value, 10);
     }
 
     [Fact]
-    public void Update_PriceHalved_ReturnsNegative50()
+    public void Update_PriceHalved_ReturnsNegativePointFive()
     {
         var rocp = new Rocp(1);
         var time = DateTime.UtcNow;
@@ -460,8 +460,8 @@ public class RocpTests
         rocp.Update(new TValue(time, 100.0), true);
         var result = rocp.Update(new TValue(time.AddSeconds(1), 50.0), true);
 
-        // 100 * (50 - 100) / 100 = -50%
-        Assert.Equal(-50.0, result.Value, 10);
+        // (50 - 100) / 100 = -0.50
+        Assert.Equal(-0.50, result.Value, 10);
     }
 
     [Fact]

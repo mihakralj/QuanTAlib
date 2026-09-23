@@ -5,9 +5,9 @@ using static QuanTAlib.IndicatorExtensions;
 namespace QuanTAlib;
 
 /// <summary>
-/// ROC (Rate of Change) Quantower indicator.
-/// Calculates absolute price change over a lookback period.
-/// Formula: current - past
+/// ROC (Rate of Change Percentage) Quantower indicator.
+/// Calculates percentage price change over a lookback period.
+/// Formula: 100 × (current - past) / past
 /// </summary>
 public class RocIndicator : Indicator, IWatchlistIndicator
 {
@@ -28,8 +28,8 @@ public class RocIndicator : Indicator, IWatchlistIndicator
 
     public RocIndicator()
     {
-        Name = "ROC - Rate of Change (Absolute)";
-        Description = "Calculates absolute price change: current - past";
+        Name = "ROC - Rate of Change Percentage";
+        Description = "Calculates percentage price change: 100 × (current - past) / past";
         SeparateWindow = true;
         OnBackGround = false;
     }

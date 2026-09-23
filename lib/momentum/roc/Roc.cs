@@ -3,13 +3,14 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// ROC: Rate of Change (Absolute)
+/// ROC: Rate of Change (Percentage)
 /// </summary>
 /// <remarks>
-/// Absolute price momentum: difference between current and N-period-ago value.
-/// Also known as Momentum (MOM). See ROCP for percentage, ROCR for ratio.
+/// Percentage price momentum: percentage change between current and N-period-ago value.
+/// Returns percentage values (e.g., 5.0 = 5% increase, -3.0 = 3% decrease).
+/// See MOM for absolute change, ROCP for fractional (decimal) change, ROCR for ratio.
 ///
-/// Calculation: <c>ROC = Price - Price[N]</c>.
+/// Calculation: <c>ROC = 100 × (Price - Price[N]) / Price[N]</c>.
 /// </remarks>
 /// <seealso href="Roc.md">Detailed documentation</seealso>
 [SkipLocalsInit]
@@ -25,7 +26,7 @@ public sealed class Roc : AbstractBase
     public override bool IsHot => _buffer.Count > _period;
 
     /// <summary>
-    /// Initializes a new Rate of Change indicator with specified lookback period.
+    /// Initializes a new Rate of Change Percentage indicator with specified lookback period.
     /// </summary>
     /// <param name="period">Lookback period (must be >= 1)</param>
     public Roc(int period = 9)
@@ -42,7 +43,7 @@ public sealed class Roc : AbstractBase
     }
 
     /// <summary>
-    /// Initializes a new Rate of Change indicator with source for event-based chaining.
+    /// Initializes a new Rate of Change Percentage indicator with source for event-based chaining.
     /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period</param>
@@ -75,12 +76,12 @@ public sealed class Roc : AbstractBase
         double result;
         if (_buffer.Count <= _period)
         {
-            result = 0.0;
+            result = 0.0; // Default percentage during warmup
         }
         else
         {
             double past = _buffer[0];
-            result = value - past;
+            result = past != 0 ? 100.0 * (value - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
         }
 
         Last = new TValue(input.Time, result);
@@ -121,7 +122,7 @@ public sealed class Roc : AbstractBase
     }
 
     /// <summary>
-    /// Calculates absolute change over a span of values.
+    /// Calculates rate of change percentage over a span of values.
     /// </summary>
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 9)
     {
@@ -142,7 +143,15 @@ public sealed class Roc : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            output[i] = i < period ? 0.0 : source[i] - source[i - period];
+            if (i < period)
+            {
+                output[i] = 0.0; // Default percentage during warmup
+            }
+            else
+            {
+                double past = source[i - period];
+                output[i] = past != 0 ? 100.0 * (source[i] - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
+            }
         }
     }
 

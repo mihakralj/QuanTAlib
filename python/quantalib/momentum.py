@@ -103,7 +103,7 @@ def rs(x: object, y: object, smoothPeriod: int = 5, offset: int = 0, **kwargs) -
 
 
 def rocp(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
-    """Rate of Change (Percentage)."""
+    """Rate of Change (Fractional). Matches TA-Lib's ROCP (0.05 = 5%)."""
     period = int(kwargs.get("length", period))
     offset = int(offset)
     src, idx = _arr(close)
@@ -155,7 +155,7 @@ def rsi(close: object, period: int = 14, offset: int = 0, **kwargs) -> object:
 
 
 def roc(close: object, period: int = 10, offset: int = 0, **kwargs) -> object:
-    """Rate of Change."""
+    """Rate of Change (Percentage). Matches TA-Lib's ROC (5.0 = 5%)."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
     _check(_lib.qtl_roc(_ptr(src), n, _ptr(dst), period))

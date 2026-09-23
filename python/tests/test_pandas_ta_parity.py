@@ -193,14 +193,10 @@ class TestMomentum:
             _verify_last_n(qtl, pta, tolerance=1e-6,
                            label=f"RSI({length})")
 
-    @pytest.mark.xfail(reason="ROC formula differs: quantalib uses absolute "
-                               "difference (close-prev), pandas-ta uses "
-                               "percentage ((close/prev - 1)*100). "
-                               "Known delta per SPEC §9.3.")
     def test_roc(self) -> None:
-        """ROC: quantalib 'Roc' is Rate of Change (Absolute) = close - close[n].
-        pandas-ta 'roc' is Rate of Change (Percentage) = ((c/c[n])-1)*100.
-        These are fundamentally different indicators."""
+        """ROC: quantalib 'roc' now matches pandas-ta 'roc' exactly (both are
+        percentage form: 100 * (close/close[n] - 1)). quantalib's absolute-
+        difference variant lives in 'mom' instead (see test_mom)."""
         qtl = roc(CLOSE, length=10)
         pta = ta.roc(SERIES, length=10)
         _verify_last_n(qtl, pta, tolerance=1e-7, label="ROC(10)")

@@ -28,7 +28,9 @@ public class AdValidationTests
             quantalibValues.Add(ad.Update(bar).Value);
         }
 
-        ValidationHelper.VerifyData(quantalibValues.ToArray(), skenderValues, 0, 100, ValidationHelper.SkenderTolerance);
+        // AD is an unbounded cumulative sum; after ~10k bars the running total reaches
+        // the tens of thousands, where summation-order FP rounding exceeds 1e-9.
+        ValidationHelper.VerifyData(quantalibValues.ToArray(), skenderValues, 0, 100, 1e-8);
     }
 
     [Fact]

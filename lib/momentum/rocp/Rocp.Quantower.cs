@@ -5,9 +5,9 @@ using static QuanTAlib.IndicatorExtensions;
 namespace QuanTAlib;
 
 /// <summary>
-/// ROCP (Rate of Change Percentage) Quantower indicator.
-/// Calculates percentage price change over a lookback period.
-/// Formula: 100 × (current - past) / past
+/// ROCP (Rate of Change, Fractional) Quantower indicator.
+/// Calculates decimal fractional price change over a lookback period.
+/// Formula: (current - past) / past
 /// </summary>
 public class RocpIndicator : Indicator, IWatchlistIndicator
 {
@@ -28,8 +28,8 @@ public class RocpIndicator : Indicator, IWatchlistIndicator
 
     public RocpIndicator()
     {
-        Name = "ROCP - Rate of Change Percentage";
-        Description = "Calculates percentage price change: 100 × (current - past) / past";
+        Name = "ROCP - Rate of Change Fractional";
+        Description = "Calculates fractional price change: (current - past) / past";
         SeparateWindow = true;
         OnBackGround = false;
     }

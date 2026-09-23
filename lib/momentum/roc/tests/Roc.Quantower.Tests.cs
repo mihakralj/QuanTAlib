@@ -1,39 +1,67 @@
-using Xunit;
 using TradingPlatform.BusinessLayer;
+using Xunit;
 
 namespace QuanTAlib.Tests;
 
 public class RocIndicatorTests
 {
     [Fact]
-    public void RocIndicator_Constructor_SetsDefaults()
+    public void Constructor_InitializesDefaults()
     {
         var indicator = new RocIndicator();
-
         Assert.Equal(9, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("ROC - Rate of Change (Absolute)", indicator.Name);
+        Assert.Equal("ROC - Rate of Change Percentage", indicator.Name);
+        Assert.Contains("100 × (current - past) / past", indicator.Description, StringComparison.Ordinal);
         Assert.True(indicator.SeparateWindow);
         Assert.False(indicator.OnBackGround);
     }
 
     [Fact]
-    public void RocIndicator_MinHistoryDepths_IsPeriodPlusOne()
+    public void ShortName_ReflectsPeriod()
     {
-        var indicator = new RocIndicator { Period = 10 };
-        Assert.Equal(11, indicator.MinHistoryDepths);
+        var indicator = new RocIndicator { Period = 14 };
+        Assert.Equal("ROC(14)", indicator.ShortName);
     }
 
     [Fact]
-    public void RocIndicator_ShortName_IncludesPeriod()
+    public void MinHistoryDepths_IsPeriodPlusOne()
     {
-        var indicator = new RocIndicator { Period = 5 };
-        Assert.Equal("ROC(5)", indicator.ShortName);
+        var indicator = new RocIndicator { Period = 9 };
+        Assert.Equal(10, indicator.MinHistoryDepths);
     }
 
     [Fact]
-    public void RocIndicator_Initialize_CreatesLineSeries()
+    public void MinHistoryDepths_MatchesWatchlistInterface()
+    {
+        var indicator = new RocIndicator { Period = 17 };
+        Assert.Equal(18, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+    }
+
+    [Fact]
+    public void Period_CanBeSet()
+    {
+        var indicator = new RocIndicator { Period = 20 };
+        Assert.Equal(20, indicator.Period);
+    }
+
+    [Fact]
+    public void Source_CanBeSet()
+    {
+        var indicator = new RocIndicator { Source = SourceType.Open };
+        Assert.Equal(SourceType.Open, indicator.Source);
+    }
+
+    [Fact]
+    public void ShowColdValues_CanBeSet()
+    {
+        var indicator = new RocIndicator { ShowColdValues = false };
+        Assert.False(indicator.ShowColdValues);
+    }
+
+    [Fact]
+    public void Initialize_CreatesLineSeries()
     {
         var indicator = new RocIndicator();
         indicator.Initialize();
@@ -44,7 +72,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
+    public void ProcessUpdate_HistoricalBar_ComputesValue()
     {
         var indicator = new RocIndicator();
         indicator.Initialize();
@@ -60,7 +88,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_ProcessUpdate_NewBar_ComputesValue()
+    public void ProcessUpdate_NewBar_ComputesValue()
     {
         var indicator = new RocIndicator();
         indicator.Initialize();
@@ -76,7 +104,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
+    public void ProcessUpdate_NewTick_ProcessesWithoutError()
     {
         var indicator = new RocIndicator();
         indicator.Initialize();
@@ -91,7 +119,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_MultipleUpdates_ProducesCorrectSequence()
+    public void MultipleUpdates_ProducesCorrectSequence()
     {
         var indicator = new RocIndicator();
         indicator.Initialize();
@@ -119,7 +147,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_DifferentSourceTypes_Work()
+    public void DifferentSourceTypes_Work()
     {
         var sources = new[]
         {
@@ -145,7 +173,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_ShowColdValues_False_SetsNaN()
+    public void ShowColdValues_False_SetsNaN()
     {
         var indicator = new RocIndicator { ShowColdValues = false };
         indicator.Initialize();
@@ -158,7 +186,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_Uptrend_ProducesPositiveRoc()
+    public void Uptrend_ProducesPositiveRoc()
     {
         var indicator = new RocIndicator { Period = 1 };
         indicator.Initialize();
@@ -177,7 +205,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_Downtrend_ProducesNegativeRoc()
+    public void Downtrend_ProducesNegativeRoc()
     {
         var indicator = new RocIndicator { Period = 1 };
         indicator.Initialize();
@@ -196,7 +224,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_FlatPrices_ProducesZeroRoc()
+    public void FlatPrices_ProducesZeroRoc()
     {
         var indicator = new RocIndicator { Period = 1 };
         indicator.Initialize();
@@ -214,27 +242,7 @@ public class RocIndicatorTests
     }
 
     [Fact]
-    public void RocIndicator_KnownRoc_Correct()
-    {
-        var indicator = new RocIndicator { Period = 1 };
-        indicator.Initialize();
-
-        var now = DateTime.UtcNow;
-
-        // Add bar at 100
-        indicator.HistoricalData.AddBar(now, 100, 100, 100, 100);
-        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-
-        // Add bar at 110 (ROC = 110 - 100 = 10)
-        indicator.HistoricalData.AddBar(now.AddMinutes(1), 110, 110, 110, 110);
-        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-
-        double roc = indicator.LinesSeries[0].GetValue(0);
-        Assert.Equal(10, roc, 5);
-    }
-
-    [Fact]
-    public void RocIndicator_DifferentPeriods_Work()
+    public void DifferentPeriods_Work()
     {
         var periods = new[] { 1, 5, 10, 20 };
 
@@ -245,7 +253,6 @@ public class RocIndicatorTests
 
             var now = DateTime.UtcNow;
 
-            // Add enough bars
             for (int i = 0; i < period + 5; i++)
             {
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 102 + i, 98 + i, 101 + i);

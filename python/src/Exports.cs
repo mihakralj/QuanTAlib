@@ -144,7 +144,7 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    // Roc: Pattern A
+    // Roc: Pattern A (Rate of Change, percentage: 100 * (v - v[n]) / v[n])
     [UnmanagedCallersOnly(EntryPoint = "qtl_roc")]
     public static int QtlRoc(double* src, int n, double* dst, int period)
     {

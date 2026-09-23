@@ -129,12 +129,10 @@ public sealed class NatrValidationTests : IDisposable
     {
         int[] periods = { 14 };
 
-        // Note: QuanTAlib NATR uses warmup-compensated RMA which gives slightly different
-        // results than TA-Lib's classic Wilder's approach. The difference (~4-7%) accumulates
-        // over 5000 bars but both implementations are mathematically valid.
-        // Using absolute tolerance of 0.10 to account for accumulated drift divergence
-        // QuanTAlib warmup-compensated RMA diverges from TA-Lib classic Wilder over time
-        const double NatrTolerance = 0.10;
+        // TA-Lib's ATR output array is compact: atrOutput[j] corresponds to input bar
+        // (j + offset), where offset == lookback. The close price must be read from the
+        // same input bar, not from atrOutput's own index.
+        const double NatrTolerance = ValidationHelper.TalibTolerance;
 
         // Prepare data for TA-Lib (double[])
         double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
@@ -153,14 +151,15 @@ public sealed class NatrValidationTests : IDisposable
             Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.AtrLookback(period);
+            (int offset, int length) = outRange.GetOffsetAndLength(atrOutput.Length);
 
-            // Convert ATR to NATR: (ATR / Close) * 100
+            // Convert ATR to NATR: (ATR / Close) * 100, aligning close with its own bar
             var expectedNatr = new double[atrOutput.Length];
-            for (int i = outRange.Start.Value; i < outRange.End.Value; i++)
+            for (int j = 0; j < length; j++)
             {
-                double atr = atrOutput[i];
-                double close = cData[i];
-                expectedNatr[i] = close > 0 ? (atr / close) * 100.0 : double.NaN;
+                double atr = atrOutput[j];
+                double close = cData[j + offset];
+                expectedNatr[j] = close > 0 ? (atr / close) * 100.0 : double.NaN;
             }
 
             // Compare last 100 records
@@ -174,12 +173,10 @@ public sealed class NatrValidationTests : IDisposable
     {
         int[] periods = { 14 };
 
-        // Note: QuanTAlib NATR uses warmup-compensated RMA which gives slightly different
-        // results than TA-Lib's classic Wilder's approach. The difference (~4-7%) accumulates
-        // over 5000 bars but both implementations are mathematically valid.
-        // Using absolute tolerance of 0.10 to account for accumulated drift divergence
-        // QuanTAlib warmup-compensated RMA diverges from TA-Lib classic Wilder over time
-        const double NatrTolerance = 0.10;
+        // TA-Lib's ATR output array is compact: atrOutput[j] corresponds to input bar
+        // (j + offset), where offset == lookback. The close price must be read from the
+        // same input bar, not from atrOutput's own index.
+        const double NatrTolerance = ValidationHelper.TalibTolerance;
 
         // Prepare data for TA-Lib (double[])
         double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
@@ -202,14 +199,15 @@ public sealed class NatrValidationTests : IDisposable
             Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.AtrLookback(period);
+            (int offset, int length) = outRange.GetOffsetAndLength(atrOutput.Length);
 
-            // Convert ATR to NATR
+            // Convert ATR to NATR: (ATR / Close) * 100, aligning close with its own bar
             var expectedNatr = new double[atrOutput.Length];
-            for (int i = outRange.Start.Value; i < outRange.End.Value; i++)
+            for (int j = 0; j < length; j++)
             {
-                double atr = atrOutput[i];
-                double close = cData[i];
-                expectedNatr[i] = close > 0 ? (atr / close) * 100.0 : double.NaN;
+                double atr = atrOutput[j];
+                double close = cData[j + offset];
+                expectedNatr[j] = close > 0 ? (atr / close) * 100.0 : double.NaN;
             }
 
             // Compare last 100 records

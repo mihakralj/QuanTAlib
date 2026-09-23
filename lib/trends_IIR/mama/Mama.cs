@@ -22,7 +22,6 @@ public sealed class Mama : AbstractBase
 
     private readonly double _fastLimit;
     private readonly double _slowLimit;
-    private readonly double _scaledFastLimit;
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
@@ -50,8 +49,7 @@ public sealed class Mama : AbstractBase
     private const double AdjSlope = 3.0 / 40.0; // 0.075
     private const double AdjIntercept = 27.0 / 50.0; // 0.54
 
-    private const double TwoPi = 2.0 * Math.PI;
-    private const double MinDeltaRadians = Math.PI / 180.0; // 1 degree in radians
+    private const double RadToDeg = 180.0 / Math.PI;
     private const double SmoothCoef = 0.2;
     private const double SmoothPrev = 0.8;
     private const double FamaAlphaFactor = 0.5;
@@ -66,7 +64,6 @@ public sealed class Mama : AbstractBase
         }
         _fastLimit = fastLimit;
         _slowLimit = slowLimit;
-        _scaledFastLimit = fastLimit * MinDeltaRadians;
 
         _priceBuffer = new RingBuffer(7);
         _smoothBuffer = new RingBuffer(7);
@@ -107,28 +104,6 @@ public sealed class Mama : AbstractBase
 
         Last = new TValue(DateTime.MinValue, double.NaN);
         Fama = new TValue(DateTime.MinValue, double.NaN);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double NormalizeAngle(double angle)
-    {
-        // Guard against non-finite inputs to prevent infinite loop
-        if (!double.IsFinite(angle))
-        {
-            return 0.0; // Return neutral angle for invalid inputs
-        }
-
-        while (angle <= -Math.PI)
-        {
-            angle += TwoPi;
-        }
-
-        while (angle > Math.PI)
-        {
-            angle -= TwoPi;
-        }
-
-        return angle;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -197,11 +172,12 @@ public sealed class Mama : AbstractBase
             _state.Re = Math.FusedMultiplyAdd(SmoothCoef, re_val, SmoothPrev * _p_state.Re);
             _state.Im = Math.FusedMultiplyAdd(SmoothCoef, im_val, SmoothPrev * _p_state.Im);
 
-            // Calculate Period
-            double angle = Math.Atan2(_state.Im, _state.Re);
-            double period = Math.Abs(angle) > MinDeltaRadians
-                ? TwoPi / Math.Abs(angle)
-                : _p_state.Period;
+            // Calculate Period (Ehlers homodyne discriminator; TA-Lib uses atan(Im/Re), not atan2)
+            double period = _p_state.Period;
+            if (_state.Im != 0.0 && _state.Re != 0.0)
+            {
+                period = 360.0 / (Math.Atan(_state.Im / _state.Re) * RadToDeg);
+            }
 
             // Adjust Period
             double periodCap = _p_state.Period * 1.5;
@@ -230,14 +206,28 @@ public sealed class Mama : AbstractBase
             // Smooth Period (using FMA)
             _state.Period = Math.FusedMultiplyAdd(SmoothCoef, period, SmoothPrev * _p_state.Period);
 
-            // Phase calculation
-            _state.Phase = Math.Atan2(q1, i1);
+            // Phase calculation (degrees, matches TA-Lib atan(Q1/I1), not atan2)
+            _state.Phase = i1 != 0.0 ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
 
-            // Adaptive alpha
-            double diff = NormalizeAngle(_p_state.Phase - _state.Phase);
-            double delta = Math.Max(Math.Abs(diff), MinDeltaRadians);
-            double alpha = _scaledFastLimit / delta;
-            alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
+            // Adaptive alpha: delta phase is a signed difference (no wrapping), floored at 1 degree
+            double deltaPhase = _p_state.Phase - _state.Phase;
+            if (deltaPhase < 1.0)
+            {
+                deltaPhase = 1.0;
+            }
+            double alpha;
+            if (deltaPhase > 1.0)
+            {
+                alpha = _fastLimit / deltaPhase;
+                if (alpha < _slowLimit)
+                {
+                    alpha = _slowLimit;
+                }
+            }
+            else
+            {
+                alpha = _fastLimit;
+            }
 
             // Final indicators (using FMA for precision)
             double decay = 1.0 - alpha;
@@ -372,10 +362,6 @@ public sealed class Mama : AbstractBase
 
         // Constants
         const int Mask = 7;
-        // Pre-scale fastLimit by MinDeltaRadians so alpha calculation
-        // produces same numerical results as degree-based formula:
-        // alpha_rad = (fastLimit × π/180) / delta_rad ≡ alpha_deg = fastLimit / delta_deg
-        double scaledFastLimit = fastLimit * MinDeltaRadians;
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -453,11 +439,12 @@ public sealed class Mama : AbstractBase
                 re = Math.FusedMultiplyAdd(SmoothCoef, re_val, SmoothPrev * p_re);
                 im = Math.FusedMultiplyAdd(SmoothCoef, im_val, SmoothPrev * p_im);
 
-                // Calculate Period
-                double angle = Math.Atan2(im, re);
-                double newPeriod = Math.Abs(angle) > MinDeltaRadians
-                    ? TwoPi / Math.Abs(angle)
-                    : p_period;
+                // Calculate Period (Ehlers homodyne discriminator; TA-Lib uses atan(Im/Re), not atan2)
+                double newPeriod = p_period;
+                if (im != 0.0 && re != 0.0)
+                {
+                    newPeriod = 360.0 / (Math.Atan(im / re) * RadToDeg);
+                }
 
                 // Adjust Period
                 double periodCap = p_period * 1.5;
@@ -486,14 +473,28 @@ public sealed class Mama : AbstractBase
                 // Smooth Period (using FMA)
                 period = Math.FusedMultiplyAdd(SmoothCoef, newPeriod, SmoothPrev * p_period);
 
-                // Phase calculation
-                double phase = Math.Atan2(q1, i1);
+                // Phase calculation (degrees, matches TA-Lib atan(Q1/I1), not atan2)
+                double phase = i1 != 0.0 ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
 
-                // Adaptive alpha
-                double diff = NormalizeAngle(p_phase - phase);
-                double delta = Math.Max(Math.Abs(diff), MinDeltaRadians);
-                double alpha = scaledFastLimit / delta;
-                alpha = Math.Clamp(alpha, slowLimit, fastLimit);
+                // Adaptive alpha: delta phase is a signed difference (no wrapping), floored at 1 degree
+                double deltaPhase = p_phase - phase;
+                if (deltaPhase < 1.0)
+                {
+                    deltaPhase = 1.0;
+                }
+                double alpha;
+                if (deltaPhase > 1.0)
+                {
+                    alpha = fastLimit / deltaPhase;
+                    if (alpha < slowLimit)
+                    {
+                        alpha = slowLimit;
+                    }
+                }
+                else
+                {
+                    alpha = fastLimit;
+                }
 
                 // Final indicators (using FMA for precision)
                 double decay = 1.0 - alpha;

@@ -7,34 +7,34 @@ namespace QuanTAlib.Tests;
 public static class ValidationHelper
 {
     /// <summary>
-    /// Default tolerance for floating-point comparisons (1e-7).
+    /// Default tolerance for floating-point comparisons (1e-9).
     /// Suitable for most indicator comparisons.
     /// </summary>
-    public const double DefaultTolerance = 1e-7;
+    public const double DefaultTolerance = 1e-9;
 
     /// <summary>
-    /// Tolerance for Ooples Finance library comparisons (1e-7).
-    /// May need adjustment for specific indicators with different internal precision.
+    /// Tolerance for Ooples Finance library comparisons (1e-6).
+    /// Ooples uses truncated decimal constants internally, so more precision loss is expected.
     /// </summary>
-    public const double OoplesTolerance = 1e-7;
+    public const double OoplesTolerance = 1e-6;
 
     /// <summary>
-    /// Tolerance for Skender.Stock.Indicators library comparisons (1e-7).
+    /// Tolerance for Skender.Stock.Indicators library comparisons (1e-9).
     /// Skender uses decimal internally, so some precision loss is expected.
     /// </summary>
-    public const double SkenderTolerance = 1e-7;
+    public const double SkenderTolerance = 1e-9;
 
     /// <summary>
-    /// Tolerance for TA-Lib (TALib.NETCore) library comparisons (1e-7).
+    /// Tolerance for TA-Lib (TALib.NETCore) library comparisons (1e-9).
     /// TA-Lib uses double precision throughout.
     /// </summary>
-    public const double TalibTolerance = 1e-7;
+    public const double TalibTolerance = 1e-9;
 
     /// <summary>
-    /// Tolerance for Tulip library comparisons (1e-7).
+    /// Tolerance for Tulip library comparisons (1e-9).
     /// Note: Tulip may have 1-bar shifts due to different initialization strategies.
     /// </summary>
-    public const double TulipTolerance = 1e-7;
+    public const double TulipTolerance = 1e-9;
 
     /// <summary>
     /// Relative tolerance for percentage-based comparisons (0.5%).

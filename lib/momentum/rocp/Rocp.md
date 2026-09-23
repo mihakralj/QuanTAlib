@@ -1,6 +1,6 @@
-# ROCP: Rate of Change Percentage
+# ROCP: Rate of Change (Fractional)
 
-> *The percentage form of momentum: by what percent has price changed? The most intuitive momentum measure.*
+> *The decimal-fraction form of momentum: matches TA-Lib's ROCP exactly. Multiply by 100 to get percentage (QuanTAlib's ROC).*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -12,125 +12,58 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [rocp.pine](rocp.pine)                       |
 
-- ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago.
-- **Similar:** [ROC](../roc/Roc.md), [ROCR](../rocr/Rocr.md) | **Complementary:** Volume ROC | **Trading note:** Rate of Change Percentage; decimal form of ROC (0.05 = 5%).
-- Validated against TA-Lib, Skender, and Tulip reference implementations where available.
+- ROCP (Rate of Change, Fractional) calculates the decimal fractional change between the current value and the value N periods ago.
+- **Similar:** [MOM](../mom/Mom.md), [ROC](../roc/Roc.md), [ROCR](../rocr/Rocr.md) | **Complementary:** Volume ROC | **Trading note:** Rate of Change, decimal form (0.05 = 5%); matches TA-Lib's ROCP.
+- Validated against TA-Lib reference implementation.
 
-ROCP (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago. This is the most commonly used form of rate of change, expressing change in percentage terms that are directly interpretable (e.g., 5.0 = 5% increase).
+ROCP calculates the fractional (decimal) change between the current value and the value N periods ago (e.g., 0.05 = 5% increase, -0.03 = 3% decrease). It is identical to QuanTAlib's [ROC](../roc/Roc.md) divided by 100.
 
 ## Historical Context
 
-ROCP is the standard way of expressing price momentum in percentage terms. It's widely used in technical analysis because percentage changes are comparable across different instruments regardless of their price levels.
+TA-Lib exposes three related rate-of-change functions that are frequently confused:
 
-The terminology varies by platform:
-- **TA-Lib**: Uses `ROCP` for percentage change / 100 (decimal form)
-- **TradingView/PineScript**: Often uses `change` for this calculation
-- **QuanTAlib**: Uses `ROCP` for percentage (5.0 = 5%), `CHANGE` for decimal (0.05 = 5%)
+- **`MOM`**: absolute change, `Price - Price[N]` (price units)
+- **`ROC`**: percentage change, `100 × (Price - Price[N]) / Price[N]` (5.0 = 5%)
+- **`ROCP`**: fractional change, `(Price - Price[N]) / Price[N]` (0.05 = 5%)
+- **`ROCR`**: ratio, `Price / Price[N]` (1.05 = 5% increase)
 
-## Architecture & Physics
+QuanTAlib mirrors this exactly: `Mom`, `Roc`, `Rocp`, `Rocr` map one-to-one to TA-Lib's `MOM`, `ROC`, `ROCP`, `ROCR`.
 
-### 1. Ring Buffer Storage
-
-The indicator maintains a sliding window of `period + 1` values:
+## Core Formula
 
 $$
-\text{buffer} = [v_{t-n}, v_{t-n+1}, ..., v_{t-1}, v_t]
+\text{ROCP}_t = \frac{P_t - P_{t-n}}{P_{t-n}}
 $$
-
-where $n$ is the lookback period.
-
-### 2. Percentage Calculation
-
-$$
-\text{ROCP}_t = 100 \times \frac{v_t - v_{t-n}}{v_{t-n}}
-$$
-
-where:
-- $v_t$ = current value
-- $v_{t-n}$ = value from $n$ periods ago
-- Result is in percentage units (5.0 = 5%)
-
-## Mathematical Foundation
-
-### Core Formula
-
-$$
-\text{ROCP}_t = 100 \times \frac{P_t - P_{t-n}}{P_{t-n}}
-$$
-
-### Relationship to Other Rate of Change Variants
-
-| Indicator | Formula | Output |
-|-----------|---------|--------|
-| **ROC** | $P_t - P_{t-n}$ | Absolute (price units) |
-| **ROCP** | $\frac{P_t - P_{t-n}}{P_{t-n}} \times 100$ | Percentage (%) |
-| **ROCR** | $\frac{P_t}{P_{t-n}}$ | Ratio (dimensionless) |
-| **CHANGE** | $\frac{P_t - P_{t-n}}{P_{t-n}}$ | Decimal (0.10 = 10%) |
 
 ### Conversions
 
 $$
-\text{ROCP} = \text{CHANGE} \times 100
+\text{ROCP} = \frac{\text{ROC}}{100}
 $$
 
-$$
-\text{ROCP} = (\text{ROCR} - 1) \times 100
-$$
+## Behavior
 
-$$
-\text{CHANGE} = \text{ROCP} / 100
-$$
-
-## Performance Profile
-
-### Operation Count (Streaming Mode)
-
-| Operation | Count | Notes |
-| :--- | :---: | :--- |
-| SUB | 1 | current - past |
-| DIV | 1 | change / past |
-| MUL | 1 | × 100 |
-| Buffer add | 1 | O(1) ring buffer |
-| **Total** | **~4 ops** | Very lightweight |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact arithmetic |
-| **Timeliness** | 10/10 | Zero lag |
-| **Smoothness** | 3/10 | Reflects raw volatility |
-| **Simplicity** | 10/10 | Basic arithmetic |
-
-## Interpretation
-
-* **ROCP = 0.0**: No change from N periods ago
-* **ROCP > 0**: Price increased (e.g., 5.0 = 5% increase)
-* **ROCP < 0**: Price decreased (e.g., -3.0 = 3% decrease)
-* **ROCP = 100**: Price doubled
-* **ROCP = -50**: Price halved
+* **ROCP > 0**: Price increased (e.g., 0.05 = 5% increase)
+* **ROCP < 0**: Price decreased (e.g., -0.03 = 3% decrease)
+* **ROCP = 1.0**: Price doubled
+* **ROCP = -0.5**: Price halved
 
 ## Validation
 
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Note: TA-Lib ROCP returns decimal (0.05), multiply by 100 |
-| **TradingView** | ✅ | Matches PineScript calculation |
+| **TA-Lib** | ✅ | Matches TA-Lib's `ROCP` directly (both return the decimal fraction) |
 
 ## Common Pitfalls
 
-1. **Scale**: ROCP returns percentage values directly. A return of 5.0 means 5%, not 0.05.
+1. **Scale**: ROCP returns a decimal fraction. A return of 0.05 means 5%, not 5.0.
 
-2. **Division by zero**: If the historical price is zero, ROCP returns 0.0 as a safe default.
+2. **Don't confuse with ROC**: QuanTAlib's `Roc` (a separate indicator) returns percentage (5.0 for 5%). This `Rocp` indicator returns the decimal fraction (0.05 for 5%).
 
-3. **TA-Lib difference**: TA-Lib's ROCP returns decimal form (0.05 for 5%), while this implementation returns percentage form (5.0).
+3. **Division by zero**: If the historical price is zero, ROCP returns 0.0 as a safe default.
 
-4. **Compounding**: Unlike ROCR, ROCP values cannot be directly multiplied for multi-period changes.
-
-5. **Warmup period**: The first `period` values return 0.0.
+4. **Warmup period**: The first `period` values return 0.0.
 
 ## References
 
-- Pring, M. J. (2014). "Technical Analysis Explained." McGraw-Hill.
-- Murphy, J. J. (1999). "Technical Analysis of the Financial Markets."
 - TA-Lib Documentation: ROCP function

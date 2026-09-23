@@ -1,19 +1,19 @@
 // Licensed under the Apache License, Version 2.0
 // © mihakralj
 //@version=6
-indicator("Rate of Change Percentage (ROCP)", "ROCP", overlay=false)
+indicator("Rate of Change Fractional (ROCP)", "ROCP", overlay=false)
 
-//@function Calculates percentage Rate of Change between current price and N periods ago
+//@function Calculates fractional (decimal) Rate of Change between current price and N periods ago
 //@param source Source price series
 //@param length Lookback period
-//@returns Percentage price change value
+//@returns Fractional price change value (0.05 = 5%)
 rocp(series float source, simple int length)=>
     if length<=0
         runtime.error("Length must be greater than 0")
     var int count = 0
     float change = na
     if not na(source[count]) and source[count] != 0
-        change := 100 * (source - source[count]) / source[count]
+        change := (source - source[count]) / source[count]
         count := math.min(count + 1, length)
     change
 

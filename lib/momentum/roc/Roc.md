@@ -1,6 +1,6 @@
-# ROC: Rate of Change (Absolute)
+# ROC: Rate of Change Percentage
 
-> *The simplest momentum measure: how far has price moved? Not percentage, not ratio - just the raw difference.*
+> *The percentage form of momentum: by what percent has price changed? The most intuitive momentum measure.*
 
 | Property         | Value                            |
 | ---------------- | -------------------------------- |
@@ -12,22 +12,20 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [roc.pine](roc.pine)                       |
 
-- ROC (Rate of Change) calculates the absolute price difference between the current value and the value N periods ago.
-- **Similar:** [ROCP](../rocp/Rocp.md), [MOM](../mom/Mom.md) | **Complementary:** Moving average for smoothing | **Trading note:** Rate of Change; percentage price change over n periods. Unbounded oscillator.
+- ROC (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago.
+- **Similar:** [MOM](../mom/Mom.md), [ROCP](../rocp/Rocp.md), [ROCR](../rocr/Rocr.md) | **Complementary:** Volume ROC | **Trading note:** Rate of Change, percentage form (5.0 = 5%); matches TA-Lib's ROC.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-ROC (Rate of Change) calculates the absolute price difference between the current value and the value N periods ago. This is the most basic form of momentum measurement, returning the raw price change in the same units as the input data. Unlike ROCP (percentage) or ROCR (ratio), ROC preserves the original scale, making it directly interpretable in dollar/point terms.
+ROC (Rate of Change Percentage) calculates the percentage change between the current value and the value N periods ago. This is the most commonly used form of rate of change, expressing change in percentage terms that are directly interpretable (e.g., 5.0 = 5% increase).
 
 ## Historical Context
 
-ROC belongs to the earliest class of technical indicators, predating computerized analysis. Traders have always measured "how much has price moved" as a fundamental question. The absolute form (current - past) appears in technical analysis literature under various names: momentum, price change, and rate of change. The terminology varies by platform and library:
+ROC is the standard way of expressing price momentum in percentage terms. It's widely used in technical analysis because percentage changes are comparable across different instruments regardless of their price levels.
 
-- **TA-Lib**: Uses `MOM` (Momentum) for absolute change
-- **Tulip**: Uses `MOM` for absolute change
-- **TradingView/PineScript**: Uses `ROC` for absolute change in this codebase
-- **QuanTAlib**: Uses `ROC` for absolute change, `CHANGE` for percentage
-
-This implementation follows the PineScript convention where ROC represents the absolute difference.
+The terminology varies by platform:
+- **TA-Lib**: `ROC` returns percentage (5.0 = 5%); `ROCP` returns the decimal fraction (0.05 = 5%)
+- **TradingView/PineScript**: Often uses `change` for the absolute (non-percentage) form
+- **QuanTAlib**: `Roc` returns percentage (5.0 = 5%, matches TA-Lib `ROC`); `Rocp` returns the decimal fraction (0.05 = 5%, matches TA-Lib `ROCP`); `Mom` returns the absolute change
 
 ## Architecture & Physics
 
@@ -39,61 +37,48 @@ $$
 \text{buffer} = [v_{t-n}, v_{t-n+1}, ..., v_{t-1}, v_t]
 $$
 
-where $n$ is the lookback period. Only the oldest and newest values are needed for calculation.
+where $n$ is the lookback period.
 
-### 2. Absolute Change Calculation
+### 2. Percentage Calculation
 
 $$
-\text{ROC}_t = v_t - v_{t-n}
+\text{ROC}_t = 100 \times \frac{v_t - v_{t-n}}{v_{t-n}}
 $$
 
 where:
 - $v_t$ = current value
 - $v_{t-n}$ = value from $n$ periods ago
-- Result is in the same units as input (dollars, points, etc.)
-
-### 3. State Management
-
-The indicator uses state rollback for bar correction:
-
-```
-if isNew:
-    save current state as previous
-else:
-    restore previous state
-```
-
-This enables real-time bar updates without corrupting historical calculations.
+- Result is in percentage units (5.0 = 5%)
 
 ## Mathematical Foundation
 
 ### Core Formula
 
 $$
-\text{ROC}_t = P_t - P_{t-n}
+\text{ROC}_t = 100 \times \frac{P_t - P_{t-n}}{P_{t-n}}
 $$
 
 ### Relationship to Other Rate of Change Variants
 
 | Indicator | Formula | Output |
 |-----------|---------|--------|
-| **ROC** | $P_t - P_{t-n}$ | Absolute (price units) |
-| **ROCP** | $\frac{P_t - P_{t-n}}{P_{t-n}} \times 100$ | Percentage (%) |
+| **MOM** | $P_t - P_{t-n}$ | Absolute (price units) |
+| **ROC** | $\frac{P_t - P_{t-n}}{P_{t-n}} \times 100$ | Percentage (%) |
 | **ROCR** | $\frac{P_t}{P_{t-n}}$ | Ratio (dimensionless) |
-| **CHANGE** | $\frac{P_t - P_{t-n}}{P_{t-n}}$ | Decimal (0.10 = 10%) |
+| **ROCP** | $\frac{P_t - P_{t-n}}{P_{t-n}}$ | Decimal (0.10 = 10%) |
 
 ### Conversions
 
 $$
-\text{ROCP} = \text{CHANGE} \times 100
+\text{ROC} = \text{ROCP} \times 100
 $$
 
 $$
-\text{ROCR} = \text{CHANGE} + 1 = \frac{P_t}{P_{t-n}}
+\text{ROC} = (\text{ROCR} - 1) \times 100
 $$
 
 $$
-\text{ROC} = \text{CHANGE} \times P_{t-n}
+\text{CHANGE} = \text{ROC} / 100
 $$
 
 ## Performance Profile
@@ -103,53 +88,49 @@ $$
 | Operation | Count | Notes |
 | :--- | :---: | :--- |
 | SUB | 1 | current - past |
+| DIV | 1 | change / past |
+| MUL | 1 | × 100 |
 | Buffer add | 1 | O(1) ring buffer |
-| State copy | 1 | rollback support |
-| **Total** | **~3 ops** | Extremely lightweight |
-
-### Batch Mode (Span-based)
-
-The span-based calculation is a simple loop with no dependencies between iterations, making it trivially parallelizable and cache-friendly.
-
-| Operation | Complexity | Notes |
-| :--- | :---: | :--- |
-| Per-element | O(1) | Single subtraction |
-| Total | O(n) | Linear scan |
-| Memory | O(1) | No additional allocation |
+| **Total** | **~4 ops** | Very lightweight |
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact arithmetic, no approximation |
-| **Timeliness** | 10/10 | Zero lag by definition |
-| **Smoothness** | 3/10 | No smoothing, reflects raw volatility |
-| **Simplicity** | 10/10 | Single subtraction |
+| **Accuracy** | 10/10 | Exact arithmetic |
+| **Timeliness** | 10/10 | Zero lag |
+| **Smoothness** | 3/10 | Reflects raw volatility |
+| **Simplicity** | 10/10 | Basic arithmetic |
+
+## Interpretation
+
+* **ROC = 0.0**: No change from N periods ago
+* **ROC > 0**: Price increased (e.g., 5.0 = 5% increase)
+* **ROC < 0**: Price decreased (e.g., -3.0 = 3% decrease)
+* **ROC = 100**: Price doubled
+* **ROC = -50**: Price halved
 
 ## Validation
 
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | N/A | Uses MOM for this calculation |
-| **Tulip** | ✅ | MOM matches exactly |
-| **TradingView** | ✅ | Matches PineScript roc.pine |
+| **TA-Lib** | ✅ | Matches TA-Lib's `ROC` directly (both return percentage, e.g. 5.0 = 5%) |
+| **TradingView** | ✅ | Matches PineScript calculation |
 
 ## Common Pitfalls
 
-1. **Unit confusion**: ROC returns absolute values in price units, not percentages. A ROC of 5 means the price moved 5 dollars/points, not 5%.
+1. **Scale**: ROC returns percentage values directly. A return of 5.0 means 5%, not 0.05.
 
-2. **Scale dependency**: ROC values are not comparable across instruments with different price levels. Use ROCP or CHANGE for normalized comparisons.
+2. **Division by zero**: If the historical price is zero, ROC returns 0.0 as a safe default.
 
-3. **Warmup period**: The first `period` values return 0 as there's no historical reference point.
+3. **Don't confuse with ROCP**: QuanTAlib's `Rocp` (a separate indicator) returns the decimal fraction (0.05 for 5%), matching TA-Lib's `ROCP`. This `Roc` indicator matches TA-Lib's `ROC` (percentage).
 
-4. **Zero handling**: Unlike percentage-based variants, ROC has no division-by-zero risk.
+4. **Compounding**: Unlike ROCR, ROC values cannot be directly multiplied for multi-period changes.
 
-5. **Sign interpretation**: Positive ROC indicates price increase, negative indicates decrease.
-
-6. **API confusion**: QuanTAlib's `CHANGE` indicator returns percentage (decimal), while `ROC` returns absolute change. This differs from some platforms where ROC means percentage.
+5. **Warmup period**: The first `period` values return 0.0.
 
 ## References
 
 - Pring, M. J. (2014). "Technical Analysis Explained." McGraw-Hill.
-- Murphy, J. J. (1999). "Technical Analysis of the Financial Markets." New York Institute of Finance.
-- TradingView PineScript Reference: ta.roc, ta.mom
+- Murphy, J. J. (1999). "Technical Analysis of the Financial Markets."
+- TA-Lib Documentation: ROC function

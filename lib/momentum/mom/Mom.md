@@ -13,10 +13,10 @@
 | **PineScript**   | [mom.pine](mom.pine)                       |
 
 - MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago.
-- **Similar:** [ROC](../roc/Roc.md), [Vel](../vel/Vel.md) | **Complementary:** Moving average for smoothing | **Trading note:** Raw momentum: Price(t) − Price(t−n). Simplest momentum measure.
+- **Similar:** [ROC](../roc/Roc.md), [ROCP](../rocp/Rocp.md), [Vel](../vel/Vel.md) | **Complementary:** Moving average for smoothing | **Trading note:** Raw momentum: Price(t) − Price(t−n). Simplest momentum measure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
-MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago. It is the purest expression of directional price movement, returning a signed value in the same units as the input. Positive MOM indicates rising prices; negative indicates falling. This is functionally identical to ROC but with a configurable lookback period (default 10 vs ROC's convention), and maps directly to TA-Lib's `MOM` function.
+MOM (Momentum) calculates the absolute price difference between the current value and the value N periods ago. It is the purest expression of directional price movement, returning a signed value in the same units as the input. Positive MOM indicates rising prices; negative indicates falling. Maps directly to TA-Lib's `MOM` function; see [ROC](../roc/Roc.md) for the percentage form and [ROCP](../rocp/Rocp.md) for the decimal-fraction form.
 
 ## Historical Context
 
@@ -24,9 +24,9 @@ Momentum is arguably the oldest quantitative concept in technical analysis. Befo
 
 Different libraries handle the naming inconsistently:
 
-- **TA-Lib / Tulip**: `MOM` = absolute change (this calculation)
+- **TA-Lib / Tulip**: `MOM` = absolute change (this calculation); `ROC` = percentage; `ROCP` = decimal fraction
 - **TradingView / PineScript**: `ta.mom` = absolute change
-- **QuanTAlib**: `Mom` = absolute change, `Roc` = absolute change (same formula, different default period), `Change` = percentage change
+- **QuanTAlib**: `Mom` = absolute change (matches TA-Lib `MOM`), `Roc` = percentage (matches TA-Lib `ROC`), `Rocp` = decimal fraction (matches TA-Lib `ROCP`)
 
 The implementation uses a ring buffer of size `period + 1` for O(1) streaming with zero allocations on the hot path.
 
@@ -82,15 +82,14 @@ where:
 | Indicator | Formula | Output |
 |-----------|---------|--------|
 | **MOM** | $P_t - P_{t-n}$ | Absolute (price units) |
-| **ROC** | $P_t - P_{t-n}$ | Absolute (same formula) |
-| **ROCP** | $\frac{P_t - P_{t-n}}{P_{t-n}} \times 100$ | Percentage (%) |
+| **ROC** | $\frac{P_t - P_{t-n}}{P_{t-n}} \times 100$ | Percentage (%) |
+| **ROCP** | $\frac{P_t - P_{t-n}}{P_{t-n}}$ | Decimal fraction |
 | **ROCR** | $\frac{P_t}{P_{t-n}}$ | Ratio (dimensionless) |
-| **CHANGE** | $\frac{P_t - P_{t-n}}{P_{t-n}}$ | Decimal fraction |
 
 ### Conversions
 
 $$
-\text{ROCP} = \frac{\text{MOM}}{P_{t-n}} \times 100
+\text{ROC} = \text{ROCP} \times 100 = \frac{\text{MOM}}{P_{t-n}} \times 100
 $$
 
 $$
@@ -138,7 +137,7 @@ $$
 
 1. **Unit confusion**: MOM returns absolute values in price units, not percentages. A MOM of 5 means price moved 5 dollars/points, not 5%.
 
-2. **Scale dependency**: MOM values are not comparable across instruments with different price levels. Use ROCP or CHANGE for normalized comparisons.
+2. **Scale dependency**: MOM values are not comparable across instruments with different price levels. Use ROC or ROCP for normalized comparisons.
 
 3. **Warmup period**: The first `period` values return 0.0 because there is no historical reference point yet. `IsHot` becomes true after `period + 1` bars.
 
@@ -146,7 +145,7 @@ $$
 
 5. **Sign interpretation**: Positive MOM indicates price increase over the lookback window; negative indicates decrease. The magnitude indicates the size of the move.
 
-6. **ROC vs MOM naming**: In QuanTAlib, both `Mom` and `Roc` compute the same formula ($P_t - P_{t-n}$). The difference is the default period (MOM=10, ROC=10) and naming convention alignment with different library ecosystems.
+6. **MOM vs ROC naming**: In QuanTAlib, `Mom` (absolute change, matches TA-Lib `MOM`) and `Roc` (percentage, matches TA-Lib `ROC`) are distinct indicators computing different formulas — do not assume they are interchangeable.
 
 ## References
 

@@ -305,8 +305,8 @@ How fast price is moving. Direction matters here.
 | PMO | Price Momentum Oscillator | [pmo.pine](../lib/momentum/pmo/pmo.pine) |
 | PPO | Percentage Price Oscillator | [ppo.pine](../lib/momentum/ppo/ppo.pine) |
 | RS | Price Relative Strength | [rs.pine](../lib/momentum/rs/rs.pine) |
-| ROC | Rate of Change | [roc.pine](../lib/momentum/roc/roc.pine) |
-| ROCP | Rate of Change Percentage | [rocp.pine](../lib/momentum/rocp/rocp.pine) |
+| ROC | Rate of Change (Percentage) | [roc.pine](../lib/momentum/roc/roc.pine) |
+| ROCP | Rate of Change (Fractional) | [rocp.pine](../lib/momentum/rocp/rocp.pine) |
 | ROCR | Rate of Change Ratio | [rocr.pine](../lib/momentum/rocr/rocr.pine) |
 | RSI | Relative Strength Index | [rsi.pine](../lib/momentum/rsi/rsi.pine) |
 | RSX | Jurik Relative Strength X | [rsx.pine](../lib/momentum/rsx/rsx.pine) |

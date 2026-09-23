@@ -5,11 +5,10 @@ using Xunit.Abstractions;
 namespace QuanTAlib.Tests;
 
 /// <summary>
-/// Validation tests for ROCP (Rate of Change Percentage) against external libraries.
-/// ROCP = 100 × (Price - Price[N]) / Price[N]
+/// Validation tests for ROCP (Rate of Change, Fractional) against external libraries.
+/// ROCP = (Price - Price[N]) / Price[N]
 ///
-/// Note: TALib's RocP returns a decimal fraction (0.05 for 5%), while QuanTAlib returns
-/// a percentage (5.0 for 5%). Tests account for this scaling difference.
+/// QuanTAlib's Rocp matches TA-Lib's ROCP function directly (both return the decimal fraction).
 /// Tulip does not have a direct ROCP indicator.
 /// </summary>
 public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
@@ -49,14 +48,13 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
         var rocp = new Rocp(TestPeriod);
         var qResult = rocp.Update(_testData.Data);
 
-        // TALib RocP (returns decimal fraction)
+        // TALib ROCP (returns decimal fraction, matching QuanTAlib directly)
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
         Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
         int lookback = TALib.Functions.RocPLookback(TestPeriod);
 
-        // Compare: TALib returns decimal, QuanTAlib returns percentage → multiply TALib by 100
         int count = qResult.Count;
         int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
         var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
@@ -73,10 +71,9 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
                 continue;
             }
 
-            double talibScaled = tOutput[tIndex] * 100.0;
             Assert.True(
-                Math.Abs(qResult[i].Value - talibScaled) <= ValidationHelper.TalibTolerance,
-                $"Mismatch at index {i}: QuanTAlib={qResult[i].Value:G17}, TALib(×100)={talibScaled:G17}");
+                Math.Abs(qResult[i].Value - tOutput[tIndex]) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResult[i].Value:G17}, TALib={tOutput[tIndex]:G17}");
         }
         _output.WriteLine("ROCP Batch validated successfully against TALib");
     }
@@ -90,7 +87,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
         double[] qOutput = new double[tData.Length];
         Rocp.Batch(tData.AsSpan(), qOutput.AsSpan(), TestPeriod);
 
-        // TALib RocP
+        // TALib ROCP
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
         Assert.Equal(TALib.Core.RetCode.Success, retCode);
@@ -113,10 +110,9 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
                 continue;
             }
 
-            double talibScaled = tOutput[tIndex] * 100.0;
             Assert.True(
-                Math.Abs(qOutput[i] - talibScaled) <= ValidationHelper.TalibTolerance,
-                $"Mismatch at index {i}: QuanTAlib={qOutput[i]:G17}, TALib(×100)={talibScaled:G17}");
+                Math.Abs(qOutput[i] - tOutput[tIndex]) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qOutput[i]:G17}, TALib={tOutput[tIndex]:G17}");
         }
         _output.WriteLine("ROCP Span validated successfully against TALib");
     }
@@ -134,7 +130,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
             qResults.Add(rocp.Update(item).Value);
         }
 
-        // TALib RocP
+        // TALib ROCP
         double[] tOutput = new double[tData.Length];
         var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
         Assert.Equal(TALib.Core.RetCode.Success, retCode);
@@ -157,10 +153,9 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
                 continue;
             }
 
-            double talibScaled = tOutput[tIndex] * 100.0;
             Assert.True(
-                Math.Abs(qResults[i] - talibScaled) <= ValidationHelper.TalibTolerance,
-                $"Mismatch at index {i}: QuanTAlib={qResults[i]:G17}, TALib(×100)={talibScaled:G17}");
+                Math.Abs(qResults[i] - tOutput[tIndex]) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResults[i]:G17}, TALib={tOutput[tIndex]:G17}");
         }
         _output.WriteLine("ROCP Streaming validated successfully against TALib");
     }
@@ -199,10 +194,9 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
                 continue;
             }
 
-            double talibScaled = tOutput[tIndex] * 100.0;
             Assert.True(
-                Math.Abs(qResult[i].Value - talibScaled) <= ValidationHelper.TalibTolerance,
-                $"Period {period}, index {i}: QuanTAlib={qResult[i].Value:G17}, TALib(×100)={talibScaled:G17}");
+                Math.Abs(qResult[i].Value - tOutput[tIndex]) <= ValidationHelper.TalibTolerance,
+                $"Period {period}, index {i}: QuanTAlib={qResult[i].Value:G17}, TALib={tOutput[tIndex]:G17}");
         }
         _output.WriteLine($"ROCP period={period} validated against TALib");
     }
@@ -225,7 +219,7 @@ public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
 
             if (i >= 3)
             {
-                double expected = 100.0 * (values[i] - values[i - 3]) / values[i - 3];
+                double expected = (values[i] - values[i - 3]) / values[i - 3];
                 Assert.Equal(expected, result.Value, 10);
             }
             else

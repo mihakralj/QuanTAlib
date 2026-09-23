@@ -67,8 +67,7 @@ SPECIAL_PTA: dict[str, Callable[[], np.ndarray]] = {
     "eom": lambda: ta.eom(S_HIGH, S_LOW, S_CLOSE, S_VOLUME, length=14, divisor=10_000, drift=1).to_numpy(),
     # Force pandas-ta RSI path (no TA-Lib shortcut) and Wilder smoothing to align with wrapper path
     "rsi": lambda: ta.rsi(S_CLOSE, length=14, mamode="rma", talib=False, drift=1, scalar=100).to_numpy(),
-    # QuanTAlib ROC is absolute delta; convert pandas-ta percent ROC to absolute for parity
-    "roc": lambda: (ta.roc(S_CLOSE, length=10, scalar=100, talib=False) * S_CLOSE.shift(10) / 100.0).to_numpy(),
+    # QuanTAlib ROC now matches pandas-ta's percentage ROC directly; no conversion needed.
     # Match CRSI parameter names and internal RSI path
     "crsi": lambda: ta.crsi(
         S_CLOSE, rsi_length=3, streak_length=2, rank_length=100,
@@ -337,12 +336,6 @@ def call_pta(q_name: str, q_fn: Callable[..., Any]) -> np.ndarray | None:
             pass
 
     out = pta_fn(*args, **kwargs)
-
-    # Post-transform for formula alignment
-    if q_name == "roc":
-        length = int(_q_default(q_fn, "length", 10))
-        roc_series = out if isinstance(out, pd.Series) else pd.Series(np.asarray(out), index=S_CLOSE.index)
-        out = roc_series * S_CLOSE.shift(length) / 100.0
 
     return normalize_output(out, q_name)
 

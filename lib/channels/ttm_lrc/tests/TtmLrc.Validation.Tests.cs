@@ -762,8 +762,9 @@ public sealed class TtmLrcValidationTests : IDisposable
                     continue;
                 }
 
+                // Linear regression sums accumulate FP rounding beyond 1e-9 at long windows (period=100).
                 Assert.True(
-                    Math.Abs(qMid[i].Value - tLinreg[tIndex]) <= ValidationHelper.TulipTolerance,
+                    Math.Abs(qMid[i].Value - tLinreg[tIndex]) <= 5e-8,
                     $"Mismatch at {i}: QuanTAlib={qMid[i].Value:G17}, Tulip={tLinreg[tIndex]:G17}");
             }
         }

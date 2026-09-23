@@ -7,7 +7,9 @@ public class IiiValidationTests
     private const int DataPoints = 5000;
     private const int DefaultPeriod = 14;
 
-    private static readonly double SkenderTolerance = ValidationHelper.SkenderTolerance;
+    // Streaming/batch/span mode self-consistency (not a cross-library comparison):
+    // different accumulation orders can differ by a few ULPs at this magnitude.
+    private const double ModeConsistencyTolerance = 1e-8;
 
     private static TBarSeries GenerateTestData(int seed = 42)
     {
@@ -42,7 +44,8 @@ public class IiiValidationTests
         Assert.Equal(bars.Count, batchResults.Count);
         for (int i = 0; i < bars.Count; i++)
         {
-            Assert.Equal(streamingResults[i], batchResults[i].Value, 8);
+            Assert.True(Math.Abs(streamingResults[i] - batchResults[i].Value) <= ModeConsistencyTolerance,
+                $"Mismatch at index {i}: streaming={streamingResults[i]:G17}, batch={batchResults[i].Value:G17}");
         }
     }
 
@@ -70,7 +73,8 @@ public class IiiValidationTests
         // Compare results
         for (int i = 0; i < bars.Count; i++)
         {
-            Assert.Equal(streamingResults[i], spanResults[i], 8);
+            Assert.True(Math.Abs(streamingResults[i] - spanResults[i]) <= ModeConsistencyTolerance,
+                $"Mismatch at index {i}: streaming={streamingResults[i]:G17}, span={spanResults[i]:G17}");
         }
     }
 
@@ -157,9 +161,9 @@ public class IiiValidationTests
             double batch = batchResults[i].Value;
             double span = spanResults[i];
 
-            Assert.Equal(streaming, batch, 8);
-            Assert.Equal(streaming, span, 8);
-            Assert.Equal(batch, span, 8);
+            Assert.True(Math.Abs(streaming - batch) <= ModeConsistencyTolerance, $"streaming vs batch at {i}");
+            Assert.True(Math.Abs(streaming - span) <= ModeConsistencyTolerance, $"streaming vs span at {i}");
+            Assert.True(Math.Abs(batch - span) <= ModeConsistencyTolerance, $"batch vs span at {i}");
         }
     }
 
@@ -191,8 +195,8 @@ public class IiiValidationTests
         int startIdx = bars.Count - 100;
         for (int i = startIdx; i < bars.Count; i++)
         {
-            Assert.Equal(streamingResults[i], batchResults[i].Value, SkenderTolerance);
-            Assert.Equal(streamingResults[i], spanResults[i], SkenderTolerance);
+            Assert.Equal(streamingResults[i], batchResults[i].Value, ModeConsistencyTolerance);
+            Assert.Equal(streamingResults[i], spanResults[i], ModeConsistencyTolerance);
         }
     }
 

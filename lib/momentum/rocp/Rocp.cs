@@ -3,14 +3,14 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// ROCP: Rate of Change Percentage
+/// ROCP: Rate of Change (Fractional)
 /// </summary>
 /// <remarks>
-/// Percentage price momentum: percentage change between current and N-period-ago value.
-/// Returns percentage values (e.g., 5.0 = 5% increase, -3.0 = 3% decrease).
-/// See ROC for absolute change, ROCR for ratio.
+/// Fractional price momentum: decimal fraction change between current and N-period-ago value.
+/// Returns decimal values (e.g., 0.05 = 5% increase, -0.03 = 3% decrease).
+/// See MOM for absolute change, ROC for percentage, ROCR for ratio.
 ///
-/// Calculation: <c>ROCP = 100 × (Price - Price[N]) / Price[N]</c>.
+/// Calculation: <c>ROCP = (Price - Price[N]) / Price[N]</c>. Matches TA-Lib's ROCP function.
 /// </remarks>
 /// <seealso href="Rocp.md">Detailed documentation</seealso>
 [SkipLocalsInit]
@@ -26,7 +26,7 @@ public sealed class Rocp : AbstractBase
     public override bool IsHot => _buffer.Count > _period;
 
     /// <summary>
-    /// Initializes a new Rate of Change Percentage indicator with specified lookback period.
+    /// Initializes a new Rate of Change (Fractional) indicator with specified lookback period.
     /// </summary>
     /// <param name="period">Lookback period (must be >= 1)</param>
     public Rocp(int period = 9)
@@ -43,7 +43,7 @@ public sealed class Rocp : AbstractBase
     }
 
     /// <summary>
-    /// Initializes a new Rate of Change Percentage indicator with source for event-based chaining.
+    /// Initializes a new Rate of Change (Fractional) indicator with source for event-based chaining.
     /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period</param>
@@ -76,12 +76,12 @@ public sealed class Rocp : AbstractBase
         double result;
         if (_buffer.Count <= _period)
         {
-            result = 0.0; // Default percentage during warmup
+            result = 0.0; // Default fraction during warmup
         }
         else
         {
             double past = _buffer[0];
-            result = past != 0 ? 100.0 * (value - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
+            result = past != 0 ? (value - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
         }
 
         Last = new TValue(input.Time, result);
@@ -122,7 +122,7 @@ public sealed class Rocp : AbstractBase
     }
 
     /// <summary>
-    /// Calculates rate of change percentage over a span of values.
+    /// Calculates rate of change (fractional) over a span of values.
     /// </summary>
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period = 9)
     {
@@ -145,12 +145,12 @@ public sealed class Rocp : AbstractBase
         {
             if (i < period)
             {
-                output[i] = 0.0; // Default percentage during warmup
+                output[i] = 0.0; // Default fraction during warmup
             }
             else
             {
                 double past = source[i - period];
-                output[i] = past != 0 ? 100.0 * (source[i] - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
+                output[i] = past != 0 ? (source[i] - past) / past : 0.0; // skipcq: CS-R1077 - Exact-zero IEEE 754 div guard
             }
         }
     }
