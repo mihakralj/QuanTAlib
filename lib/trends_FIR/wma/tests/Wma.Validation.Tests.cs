@@ -14,8 +14,6 @@ public sealed class WmaValidationTests : IDisposable
     private readonly ITestOutputHelper _output;
     private bool _disposed;
 
-    // Large-window WMA (period=100) accumulates FP rounding differently across libraries;
-    // residual is a few ULPs at this magnitude, not an algorithmic mismatch.
     private const double LargeWindowTolerance = 5e-8;
 
     public WmaValidationTests(ITestOutputHelper output)
