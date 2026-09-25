@@ -37,6 +37,13 @@ public delegate void BiInputBatchDelegate(
 /// - Template Method pattern: subclasses only implement ComputeError and optionally PostProcess
 ///
 /// Kahan compensated summation prevents floating-point drift without periodic resync.
+///
+/// Also used, with period = 1, for stateless per-bar two-input arithmetic (Add, Sub, Mul,
+/// Div in lib/numerics/). At period 1 the windowed mean degenerates to the current bar's
+/// ComputeError result, so the same rollback and NaN-substitution machinery applies with no
+/// extra code. ComputeError implementations reused this way MUST always return a finite value:
+/// a non-finite result poisons the running Sum permanently, because the one-slot RingBuffer
+/// self-corrects but the incrementally maintained Sum does not recover from a NaN delta.
 /// </remarks>
 [SkipLocalsInit]
 public abstract class BiInputIndicatorBase : AbstractBase
@@ -48,6 +55,15 @@ public abstract class BiInputIndicatorBase : AbstractBase
 
     protected BiInputState _state;
     protected BiInputState _p_state;
+
+    // Time-join state for event-chained construction (Subscribe(a, b)).
+    // A result is only computed once both sources have reported for the same bar Time,
+    // preventing a mix of bar t of one input with bar t-1 of the other.
+    private long _joinTime = long.MinValue;
+    private bool _joinAReady;
+    private bool _joinBReady;
+    private double _joinA;
+    private double _joinB;
 
     /// <summary>
     /// Creates a bi-input indicator with specified period.
@@ -64,6 +80,54 @@ public abstract class BiInputIndicatorBase : AbstractBase
         _buffer = new RingBuffer(period);
         Name = name;
         WarmupPeriod = period;
+    }
+
+    /// <summary>
+    /// Wires this node to two upstream publishers using the time-join rule: the node evaluates
+    /// only after both sources have published for the same bar Time. An input publishing a newer
+    /// Time before the other side has caught up starts a new pending pair; the unmatched half of
+    /// the previous pair is dropped rather than mixed with a stale value.
+    /// </summary>
+    /// <param name="a">Publisher feeding the "actual" input</param>
+    /// <param name="b">Publisher feeding the "predicted" input</param>
+    protected void Subscribe(ITValuePublisher a, ITValuePublisher b)
+    {
+        a.Pub += HandleJoinedA;
+        b.Pub += HandleJoinedB;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void HandleJoinedA(object? sender, in TValueEventArgs e) => HandleJoined(isA: true, e.Value, e.IsNew);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void HandleJoinedB(object? sender, in TValueEventArgs e) => HandleJoined(isA: false, e.Value, e.IsNew);
+
+    private void HandleJoined(bool isA, TValue value, bool isNew)
+    {
+        long time = value.Time;
+
+        if (time != _joinTime)
+        {
+            _joinTime = time;
+            _joinAReady = false;
+            _joinBReady = false;
+        }
+
+        if (isA)
+        {
+            _joinA = value.Value;
+            _joinAReady = true;
+        }
+        else
+        {
+            _joinB = value.Value;
+            _joinBReady = true;
+        }
+
+        if (_joinAReady && _joinBReady)
+        {
+            Update(new TValue(value.Time, _joinA), new TValue(value.Time, _joinB), isNew);
+        }
     }
 
     /// <summary>
@@ -258,6 +322,11 @@ public abstract class BiInputIndicatorBase : AbstractBase
         _buffer.Clear();
         _state = default;
         _p_state = default;
+        _joinTime = long.MinValue;
+        _joinAReady = false;
+        _joinBReady = false;
+        _joinA = default;
+        _joinB = default;
         Last = default;
     }
 

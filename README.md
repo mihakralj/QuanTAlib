@@ -27,7 +27,7 @@
 [![Public APIs](docs/img/public-api.svg)](docs/ndepend.md)
 [![Comments](docs/img/comments.svg)](docs/ndepend.md)
 
-# QuanTAlib 0.8.9
+# QuanTAlib 0.8.x
 
 393 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
 

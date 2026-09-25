@@ -3,12 +3,14 @@
 | Indicator                                                  | Full Name                                                                 | Category     |
 | :--------------------------------------------------------- | :------------------------------------------------------------------------ | :----------- |
 | [ABERR](channels/aberr/Aberr.md)                           | Aberration Bands                                                          | Channels     |
+| [ABOVE](signals/predicates/above/Above.md)                 | Greater-Than Predicate                                                    | Signals      |
 | [AC](oscillators/ac/Ac.md)                                 | Acceleration Oscillator                                                   | Oscillators  |
 | [ACCBANDS](channels/accbands/Accbands.md)                  | Acceleration Bands                                                        | Channels     |
 | [ACCEL](numerics/accel/Accel.md)                           | Acceleration                                                              | Numerics     |
 | [ACF](statistics/acf/Acf.md)                               | Autocorrelation Function                                                  | Statistics   |
 | [ACP](cycles/acp/Acp.md)                                   | Ehlers Autocorrelation Periodogram                                        | Cycles       |
 | [AD](volume/ad/Ad.md)                                       | Accumulation/Distribution Line                                            | Volume       |
+| [ADD](numerics/add/Add.md)                                 | Element-wise Addition                                                     | Numerics     |
 | [ADF](statistics/adf/Adf.md)                               | Augmented Dickey-Fuller Test                                              | Statistics   |
 | [ADOSC](volume/adosc/Adosc.md)                             | Chaikin A/D Oscillator                                                    | Volume       |
 | [ADR](volatility/adr/Adr.md)                               | Average Daily Range                                                       | Volatility   |
@@ -31,6 +33,8 @@
 | [AROON](dynamics/aroon/Aroon.md)                           | Aroon                                                                     | Dynamics     |
 | [AROONOSC](dynamics/aroonosc/Aroonosc.md)                  | Aroon Oscillator                                                          | Dynamics     |
 | [ASI](momentum/asi/Asi.md)                                 | Accumulation Swing Index                                                  | Momentum     |
+| [ATHIGHEST](signals/predicates/athighest/AtHighest.md)     | At-Maximum Predicate                                                      | Signals      |
+| [ATLOWEST](signals/predicates/atlowest/AtLowest.md)        | At-Minimum Predicate                                                      | Signals      |
 | [ATR](volatility/atr/Atr.md)                               | Average True Range                                                        | Volatility   |
 | [ATRBANDS](channels/atrbands/Atrbands.md)                  | ATR Bands                                                                 | Channels     |
 | [ATRN](volatility/atrn/Atrn.md)                            | ATR Normalized                                                            | Volatility   |
@@ -44,6 +48,7 @@
 | [BBW](volatility/bbw/Bbw.md)                               | Bollinger Band Width                                                      | Volatility   |
 | [BBWN](volatility/bbwn/Bbwn.md)                            | BB Width Normalized                                                       | Volatility   |
 | [BBWP](volatility/bbwp/Bbwp.md)                            | BB Width Percentile                                                       | Volatility   |
+| [BELOW](signals/predicates/below/Below.md)                 | Less-Than Predicate                                                       | Signals      |
 | [BESSEL](filters/bessel/Bessel.md)                         | Bessel Filter                                                             | Filters      |
 | [BETA](statistics/beta/Beta.md)                            | Beta Coefficient                                                          | Statistics   |
 | [BETADIST](numerics/betadist/Betadist.md)                  | Beta Distribution                                                         | Numerics     |
@@ -68,6 +73,7 @@
 | [CG](cycles/cg/Cg.md)                                      | Ehlers Center of Gravity                                                  | Cycles       |
 | [CHANDELIER](reversals/chandelier/Chandelier.md)           | Chandelier Exit                                                           | Reversals    |
 | [CHANGE](numerics/change/Change.md)                        | Percentage Change                                                         | Numerics     |
+| [CHANNELPOSITION](signals/predicates/channelposition/ChannelPosition.md) | Normalized Channel Position                                  | Signals      |
 | [CHEBY1](filters/cheby1/Cheby1.md)                         | Chebyshev Type I                                                          | Filters      |
 | [CHEBY2](filters/cheby2/Cheby2.md)                         | Chebyshev Type II                                                         | Filters      |
 | [CHOP](dynamics/chop/Chop.md)                              | Choppiness Index                                                          | Dynamics     |
@@ -95,6 +101,7 @@
 | [DECYCLER](trends_IIR/decycler/Decycler.md)                | Ehlers Decycler                                                           | Trends (IIR) |
 | [DEM](oscillators/dem/Dem.md)                              | DeMarker Oscillator                                                       | Oscillators  |
 | [DEMA](trends_IIR/dema/Dema.md)                            | Double Exponential MA                                                     | Trends (IIR) |
+| [DIV](numerics/div/Div.md)                                 | Element-wise Division                                                     | Numerics     |
 | [DMH](dynamics/dmh/Dmh.md)                                 | Ehlers Directional Movement with Hann                                     | Dynamics     |
 | [DMX](dynamics/dmx/Dmx.md)                                 | Jurik Directional Movement Index                                          | Dynamics     |
 | [DOSC](oscillators/dosc/Dosc.md)                           | Derivative Oscillator                                                     | Oscillators  |
@@ -117,6 +124,7 @@
 | [EMA](trends_IIR/ema/Ema.md)                               | Exponential MA                                                            | Trends (IIR) |
 | [ENTROPY](statistics/entropy/Entropy.md)                   | Shannon Entropy                                                           | Statistics   |
 | [EOM](volume/eom/Eom.md)                                   | Ease of Movement                                                          | Volume       |
+| [EQUAL](signals/predicates/equal/Equal.md)                 | Approximate Equality Predicate                                            | Signals      |
 | [ER](oscillators/er/Er.md)                                 | Efficiency Ratio                                                          | Oscillators  |
 | [ERI](oscillators/eri/Eri.md)                              | Elder Ray Index                                                           | Oscillators  |
 | [ETHERM](volatility/etherm/Etherm.md)                      | Elder's Thermometer                                                       | Volatility   |
@@ -168,6 +176,7 @@
 | [HV](volatility/hv/Hv.md)                                  | Historical Volatility                                                     | Volatility   |
 | [HWC](channels/hwc/Hwc.md)                                 | Holt-Winters Channel                                                      | Channels     |
 | [HWMA](trends_IIR/hwma/Hwma.md)                            | Holt-Winters MA                                                           | Trends (IIR) |
+| [HYSTERESIS](signals/predicates/hysteresis/Hysteresis.md)  | Schmitt-Trigger Predicate                                                 | Signals      |
 | [ICHIMOKU](dynamics/ichimoku/Ichimoku.md)                  | Ichimoku Cloud                                                            | Dynamics     |
 | [IFFT](numerics/ifft/Ifft.md)                              | Inverse Fast Fourier Transform                                            | Numerics     |
 | [III](volume/iii/Iii.md)                                   | Intraday Intensity Index                                                  | Volume       |
@@ -175,7 +184,10 @@
 | [IMI](oscillators/imi/Imi.md)                              | Intraday Momentum Index                                                   | Oscillators  |
 | [IMPULSE](dynamics/impulse/Impulse.md)                     | Elder Impulse System                                                      | Dynamics     |
 | [INERTIA](oscillators/inertia/Inertia.md)                  | Inertia                                                                   | Oscillators  |
+| [INSIDECHANNEL](signals/predicates/insidechannel/InsideChannel.md) | Channel Membership Predicate                                      | Signals      |
 | [IQR](statistics/iqr/Iqr.md)                               | Interquartile Range                                                       | Statistics   |
+| [ISFALLING](signals/predicates/isfalling/IsFalling.md)     | Falling Predicate                                                         | Signals      |
+| [ISRISING](signals/predicates/isrising/IsRising.md)        | Rising Predicate                                                          | Signals      |
 | [JB](statistics/jb/Jb.md)                                  | Jarque-Bera Test                                                          | Statistics   |
 | [JBANDS](channels/jbands/Jbands.md)                        | Jurik Adaptive Envelope Bands                                             | Channels     |
 | [JERK](numerics/jerk/Jerk.md)                              | Jerk                                                                      | Numerics     |
@@ -192,6 +204,7 @@
 | [KST](oscillators/kst/Kst.md)                              | Know Sure Thing Oscillator                                                | Oscillators  |
 | [KURTOSIS](statistics/kurtosis/Kurtosis.md)                | Kurtosis                                                                  | Statistics   |
 | [KVO](volume/kvo/Kvo.md)                                   | Klinger Volume Oscillator                                                 | Volume       |
+| [LAG](numerics/lag/Lag.md)                                 | Value Delay                                                               | Numerics     |
 | [LAGUERRE](filters/laguerre/Laguerre.md)                   | Ehlers Laguerre Filter                                                    | Filters      |
 | [LANCZOS](trends_FIR/lanczos/Lanczos.md)                   | Lanczos (sinc) Window MA                                                  | Trends (FIR) |
 | [LEMA](trends_IIR/lema/Lema.md)                            | Leader EMA                                                                | Trends (IIR) |
@@ -246,6 +259,7 @@
 | [MSE](errors/mse/Mse.md)                                   | Mean Squared Error                                                        | Errors       |
 | [MSLE](errors/msle/Msle.md)                                | Mean Squared Log Error                                                    | Errors       |
 | [MSTOCH](oscillators/mstoch/Mstoch.md)                     | Ehlers MESA Stochastic                                                    | Oscillators  |
+| [MUL](numerics/mul/Mul.md)                                 | Element-wise Multiplication                                               | Numerics     |
 | [NATR](volatility/natr/Natr.md)                            | Normalized ATR                                                            | Volatility   |
 | [NET](filters/net/Net.md)                                  | Ehlers Noise Elimination Technology                                       | Filters      |
 | [NLMA](trends_FIR/nlma/Nlma.md)                            | Non-Lag Moving Average                                                    | Trends (FIR) |
@@ -258,9 +272,11 @@
 | [NYQMA](trends_FIR/nyqma/Nyqma.md)                         | Nyquist MA                                                                | Trends (FIR) |
 | [OBV](volume/obv/Obv.md)                                   | On Balance Volume                                                         | Volume       |
 | [ONEEURO](filters/oneeuro/OneEuro.md)                      | One Euro Filter                                                           | Filters      |
+| [OUTSIDECHANNEL](signals/predicates/outsidechannel/OutsideChannel.md) | Channel Exclusion Predicate                                    | Signals      |
 | [PACF](statistics/pacf/Pacf.md)                            | Partial Autocorrelation Function                                          | Statistics   |
 | [PARZEN](trends_FIR/parzen/Parzen.md)                      | Parzen Window MA                                                          | Trends (FIR) |
 | [PC](channels/pc/pc.md)                                    | Price Channel                                                             | Channels     |
+| [PERCENTDISTANCE](signals/predicates/percentdistance/PercentDistance.md) | Relative Distance                                              | Signals      |
 | [PERCENTILE](statistics/percentile/Percentile.md)          | Percentile                                                                | Statistics   |
 | [PFE](dynamics/pfe/Pfe.md)                                 | Polarized Fractal Efficiency                                              | Dynamics     |
 | [PGO](oscillators/pgo/Pgo.md)                              | Pretty Good Oscillator                                                    | Oscillators  |
@@ -353,6 +369,7 @@
 | [STOCH](oscillators/stoch/Stoch.md)                        | Stochastic Oscillator                                                     | Oscillators  |
 | [STOCHF](oscillators/stochf/Stochf.md)                     | Stochastic Fast                                                           | Oscillators  |
 | [STOCHRSI](oscillators/stochrsi/Stochrsi.md)               | Stochastic RSI                                                            | Oscillators  |
+| [SUB](numerics/sub/Sub.md)                                 | Element-wise Subtraction                                                  | Numerics     |
 | [SUM](statistics/sum/Sum.md)                               | Rolling Sum                                                               | Statistics   |
 | [SUPER](dynamics/super/Super.md)                           | SuperTrend                                                                | Dynamics     |
 | [SWINGS](reversals/swings/Swings.md)                       | Swing High/Low Detection                                                  | Reversals    |

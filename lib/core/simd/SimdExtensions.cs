@@ -621,6 +621,59 @@ public static class SimdExtensions
     }
 
     /// <summary>
+    /// Element-wise multiplication of two spans using SIMD.
+    /// result[i] = left[i] * right[i]
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Multiply(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
+    {
+        if (left.Length != right.Length || left.Length != result.Length)
+        {
+            throw new ArgumentException("All spans must have the same length", nameof(result));
+        }
+
+        int i = 0;
+        if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
+        {
+            int vectorSize = Vector<double>.Count;
+            for (; i <= left.Length - vectorSize; i += vectorSize)
+            {
+                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
+                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                (vLeft * vRight).CopyTo(result.Slice(i, vectorSize));
+            }
+        }
+
+        for (; i < left.Length; i++)
+        {
+            result[i] = left[i] * right[i];
+        }
+    }
+
+    /// <summary>
+    /// Element-wise division of two spans using SIMD.
+    /// result[i] = left[i] / right[i], with 0.0 published where |right[i]| is within
+    /// <paramref name="epsilon"/> of zero (see <see cref="QuanTAlib.Div"/> for the streaming
+    /// node's rationale for this deterministic, stateless zero-denominator policy).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Divide(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result, double epsilon)
+    {
+        if (left.Length != right.Length || left.Length != result.Length)
+        {
+            throw new ArgumentException("All spans must have the same length", nameof(result));
+        }
+
+        // Division has no branch-free SIMD zero-guard worth the complexity here; scalar loop
+        // is simple, correct, and this op is not typically called on hot per-tick paths.
+        for (int i = 0; i < left.Length; i++)
+        {
+            double denom = right[i];
+            result[i] = Math.Abs(denom) > epsilon ? left[i] / denom : 0.0;
+        }
+    }
+
+    /// <summary>
     /// Calculates the dot product of two spans using SIMD intrinsics.
     /// Supports AVX512, AVX2, and NEON (ARM64).
     /// </summary>
