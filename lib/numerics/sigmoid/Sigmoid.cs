@@ -2,9 +2,12 @@
 // Activation function that maps any real value to (0, 1)
 // Formula: S(x) = 1 / (1 + exp(-k * (x - x0)))
 
+using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -167,13 +170,22 @@ public sealed class Sigmoid : AbstractBase
 
         // SIMD path for AVX2 - sigmoid requires exp(), so vectorization is limited
         // Using scalar computation with potential for future SVML support
+#if NET5_0_OR_GREATER
         if (Avx2.IsSupported && source.Length >= Vector256<double>.Count)
         {
             // For now, process in scalar due to exp() dependency
             // Future: could use Intel SVML or approximate methods
         }
+#endif
 
         // Scalar path
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, k, x0);
+            return;
+        }
+#endif
         for (; i < source.Length; i++)
         {
             double val = source[i];
@@ -195,6 +207,70 @@ public sealed class Sigmoid : AbstractBase
         var indicator = new Sigmoid(k, x0);
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, double k, double x0)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, k, x0);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = source.Length;
+        int i = 0;
+        Vector<double> negK = new(-k);
+        Vector<double> mid = new(x0);
+        Span<double> exponents = stackalloc double[vectorSize];
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vec = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            Vector<double> exponent = negK * (vec - mid);
+
+            for (int j = 0; j < vectorSize; j++)
+            {
+                double e = exponent[j];
+                if (e > 700)
+                {
+                    exponents[j] = 0.0;
+                }
+                else if (e < -700)
+                {
+                    exponents[j] = 1.0;
+                }
+                else
+                {
+                    exponents[j] = 1.0 / (1.0 + Math.Exp(e));
+                }
+            }
+
+            VectorCompat.Load<double>(exponents).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = ComputeSigmoid(source[i], k, x0);
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, double k, double x0)
+    {
+        double lastValid = 0.5;
+        for (int i = 0; i < source.Length; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+            {
+                lastValid = ComputeSigmoid(val, k, x0);
+                output[i] = lastValid;
+            }
+            else
+            {
+                output[i] = lastValid;
+            }
+        }
     }
 
     public override void Reset()

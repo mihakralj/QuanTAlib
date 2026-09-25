@@ -1,10 +1,13 @@
 // LINEARTRANS: Linear Scaling Transformer
 // Transforms values using linear equation: y = slope * x + intercept
 
+using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
+#endif
 
 namespace QuanTAlib;
 
@@ -157,6 +160,12 @@ public sealed class Lineartrans : AbstractBase
             throw new ArgumentException("Intercept must be a finite number", nameof(intercept));
         }
 
+        double lastValid = 0.0;
+        int i = 0;
+
+        // AVX512 FMA path (8 doubles at once)
+        // Avx512F.FusedMultiplyAdd is independent of Fma.IsSupported
+#if NET5_0_OR_GREATER
         // Check for non-finite values - if any exist, use scalar path only
         // Note: For very large arrays, SIMD-based NaN detection could be faster,
         // but for typical use cases the scalar pre-scan is sufficient
@@ -166,11 +175,6 @@ public sealed class Lineartrans : AbstractBase
             hasNonFinite = !double.IsFinite(source[k]);
         }
 
-        double lastValid = 0.0;
-        int i = 0;
-
-        // AVX512 FMA path (8 doubles at once)
-        // Avx512F.FusedMultiplyAdd is independent of Fma.IsSupported
         if (!hasNonFinite && Avx512F.IsSupported && source.Length >= 8)
         {
             var slopeVec = Vector512.Create(slope);
@@ -233,8 +237,16 @@ public sealed class Lineartrans : AbstractBase
             }
             lastValid = output[simdEnd - 1];
         }
+#endif
 
         // Scalar fallback for remaining elements or when non-finite values exist
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, slope, intercept);
+            return;
+        }
+#endif
         for (; i < source.Length; i++)
         {
             double val = source[i];
@@ -255,6 +267,50 @@ public sealed class Lineartrans : AbstractBase
         var indicator = new Lineartrans(slope, intercept);
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, double slope, double intercept)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, slope, intercept);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = source.Length;
+        int i = 0;
+        Vector<double> slopeVec = new(slope);
+        Vector<double> interceptVec = new(intercept);
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vec = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            (slopeVec * vec + interceptVec).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = Math.FusedMultiplyAdd(slope, source[i], intercept);
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, double slope, double intercept)
+    {
+        double lastValid = 0.0;
+        for (int i = 0; i < source.Length; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+            {
+                lastValid = Math.FusedMultiplyAdd(slope, val, intercept);
+                output[i] = lastValid;
+            }
+            else
+            {
+                output[i] = lastValid;
+            }
+        }
     }
 
     public override void Reset()

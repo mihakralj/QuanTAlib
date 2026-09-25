@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net48</TargetFrameworks>
     <Title>QuanTAlib</Title>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
@@ -29,6 +29,18 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="QuanTAlib.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <!-- CollectionsMarshal is supplied by lib/core/CollectionsMarshal.cs (needs SetCount, which the generator lacks).
+         Index/Range are supplied publicly by lib/core/Polyfills.IndexRange.cs. -->
+    <MeziantouPolyfill_ExcludedPolyfills>M:System.Runtime.InteropServices.CollectionsMarshal.|T:System.Index|T:System.Range</MeziantouPolyfill_ExcludedPolyfills>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
+    <PackageReference Include="Meziantou.Polyfill" Version="1.*" PrivateAssets="all" />
   </ItemGroup>
 
 

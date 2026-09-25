@@ -226,7 +226,7 @@ public sealed class Rs : AbstractBase
         }
 
         // EMA calculation with bias compensation
-        _ema = FusedMultiplyAdd(_alpha, ratio - _ema, _ema);
+        _ema = Math.FusedMultiplyAdd(_alpha, ratio - _ema, _ema);
 
         if (_isWarmup)
         {

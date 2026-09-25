@@ -1,7 +1,10 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -277,12 +280,22 @@ public sealed class Skew : AbstractBase
         }
 
         // Try SIMD path for large, clean datasets
+#if NET5_0_OR_GREATER
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && Avx2.IsSupported && !source.ContainsNonFinite())
         {
             CalculateAvx2Core(source, output, period, isPopulation);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period, isPopulation);
+            return;
+        }
+#endif
 
         // Scalar path
         CalculateScalarCore(source, output, period, isPopulation);
@@ -296,7 +309,7 @@ public sealed class Skew : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
         int len = source.Length;
         double sum = 0;
@@ -383,6 +396,142 @@ public sealed class Skew : AbstractBase
         }
     }
 
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, period, isPopulation);
+            return;
+        }
+
+        int len = source.Length;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        double sumSq = 0;
+        double sumCu = 0;
+        double sumComp = 0;
+        double sumSqComp = 0;
+        double sumCuComp = 0;
+        for (; i < warmupEnd; i++)
+        {
+            double val = source[i];
+            {
+                double y = val - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+            }
+            {
+                double y = (val * val) - sumSqComp;
+                double t = sumSq + y;
+                sumSqComp = (t - sumSq) - y;
+                sumSq = t;
+            }
+            {
+                double y = (val * val * val) - sumCuComp;
+                double t = sumCu + y;
+                sumCuComp = (t - sumCu) - y;
+                sumCu = t;
+            }
+
+            double n = i + 1;
+            output[i] = (n >= 3) ? CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation) : 0;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        var vN = new Vector<double>(period);
+        var vThree = new Vector<double>(3.0);
+        var vTwo = new Vector<double>(2.0);
+        var vEpsilon = new Vector<double>(Epsilon);
+        var vZero = Vector<double>.Zero;
+        double correction = isPopulation ? 1.0 : Math.Sqrt((double)period * (period - 1)) / (period - 2);
+        var vCorrection = new Vector<double>(correction);
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vSum = Vector<double>.Zero;
+            Vector<double> vSumSq = Vector<double>.Zero;
+            Vector<double> vSumCu = Vector<double>.Zero;
+            Vector<double> vSumComp = Vector<double>.Zero;
+            Vector<double> vSumSqComp = Vector<double>.Zero;
+            Vector<double> vSumCuComp = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> v = VectorCompat.Load<double>(source.Slice(oldest + k, vectorSize));
+
+                Vector<double> y = v - vSumComp;
+                Vector<double> t = vSum + y;
+                vSumComp = (t - vSum) - y;
+                vSum = t;
+
+                Vector<double> vSq = v * v;
+                y = vSq - vSumSqComp;
+                t = vSumSq + y;
+                vSumSqComp = (t - vSumSq) - y;
+                vSumSq = t;
+
+                Vector<double> vCu = vSq * v;
+                y = vCu - vSumCuComp;
+                t = vSumCu + y;
+                vSumCuComp = (t - vSumCu) - y;
+                vSumCu = t;
+            }
+
+            Vector<double> vMean = vSum / vN;
+            Vector<double> vM2 = (vSumSq - ((vSum * vSum) / vN)) / vN;
+
+            Vector<double> vM3 = (vSumCu
+                + (vTwo * vN * vMean * vMean * vMean)
+                - (vThree * vMean * vSumSq)) / vN;
+
+            Vector<double> vM2Sqrt = Vector.SquareRoot(vM2);
+            Vector<double> vSkew = (vM3 / (vM2 * vM2Sqrt)) * vCorrection;
+
+            var vMask = Vector.GreaterThan(vM2, vEpsilon);
+            Vector.ConditionalSelect(vMask, vSkew, vZero).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double accSum = 0;
+            double accSumSq = 0;
+            double accSumCu = 0;
+            double accSumComp = 0;
+            double accSumSqComp = 0;
+            double accSumCuComp = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                double v = source[oldest + k];
+                {
+                    double y = v - accSumComp;
+                    double t = accSum + y;
+                    accSumComp = (t - accSum) - y;
+                    accSum = t;
+                }
+                {
+                    double vSq = v * v;
+                    double y = vSq - accSumSqComp;
+                    double t = accSumSq + y;
+                    accSumSqComp = (t - accSumSq) - y;
+                    accSumSq = t;
+                }
+                {
+                    double vCu = v * v * v;
+                    double y = vCu - accSumCuComp;
+                    double t = accSumCu + y;
+                    accSumCuComp = (t - accSumCu) - y;
+                    accSumCu = t;
+                }
+            }
+
+            output[i] = CalculateSkewFromSums(accSum, accSumSq, accSumCu, period, isPopulation);
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateSkewFromSums(double sum, double sumSq, double sumCu, double n, bool isPopulation)
     {
@@ -433,6 +582,7 @@ public sealed class Skew : AbstractBase
         }
     }
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
@@ -570,4 +720,5 @@ public sealed class Skew : AbstractBase
             Unsafe.Add(ref outRef, i) = CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation);
         }
     }
+#endif
 }

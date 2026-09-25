@@ -222,8 +222,8 @@ public sealed class Cmo : AbstractBase
 
             for (; i <= len - vectorSize; i += vectorSize)
             {
-                var vCurrent = new Vector<double>(source.Slice(i, vectorSize));
-                var vPrev = new Vector<double>(source.Slice(i - 1, vectorSize));
+                var vCurrent = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+                var vPrev = VectorCompat.Load<double>(source.Slice(i - 1, vectorSize));
                 var vChange = vCurrent - vPrev;
 
                 var vUp = Vector.Max(vChange, vZero);

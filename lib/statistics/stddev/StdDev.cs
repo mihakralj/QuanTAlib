@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -120,10 +123,30 @@ public sealed class StdDev : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation = false)
     {
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period, isPopulation);
+            return;
+        }
+#endif
+
         // 1. Calculate Variance
         Variance.Batch(source, output, period, isPopulation);
 
         // 2. Sqrt
+        SqrtSpan(output);
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    {
+        Variance.CalculateScalarCore(source, output, period, isPopulation);
+        SqrtSpan(output);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    {
+        Variance.CalculateVectorCore(source, output, period, isPopulation);
         SqrtSpan(output);
     }
 
@@ -141,6 +164,7 @@ public sealed class StdDev : AbstractBase
         int len = data.Length;
 
         // AVX512
+#if NET5_0_OR_GREATER
         if (Avx512F.IsSupported)
         {
             const int VectorWidth = 8;
@@ -191,6 +215,7 @@ public sealed class StdDev : AbstractBase
                 vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
+#endif
 
         // Scalar fallback
         for (; i < len; i++)

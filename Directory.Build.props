@@ -26,9 +26,9 @@
     <IncludeSymbols>false</IncludeSymbols>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
 
-    <!-- AOT and Trim compatibility analyzers (build-time validation) -->
-    <IsAotCompatible>true</IsAotCompatible>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <!-- AOT and Trim compatibility analyzers (build-time validation); .NET 8+ only -->
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
+    <EnableTrimAnalyzer Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <PropertyGroup>

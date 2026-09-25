@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -177,11 +180,12 @@ public sealed class Slope : AbstractBase
 
         int i = 1;
 
+        // Only use SIMD if all values are finite
+#if NET5_0_OR_GREATER
         // Check if all values are finite before using SIMD
         // SIMD paths don't handle NaN/Infinity properly
         bool allFinite = !source.ContainsNonFinite();
 
-        // Only use SIMD if all values are finite
         if (allFinite)
         {
             // AVX512: 8 doubles at once
@@ -233,6 +237,7 @@ public sealed class Slope : AbstractBase
                 }
             }
         }
+#endif
 
         // Scalar fallback for remaining elements
         // Track last valid value forward to avoid O(n²) backward scanning
@@ -263,6 +268,13 @@ public sealed class Slope : AbstractBase
         }
 
         double prevValid = lastValid;
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output);
+            return;
+        }
+#endif
         for (; i < len; i++)
         {
             double curr = source[i];
@@ -296,5 +308,93 @@ public sealed class Slope : AbstractBase
         var indicator = new Slope();
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output);
+            return;
+        }
+
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int i = 1;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> current = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            Vector<double> previous = VectorCompat.Load<double>(source.Slice(i - 1, vectorSize));
+            (current - previous).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = source[i] - source[i - 1];
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        double lastValid = 0.0;
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(source[k]))
+            {
+                lastValid = source[k];
+                break;
+            }
+        }
+
+        double prevValid = lastValid;
+        for (int i = 1; i < len; i++)
+        {
+            double curr = source[i];
+            double prev = source[i - 1];
+
+            if (double.IsFinite(curr))
+            {
+                lastValid = curr;
+            }
+            else
+            {
+                curr = lastValid;
+            }
+
+            if (double.IsFinite(prev))
+            {
+                prevValid = prev;
+            }
+            else
+            {
+                prev = prevValid;
+            }
+
+            output[i] = curr - prev;
+        }
     }
 }

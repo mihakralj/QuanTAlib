@@ -177,10 +177,10 @@ public sealed class Ad : ITValuePublisher
 
             for (; i <= len - vectorSize; i += vectorSize)
             {
-                var h = new Vector<double>(high.Slice(i, vectorSize));
-                var l = new Vector<double>(low.Slice(i, vectorSize));
-                var c = new Vector<double>(close.Slice(i, vectorSize));
-                var vol = new Vector<double>(volume.Slice(i, vectorSize));
+                var h = VectorCompat.Load<double>(high.Slice(i, vectorSize));
+                var l = VectorCompat.Load<double>(low.Slice(i, vectorSize));
+                var c = VectorCompat.Load<double>(close.Slice(i, vectorSize));
+                var vol = VectorCompat.Load<double>(volume.Slice(i, vectorSize));
 
                 var hl = h - l;
                 var num = c - l - (h - c);

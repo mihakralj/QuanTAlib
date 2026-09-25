@@ -281,13 +281,13 @@ public sealed class Convexity : AbstractBase
     private static double ComputeBetaFromSums(int n, double sumRa, double sumRm, double sumRaRm, double sumRm2)
     {
         // Beta = (N * Σ(Ra*Rm) - ΣRa * ΣRm) / (N * Σ(Rm²) - (ΣRm)²)
-        double denom = FusedMultiplyAdd(n, sumRm2, -sumRm * sumRm);
+        double denom = Math.FusedMultiplyAdd(n, sumRm2, -sumRm * sumRm);
         if (Abs(denom) <= Epsilon)
         {
             return 0;
         }
 
-        double numer = FusedMultiplyAdd(n, sumRaRm, -sumRa * sumRm);
+        double numer = Math.FusedMultiplyAdd(n, sumRaRm, -sumRa * sumRm);
         return numer / denom;
     }
 

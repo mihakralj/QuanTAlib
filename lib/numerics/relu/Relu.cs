@@ -1,9 +1,12 @@
 // RELU: Rectified Linear Unit
 // Activation function that returns max(0, x)
 
+using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -160,6 +163,7 @@ public sealed class Relu : AbstractBase
         int i = 0;
 
         // SIMD path for AVX2
+#if NET5_0_OR_GREATER
         if (Avx2.IsSupported && source.Length >= Vector256<double>.Count)
         {
             Vector256<double> zero = Vector256<double>.Zero;
@@ -200,8 +204,16 @@ public sealed class Relu : AbstractBase
                 }
             }
         }
+#endif
 
         // Scalar fallback for remaining elements
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output);
+            return;
+        }
+#endif
         for (; i < source.Length; i++)
         {
             double val = source[i];
@@ -223,6 +235,49 @@ public sealed class Relu : AbstractBase
         var indicator = new Relu();
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = source.Length;
+        int i = 0;
+        Vector<double> zero = Vector<double>.Zero;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vec = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            Vector.Max(zero, vec).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = Math.Max(0.0, source[i]);
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        double lastValid = 0.0;
+        for (int i = 0; i < source.Length; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+            {
+                lastValid = Math.Max(0.0, val);
+                output[i] = lastValid;
+            }
+            else
+            {
+                output[i] = lastValid;
+            }
+        }
     }
 
     public override void Reset()

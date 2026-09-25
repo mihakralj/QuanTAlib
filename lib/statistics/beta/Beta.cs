@@ -221,10 +221,10 @@ public sealed class Beta : AbstractBase
         if (n > 0)
         {
             // Use FMA for better numerical stability
-            double denominator = FusedMultiplyAdd(n, _sumRm2, -_sumRm * _sumRm);
+            double denominator = Math.FusedMultiplyAdd(n, _sumRm2, -_sumRm * _sumRm);
             if (Abs(denominator) > Epsilon)
             {
-                double numerator = FusedMultiplyAdd(n, _sumRaRm, -_sumRa * _sumRm);
+                double numerator = Math.FusedMultiplyAdd(n, _sumRaRm, -_sumRa * _sumRm);
                 beta = numerator / denominator;
             }
         }

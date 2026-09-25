@@ -1,7 +1,10 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -262,12 +265,22 @@ public sealed class Covariance : AbstractBase
         }
 
         // SIMD overhead amortizes well for datasets >= 256 elements
+#if NET5_0_OR_GREATER
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && !sourceX.ContainsNonFinite() && !sourceY.ContainsNonFinite() && Avx2.IsSupported)
         {
             CalculateAvx2Core(sourceX, sourceY, output, period, isPopulation);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(sourceX, sourceY, output, period, isPopulation);
+            return;
+        }
+#endif
 
         CalculateScalarCore(sourceX, sourceY, output, period, isPopulation);
     }
@@ -280,7 +293,7 @@ public sealed class Covariance : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation)
+    internal static void CalculateScalarCore(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation)
     {
         int len = sourceX.Length;
         double sumX = 0;
@@ -366,6 +379,121 @@ public sealed class Covariance : AbstractBase
         }
     }
 
+    internal static void CalculateVectorCore(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation)
+    {
+        if (sourceX.ContainsNonFinite() || sourceY.ContainsNonFinite())
+        {
+            CalculateScalarCore(sourceX, sourceY, output, period, isPopulation);
+            return;
+        }
+
+        int len = sourceX.Length;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        double sumX = 0;
+        double sumY = 0;
+        double sumXY = 0;
+        for (; i < warmupEnd; i++)
+        {
+            double x = sourceX[i];
+            double y = sourceY[i];
+            sumX += x;
+            sumY += y;
+            sumXY += x * y;
+
+            double n = i + 1;
+            if (n >= 2)
+            {
+                double numerator = sumXY - ((sumX * sumY) / n);
+                double denominator = isPopulation ? n : (n - 1);
+                output[i] = numerator / denominator;
+            }
+            else
+            {
+                output[i] = 0;
+            }
+        }
+
+        int vectorSize = Vector<double>.Count;
+        var vN = new Vector<double>(period);
+        var vDenom = new Vector<double>(isPopulation ? period : (period - 1));
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vSumX = Vector<double>.Zero;
+            Vector<double> vSumY = Vector<double>.Zero;
+            Vector<double> vSumXY = Vector<double>.Zero;
+            Vector<double> vSumXComp = Vector<double>.Zero;
+            Vector<double> vSumYComp = Vector<double>.Zero;
+            Vector<double> vSumXYComp = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> vx = VectorCompat.Load<double>(sourceX.Slice(oldest + k, vectorSize));
+                Vector<double> vy = VectorCompat.Load<double>(sourceY.Slice(oldest + k, vectorSize));
+
+                Vector<double> y = vx - vSumXComp;
+                Vector<double> t = vSumX + y;
+                vSumXComp = (t - vSumX) - y;
+                vSumX = t;
+
+                y = vy - vSumYComp;
+                t = vSumY + y;
+                vSumYComp = (t - vSumY) - y;
+                vSumY = t;
+
+                Vector<double> vxy = vx * vy;
+                y = vxy - vSumXYComp;
+                t = vSumXY + y;
+                vSumXYComp = (t - vSumXY) - y;
+                vSumXY = t;
+            }
+
+            ((vSumXY - ((vSumX * vSumY) / vN)) / vDenom).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double accX = 0;
+            double accY = 0;
+            double accXY = 0;
+            double accXComp = 0;
+            double accYComp = 0;
+            double accXYComp = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                double x = sourceX[oldest + k];
+                double y = sourceY[oldest + k];
+
+                {
+                    double yy = x - accXComp;
+                    double t = accX + yy;
+                    accXComp = (t - accX) - yy;
+                    accX = t;
+                }
+                {
+                    double yy = y - accYComp;
+                    double t = accY + yy;
+                    accYComp = (t - accY) - yy;
+                    accY = t;
+                }
+                {
+                    double yy = (x * y) - accXYComp;
+                    double t = accXY + yy;
+                    accXYComp = (t - accXY) - yy;
+                    accXY = t;
+                }
+            }
+
+            double n = period;
+            double numerator = accXY - ((accX * accY) / n);
+            double denominator = isPopulation ? n : (n - 1);
+            output[i] = numerator / denominator;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static (double sumX, double sumY, double sumXY) WarmupCovariance(int period, int availableLen, bool isPopulation, ref double srcXRef, ref double srcYRef, ref double outRef)
     {
@@ -396,6 +524,7 @@ public sealed class Covariance : AbstractBase
         return (sumX, sumY, sumXY);
     }
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx2Core(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation)
     {
@@ -517,4 +646,5 @@ public sealed class Covariance : AbstractBase
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
+#endif
 }

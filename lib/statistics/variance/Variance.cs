@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -192,6 +195,7 @@ public sealed class Variance : AbstractBase
         }
 
         // Try SIMD path for large, clean datasets
+#if NET5_0_OR_GREATER
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && !source.ContainsNonFinite())
         {
@@ -213,6 +217,15 @@ public sealed class Variance : AbstractBase
                 return;
             }
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period, isPopulation);
+            return;
+        }
+#endif
 
         // Scalar path with NaN handling
         CalculateScalarCore(source, output, period, isPopulation);
@@ -226,7 +239,7 @@ public sealed class Variance : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
         int len = source.Length;
         double sum = 0;
@@ -331,6 +344,125 @@ public sealed class Variance : AbstractBase
         }
     }
 
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, period, isPopulation);
+            return;
+        }
+
+        int len = source.Length;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        double sumSq = 0;
+        double sumComp = 0;
+        double sumSqComp = 0;
+        for (; i < warmupEnd; i++)
+        {
+            double val = source[i];
+            {
+                double y = val - sumComp;
+                double t = sum + y;
+                sumComp = (t - sum) - y;
+                sum = t;
+            }
+            {
+                double y = (val * val) - sumSqComp;
+                double t = sumSq + y;
+                sumSqComp = (t - sumSq) - y;
+                sumSq = t;
+            }
+
+            double n = i + 1;
+            if (n > 1)
+            {
+                double numerator = sumSq - ((sum * sum) / n);
+                if (numerator < 0)
+                {
+                    numerator = 0;
+                }
+
+                double denominator = isPopulation ? n : (n - 1);
+                output[i] = numerator / denominator;
+            }
+            else
+            {
+                output[i] = 0;
+            }
+        }
+
+        int vectorSize = Vector<double>.Count;
+        var vN = new Vector<double>(period);
+        var vDenom = new Vector<double>(isPopulation ? period : (period - 1));
+        var vZero = Vector<double>.Zero;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vSum = Vector<double>.Zero;
+            Vector<double> vSumSq = Vector<double>.Zero;
+            Vector<double> vSumComp = Vector<double>.Zero;
+            Vector<double> vSumSqComp = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> v = VectorCompat.Load<double>(source.Slice(oldest + k, vectorSize));
+                Vector<double> y = v - vSumComp;
+                Vector<double> t = vSum + y;
+                vSumComp = (t - vSum) - y;
+                vSum = t;
+
+                Vector<double> vSq = v * v;
+                y = vSq - vSumSqComp;
+                t = vSumSq + y;
+                vSumSqComp = (t - vSumSq) - y;
+                vSumSq = t;
+            }
+
+            Vector<double> vNumerator = vSumSq - ((vSum * vSum) / vN);
+            vNumerator = Vector.Max(vZero, vNumerator);
+            (vNumerator / vDenom).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double accSum = 0;
+            double accSumSq = 0;
+            double accSumComp = 0;
+            double accSumSqComp = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                double v = source[oldest + k];
+                {
+                    double y = v - accSumComp;
+                    double t = accSum + y;
+                    accSumComp = (t - accSum) - y;
+                    accSum = t;
+                }
+                {
+                    double vSq = v * v;
+                    double y = vSq - accSumSqComp;
+                    double t = accSumSq + y;
+                    accSumSqComp = (t - accSumSq) - y;
+                    accSumSq = t;
+                }
+            }
+
+            double n = period;
+            double numerator = accSumSq - ((accSum * accSum) / n);
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
+
+            double denominator = isPopulation ? n : (n - 1);
+            output[i] = numerator / denominator;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WarmupVariance(int period, bool isPopulation, ref double srcRef, ref double outRef, out double sum, out double sumSq)
     {
@@ -361,6 +493,7 @@ public sealed class Variance : AbstractBase
         }
     }
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
@@ -457,7 +590,9 @@ public sealed class Variance : AbstractBase
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
+#endif
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
@@ -542,7 +677,9 @@ public sealed class Variance : AbstractBase
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
+#endif
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation)
     {
@@ -640,4 +777,5 @@ public sealed class Variance : AbstractBase
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
+#endif
 }

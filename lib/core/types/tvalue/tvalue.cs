@@ -10,7 +10,12 @@ namespace QuanTAlib;
 /// </summary>
 [SkipLocalsInit]
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct TValue(long Time, double Value) : ISpanFormattable
+public readonly record struct TValue(long Time, double Value)
+#if NET5_0_OR_GREATER
+    : ISpanFormattable
+#else
+    : IFormattable
+#endif
 {
     public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
 

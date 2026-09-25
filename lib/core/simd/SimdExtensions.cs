@@ -1,9 +1,11 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -142,7 +144,7 @@ public static class SimdExtensions
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
 
                 // NaN check: NaN != NaN, so Vector.Equals(v, v) will be false for NaN lanes
                 var nanCheck = Vector.Equals(vector, vector);
@@ -210,7 +212,7 @@ public static class SimdExtensions
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
                 sum += vector;
             }
 
@@ -268,12 +270,12 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var minVec = new Vector<double>(span[..vectorSize]);
+            var minVec = VectorCompat.Load<double>(span[..vectorSize]);
             int i = vectorSize;
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
                 minVec = Vector.Min(minVec, vector);
             }
 
@@ -327,12 +329,12 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var maxVec = new Vector<double>(span[..vectorSize]);
+            var maxVec = VectorCompat.Load<double>(span[..vectorSize]);
             int i = vectorSize;
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
                 maxVec = Vector.Max(maxVec, vector);
             }
 
@@ -424,7 +426,7 @@ public static class SimdExtensions
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
                 var diff = vector - meanVec;
                 sumSq += diff * diff;
             }
@@ -485,13 +487,13 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var minVec = new Vector<double>(span[..vectorSize]);
+            var minVec = VectorCompat.Load<double>(span[..vectorSize]);
             var maxVec = minVec;
             int i = vectorSize;
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
-                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                var vector = VectorCompat.Load<double>(span.Slice(i, vectorSize));
                 minVec = Vector.Min(minVec, vector);
                 maxVec = Vector.Max(maxVec, vector);
             }
@@ -548,8 +550,8 @@ public static class SimdExtensions
             int vectorSize = Vector<double>.Count;
             for (; i <= left.Length - vectorSize; i += vectorSize)
             {
-                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
-                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                var vLeft = VectorCompat.Load<double>(left.Slice(i, vectorSize));
+                var vRight = VectorCompat.Load<double>(right.Slice(i, vectorSize));
                 (vLeft + vRight).CopyTo(result.Slice(i, vectorSize));
             }
         }
@@ -579,7 +581,7 @@ public static class SimdExtensions
             var scalarVec = new Vector<double>(scalar);
             for (; i <= source.Length - vectorSize; i += vectorSize)
             {
-                var vSource = new Vector<double>(source.Slice(i, vectorSize));
+                var vSource = VectorCompat.Load<double>(source.Slice(i, vectorSize));
                 (vSource * scalarVec).CopyTo(result.Slice(i, vectorSize));
             }
         }
@@ -608,8 +610,8 @@ public static class SimdExtensions
             int vectorSize = Vector<double>.Count;
             for (; i <= left.Length - vectorSize; i += vectorSize)
             {
-                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
-                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                var vLeft = VectorCompat.Load<double>(left.Slice(i, vectorSize));
+                var vRight = VectorCompat.Load<double>(right.Slice(i, vectorSize));
                 (vLeft - vRight).CopyTo(result.Slice(i, vectorSize));
             }
         }
@@ -638,8 +640,8 @@ public static class SimdExtensions
             int vectorSize = Vector<double>.Count;
             for (; i <= left.Length - vectorSize; i += vectorSize)
             {
-                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
-                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                var vLeft = VectorCompat.Load<double>(left.Slice(i, vectorSize));
+                var vRight = VectorCompat.Load<double>(right.Slice(i, vectorSize));
                 (vLeft * vRight).CopyTo(result.Slice(i, vectorSize));
             }
         }
@@ -712,6 +714,7 @@ public static class SimdExtensions
             return sum;
         }
 
+#if NET5_0_OR_GREATER
         if (Avx512F.IsSupported)
         {
             return DotProductAvx512(a, b);
@@ -726,6 +729,7 @@ public static class SimdExtensions
         {
             return DotProductNeon(a, b);
         }
+#endif
 
         double s1 = 0, s2 = 0, s3 = 0, s4 = 0;
         ref double ar = ref MemoryMarshal.GetReference(a);
@@ -750,6 +754,7 @@ public static class SimdExtensions
         return s;
     }
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double DotProductAvx512(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
@@ -814,7 +819,9 @@ public static class SimdExtensions
 
         return sum;
     }
+#endif
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double DotProductAvx2(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
@@ -913,7 +920,9 @@ public static class SimdExtensions
 
         return sum;
     }
+#endif
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double DotProductNeon(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
@@ -979,4 +988,5 @@ public static class SimdExtensions
 
         return sum;
     }
+#endif
 }

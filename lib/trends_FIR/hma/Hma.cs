@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -217,10 +219,10 @@ public sealed class Hma : AbstractBase
         int len = halfWma.Length;
         int i = 0;
 
+#if NET5_0_OR_GREATER
         ref double halfRef = ref MemoryMarshal.GetReference(halfWma);
         ref double fullRef = ref MemoryMarshal.GetReference(fullWma);
         ref double outRef = ref MemoryMarshal.GetReference(output);
-
         if (Avx512F.IsSupported && len >= Vector512<double>.Count)
         {
             var vTwo = Vector512.Create(2.0);
@@ -254,6 +256,7 @@ public sealed class Hma : AbstractBase
                 vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
+#endif
 
         for (; i < len; i++)
         {

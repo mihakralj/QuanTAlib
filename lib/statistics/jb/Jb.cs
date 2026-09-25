@@ -1,8 +1,11 @@
 using System.Buffers;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -286,12 +289,22 @@ public sealed class Jb : AbstractBase
         }
 
         // Try SIMD path for large, clean datasets
+#if NET5_0_OR_GREATER
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && Avx2.IsSupported && !source.ContainsNonFinite())
         {
             CalculateAvx2Core(source, output, period);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period);
+            return;
+        }
+#endif
 
         // Scalar path
         CalculateScalarCore(source, output, period);
@@ -413,7 +426,7 @@ public sealed class Jb : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
 
@@ -498,6 +511,144 @@ public sealed class Jb : AbstractBase
         }
     }
 
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, period);
+            return;
+        }
+
+        int len = source.Length;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        double sumSq = 0;
+        double sumCu = 0;
+        double sumQu = 0;
+        for (; i < warmupEnd; i++)
+        {
+            double val = source[i];
+            double vSq = val * val;
+            sum += val;
+            sumSq += vSq;
+            sumCu += vSq * val;
+            sumQu += vSq * vSq;
+
+            output[i] = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, i + 1);
+        }
+
+        int vectorSize = Vector<double>.Count;
+        var vN = new Vector<double>(period);
+        var vTwo = new Vector<double>(2.0);
+        var vThree = new Vector<double>(3.0);
+        var vFour = new Vector<double>(4.0);
+        var vSix = new Vector<double>(6.0);
+        var vEpsilon = new Vector<double>(Epsilon);
+        var vZero = Vector<double>.Zero;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> vSum = Vector<double>.Zero;
+            Vector<double> vSumSq = Vector<double>.Zero;
+            Vector<double> vSumCu = Vector<double>.Zero;
+            Vector<double> vSumQu = Vector<double>.Zero;
+            Vector<double> vSumComp = Vector<double>.Zero;
+            Vector<double> vSumSqComp = Vector<double>.Zero;
+            Vector<double> vSumCuComp = Vector<double>.Zero;
+            Vector<double> vSumQuComp = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> v = VectorCompat.Load<double>(source.Slice(oldest + k, vectorSize));
+
+                Vector<double> y = v - vSumComp;
+                Vector<double> t = vSum + y;
+                vSumComp = (t - vSum) - y;
+                vSum = t;
+
+                Vector<double> vSq = v * v;
+                y = vSq - vSumSqComp;
+                t = vSumSq + y;
+                vSumSqComp = (t - vSumSq) - y;
+                vSumSq = t;
+
+                Vector<double> vCu = vSq * v;
+                y = vCu - vSumCuComp;
+                t = vSumCu + y;
+                vSumCuComp = (t - vSumCu) - y;
+                vSumCu = t;
+
+                Vector<double> vQu = vSq * vSq;
+                y = vQu - vSumQuComp;
+                t = vSumQu + y;
+                vSumQuComp = (t - vSumQu) - y;
+                vSumQu = t;
+            }
+
+            Vector<double> vMean = vSum / vN;
+            Vector<double> vMeanSq = vMean * vMean;
+            Vector<double> vM2 = (vSumSq - ((vSum * vSum) / vN)) / vN;
+            Vector<double> vM3 = (vSumCu + (vTwo * vN * vMeanSq * vMean) - (vThree * vMean * vSumSq)) / vN;
+            Vector<double> vM4 = (vSumQu - (vThree * vN * vMeanSq * vMeanSq) + (vSix * vMeanSq * vSumSq) - (vFour * vMean * vSumCu)) / vN;
+
+            Vector<double> vM2Sqrt = Vector.SquareRoot(vM2);
+            Vector<double> vSkew = vM3 / (vM2 * vM2Sqrt);
+            Vector<double> vKurt = (vM4 / (vM2 * vM2)) - vThree;
+            Vector<double> vJb = (vN / vSix) * ((vSkew * vSkew) + ((vKurt * vKurt) / vFour));
+
+            var vMask = Vector.GreaterThan(vM2, vEpsilon);
+            Vector.ConditionalSelect(vMask, vJb, vZero).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double accSum = 0;
+            double accSumSq = 0;
+            double accSumCu = 0;
+            double accSumQu = 0;
+            double accSumComp = 0;
+            double accSumSqComp = 0;
+            double accSumCuComp = 0;
+            double accSumQuComp = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                double v = source[oldest + k];
+                {
+                    double y = v - accSumComp;
+                    double t = accSum + y;
+                    accSumComp = (t - accSum) - y;
+                    accSum = t;
+                }
+                {
+                    double vSq = v * v;
+                    double y = vSq - accSumSqComp;
+                    double t = accSumSq + y;
+                    accSumSqComp = (t - accSumSq) - y;
+                    accSumSq = t;
+                }
+                {
+                    double vCu = v * v * v;
+                    double y = vCu - accSumCuComp;
+                    double t = accSumCu + y;
+                    accSumCuComp = (t - accSumCu) - y;
+                    accSumCu = t;
+                }
+                {
+                    double vQu = v * v * v * v;
+                    double y = vQu - accSumQuComp;
+                    double t = accSumQu + y;
+                    accSumQuComp = (t - accSumQu) - y;
+                    accSumQu = t;
+                }
+            }
+
+            output[i] = CalculateJbFromSums(accSum, accSumSq, accSumCu, accSumQu, period);
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WarmupJb(int period, ref double srcRef, ref double outRef,
         out double sum, out double sumSq, out double sumCu, out double sumQu)
@@ -516,6 +667,7 @@ public sealed class Jb : AbstractBase
         }
     }
 
+#if NET5_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -678,4 +830,5 @@ public sealed class Jb : AbstractBase
             Unsafe.Add(ref outRef, i) = CalculateJbFromSums(sum, sumSq, sumCu, sumQu, n);
         }
     }
+#endif
 }

@@ -203,8 +203,8 @@ public sealed class Rsi : AbstractBase
             // Since we need i-1, we can load vectors at i and i-1
             for (; i <= len - vectorSize; i += vectorSize)
             {
-                var vCurrent = new Vector<double>(source.Slice(i, vectorSize));
-                var vPrev = new Vector<double>(source.Slice(i - 1, vectorSize));
+                var vCurrent = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+                var vPrev = VectorCompat.Load<double>(source.Slice(i - 1, vectorSize));
                 var vChange = vCurrent - vPrev;
 
                 var vGain = Vector.Max(vChange, vZero);
@@ -246,8 +246,8 @@ public sealed class Rsi : AbstractBase
 
             for (; i <= len - vectorSize; i += vectorSize)
             {
-                var vGain = new Vector<double>(gainSpan.Slice(i, vectorSize));
-                var vLoss = new Vector<double>(lossSpan.Slice(i, vectorSize));
+                var vGain = VectorCompat.Load<double>(gainSpan.Slice(i, vectorSize));
+                var vLoss = VectorCompat.Load<double>(lossSpan.Slice(i, vectorSize));
 
                 // Standard RSI calculation
                 var vRs = vGain / vLoss;

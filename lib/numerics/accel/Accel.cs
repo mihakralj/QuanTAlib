@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -215,6 +218,8 @@ public sealed class Accel : AbstractBase
 
         int i = 2;
 
+        // AVX512: 8 doubles at once (only if all values are finite)
+#if NET5_0_OR_GREATER
         // Check for non-finite values - if any exist, use scalar path only
         bool hasNonFinite = false;
         for (int k = 0; k < len && !hasNonFinite; k++)
@@ -222,7 +227,6 @@ public sealed class Accel : AbstractBase
             hasNonFinite = !double.IsFinite(source[k]);
         }
 
-        // AVX512: 8 doubles at once (only if all values are finite)
         if (!hasNonFinite && Avx512F.IsSupported && len >= 10)
         {
             var two = Vector512.Create(2.0);
@@ -283,9 +287,17 @@ public sealed class Accel : AbstractBase
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
+#endif
 
         // Scalar fallback for remaining elements
         // Initialize prev values from actual data at position i-1 and i-2
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output);
+            return;
+        }
+#endif
         for (; i < len; i++)
         {
             double curr = source[i];
@@ -319,6 +331,96 @@ public sealed class Accel : AbstractBase
         var indicator = new Accel();
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output);
+            return;
+        }
+
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        output[1] = 0.0;
+        if (len == 2)
+        {
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        Vector<double> two = new(2.0);
+        int i = 2;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> current = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            Vector<double> prev1 = VectorCompat.Load<double>(source.Slice(i - 1, vectorSize));
+            Vector<double> prev2 = VectorCompat.Load<double>(source.Slice(i - 2, vectorSize));
+            (current - two * prev1 + prev2).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = Math.FusedMultiplyAdd(-2.0, source[i - 1], source[i] + source[i - 2]);
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        output[1] = 0.0;
+        if (len == 2)
+        {
+            return;
+        }
+
+        for (int i = 2; i < len; i++)
+        {
+            double curr = source[i];
+            double p1 = source[i - 1];
+            double p2 = source[i - 2];
+
+            double fallback = FindFinite(curr, p1, p2);
+            if (!double.IsFinite(curr))
+            {
+                curr = fallback;
+            }
+
+            if (!double.IsFinite(p1))
+            {
+                p1 = fallback;
+            }
+
+            if (!double.IsFinite(p2))
+            {
+                p2 = fallback;
+            }
+
+            output[i] = Math.FusedMultiplyAdd(-2.0, p1, curr + p2);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

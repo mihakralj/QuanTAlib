@@ -2,8 +2,10 @@ using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -53,6 +55,7 @@ public static class ErrorHelpers
         double lastValidPredicted = FindFirstValidValue(predicted);
 
         // Try SIMD path - NaN detection is integrated into the SIMD loop
+#if NET5_0_OR_GREATER
         if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
             int processedCount = ComputeSignedErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
@@ -64,6 +67,15 @@ public static class ErrorHelpers
             ComputeSignedErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeSignedErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+#endif
 
         // Scalar fallback with NaN handling
         ComputeSignedErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
@@ -94,6 +106,7 @@ public static class ErrorHelpers
         double lastValidPredicted = FindFirstValidValue(predicted);
 
         // Try SIMD path - NaN detection is integrated into the SIMD loop (avoids double-pass)
+#if NET5_0_OR_GREATER
         if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
             int processedCount = ComputeAbsoluteErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
@@ -105,6 +118,15 @@ public static class ErrorHelpers
             ComputeAbsoluteErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeAbsoluteErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+#endif
 
         // Scalar fallback with NaN handling
         ComputeAbsoluteErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
@@ -135,6 +157,7 @@ public static class ErrorHelpers
         double lastValidPredicted = FindFirstValidValue(predicted);
 
         // Try SIMD path - NaN detection is integrated into the SIMD loop (avoids double-pass)
+#if NET5_0_OR_GREATER
         if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
             int processedCount = ComputeSquaredErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
@@ -146,6 +169,15 @@ public static class ErrorHelpers
             ComputeSquaredErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeSquaredErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+#endif
 
         // Scalar fallback with NaN handling
         ComputeSquaredErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
@@ -180,6 +212,14 @@ public static class ErrorHelpers
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
         double currentValidWeight = lastValidWeight;
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeWeightedErrorsVectorCore(actual, predicted, weights, output, lastValidActual, lastValidPredicted, lastValidWeight);
+            return;
+        }
+#endif
 
         for (int i = 0; i < len; i++)
         {
@@ -247,6 +287,14 @@ public static class ErrorHelpers
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
 
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputePercentageErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted, epsilon);
+            return;
+        }
+#endif
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
@@ -291,6 +339,14 @@ public static class ErrorHelpers
 
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeSymmetricPercentageErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted, epsilon);
+            return;
+        }
+#endif
 
         for (int i = 0; i < len; i++)
         {
@@ -407,6 +463,14 @@ public static class ErrorHelpers
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
 
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputePseudoHuberErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted, delta);
+            return;
+        }
+#endif
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
@@ -467,6 +531,14 @@ public static class ErrorHelpers
 
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeTukeyBiweightErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted, c);
+            return;
+        }
+#endif
 
         for (int i = 0; i < len; i++)
         {
@@ -537,6 +609,14 @@ public static class ErrorHelpers
 
         double currentValidActual = lastValidActual;
         double currentValidPredicted = lastValidPredicted;
+
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            ComputeHuberErrorsVectorCore(actual, predicted, output, lastValidActual, lastValidPredicted, delta);
+            return;
+        }
+#endif
 
         for (int i = 0; i < len; i++)
         {
@@ -881,6 +961,14 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
+#if !NET5_0_OR_GREATER
+        if (len >= Vector<double>.Count)
+        {
+            SanitizeInputsVectorCore(actual, predicted, actualOut, predictedOut, lastValidActual, lastValidPredicted);
+            return;
+        }
+#endif
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
@@ -927,6 +1015,7 @@ public static class ErrorHelpers
 
     #region Private Helpers
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// SIMD path with integrated NaN detection. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
@@ -998,9 +1087,10 @@ public static class ErrorHelpers
 
         return len;
     }
+#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeSignedErrorsScalar(
+    internal static void ComputeSignedErrorsScalar(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
         Span<double> output,
@@ -1038,6 +1128,7 @@ public static class ErrorHelpers
         }
     }
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// SIMD path with integrated NaN detection for absolute errors. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
@@ -1113,7 +1204,9 @@ public static class ErrorHelpers
 
         return len;
     }
+#endif
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// SIMD path with integrated NaN detection for squared errors. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
@@ -1187,9 +1280,10 @@ public static class ErrorHelpers
 
         return len;
     }
+#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeAbsoluteErrorsScalar(
+    internal static void ComputeAbsoluteErrorsScalar(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
         Span<double> output,
@@ -1228,7 +1322,7 @@ public static class ErrorHelpers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeSquaredErrorsScalar(
+    internal static void ComputeSquaredErrorsScalar(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
         Span<double> output,
@@ -1281,6 +1375,714 @@ public static class ErrorHelpers
             return absX - 0.6931471805599453; // log(2)
         }
         return Math.Log(Math.Cosh(x));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeWeightedErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        ReadOnlySpan<double> weights,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double lastValidWeight)
+    {
+        int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+        double currentValidWeight = lastValidWeight;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+            double wgt = weights[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            if (double.IsFinite(wgt))
+            {
+                currentValidWeight = wgt;
+            }
+            else
+            {
+                wgt = currentValidWeight;
+            }
+
+            double diff = act - pred;
+            output[i] = wgt * diff * diff;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputePercentageErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double epsilon)
+    {
+        int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            double absActual = Math.Abs(act);
+            output[i] = absActual < epsilon
+                ? Math.Abs(act - pred)
+                : Math.Abs(act - pred) / absActual * 100.0;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeSymmetricPercentageErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double epsilon)
+    {
+        int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            double denominator = (Math.Abs(act) + Math.Abs(pred)) / 2.0;
+            output[i] = denominator < epsilon
+                ? 0.0
+                : Math.Abs(act - pred) / denominator * 100.0;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputePseudoHuberErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double delta)
+    {
+        int len = actual.Length;
+        double deltaSquared = delta * delta;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            double diff = act - pred;
+            double ratio = diff / delta;
+            output[i] = deltaSquared * (Math.Sqrt(1.0 + (ratio * ratio)) - 1.0);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeTukeyBiweightErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double c)
+    {
+        int len = actual.Length;
+        double cSquaredOver6 = (c * c) / 6.0;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            double diff = act - pred;
+            double absDiff = Math.Abs(diff);
+
+            if (absDiff > c)
+            {
+                output[i] = cSquaredOver6;
+            }
+            else
+            {
+                double ratio = diff / c;
+                double ratioSq = ratio * ratio;
+                double oneMinusRatioSq = 1.0 - ratioSq;
+                double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
+                output[i] = cSquaredOver6 * (1.0 - cubed);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeHuberErrorsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double delta)
+    {
+        int len = actual.Length;
+        double halfDelta = 0.5 * delta;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            double diff = act - pred;
+            double absDiff = Math.Abs(diff);
+
+            output[i] = absDiff <= delta
+                ? 0.5 * diff * diff
+                : delta * (absDiff - halfDelta);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void SanitizeInputsScalarCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> actualOut,
+        Span<double> predictedOut,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        for (int i = 0; i < actual.Length; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
+
+            actualOut[i] = act;
+            predictedOut[i] = pred;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeSignedErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeSignedErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            (actVec - predVec).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = actual[i] - predicted[i];
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeAbsoluteErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeAbsoluteErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector.Abs(actVec - predVec).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            output[i] = Math.Abs(actual[i] - predicted[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeSquaredErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeSquaredErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> diff = actVec - predVec;
+            (diff * diff).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double diff = actual[i] - predicted[i];
+            output[i] = diff * diff;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeWeightedErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        ReadOnlySpan<double> weights,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double lastValidWeight)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite() || weights.ContainsNonFinite())
+        {
+            ComputeWeightedErrorsScalarCore(actual, predicted, weights, output, lastValidActual, lastValidPredicted, lastValidWeight);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> wgtVec = VectorCompat.Load<double>(weights.Slice(i, vectorSize));
+            Vector<double> diff = actVec - predVec;
+            (wgtVec * diff * diff).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double diff = actual[i] - predicted[i];
+            output[i] = weights[i] * diff * diff;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputePercentageErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double epsilon)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputePercentageErrorsScalarCore(actual, predicted, output, lastValidActual, lastValidPredicted, epsilon);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        Vector<double> epsilonVec = new(epsilon);
+        Vector<double> hundred = new(100.0);
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> absDiff = Vector.Abs(actVec - predVec);
+            Vector<double> absAct = Vector.Abs(actVec);
+            Vector<double> result = Vector.ConditionalSelect(
+                Vector.LessThan(absAct, epsilonVec),
+                absDiff,
+                (absDiff / absAct) * hundred);
+            result.CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double absActual = Math.Abs(actual[i]);
+            double absDiff = Math.Abs(actual[i] - predicted[i]);
+            output[i] = absActual < epsilon ? absDiff : absDiff / absActual * 100.0;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeSymmetricPercentageErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double epsilon)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeSymmetricPercentageErrorsScalarCore(actual, predicted, output, lastValidActual, lastValidPredicted, epsilon);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        Vector<double> epsilonVec = new(epsilon);
+        Vector<double> hundred = new(100.0);
+        Vector<double> half = new(0.5);
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> denom = (Vector.Abs(actVec) + Vector.Abs(predVec)) * half;
+            Vector<double> absDiff = Vector.Abs(actVec - predVec);
+            Vector<double> result = Vector.ConditionalSelect(
+                Vector.LessThan(denom, epsilonVec),
+                Vector<double>.Zero,
+                (absDiff / denom) * hundred);
+            result.CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double denominator = (Math.Abs(actual[i]) + Math.Abs(predicted[i])) / 2.0;
+            double absDiff = Math.Abs(actual[i] - predicted[i]);
+            output[i] = denominator < epsilon ? 0.0 : absDiff / denominator * 100.0;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputePseudoHuberErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double delta)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputePseudoHuberErrorsScalarCore(actual, predicted, output, lastValidActual, lastValidPredicted, delta);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        double deltaSquared = delta * delta;
+        Vector<double> deltaVec = new(delta);
+        Vector<double> deltaSqVec = new(deltaSquared);
+        Vector<double> one = Vector<double>.One;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> diff = actVec - predVec;
+            Vector<double> ratio = diff / deltaVec;
+            Vector<double> inner = Vector.SquareRoot(one + (ratio * ratio));
+            ((inner - one) * deltaSqVec).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double diff = actual[i] - predicted[i];
+            double ratio = diff / delta;
+            output[i] = deltaSquared * (Math.Sqrt(1.0 + (ratio * ratio)) - 1.0);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeTukeyBiweightErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double c)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeTukeyBiweightErrorsScalarCore(actual, predicted, output, lastValidActual, lastValidPredicted, c);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        double cSquaredOver6 = (c * c) / 6.0;
+        Vector<double> cVec = new(c);
+        Vector<double> cSqOver6Vec = new(cSquaredOver6);
+        Vector<double> one = Vector<double>.One;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> diff = actVec - predVec;
+            Vector<double> absDiff = Vector.Abs(diff);
+            Vector<double> ratio = diff / cVec;
+            Vector<double> ratioSq = ratio * ratio;
+            Vector<double> oneMinusRatioSq = one - ratioSq;
+            Vector<double> cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
+            Vector<double> result = Vector.ConditionalSelect(
+                Vector.GreaterThan(absDiff, cVec),
+                cSqOver6Vec,
+                cSqOver6Vec * (one - cubed));
+            result.CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double diff = actual[i] - predicted[i];
+            double absDiff = Math.Abs(diff);
+
+            if (absDiff > c)
+            {
+                output[i] = cSquaredOver6;
+            }
+            else
+            {
+                double ratio = diff / c;
+                double ratioSq = ratio * ratio;
+                double oneMinusRatioSq = 1.0 - ratioSq;
+                double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
+                output[i] = cSquaredOver6 * (1.0 - cubed);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void ComputeHuberErrorsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted,
+        double delta)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            ComputeHuberErrorsScalarCore(actual, predicted, output, lastValidActual, lastValidPredicted, delta);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        double halfDelta = 0.5 * delta;
+        Vector<double> deltaVec = new(delta);
+        Vector<double> halfDeltaVec = new(halfDelta);
+        Vector<double> half = new(0.5);
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            Vector<double> diff = actVec - predVec;
+            Vector<double> absDiff = Vector.Abs(diff);
+            Vector<double> result = Vector.ConditionalSelect(
+                Vector.LessThanOrEqual(absDiff, deltaVec),
+                half * diff * diff,
+                deltaVec * (absDiff - halfDeltaVec));
+            result.CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double diff = actual[i] - predicted[i];
+            double absDiff = Math.Abs(diff);
+
+            output[i] = absDiff <= delta
+                ? 0.5 * diff * diff
+                : delta * (absDiff - halfDelta);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void SanitizeInputsVectorCore(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> actualOut,
+        Span<double> predictedOut,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        if (actual.ContainsNonFinite() || predicted.ContainsNonFinite())
+        {
+            SanitizeInputsScalarCore(actual, predicted, actualOut, predictedOut, lastValidActual, lastValidPredicted);
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        int len = actual.Length;
+        int i = 0;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> actVec = VectorCompat.Load<double>(actual.Slice(i, vectorSize));
+            actVec.CopyTo(actualOut.Slice(i, vectorSize));
+            Vector<double> predVec = VectorCompat.Load<double>(predicted.Slice(i, vectorSize));
+            predVec.CopyTo(predictedOut.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            actualOut[i] = actual[i];
+            predictedOut[i] = predicted[i];
+        }
     }
 
     #endregion

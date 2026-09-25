@@ -11,28 +11,44 @@ namespace QuanTAlib;
 public interface ICompareOp
 {
     /// <summary>Evaluates the comparison for two sanitized (finite) inputs.</summary>
+#if NET5_0_OR_GREATER
     static abstract bool Eval(double a, double b, double eps);
+#else
+    bool Eval(double a, double b, double eps);
+#endif
 }
 
 /// <summary>Strict greater-than: a &gt; b.</summary>
 public readonly struct AboveOp : ICompareOp
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NET5_0_OR_GREATER
     public static bool Eval(double a, double b, double eps) => a > b;
+#else
+    public bool Eval(double a, double b, double eps) => a > b;
+#endif
 }
 
 /// <summary>Strict less-than: a &lt; b.</summary>
 public readonly struct BelowOp : ICompareOp
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NET5_0_OR_GREATER
     public static bool Eval(double a, double b, double eps) => a < b;
+#else
+    public bool Eval(double a, double b, double eps) => a < b;
+#endif
 }
 
 /// <summary>Approximate equality within an epsilon: |a - b| &lt;= eps.</summary>
 public readonly struct EqualOp : ICompareOp
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NET5_0_OR_GREATER
     public static bool Eval(double a, double b, double eps) => Math.Abs(a - b) <= eps;
+#else
+    public bool Eval(double a, double b, double eps) => Math.Abs(a - b) <= eps;
+#endif
 }
 
 /// <summary>
@@ -86,7 +102,11 @@ public abstract class ComparePredicateBase<TOp> : BiInputIndicatorBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sealed override double ComputeError(double actual, double predicted) =>
+#if NET5_0_OR_GREATER
         TOp.Eval(actual, predicted, _epsilon) ? 1.0 : 0.0;
+#else
+        default(TOp).Eval(actual, predicted, _epsilon) ? 1.0 : 0.0;
+#endif
 
     public override void Reset()
     {

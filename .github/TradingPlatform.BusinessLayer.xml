@@ -59,9 +59,9 @@
             Collection of chart drawingsCollection
             </summary>
         </member>
-        <member name="M:TradingPlatform.BusinessLayer.Chart.IChart.Refresh">
+        <member name="M:TradingPlatform.BusinessLayer.Chart.IChart.RedrawBuffer">
             <summary>
-            Force chart refreshing
+            Force chart redraw
             </summary>
         </member>
         <member name="E:TradingPlatform.BusinessLayer.Chart.IChart.MouseDown">
@@ -186,7 +186,7 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Chart.IChartWindow.YScaleFactor">
             <summary>
-
+            
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.Chart.IChartWindowCoordinatesConverter">
@@ -542,6 +542,11 @@
             Ping state
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.Integration.PingResult.StopReconnecting">
+            <summary>
+            Disable auto reconnecting
+            </summary>
+        </member>
         <member name="M:TradingPlatform.BusinessLayer.Integration.Vendor.Connect(TradingPlatform.BusinessLayer.Integration.ConnectRequestParameters)">
             <summary>
             Performs a binding with broker or data provider
@@ -757,6 +762,11 @@
             Gets open order original status
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.IOrder.Remarks">
+            <summary>
+            Remarks of the order
+            </summary>
+        </member>
         <member name="E:TradingPlatform.BusinessLayer.IOrder.Updated">
             <summary>
             Will be triggered on each <see cref="M:TradingPlatform.BusinessLayer.Order.UpdateByMessage(TradingPlatform.BusinessLayer.Integration.MessageOpenOrder)"/> invocation
@@ -764,12 +774,12 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.RangeIndex">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.TimeLeft">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.Value">
@@ -779,22 +789,27 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.STDCoefficient">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.CumulativeVolume">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.CumulativePriceMVolume">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.MPDCoefficient">
             <summary>
-
+            
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Abstractions.IVwapHistoryItem.Direction">
+            <summary>
+            
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.Serialization.SnapshotData">
@@ -815,7 +830,7 @@
         </member>
         <member name="T:TradingPlatform.BusinessLayer.IVolumeAnalysisItem">
             <summary>
-            Defines 'Volume Analysis' calculation result item
+            Defines 'Volume Analysis' calculation result item 
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.Account">
@@ -887,7 +902,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AccountOperation.Update(System.Collections.Generic.IList{TradingPlatform.BusinessLayer.SettingItem})">
             <summary>
-
+            
             </summary>
             <param name="settings">The settings.</param>
         </member>
@@ -900,7 +915,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AccountOperation.Execute(System.Collections.Generic.IList{TradingPlatform.BusinessLayer.SettingItem})">
             <summary>
-
+            
             </summary>
             <param name="settings">The settings.</param>
         </member>
@@ -972,11 +987,6 @@
             The additional info item.
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.Id">
-            <summary>
-            ключ для апи, обязательно для заполнения и должен быть уникальным
-            </summary>
-        </member>
         <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.GroupInfo">
             <summary>
             Gets or Sets the group info.
@@ -987,24 +997,9 @@
             Gets or Sets the sort index.
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.NameKey">
-            <summary>
-            Gets or Sets the name key.
-            </summary>
-        </member>
         <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.ToolTipKey">
             <summary>
             Gets or Sets the tool tip key.
-            </summary>
-        </member>
-        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.DataType">
-            <summary>
-            Gets or Sets the data type.
-            </summary>
-        </member>
-        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.Value">
-            <summary>
-            Gets or Sets the value.
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.Hidden">
@@ -1037,27 +1032,22 @@
             Gets or Sets the editing info.
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItem.FormattingDescription">
-            <summary>
-            Gets or Sets the formatting description.
-            </summary>
-        </member>
         <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:TradingPlatform.BusinessLayer.AdditionalInfoItem"/> class.
             </summary>
         </member>
-        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.Update(TradingPlatform.BusinessLayer.AdditionalInfoItem)">
-            <summary>
-
-            </summary>
-            <param name="item">The item.</param>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.Update(TradingPlatform.BusinessLayer.AdditionalInfoItemBasic)">
+             <summary>
+            
+             </summary>
+             <param name="item">The item.</param>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.Clone">
-            <summary>
-
-            </summary>
-            <returns>An object.</returns>
+             <summary>
+            
+             </summary>
+             <returns>An object.</returns>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.ToXElement">
             <summary>
@@ -1073,6 +1063,67 @@
             <param name="deserializationInfo">The deserialization info.</param>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItem.ToString">
+            <summary>
+            To the string.
+            </summary>
+            <returns>A string.</returns>
+        </member>
+        <member name="T:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic">
+            <summary>
+            The basic additional info item.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.Id">
+            <summary>
+            ключ для апи, обязательно для заполнения и должен быть уникальным
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.NameKey">
+            <summary>
+            Gets or Sets the name key.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.DataType">
+            <summary>
+            Gets or Sets the data type.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.Value">
+            <summary>
+            Gets or Sets the value.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.FormattingDescription">
+            <summary>
+            Gets or Sets the formatting description.
+            </summary>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.Update(TradingPlatform.BusinessLayer.AdditionalInfoItemBasic)">
+             <summary>
+            
+             </summary>
+             <param name="item">The item.</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.Clone">
+             <summary>
+            
+             </summary>
+             <returns>An object.</returns>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.ToXElement">
+            <summary>
+            To the XML element.
+            </summary>
+            <returns>A XElement.</returns>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.FromXElement(System.Xml.Linq.XElement,TradingPlatform.BusinessLayer.Serialization.DeserializationInfo)">
+            <summary>
+            From the XML element.
+            </summary>
+            <param name="element">The element.</param>
+            <param name="deserializationInfo">The deserialization info.</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdditionalInfoItemBasic.ToString">
             <summary>
             To the string.
             </summary>
@@ -1126,11 +1177,12 @@
             <param name="price"></param>
             <returns></returns>
         </member>
-        <member name="M:TradingPlatform.BusinessLayer.Asset.FormatPriceWithCurrency(System.Double)">
+        <member name="M:TradingPlatform.BusinessLayer.Asset.FormatPriceWithCurrency(System.Double,System.Boolean)">
             <summary>
-            Formats price into concatenated string which contains the precision normalized value and Asset's name
+            Formats price into concatenated string which contains the precision normalized value and Asset's name (optional)
             </summary>
             <param name="price"></param>
+            <param name="withAssetName"></param>
             <returns></returns>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Asset.ToString">
@@ -1214,11 +1266,11 @@
         <member name="M:TradingPlatform.BusinessLayer.SyntheticHistorySynhroniser.MoveNext(System.Threading.CancellationToken)">
             <summary>
             Increment current position
-            </summary>
+            </summary>        
         </member>
         <member name="E:TradingPlatform.BusinessLayer.DeliveredAsset.Updated">
             <summary>
-            Will be triggered on each <see cref="M:TradingPlatform.BusinessLayer.DeliveredAsset.UpdateByMessage(TradingPlatform.BusinessLayer.Integration.MessageOpenDeliveredAsset)"/> invocation
+            Will be triggered on each <see cref="M:TradingPlatform.BusinessLayer.DeliveredAsset.UpdateByMessage(TradingPlatform.BusinessLayer.Integration.MessageOpenDeliveredAsset)"/> invocation 
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.DeliveredAsset.UpdateByMessage(TradingPlatform.BusinessLayer.Integration.MessageOpenDeliveredAsset)">
@@ -1471,12 +1523,12 @@
         </member>
         <member name="F:TradingPlatform.BusinessLayer.Report.Columns">
             <summary>
-            Columns collection
+            Columns collection 
             </summary>
         </member>
         <member name="F:TradingPlatform.BusinessLayer.Report.Rows">
             <summary>
-            Rows collection
+            Rows collection 
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Report.#ctor">
@@ -1566,7 +1618,7 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.ReportType.Settings">
             <summary>
-            <see cref="T:TradingPlatform.BusinessLayer.ICustomizable"/> report settings
+            <see cref="T:TradingPlatform.BusinessLayer.ICustomizable"/> report settings 
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.RulesManager">
@@ -2013,6 +2065,14 @@
             <param name="price"></param>
             <returns></returns>
         </member>
+        <member name="M:TradingPlatform.BusinessLayer.Symbol.FormatPrice(System.Double,TradingPlatform.BusinessLayer.VariableTick)">
+            <summary>
+            Formats price value to the appropriative string with a counting on tick precision.
+            </summary>
+            <param name="price"></param>
+            <param name="variableTick"></param>
+            <returns></returns>
+        </member>
         <member name="M:TradingPlatform.BusinessLayer.Symbol.FormatPriceWithMaxPrecision(System.Double)">
             <summary>
             Formats price value to the appropriative string with a counting on max tick precision.
@@ -2201,6 +2261,16 @@
             Cumulative size
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.Level2Item.CumulativeCount">
+            <summary>
+            Cumulative orders count
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Level2Item.CumulativeMoney">
+            <summary>
+            Cumulative money
+            </summary>
+        </member>
         <member name="P:TradingPlatform.BusinessLayer.Level2Item.ImbalancePercent">
             <summary>
             Imbalance Percent
@@ -2224,6 +2294,16 @@
         <member name="P:TradingPlatform.BusinessLayer.Level2Item.MMID">
             <summary>
             MMID
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Level2Item.NumberOrders">
+            <summary>
+            Number orders
+            </summary>
+        </member>
+        <member name="T:TradingPlatform.BusinessLayer.ValueProvider">
+            <summary>
+            Provides the value and the formatted value as a string
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.VariableTick.CheckPrice(System.Double)">
@@ -2657,6 +2737,16 @@
             </summary>
             <param name="accountInfo"></param>
             <returns></returns>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Core.LockAccount(TradingPlatform.BusinessLayer.Account)">
+            <summary>
+            Lock trading for the specified account
+            </summary>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Core.UnLockAccount(TradingPlatform.BusinessLayer.Account)">
+            <summary>
+            Unlock trading for the specified account
+            </summary>
         </member>
         <member name="E:TradingPlatform.BusinessLayer.Core.SymbolAdded">
             <summary>
@@ -3200,7 +3290,7 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.HistoryItemTick.AskSize">
             <summary>
-            Defines Ask size
+            Defines Ask size    
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.HistoryItemTick.Item(TradingPlatform.BusinessLayer.PriceType)">
@@ -3482,6 +3572,11 @@
             Predefined period
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.Period.NONE">
+            <summary>
+            Predefined period
+            </summary>
+        </member>
         <member name="T:TradingPlatform.BusinessLayer.DayBar">
             <summary>
             Represent access to DayBar quote, which contains summary information about instrument prices.
@@ -3574,12 +3669,12 @@
         </member>
         <member name="P:TradingPlatform.BusinessLayer.DayBar.OpenInterest">
              <summary>
-
+            
              </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.DOMQuote">
             <summary>
-            Represent access to DOM2 quote, which contains Bids and Asks.
+            Represent access to DOM2 quote, which contains Bids and Asks. 
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.DOMQuote.Asks">
@@ -3619,7 +3714,7 @@
         </member>
         <member name="T:TradingPlatform.BusinessLayer.Level2Quote">
             <summary>
-            Represent access to Level2 quote.
+            Represent access to Level2 quote. 
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Level2Quote.PriceType">
@@ -3655,6 +3750,11 @@
         <member name="P:TradingPlatform.BusinessLayer.Level2Quote.ImpliedSize">
             <summary>
             specifies the implied quantity associated with the price for the quote. Subtracting this amount from the Size yields the outright quantity for the price level. A value of zero indicates that the implied size is not available/defined or that it is actually zero.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Level2Quote.NumberOrders">
+            <summary>
+            Number orders of Level2 quote
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.MessageQuote.Time">
@@ -3807,7 +3907,7 @@
         </member>
         <member name="T:TradingPlatform.BusinessLayer.HVSheduleMode">
             <summary>
-
+            
             </summary>
         </member>
         <member name="F:TradingPlatform.BusinessLayer.HVSheduleMode.HV">
@@ -4331,6 +4431,11 @@
             Short name of indicator
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.Indicator.VisualName">
+            <summary>
+            Visual name of indicator
+            </summary>
+        </member>
         <member name="P:TradingPlatform.BusinessLayer.Indicator.Symbol">
             <summary>
             Access to current Symbol of indicator
@@ -4351,9 +4456,14 @@
             Represent access indicator series
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.Indicator.Labels">
+            <summary>
+            Represent access indicator labels
+            </summary>
+        </member>
         <member name="P:TradingPlatform.BusinessLayer.Indicator.LinesLevels">
              <summary>
-
+            
              </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Indicator.SeparateWindow">
@@ -4393,7 +4503,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Indicator.AddIndicator(TradingPlatform.BusinessLayer.Indicator)">
              <summary>
-
+            
              </summary>
              <param name="indicator"></param>
         </member>
@@ -4413,6 +4523,55 @@
             <param name="lineIndex">Index of indicator line</param>
             <param name="origin">Offset start point</param>
             <returns></returns>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.String)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.Int32)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.Double)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.Int64)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.DateTime)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLabelValue(System.String,System.Boolean)">
+            <summary>
+            Sets the indicator label by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.Indicator.GetLabelValue(System.String)">
+            <summary>
+            Gets the indicator label value by unique Id 
+            </summary>
+            <param name="labelId">Unique label Id</param>
+            <returns><see cref="T:TradingPlatform.BusinessLayer.ValueProvider" /></returns>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Indicator.SetLineBreak(System.Int32,System.Int32,TradingPlatform.BusinessLayer.SeekOriginHistory)">
             <summary>
@@ -4593,6 +4752,11 @@
             Color of the marker
             </summary>
         </member>
+        <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.PaintLine">
+            <summary>
+            Enable/disable coloring the line in the marker color
+            </summary>
+        </member>
         <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.UpperIcon">
             <summary>
             Icon that will be drawn above the indicator line
@@ -4601,6 +4765,21 @@
         <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.BottomIcon">
             <summary>
             Icon that will be drawn beyond the indicator line
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.MarkerAlignment">
+            <summary>
+            Marker alignment relative to the indicator line
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.MarkerSize">
+            <summary>
+            Marker size beteen 12, 24, 36 pixels
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.IndicatorLineMarker.TextSettings">
+            <summary>
+            Custom text settings for Text icon type
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.IndicatorLineMarker.#ctor(System.Drawing.Color,TradingPlatform.BusinessLayer.IndicatorLineMarkerIconType,TradingPlatform.BusinessLayer.IndicatorLineMarkerIconType)">
@@ -4619,6 +4798,11 @@
         <member name="T:TradingPlatform.BusinessLayer.IndicatorLineMarkerIconType">
             <summary>
             Different type of icons for Indicator marker
+            </summary>
+        </member>
+        <member name="T:TradingPlatform.BusinessLayer.IndicatorLineMarkerMarkerSize">
+            <summary>
+            Marker size types
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.LineSeries.DrawBegin">
@@ -4643,7 +4827,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.LineSeries.GetMarker(System.Int32)">
              <summary>
-
+            
              </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.LineSeries.ClearMarkers">
@@ -4830,7 +5014,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.SubscribeQuotesParameters.#ctor(System.String,TradingPlatform.BusinessLayer.SubscribeQuoteType)">
             <summary>
-            SubscribeQuotesParameters constructor
+            SubscribeQuotesParameters constructor 
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.ModifyOrderRequestParameters.OrderId">
@@ -4880,7 +5064,7 @@
         </member>
         <member name="F:TradingPlatform.BusinessLayer.DatePickerFormat.LongDateTime">
              <summary>
-
+            
              </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.SettingItemGroup">
@@ -4901,6 +5085,11 @@
         <member name="T:TradingPlatform.BusinessLayer.SettingItemAction">
             <summary>
             Typecasts setting as Button item
+            </summary>
+        </member>
+        <member name="T:TradingPlatform.BusinessLayer.SettingItemBigTextArea">
+            <summary>
+            Typecasts setting as TextBox item
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.SettingItemBoolean">
@@ -4973,6 +5162,14 @@
             Cancel all pending <see cref="T:TradingPlatform.BusinessLayer.Order"/>s
             </summary>
             <param name="sendingSource">the name of the initiator of the call (optional)</param>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdvancedTradingOperations.CancelOrders(TradingPlatform.BusinessLayer.IOrder[],System.String)">
+            <summary>
+            Cancel all pending <see cref="T:TradingPlatform.BusinessLayer.Order"/>s
+            </summary>
+            <param name="orders"><see cref="T:TradingPlatform.BusinessLayer.Order"/>s to cancel</param>
+            <param name="sendingSource">the name of the initiator of the call (optional)</param>
+            <returns></returns>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.AdvancedTradingOperations.CancelOrders(TradingPlatform.BusinessLayer.Symbol,System.String)">
             <summary>
@@ -5200,6 +5397,13 @@
             <param name="account"><see cref="T:TradingPlatform.BusinessLayer.Account"/></param>
             <param name="sendingSource">the name of the initiator of the call (optional)</param>
         </member>
+        <member name="M:TradingPlatform.BusinessLayer.AdvancedTradingOperations.Flatten(TradingPlatform.BusinessLayer.Account,System.String)">
+            <summary>
+            Cancel all <see cref="T:TradingPlatform.BusinessLayer.Order"/>s and close all <see cref="T:TradingPlatform.BusinessLayer.Position"/>s by <see cref="T:TradingPlatform.BusinessLayer.Account"/>
+            </summary>
+            <param name="account"><see cref="T:TradingPlatform.BusinessLayer.Account"/></param>
+            <param name="sendingSource">the name of the initiator of the call (optional)</param>
+        </member>
         <member name="M:TradingPlatform.BusinessLayer.AdvancedTradingOperations.BreakEven(TradingPlatform.BusinessLayer.Position,System.String)">
             <summary>
             Modify SL to breakeven price
@@ -5286,12 +5490,12 @@
             The action wrapper.
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.Utils.ActionWrapper.Items">
+        <member name="P:TradingPlatform.BusinessLayer.Utils.ActionWrapper.Settings">
             <summary>
             Gets or Sets the items.
             </summary>
         </member>
-        <member name="M:TradingPlatform.BusinessLayer.Utils.ActionWrapper.#ctor">
+        <member name="M:TradingPlatform.BusinessLayer.Utils.ActionWrapper.#ctor(System.Collections.Generic.IList{TradingPlatform.BusinessLayer.SettingItem})">
             <summary>
             Initializes a new instance of the <see cref="T:TradingPlatform.BusinessLayer.Utils.ActionWrapper"/> class.
             </summary>
@@ -5339,7 +5543,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.AggressorFlagCalculator.Dispose">
             <summary>
-
+            
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.AggressorFlagCalculator.CalculateAggressorFlag(System.Double,System.Double,System.Double)">
@@ -5379,6 +5583,21 @@
         <member name="P:TradingPlatform.BusinessLayer.Utils.Alert.Name">
             <summary>
             Gets or Sets the name.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Utils.Alert.AutoOpenAlertsLog">
+            <summary>
+            Gets or Sets a value indicating whether auto open Alert panel.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Utils.Alert.PlaySound">
+            <summary>
+            Checks whether sound is required for the alert.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Utils.Alert.CreatedAt">
+            <summary>
+            Gets the created at time.
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.Utils.AlertData">
@@ -5449,6 +5668,11 @@
         <member name="P:TradingPlatform.BusinessLayer.Utils.AlertData.NeedConfirmTrading">
             <summary>
             Gets or Sets a value indicating whether need confirm trading.
+            </summary>
+        </member>
+        <member name="P:TradingPlatform.BusinessLayer.Utils.AlertData.ExpiryTime">
+            <summary>
+            Expiration time
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.AlertData.#ctor">
@@ -5568,17 +5792,17 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.BufferedProcessor`1.Start">
             <summary>
-
+            
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.BufferedProcessor`1.Stop">
             <summary>
-
+            
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.BufferedProcessor`1.Push(`0)">
             <summary>
-
+            
             </summary>
             <param name="subject">The subject.</param>
         </member>
@@ -5595,7 +5819,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.Utils.TasksHolder`1.#ctor(System.Int32)">
             <summary>
-
+            
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.Utils.TimeFrameConfig.DefaultAggregation">
@@ -5603,14 +5827,6 @@
             Агрегація, що буде використовуватись як дефолтна для "TimeFrameScreen".
             Повинна відповідати агрегації чарта.
             </summary>
-        </member>
-        <member name="M:TradingPlatform.BusinessLayer.Utils.HistoryStepsCalculator.AddMonths(System.DateTime,System.Int32)">
-             <summary>
-             https://stackoverflow.com/questions/3060381/datetime-addmonths-adding-only-month-not-days
-
-             Проблема:
-             (29 Feb).AddMonth(1) = 29 March
-             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.AdvancedTradingOperationResult">
             <summary>
@@ -5640,7 +5856,7 @@
         <member name="M:TradingPlatform.BusinessLayer.IBrandingInformation.GetResourceNames">
             <summary>
             Get all available custom resources
-            </summary>
+            </summary>        
         </member>
         <member name="M:TradingPlatform.BusinessLayer.IBrandingInformation.GetResource(System.String)">
             <summary>
@@ -5650,7 +5866,7 @@
         <member name="M:TradingPlatform.BusinessLayer.IBrandingInformation.IsItemHidden(System.String,System.String)">
             <summary>
             Check whether specified items was hidden by branding specification
-            </summary>
+            </summary>        
             <returns></returns>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.AssemblyLoader">
@@ -5704,6 +5920,25 @@
             <summary>
             Complex trading operation state
             </summary>
+        </member>
+        <member name="T:TradingPlatform.BusinessLayer.AccountExtensions">
+            <summary>
+            The account extensions.
+            </summary>
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AccountExtensions.GetCurrentName(TradingPlatform.BusinessLayer.Account)">
+            <summary>
+            Returns a custom name if available otherwise, returns the name.
+            </summary>
+            <param name="account">The account.</param>
+            
+        </member>
+        <member name="M:TradingPlatform.BusinessLayer.AccountExtensions.IsLocked(TradingPlatform.BusinessLayer.Account)">
+            <summary>
+            Returns information about whether the account supports trading operations
+            </summary>
+            <param name="account">The account.</param>
+            
         </member>
         <member name="T:TradingPlatform.BusinessLayer.AggressorFlagCalculatorExtensions">
             <summary>
@@ -5900,15 +6135,15 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      List&lt;GlobalVariable&gt; global_List=new List&lt;GlobalVariable&gt;();
-
+             
                      public override void Init()
-                     {
+                     {             
                           if(GlobalVariablesManager.Count()>0)
                           {
                              global_List=GlobalVariablesManager.GetGlobalVariablesList();
@@ -5935,14 +6170,14 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      List&lt;GlobalVariable&gt; global_List=new List&lt;GlobalVariable&gt;();
                      public override void Init()
-                     {
+                     {             
                           if(GlobalVariablesManager.Count()>0)
                           {
                              global_List=GlobalVariablesManager.GetGlobalVariablesList();
@@ -5969,14 +6204,14 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      List&lt;GlobalVariable&gt; global_List=new List&lt;GlobalVariable&gt;();
                      public override void Init()
-                     {
+                     {             
                           if(GlobalVariablesManager.Count()>0)
                          {
                              global_List=GlobalVariablesManager.GetGlobalVariablesList();
@@ -5984,7 +6219,7 @@
                              {
                                 //Simplified way to retrieve global variable value
                                 el.GlobalVariable("new_global_variable_period", period)
-
+             
                                 //However, to obtain certain variable, which belongs to indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc. Follow SetValue() example.
                              }
                          }
@@ -5999,7 +6234,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.GlobalVariables.GlobalVariablesManager.SetValue(System.String,System.Object,TradingPlatform.BusinessLayer.GlobalVariables.VariableLifetime)">
              <summary>
-             Sets variable value to a global storage
+             Sets variable value to a global storage 
              </summary>
              <example>
              <span id="Example 1">
@@ -6007,27 +6242,27 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      GlobalVariablesManager(){
                           base.ProjectName = "GlobalVariablesManager";
-                          base.Password=GetHashedPassword(ProjectName);
+                          base.Password=GetHashedPassword(ProjectName);              
                      }
-
+             
                     [InputParameter("Period", 0, 1, 9999)]
                      public int period = 5;
-
+             
                      public override void OnQuote()
                      {
-                          //Simplified way to store a global variable
-
+                          //Simplified way to store a global variable   
+             
                           GlobalVariablesManager.SetValue("global_variable_period", period, VariableLifetime.SaveSession);
-
+             
                           //However, to indicate any variable belongs to certain indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc.
-
+                          
                           GlobalVariablesManager.SetValue("global_variable_period" +Symbols.Current.Name+period+Password, period, VariableLifetime.SaveSession);
                      }
                  }
@@ -6049,17 +6284,17 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      public override void Init()
-                     {
-                          //Simplified way to remove a global variable
-
+                     {   
+                          //Simplified way to remove a global variable   
+             
                           GlobalVariablesManager.Remove("global_variable_period");
-
+             
                           //However, to remove certain variable, which belongs to indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc. Follow SetValue() example.
                      }
                  }
@@ -6079,13 +6314,13 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      public override void Init()
-                     {
+                     {            
                          if(GlobalVariablesManager.Count()>0)
                          {
                              Print("Your session obtains "+GlobalVariablesManager.Count()+" global variables");
@@ -6108,15 +6343,15 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      public override void Init()
-                     {
-                         GlobalVariablesManager.RemoveAll();
-
+                     {      
+                         GlobalVariablesManager.RemoveAll();     
+              
                          if(GlobalVariablesManager.Count()==0)
                          {
                              Print("Your session does not have any global variables");
@@ -6138,20 +6373,20 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
-                 {
+                 { 
                      public override void Init()
-                     {
-                          //Simplified way to check an existance of a global variable
-
+                     {      
+                          //Simplified way to check an existance of a global variable  
+                  
                           if(GlobalVariablesManager.Exists("global_variable_period"))
                              Print("Your session has this global variable");
                           else
-                             GlobalVariablesManager.SetValue("global_variable_period");
-
+                             GlobalVariablesManager.SetValue("global_variable_period");         
+             
                           //However, to obtain certain variable, which belongs to indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc. Follow SetValue() example.
                      }
                  }
@@ -6172,19 +6407,19 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
-                 {
+                 { 
                      public override void Init()
-                     {
+                     {  
                          //Simplified way to retrieve global variable value
-
+             
                           if(GlobalVariablesManager.Exists("global_variable_period"))
                              //Always perform a type casting before assigning any variable from global storage
-                             period = (int)GlobalVariablesManager.GetValue("global_variable_period");
-
+                             period = (int)GlobalVariablesManager.GetValue("global_variable_period"); 
+             
                          //However, to obtain certain variable, which belongs to indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc. Follow SetValue() example.
                      }
                  }
@@ -6205,24 +6440,24 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
-                 {
+                 {  
                      public override void Init()
-                     {
+                     {  
                           int new_period;
-
+                             
                           //Simplified way to retrieve global variable value
-
+             
                           if(GlobalVariablesManager.TryGetValue("global_variable_period"))
                              Print("New variable is assigned from globals: " + new_period);
                           if(new_period==period)
-                             Print("Matching, no need to re-assign globals: ");
+                             Print("Matching, no need to re-assign globals: ");    
                           else
-                             GlobalVariablesManager.SetValue("global_variable_period", period, VariableLifetime.SaveSession);
-
+                             GlobalVariablesManager.SetValue("global_variable_period", period, VariableLifetime.SaveSession);   
+             
                           //However, to obtain certain variable, which belongs to indicator/strategy and to avoid unexpected erasing of data the best practice is to provide to a key holder multiple details such as name, params, hashed password etc. Follow SetValue() example.
                      }
                  }
@@ -6244,14 +6479,14 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
                      Connection myConnection = Connection.CurrentConnection;
                      public override void OnQuote()
-                     {
+                     {             
                           if(myConnection.Status==Disconnected)
                              GlobalVariablesManager.Flush();
                      }
@@ -6271,17 +6506,17 @@
             using System;
             using System.Text;
             using PTLRuntime.NETScript;
-
+            
             namespace GlobalVariablesManager
             {
                  public class GlobalVariablesManager : NETIndicator
                  {
-                     List &lt;GlobalVariable&gt;global_List=new List&lt;GlobalVariable&gt;();
+                     List &lt;GlobalVariable&gt;global_List=new List&lt;GlobalVariable&gt;(); 
                      public override void Init()
-                     {
+                     {             
                           if(GlobalVariablesManager.Count()>0)
                              global_List=GlobalVariablesManager.GetGlobalVariablesList();
-
+             
                           foreach (var el in global_List)
                           {
                              Print(el.Name);
@@ -6339,6 +6574,11 @@
             Remove a log level if one has not needed already
             </summary>
         </member>
+        <member name="M:TradingPlatform.BusinessLayer.LoggerManager.RegisterExternalLogFolder(System.String)">
+            <summary>
+            Manage files existence in folder.
+            </summary>
+        </member>
         <member name="T:TradingPlatform.BusinessLayer.EmailParameters">
             <summary>
             Все параметры, которые могут использоваться при отправке email
@@ -6351,7 +6591,7 @@
         </member>
         <member name="M:TradingPlatform.BusinessLayer.loc.OnLocaleChanged">
             <summary>
-
+            
             </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.loc.key(System.String)">
@@ -6364,24 +6604,24 @@
         <member name="M:TradingPlatform.BusinessLayer.loc.IsHidden(System.String,System.String,System.String)">
             <summary>
             Check, whether current translation equal to hidden
-            </summary>
+            </summary>        
         </member>
         <member name="M:TradingPlatform.BusinessLayer.loc.UnRegisterPlugin(System.String)">
             <summary>
-
+            
             </summary>
             <param name="pluginName"></param>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.loc.RegisterPlugin(System.String,System.String)">
             <summary>
-
+            
             </summary>
             <param name="pluginName"></param>
             <param name="location"></param>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.loc.InitializeCoreLocalizer">
             <summary>
-
+            
             </summary>
         </member>
         <member name="T:TradingPlatform.BusinessLayer.SymbolList">
@@ -6395,51 +6635,51 @@
              http://www.codeguru.com/csharp/csharp/cs_date_time/timeroutines/article.php/c4207/C-SNTP-Client.htm
              +++ добавлен диспозе, подправлен ToString(), убран лишний метод.
              +++ ReceiveTimeoutбSendTimeout
-
+             
              NTPClient is a C# class designed to connect to time servers on the Internet.
              The implementation of the protocol is based on the RFC 2030.
-
+             
              Public class members:
-
+            
              LeapIndicator - Warns of an impending leap second to be inserted/deleted in the last
              minute of the current day. (See the _LeapIndicator enum)
-
+             
              VersionNumber - Version number of the protocol (3 or 4).
-
+             
              Mode - Returns mode. (See the _Mode enum)
-
+             
              Stratum - Stratum of the clock. (See the _Stratum enum)
-
+             
              PollInterval - Maximum interval between successive messages.
-
+             
              Precision - Precision of the clock.
-
+             
              RootDelay - Round trip time to the primary reference source.
-
+             
              RootDispersion - Nominal error relative to the primary reference source.
-
+             
              ReferenceTimestamp - The time at which the clock was last set or corrected.
-
+             
              OriginateTimestamp - The time at which the request departed the client for the server.
-
+             
              ReceiveTimestamp - The time at which the request arrived at the server.
-
+             
              Transmit Timestamp - The time at which the reply departed the server for client.
-
+             
              RoundTripDelay - The time between the departure of request and arrival of reply.
-
+             
              LocalClockOffset - The offset of the local clock relative to the primary reference
              source.
-
+             
              Initialize - Sets up data structure and prepares for connection.
-
+             
              Connect - Connects to the time server and populates the data structure.
-
+             
              IsResponseValid - Returns true if received data is valid and if comes from
              a NTP-compliant time server.
-
+             
              ToString - Returns a string representation of the object.
-
+             
              -----------------------------------------------------------------------------
              Structure of the standard NTP header (as described in RFC 2030)
                                    1                   2                   3
@@ -6477,9 +6717,9 @@
               |                                                               |
               |                                                               |
               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+             
              -----------------------------------------------------------------------------
-
+             
              NTP Timestamp Format (as described in RFC 2030)
                                      1                   2                   3
                  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -6488,7 +6728,7 @@
              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
              |                  Seconds Fraction (0-padded)                  |
              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+             
              </summary>
         </member>
         <member name="M:TradingPlatform.BusinessLayer.TimeSync.NTPClient.Connect">
@@ -6573,12 +6813,12 @@
         </member>
         <member name="M:Platform.Utils.Encryptor.EncryptString(System.String)">
             <summary>
-
+            
             </summary>
         </member>
         <member name="M:Platform.Utils.Encryptor.DecryptString(System.String)">
             <summary>
-
+            
             </summary>
         </member>
     </members>

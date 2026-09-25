@@ -2,9 +2,11 @@ using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -284,6 +286,7 @@ public sealed class Sma : AbstractBase
 
         // Try SIMD path for large, clean datasets
         // Requirements: SIMD support, large enough dataset, no NaN values
+#if NET5_0_OR_GREATER
         const int SimdThreshold = 256;
         if (len >= SimdThreshold && !source.ContainsNonFinite())
         {
@@ -305,6 +308,7 @@ public sealed class Sma : AbstractBase
                 return;
             }
         }
+#endif
 
         // Scalar path with NaN handling
         CalculateScalarCore(source, output, period);
@@ -421,6 +425,7 @@ public sealed class Sma : AbstractBase
         }
     }
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// AVX-512 SIMD batch path. Uses prefix-sum over deltas for vectorized SMA.
     /// No periodic resync needed — double precision drift is negligible over batch runs.
@@ -612,6 +617,7 @@ public sealed class Sma : AbstractBase
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }
+#endif
 
     /// <summary>
     /// Resets the SMA state.

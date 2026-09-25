@@ -329,14 +329,14 @@ public sealed class Granger : AbstractBase
         ssr1 = Max(0.0, ssr1);
 
         // ---- Unrestricted model: y_t = d0 + d1*y_{t-1} + d2*x_{t-1} ----
-        double denom = FusedMultiplyAdd(varYLag, varXLag, -(covYLagXLag * covYLagXLag));
+        double denom = Math.FusedMultiplyAdd(varYLag, varXLag, -(covYLagXLag * covYLagXLag));
         if (Abs(denom) < Epsilon)
         {
             return double.NaN; // Multicollinearity - cannot compute 2-variable OLS
         }
 
-        double d1 = FusedMultiplyAdd(covYYLag, varXLag, -(covYXLag * covYLagXLag)) / denom;
-        double d2 = FusedMultiplyAdd(covYXLag, varYLag, -(covYYLag * covYLagXLag)) / denom;
+        double d1 = Math.FusedMultiplyAdd(covYYLag, varXLag, -(covYXLag * covYLagXLag)) / denom;
+        double d2 = Math.FusedMultiplyAdd(covYXLag, varYLag, -(covYYLag * covYLagXLag)) / denom;
         double d0 = meanY - (d1 * meanYLag) - (d2 * meanXLag);
 
         // SSR2 computed by iterating the window (more numerically stable for small n)
@@ -347,7 +347,7 @@ public sealed class Granger : AbstractBase
             double yLagi = _windowYLag[i];
             double xLagi = _windowXLag[i];
             double resid = yi - (d0 + (d1 * yLagi) + (d2 * xLagi));
-            ssr2 = FusedMultiplyAdd(resid, resid, ssr2);
+            ssr2 = Math.FusedMultiplyAdd(resid, resid, ssr2);
         }
 
         if (ssr2 < Epsilon)

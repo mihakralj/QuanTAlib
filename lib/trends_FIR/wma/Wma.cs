@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -38,12 +41,14 @@ public sealed class Wma : AbstractBase
     /// </summary>
     public double DefaultLastValidValue { get; set; } = double.NaN;
 
+#if NET5_0_OR_GREATER
     private static readonly Vector512<long> V512Idx1 = Vector512.Create(0L, 0, 1, 2, 3, 4, 5, 6);
     private static readonly Vector512<long> V512Idx2 = Vector512.Create(0L, 0, 0, 1, 2, 3, 4, 5);
     private static readonly Vector512<long> V512Idx4 = Vector512.Create(0L, 0, 0, 0, 0, 1, 2, 3);
     private static readonly Vector512<double> V512Mask1 = Vector512.Create(0.0, 1, 1, 1, 1, 1, 1, 1);
     private static readonly Vector512<double> V512Mask2 = Vector512.Create(0.0, 0, 1, 1, 1, 1, 1, 1);
     private static readonly Vector512<double> V512Mask4 = Vector512.Create(0.0, 0, 0, 0, 1, 1, 1, 1);
+#endif
 
     public Wma(int period)
     {
@@ -305,6 +310,7 @@ public sealed class Wma : AbstractBase
             return;
         }
 
+#if NET5_0_OR_GREATER
         const int simdThreshold = 256;
         if (Avx512F.IsSupported && len >= simdThreshold && !source.ContainsNonFinite())
         {
@@ -323,6 +329,15 @@ public sealed class Wma : AbstractBase
             CalculateNeonCore(source, output, period);
             return;
         }
+#endif
+
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period);
+            return;
+        }
+#endif
 
         CalculateScalarCore(source, output, period);
     }
@@ -338,7 +353,7 @@ public sealed class Wma : AbstractBase
     /// Scalar batch path with Kahan compensated dual running sums and NaN handling.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
         double divisor = (double)period * (period + 1) * 0.5;
@@ -426,6 +441,63 @@ public sealed class Wma : AbstractBase
         }
     }
 
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, period);
+            return;
+        }
+
+        int len = source.Length;
+        double divisor = (double)period * (period + 1) * 0.5;
+        double invDivisor = 1.0 / divisor;
+        double wsum = 0;
+        double wsumComp = 0;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        for (; i < warmupEnd; i++)
+        {
+            double val = source[i];
+            double wVal = (i + 1) * val;
+            double yW = wVal - wsumComp;
+            double tW = wsum + yW;
+            wsumComp = (tW - wsum) - yW;
+            wsum = tW;
+
+            double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
+            output[i] = wsum / currentDivisor;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> acc = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> v = VectorCompat.Load<double>(source.Slice(oldest + k, vectorSize));
+                acc += v * new Vector<double>(k + 1);
+            }
+
+            (acc * new Vector<double>(invDivisor)).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double acc = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                acc += (k + 1) * source[oldest + k];
+            }
+
+            output[i] = acc * invDivisor;
+        }
+    }
+
+#if NET5_0_OR_GREATER
     /// <summary>
     /// AVX-512 SIMD batch path. Uses prefix-sum over deltas for vectorized WMA.
     /// No periodic resync needed — double precision drift is negligible over batch runs.
@@ -845,4 +917,5 @@ public sealed class Wma : AbstractBase
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
+#endif
 }

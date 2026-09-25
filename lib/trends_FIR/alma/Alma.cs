@@ -1,7 +1,10 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -286,6 +289,14 @@ public sealed class Alma : AbstractBase
             return;
         }
 
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output, period, offset, sigma);
+            return;
+        }
+#endif
+
         CalculateScalarCore(source, output, period, offset, sigma);
     }
 
@@ -301,7 +312,7 @@ public sealed class Alma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output,
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output,
         int period, double offset, double sigma)
     {
         int len = source.Length;
@@ -365,6 +376,63 @@ public sealed class Alma : AbstractBase
                     wSum += weights[wi];
                 }
                 result = wSum > 0 ? result / wSum : result;
+            }
+
+            output[i] = result;
+        }
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output,
+        int period, double offset, double sigma)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output, period, offset, sigma);
+            return;
+        }
+
+        int len = source.Length;
+        double[] weights = ComputeNormalizedWeights(period, offset, sigma);
+        int i = 0;
+
+        int warmupEnd = Math.Min(period - 1, len);
+        for (; i < warmupEnd; i++)
+        {
+            int count = i + 1;
+            int weightOffset = period - count;
+            double result = 0;
+            double wSum = 0;
+            for (int k = 0; k < count; k++)
+            {
+                int wi = weightOffset + k;
+                result = Math.FusedMultiplyAdd(weights[wi], source[k], result);
+                wSum += weights[wi];
+            }
+
+            output[i] = wSum > 0 ? result / wSum : result;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> acc = Vector<double>.Zero;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                Vector<double> v = VectorCompat.Load<double>(source.Slice(oldest + k, vectorSize));
+                acc += v * new Vector<double>(weights[k]);
+            }
+
+            acc.CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double result = 0;
+            int oldest = i - period + 1;
+            for (int k = 0; k < period; k++)
+            {
+                result = Math.FusedMultiplyAdd(weights[k], source[oldest + k], result);
             }
 
             output[i] = result;

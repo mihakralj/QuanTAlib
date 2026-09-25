@@ -1,8 +1,11 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace QuanTAlib;
 
@@ -245,10 +248,10 @@ public sealed class Jerk : AbstractBase
 
         int i = 3;
 
+        // AVX512: 8 doubles at once (only if all values are finite)
+#if NET5_0_OR_GREATER
         // Check for non-finite values before using SIMD (SIMD doesn't handle NaN properly)
         bool allFinite = !source.ContainsNonFinite();
-
-        // AVX512: 8 doubles at once (only if all values are finite)
         if (allFinite && Avx512F.IsSupported && len >= 11)
         {
             var three = Vector512.Create(3.0);
@@ -346,9 +349,17 @@ public sealed class Jerk : AbstractBase
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
+#endif
 
         // Scalar fallback for remaining elements
         // Initialize prev values from actual data at positions i-1, i-2, i-3
+#if !NET5_0_OR_GREATER
+        if (output.Length >= Vector<double>.Count)
+        {
+            CalculateVectorCore(source, output);
+            return;
+        }
+#endif
         for (; i < len; i++)
         {
             double curr = source[i];
@@ -390,6 +401,119 @@ public sealed class Jerk : AbstractBase
         var indicator = new Jerk();
         TSeries results = indicator.Update(source);
         return (results, indicator);
+    }
+
+    internal static void CalculateVectorCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        if (source.ContainsNonFinite())
+        {
+            CalculateScalarCore(source, output);
+            return;
+        }
+
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        output[1] = 0.0;
+        if (len == 2)
+        {
+            return;
+        }
+
+        output[2] = 0.0;
+        if (len == 3)
+        {
+            return;
+        }
+
+        int vectorSize = Vector<double>.Count;
+        Vector<double> three = new(3.0);
+        int i = 3;
+
+        for (; i + vectorSize <= len; i += vectorSize)
+        {
+            Vector<double> current = VectorCompat.Load<double>(source.Slice(i, vectorSize));
+            Vector<double> prev1 = VectorCompat.Load<double>(source.Slice(i - 1, vectorSize));
+            Vector<double> prev2 = VectorCompat.Load<double>(source.Slice(i - 2, vectorSize));
+            Vector<double> prev3 = VectorCompat.Load<double>(source.Slice(i - 3, vectorSize));
+            ((current - three * prev1) + (three * prev2 - prev3)).CopyTo(output.Slice(i, vectorSize));
+        }
+
+        for (; i < len; i++)
+        {
+            double term1 = Math.FusedMultiplyAdd(-3.0, source[i - 1], source[i]);
+            double term2 = Math.FusedMultiplyAdd(3.0, source[i - 2], -source[i - 3]);
+            output[i] = term1 + term2;
+        }
+    }
+
+    internal static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output)
+    {
+        int len = source.Length;
+        if (len == 0)
+        {
+            return;
+        }
+
+        output[0] = 0.0;
+        if (len == 1)
+        {
+            return;
+        }
+
+        output[1] = 0.0;
+        if (len == 2)
+        {
+            return;
+        }
+
+        output[2] = 0.0;
+        if (len == 3)
+        {
+            return;
+        }
+
+        for (int i = 3; i < len; i++)
+        {
+            double curr = source[i];
+            double p1 = source[i - 1];
+            double p2 = source[i - 2];
+            double p3 = source[i - 3];
+
+            double fallback = FindFinite(curr, p1, p2, p3);
+            if (!double.IsFinite(curr))
+            {
+                curr = fallback;
+            }
+
+            if (!double.IsFinite(p1))
+            {
+                p1 = fallback;
+            }
+
+            if (!double.IsFinite(p2))
+            {
+                p2 = fallback;
+            }
+
+            if (!double.IsFinite(p3))
+            {
+                p3 = fallback;
+            }
+
+            double term1 = Math.FusedMultiplyAdd(-3.0, p1, curr);
+            double term2 = Math.FusedMultiplyAdd(3.0, p2, -p3);
+            output[i] = term1 + term2;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
