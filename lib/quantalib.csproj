@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0;net48</TargetFrameworks>
     <Title>QuanTAlib</Title>
-    <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
-    <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
+    <Product>QuanTAlib Technical Analysis Library</Product>
+    <Description>447 validated technical indicators for C#, Python and PineScript. O(1) streaming and SIMD batch. Cross-checked against TA-Lib, Tulip, Skender and pandas-ta.</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mihakralj/QuanTAlib</RepositoryUrl>
     <Authors>Miha Kralj</Authors>
@@ -13,6 +13,8 @@
     <IsPublishable>true</IsPublishable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>QuanTAlib2.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NuGetReadmeOutput>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', 'obj', 'nuget', 'README.md'))</NuGetReadmeOutput>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageTags>
@@ -38,6 +40,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.6.3" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
     <PackageReference Include="Meziantou.Polyfill" Version="1.*" PrivateAssets="all" />
@@ -52,6 +55,11 @@
 
   <ItemGroup>
     <None Include="..\docs\img\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
+    <None Include="$(NuGetReadmeOutput)" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <Target Name="GenerateNuGetReadme" BeforeTargets="GenerateNuspec">
+    <Exec Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildThisFileDirectory)GenerateNuGetReadme.ps1&quot; -Output &quot;$(NuGetReadmeOutput)&quot;" />
+  </Target>
 
 </Project>

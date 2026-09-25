@@ -264,6 +264,22 @@ jobs:
           echo "Release assets:"
           ls -lh release-assets
 
+      - name: Build NinjaTrader 8 self-contained asset
+        run: |
+          NT8_DIR="release-assets/nt8-net48"
+          mkdir -p "$NT8_DIR"
+
+          for dll in lib/bin/Release/net48/*.dll; do
+            [ -e "$dll" ] || { echo "No net48 DLLs found under lib/bin/Release/net48"; exit 1; }
+            cp -v "$dll" "$NT8_DIR/"
+          done
+
+          zip -q -j -r "release-assets/quantalib_ninjatrader8_net48.zip" "$NT8_DIR"
+          rm -rf "$NT8_DIR"
+
+          echo "NinjaTrader 8 asset:"
+          ls -lh release-assets/quantalib_ninjatrader8_net48.zip
+
       - name: Detect release type
         id: release_type
         run: |
@@ -294,7 +310,8 @@ jobs:
             --target ${{ github.sha }} \
             release-assets/*.nupkg \
             release-assets/*.whl \
-            release-assets/quantower_quantalib.dll
+            release-assets/quantower_quantalib.dll \
+            release-assets/quantalib_ninjatrader8_net48.zip
 
       - name: Publish wheel to TestPyPI
         if: steps.release_type.outputs.type == 'development'
@@ -341,7 +358,8 @@ jobs:
             --generate-notes \
             release-assets/*.nupkg \
             release-assets/*.whl \
-            release-assets/quantower_quantalib.dll
+            release-assets/quantower_quantalib.dll \
+            release-assets/quantalib_ninjatrader8_net48.zip
 
       - name: Push to NuGet
         if: steps.release_type.outputs.type == 'production'

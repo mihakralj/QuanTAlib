@@ -11,7 +11,7 @@ license = "Apache-2.0"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24"]
 authors = [
-    { name = "QuanTAlib Contributors" },
+    { name = "Miha Kralj" },
 ]
 keywords = ["quantitative", "finance", "technical-analysis", "indicators", "nativeaot"]
 classifiers = [
@@ -31,10 +31,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mihakralj/quantalib"
-Repository = "https://github.com/mihakralj/quantalib"
-Documentation = "https://mihakralj.github.io/quantalib/"
-Issues = "https://github.com/mihakralj/quantalib/issues"
+Homepage = "https://github.com/mihakralj/QuanTAlib"
+Documentation = "https://mihakralj.github.io/QuanTAlib/"
+Source = "https://github.com/mihakralj/QuanTAlib"
+Issues = "https://github.com/mihakralj/QuanTAlib/issues"
+Changelog = "https://github.com/mihakralj/QuanTAlib/releases"
 
 [project.optional-dependencies]
 pandas = ["pandas>=1.5"]

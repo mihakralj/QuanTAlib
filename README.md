@@ -9,7 +9,7 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
 [![Indicators](https://img.shields.io/badge/%23%20Indicators-447-blue?style=flat-square)](lib/_index.md)
 
-# QuanTAlib 0.8.x
+# QuanTAlib
 
 447 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
 
