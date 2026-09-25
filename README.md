@@ -4,32 +4,14 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/badge/main)](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
 [![Nuget](https://img.shields.io/nuget/v/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuanTAlib)
-[![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-sq[![Codacy grade](https://app.codacy.com/project/badge/Grade/c8be6c08f5514e95b84d37e661a6ec27)](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![codecov](https://codecov.io/gh/mihakralj/QuanTAlib/branch/main/graph/badge.svg?style=flat-square&token=YNMJRGKMTJ?style=flat-square)](https://codecov.io/gh/mihakralj/QuanTAlib)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mihakralj_QuanTAlib&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib)
-[![CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/badge/main)](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
-[![Nuget](https://img.shields.io/nuget/v/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
-![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuanTAlib)
-[![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-sq[![Codacy grade](https://app.codacy.com/project/badge/Grade/c8be6c08f5514e95b84d37e661a6ec27)](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![codecov](https://codecov.io/gh/mihakralj/QuanTAlib/branch/main/graph/badge.svg?style=flat-square&token=YNMJRGKMTJ?style=flat-square)](https://codecov.io/gh/mihakralj/QuanTAlib)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mihakralj_QuanTAlib&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib)
-[![CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/badge/main)](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
-[![Nuget](https://img.shields.io/nuget/v/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
-![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuanTAlib)
 [![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
+
 [![.NET](https://img.shields.io/badge/.NET-10.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
+[![Indicators](https://img.shields.io/badge/%23%20Indicators-447-blue?style=flat-square)](lib/_index.md)
 
-[![Indicators](https://img.shields.io/badge/%23%20Indicators-393-blue?style=flat-square)](lib/_index.md)
-[![Classes](docs/img/classes.svg)](docs/ndepend.md)
-[![Files](docs/img/files.svg)](docs/ndepend.md)
-[![Methods](docs/img/methods.svg)](docs/ndepend.md)
-[![Lines of Code](docs/img/loc.svg)](docs/ndepend.md)
-[![Public APIs](docs/img/public-api.svg)](docs/ndepend.md)
-[![Comments](docs/img/comments.svg)](docs/ndepend.md)
+# QuanTAlib 0.8.x
 
-# QuanTAlib 0.8.12
-
-393 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
+447 technical indicators. One library. Brutal architectural trade-offs for absolute speed.
 
 [⭐ Documentation pages →](https://mihakralj.github.io/QuanTAlib/)
 
@@ -93,7 +75,7 @@ import quantalib as qtl
 import numpy as np
 
 prices = np.random.default_rng(42).normal(100, 2, size=500_000)
-sma = qtl.sma(prices, period=14)       # 393 indicators, similar syntax
+sma = qtl.sma(prices, period=14)       # 447 indicators, similar syntax
 ```
 
 Works with NumPy, pandas, polars, and PyArrow. NativeAOT compiled, ships as a binary. No CLR runtime dragged along for the ride.  
@@ -106,28 +88,29 @@ Every indicator ships as a standalone .pine file. Open it. Copy it. Paste it int
 
 ---
 
-## 393 Indicators
+## 447 Indicators
 
 | Category | Count | What It Measures | Examples |
 | :--- | :---: | :--- | :--- |
 | [**Core**](lib/core/_index.md) | 8 | Price transforms, building blocks | AVGPRICE, MEDPRICE, TYPPRICE, HA |
 | [**Trends (FIR)**](lib/trends_FIR/_index.md) | 33 | Finite impulse response averages | SMA, WMA, HMA, ALMA, TRIMA, LSMA |
 | [**Trends (IIR)**](lib/trends_IIR/_index.md) | 36 | Infinite impulse response averages | EMA, DEMA, TEMA, T3, JMA, KAMA, VIDYA |
-| [**Filters**](lib/filters/_index.md) | 37 | Signal processing, noise reduction | Kalman, Butterworth, Gaussian, Savitzky-Golay |
-| [**Oscillators**](lib/oscillators/_index.md) | 48 | Bounded/centered oscillators | RSI, MACD, Stochastic, CCI, Fisher, Williams %R |
-| [**Dynamics**](lib/dynamics/_index.md) | 21 | Trend strength and direction | ADX, Aroon, SuperTrend, Ichimoku, Vortex |
-| [**Momentum**](lib/momentum/_index.md) | 19 | Speed of price changes | ROC, Momentum, Velocity, TSI, Qstick |
+| [**Filters**](lib/filters/_index.md) | 39 | Signal processing, noise reduction | Kalman, Butterworth, Gaussian, Savitzky-Golay |
+| [**Oscillators**](lib/oscillators/_index.md) | 61 | Bounded/centered oscillators | RSI, MACD, Stochastic, CCI, Fisher, Williams %R |
+| [**Dynamics**](lib/dynamics/_index.md) | 27 | Trend strength and direction | ADX, Aroon, SuperTrend, Ichimoku, Vortex |
+| [**Momentum**](lib/momentum/_index.md) | 20 | Speed of price changes | ROC, Momentum, Velocity, TSI, Qstick |
 | [**Volatility**](lib/volatility/_index.md) | 26 | Price variability | ATR, Bollinger Width, Historical Vol, True Range |
-| [**Volume**](lib/volume/_index.md) | 27 | Trading activity | OBV, VWAP, MFI, CMF, ADL, Force Index |
-| [**Statistics**](lib/statistics/_index.md) | 35 | Statistical measures | Correlation, Variance, Skewness, Z-Score |
-| [**Channels**](lib/channels/_index.md) | 23 | Price boundaries | Bollinger Bands, Keltner, Donchian |
-| [**Cycles**](lib/cycles/_index.md) | 14 | Cycle analysis | Hilbert Transform, Homodyne, Ehlers Sine Wave |
-| [**Reversals**](lib/reversals/_index.md) | 12 | Pattern detection | Pivot Points, Fractals, Swings |
+| [**Volume**](lib/volume/_index.md) | 28 | Trading activity | OBV, VWAP, MFI, CMF, ADL, Force Index |
+| [**Statistics**](lib/statistics/_index.md) | 37 | Statistical measures | Correlation, Variance, Skewness, Z-Score |
+| [**Channels**](lib/channels/_index.md) | 24 | Price boundaries | Bollinger Bands, Keltner, Donchian |
+| [**Cycles**](lib/cycles/_index.md) | 18 | Cycle analysis | Hilbert Transform, Homodyne, Ehlers Sine Wave |
+| [**Reversals**](lib/reversals/_index.md) | 15 | Pattern detection | Pivot Points, Fractals, Swings |
 | [**Forecasts**](lib/forecasts/_index.md) | 1 | Predictive indicators | Time Series Forecast |
 | [**Errors**](lib/errors/_index.md) | 26 | Error metrics, loss functions | RMSE, MAE, MAPE, SMAPE, R² |
-| [**Numerics**](lib/numerics/_index.md) | 27 | Mathematical transforms | Log, Exp, Sigmoid, Normalize, FFT |
+| [**Numerics**](lib/numerics/_index.md) | 36 | Mathematical transforms | Log, Exp, Sigmoid, Normalize, FFT |
+| [**Signals**](lib/signals/_index.md) | 12 | Strategy primitives: predicates, triggers, guards | ABOVE, BELOW, ISRISING, ISFALLING |
 
-**[Browse all 393 indicators →](lib/_index.md)**
+**[Browse all 447 indicators →](lib/_index.md)**
 
 ## Architecture (the short version)
 

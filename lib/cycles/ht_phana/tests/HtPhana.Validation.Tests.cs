@@ -2,7 +2,7 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
-public sealed class EpaValidationTests
+public sealed class HtPhanaValidationTests
 {
     // ── Pearson Correlation Properties ──────────────────────────────
 
@@ -10,12 +10,12 @@ public sealed class EpaValidationTests
     public void ConstantPrice_RealAndAngle_AreZero()
     {
         // Constant price has zero variance → correlation = 0 → angle = 0
-        var epa = new Epa(period: 10);
+        var ind = new HtPhana(period: 10);
         for (int i = 0; i < 30; i++)
         {
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), 50.0));
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), 50.0));
         }
-        Assert.Equal(0.0, epa.Angle);
+        Assert.Equal(0.0, ind.Angle);
     }
 
     [Fact]
@@ -23,16 +23,16 @@ public sealed class EpaValidationTests
     {
         // Price that exactly matches cos wave at the indicator period should yield |Real| near 1
         int period = 20;
-        var epa = new Epa(period: period);
+        var ind = new HtPhana(period: period);
         double maxAngle = double.MinValue;
 
         for (int i = 0; i < period * 4; i++)
         {
-            double price = 100 + (10 * Math.Cos(2 * Math.PI * i / period));
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            if (epa.IsHot && Math.Abs(epa.Angle) > Math.Abs(maxAngle))
+            double price = 100 + 10 * Math.Cos(2 * Math.PI * i / period);
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            if (ind.IsHot && Math.Abs(ind.Angle) > Math.Abs(maxAngle))
             {
-                maxAngle = epa.Angle;
+                maxAngle = ind.Angle;
             }
         }
         // The angle should move significantly when price matches the reference cosine
@@ -46,16 +46,16 @@ public sealed class EpaValidationTests
         // The angle wraps at the 360° boundary (e.g. ~180° → ~-162°), which is
         // the expected wraparound compensation behavior.
         int period = 20;
-        var epa = new Epa(period: period);
+        var ind = new HtPhana(period: period);
         var angles = new List<double>();
 
         for (int i = 0; i < period * 3; i++)
         {
-            double price = 100 + (10 * Math.Sin(2 * Math.PI * i / period));
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            if (epa.IsHot)
+            double price = 100 + 10 * Math.Sin(2 * Math.PI * i / period);
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            if (ind.IsHot)
             {
-                angles.Add(epa.Angle);
+                angles.Add(ind.Angle);
             }
         }
 
@@ -85,30 +85,30 @@ public sealed class EpaValidationTests
     [Fact]
     public void DerivedPeriod_AlwaysClampedTo60()
     {
-        var epa = new Epa(period: 10);
+        var ind = new HtPhana(period: 10);
         var rng = new Random(123);
 
         for (int i = 0; i < 500; i++)
         {
-            double price = 100 + (rng.NextDouble() * 20);
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            Assert.True(epa.DerivedPeriod <= 60.0,
-                $"DerivedPeriod {epa.DerivedPeriod} > 60 at bar {i}");
+            double price = 100 + rng.NextDouble() * 20;
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            Assert.True(ind.DerivedPeriod <= 60.0,
+                $"DerivedPeriod {ind.DerivedPeriod} > 60 at bar {i}");
         }
     }
 
     [Fact]
     public void DerivedPeriod_NonNegative()
     {
-        var epa = new Epa(period: 14);
+        var ind = new HtPhana(period: 14);
         var rng = new Random(456);
 
         for (int i = 0; i < 300; i++)
         {
-            double price = 100 + (rng.NextDouble() * 10);
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            Assert.True(epa.DerivedPeriod >= 0.0,
-                $"DerivedPeriod {epa.DerivedPeriod} < 0 at bar {i}");
+            double price = 100 + rng.NextDouble() * 10;
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            Assert.True(ind.DerivedPeriod >= 0.0,
+                $"DerivedPeriod {ind.DerivedPeriod} < 0 at bar {i}");
         }
     }
 
@@ -117,15 +117,15 @@ public sealed class EpaValidationTests
     [Fact]
     public void TrendState_OnlyValidValues_AllBars()
     {
-        var epa = new Epa(period: 14);
+        var ind = new HtPhana(period: 14);
         var rng = new Random(789);
 
         for (int i = 0; i < 500; i++)
         {
-            double price = 100 + (rng.NextDouble() * 10);
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            Assert.True(epa.TrendState >= -1 && epa.TrendState <= 1,
-                $"Invalid TrendState {epa.TrendState} at bar {i}");
+            double price = 100 + rng.NextDouble() * 10;
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            Assert.True(ind.TrendState >= -1 && ind.TrendState <= 1,
+                $"Invalid TrendState {ind.TrendState} at bar {i}");
         }
     }
 
@@ -133,17 +133,17 @@ public sealed class EpaValidationTests
     public void TrendState_HasVariation()
     {
         // Over a long enough series with varying data, trend state should not be constant
-        var epa = new Epa(period: 10);
+        var ind = new HtPhana(period: 10);
         var states = new HashSet<int>();
         var rng = new Random(42);
 
         for (int i = 0; i < 500; i++)
         {
-            double price = 100 + (rng.NextDouble() * 20) + (5 * Math.Sin(2 * Math.PI * i / 20.0));
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            if (epa.IsHot)
+            double price = 100 + rng.NextDouble() * 20 + 5 * Math.Sin(2 * Math.PI * i / 20.0);
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            if (ind.IsHot)
             {
-                states.Add(epa.TrendState);
+                states.Add(ind.TrendState);
             }
         }
         // Should have at least 2 different states
@@ -158,20 +158,20 @@ public sealed class EpaValidationTests
     {
         var rng1 = new Random(42);
         var rng2 = new Random(42);
-        var epa1 = new Epa(period: 14);
-        var epa2 = new Epa(period: 14);
+        var ind1 = new HtPhana(period: 14);
+        var ind2 = new HtPhana(period: 14);
 
         for (int i = 0; i < 200; i++)
         {
-            double p1 = 100 + (rng1.NextDouble() * 10);
-            double p2 = 100 + (rng2.NextDouble() * 10);
-            epa1.Update(new TValue(DateTime.UtcNow.AddDays(i), p1));
-            epa2.Update(new TValue(DateTime.UtcNow.AddDays(i), p2));
+            double p1 = 100 + rng1.NextDouble() * 10;
+            double p2 = 100 + rng2.NextDouble() * 10;
+            ind1.Update(new TValue(DateTime.UtcNow.AddDays(i), p1));
+            ind2.Update(new TValue(DateTime.UtcNow.AddDays(i), p2));
         }
 
-        Assert.Equal(epa1.Angle, epa2.Angle, precision: 14);
-        Assert.Equal(epa1.DerivedPeriod, epa2.DerivedPeriod, precision: 14);
-        Assert.Equal(epa1.TrendState, epa2.TrendState);
+        Assert.Equal(ind1.Angle, ind2.Angle, precision: 14);
+        Assert.Equal(ind1.DerivedPeriod, ind2.DerivedPeriod, precision: 14);
+        Assert.Equal(ind1.TrendState, ind2.TrendState);
     }
 
     // ── Consistency: Batch/Streaming/Span ──────────────────────────
@@ -184,21 +184,21 @@ public sealed class EpaValidationTests
         double[] prices = new double[n];
         for (int i = 0; i < n; i++)
         {
-            prices[i] = 100 + (rng.NextDouble() * 10);
+            prices[i] = 100 + rng.NextDouble() * 10;
         }
 
         // Streaming
-        var epa = new Epa(period);
+        var ind = new HtPhana(period);
         double[] streamAngles = new double[n];
         for (int i = 0; i < n; i++)
         {
-            var r = epa.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
+            var r = ind.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
             streamAngles[i] = r.Value;
         }
 
         // Span batch
         double[] spanAngles = new double[n];
-        Epa.Batch(prices, spanAngles, period);
+        HtPhana.Batch(prices, spanAngles, period);
 
         for (int i = 0; i < n; i++)
         {
@@ -214,20 +214,20 @@ public sealed class EpaValidationTests
         var ts = new TSeries();
         for (int i = 0; i < n; i++)
         {
-            ts.Add(new TValue(DateTime.UtcNow.AddDays(i), 100 + (rng.NextDouble() * 10)));
+            ts.Add(new TValue(DateTime.UtcNow.AddDays(i), 100 + rng.NextDouble() * 10));
         }
 
         // Streaming
-        var epa = new Epa(period);
+        var ind = new HtPhana(period);
         foreach (var tv in ts)
         {
-            epa.Update(tv);
+            ind.Update(tv);
         }
 
         // Batch(TSeries)
-        var batchResult = Epa.Batch(ts, period);
+        var batchResult = HtPhana.Batch(ts, period);
 
-        Assert.Equal(epa.Angle, batchResult[^1].Value, precision: 10);
+        Assert.Equal(ind.Angle, batchResult[^1].Value, precision: 10);
     }
 
     // ── Reset/Reprocess ────────────────────────────────────────────
@@ -237,30 +237,30 @@ public sealed class EpaValidationTests
     {
         var rng = new Random(42);
         int n = 100, period = 14;
-        var epa = new Epa(period);
+        var ind = new HtPhana(period);
         double[] prices = new double[n];
         for (int i = 0; i < n; i++)
         {
-            prices[i] = 100 + (rng.NextDouble() * 10);
+            prices[i] = 100 + rng.NextDouble() * 10;
         }
 
         for (int i = 0; i < n; i++)
         {
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
         }
-        double angle1 = epa.Angle;
-        double dp1 = epa.DerivedPeriod;
-        int ts1 = epa.TrendState;
+        double angle1 = ind.Angle;
+        double dp1 = ind.DerivedPeriod;
+        int ts1 = ind.TrendState;
 
-        epa.Reset();
+        ind.Reset();
         for (int i = 0; i < n; i++)
         {
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), prices[i]));
         }
 
-        Assert.Equal(angle1, epa.Angle, precision: 14);
-        Assert.Equal(dp1, epa.DerivedPeriod, precision: 14);
-        Assert.Equal(ts1, epa.TrendState);
+        Assert.Equal(angle1, ind.Angle, precision: 14);
+        Assert.Equal(dp1, ind.DerivedPeriod, precision: 14);
+        Assert.Equal(ts1, ind.TrendState);
     }
 
     // ── Period Sensitivity ─────────────────────────────────────────
@@ -269,18 +269,18 @@ public sealed class EpaValidationTests
     public void DifferentPeriods_DifferentAngle()
     {
         var rng = new Random(42);
-        var epa10 = new Epa(period: 10);
-        var epa28 = new Epa(period: 28);
+        var ind10 = new HtPhana(period: 10);
+        var ind28 = new HtPhana(period: 28);
 
         for (int i = 0; i < 100; i++)
         {
-            double price = 100 + (rng.NextDouble() * 10);
+            double price = 100 + rng.NextDouble() * 10;
             var tv = new TValue(DateTime.UtcNow.AddDays(i), price);
-            epa10.Update(tv);
-            epa28.Update(tv);
+            ind10.Update(tv);
+            ind28.Update(tv);
         }
 
-        Assert.NotEqual(epa10.Angle, epa28.Angle);
+        Assert.NotEqual(ind10.Angle, ind28.Angle);
     }
 
     // ── Finite Output for All Bars ─────────────────────────────────
@@ -288,15 +288,15 @@ public sealed class EpaValidationTests
     [Fact]
     public void AllOutputs_AlwaysFinite()
     {
-        var epa = new Epa(period: 14);
+        var ind = new HtPhana(period: 14);
         var rng = new Random(42);
 
         for (int i = 0; i < 500; i++)
         {
-            double price = 100 + (rng.NextDouble() * 10);
-            epa.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
-            Assert.True(double.IsFinite(epa.Angle), $"Non-finite Angle at bar {i}");
-            Assert.True(double.IsFinite(epa.DerivedPeriod), $"Non-finite DerivedPeriod at bar {i}");
+            double price = 100 + rng.NextDouble() * 10;
+            ind.Update(new TValue(DateTime.UtcNow.AddDays(i), price));
+            Assert.True(double.IsFinite(ind.Angle), $"Non-finite Angle at bar {i}");
+            Assert.True(double.IsFinite(ind.DerivedPeriod), $"Non-finite DerivedPeriod at bar {i}");
         }
     }
 }

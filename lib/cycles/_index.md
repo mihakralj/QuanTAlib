@@ -12,12 +12,12 @@ Cycle analysis identifies repeating patterns in price data. John Ehlers pioneere
 | [CCYC](ccyc/Ccyc.md)                     | Ehlers Cyber Cycle                                     | Ehlers. 4-tap FIR + 2-pole high-pass IIR. Isolates dominant cycle component. |
 | [CG](cg/Cg.md)                           | Ehlers Center of Gravity                               | Ehlers. Weighted sum position. Minimal lag cycle indicator.                  |
 | [DSP](dsp/Dsp.md)                        | Ehlers Detrended Synthetic Price                       | Removes trend to reveal underlying cycles.                                   |
-| [EPA](epa/epa.md)                        | Ehlers Phasor Analysis                                 | Ehlers. Pearson correlation phasor with wraparound + trend state detection.  |
-| [FSI](fsi/Fsi.md)                        | Ehlers Fourier Series Indicator                        | Ehlers. 3-harmonic bandpass + amplitude-weighted reconstruction. Cycle timing.|
 | [EBSW](ebsw/Ebsw.md)                     | Ehlers Even Better Sinewave                            | Ehlers. Improved sinewave extraction. Reduces false signals.                 |
+| [FSI](fsi/Fsi.md)                        | Ehlers Fourier Series Indicator                        | Ehlers. 3-harmonic bandpass + amplitude-weighted reconstruction. Cycle timing.|
 | [HOMOD](homod/Homod.md)                  | Ehlers Homodyne Discriminator                          | Dominant cycle detection via homodyne technique.                             |
 | [HT_DCPERIOD](ht_dcperiod/Htdcperiod.md) | Ehlers Hilbert Transform Dominant Cycle Period         | Ehlers Hilbert Transform. Measures current cycle length.                     |
 | [HT_DCPHASE](ht_dcphase/Htdcphase.md)    | Ehlers Hilbert Transform Dominant Cycle Phase          | Ehlers Hilbert Transform. Measures current position in cycle.                |
+| [HT_PHANA](ht_phana/ht_phana.md)        | Ehlers Phasor Analysis                                 | Ehlers. Pearson correlation phasor with wraparound + trend state detection.  |
 | [HT_PHASOR](ht_phasor/HtPhasor.md)       | Ehlers Hilbert Transform Phasor Components             | Ehlers. In-phase and quadrature components.                                  |
 | [HT_SINE](ht_sine/HtSine.md)             | Ehlers Hilbert Transform SineWave (also known as SINE) | Ehlers Hilbert Transform. Sine and lead sine for cycle timing.               |
 | [LPF](lpf/Lpf.md)                        | Ehlers Linear Predictive Filter                        | Ehlers. Griffiths LMS predictor coefficients → DFT spectrum → dominant cycle.|

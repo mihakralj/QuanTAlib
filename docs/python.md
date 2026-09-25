@@ -12,7 +12,7 @@ This means:
 
 - **Batch only.** You pass in an array, you get back an array. No streaming, no bar-by-bar updates. (The .NET version does streaming at 0.4 μs per update. Python's function-call overhead would eat that alive.)
 - **Same numbers.** The results are identical to the C# core library, bit for bit. Cross-validated against TA-Lib, Tulip, Skender, and half a dozen other implementations nobody remembers.
-- **393 indicators.** Not 12. Not "the popular ones." All of them. From SMA to Yang-Zhang Volatility Adaptive Moving Average.
+- **447 indicators.** Not 12. Not "the popular ones." All of them. From SMA to Yang-Zhang Volatility Adaptive Moving Average.
 
 ## Installation
 
@@ -65,7 +65,7 @@ If you know the indicator name, call it. If you do not, here is the map:
 | **Errors** | `errors` | Error metrics, loss functions | `rmse`, `mae`, `mape`, `smape` |
 | **Numerics** | `numerics` | Mathematical transforms | `fft`, `normalize`, `sigmoid`, `slope` |
 
-**Full indicator catalog with descriptions: [393 indicators](../lib/_index.md)**
+**Full indicator catalog with descriptions: [447 indicators](../lib/_index.md)**
 
 ## Calling Convention
 

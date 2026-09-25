@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// EPA: Ehlers Phasor Analysis — extracts cycle phase by computing Pearson correlation
+/// HT_PHANA: Ehlers Phasor Analysis — extracts cycle phase by computing Pearson correlation
 /// of a price window against cosine (Real) and negative-sine (Imaginary) reference waves,
 /// converting the resulting phasor to an angle with wraparound compensation and monotonic
 /// constraint, then deriving cycle period and trend state from the angle rate-of-change.
@@ -30,7 +30,7 @@ namespace QuanTAlib;
 /// - Zero allocation in hot path (RingBuffer is pre-allocated)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Epa : AbstractBase
+public sealed class HtPhana : AbstractBase
 {
     private const int DefaultPeriod = 28;
     private const double MaxDerivedPeriod = 60.0;
@@ -66,10 +66,10 @@ public sealed class Epa : AbstractBase
     public override bool IsHot => _s.Count >= WarmupPeriod;
 
     /// <summary>
-    /// Creates a new Epa indicator.
+    /// Creates a new HtPhana indicator.
     /// </summary>
     /// <param name="period">Presumed dominant cycle wavelength. Must be &gt; 1. Default 28.</param>
-    public Epa(int period = DefaultPeriod)
+    public HtPhana(int period = DefaultPeriod)
     {
         if (period <= 1)
         {
@@ -91,16 +91,16 @@ public sealed class Epa : AbstractBase
         }
 
         _buf = new(period);
-        Name = $"Epa({period})";
+        Name = $"HtPhana({period})";
         WarmupPeriod = period;
         _s = default;
         _ps = default;
     }
 
     /// <summary>
-    /// Creates a new Epa indicator chained to a publisher source.
+    /// Creates a new HtPhana indicator chained to a publisher source.
     /// </summary>
-    public Epa(ITValuePublisher source, int period = DefaultPeriod) : this(period)
+    public HtPhana(ITValuePublisher source, int period = DefaultPeriod) : this(period)
     {
         ArgumentNullException.ThrowIfNull(source);
         source.Pub += HandleInput;
@@ -264,11 +264,11 @@ public sealed class Epa : AbstractBase
     }
 
     /// <summary>
-    /// Static batch: creates an Epa, processes source, returns output TSeries.
+    /// Static batch: creates an HtPhana, processes source, returns output TSeries.
     /// </summary>
     public static TSeries Batch(TSeries source, int period = DefaultPeriod)
     {
-        var ind = new Epa(period);
+        var ind = new HtPhana(period);
         return ind.Update(source);
     }
 
@@ -442,11 +442,11 @@ public sealed class Epa : AbstractBase
     }
 
     /// <summary>
-    /// Static convenience method: returns (TSeries results, Epa indicator) for inspection.
+    /// Static convenience method: returns (TSeries results, HtPhana indicator) for inspection.
     /// </summary>
-    public static (TSeries Results, Epa Indicator) Calculate(TSeries source, int period = DefaultPeriod)
+    public static (TSeries Results, HtPhana Indicator) Calculate(TSeries source, int period = DefaultPeriod)
     {
-        var ind = new Epa(period);
+        var ind = new HtPhana(period);
         var results = ind.Update(source);
         return (results, ind);
     }

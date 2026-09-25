@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/quantalib?style=flat-square)](https://pypi.org/project/quantalib/)
 [![License](https://img.shields.io/pypi/l/quantalib?style=flat-square)](https://github.com/mihakralj/quantalib/blob/main/LICENSE)
 
-393 technical analysis indicators compiled to native code via .NET NativeAOT, called from Python through `ctypes`. Same SIMD-accelerated engine as the [QuanTAlib](https://github.com/mihakralj/quantalib) .NET package. Zero Python math reimplementation.
+447 technical analysis indicators compiled to native code via .NET NativeAOT, called from Python through `ctypes`. Same SIMD-accelerated engine as the [QuanTAlib](https://github.com/mihakralj/quantalib) .NET package. Zero Python math reimplementation.
 
 ```bash
 pip install quantalib

@@ -6,7 +6,7 @@
 
 You are here because you want an indicator on your TradingView chart. Maybe someone on Crypto Twitter posted a screenshot with colored lines and you thought "I need that." Maybe you googled "best RSI Pine Script" at 2 AM. Maybe you clicked a link by accident. All valid paths to enlightenment.
 
-Here is the good news: QuanTAlib provides **Pine Script v6 source code** for every one of its 393 indicators. Each script is self-contained, tested against the C# reference implementation, and ready to paste into TradingView's Pine Editor. No dependencies. No imports. No subscription to someone's Discord.
+Here is the good news: QuanTAlib provides **Pine Script v6 source code** for every one of its 447 indicators. Each script is self-contained, tested against the C# reference implementation, and ready to paste into TradingView's Pine Editor. No dependencies. No imports. No subscription to someone's Discord.
 
 Here is the less-good news: the scripts contain actual mathematics. You do not have to read it. But it is there, silently judging.
 
@@ -222,6 +222,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | FISHER | Ehlers Fisher Transform | [fisher.pine](../lib/oscillators/fisher/fisher.pine) |
 | FISHER04 | Ehlers Fisher Transform (2004) | [fisher04.pine](../lib/oscillators/fisher04/fisher04.pine) |
 | GATOR | Williams Gator Oscillator | [gator.pine](../lib/oscillators/gator/gator.pine) |
+| HHLLS | Apirine Higher Highs & Lower Lows Stochastics | [hhlls.pine](../lib/oscillators/hhlls/hhlls.pine) |
 | IMI | Intraday Momentum Index | [imi.pine](../lib/oscillators/imi/imi.pine) |
 | INERTIA | Inertia | [inertia.pine](../lib/oscillators/inertia/inertia.pine) |
 | KDJ | KDJ Indicator | [kdj.pine](../lib/oscillators/kdj/kdj.pine) |
@@ -240,7 +241,9 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | RSIH | Ehlers Hann-Windowed RSI | [rsih.pine](../lib/oscillators/rsih/rsih.pine) |
 | SMI | Stochastic Momentum Index | [smi.pine](../lib/oscillators/smi/smi.pine) |
 | SQUEEZE | Squeeze Momentum | [squeeze.pine](../lib/oscillators/squeeze/squeeze.pine) |
+| SRSI | Apirine Slow RSI | [srsi.pine](../lib/oscillators/srsi/srsi.pine) |
 | STC | Schaff Trend Cycle | [stc.pine](../lib/oscillators/stc/stc.pine) |
+| STMACD | Apirine Stochastic MACD | [stmacd.pine](../lib/oscillators/stmacd/stmacd.pine) |
 | STOCH | Stochastic Oscillator | [stoch.pine](../lib/oscillators/stoch/stoch.pine) |
 | STOCHF | Stochastic Fast | [stochf.pine](../lib/oscillators/stochf/stochf.pine) |
 | STOCHRSI | Stochastic RSI | [stochrsi.pine](../lib/oscillators/stochrsi/stochrsi.pine) |
@@ -249,6 +252,7 @@ Numbers that bounce between limits. Overbought, oversold, divergence. You know t
 | TRIX | Triple Exponential Average | [trix.pine](../lib/oscillators/trix/trix.pine) |
 | TTM_WAVE | TTM Wave | [ttm_wave.pine](../lib/oscillators/ttm_wave/ttm_wave.pine) |
 | ULTOSC | Ultimate Oscillator | [ultosc.pine](../lib/oscillators/ultosc/ultosc.pine) |
+| UO | Ehlers Universal Oscillator | [uo.pine](../lib/oscillators/uo/uo.pine) |
 | USI | Ehlers Ultimate Strength Index | [usi.pine](../lib/oscillators/usi/usi.pine) |
 | WILLR | Williams %R | [willr.pine](../lib/oscillators/willr/willr.pine) |
 
@@ -369,6 +373,7 @@ What the crowd is doing with their money.
 | MFI | Money Flow Index | [mfi.pine](../lib/volume/mfi/mfi.pine) |
 | NVI | Negative Volume Index | [nvi.pine](../lib/volume/nvi/nvi.pine) |
 | OBV | On Balance Volume | [obv.pine](../lib/volume/obv/obv.pine) |
+| OBVM | On-Balance Volume Modified | [obvm.pine](../lib/volume/obvm/obvm.pine) |
 | PVD | Price Volume Divergence | [pvd.pine](../lib/volume/pvd/pvd.pine) |
 | PVI | Positive Volume Index | [pvi.pine](../lib/volume/pvi/pvi.pine) |
 | PVO | Percentage Volume Oscillator | [pvo.pine](../lib/volume/pvo/pvo.pine) |
@@ -424,18 +429,18 @@ Markets oscillate. These indicators try to measure the oscillation itself — th
 
 | Indicator | What It Does | Pine Script |
 | :--- | :--- | :--- |
+| ACP | Ehlers Autocorrelation Periodogram | [acp.pine](../lib/cycles/acp/acp.pine) |
 | AMFM | Ehlers AM Detector / FM Demodulator | [amfm.pine](../lib/cycles/amfm/amfm.pine) |
 | CCOR | Ehlers Correlation Cycle | [ccor.pine](../lib/cycles/ccor/ccor.pine) |
 | CCYC | Ehlers Cyber Cycle | [ccyc.pine](../lib/cycles/ccyc/ccyc.pine) |
 | CG | Ehlers Center of Gravity | [cg.pine](../lib/cycles/cg/cg.pine) |
 | DSP | Ehlers Detrended Synthetic Price | [dsp.pine](../lib/cycles/dsp/dsp.pine) |
-| EPA | Ehlers Phasor Analysis | [epa.pine](../lib/cycles/epa/epa.pine) |
-| FSI | Ehlers Fourier Series Indicator | [fsi.pine](../lib/cycles/fsi/fsi.pine) |
-| ACP | Ehlers Autocorrelation Periodogram | [acp.pine](../lib/cycles/acp/acp.pine) |
 | EBSW | Ehlers Even Better Sinewave | [ebsw.pine](../lib/cycles/ebsw/ebsw.pine) |
+| FSI | Ehlers Fourier Series Indicator | [fsi.pine](../lib/cycles/fsi/fsi.pine) |
 | HOMOD | Ehlers Homodyne Discriminator | [homod.pine](../lib/cycles/homod/homod.pine) |
 | HT_DCPERIOD | Ehlers Hilbert Transform Dominant Cycle Period | [ht_dcperiod.pine](../lib/cycles/ht_dcperiod/ht_dcperiod.pine) |
 | HT_DCPHASE | Ehlers Hilbert Transform Dominant Cycle Phase | [ht_dcphase.pine](../lib/cycles/ht_dcphase/ht_dcphase.pine) |
+| HT_PHANA | Ehlers Phasor Analysis | [ht_phana.pine](../lib/cycles/ht_phana/ht_phana.pine) |
 | HT_PHASOR | Ehlers Hilbert Transform Phasor Components | [phasor.pine](../lib/cycles/ht_phasor/phasor.pine) |
 | HT_SINE | Ehlers Hilbert Transform SineWave | [ht_sine.pine](../lib/cycles/ht_sine/ht_sine.pine) |
 | LPF | Ehlers Linear Predictive Filter | [lpf.pine](../lib/cycles/lpf/lpf.pine) |
@@ -690,7 +695,7 @@ You do not have to read any of this. But if you ever wonder why your backtest re
 
 ## The Full Catalog
 
-**[All 393 indicators with descriptions →](../lib/_index.md)**
+**[All 447 indicators with descriptions →](../lib/_index.md)**
 
 Every indicator in that list has a `.pine` file. Every `.pine` file works on TradingView. Every implementation matches the C# reference engine.
 

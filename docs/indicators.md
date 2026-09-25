@@ -192,6 +192,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**FISHER**](../lib/oscillators/fisher/Fisher.md) | Ehlers Fisher Transform | Gaussian-normalized price reversal |
 | [**FISHER04**](../lib/oscillators/fisher04/Fisher04.md) | Ehlers Fisher Transform (2004) | Cybernetic Analysis variant with gentler arctanh |
 | [**GATOR**](../lib/oscillators/gator/Gator.md) | Williams Gator Oscillator | Alligator line difference histograms |
+| [**HHLLS**](../lib/oscillators/hhlls/hhlls.md) | Apirine Higher Highs & Lower Lows Stochastics | Conditional stochastic on H/L with EMA smoothing. Dual HHS/LLS [0, 100] |
 | [**IMI**](../lib/oscillators/imi/Imi.md) | Intraday Momentum Index | Candlestick RSI (0-100 oscillator) |
 | [**INERTIA**](../lib/oscillators/inertia/Inertia.md) | Inertia | Linear regression residual |
 | [**KDJ**](../lib/oscillators/kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic (J = 3K − 2D) |
@@ -210,7 +211,9 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**RSIH**](../lib/oscillators/rsih/Rsih.md) | Ehlers Hann-Windowed RSI | Hann-weighted zero-mean RSI [-1, +1] |
 | [**SMI**](../lib/oscillators/smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint (K/D lines) |
 | [**SQUEEZE**](../lib/oscillators/squeeze/Squeeze.md) | Squeeze Momentum | BB inside KC squeeze with momentum |
+| [**SRSI**](../lib/oscillators/srsi/srsi.md) | Apirine Slow RSI | RSI vs EMA baseline, not Close[1]. [0, 100] |
 | [**STC**](../lib/oscillators/stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic (0-100) |
+| [**STMACD**](../lib/oscillators/stmacd/stmacd.md) | Apirine Stochastic MACD | MACD normalized by H-L range. Dual output. TASC Nov 2019 |
 | [**STOCH**](../lib/oscillators/stoch/Stoch.md) | Stochastic Oscillator | Close within N-period H/L range (%K/%D) |
 | [**STOCHF**](../lib/oscillators/stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic (%K/%D) |
 | [**STOCHRSI**](../lib/oscillators/stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI (%K/%D) |
@@ -219,6 +222,7 @@ Bounded indicators that oscillate around a centerline or between fixed extremes.
 | [**TRIX**](../lib/oscillators/trix/Trix.md) | Triple Exponential Average | ROC of triple-smoothed EMA |
 | [**TTM_WAVE**](../lib/oscillators/ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (A/B/C waves) |
 | [**ULTOSC**](../lib/oscillators/ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe weighted buying pressure |
+| [**UO**](../lib/oscillators/uo/Uo.md) | Ehlers Universal Oscillator | White noise + Super Smoother + AGC normalization [-1, +1] |
 | [**USI**](../lib/oscillators/usi/Usi.md) | Ehlers Ultimate Strength Index | UltimateSmoother-based RSI with symmetric [-1, +1] range |
 | [**WILLR**](../lib/oscillators/willr/Willr.md) | Williams %R | Inverse Stochastic (-100 to 0) |
 
@@ -333,6 +337,7 @@ Price-volume relationships and accumulation/distribution measurements.
 | [**MFI**](../lib/volume/mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI |
 | [**NVI**](../lib/volume/nvi/Nvi.md) | Negative Volume Index | Cumulative on low-volume days |
 | [**OBV**](../lib/volume/obv/Obv.md) | On Balance Volume | Cumulative signed volume |
+| [**OBVM**](../lib/volume/obvm/obvm.md) | On-Balance Volume Modified | Dual-EMA smoothed OBV + signal line. Apirine, TASC Apr 2020 |
 | [**PVD**](../lib/volume/pvd/Pvd.md) | Price Volume Divergence | Price-volume correlation divergence |
 | [**PVI**](../lib/volume/pvi/Pvi.md) | Positive Volume Index | Cumulative on high-volume days |
 | [**PVO**](../lib/volume/pvo/Pvo.md) | Percentage Volume Oscillator | Percentage volume MA difference |
@@ -436,18 +441,18 @@ Periodic pattern detection and dominant frequency extraction. Markets exhibit cy
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**ACP**](../lib/cycles/acp/Acp.md) | Ehlers Autocorrelation Periodogram | Ehlers dominant cycle detection |
 | [**AMFM**](../lib/cycles/amfm/Amfm.md) | Ehlers AM Detector / FM Demodulator | DSP decomposition into amplitude + frequency |
 | [**CCOR**](../lib/cycles/ccor/Ccor.md) | Ehlers Correlation Cycle | Dual Pearson correlation phasor + market state |
 | [**CCYC**](../lib/cycles/ccyc/Ccyc.md) | Ehlers Cyber Cycle | 4-tap FIR + 2-pole high-pass IIR cycle extraction |
 | [**CG**](../lib/cycles/cg/Cg.md) | Ehlers Center of Gravity | Ehlers cycle measurement |
 | [**DSP**](../lib/cycles/dsp/Dsp.md) | Ehlers Detrended Synthetic Price | Cycle-isolated price component |
-| [**EPA**](../lib/cycles/epa/epa.md) | Ehlers Phasor Analysis | Pearson correlation phasor with wraparound + trend state |
-| [**FSI**](../lib/cycles/fsi/Fsi.md) | Ehlers Fourier Series Indicator | 3-harmonic bandpass + amplitude-weighted reconstruction |
-| [**ACP**](../lib/cycles/acp/Acp.md) | Ehlers Autocorrelation Periodogram | Ehlers dominant cycle detection |
 | [**EBSW**](../lib/cycles/ebsw/Ebsw.md) | Ehlers Even Better Sinewave | Ehlers improved cycle indicator |
+| [**FSI**](../lib/cycles/fsi/Fsi.md) | Ehlers Fourier Series Indicator | 3-harmonic bandpass + amplitude-weighted reconstruction |
 | [**HOMOD**](../lib/cycles/homod/Homod.md) | Ehlers Homodyne Discriminator | Dominant cycle period tracking |
 | [**HT_DCPERIOD**](../lib/cycles/ht_dcperiod/HtDcperiod.md) | Ehlers HT Dominant Cycle Period | Hilbert Transform period estimation |
 | [**HT_DCPHASE**](../lib/cycles/ht_dcphase/HtDcphase.md) | Ehlers HT Dominant Cycle Phase | Hilbert Transform phase angle |
+| [**HT_PHANA**](../lib/cycles/ht_phana/ht_phana.md) | Ehlers Phasor Analysis | Pearson correlation phasor with wraparound + trend state |
 | [**HT_PHASOR**](../lib/cycles/ht_phasor/HtPhasor.md) | Ehlers HT Phasor Components | In-phase and quadrature components |
 | [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Ehlers HT SineWave (also known as SINE) | Dominant cycle phase with lead signal |
 | [**LPF**](../lib/cycles/lpf/Lpf.md) | Ehlers Linear Predictive Filter | Griffiths LMS predictor ? DFT spectrum ? dominant cycle |

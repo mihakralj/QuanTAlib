@@ -1,0 +1,60 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Stochastic MACD Oscillator (STMACD)", "STMACD", overlay = false)
+
+//@function Stochastic MACD — normalises each EMA against the rolling high-low range,
+//          converting absolute MACD into a percentage-scale momentum reading.
+//          Pipeline: HH/LL(periods) → FastEMA/SlowEMA → StochNorm → Signal EMA.
+//          Output unbounded (typically −100…+100), OB/OS at ±10.
+//@param h High price series
+//@param l Low price series
+//@param c Close price series
+//@param periods Rolling H-L range lookback (>= 2)
+//@param fastLength Fast EMA period (>= 2)
+//@param slowLength Slow EMA period (>= 2)
+//@param signalLength Signal EMA period (>= 2)
+//@returns [stmacd, signal] — dual output
+//@reference Apirine, V. (2019). "The Stochastic MACD Oscillator."
+//           Technical Analysis of Stocks & Commodities, Nov 2019.
+//@optimized O(1) amortized per bar via ta.highest/ta.lowest
+stmacd(series float h, series float l, series float c,
+       simple int periods, simple int fastLength,
+       simple int slowLength, simple int signalLength) =>
+    if periods < 2 or fastLength < 2 or slowLength < 2 or signalLength < 2
+        runtime.error("All periods must be at least 2")
+
+    // --- Sliding-window extremes ---
+    float hh = ta.highest(h, periods)
+    float ll = ta.lowest(l, periods)
+
+    // --- Dual EMA of Close ---
+    float fastEma = ta.ema(c, fastLength)
+    float slowEma = ta.ema(c, slowLength)
+
+    // --- Stochastic normalisation ---
+    float rng = hh - ll
+    float fastStoch = rng > 0 ? (fastEma - ll) / rng : 0.0
+    float slowStoch = rng > 0 ? (slowEma - ll) / rng : 0.0
+    float stmacd_val = (fastStoch - slowStoch) * 100.0
+
+    // --- Signal line ---
+    float signal_val = ta.ema(stmacd_val, signalLength)
+
+    [stmacd_val, signal_val]
+
+// ── Inputs ──
+int p_periods      = input.int(45, "Periods",       minval = 2)
+int p_fastLength   = input.int(12, "Fast Length",    minval = 2)
+int p_slowLength   = input.int(26, "Slow Length",    minval = 2)
+int p_signalLength = input.int(9,  "Signal Length",  minval = 2)
+
+// ── Calculation ──
+[stmacd_out, signal_out] = stmacd(high, low, close, p_periods, p_fastLength, p_slowLength, p_signalLength)
+
+// ── Plot ──
+plot(stmacd_out, "STMACD", color.blue, 2)
+plot(signal_out, "Signal", color.orange, 1)
+hline(10,  "Overbought", color.new(color.gray, 50), linestyle = hline.style_dotted)
+hline(-10, "Oversold",   color.new(color.gray, 50), linestyle = hline.style_dotted)
+hline(0,   "Zero",       color.gray, linestyle = hline.style_dashed)

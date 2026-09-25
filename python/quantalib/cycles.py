@@ -26,7 +26,7 @@ __all__ = [
     "acp",
     "amfm",
     "fsi",
-    "epa",
+    "ht_phana",
 ]
 
 
@@ -187,10 +187,10 @@ def fsi(close: ArrayLike, period: int = 20, bandwidth: float = 0.1,
     return _wrap(dst, idx, f"FSI_{period}", "cycles", offset)
 
 
-def epa(close: ArrayLike, period: int = 28,
+def ht_phana(close: ArrayLike, period: int = 28,
         offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Ehlers Phasor Analysis."""
     period = int(kwargs.get("length", period)); offset = int(offset)
     src, idx = _arr(close); n = len(src); dst = _out(n)
-    _check(_lib.qtl_epa(_ptr(src), n, _ptr(dst), period))
-    return _wrap(dst, idx, f"EPA_{period}", "cycles", offset)
+    _check(_lib.qtl_htphana(_ptr(src), n, _ptr(dst), period))
+    return _wrap(dst, idx, f"HT_PHANA_{period}", "cycles", offset)

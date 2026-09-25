@@ -37,6 +37,7 @@ __all__ = [
     "cmf",
     "eom",
     "pvo",
+    "obvm",
 ]
 
 
@@ -171,6 +172,15 @@ def obv(close: ArrayLike, volume: ArrayLike, offset: int = 0, **kwargs: Any) -> 
     n = len(c); dst = _out(n)
     _check(_lib.qtl_obv(_ptr(c), _ptr(v), n, _ptr(dst)))
     return _wrap(dst, idx, "OBV", "volume", offset)
+
+
+def obvm(close: ArrayLike, volume: ArrayLike, obvmLength: int = 7, signalLength: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
+    """On-Balance Volume Modified (dual output: OBVM, Signal). TASC Apr 2020."""
+    obvmLength = int(obvmLength); signalLength = int(signalLength); offset = int(offset)
+    c, idx = _arr(close); v, _ = _arr(volume)
+    n = len(c); obvmOut = _out(n); sigOut = _out(n)
+    _check(_lib.qtl_obvm(_ptr(c), _ptr(v), n, _ptr(obvmOut), _ptr(sigOut), obvmLength, signalLength))
+    return _wrap(obvmOut, idx, f"OBVM_{obvmLength}", "volume", offset), _wrap(sigOut, idx, f"OBVM_SIG_{signalLength}", "volume", offset)
 
 
 def pvt(close: ArrayLike, volume: ArrayLike, offset: int = 0, **kwargs: Any) -> ArrayLike:

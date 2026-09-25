@@ -1,0 +1,106 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Phasor Analysis (HT_PHANA)", "HT_PHANA", overlay = false)
+
+//@function Ehlers Phasor Analysis — extracts cycle phase via dual Pearson
+//          correlation of price against cosine and negative-sine reference waves.
+//          Pipeline: corr(price, cos) → Real; corr(price, -sin) → Imag;
+//          Angle = 90° - atan(Imag/Real) with wraparound + monotonic constraint.
+//          Outputs: Angle, DerivedPeriod, TrendState.
+//@param source Series to analyze
+//@param period Presumed dominant cycle wavelength in bars (>= 2)
+//@returns Angle in degrees (primary), DerivedPeriod, TrendState
+//@reference Ehlers, J.F. (2022). "Recurring Phase Of Cycle Analysis."
+//           Technical Analysis of Stocks & Commodities, Nov 2022.
+//@optimized O(period) per bar — trig lookup eliminates repeated transcendental calls
+ht_phana(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    var float prevAngle      = 0.0
+    var float prevDeltaAngle = 0.0
+    var float derivedPeriod  = 0.0
+
+    // --- Correlate price with Cosine wave (Pearson → Real) ---
+    float sx_r = 0.0, float sy_r = 0.0
+    float sxx_r = 0.0, float sxy_r = 0.0, float syy_r = 0.0
+    for k = 0 to period - 1
+        float x = nz(source[k])
+        float y = math.cos(2.0 * math.pi * k / period)
+        sx_r  += x
+        sy_r  += y
+        sxx_r += x * x
+        sxy_r += x * y
+        syy_r += y * y
+
+    float dp_r = (period * sxx_r - sx_r * sx_r) * (period * syy_r - sy_r * sy_r)
+    float real = dp_r > 0 ? math.max(-1.0, math.min(1.0, (period * sxy_r - sx_r * sy_r) / math.sqrt(dp_r))) : 0.0
+
+    // --- Correlate price with -Sine wave (Pearson → Imag) ---
+    float sx_i = 0.0, float sy_i = 0.0
+    float sxx_i = 0.0, float sxy_i = 0.0, float syy_i = 0.0
+    for k = 0 to period - 1
+        float x = nz(source[k])
+        float y = -math.sin(2.0 * math.pi * k / period)
+        sx_i  += x
+        sy_i  += y
+        sxx_i += x * x
+        sxy_i += x * y
+        syy_i += y * y
+
+    float dp_i = (period * sxx_i - sx_i * sx_i) * (period * syy_i - sy_i * sy_i)
+    float imag = dp_i > 0 ? math.max(-1.0, math.min(1.0, (period * sxy_i - sx_i * sy_i) / math.sqrt(dp_i))) : 0.0
+
+    // --- Angle = 90 - atan(Imag/Real) with quadrant fix ---
+    float angle = 0.0
+    if real != 0
+        angle := 90.0 - math.todegrees(math.atan(imag / real))
+    if real < 0
+        angle -= 180.0
+
+    // --- Wraparound compensation ---
+    if math.abs(angle) - math.abs(prevAngle - 360.0) < angle - prevAngle and prevAngle > 90.0 and angle < -90.0
+        angle -= 360.0
+
+    // --- Monotonic constraint (angle cannot go backwards) ---
+    if angle < prevAngle and ((prevAngle > -135.0 and prevAngle < 135.0) or (angle < -90.0 and prevAngle < -90.0))
+        angle := prevAngle
+
+    // --- DerivedPeriod from angle rate-of-change ---
+    float deltaAngle = angle - prevAngle
+    if deltaAngle <= 0
+        deltaAngle := prevDeltaAngle
+    if deltaAngle > 0
+        derivedPeriod := 360.0 / deltaAngle
+        prevDeltaAngle := deltaAngle
+    if derivedPeriod > 60
+        derivedPeriod := 60.0
+
+    // --- Trend state ---
+    int trendState = 0
+    float angleChange = angle - prevAngle
+    if angleChange <= 6.0
+        if angle >= 90.0 or angle <= -90.0
+            trendState := 1    // trending long
+        else if angle > -90.0 and angle < 90.0
+            trendState := -1   // trending short
+
+    prevAngle := angle
+
+    [angle, derivedPeriod, trendState]
+
+// ── Inputs ──
+int   p_period = input.int(28, "Period", minval = 2)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+[angle, dp, ts] = ht_phana(p_src, p_period)
+
+// ── Plot ──
+plot(angle, "Angle", color.yellow, 2)
+hline(0, "Zero", color.white)
+hline(90, "+90", color.new(color.gray, 50))
+hline(-90, "-90", color.new(color.gray, 50))
+plot(dp, "DerivedPeriod", color.gray, 1, display = display.none)
+plot(ts, "TrendState", color.red, 2, display = display.none)

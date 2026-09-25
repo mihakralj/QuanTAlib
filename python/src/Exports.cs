@@ -517,6 +517,16 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Uo: Pattern A (src, out, int bandEdge)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_uo")]
+    public static int QtlUo(double* src, int n, double* dst, int bandEdge)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        if (bandEdge < 2) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Uo.Batch(Src(src, n), Dst(dst, n), bandEdge); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Usi: Pattern A (src, out, int period)
     [UnmanagedCallersOnly(EntryPoint = "qtl_usi")]
     public static int QtlUsi(double* src, int n, double* dst, int period)
@@ -524,6 +534,39 @@ public static unsafe partial class Exports
         int v = Chk1(src, dst, n); if (v != 0) return v;
         v = ChkPeriod(period); if (v != 0) return v;
         try { Usi.Batch(Src(src, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    // Srsi: Pattern B (src, out, int emaLength, int rsiLength)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_srsi")]
+    public static int QtlSrsi(double* src, int n, double* dst, int emaLength, int rsiLength)
+    {
+        int v = Chk1(src, dst, n); if (v != 0) return v;
+        if (emaLength < 1 || rsiLength < 1) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Srsi.Batch(Src(src, n), Dst(dst, n), emaLength, rsiLength); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    // Hhlls: dual-input (high, low), dual-output (hhs, lls), int period
+    [UnmanagedCallersOnly(EntryPoint = "qtl_hhlls")]
+    public static int QtlHhlls(double* high, double* low, int n, double* dstHhs, double* dstLls, int period)
+    {
+        if (high == null || low == null || dstHhs == null || dstLls == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (period < 2) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Hhlls.Batch(Src(high, n), Src(low, n), Dst(dstHhs, n), Dst(dstLls, n), period); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
+    // Stmacd: triple-input (high, low, close), dual-output (stmacd, signal), 4 int params
+    [UnmanagedCallersOnly(EntryPoint = "qtl_stmacd")]
+    public static int QtlStmacd(double* high, double* low, double* close, int n,
+        double* dstStmacd, double* dstSignal, int periods, int fastLength, int slowLength, int signalLength)
+    {
+        if (high == null || low == null || close == null || dstStmacd == null || dstSignal == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        if (periods < 2 || fastLength < 2 || slowLength < 2 || signalLength < 2) return StatusCodes.QTL_ERR_INVALID_PARAM;
+        try { Stmacd.Batch(Src(high, n), Src(low, n), Src(close, n), Dst(dstStmacd, n), Dst(dstSignal, n), periods, fastLength, slowLength, signalLength); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
@@ -1069,6 +1112,18 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
+    // Obvm: close + volume → dual output (obvm + signal) + int obvmLength + int signalLength
+    [UnmanagedCallersOnly(EntryPoint = "qtl_obvm")]
+    public static int QtlObvm(double* close, double* volume, int n, double* dstObvm, double* dstSignal, int obvmLength, int signalLength)
+    {
+        if (close == null || volume == null || dstObvm == null || dstSignal == null) return StatusCodes.QTL_ERR_NULL_PTR;
+        if (n <= 0) return StatusCodes.QTL_ERR_INVALID_LENGTH;
+        int v1 = ChkPeriod(obvmLength); if (v1 != 0) return v1;
+        int v2 = ChkPeriod(signalLength); if (v2 != 0) return v2;
+        try { Obvm.Batch(Src(close, n), Src(volume, n), Dst(dstObvm, n), Dst(dstSignal, n), obvmLength, signalLength); return StatusCodes.QTL_OK; }
+        catch { return StatusCodes.QTL_ERR_INTERNAL; }
+    }
+
     // Pvt: Pattern G
     [UnmanagedCallersOnly(EntryPoint = "qtl_pvt")]
     public static int QtlPvt(double* close, double* volume, int n, double* dst)
@@ -1566,13 +1621,13 @@ public static unsafe partial class Exports
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 
-    // Epa: Pattern A (src → dst, int period)
-    [UnmanagedCallersOnly(EntryPoint = "qtl_epa")]
-    public static int QtlEpa(double* src, int n, double* dst, int period)
+    // HtPhana: Pattern A (src → dst, int period)
+    [UnmanagedCallersOnly(EntryPoint = "qtl_htphana")]
+    public static int QtlHtPhana(double* src, int n, double* dst, int period)
     {
         int v = Chk1(src, dst, n); if (v != 0) return v;
         v = ChkPeriod(period); if (v != 0) return v;
-        try { Epa.Batch(Src(src, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
+        try { HtPhana.Batch(Src(src, n), Dst(dst, n), period); return StatusCodes.QTL_OK; }
         catch { return StatusCodes.QTL_ERR_INTERNAL; }
     }
 

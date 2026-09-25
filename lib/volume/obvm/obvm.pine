@@ -1,0 +1,53 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("On-Balance Volume Modified (OBVM)", "OBVM", overlay = false)
+
+//@function On-Balance Volume Modified — dual EMA smoothing of classic OBV,
+//          producing a cleaner trend-following volume signal with confirmation line.
+//          Pipeline: OBV accumulation → EMA(obvmLength) → OBVM line;
+//          EMA(signalLength) of OBVM → Signal line.
+//          Output is unbounded (OBV-scale).
+//@param c Close price series
+//@param vol Volume series
+//@param obvm_len OBVM EMA period (>= 2)
+//@param sig_len Signal EMA period (>= 2)
+//@returns [obvm, signal] — dual output
+//@reference Apirine, V. (2020). "On-Balance Volume Modified."
+//           Technical Analysis of Stocks & Commodities, Apr 2020.
+//@optimized O(1) per bar — pure scalar state, no buffers
+obvm(series float c = close, series float vol = volume,
+     simple int obvm_len = 7, simple int sig_len = 10) =>
+    float close_price = nz(c, close)
+    float volume_val  = nz(vol, 0.0)
+    float prev_close  = nz(close_price[1], close_price)
+
+    // --- OBV accumulation ---
+    var float obv_cumulative = 0.0
+    obv_cumulative += close_price > prev_close ? volume_val :
+                      close_price < prev_close ? -volume_val : 0.0
+
+    // --- OBVM = EMA(OBV, obvm_len) ---
+    float obvm_alpha = 2.0 / (obvm_len + 1)
+    var float obvm_ema = 0.0
+    obvm_ema := bar_index == 0 ? obv_cumulative :
+                obvm_ema + obvm_alpha * (obv_cumulative - obvm_ema)
+
+    // --- Signal = EMA(OBVM, sig_len) ---
+    float sig_alpha = 2.0 / (sig_len + 1)
+    var float signal_ema = 0.0
+    signal_ema := bar_index == 0 ? obvm_ema :
+                  signal_ema + sig_alpha * (obvm_ema - signal_ema)
+
+    [obvm_ema, signal_ema]
+
+// ── Inputs ──
+int p_obvmLen   = input.int(7,  "OBVM Length",   minval = 2)
+int p_signalLen = input.int(10, "Signal Length",  minval = 2)
+
+// ── Calculation ──
+[obvm_value, signal_value] = obvm(close, volume, p_obvmLen, p_signalLen)
+
+// ── Plot ──
+plot(obvm_value,   "OBVM",   color.blue, 2)
+plot(signal_value, "Signal", color.orange, 1)

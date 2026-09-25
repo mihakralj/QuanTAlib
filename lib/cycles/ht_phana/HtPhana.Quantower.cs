@@ -5,7 +5,7 @@ using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
 [SkipLocalsInit]
-public sealed class EpaIndicator : Indicator, IWatchlistIndicator
+public sealed class HtPhanaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Cycle Period", sortIndex: 1, minimum: 2, maximum: 500, increment: 1, decimalPlaces: 0)]
     public int Period { get; set; } = 28;
@@ -16,7 +16,7 @@ public sealed class EpaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Epa _epa = null!;
+    private HtPhana _htPhana = null!;
     private readonly LineSeries _angleLine;
     private readonly LineSeries _derivedPeriodLine;
     private readonly LineSeries _trendStateLine;
@@ -24,14 +24,14 @@ public sealed class EpaIndicator : Indicator, IWatchlistIndicator
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"EPA ({Period})";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/cycles/epa/Epa.Quantower.cs";
+    public override string ShortName => $"HT_PHANA ({Period})";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/cycles/ht_phana/HtPhana.Quantower.cs";
 
-    public EpaIndicator()
+    public HtPhanaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
-        Name = "EPA - Ehlers Phasor Analysis";
+        Name = "HT_PHANA - Ehlers Phasor Analysis";
         Description = "Phasor analysis extracting cycle phase via Pearson correlation of price against cosine/sine reference waves, with wraparound compensation and trend state detection.";
 
         _angleLine = new LineSeries("Angle", Color.Yellow, 2, LineStyle.Solid);
@@ -45,7 +45,7 @@ public sealed class EpaIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
-        _epa = new Epa(Period);
+        _htPhana = new HtPhana(Period);
         base.OnInit();
     }
 
@@ -57,10 +57,10 @@ public sealed class EpaIndicator : Indicator, IWatchlistIndicator
         double price = priceSelector(item);
 
         TValue input = new(item.TimeLeft, price);
-        TValue result = _epa.Update(input, args.IsNewBar());
+        TValue result = _htPhana.Update(input, args.IsNewBar());
 
-        _angleLine.SetValue(result.Value, _epa.IsHot, ShowColdValues);
-        _derivedPeriodLine.SetValue(_epa.DerivedPeriod, _epa.IsHot, ShowColdValues);
-        _trendStateLine.SetValue(_epa.TrendState, _epa.IsHot, ShowColdValues);
+        _angleLine.SetValue(result.Value, _htPhana.IsHot, ShowColdValues);
+        _derivedPeriodLine.SetValue(_htPhana.DerivedPeriod, _htPhana.IsHot, ShowColdValues);
+        _trendStateLine.SetValue(_htPhana.TrendState, _htPhana.IsHot, ShowColdValues);
     }
 }

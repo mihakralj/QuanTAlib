@@ -30,6 +30,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [FISHER](fisher/Fisher.md) | Ehlers Fisher Transform | Converts prices to Gaussian distribution. Sharp reversals. |
 | [FISHER04](fisher04/Fisher04.md) | Ehlers Fisher Transform (2004) | Cybernetic Analysis variant with gentler arctanh scaling. |
 | [GATOR](gator/Gator.md) | Williams Gator Oscillator | Dual histogram from Alligator SMMA lines. Visualizes trend convergence/divergence. |
+| [HHLLS](hhlls/hhlls.md) | Apirine Higher Highs & Lower Lows Stochastics | Conditional stochastic on H/L with EMA smoothing. Dual HHS/LLS output [0, 100]. TASC Feb 2016. |
 | [IMI](imi/Imi.md) | Intraday Momentum Index | RSI variant using open-close range. Intraday overbought/oversold 0-100. |
 | [INERTIA](inertia/Inertia.md) | Inertia | Linear regression residual. Raw deviation from trend forecast. |
 | [KDJ](kdj/Kdj.md) | KDJ Indicator | Enhanced Stochastic. J = 3K - 2D provides leading signal. |
@@ -50,7 +51,9 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [SMI](smi/Smi.md) | Stochastic Momentum Index | Distance from range midpoint. More sensitive than classic Stochastic. |
 | [SQUEEZE](squeeze/Squeeze.md) | Squeeze | BB width < KC width indicates consolidation. Breakout imminent. |
 | [SQUEEZE_PRO](squeeze_pro/squeeze_pro.md) | Squeeze Pro | Multi-level BB vs KC squeeze (wide/normal/narrow) with MOM-smoothed momentum. LazyBear. |
+| [SRSI](srsi/srsi.md) | Apirine Slow RSI | RSI measuring Close vs EMA(Close) instead of Close vs Close[1]. Slower, smoother. TASC Apr 2015. |
 | [STC](stc/Stc.md) | Schaff Trend Cycle | MACD + double Stochastic smoothing. Fast momentum oscillator (0-100). |
+| [STMACD](stmacd/stmacd.md) | Apirine Stochastic MACD Oscillator | MACD normalized by H-L range. Dual STMACD + Signal output. TASC Nov 2019. |
 | [STOCH](stoch/Stoch.md) | Stochastic Oscillator | Close position within N-period high-low range. Classic overbought/oversold. |
 | [STOCHF](stochf/Stochf.md) | Stochastic Fast | Unsmoothed Stochastic. Faster but noisier. |
 | [STOCHRSI](stochrsi/Stochrsi.md) | Stochastic RSI | Stochastic applied to RSI. More sensitive than either alone. |
@@ -59,5 +62,6 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | [TRIX](trix/Trix.md) | Triple Exponential Average | ROC of triple EMA. Filters noise through three smoothings. |
 | [TTM_WAVE](ttm_wave/TtmWave.md) | TTM Wave | Fibonacci-period MACD composite (Waves A/B/C). John Carter. |
 | [ULTOSC](ultosc/Ultosc.md) | Ultimate Oscillator | Multi-timeframe oscillator. Combines 7, 14, 28 period buying pressure. |
+| [UO](uo/Uo.md) | Ehlers Universal Oscillator | White noise + Super Smoother + AGC normalization. [-1, +1]. TASC Jan 2015. |
 | [USI](usi/Usi.md) | Ehlers Ultimate Strength Index | Symmetric RSI replacement using UltimateSmoother. [-1, +1]. TASC Nov 2024. |
 | [WILLR](willr/Willr.md) | Williams %R | Inverse Stochastic. -100 to 0 range. Overbought/oversold. |

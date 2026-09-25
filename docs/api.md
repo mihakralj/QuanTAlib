@@ -6,7 +6,7 @@ Backtesting wants to chew through 500,000 bars in microseconds. Live trading wan
 
 We picked both. Then made them share a consistent API surface so you do not have to remember two different libraries depending on whether it is Saturday backtesting or Monday morning.
 
-All indicators inherit from `AbstractBase` and implement `ITValuePublisher`. Every indicator, all 393 of them, exposes the same interface. No special cases. No "oh, this oscillator works differently." Consistency is not optional when you have 393 things to keep straight.
+All indicators inherit from `AbstractBase` and implement `ITValuePublisher`. Every indicator, all 447 of them, exposes the same interface. No special cases. No "oh, this oscillator works differently." Consistency is not optional when you have 447 things to keep straight.
 
 ## The Contract
 
@@ -273,4 +273,4 @@ using var sma = new Sma(source, period: 14);
 // sma unsubscribes from source when disposed
 ```
 
-Full indicator catalog: [393 indicators](../lib/_index.md)
+Full indicator catalog: [447 indicators](../lib/_index.md)

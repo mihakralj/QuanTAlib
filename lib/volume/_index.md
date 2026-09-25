@@ -16,6 +16,7 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [MFI](mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |
 | [NVI](nvi/Nvi.md) | Negative Volume Index | Tracks price changes on lower volume days. Assumes smart money acts on quiet days. |
 | [OBV](obv/Obv.md) | On Balance Volume | Fundamental volume indicator. Cumulative volume based on price direction. |
+| [OBVM](obvm/obvm.md) | On-Balance Volume Modified | Dual-EMA smoothed OBV with signal line. Apirine, TASC Apr 2020. |
 | [PVD](pvd/Pvd.md) | Price Volume Divergence | Systematic divergence detection between price and volume movements. |
 | [PVI](pvi/Pvi.md) | Positive Volume Index | Tracks price changes on higher volume days. Assumes crowd behavior. |
 | [PVO](pvo/Pvo.md) | Percentage Volume Oscillator | Compares short-term and long-term volume moving averages as percentages. |

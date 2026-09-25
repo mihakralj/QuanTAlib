@@ -18,6 +18,7 @@ __all__ = [
     "eri",
     "fi",
     "gator",
+    "hhlls",
     "imi",
     "kdj",
     "kst",
@@ -31,11 +32,13 @@ __all__ = [
     "smi",
     "squeeze",
     "stc",
+    "stmacd",
     "stoch",
     "stochf",
     "stochrsi",
     "ttm_wave",
     "ultosc",
+    "uo",
     "willr",
     "fisher",
     "fisher04",
@@ -60,6 +63,7 @@ __all__ = [
     "bbi",
     "dem",
     "brar",
+    "srsi",
 ]
 
 
@@ -348,6 +352,33 @@ def squeeze_pro(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int =
     return _wrap_multi({"momOut": momOut, "sqOut": sqOut}, idx, "oscillators", offset)
 
 
+def srsi(close: ArrayLike, emaLength: int = 6, rsiLength: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:
+    """Apirine Slow RSI."""
+    emaLength = int(kwargs.get("ema_length", emaLength)); rsiLength = int(kwargs.get("rsi_length", rsiLength)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_srsi(_ptr(src), n, _ptr(dst), emaLength, rsiLength))
+    return _wrap(dst, idx, f"SRSI_{emaLength}_{rsiLength}", "oscillators", offset)
+
+
+def hhlls(high: ArrayLike, low: ArrayLike, period: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
+    """Apirine Higher Highs & Lower Lows Stochastics (dual output: HHS, LLS)."""
+    period = int(period); offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); n = len(h)
+    hhs = _out(n); lls = _out(n)
+    _check(_lib.qtl_hhlls(_ptr(h), _ptr(l), n, _ptr(hhs), _ptr(lls), period))
+    return _wrap(hhs, idx, f"HHLLS_HHS_{period}", "oscillators", offset), _wrap(lls, idx, f"HHLLS_LLS_{period}", "oscillators", offset)
+
+
+def stmacd(high: ArrayLike, low: ArrayLike, close: ArrayLike, periods: int = 45, fastLength: int = 12, slowLength: int = 26, signalLength: int = 9, offset: int = 0, **kwargs: Any) -> ArrayLike:
+    """Apirine Stochastic MACD Oscillator (dual output: STMACD, Signal). TASC Nov 2019."""
+    periods = int(periods); fastLength = int(fastLength); slowLength = int(slowLength)
+    signalLength = int(signalLength); offset = int(offset)
+    h, idx = _arr(high); l, _ = _arr(low); c, _ = _arr(close); n = len(h)
+    stm = _out(n); sig = _out(n)
+    _check(_lib.qtl_stmacd(_ptr(h), _ptr(l), _ptr(c), n, _ptr(stm), _ptr(sig), periods, fastLength, slowLength, signalLength))
+    return _wrap(stm, idx, f"STMACD_{periods}_{fastLength}_{slowLength}_{signalLength}", "oscillators", offset), _wrap(sig, idx, f"STMACD_SIG_{periods}_{fastLength}_{slowLength}_{signalLength}", "oscillators", offset)
+
+
 def stc(close: ArrayLike, kPeriod: int = 14, dPeriod: int = 3, fastLength: int = 23, slowLength: int = 50, smoothing: int = 10, offset: int = 0, **kwargs: Any) -> ArrayLike:
     """Schaff Trend Cycle."""
     kPeriod = int(kPeriod)
@@ -424,6 +455,14 @@ def ultosc(high: ArrayLike, low: ArrayLike, close: ArrayLike, period1: int = 14,
     output = _out(n)
     _check(_lib.qtl_ultosc(_ptr(h), _ptr(l), _ptr(c), _ptr(output), n, period1, period2, period3))
     return _wrap(output, idx, f"ULTOSC_{period1}", "oscillators", offset)
+
+
+def uo(close: ArrayLike, bandEdge: int = 20, offset: int = 0, **kwargs: Any) -> ArrayLike:
+    """Ehlers Universal Oscillator."""
+    bandEdge = int(kwargs.get("length", bandEdge)); offset = int(offset)
+    src, idx = _arr(close); n = len(src); dst = _out(n)
+    _check(_lib.qtl_uo(_ptr(src), n, _ptr(dst), bandEdge))
+    return _wrap(dst, idx, f"UO_{bandEdge}", "oscillators", offset)
 
 
 def willr(high: ArrayLike, low: ArrayLike, close: ArrayLike, period: int = 14, offset: int = 0, **kwargs: Any) -> ArrayLike:

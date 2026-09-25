@@ -1,0 +1,62 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Ehlers Universal Oscillator (UO)", "UO", overlay = false)
+
+//@function Ehlers Universal Oscillator — white noise extraction via 2-bar differencing,
+//          smoothed by a 2-pole Super Smoother filter, then normalized by AGC peak tracking.
+//          Pipeline: WhiteNoise = (Close - Close[2]) / 2 → SuperSmoother(BandEdge) → AGC.
+//          Output is bounded [-1, +1].
+//@param source Series to analyze
+//@param bandEdge Super Smoother cutoff period (>= 2)
+//@returns UO oscillator value (bounded ±1)
+//@reference Ehlers, J.F. (2015). "Relax, It's Just Noise — Whiter Is Brighter."
+//           Technical Analysis of Stocks & Commodities, Jan 2015.
+//@optimized O(1) per bar — no buffers needed, pure scalar state
+uo(series float source, simple int bandEdge) =>
+    if bandEdge < 2
+        runtime.error("BandEdge must be at least 2")
+
+    float price = nz(source)
+
+    // --- White noise extraction ---
+    float wn = (price - nz(source[2])) / 2.0
+
+    // --- Super Smoother coefficients (2-pole Butterworth at BandEdge) ---
+    float a1 = math.exp(-1.414 * math.pi / bandEdge)
+    float b1 = 2.0 * a1 * math.cos(1.414 * 180.0 / bandEdge)
+    float c2 = b1
+    float c3 = -(a1 * a1)
+    float c1 = 1.0 - c2 - c3
+
+    // --- 2-pole Super Smoother filter ---
+    var float filt  = 0.0
+    var float filt1 = 0.0
+    var float filt2 = 0.0
+    float wn1 = nz(wn[1])
+    filt2 := filt1
+    filt1 := filt
+    filt := c1 * 0.5 * (wn + wn1) + c2 * filt1 + c3 * filt2
+
+    // --- AGC peak tracking ---
+    var float peak = 0.0
+    peak := 0.991 * peak
+    if math.abs(filt) > peak
+        peak := math.abs(filt)
+
+    // --- Normalize ---
+    float universal = peak > 1e-10 ? filt / peak : 0.0
+    universal
+
+// ── Inputs ──
+int   p_bandEdge = input.int(20, "BandEdge", minval = 2)
+float p_src      = input.source(close, "Source")
+
+// ── Calculation ──
+float out = uo(p_src, p_bandEdge)
+
+// ── Plot ──
+plot(out, "UO", color.yellow, 2)
+hline(0, "Zero", color.gray)
+hline(0.5, "+0.5", color.new(color.red, 60))
+hline(-0.5, "-0.5", color.new(color.green, 60))

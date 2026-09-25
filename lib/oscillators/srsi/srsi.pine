@@ -1,0 +1,59 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Apirine Slow RSI (SRSI)", "SRSI", overlay = false)
+
+//@function Apirine Slow RSI — RSI variant that measures price changes relative
+//          to an EMA rather than to the previous close. Uses Wilder's smoothing
+//          (RMA) for gain/loss averaging.
+//          Pipeline: EMA(Close) → diff = Close - EMA → RMA(posDiff, negDiff) → RSI formula.
+//          Output bounded [0, 100].
+//@param source Series to analyze
+//@param emaLength EMA period for price smoothing (>= 1)
+//@param rsiLength Wilder's smoothing period for gain/loss (>= 1)
+//@returns SRSI oscillator value (bounded 0-100)
+//@reference Apirine, V. (2015). "The Slow Relative Strength Index."
+//           Technical Analysis of Stocks & Commodities, April 2015.
+//@optimized O(1) per bar — pure scalar state, no buffers
+srsi(series float source, simple int emaLength, simple int rsiLength) =>
+    if emaLength < 1
+        runtime.error("EMA length must be at least 1")
+    if rsiLength < 1
+        runtime.error("RSI length must be at least 1")
+
+    float price = nz(source)
+
+    // --- EMA of close ---
+    float alpha_ema = 2.0 / (emaLength + 1)
+    var float ema_val = na
+    ema_val := na(ema_val) ? price : alpha_ema * (price - ema_val) + ema_val
+
+    // --- Difference: Close - EMA ---
+    float diff = price - ema_val
+    float pos_diff = diff > 0 ? diff : 0.0
+    float neg_diff = diff < 0 ? -diff : 0.0
+
+    // --- Wilder's smoothing (RMA) for pos/neg differences ---
+    float alpha_rma = 1.0 / rsiLength
+    var float avg_pos = na
+    var float avg_neg = na
+    avg_pos := na(avg_pos) ? pos_diff : avg_pos + alpha_rma * (pos_diff - avg_pos)
+    avg_neg := na(avg_neg) ? neg_diff : avg_neg + alpha_rma * (neg_diff - avg_neg)
+
+    // --- SRSI = 100 - 100 / (1 + SRS) ---
+    float result = avg_neg < 1e-10 ? (avg_pos < 1e-10 ? 50.0 : 100.0) : 100.0 - 100.0 / (1.0 + avg_pos / avg_neg)
+    result
+
+// ── Inputs ──
+int   p_emaLen = input.int(6, "EMA Length", minval = 1)
+int   p_rsiLen = input.int(14, "RSI Length", minval = 1)
+float p_src    = input.source(close, "Source")
+
+// ── Calculation ──
+float out = srsi(p_src, p_emaLen, p_rsiLen)
+
+// ── Plot ──
+plot(out, "SRSI", color.yellow, 2)
+hline(80, "Overbought", color.new(color.red, 60))
+hline(50, "Middle", color.gray)
+hline(20, "Oversold", color.new(color.green, 60))

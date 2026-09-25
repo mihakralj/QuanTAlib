@@ -465,7 +465,7 @@ The following implemented indicators are tracked in the matrix even when no exte
 | **Trim** | [Trim](../lib/statistics/trim/Trim.md) | - | - | - | - | - |
 | **Wavg** | [Wavg](../lib/statistics/wavg/Wavg.md) | - | - | - | - | - |
 | **Wins** | [Wins](../lib/statistics/wins/Wins.md) | - | - | - | - | - |
-| **Epa** | [Epa](../lib/cycles/epa/epa.md) | - | - | - | - | - |
+| **HtPhana** | [HtPhana](../lib/cycles/ht_phana/ht_phana.md) | - | - | - | - | - |
 | **Fsi** | [Fsi](../lib/cycles/fsi/Fsi.md) | - | - | - | - | - |
 | **Decay** | [Decay](../lib/numerics/decay/Decay.md) | - | - | - | - | - |
 | **Edecay** | [Edecay](../lib/numerics/edecay/Edecay.md) | - | - | - | - | - |
@@ -482,6 +482,11 @@ The following implemented indicators are tracked in the matrix even when no exte
 | **Vstop** | [Vstop](../lib/reversals/vstop/Vstop.md) | - | - | - | - | - |
 | **Vwmacd** | [Vwmacd](../lib/momentum/vwmacd/Vwmacd.md) | - | - | - | - | - |
 | **BW_MFI** | [BwMfi](../lib/oscillators/bw_mfi/BwMfi.md) | - | - | - | - | - |
+| **Hhlls** | [Hhlls](../lib/oscillators/hhlls/Hhlls.md) | - | - | - | - | - |
+| **Obvm** | [Obvm](../lib/volume/obvm/Obvm.md) | - | - | - | - | - |
+| **Srsi** | [Srsi](../lib/oscillators/srsi/Srsi.md) | - | - | - | - | - |
+| **Stmacd** | [Stmacd](../lib/oscillators/stmacd/Stmacd.md) | - | - | - | - | - |
+| **Uo** | [Uo](../lib/oscillators/uo/Uo.md) | - | - | - | - | - |
 
 ## Statistical Indicators
 

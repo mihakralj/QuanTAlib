@@ -1,0 +1,53 @@
+// Licensed under the Apache License, Version 2.0
+// © mihakralj
+//@version=6
+indicator("Higher Highs & Lower Lows Stochastics (HHLLS)", "HHLLS", overlay = false)
+
+//@function Higher Highs & Lower Lows Stochastics — conditional stochastic oscillator
+//          that fires only on higher highs (HHS) or lower lows (LLS), then smooths
+//          with EMA.
+//          Pipeline: SlidingWindow(H,L) → ConditionalStoch → EMA(period).
+//          Output bounded [0, 100].
+//@param h High price series
+//@param l Low price series
+//@param period Lookback and EMA smoothing period (>= 2)
+//@returns [hhs, lls] — dual oscillator values
+//@reference Apirine, V. (2016). "Higher Highs & Lower Lows."
+//           Technical Analysis of Stocks & Commodities, Feb 2016.
+//@optimized O(1) amortized per bar via ta.highest/ta.lowest
+hhlls(series float h, series float l, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+
+    // --- Sliding window extremes ---
+    float highestHigh = ta.highest(h, period)
+    float lowestHigh  = ta.lowest(h, period)
+    float highestLow  = ta.highest(l, period)
+    float lowestLow   = ta.lowest(l, period)
+
+    // --- Conditional stochastic: Higher High gate ---
+    float hhRange = highestHigh - lowestHigh
+    float hhRaw   = (h > nz(h[1]) and hhRange > 0) ? 100.0 * (h - lowestHigh) / hhRange : 0.0
+
+    // --- Conditional stochastic: Lower Low gate ---
+    float llRange = highestLow - lowestLow
+    float llRaw   = (l < nz(l[1]) and llRange > 0) ? 100.0 * (highestLow - l) / llRange : 0.0
+
+    // --- EMA smoothing ---
+    float hhs = ta.ema(hhRaw, period)
+    float lls = ta.ema(llRaw, period)
+
+    [hhs, lls]
+
+// ── Inputs ──
+int p_period = input.int(20, "Period", minval = 2)
+
+// ── Calculation ──
+[hhs, lls] = hhlls(high, low, p_period)
+
+// ── Plot ──
+plot(hhs, "HHS", color.green, 2)
+plot(lls, "LLS", color.red, 2)
+hline(60, "Overbought", color.new(color.gray, 50), linestyle = hline.style_dotted)
+hline(30, "Signal", color.gray, linestyle = hline.style_dashed)
+hline(10, "Oversold", color.new(color.gray, 50), linestyle = hline.style_dotted)
