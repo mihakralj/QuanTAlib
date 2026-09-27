@@ -1307,7 +1307,7 @@ public static unsafe partial class Exports
     }
 
     // Correlation: Pattern H (x, y, out, int period)
-    [UnmanagedCallersOnly(EntryPoint = "qtl_correlation")]
+    [UnmanagedCallersOnly(EntryPoint = "qtl_correl")]
     public static int QtlCorrelation(double* x, double* y, int n, double* dst, int period)
     {
         int v = Chk2(x, y, dst, n); if (v != 0) return v;

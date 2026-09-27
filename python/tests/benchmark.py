@@ -3,6 +3,7 @@
 
 Compares:
   - quantalib  (NativeAOT via ctypes FFI)
+  - wickra     (Rust core via PyO3 FFI)
   - pandas-ta  (pure Python / numpy)
   - pandas     (rolling baseline where applicable)
 
@@ -45,6 +46,11 @@ try:
     import pandas_ta as ta  # type: ignore[import-untyped]
 except ImportError:
     ta = None  # type: ignore[assignment]
+
+try:
+    import wickra as wk  # type: ignore[import-untyped]
+except ImportError:
+    wk = None  # type: ignore[assignment]
 
 try:
     import quantalib as qtl
@@ -157,6 +163,8 @@ def run_benchmarks(
         print(f"  |  pandas {pd.__version__}", end="")
     if ta is not None:
         print(f"  |  pandas-ta {ta.version}", end="")
+    if wk is not None:
+        print(f"  |  wickra {getattr(wk, '__version__', '?')}", end="")
     if qtl is not None:
         print(f"  |  quantalib {getattr(qtl, '__version__', '?')}", end="")
     print(f"\n{'=' * 76}\n")
@@ -166,6 +174,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=lambda: qtl.sma(close_np, period=period) if qtl else None,
               pta_fn=lambda: ta.sma(close_pd, length=period) if (ta and close_pd is not None) else None,
+              wk_fn=lambda: wk.SMA(period).batch(close_np) if wk else None,
               pd_fn=lambda: close_pd.rolling(period).mean() if close_pd is not None else None,
               pd_label="pandas rolling")
 
@@ -174,6 +183,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=lambda: qtl.ema(close_np, period=period) if qtl else None,
               pta_fn=lambda: ta.ema(close_pd, length=period) if (ta and close_pd is not None) else None,
+              wk_fn=lambda: wk.EMA(period).batch(close_np) if wk else None,
               pd_fn=lambda: close_pd.ewm(span=period, adjust=False).mean() if close_pd is not None else None,
               pd_label="pandas ewm")
 
@@ -190,6 +200,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=lambda: qtl.wma(close_np, period=period) if qtl else None,
               pta_fn=lambda: ta.wma(close_pd, length=period) if (ta and close_pd is not None) else None,
+              wk_fn=lambda: wk.WMA(period).batch(close_np) if wk else None,
               pd_fn=_pd_wma,
               pd_label="pandas rolling+apply")
 
@@ -198,6 +209,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=lambda: qtl.hma(close_np, period=period) if qtl else None,
               pta_fn=lambda: ta.hma(close_pd, length=period) if (ta and close_pd is not None) else None,
+              wk_fn=lambda: wk.HMA(period).batch(close_np) if wk else None,
               pd_fn=None,
               pd_label=None)
 
@@ -214,10 +226,16 @@ def run_benchmarks(
         return ta.adosc(df_ta["high"], df_ta["low"], df_ta["close"],
                         df_ta["volume"], fast=3, slow=10)
 
+    def _wk_adosc():
+        if wk is None:
+            return None
+        return wk.ChaikinOscillator(3, 10).batch(high_np, low_np, close_np, vol_np)
+
     _category("ADOSC", results, bars, period, iterations,
               close_np, close_pd, df_ta,
               qtl_fn=_qtl_adosc,
               pta_fn=_pta_adosc,
+              wk_fn=_wk_adosc,
               pd_fn=None,
               pd_label=None)
 
@@ -225,7 +243,7 @@ def run_benchmarks(
     def _qtl_corr():
         if qtl is None:
             return None
-        return qtl.correlation(close_np, open_np, period=period)
+        return qtl.correl(close_np, open_np, period=period)
 
     def _pd_corr():
         if close_pd is None or open_pd is None:
@@ -236,6 +254,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=_qtl_corr,
               pta_fn=None,  # pandas-ta has no rolling correlation
+              wk_fn=lambda: wk.PearsonCorrelation(period).batch(close_np, open_np) if wk else None,
               pd_fn=_pd_corr,
               pd_label="pandas rolling.corr")
 
@@ -249,6 +268,7 @@ def run_benchmarks(
               close_np, close_pd, df_ta,
               qtl_fn=lambda: qtl.skew(close_np, period=period) if qtl else None,
               pta_fn=lambda: ta.skew(close_pd, length=period) if (ta and close_pd is not None) else None,
+              wk_fn=lambda: wk.Skewness(period).batch(close_np) if wk else None,
               pd_fn=_pd_skew,
               pd_label="pandas rolling.skew")
 
@@ -266,6 +286,7 @@ def _category(
     df_ta,
     qtl_fn,
     pta_fn,
+    wk_fn,
     pd_fn,
     pd_label,
 ):
@@ -298,6 +319,20 @@ def _category(
         print(f"    pandas-ta         : N/A (no equivalent)")
     else:
         print(f"    pandas-ta         : not installed")
+
+    # wickra (Rust core)
+    if wk is not None and wk_fn is not None:
+        try:
+            mean, std = _bench(wk_fn, iterations)
+            r = BenchResult(name, "wickra (Rust)", mean, std)
+            results.append(r)
+            print(f"    wickra            : {mean:>12,.1f} us  +/- {std:>8,.1f} us")
+        except Exception as e:
+            print(f"    wickra            : FAILED -- {e}")
+    elif wk_fn is None:
+        print(f"    wickra            : N/A (no equivalent)")
+    else:
+        print(f"    wickra            : not installed")
 
     # pandas baseline
     if pd is not None and pd_fn is not None:
@@ -344,12 +379,15 @@ def print_markdown(results: list[BenchResult], bars: int, period: int):
     # Summary comparison table: quantalib vs pandas-ta
     qtl_map: dict[str, float] = {}
     pta_map: dict[str, float] = {}
+    wk_map: dict[str, float] = {}
     pd_map: dict[str, float] = {}
     for r in results:
         if "quantalib" in r.library:
             qtl_map[r.name] = r.mean_us
         elif "pandas-ta" in r.library:
             pta_map[r.name] = r.mean_us
+        elif "wickra" in r.library:
+            wk_map[r.name] = r.mean_us
         elif "pandas" in r.library:
             pd_map[r.name] = r.mean_us
 
@@ -363,6 +401,18 @@ def print_markdown(results: list[BenchResult], bars: int, period: int):
                 p = pta_map[name]
                 speedup = p / q if q > 0 else float("inf")
                 print(f"| {name:<11s} | {q:>13,.1f} | {p:>13,.1f} | {speedup:>6.1f}x |")
+        print()
+
+    if qtl_map and wk_map:
+        print("### quantalib vs wickra Speedup\n")
+        print("| Indicator | quantalib (us) | wickra (us) | Speedup |")
+        print("|-----------|---------------:|------------:|--------:|")
+        for name in qtl_map:
+            if name in wk_map:
+                q = qtl_map[name]
+                w = wk_map[name]
+                speedup = w / q if q > 0 else float("inf")
+                print(f"| {name:<11s} | {q:>13,.1f} | {w:>11,.1f} | {speedup:>6.1f}x |")
         print()
 
     if qtl_map and pd_map:
