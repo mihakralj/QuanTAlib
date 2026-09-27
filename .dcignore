@@ -1,0 +1,26 @@
+# Snyk scope: only the shipped library (lib/quantalib.csproj).
+# Benchmarks, the NativeAOT wrapper, the Quantower adapter, and the test project
+# pull native/validation deps (MyGet feed for OoplesFinance, Tulip.NETCore,
+# TALib.NETCore, Wickra, ILCompiler, a local Quantower DLL) that fail Snyk
+# dependency-graph enrichment. None of them ship.
+
+# Stale git worktrees (Agent Manager) — never scan.
+.kilo/
+
+# Benchmark harness.
+perf/
+
+# NativeAOT wrapper (ILCompiler graph).
+python/
+
+# Quantower adapter (local SDK HintPath).
+quantower/
+
+# Validation/test project.
+lib/QuanTAlib.Tests.csproj
+
+# Build artifacts.
+bin/
+obj/
+**/bin/
+**/obj/
