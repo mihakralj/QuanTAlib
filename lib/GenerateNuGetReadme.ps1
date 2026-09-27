@@ -7,6 +7,7 @@ $source = Join-Path (Join-Path $PSScriptRoot '..') 'README.md'
 $content = Get-Content -Raw -Path $source
 $content = $content -replace '\]\(docs/', '](https://github.com/mihakralj/QuanTAlib/blob/main/docs/'
 $content = $content -replace '\]\(lib/', '](https://github.com/mihakralj/QuanTAlib/blob/main/lib/'
+$content = $content -replace '\]\(perf/', '](https://github.com/mihakralj/QuanTAlib/blob/main/perf/'
 $content = $content -replace '\]\(LICENSE\)', '](https://github.com/mihakralj/QuanTAlib/blob/main/LICENSE)'
 
 $dir = Split-Path -Parent $Output
