@@ -21,22 +21,27 @@ Same indicators, same results: **C#**, **Python**, and **PineScript**.
 
 ### How Fast?
 
-C# native AOT-compiled code spits out half a million bars of SMA in 328 microseconds. That is faster (per value) than a single L1 cache miss on any fancy new CPU. Achieved by trading object allocation for contiguous memory spans, slapping Fused Multiply-Add (FMA) on everything, and forcing SIMD vectorized paths. You want speed? We dictate the heap.
+C# native AOT-compiled code spits out half a million bars of SMA in 288 microseconds. That is faster (per value) than a single L1 cache miss on any fancy new CPU. Achieved by trading object allocation for contiguous memory spans, slapping Fused Multiply-Add (FMA) on everything, and forcing SIMD vectorized paths. You want speed? We dictate the heap.
 
-| Library | SMA (500K bars) | Allocations | Reality Check |
+| Library | SMA (500K bars) | Allocations | Relative time |
 | :--- | ---: | ---: | :--- |
-| **QuanTAlib** | **328 μs** | **0 B** | baseline |
-| TA-Lib (C++)| 365 μs | 32 B | 1.1× slower |
-| Tulip (C++)| 370 μs | 0 B | 1.1× slower |
-| Skender (C#)| 68,436 μs | 42 MB | 209× slower |
-| Ooples (c#)| 347,453 μs | 151 MB | 1,060× slower |
+| **QuanTAlib** | **288 μs** | **0 B** | **1×** |
+| TA-Lib (C++)| 365 μs | 32 B | 1.3× slower |
+| Wickra (Rust)| 1,562 μs | 4 MB | 5.4× slower |
+| Skender (C#)| 68,378 μs | 42 MB | 238× slower |
+| Ooples (C#)| 346,187 μs | 151 MB | 1,202× slower |
+
+Measured with BenchmarkDotNet v0.15.3 on .NET 10 x64 (AVX-512), 500K bars, period 220. [Benchmark project →](perf/perf.csproj)
+
+Skender and Ooples are measured on their list-based APIs; QuanTAlib on its zero-allocation span API. Same input, same output — different memory shape.
+
 [Full benchmarks →](docs/benchmarks.md)
 
 ## Install
 
 | Platform | Install | Guide |
 | :--- | :--- | :--- |
-| **.net** | `dotnet add package QuanTAlib` | [Architecture](docs/architecture.md) . [API Reference](docs/api.md) |
+| **.NET** | `dotnet add package QuanTAlib` | [Architecture](docs/architecture.md) . [API Reference](docs/api.md) |
 | **Python** | `pip install quantalib` | [Python Guide](docs/python.md) |
 | **PineScript v6** | Copy-paste to TradingView | [PineScript Guide](docs/pinescript.md) |
 
@@ -114,7 +119,7 @@ Every indicator ships as a standalone .pine file. Open it. Copy it. Paste it int
 
 ## Architecture (the short version)
 
-**Streaming mode:** O(1) per update. Fixed memory. State maintained internally. Feed it ticks, get answers. No history buffer, no lookback window allocation, no *please pass me the last 200 bars so I can waarm-up* nonsense.
+**Streaming mode:** O(1) per update. Fixed memory. State maintained internally. Feed it ticks, get answers. No history buffer, no lookback window allocation, no *please pass me the last 200 bars so I can warm-up* nonsense.
 
 **Batch mode:** Structure-of-Arrays memory layout. SIMD vectorized. FMA everywhere the hardware allows. Processes contiguous `Span<double>` with zero heap allocation. Your profiler will be confused by the absence of GC pressure.
 
@@ -138,11 +143,13 @@ Every indicator is cross-validated against reference implementations using Geome
 
 **Code Quality Assurance:** [NDepend](https://www.ndepend.com/) · [Codacy](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard) · [SonarCloud](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib) · [CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
 
-## ⚠️ Fair Warning
+## Stability
 
-Not yet 1.0.0. There is exactly one engineer behind this, running on mass amounts of caffeine and an irrational conviction that all technical indicators should be correct to the 9th decimal place. APIs will change. Things will break. Some indicators might produce values that make your quantitative models question the meaning of existence.
+In development since 2022. Four years, 700+ commits, 447 indicators — every one cross-validated against at least three independent implementations on realistic GBM data. The public API is frozen: breaking changes fail the build, so your code doesn't wake up one morning to a surprise. Versioning is SemVer with a one-minor-version `[Obsolete]` deprecation window — deprecate today, remove next release, no guillotine.
 
-If you find something broken and don't [open an issue](https://github.com/mihakralj/QuanTAlib/issues), it will stay broken - I will have no idea. The backlog of things to fix is already longer than a Bollinger Band on a meme stock. Your bug reports make this library better. Your silence makes me brew more coffee.
+Bugs get triaged fast. [Open an issue](https://github.com/mihakralj/QuanTAlib/issues) — every report is read, and real bugs jump the queue ahead of the Dependabot noise. Questions, feature ideas, and "why does this number look wrong" all land in the same place. If something is broken and you say nothing, it stays broken. If you say something, it gets fixed.
+
+**Where to ask:** [GitHub Issues](https://github.com/mihakralj/QuanTAlib/issues) — bugs, questions, and ideas all live there. [Versioning policy →](docs/versioning.md)
 
 ## License
 

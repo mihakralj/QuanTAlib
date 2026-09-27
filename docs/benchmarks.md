@@ -1,6 +1,6 @@
 # Benchmarks
 
-Performance claims without measurement: just marketing. QuanTAlib benchmarks against established libraries: TA-Lib and Tulip (industry-standard C libraries accessed via P/Invoke), Skender.Stock.Indicators and Ooples.FinancialIndicators (popular .NET implementations).
+Performance claims without measurement: just marketing. QuanTAlib benchmarks against established libraries: TA-Lib (the industry-standard C library accessed via P/Invoke), Wickra (a Rust-core streaming library accessed via FFI), Skender.Stock.Indicators and Ooples.FinancialIndicators (popular .NET implementations).
 
 ## Test Environment
 
@@ -8,9 +8,9 @@ Performance claims without measurement: just marketing. QuanTAlib benchmarks aga
 | :-------- | :------------ |
 | Data Size | 500,000 bars |
 | Period | 220 (sufficient to expose algorithmic inefficiencies) |
-| Framework | .NET 10.0.2 (10.0.225.61305), X64 RyuJIT |
+| Framework | .NET 10.0.12 (10.0.1226.42308), X64 RyuJIT |
 | SIMD | AVX-512F+CD+BW+DQ+VL+VBMI |
-| Benchmarking | BenchmarkDotNet v0.14.0 |
+| Benchmarking | BenchmarkDotNet v0.15.3 |
 
 These results represent what current-generation CPUs achieve in production. Your mileage varies with older hardware, but relative performance ratios hold.
 
@@ -36,59 +36,59 @@ In convolution-heavy algorithms (WMA, LinReg, Correlation), SIMD + FMA explains 
 
 ### Simple Moving Average (SMA)
 
-QuanTAlib Span mode: 500,000 SMA values in 328 microseconds. Zero allocations. That works out to **0.66 nanoseconds per value**. For perspective: a single L1 cache access takes approximately 1 nanosecond. Moving averages calculating faster than cache fetch.
+QuanTAlib Span mode: 500,000 SMA values in 288 microseconds. Zero allocations. That works out to **0.58 nanoseconds per value**. For perspective: a single L1 cache access takes approximately 1 nanosecond. Moving averages calculating faster than cache fetch.
 
 | Library | Mean Time | Allocations | Relative Speed |
 | :------ | --------: | ----------: | :------------- |
-| **QuanTAlib (Span)** | **327.9 μs** | **0 B** | **baseline** |
-| TA-Lib | 365.4 μs | 32 B | 1.11× slower |
-| Tulip | 370.2 μs | 0 B | 1.13× slower |
-| Skender | 68,436 μs | 42.0 MB | 209× slower |
-| Ooples | 347,453 μs | 151.3 MB | 1,060× slower |
+| **QuanTAlib (Span)** | **287.9 μs** | **0 B** | **baseline** |
+| TA-Lib | 364.8 μs | 32 B | 1.27× slower |
+| Wickra | 1,561.5 μs | 4.0 MB | 5.42× slower |
+| Skender | 68,377.5 μs | 42.0 MB | 238× slower |
+| Ooples | 346,187.1 μs | 151.3 MB | 1,202× slower |
 
 Skender and Ooples allocate 42-151 MB for what should be a stateless calculation. Garbage collector wakes up, stretches, and ruins everyone's day.
 
 ### Exponential Moving Average (EMA)
 
-QuanTAlib at 421 microseconds outperforms both C libraries: Tulip at 709 μs, TA-Lib at 709 μs. Beating heavily optimized C with managed code sounds improbable. The secret: **FMA instructions** on the hot path. Those C libraries predate AVX-512 optimizations by a decade.
+QuanTAlib at 424 microseconds outperforms both the C library TA-Lib (721 μs) and the Rust-core Wickra (1,628 μs). Beating heavily optimized native code with managed code sounds improbable. The secret: **FMA instructions** on the hot path. Those libraries predate AVX-512 optimizations by a decade.
 
 | Library | Mean Time | Allocations | Relative Speed |
 | :------ | --------: | ----------: | :------------- |
-| **QuanTAlib (Span)** | **421.0 μs** | **0 B** | **baseline** |
-| TA-Lib | 708.8 μs | 32 B | 1.68× slower |
-| Tulip | 709.1 μs | 0 B | 1.68× slower |
-| Ooples | 14,509 μs | 79.3 MB | 34× slower |
-| Skender | 26,612 μs | 42.0 MB | 63× slower |
+| **QuanTAlib (Span)** | **423.8 μs** | **0 B** | **baseline** |
+| TA-Lib | 720.8 μs | 32 B | 1.70× slower |
+| Wickra | 1,627.5 μs | 4.0 MB | 3.84× slower |
+| Ooples | 14,783.5 μs | 79.3 MB | 34.9× slower |
+| Skender | 25,939.1 μs | 42.0 MB | 61.2× slower |
 
-The 1.7× speedup over C libraries represents what happens when old code meets new silicon. Modern instruction sets exist; using them helps.
+The 1.7× speedup over the C library represents what happens when old code meets new silicon. Modern instruction sets exist; using them helps.
 
 ### Weighted Moving Average (WMA)
 
-QuanTAlib WMA: 302 microseconds. Tulip: 378 μs. TA-Lib: 368 μs. Not a measurement error. Pure C# with proper SIMD vectorization beating C code that predates AVX-512 optimizations.
+QuanTAlib WMA: 295 microseconds. TA-Lib: 367 μs. Wickra: 1,716 μs. Not a measurement error. Pure C# with proper SIMD vectorization beating C code that predates AVX-512 optimizations.
 
 | Library | Mean Time | Allocations | Relative Speed |
 | :------ | --------: | ----------: | :------------- |
-| **QuanTAlib (Span)** | **302.4 μs** | **0 B** | **baseline** |
-| TA-Lib | 367.6 μs | 32 B | 1.22× slower |
-| Tulip | 378.0 μs | 0 B | 1.25× slower |
-| Ooples | 75,169 μs | 70.9 MB | 249× slower |
-| Skender | 100,253 μs | 42.0 MB | 332× slower |
+| **QuanTAlib (Span)** | **294.7 μs** | **0 B** | **baseline** |
+| TA-Lib | 366.5 μs | 32 B | 1.24× slower |
+| Wickra | 1,715.6 μs | 4.0 MB | 5.82× slower |
+| Ooples | 74,938.8 μs | 70.9 MB | 254× slower |
+| Skender | 101,151.5 μs | 42.0 MB | 343× slower |
 
 WMA involves weighted summation: dot product territory. SIMD shines here. Eight multiplications per cycle instead of one.
 
 ### Hull Moving Average (HMA)
 
-HMA requires multiple moving average calculations: traditionally expensive. QuanTAlib processes 500,000 bars in 983 microseconds. Tulip: 2,173 μs. Skender: 246,653 μs. TA-Lib lacks HMA implementation entirely.
+HMA requires multiple moving average calculations: traditionally expensive. QuanTAlib processes 500,000 bars in 961 microseconds. Wickra: 3,849 μs. Skender: 255,203 μs. TA-Lib lacks HMA implementation entirely.
 
 | Library | Mean Time | Allocations | Relative Speed |
 | :------ | --------: | ----------: | :------------- |
-| **QuanTAlib (Span)** | **983.4 μs** | **0 B** | **baseline** |
-| Tulip | 2,173.2 μs | 138 B | 2.21× slower |
-| Ooples | 122,171 μs | 108.7 MB | 124× slower |
-| Skender | 246,653 μs | 200.8 MB | 251× slower |
+| **QuanTAlib (Span)** | **961.4 μs** | **0 B** | **baseline** |
+| Wickra | 3,849.1 μs | 4.0 MB | 4.00× slower |
+| Ooples | 125,720.8 μs | 108.7 MB | 131× slower |
+| Skender | 255,202.5 μs | 200.8 MB | 265× slower |
 | TA-Lib | — | — | not implemented |
 
-A 251× improvement over standard .NET implementations. Compound calculations expose implementation quality: inefficiencies multiply with each nested operation.
+A 265× improvement over standard .NET implementations. Compound calculations expose implementation quality: inefficiencies multiply with each nested operation.
 
 ### Chaikin Oscillator (ADOSC)
 
@@ -96,11 +96,21 @@ Multi-input indicator using high, low, close, and volume. Tests OHLCV data handl
 
 | Library | Mean Time | Allocations | Relative Speed |
 | :------ | --------: | ----------: | :------------- |
-| **QuanTAlib (Span)** | **640.1 μs** | **0 B** | **baseline** |
-| TA-Lib | 675.7 μs | 40 B | 1.06× slower |
-| Tulip | 822.7 μs | 0 B | 1.29× slower |
-| Ooples | 107,730 μs | 569.9 MB | 168× slower |
-| Skender | 116,678 μs | 194.0 MB | 182× slower |
+| **QuanTAlib (Span)** | **596.8 μs** | **0 B** | **baseline** |
+| TA-Lib | 665.7 μs | 40 B | 1.12× slower |
+| Wickra | 2,259.6 μs | 4.0 MB | 3.79× slower |
+| Ooples | 108,952.4 μs | 569.9 MB | 183× slower |
+| Skender | 134,249.4 μs | 194.0 MB | 225× slower |
+
+### Pearson Correlation
+
+A dual-input statistic computed over two series. QuanTAlib's SIMD batch path (1,338 μs) beats TA-Lib (2,157 μs) — the dual-input case where a C library is left behind, and Skender by 190×.
+
+| Library | Mean Time | Allocations | Relative Speed |
+| :------ | --------: | ----------: | :------------- |
+| **QuanTAlib (Span)** | **1,337.6 μs** | **0 B** | **baseline** |
+| TA-Lib | 2,157.2 μs | 32 B | 1.61× slower |
+| Skender | 253,912.5 μs | 1.88 GB | 190× slower |
 
 ## Multi-Mode Comparison
 
@@ -108,12 +118,12 @@ Span mode represents maximum speed. Production code often needs different trade-
 
 | QuanTAlib Mode | Mean Time | Allocations | Trade-off |
 | :------------- | --------: | ----------: | :-------- |
-| Span | 421.0 μs | 0 B | Maximum throughput, batch processing |
-| Streaming | 1,528.7 μs | 177 B | Real-time updates, minimal overhead |
-| Batch (TSeries) | 1,777.8 μs | 8.0 MB | Time-aligned series with metadata |
-| Eventing | 3,463.6 μs | 16.8 MB | Reactive architectures with event infrastructure |
+| Span | 423.8 μs | 0 B | Maximum throughput, batch processing |
+| Streaming | 1,536.8 μs | 176 B | Real-time updates, minimal overhead |
+| Batch (TSeries) | 2,388.1 μs | 16.0 MB | Time-aligned series with metadata |
+| Eventing | 3,381.1 μs | 16.8 MB | Reactive architectures with event infrastructure |
 
-Even QuanTAlib's slowest mode (Eventing with complete event infrastructure, 16.8 MB allocations) processes 500,000 EMA values in 3.5 milliseconds. Still faster than Ooples at 14.5 ms and Skender at 26.6 ms for identical calculation. The "slow" path here beats other libraries' only path.
+Even QuanTAlib's slowest mode (Eventing with complete event infrastructure, 16.8 MB allocations) processes 500,000 EMA values in 3.4 milliseconds. Still faster than Ooples at 14.8 ms and Skender at 25.9 ms for identical calculation. The "slow" path here beats other libraries' only path.
 
 ## Python Benchmark: quantalib vs pandas-ta
 
