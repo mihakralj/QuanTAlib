@@ -1,0 +1,45 @@
+name: Validation mismatch
+description: Report where QuanTAlib disagrees with a reference library or paper
+title: "[Validation] "
+labels: [bug, validation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every indicator is cross-checked against TA-Lib, Tulip, Skender, and Pandas-TA. If you found a case where we disagree, capture the exact input and the two outputs.
+  - type: input
+    id: indicator
+    attributes:
+      label: Indicator
+      description: Which indicator disagrees, and with what settings?
+      placeholder: "e.g. Hull moving average, period 14"
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference
+      description: The library or paper you compared against, and its version.
+      placeholder: "e.g. TA-Lib 0.4.0 / Skender 2.x / the original paper"
+    validations:
+      required: true
+  - type: textarea
+    id: input-series
+    attributes:
+      label: Input series
+      description: The input used for both implementations.
+      placeholder: "prices = [100, 101, 99, 103, ...]"
+    validations:
+      required: true
+  - type: textarea
+    id: mismatch
+    attributes:
+      label: Disagreement
+      description: The values from QuanTAlib vs the reference, and the index where they first diverge.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything about warm-up conventions, precision, or methodology that might explain the gap.

@@ -1,0 +1,59 @@
+name: Bug report
+description: Report incorrect output or a crash, with a failing input series
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A bug report without a failing input is a rumor. Include a series that reproduces the wrong result — that makes it fixable.
+  - type: input
+    id: indicator
+    attributes:
+      label: Indicator
+      description: Which indicator (and mode) misbehaves?
+      placeholder: "e.g. Sma(period=14), streamed one value at a time"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Package version or commit hash.
+      placeholder: "e.g. 0.8.12 / fa325ee1"
+    validations:
+      required: true
+  - type: textarea
+    id: input-series
+    attributes:
+      label: Failing input series
+      description: A minimal input series that reproduces the wrong result, plus the expected vs actual output.
+      placeholder: "prices = [100, 101, 102, 103, 104]  # period 3\nexpected = [?, ?, 101, 102, 103]\nactual   = [?, ?, 101, 102, 104]"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What should it return, and what does it return? Point to the exact values that diverge.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Minimal code that reproduces it (C#, Python, or PineScript).
+      placeholder: |
+        using QuanTAlib;
+        var sma = new Sma(3);
+        ...
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, runtime, version, and CPU if relevant.
+      placeholder: |
+        - OS: Windows 11
+        - Runtime: .NET 10.0
+    validations:
+      required: false

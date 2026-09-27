@@ -1,0 +1,41 @@
+name: Indicator request
+description: Request a new indicator, with a reference paper or canonical source
+title: "[Indicator] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The best requests reference a paper or a canonical implementation we can validate against. A name without a reference is homework, not a spec.
+  - type: input
+    id: name
+    attributes:
+      label: Indicator name
+      description: Full name and any common abbreviation.
+      placeholder: "e.g. Random Walk Index (RWI)"
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference paper or source
+      description: Paper title, author, DOI/URL, or the canonical implementation.
+      placeholder: 'e.g. Poulos, "Of Trends and Random Walks", Technical Analysis of Stocks & Commodities (1992)'
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What it measures
+      description: One or two sentences on what the indicator computes and when it is useful.
+  - type: textarea
+    id: formula
+    attributes:
+      label: Formula
+      description: The math, if you have it.
+      placeholder: "RWI = ... "
+  - type: textarea
+    id: expected
+    attributes:
+      label: Reference values
+      description: A couple of known input-to-output pairs from the paper or another library, for validation.
