@@ -11,7 +11,6 @@ using BenchmarkDotNet.Running;
 using QuanTAlib;
 using Skender.Stock.Indicators;
 using TALib;
-using Tulip;
 
 namespace QuanTAlib.Progressive;
 
@@ -65,7 +64,7 @@ public static class Program
 }
 
 // ────────────────────────────────────────────────────────────────
-//  Shared base: 1 M GBM bars, Skender quotes, Tulip pre-alloc
+//  Shared base: 1 M GBM bars, Skender quotes
 // ────────────────────────────────────────────────────────────────
 public abstract class ProgressiveBase
 {
@@ -80,11 +79,6 @@ public abstract class ProgressiveBase
 
     // Skender format
     protected IList<Quote> _quotes = null!;
-
-    // Tulip pre-allocated arrays (re-built per Period in GlobalSetup)
-    protected double[][] _tulipInputs = null!;
-    protected double[] _tulipOptions = null!;
-    protected double[][] _tulipOutputs = null!;
 
     // TA-Lib output
     protected double[] _talibOutput = null!;
@@ -115,10 +109,6 @@ public abstract class ProgressiveBase
             });
         }
         _quotes = quotes;
-
-        // Tulip: base input array (subclasses configure outputs)
-        _tulipInputs = new[] { _close };
-        _tulipOptions = new double[] { Period };
     }
 }
 
@@ -130,12 +120,7 @@ public abstract class ProgressiveBase
 public class ProgressiveSma : ProgressiveBase
 {
     [GlobalSetup]
-    public override void Setup()
-    {
-        base.Setup();
-        int lookback = Period - 1;
-        _tulipOutputs = new[] { new double[BarCount - lookback] };
-    }
+    public override void Setup() => base.Setup();
 
     [Benchmark(Description = "QuanTAlib")]
     public void QuanTAlib_Sma() =>
@@ -145,9 +130,12 @@ public class ProgressiveSma : ProgressiveBase
     public Core.RetCode TALib_Sma() =>
         TALib.Functions.Sma<double>(_close, 0..^0, _talibOutput, out _, Period);
 
-    [Benchmark(Description = "Tulip")]
-    public void Tulip_Sma() =>
-        Indicators.sma.Run(_tulipInputs, _tulipOptions, _tulipOutputs);
+    [Benchmark(Description = "Wickra")]
+    public double[] Wickra_Sma()
+    {
+        using var sma = new Wickra.Sma(Period);
+        return sma.Batch(_close);
+    }
 
     [Benchmark(Description = "Skender")]
     public object Skender_Sma() =>
@@ -162,12 +150,7 @@ public class ProgressiveSma : ProgressiveBase
 public class ProgressiveEma : ProgressiveBase
 {
     [GlobalSetup]
-    public override void Setup()
-    {
-        base.Setup();
-        // Tulip EMA output length = BarCount (no lookback trimming)
-        _tulipOutputs = new[] { new double[BarCount] };
-    }
+    public override void Setup() => base.Setup();
 
     [Benchmark(Description = "QuanTAlib")]
     public void QuanTAlib_Ema() =>
@@ -177,9 +160,12 @@ public class ProgressiveEma : ProgressiveBase
     public Core.RetCode TALib_Ema() =>
         TALib.Functions.Ema<double>(_close, 0..^0, _talibOutput, out _, Period);
 
-    [Benchmark(Description = "Tulip")]
-    public void Tulip_Ema() =>
-        Indicators.ema.Run(_tulipInputs, _tulipOptions, _tulipOutputs);
+    [Benchmark(Description = "Wickra")]
+    public double[] Wickra_Ema()
+    {
+        using var ema = new Wickra.Ema(Period);
+        return ema.Batch(_close);
+    }
 
     [Benchmark(Description = "Skender")]
     public object Skender_Ema() =>
@@ -194,12 +180,7 @@ public class ProgressiveEma : ProgressiveBase
 public class ProgressiveWma : ProgressiveBase
 {
     [GlobalSetup]
-    public override void Setup()
-    {
-        base.Setup();
-        int lookback = Period - 1;
-        _tulipOutputs = new[] { new double[BarCount - lookback] };
-    }
+    public override void Setup() => base.Setup();
 
     [Benchmark(Description = "QuanTAlib")]
     public void QuanTAlib_Wma() =>
@@ -209,9 +190,12 @@ public class ProgressiveWma : ProgressiveBase
     public Core.RetCode TALib_Wma() =>
         TALib.Functions.Wma<double>(_close, 0..^0, _talibOutput, out _, Period);
 
-    [Benchmark(Description = "Tulip")]
-    public void Tulip_Wma() =>
-        Indicators.wma.Run(_tulipInputs, _tulipOptions, _tulipOutputs);
+    [Benchmark(Description = "Wickra")]
+    public double[] Wickra_Wma()
+    {
+        using var wma = new Wickra.Wma(Period);
+        return wma.Batch(_close);
+    }
 
     [Benchmark(Description = "Skender")]
     public object Skender_Wma() =>
@@ -226,12 +210,7 @@ public class ProgressiveWma : ProgressiveBase
 public class ProgressiveHma : ProgressiveBase
 {
     [GlobalSetup]
-    public override void Setup()
-    {
-        base.Setup();
-        int lookback = Period + (int)Math.Sqrt(Period) - 2;
-        _tulipOutputs = new[] { new double[BarCount - lookback] };
-    }
+    public override void Setup() => base.Setup();
 
     [Benchmark(Description = "QuanTAlib")]
     public void QuanTAlib_Hma() =>
@@ -239,9 +218,12 @@ public class ProgressiveHma : ProgressiveBase
 
     // TALib does NOT implement HMA — omitted intentionally
 
-    [Benchmark(Description = "Tulip")]
-    public void Tulip_Hma() =>
-        Indicators.hma.Run(_tulipInputs, _tulipOptions, _tulipOutputs);
+    [Benchmark(Description = "Wickra")]
+    public double[] Wickra_Hma()
+    {
+        using var hma = new Wickra.Hma(Period);
+        return hma.Batch(_close);
+    }
 
     [Benchmark(Description = "Skender")]
     public object Skender_Hma() =>

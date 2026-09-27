@@ -8,7 +8,6 @@ using QuanTAlib;
 using QuanTAlib.Benchmarks;
 using Skender.Stock.Indicators;
 using TALib;
-using Tulip;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 using OoplesFinance.StockIndicators.Enums;
@@ -56,28 +55,14 @@ public class IndicatorBenchmarks
     // Pre-allocated outputs for TA-Lib
     private double[] _talibOutput = null!;
 
-    // Pre-allocated outputs for Tulip
-    private double[][] _tulipSmaInputs = null!;
-    private double[] _tulipSmaOptions = null!;
-    private double[][] _tulipSmaOutputs = null!;
-    private double[][] _tulipEmaInputs = null!;
-    private double[] _tulipEmaOptions = null!;
-    private double[][] _tulipEmaOutputs = null!;
-    private double[][] _tulipWmaInputs = null!;
-    private double[] _tulipWmaOptions = null!;
-    private double[][] _tulipWmaOutputs = null!;
-    private double[][] _tulipHmaInputs = null!;
-    private double[] _tulipHmaOptions = null!;
-    private double[][] _tulipHmaOutputs = null!;
+    // Timestamps for Wickra bar-based indicators (Chaikin Oscillator)
+    private long[] _timestamps = null!;
 
     // Pre-allocated outputs for ADOSC
     private double[] _highValues = null!;
     private double[] _lowValues = null!;
     private double[] _volumeValues = null!;
     private TBarSeries _bars = null!;
-    private double[][] _tulipAdoscInputs = null!;
-    private double[] _tulipAdoscOptions = null!;
-    private double[][] _tulipAdoscOutputs = null!;
 
     // Pre-allocated outputs for QuanTAlib Span API
     private double[] _quantalibOutput = null!;
@@ -130,29 +115,8 @@ public class IndicatorBenchmarks
         // Pre-allocate TA-Lib output
         _talibOutput = new double[BarCount];
 
-        // Pre-allocate Tulip arrays
-        int smaLookback = Period - 1;
-        _tulipSmaInputs = new[] { _closeValues };
-        _tulipSmaOptions = new double[] { Period };
-        _tulipSmaOutputs = new[] { new double[BarCount - smaLookback] };
-
-        _tulipEmaInputs = new[] { _closeValues };
-        _tulipEmaOptions = new double[] { Period };
-        _tulipEmaOutputs = new[] { new double[BarCount] };
-
-        _tulipWmaInputs = new[] { _closeValues };
-        _tulipWmaOptions = new double[] { Period };
-        _tulipWmaOutputs = new[] { new double[BarCount - smaLookback] };
-
-        int hmaLookback = Period + (int)Math.Sqrt(Period) - 2;
-        _tulipHmaInputs = new[] { _closeValues };
-        _tulipHmaOptions = new double[] { Period };
-        _tulipHmaOutputs = new[] { new double[BarCount - hmaLookback] };
-
-        // Pre-allocate Tulip ADOSC
-        _tulipAdoscInputs = new[] { _highValues, _lowValues, _closeValues, _volumeValues };
-        _tulipAdoscOptions = new double[] { 3, 10 }; // Fast=3, Slow=10
-        _tulipAdoscOutputs = new[] { new double[BarCount - 1] }; // Tulip ADOSC starts at index 1?
+        // Timestamps for Wickra bar-based indicators
+        _timestamps = _closeTseries.Times.ToArray();
 
         // Pre-allocate QuanTAlib output
         _quantalibOutput = new double[BarCount];
@@ -179,8 +143,12 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("ADOSC")]
-    [Benchmark(Description = "Tulip ADOSC")]
-    public void Tulip_Adosc() => Tulip.Indicators.adosc.Run(_tulipAdoscInputs, _tulipAdoscOptions, _tulipAdoscOutputs);
+    [Benchmark(Description = "Wickra ADOSC")]
+    public double[] Wickra_Adosc()
+    {
+        using var adosc = new Wickra.ChaikinOscillator(3, 10);
+        return adosc.Batch(_openValues, _highValues, _lowValues, _closeValues, _volumeValues, _timestamps);
+    }
 
     [BenchmarkCategory("ADOSC")]
     [Benchmark(Description = "TALib ADOSC")]
@@ -228,8 +196,12 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("SMA")]
-    [Benchmark(Description = "Tulip SMA")]
-    public void Tulip_Sma() => Tulip.Indicators.sma.Run(_tulipSmaInputs, _tulipSmaOptions, _tulipSmaOutputs);
+    [Benchmark(Description = "Wickra SMA")]
+    public double[] Wickra_Sma()
+    {
+        using var sma = new Wickra.Sma(Period);
+        return sma.Batch(_closeValues);
+    }
 
     [BenchmarkCategory("SMA")]
     [Benchmark(Description = "TALib SMA")]
@@ -277,8 +249,12 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("EMA")]
-    [Benchmark(Description = "Tulip EMA")]
-    public void Tulip_Ema() => Tulip.Indicators.ema.Run(_tulipEmaInputs, _tulipEmaOptions, _tulipEmaOutputs);
+    [Benchmark(Description = "Wickra EMA")]
+    public double[] Wickra_Ema()
+    {
+        using var ema = new Wickra.Ema(Period);
+        return ema.Batch(_closeValues);
+    }
 
     [BenchmarkCategory("EMA")]
     [Benchmark(Description = "TALib EMA")]
@@ -326,8 +302,12 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("WMA")]
-    [Benchmark(Description = "Tulip WMA")]
-    public void Tulip_Wma() => Tulip.Indicators.wma.Run(_tulipWmaInputs, _tulipWmaOptions, _tulipWmaOutputs);
+    [Benchmark(Description = "Wickra WMA")]
+    public double[] Wickra_Wma()
+    {
+        using var wma = new Wickra.Wma(Period);
+        return wma.Batch(_closeValues);
+    }
 
     [BenchmarkCategory("WMA")]
     [Benchmark(Description = "TALib WMA")]
@@ -375,8 +355,12 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("HMA")]
-    [Benchmark(Description = "Tulip HMA")]
-    public void Tulip_Hma() => Tulip.Indicators.hma.Run(_tulipHmaInputs, _tulipHmaOptions, _tulipHmaOutputs);
+    [Benchmark(Description = "Wickra HMA")]
+    public double[] Wickra_Hma()
+    {
+        using var hma = new Wickra.Hma(Period);
+        return hma.Batch(_closeValues);
+    }
 
     [BenchmarkCategory("HMA")]
     [Benchmark(Description = "Skender HMA")]
@@ -389,13 +373,13 @@ public class IndicatorBenchmarks
     // ==================== CORRELATION ====================
     [BenchmarkCategory("CORRELATION")]
     [Benchmark(Description = "QuanTAlib Correlation (Span)")]
-    public void QuanTAlib_Correlation_Span() => Correlation.Batch(_closeValues.AsSpan(), _openValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    public void QuanTAlib_Correlation_Span() => Correl.Batch(_closeValues.AsSpan(), _openValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
     [BenchmarkCategory("CORRELATION")]
     [Benchmark(Description = "QuanTAlib Correlation (Streaming)")]
     public void QuanTAlib_Correlation_Streaming()
     {
-        var corr = new Correlation(Period);
+        var corr = new Correl(Period);
         for (int i = 0; i < _closeValues.Length; i++)
         {
             _quantalibOutput[i] = corr.Update(_closeValues[i], _openValues[i]).Value;
