@@ -1,4 +1,10 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 using static System.Math;
 
 namespace QuanTAlib;
@@ -317,39 +323,42 @@ public sealed class Correl : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateCorrel()
+        => CorrelFromSums(_sumX, _sumY, _sumX2, _sumY2, _sumXY, _bufferX.Count);
+
+    /// <summary>
+    /// Computes the Pearson correlation coefficient from running window sums.
+    /// Shared by the streaming and batch (scalar + SIMD) paths so they cannot drift apart.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CorrelFromSums(double sumX, double sumY, double sumX2, double sumY2, double sumXY, int n)
     {
-        int n = _bufferX.Count;
         if (n < 2)
         {
             return double.NaN;
         }
 
         // Calculate means
-        double meanX = _sumX / n;
-        double meanY = _sumY / n;
+        double meanX = sumX / n;
+        double meanY = sumY / n;
 
         // Calculate variances (population variance)
-        double varX = Max(0.0, (_sumX2 / n) - (meanX * meanX));
-        double varY = Max(0.0, (_sumY2 / n) - (meanY * meanY));
+        double varX = Max(0.0, (sumX2 / n) - (meanX * meanX));
+        double varY = Max(0.0, (sumY2 / n) - (meanY * meanY));
 
         // Calculate covariance
-        double cov = (_sumXY / n) - (meanX * meanY);
+        double cov = (sumXY / n) - (meanX * meanY);
 
-        // Calculate standard deviations
+        // Calculate standard deviations and correlation
         double stdX = Sqrt(varX);
         double stdY = Sqrt(varY);
-
-        // Calculate correlation
         double denominator = stdX * stdY;
         if (Abs(denominator) < Epsilon)
         {
             return double.NaN;
         }
 
-        double correlation = cov / denominator;
-
         // Clamp to [-1, 1] range to handle floating point precision issues
-        return Max(-1.0, Min(1.0, correlation));
+        return Max(-1.0, Min(1.0, cov / denominator));
     }
 
     /// <summary>Not supported. This indicator requires two input spans.</summary>
@@ -392,6 +401,8 @@ public sealed class Correl : AbstractBase
 
     /// <summary>
     /// Static batch calculation for span-based processing.
+    /// Uses SIMD (AVX-512/AVX2) for large, finite inputs and a Kahan-compensated
+    /// scalar fallback (with NaN sanitization) otherwise.
     /// </summary>
     public static void Batch(
         ReadOnlySpan<double> seriesX,
@@ -414,14 +425,323 @@ public sealed class Correl : AbstractBase
             throw new ArgumentException("Period must be greater than 1", nameof(period));
         }
 
-        var indicator = new Correl(period);
-
-        for (int i = 0; i < seriesX.Length; i++)
+        int len = seriesX.Length;
+        if (len == 0)
         {
-            var result = indicator.Update(seriesX[i], seriesY[i], isNew: true);
-            output[i] = result.Value;
+            return;
+        }
+
+#if NET5_0_OR_GREATER
+        const int SimdThreshold = 256;
+        if (len >= SimdThreshold && !seriesX.ContainsNonFinite() && !seriesY.ContainsNonFinite())
+        {
+            if (Avx512F.IsSupported)
+            {
+                CalculateAvx512Core(seriesX, seriesY, output, period);
+                return;
+            }
+
+            if (Avx2.IsSupported)
+            {
+                CalculateAvx2Core(seriesX, seriesY, output, period);
+                return;
+            }
+        }
+#endif
+
+        CalculateScalarCore(seriesX, seriesY, output, period);
+    }
+
+    /// <summary>
+    /// Kahan-compensated scalar batch path. Replicates the streaming semantics
+    /// (last-valid-value NaN sanitization, growing warmup window) without the
+    /// per-tick RingBuffer/event/DateTime overhead.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateScalarCore(ReadOnlySpan<double> seriesX, ReadOnlySpan<double> seriesY, Span<double> output, int period)
+    {
+        int len = seriesX.Length;
+
+        const int StackAllocThreshold = 256;
+        double[]? rented = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period * 2) : null;
+        Span<double> bufX = rented is not null ? rented.AsSpan(0, period) : stackalloc double[period];
+        Span<double> bufY = rented is not null ? rented.AsSpan(period, period) : stackalloc double[period];
+
+        double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;
+        double cX = 0, cY = 0, cX2 = 0, cY2 = 0, cXY = 0;
+        double lastValidX = 0, lastValidY = 0;
+        int count = 0;
+        int bufIdx = 0;
+
+        try
+        {
+            for (int i = 0; i < len; i++)
+            {
+                double x = seriesX[i];
+                if (double.IsFinite(x))
+                {
+                    lastValidX = x;
+                }
+                else
+                {
+                    x = lastValidX;
+                }
+
+                double y = seriesY[i];
+                if (double.IsFinite(y))
+                {
+                    lastValidY = y;
+                }
+                else
+                {
+                    y = lastValidY;
+                }
+
+                if (count == period)
+                {
+                    double oldX = bufX[bufIdx];
+                    double oldY = bufY[bufIdx];
+
+                    // Kahan subtract the leaving values from the running sums
+                    double yk = -oldX - cX; double t = sumX + yk; cX = (t - sumX) - yk; sumX = t;
+                    yk = -oldY - cY; t = sumY + yk; cY = (t - sumY) - yk; sumY = t;
+                    yk = -(oldX * oldX) - cX2; t = sumX2 + yk; cX2 = (t - sumX2) - yk; sumX2 = t;
+                    yk = -(oldY * oldY) - cY2; t = sumY2 + yk; cY2 = (t - sumY2) - yk; sumY2 = t;
+                    yk = -(oldX * oldY) - cXY; t = sumXY + yk; cXY = (t - sumXY) - yk; sumXY = t;
+                }
+
+                bufX[bufIdx] = x;
+                bufY[bufIdx] = y;
+                bufIdx++;
+                if (bufIdx >= period)
+                {
+                    bufIdx = 0;
+                }
+
+                // Kahan add the new values to the running sums
+                double ak = x - cX; double at = sumX + ak; cX = (at - sumX) - ak; sumX = at;
+                ak = y - cY; at = sumY + ak; cY = (at - sumY) - ak; sumY = at;
+                ak = (x * x) - cX2; at = sumX2 + ak; cX2 = (at - sumX2) - ak; sumX2 = at;
+                ak = (y * y) - cY2; at = sumY2 + ak; cY2 = (at - sumY2) - ak; sumY2 = at;
+                ak = (x * y) - cXY; at = sumXY + ak; cXY = (at - sumXY) - ak; sumXY = at;
+
+                if (count < period)
+                {
+                    count++;
+                }
+
+                output[i] = CorrelFromSums(sumX, sumY, sumX2, sumY2, sumXY, count);
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+            {
+                ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
+
+#if NET5_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector512<double> PrefixSum512(Vector512<double> v)
+    {
+        var s1 = Vector512.Create(0.0, v.GetElement(0), v.GetElement(1), v.GetElement(2), v.GetElement(3), v.GetElement(4), v.GetElement(5), v.GetElement(6));
+        var p1 = Avx512F.Add(v, s1);
+        var s2 = Vector512.Create(0.0, 0.0, p1.GetElement(0), p1.GetElement(1), p1.GetElement(2), p1.GetElement(3), p1.GetElement(4), p1.GetElement(5));
+        var p2 = Avx512F.Add(p1, s2);
+        var s4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, p2.GetElement(0), p2.GetElement(1), p2.GetElement(2), p2.GetElement(3));
+        return Avx512F.Add(p2, s4);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void CalculateAvx512Core(ReadOnlySpan<double> seriesX, ReadOnlySpan<double> seriesY, Span<double> output, int period)
+    {
+        int len = seriesX.Length;
+        const int VectorWidth = 8;
+
+        ref double xRef = ref MemoryMarshal.GetReference(seriesX);
+        ref double yRef = ref MemoryMarshal.GetReference(seriesY);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        double invPeriod = 1.0 / period;
+
+        double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;
+        int warmupEnd = Min(period, len);
+        for (int i = 0; i < warmupEnd; i++)
+        {
+            double x = Unsafe.Add(ref xRef, i);
+            double y = Unsafe.Add(ref yRef, i);
+            sumX += x;
+            sumY += y;
+            sumX2 += x * x;
+            sumY2 += y * y;
+            sumXY += x * y;
+            Unsafe.Add(ref outRef, i) = CorrelFromSums(sumX, sumY, sumX2, sumY2, sumXY, i + 1);
+        }
+
+        if (len <= period)
+        {
+            return;
+        }
+
+        var vInvPeriod = Vector512.Create(invPeriod);
+        var vZero = Vector512<double>.Zero;
+        var vOne = Vector512.Create(1.0);
+        var vMinusOne = Vector512.Create(-1.0);
+        var vEpsilon = Vector512.Create(Epsilon);
+        var vNan = Vector512.Create(double.NaN);
+
+        int simdEnd = period + ((len - period) / VectorWidth * VectorWidth);
+
+        for (int i = period; i < simdEnd; i += VectorWidth)
+        {
+            var vNewX = Vector512.LoadUnsafe(ref Unsafe.Add(ref xRef, i));
+            var vOldX = Vector512.LoadUnsafe(ref Unsafe.Add(ref xRef, i - period));
+            var vNewY = Vector512.LoadUnsafe(ref Unsafe.Add(ref yRef, i));
+            var vOldY = Vector512.LoadUnsafe(ref Unsafe.Add(ref yRef, i - period));
+
+            var vSumX = Avx512F.Add(PrefixSum512(Avx512F.Subtract(vNewX, vOldX)), Vector512.Create(sumX));
+            var vSumY = Avx512F.Add(PrefixSum512(Avx512F.Subtract(vNewY, vOldY)), Vector512.Create(sumY));
+            var vSumX2 = Avx512F.Add(PrefixSum512(Avx512F.Subtract(Avx512F.Multiply(vNewX, vNewX), Avx512F.Multiply(vOldX, vOldX))), Vector512.Create(sumX2));
+            var vSumY2 = Avx512F.Add(PrefixSum512(Avx512F.Subtract(Avx512F.Multiply(vNewY, vNewY), Avx512F.Multiply(vOldY, vOldY))), Vector512.Create(sumY2));
+            var vSumXY = Avx512F.Add(PrefixSum512(Avx512F.Subtract(Avx512F.Multiply(vNewX, vNewY), Avx512F.Multiply(vOldX, vOldY))), Vector512.Create(sumXY));
+
+            sumX = vSumX.GetElement(VectorWidth - 1);
+            sumY = vSumY.GetElement(VectorWidth - 1);
+            sumX2 = vSumX2.GetElement(VectorWidth - 1);
+            sumY2 = vSumY2.GetElement(VectorWidth - 1);
+            sumXY = vSumXY.GetElement(VectorWidth - 1);
+
+            var vMeanX = Avx512F.Multiply(vSumX, vInvPeriod);
+            var vMeanY = Avx512F.Multiply(vSumY, vInvPeriod);
+            var vVarX = Avx512F.Max(vZero, Avx512F.FusedMultiplySubtract(vSumX2, vInvPeriod, Avx512F.Multiply(vMeanX, vMeanX)));
+            var vVarY = Avx512F.Max(vZero, Avx512F.FusedMultiplySubtract(vSumY2, vInvPeriod, Avx512F.Multiply(vMeanY, vMeanY)));
+            var vCov = Avx512F.FusedMultiplySubtract(vSumXY, vInvPeriod, Avx512F.Multiply(vMeanX, vMeanY));
+            var vDenom = Avx512F.Sqrt(Avx512F.Multiply(vVarX, vVarY));
+
+            var vR = Avx512F.Divide(vCov, vDenom);
+            vR = Avx512F.Min(vOne, Avx512F.Max(vMinusOne, vR));
+
+            var vValid = Avx512F.Compare(vDenom, vEpsilon, FloatComparisonMode.OrderedGreaterThanOrEqualNonSignaling);
+            Avx512F.BlendVariable(vR, vNan, vValid).StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+        }
+
+        for (int i = simdEnd; i < len; i++)
+        {
+            double x = Unsafe.Add(ref xRef, i);
+            double y = Unsafe.Add(ref yRef, i);
+            double oldX = Unsafe.Add(ref xRef, i - period);
+            double oldY = Unsafe.Add(ref yRef, i - period);
+            sumX += x - oldX;
+            sumY += y - oldY;
+            sumX2 += (x * x) - (oldX * oldX);
+            sumY2 += (y * y) - (oldY * oldY);
+            sumXY += (x * y) - (oldX * oldY);
+            Unsafe.Add(ref outRef, i) = CorrelFromSums(sumX, sumY, sumX2, sumY2, sumXY, period);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector256<double> PrefixSum256(Vector256<double> v)
+    {
+        var zero = Vector256<double>.Zero;
+        var s1 = Avx2.Permute4x64(v.AsUInt64(), 0b_10_01_00_00).AsDouble();
+        s1 = Avx.Blend(zero, s1, 0b_1110);
+        var p1 = Avx.Add(v, s1);
+        var s2 = Avx2.Permute4x64(p1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+        s2 = Avx.Blend(zero, s2, 0b_1100);
+        return Avx.Add(p1, s2);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void CalculateAvx2Core(ReadOnlySpan<double> seriesX, ReadOnlySpan<double> seriesY, Span<double> output, int period)
+    {
+        int len = seriesX.Length;
+        const int VectorWidth = 4;
+
+        ref double xRef = ref MemoryMarshal.GetReference(seriesX);
+        ref double yRef = ref MemoryMarshal.GetReference(seriesY);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        double invPeriod = 1.0 / period;
+
+        double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;
+        int warmupEnd = Min(period, len);
+        for (int i = 0; i < warmupEnd; i++)
+        {
+            double x = Unsafe.Add(ref xRef, i);
+            double y = Unsafe.Add(ref yRef, i);
+            sumX += x;
+            sumY += y;
+            sumX2 += x * x;
+            sumY2 += y * y;
+            sumXY += x * y;
+            Unsafe.Add(ref outRef, i) = CorrelFromSums(sumX, sumY, sumX2, sumY2, sumXY, i + 1);
+        }
+
+        if (len <= period)
+        {
+            return;
+        }
+
+        var vInvPeriod = Vector256.Create(invPeriod);
+        var vZero = Vector256<double>.Zero;
+        var vOne = Vector256.Create(1.0);
+        var vMinusOne = Vector256.Create(-1.0);
+        var vEpsilon = Vector256.Create(Epsilon);
+        var vNan = Vector256.Create(double.NaN);
+
+        int simdEnd = period + ((len - period) / VectorWidth * VectorWidth);
+
+        for (int i = period; i < simdEnd; i += VectorWidth)
+        {
+            var vNewX = Vector256.LoadUnsafe(ref Unsafe.Add(ref xRef, i));
+            var vOldX = Vector256.LoadUnsafe(ref Unsafe.Add(ref xRef, i - period));
+            var vNewY = Vector256.LoadUnsafe(ref Unsafe.Add(ref yRef, i));
+            var vOldY = Vector256.LoadUnsafe(ref Unsafe.Add(ref yRef, i - period));
+
+            var vSumX = Avx.Add(PrefixSum256(Avx.Subtract(vNewX, vOldX)), Vector256.Create(sumX));
+            var vSumY = Avx.Add(PrefixSum256(Avx.Subtract(vNewY, vOldY)), Vector256.Create(sumY));
+            var vSumX2 = Avx.Add(PrefixSum256(Avx.Subtract(Avx.Multiply(vNewX, vNewX), Avx.Multiply(vOldX, vOldX))), Vector256.Create(sumX2));
+            var vSumY2 = Avx.Add(PrefixSum256(Avx.Subtract(Avx.Multiply(vNewY, vNewY), Avx.Multiply(vOldY, vOldY))), Vector256.Create(sumY2));
+            var vSumXY = Avx.Add(PrefixSum256(Avx.Subtract(Avx.Multiply(vNewX, vNewY), Avx.Multiply(vOldX, vOldY))), Vector256.Create(sumXY));
+
+            sumX = vSumX.GetElement(VectorWidth - 1);
+            sumY = vSumY.GetElement(VectorWidth - 1);
+            sumX2 = vSumX2.GetElement(VectorWidth - 1);
+            sumY2 = vSumY2.GetElement(VectorWidth - 1);
+            sumXY = vSumXY.GetElement(VectorWidth - 1);
+
+            var vMeanX = Avx.Multiply(vSumX, vInvPeriod);
+            var vMeanY = Avx.Multiply(vSumY, vInvPeriod);
+            var vVarX = Avx.Max(vZero, Avx.Subtract(Avx.Multiply(vSumX2, vInvPeriod), Avx.Multiply(vMeanX, vMeanX)));
+            var vVarY = Avx.Max(vZero, Avx.Subtract(Avx.Multiply(vSumY2, vInvPeriod), Avx.Multiply(vMeanY, vMeanY)));
+            var vCov = Avx.Subtract(Avx.Multiply(vSumXY, vInvPeriod), Avx.Multiply(vMeanX, vMeanY));
+            var vDenom = Avx.Sqrt(Avx.Multiply(vVarX, vVarY));
+
+            var vR = Avx.Divide(vCov, vDenom);
+            vR = Avx.Min(vOne, Avx.Max(vMinusOne, vR));
+
+            var vValid = Avx.Compare(vDenom, vEpsilon, FloatComparisonMode.OrderedGreaterThanOrEqualNonSignaling);
+            Avx.BlendVariable(vR, vNan, vValid).StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+        }
+
+        for (int i = simdEnd; i < len; i++)
+        {
+            double x = Unsafe.Add(ref xRef, i);
+            double y = Unsafe.Add(ref yRef, i);
+            double oldX = Unsafe.Add(ref xRef, i - period);
+            double oldY = Unsafe.Add(ref yRef, i - period);
+            sumX += x - oldX;
+            sumY += y - oldY;
+            sumX2 += (x * x) - (oldX * oldX);
+            sumY2 += (y * y) - (oldY * oldY);
+            sumXY += (x * y) - (oldX * oldY);
+            Unsafe.Add(ref outRef, i) = CorrelFromSums(sumX, sumY, sumX2, sumY2, sumXY, period);
+        }
+    }
+#endif
 
     /// <summary>
     /// Calculates Pearson correlation for two time series and returns both the result series and the live indicator instance.
