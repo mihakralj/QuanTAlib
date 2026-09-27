@@ -16,6 +16,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NuGetReadmeOutput>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', 'obj', 'nuget', 'README.md'))</NuGetReadmeOutput>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageTags>
       Indicators;Stock;Market;Technical;Analysis;Algorithmic;Trading;Trade;Trend;Momentum;Finance;Algorithm;Algo;
@@ -50,6 +52,27 @@
 
   <ItemGroup>
     <Compile Include="**/*.cs" Exclude="**/*.Tests.cs;**/*.Quantower.cs;**/obj/**/*.cs;**/bin/**/*.cs;feeds/gbm/ValidationHelper.cs;feeds/gbm/ValidationTestData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- RS0036: BCL overrides (ToString/Equals) inherit oblivious nullability from object; suppress the annotation hint. -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);RS0036</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <AdditionalFiles Include="PublicAPI.Shipped.net10.0.txt" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <AdditionalFiles Include="PublicAPI.Shipped.net48.txt" />
   </ItemGroup>
 
 

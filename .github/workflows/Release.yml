@@ -375,3 +375,8 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \
             --api-key "$NUGET_API_KEY"
+
+          dotnet nuget push 'lib/bin/Release/*.snupkg' \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate \
+            --api-key "$NUGET_API_KEY"
