@@ -125,9 +125,9 @@ Span mode represents maximum speed. Production code often needs different trade-
 
 Even QuanTAlib's slowest mode (Eventing with complete event infrastructure, 16.8 MB allocations) processes 500,000 EMA values in 3.4 milliseconds. Still faster than Ooples at 14.8 ms and Skender at 25.9 ms for identical calculation. The "slow" path here beats other libraries' only path.
 
-## Python Benchmark: quantalib vs pandas-ta
+## Python Benchmark: quantalib vs pandas-ta vs wickra
 
-The same indicators benchmarked in C# are also available through Python via NativeAOT shared library + ctypes FFI. This comparison measures the real-world cost of calling QuanTAlib from Python versus using pandas-ta (the most popular pure-Python technical analysis library).
+The same indicators benchmarked in C# are also available through Python via NativeAOT shared library + ctypes FFI. This comparison measures the real-world cost of calling QuanTAlib from Python versus pandas-ta (the most popular pure-Python technical analysis library) and wickra (a Rust-core streaming library with a PyO3 binding).
 
 ### Test Environment
 
@@ -139,20 +139,22 @@ The same indicators benchmarked in C# are also available through Python via Nati
 | NumPy | 2.2.6 |
 | pandas | 3.0.1 |
 | pandas-ta | 0.4.71b0 |
-| quantalib | 0.8.7 (NativeAOT via ctypes) |
+| wickra | 1.0.6 (Rust via PyO3) |
+| quantalib | 0.8.12 (NativeAOT via ctypes) |
 
-### quantalib vs pandas-ta
+### quantalib vs pandas-ta and wickra
 
-| Indicator | quantalib | pandas-ta | Speedup |
-| :-------- | --------: | --------: | ------: |
-| **SMA** | **1,308 μs** | 64,110 μs | **49×** |
-| **EMA** | **1,083 μs** | 4,486 μs | **4.1×** |
-| **WMA** | **1,223 μs** | 83,763 μs | **68×** |
-| **HMA** | **2,709 μs** | 154,508 μs | **57×** |
-| **ADOSC** | **1,655 μs** | 14,821 μs | **9.0×** |
-| **SKEW** | **3,987 μs** | 8,077 μs | **2.0×** |
+| Indicator | quantalib | pandas-ta | wickra |
+| :-------- | --------: | --------: | -----: |
+| **SMA** | **1,298 μs** | 63,721 μs | 12,548 μs |
+| **EMA** | **1,067 μs** | 4,280 μs | 12,179 μs |
+| **WMA** | **1,139 μs** | 83,903 μs | 12,547 μs |
+| **HMA** | **2,647 μs** | 152,733 μs | 14,768 μs |
+| **ADOSC** | **1,621 μs** | 15,761 μs | 40,779 μs |
+| **CORRELATION** | **5,995 μs** | — | 25,062 μs |
+| **SKEW** | **4,187 μs** | 7,846 μs | 19,298 μs |
 
-SMA and WMA expose the largest gaps. pandas-ta implements SMA as a rolling window in pure Python/numpy, while quantalib calls the same SIMD-optimized C# code (via NativeAOT) that beats TA-Lib in the C# benchmarks above. WMA at 68× faster reflects the dot-product advantage: eight FMA operations per cycle versus Python's element-at-a-time loop.
+quantalib beats pandas-ta by 1.9-74× and wickra by 4.2-25×. The pandas-ta gap is widest on SMA and WMA: pandas-ta implements SMA as a pure-Python rolling window, and WMA falls back to an element-at-a-time dot product. wickra's Rust core compiles to native code, so its margin is narrower — but its stdlib `array.array` return and PyO3 FFI boundary still leave it behind on the SIMD hot paths. pandas-ta ships no rolling correlation.
 
 ### quantalib vs pandas builtins
 
@@ -160,13 +162,13 @@ pandas itself provides optimized C implementations for common rolling operations
 
 | Indicator | quantalib | pandas | Speedup |
 | :-------- | --------: | -----: | ------: |
-| **SMA** | **1,308 μs** | 6,950 μs (rolling.mean) | **5.3×** |
-| **EMA** | **1,083 μs** | 3,652 μs (ewm.mean) | **3.4×** |
-| **WMA** | **1,223 μs** | 686,561 μs (rolling+apply) | **561×** |
-| **CORRELATION** | **20,450 μs** | 35,904 μs (rolling.corr) | **1.8×** |
-| **SKEW** | **3,987 μs** | 8,164 μs (rolling.skew) | **2.0×** |
+| **SMA** | **1,298 μs** | 7,265 μs (rolling.mean) | **5.6×** |
+| **EMA** | **1,067 μs** | 3,692 μs (ewm.mean) | **3.5×** |
+| **WMA** | **1,139 μs** | 686,466 μs (rolling+apply) | **603×** |
+| **CORRELATION** | **5,995 μs** | 35,337 μs (rolling.corr) | **5.9×** |
+| **SKEW** | **4,187 μs** | 8,137 μs (rolling.skew) | **1.9×** |
 
-Even against pandas' C-optimized rolling operations, quantalib NativeAOT wins 2-5× on simple indicators. WMA is the extreme case: pandas lacks a native WMA implementation, falling back to `rolling().apply()` with a Python lambda — 561× slower.
+Even against pandas' C-optimized rolling operations, quantalib NativeAOT wins 2-6× on simple indicators. WMA is the extreme case: pandas lacks a native WMA implementation, falling back to `rolling().apply()` with a Python lambda — 603× slower.
 
 ### FFI Overhead
 

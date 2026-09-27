@@ -54,16 +54,16 @@ pip install quantalib[pyarrow]      # pyarrow / pa.Array support
 pip install quantalib[all]          # all three
 ```
 
-## Performance (500,000 bars, AVX-512)
+## Performance (500,000 bars)
 
-| Indicator | quantalib | pandas-ta | Ratio |
-| --------- | --------: | --------: | ----: |
-| SMA | 328 μs | ~50 ms | ~150× |
-| EMA | 421 μs | ~45 ms | ~107× |
-| WMA | 302 μs | ~60 ms | ~199× |
-| RSI | 517 μs | ~80 ms | ~155× |
+| Indicator | quantalib | wickra | pandas-ta |
+| --------- | --------: | -----: | --------: |
+| SMA | 1,298 μs | 12,548 μs | 63,721 μs |
+| EMA | 1,067 μs | 12,179 μs | 4,280 μs |
+| WMA | 1,139 μs | 12,547 μs | 83,903 μs |
+| HMA | 2,647 μs | 14,768 μs | 152,733 μs |
 
-The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, NativeAOT wins by two orders of magnitude.
+quantalib calls the same SIMD-optimized NativeAOT core as the .NET package through a single `ctypes` call (5-15 μs overhead). wickra (Rust/PyO3) returns stdlib `array.array`; pandas-ta stays in pure Python/numpy. For arrays above a few hundred bars, NativeAOT wins by an order of magnitude or more.
 
 ## Categories
 
@@ -89,7 +89,16 @@ The `ctypes` call adds 5-15 μs overhead. For arrays above a few hundred bars, N
 
 - Python 3.10+
 - NumPy >= 1.24
-- Pre-built wheels: `win-x64`, `linux-x64`, `osx-x64`, `osx-arm64`
+
+Pre-built wheels — the NativeAOT core is compiled per platform in CI and ships inside the wheel, so there is no source build and no C++ toolchain:
+
+| Platform | Wheel tag |
+| --- | --- |
+| Windows x64 | `win_amd64` |
+| Linux x64 | `manylinux_2_17_x86_64` |
+| Linux arm64 (AWS Graviton) | `manylinux_2_17_aarch64` |
+| macOS arm64 (Apple Silicon) | `macosx_11_0_arm64` |
+| macOS x64 (Intel) | `macosx_10_13_x86_64` |
 
 ### Optional dependencies
 

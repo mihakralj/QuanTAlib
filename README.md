@@ -45,6 +45,16 @@ Skender and Ooples are measured on their list-based APIs; QuanTAlib on its zero-
 | **Python** | `pip install quantalib` | [Python Guide](docs/python.md) |
 | **PineScript v6** | Copy-paste to TradingView | [PineScript Guide](docs/pinescript.md) |
 
+`pip install quantalib` ships a compiled native wheel — no source build, no C++ toolchain:
+
+| Platform | Wheel tag |
+| :--- | :--- |
+| Windows x64 | `win_amd64` |
+| Linux x64 | `manylinux_2_17_x86_64` |
+| Linux arm64 (AWS Graviton) | `manylinux_2_17_aarch64` |
+| macOS arm64 (Apple Silicon) | `macosx_11_0_arm64` |
+| macOS x64 (Intel) | `macosx_10_13_x86_64` |
+
 ## Show Me the Code
 
 ### C# Streaming (Real-time incoming data, value by value)
