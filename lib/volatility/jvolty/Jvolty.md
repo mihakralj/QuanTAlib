@@ -79,6 +79,7 @@ This smoothed deviation represents the "raw" volatility reading that feeds into 
 The core innovation: instead of exponential smoothing, JVOLTY maintains a 128-sample circular buffer of raw volatility readings. On each bar, the buffer is sorted and a trimmed mean is computed:
 
 **Full buffer (128 samples):**
+
 $$
 \hat{V}_t = \frac{1}{65} \sum_{i=32}^{96} \text{sorted}[i]
 $$
@@ -86,12 +87,15 @@ $$
 The middle 65 values (indices 32-96) represent approximately the 25th-75th percentile. Extreme values on both tails are discarded.
 
 **Partial buffer (16-127 samples):**
+
 $$
 s = \max(5, \text{round}(0.5 \times \text{count}))
 $$
+
 $$
 k = \lfloor(\text{count} - s) / 2\rfloor
 $$
+
 $$
 \hat{V}_t = \frac{1}{s} \sum_{i=k}^{k+s-1} \text{sorted}[i]
 $$
@@ -133,6 +137,7 @@ $$
 $$
 
 where:
+
 $$
 \text{sqrtDivider} = \frac{\sqrt{L} \times \text{logParam}}{\sqrt{L} \times \text{logParam} + 1}
 $$

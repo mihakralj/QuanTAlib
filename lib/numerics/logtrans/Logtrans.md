@@ -35,16 +35,19 @@ Key identities:
 ### Logarithm Rules
 
 **Product Rule:**
+
 $$
 \ln(a \cdot b) = \ln(a) + \ln(b)
 $$
 
 **Quotient Rule:**
+
 $$
 \ln\left(\frac{a}{b}\right) = \ln(a) - \ln(b)
 $$
 
 **Power Rule:**
+
 $$
 \ln(a^n) = n \cdot \ln(a)
 $$

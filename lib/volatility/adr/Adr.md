@@ -78,16 +78,19 @@ $$
 Where $MA$ is one of:
 
 **SMA:**
+
 $$
 ADR_t = \frac{1}{N} \sum_{i=0}^{N-1} DR_{t-i}
 $$
 
 **EMA:**
+
 $$
 ADR_t = \alpha \cdot DR_t + (1 - \alpha) \cdot ADR_{t-1}, \quad \alpha = \frac{2}{N+1}
 $$
 
 **WMA:**
+
 $$
 ADR_t = \frac{\sum_{i=0}^{N-1} (N-i) \cdot DR_{t-i}}{\sum_{i=0}^{N-1} (N-i)}
 $$

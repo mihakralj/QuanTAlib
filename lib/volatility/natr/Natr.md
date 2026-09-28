@@ -81,6 +81,7 @@ Given period $N$:
 1. **Parameters**: $\alpha = \frac{1}{N}$, $\text{decay} = 1 - \alpha$
 
 2. **True Range**:
+
 $$
 TR_t = \begin{cases}
 H_t - L_t & \text{if } t = 0 \\
@@ -89,16 +90,19 @@ H_t - L_t & \text{if } t = 0 \\
 $$
 
 3. **RMA with FMA optimization**:
+
 $$
 ATR_{raw,t} = \text{FMA}(ATR_{raw,t-1}, \text{decay}, \alpha \cdot TR_t)
 $$
 
 4. **Warmup compensation**:
+
 $$
 ATR_t = \frac{ATR_{raw,t}}{1 - e_t}
 $$
 
 5. **Normalization**:
+
 $$
 NATR_t = \frac{ATR_t}{C_t} \times 100
 $$

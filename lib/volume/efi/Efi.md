@@ -83,11 +83,13 @@ where:
 ### Smoothed Force Index
 
 Standard EMA form:
+
 $$
 EFI_t = \alpha \times F_t + (1 - \alpha) \times EFI_{t-1}
 $$
 
 Using FMA optimization:
+
 $$
 EFI_t = \text{FMA}(\alpha, F_t - EFI_{t-1}, EFI_{t-1})
 $$

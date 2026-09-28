@@ -63,6 +63,7 @@ $$
 $$
 
 Using Welford's running algorithm:
+
 $$
 \sigma = \sqrt{\frac{\sum x^2}{n} - \left(\frac{\sum x}{n}\right)^2}
 $$
@@ -70,6 +71,7 @@ $$
 ### Percentile Rank Formula
 
 For a value $v$ in a dataset of $N$ values:
+
 $$
 \text{Percentile} = \frac{\text{count of values} < v}{N}
 $$

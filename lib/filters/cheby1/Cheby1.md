@@ -40,16 +40,21 @@ $$
 2. **Pre-warped Frequency**: $W_c = \tan(\frac{\omega_c}{2})$
 3. **Ripple Factor**: $\epsilon = \sqrt{10^{R/10} - 1}$
 4. **Transformation**:
+
     $$
     \mu = \frac{1}{2} \sinh^{-1}(\frac{1}{\epsilon}) \\
     \sigma = -\sinh(\mu) W_c \\
     \omega_d = \cosh(\mu) W_c
     $$
+
 5. **Intermediate Variables**:
+
     $$
     K = \sigma^2 + \omega_d^2
     $$
+
 6. **S-Plane to Z-Plane Map (Bilinear Transform)**:
+
     $$
     b_0' = K \\
     b_1' = 2K \\
@@ -58,7 +63,9 @@ $$
     a_1' = 2K - 2 \\
     a_2' = 1 + 2\sigma + K
     $$
+
 7. **Coefficients**:
+
     $$
     b_0 = \frac{b_0'}{a_0'}, \quad b_1 = \frac{b_1'}{a_0'}, \quad b_2 = \frac{b_2'}{a_0'} \\
     a_1 = \frac{a_1'}{a_0'}, \quad a_2 = \frac{a_2'}{a_0'}

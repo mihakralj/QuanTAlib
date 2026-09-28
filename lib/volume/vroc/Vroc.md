@@ -39,11 +39,13 @@ $$
 ### 2. Rate of Change Calculation
 
 **Percentage Mode** (default):
+
 $$
 \text{VROC}_t = \frac{V_t - V_{t-n}}{V_{t-n}} \times 100
 $$
 
 **Point Mode**:
+
 $$
 \text{VROC}_t = V_t - V_{t-n}
 $$

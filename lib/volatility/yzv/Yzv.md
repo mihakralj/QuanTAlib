@@ -67,16 +67,19 @@ where $n$ is the smoothing period. For typical values:
 ### 3. Daily Variance Components
 
 **Overnight variance:**
+
 $$
 \sigma_o^2 = r_o^2
 $$
 
 **Open-to-close variance:**
+
 $$
 \sigma_c^2 = r_c^2
 $$
 
 **Rogers-Satchell variance (drift-independent intraday measure):**
+
 $$
 \sigma_{RS}^2 = r_h \cdot (r_h - r_c) + r_l \cdot (r_l - r_c)
 $$
@@ -108,11 +111,13 @@ $$
 where $\alpha = 1/n$.
 
 **Bias compensator:**
+
 $$
 e_t = (1 - \alpha)^t
 $$
 
 **Corrected output:**
+
 $$
 \text{RMA}_{corrected} = \frac{\text{RMA}_{raw}}{1 - e_t}
 $$
@@ -127,6 +132,7 @@ The Rogers-Satchell component has elegant properties:
 - **Non-negativity**: Always ≥ 0 when calculated correctly
 
 The formula $r_h(r_h - r_c) + r_l(r_l - r_c)$ can be rewritten as:
+
 $$
 \sigma_{RS}^2 = r_h \cdot r_l - r_l \cdot r_c - r_h \cdot r_c + r_h^2 + r_l^2 - r_l^2
 $$

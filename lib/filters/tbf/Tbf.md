@@ -63,11 +63,13 @@ This is an IIR filter - each output depends on all previous outputs, creating in
 The truncated version limits memory to exactly $L$ bars by recomputing the IIR recursion from scratch each bar:
 
 **Step 1:** Initialize the tail:
+
 $$
 T_{L+2} = 0, \qquad T_{L+1} = 0
 $$
 
 **Step 2:** Run the recursion forward from oldest to newest:
+
 $$
 T_k = a_0(P_{k-1} - P_{k+1}) + a_1 \cdot T_{k+1} + a_2 \cdot T_{k+2}, \qquad k = L, L{-}1, \ldots, 1
 $$
@@ -75,6 +77,7 @@ $$
 where $P_k$ denotes the close price $k$ bars ago.
 
 **Step 3:** Output:
+
 $$
 \text{TBF}_t = T_1
 $$

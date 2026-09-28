@@ -57,11 +57,13 @@ $$
 where $\alpha = 1/\text{period}$.
 
 **Bias compensator:**
+
 $$
 e_t = (1 - \alpha)^t
 $$
 
 **Corrected ATR:**
+
 $$
 ATR_t = \frac{\text{RMA}_{raw,t}}{1 - e_t}
 $$

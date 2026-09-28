@@ -76,21 +76,25 @@ where $x$ is the input series and $w_k$ are the window weights.
 ### Window Coefficient Formulas
 
 **Hanning:**
+
 $$
 w_k = 0.5 - 0.5 \cos\left(\frac{2\pi k}{P}\right)
 $$
 
 **Hamming:**
+
 $$
 w_k = 0.54 - 0.46 \cos\left(\frac{2\pi k}{P}\right)
 $$
 
 **Blackman:**
+
 $$
 w_k = 0.42 - 0.5 \cos\left(\frac{2\pi k}{P}\right) + 0.08 \cos\left(\frac{4\pi k}{P}\right)
 $$
 
 **Blackman-Harris:**
+
 $$
 w_k = 0.35875 - 0.48829 \cos\left(\frac{2\pi k}{P}\right) + 0.14128 \cos\left(\frac{4\pi k}{P}\right) - 0.01168 \cos\left(\frac{6\pi k}{P}\right)
 $$
@@ -118,6 +122,7 @@ $$
 Fitted value at lag $i$: $\hat{x}_i = \text{intercept} + \text{slope} \cdot i$
 
 Final LS output:
+
 $$
 \text{AFIRMA}_{LS} = \frac{1}{P} \left( \sum_{i=0}^{n-1} \hat{x}_i + \sum_{i=n}^{P-1} x_{t-i} \right)
 $$
