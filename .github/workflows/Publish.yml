@@ -161,7 +161,7 @@ jobs:
           fi
 
           set +e
-          snyk test lib/quantalib.csproj --sarif-file-output=.sarif/snyk.sarif
+          snyk test --file=lib/quantalib.csproj --sarif-file-output=.sarif/snyk.sarif
           rc=$?
           set -e
 
