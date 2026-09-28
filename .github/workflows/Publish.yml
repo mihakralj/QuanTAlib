@@ -67,10 +67,14 @@ jobs:
             **/*.sln
 
       - name: Restore dependencies
-        run: dotnet restore
+        # Restore only the library: the full solution pulls the NativeAOT
+        # ILCompiler and benchmark native packages, which blow the timeout.
+        run: dotnet restore lib/quantalib.csproj
 
       - name: Build solution
-        run: dotnet build QuanTAlib.slnx --no-restore --configuration Debug --nologo -m:1
+        # InspectCode only analyzes lib/quantalib.csproj, so there is no need
+        # to build the NativeAOT wrapper or the benchmark projects.
+        run: dotnet build lib/quantalib.csproj --no-restore --configuration Debug --nologo
 
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
@@ -157,7 +161,7 @@ jobs:
           fi
 
           set +e
-          snyk test --all-projects --sarif-file-output=.sarif/snyk.sarif
+          snyk test lib/quantalib.csproj --sarif-file-output=.sarif/snyk.sarif
           rc=$?
           set -e
 
