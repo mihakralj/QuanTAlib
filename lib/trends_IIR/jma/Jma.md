@@ -13,7 +13,7 @@
 | **PineScript**   | [jma.pine](jma.pine)                       |
 | **Signature**    | [jma_signature](jma_signature.md) |
 
-- JMA (Jurik Moving Average) is Mark Jurik's flagship adaptive smoother, recovered through decompilation of his proprietary AmiBroker/MetaTrader bina...
+- JMA (Jurik Moving Average) is Mark Jurik's flagship adaptive smoother, recovered through decompilation of his proprietary AmiBroker/MetaTrader binaries.
 - **Similar:** [KAMA](../kama/kama.md), [FRAMA](../frama/frama.md) | **Complementary:** JMA-based bands | **Trading note:** Jurik MA; gold standard for smoothness with minimal lag.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
@@ -83,9 +83,10 @@ This `highD` value feeds into the distribution buffer.
 
 Here's where JMA differs from approximations.
 
-A 128-sample circular buffer stores `highD` values. On each bar, the buffer is sorted and a trimmed mean is computed:
+A 128-sample circular buffer stores `highD` values. The sorted order is maintained incrementally via two integer index maps (Index-Linked Sorted Arrays) rather than re-sorted each bar, and a trimmed mean is computed from the middle ranks:
 
 **Full buffer (128 samples):**
+
 $$
 \hat{V}_t = \frac{1}{65} \sum_{i=32}^{96} \text{sorted}[i]
 $$
@@ -93,12 +94,15 @@ $$
 The middle 65 values (indices 32-96) represent approximately the 25th-75th percentile. Outliers on both tails are discarded.
 
 **Partial buffer (16-127 samples):**
+
 $$
 s = \max(5, \text{round}(0.5 \times \text{count}))
 $$
+
 $$
 k = \lfloor(\text{count} - s) / 2\rfloor
 $$
+
 $$
 \hat{V}_t = \frac{1}{s} \sum_{i=k}^{k+s-1} \text{sorted}[i]
 $$
@@ -184,48 +188,44 @@ One JMA value requires the following operations:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 77 | 1 | 77 |
-| MUL | 7 | 3 | 21 |
+| ADD/SUB | 17 | 1 | 17 |
+| MUL | 6 | 3 | 18 |
 | DIV | 3 | 15 | 45 |
-| CMP/ABS | 7 | 1 | 7 |
+| CMP/ABS | 14 | 1 | 14 |
 | SQRT | 1 | 15 | 15 |
 | EXP | 2 | 50 | 100 |
 | POW | 1 | 80 | 80 |
-| SORT (128 elem) | 1 | ~900 | 900 |
-| **Total** | **99** | - | **~1,245 cycles** |
+| FMA | 7 | 4 | 28 |
+| Binary search (7-step) | 7 | 2 | 14 |
+| Index memmove (Array.Copy) | ~64 | 0.25 | 16 |
+| Reverse-map resync | ~64 | 1 | 64 |
+| **Total** | **~180** | - | **~411 cycles** |
 
-The 128-element sort dominates computational cost (~72% of total cycles).
+The 128-sample trimmed mean is maintained via Index-Linked Sorted Arrays (ILSA), not a per-bar sort. Each bar costs one 7-step binary search, one contiguous `Array.Copy` of 4-byte indices, and a reverse-map resync (~64 scatter writes). This replaces the previous full 128-element sort (~900 cycles, ~72% of the total) with ~94 cycles of index maintenance, an ~9.5× reduction on the volatility step.
 
 ### Batch Mode (512 values, SIMD/FMA)
 
-JMA is inherently recursive-each bar depends on previous state. SIMD parallelization across bars is not possible. However, within-bar operations can be vectorized:
+JMA is inherently recursive — each bar depends on previous state, so SIMD parallelization across bars is impossible. Within-bar vectorization is limited to the index memmove:
 
 | Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
 | :--- | :---: | :---: | :---: |
-| Trimmed mean sum (65 values) | 64 ADD | 8 VADDPD | 8× |
-| FMA operations (IIR filter) | 9 (MUL+ADD pairs) | 3 VFMADD | 3× |
+| Index memmove (Array.Copy) | ~64 int moves | 8 VMOVDQA | 8× |
 
-**Per-bar savings with SIMD/FMA:**
-
-| Optimization | Cycles Saved | New Total |
-| :--- | :---: | :---: |
-| SumSIMD for trimmed mean | ~56 | 1,189 |
-| FMA in IIR filter | ~12 | 1,177 |
-| FMA in band update | ~4 | 1,173 |
-| **Total SIMD/FMA savings** | **~72 cycles** | **~1,173 cycles** |
+The former SIMD win — the 65-value trimmed-mean sum — no longer exists: the core sum is maintained incrementally by O(1) boundary-crossing deltas. FMA is already applied throughout the IIR core and band updates, so there is nothing left to fuse. The reverse-map resync (~64 scatter writes) and the recursive filter state stay strictly sequential.
 
 **Batch efficiency (512 bars):**
 
-| Mode | Cycles/bar | Total (512 bars) | Overhead |
-| :--- | :---: | :---: | :---: |
-| Scalar streaming | 1,245 | 637,440 | - |
-| SIMD/FMA streaming | 1,173 | 600,576 | - |
-| **Improvement** | **5.8%** | **36,864 saved** | - |
+| Mode | Cycles/bar | Total (512 bars) |
+| :--- | :---: | :---: |
+| Scalar streaming | ~411 | ~210,432 |
+| With memmove SIMD | ~399 | ~204,288 |
+| **Improvement** | **~2.9%** | **~6,144 saved** |
 
-The modest 5.8% improvement reflects JMA's inherent limitations:
-1. **Sort dominates**: 900 of 1,245 cycles are spent sorting (comparison-based, not SIMD-friendly)
-2. **Recursive state**: The IIR filter and band updates depend on previous bar's output
-3. **Small SIMD windows**: Only the 65-value sum benefits significantly from vectorization
+The ~2.9% ceiling now comes from sequential costs that resist SIMD:
+
+1. **Reverse-map resync**: ~64 scatter writes per bar are the new dominant maintenance cost
+2. **Recursive state**: the IIR filter and band updates depend on the previous bar
+3. **Index maintenance**: the binary search and memmove are already near-minimal
 
 ### Quality Metrics
 
@@ -257,9 +257,9 @@ JMA is proprietary. No open-source library implements it. Validation is performe
 
 3. **Power Parameter Does Nothing**: The `power` parameter exists for API compatibility. This implementation ignores it, matching the PineScript reference. Use `period` and `phase` to control behavior. If migrating from an approximation that used power ≠ 0.45, expect different outputs.
 
-4. **Computational Cost**: JMA is ~100-200× more expensive than EMA per bar. The 128-element sort runs every bar. For universe scans across thousands of symbols, this adds up. Consider caching or reducing update frequency.
+4. **Computational Cost**: JMA is ~100-200× more expensive than EMA per bar. The 128-sample trimmed mean runs a binary search plus index maintenance every bar. For universe scans across thousands of symbols, this adds up. Consider caching or reducing update frequency.
 
-5. **Memory Footprint**: ~2.5 KB per instance (vs ~300 bytes for forum approximations). The 128-bar distribution buffer dominates. For 5,000 concurrent instances, budget ~12.5 MB.
+5. **Memory Footprint**: ~2.2 KB per instance (vs ~300 bytes for forum approximations). The ILSA window holds 128 doubles plus two 128-int index maps. For 5,000 concurrent instances, budget ~11 MB.
 
 6. **Spike Rejection Has Limits**: Distribution trimming works for isolated spikes. Sustained high volatility (multiple days) will eventually shift the distribution reference. JMA adapts, but not instantly.
 
