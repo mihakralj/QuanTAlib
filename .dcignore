@@ -7,6 +7,10 @@
 # Stale git worktrees (Agent Manager) — never scan.
 .kilo/
 
+# Solution file: --all-projects resolves it to the whole solution, bypassing
+# the per-project exclusions below and pulling the NativeAOT/benchmark projects.
+*.slnx
+
 # Benchmark harness.
 perf/
 
