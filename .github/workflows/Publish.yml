@@ -51,13 +51,13 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           cache: true
@@ -106,7 +106,7 @@ jobs:
           ls -lh .sarif/resharper.sarif
 
       - name: Upload SARIF artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sarif-resharper
           path: .sarif/resharper.sarif
@@ -124,13 +124,13 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           cache: true
@@ -181,7 +181,7 @@ jobs:
 
       - name: Upload SARIF artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sarif-snyk
           path: .sarif/snyk.sarif
@@ -200,13 +200,13 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.x"
 
@@ -249,7 +249,7 @@ jobs:
 
       - name: Upload SARIF artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sarif-semgrep
           path: .sarif/semgrep.sarif
@@ -270,13 +270,13 @@ jobs:
       checks: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           cache: true
@@ -286,7 +286,7 @@ jobs:
             **/*.sln
 
       - name: Set up JDK 17 (for SonarCloud)
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 17
           distribution: zulu
@@ -316,7 +316,7 @@ jobs:
         run: mkdir -p .sarif
 
       - name: Download External SARIFs
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: sarif-*
           path: .sarif
@@ -440,7 +440,7 @@ jobs:
         run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
       - name: Upload Coverage Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: coverage-reports
           path: coverage-merged/
@@ -463,12 +463,12 @@ jobs:
     if: always()
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Download all SARIF artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: sarif-*
           path: sarif
@@ -532,7 +532,7 @@ jobs:
 
       - name: Upload ReSharper SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/resharper.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/resharper.sarif
           category: resharper
@@ -551,7 +551,7 @@ jobs:
 
       - name: Upload Snyk SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/snyk.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/snyk.sarif
           category: snyk
@@ -559,7 +559,7 @@ jobs:
 
       - name: Upload Semgrep SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/semgrep.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/semgrep.sarif
           category: semgrep
@@ -568,7 +568,7 @@ jobs:
       # Upload per-project Roslyn SARIF files (generated by Directory.Build.props)
       - name: Upload quantalib SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/quantalib.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/quantalib.sarif
           category: roslyn-quantalib
@@ -576,7 +576,7 @@ jobs:
 
       - name: Upload QuanTAlib.Tests SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/QuanTAlib.Tests.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/QuanTAlib.Tests.sarif
           category: roslyn-tests
@@ -584,7 +584,7 @@ jobs:
 
       - name: Upload Quantower.Tests SARIF to GitHub Security
         if: always() && hashFiles('sarif-split/Quantower.Tests.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/Quantower.Tests.sarif
           category: roslyn-quantower-tests
@@ -593,7 +593,7 @@ jobs:
       # Upload split runs with unique categories (run0, run1, etc.)
       - name: Upload ReSharper split run 0
         if: always() && hashFiles('sarif-split/resharper-run0.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/resharper-run0.sarif
           category: resharper-run0
@@ -601,7 +601,7 @@ jobs:
 
       - name: Upload ReSharper split run 1
         if: always() && hashFiles('sarif-split/resharper-run1.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/resharper-run1.sarif
           category: resharper-run1
@@ -609,7 +609,7 @@ jobs:
 
       - name: Upload Snyk split run 0
         if: always() && hashFiles('sarif-split/snyk-run0.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/snyk-run0.sarif
           category: snyk-run0
@@ -617,7 +617,7 @@ jobs:
 
       - name: Upload Snyk split run 1
         if: always() && hashFiles('sarif-split/snyk-run1.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/snyk-run1.sarif
           category: snyk-run1
@@ -625,7 +625,7 @@ jobs:
 
       - name: Upload Roslyn split run 0
         if: always() && hashFiles('sarif-split/roslyn-run0.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/roslyn-run0.sarif
           category: roslyn-run0
@@ -633,7 +633,7 @@ jobs:
 
       - name: Upload Roslyn split run 1
         if: always() && hashFiles('sarif-split/roslyn-run1.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/roslyn-run1.sarif
           category: roslyn-run1
@@ -641,7 +641,7 @@ jobs:
 
       - name: Upload Roslyn split run 2
         if: always() && hashFiles('sarif-split/roslyn-run2.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/roslyn-run2.sarif
           category: roslyn-run2
@@ -649,7 +649,7 @@ jobs:
 
       - name: Upload Roslyn split run 3
         if: always() && hashFiles('sarif-split/roslyn-run3.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/roslyn-run3.sarif
           category: roslyn-run3
@@ -657,7 +657,7 @@ jobs:
 
       - name: Upload Roslyn split run 4
         if: always() && hashFiles('sarif-split/roslyn-run4.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: sarif-split/roslyn-run4.sarif
           category: roslyn-run4
@@ -676,12 +676,12 @@ jobs:
     if: always()
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ env.CHECKOUT_REF }}
 
       - name: Download Coverage Reports
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: coverage-reports
           path: coverage-merged
@@ -695,7 +695,9 @@ jobs:
             exit 0
           fi
 
-          curl https://deepsource.io/cli | sh
+          curl -fsSL https://deepsource.io/cli -o deepsource-install.sh
+          sh deepsource-install.sh
+          rm -f deepsource-install.sh
 
           if [ -f "coverage-merged/Cobertura.xml" ]; then
             ./bin/deepsource report --analyzer test-coverage --key csharp --value-file coverage-merged/Cobertura.xml
@@ -713,7 +715,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ env.CHECKOUT_REF }}
 
@@ -839,14 +841,14 @@ jobs:
 
       - name: Download SARIF artifacts
         if: steps.check_token.outputs.skip != 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: sarif-*
           path: sarif
 
       - name: Download Coverage Reports
         if: steps.check_token.outputs.skip != 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: coverage-reports
           path: coverage-merged
