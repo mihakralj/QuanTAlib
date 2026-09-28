@@ -113,7 +113,7 @@ jobs:
   # ==============================================================================
   Snyk_Scan:
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 30
     permissions:
       contents: read
       actions: write
@@ -139,7 +139,10 @@ jobs:
         uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
 
       - name: Restore dependencies
-        run: dotnet restore
+        # Restore only the shipped library. The full solution pulls the
+        # NativeAOT ILCompiler and benchmark native packages, which blow the
+        # job past its time limit. .dcignore scopes Snyk to the library anyway.
+        run: dotnet restore lib/quantalib.csproj
 
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
