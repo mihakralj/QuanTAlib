@@ -13,7 +13,7 @@
 | **PineScript**   | [rema.pine](rema.pine)                       |
 | **Signature**    | [rema_signature](rema_signature.md) |
 
-- REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous...
+- REMA (Regularized Exponential Moving Average) combines exponential smoothing with a regularization term that penalizes deviations from the previous trend direction.
 - **Similar:** [EMA](../ema/ema.md), [DEMA](../dema/dema.md) | **Complementary:** Volatility filters | **Trading note:** Regularized EMA; lambda term reduces whipsaws.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

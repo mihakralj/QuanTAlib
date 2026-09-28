@@ -12,7 +12,7 @@
 | **Warmup**       | `7` bars                          |
 | **PineScript**   | [ccyc.pine](ccyc.pine)                       |
 
-- CCYC isolates the dominant cycle component from price data using a 2-pole high-pass IIR filter applied to a 4-tap FIR-smoothed input, producing an ...
+- CCYC isolates the dominant cycle component from price data using a 2-pole high-pass IIR filter applied to a 4-tap FIR-smoothed input, producing an oscillator that strips trend while preserving cyclical content with minimal lag.
 - **Similar:** [Ccor](../ccor/Ccor.md), [CG](../cg/cg.md) | **Complementary:** EBSW for trend/cycle mode | **Trading note:** Cyber Cycle; Ehlers' bandpass approach to isolate dominant market cycles.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

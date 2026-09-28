@@ -13,7 +13,7 @@
 | **PineScript**   | [dsma.pine](dsma.pine)                       |
 | **Signature**    | [dsma_signature](dsma_signature.md) |
 
-- DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RM...
+- DSMA (Deviation-Scaled Moving Average) is a volatility-adaptive trend filter that combines a Super Smoother (2-pole Butterworth IIR filter) with RMS-based deviation scaling.
 - **Similar:** [DEMA](../dema/dema.md), [KAMA](../kama/kama.md) | **Complementary:** ADX for trend confirmation | **Trading note:** Deviation-Scaled MA; adapts smoothing based on price deviation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

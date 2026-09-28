@@ -13,7 +13,7 @@
 | **PineScript**   | [lanczos.pine](lanczos.pine)                       |
 | **Signature**    | [lanczos_signature](lanczos_signature.md) |
 
-- LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near...
+- LANCZOS applies the normalized sinc function $\text{sinc}(x) = \sin(\pi x)/(\pi x)$ as a symmetric FIR window, producing a moving average with near-ideal low-pass frequency characteristics.
 - **Similar:** [SinEma](../sinema/sinema.md), [NyqMA](../nyqma/Nyqma.md) | **Complementary:** FFT for frequency analysis | **Trading note:** Lanczos filter; sinc function with Lanczos window. Near-ideal low-pass with sharp cutoff.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -13,7 +13,7 @@
 | **PineScript**   | [crma.pine](crma.pine)                       |
 | **Signature**    | [crma_signature](crma_signature.md) |
 
-- CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitt...
+- CRMA fits a degree-3 polynomial $y = a_0 + a_1 x + a_2 x^2 + a_3 x^3$ to the most recent $N$ bars via ordinary least squares, then returns the fitted endpoint value $a_0$.
 - **Similar:** [SMA](../sma/Sma.md), [TrIMA](../trima/trima.md) | **Complementary:** Trend strength indicators | **Trading note:** Cubic-Root weighted MA; gentle weighting profile between uniform (SMA) and triangular (TrIMA).
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

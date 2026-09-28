@@ -12,7 +12,7 @@
 | **Warmup**       | `> period` bars                          |
 | **PineScript**   | [rwma.pine](rwma.pine)                       |
 
-- RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narr...
+- RWMA weights each bar's contribution to the average by its price range (high minus low), giving greater influence to volatile bars and less to narrow-range, indecisive bars.
 - **Similar:** [WMA](../wma/wma.md), [EMA](../../trends_IIR/ema/ema.md) | **Trading note:** Right-weighted MA; concentrates weight on recent data while maintaining FIR structure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

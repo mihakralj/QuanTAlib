@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [stbands.pine](stbands.pine)                       |
 
-- Super Trend Bands provide ATR-based dynamic support and resistance levels with asymmetric ratchet logic: the upper band only tightens downward duri...
+- Super Trend Bands provide ATR-based dynamic support and resistance levels with asymmetric ratchet logic: the upper band only tightens downward during downtrends, and the lower band only tightens upward during uptrends.
 - **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** Volume for breakout validation | **Trading note:** Stoller bands use ATR multiplier instead of standard deviation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

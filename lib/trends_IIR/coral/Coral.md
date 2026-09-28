@@ -13,7 +13,7 @@
 | **PineScript**   | [coral.pine](coral.pine)                       |
 | **Signature**    | [coral_signature](coral_signature.md) |
 
-- The **Coral** filter is a smooth, low-lag trend indicator that chains six cascaded EMA passes and combines stages 3–6 using polynomial coefficients...
+- The **Coral** filter is a smooth, low-lag trend indicator that chains six cascaded EMA passes and combines stages 3–6 using polynomial coefficients derived from a "Constant D" parameter.
 - **Similar:** [DEMA](../dema/dema.md), [TEMA](../tema/tema.md) | **Complementary:** Trend direction filters | **Trading note:** Coral trend indicator; smooth, low-lag modified exponential filter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

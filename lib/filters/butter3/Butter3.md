@@ -13,7 +13,7 @@
 | **PineScript**   | [butter3.pine](butter3.pine)                       |
 | **Signature**    | [butter3_signature](butter3_signature.md) |
 
-- The 3-Pole Butterworth Filter (BUTTER3) extends the classic Butterworth design to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
+- The 3-Pole Butterworth Filter (BUTTER3) extends the classic Butterworth design to third order, providing -60 dB/decade rolloff compared to -40 dB/decade for the 2-pole variant.
 - **Similar:** [Butter2](../butter2/Butter2.md), [Elliptic](../elliptic/Elliptic.md) | **Complementary:** Phase analysis tools | **Trading note:** 3rd-order Butterworth; steeper rolloff than 2nd-order but more phase distortion.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

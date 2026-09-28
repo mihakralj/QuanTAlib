@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [lognormdist.pine](lognormdist.pine)                       |
 
-- The Log-Normal Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the log-normal distribution, pro...
+- The Log-Normal Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the log-normal distribution, producing an output in $[0, 1]$.
 - **Trading note:** Log-normal distribution; models multiplicative processes like returns. Foundation of Black-Scholes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

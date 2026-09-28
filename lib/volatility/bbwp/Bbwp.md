@@ -12,7 +12,7 @@
 | **Warmup**       | `period + lookback` bars                          |
 | **PineScript**   | [bbwp.pine](bbwp.pine)                       |
 
-- BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the res...
+- BBWP (Bollinger Band Width Percentile) measures where the current Bollinger Band Width falls within its historical distribution, expressing the result as a percentile rank between 0 and 1.
 - **Similar:** [BBW](../bbw/bbw.md) | **Complementary:** Percentile rank | **Trading note:** BandWidth Percentile; ranks current width in historical context.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [qstick.pine](qstick.pine)                       |
 
-- The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying ...
+- The Qstick indicator, developed by Tushar Chande, computes a moving average of the close-minus-open difference over a lookback period, quantifying whether bars are predominantly bullish or bearish.
 - **Similar:** [CMO](../../momentum/cmo/Cmo.md), [Impulse](../impulse/Impulse.md) | **Complementary:** Volume for confirmation | **Trading note:** Qstick averages (Close−Open); positive = buying pressure, negative = selling pressure.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

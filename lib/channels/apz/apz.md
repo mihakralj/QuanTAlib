@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [apz.pine](apz.pine)                       |
 
-- APZ constructs a volatility-adaptive envelope using double-smoothed exponential moving averages with an aggressive smoothing factor derived from $\...
+- APZ constructs a volatility-adaptive envelope using double-smoothed exponential moving averages with an aggressive smoothing factor derived from $\sqrt{\text{period}}$, making it significantly faster than standard EMA-based channels.
 - **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** RSI for overbought/oversold confirmation | **Trading note:** EMA-based deviation adapts faster than standard deviation bands; responsive to recent volatility changes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

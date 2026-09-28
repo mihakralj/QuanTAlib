@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [weibulldist.pine](weibulldist.pine)                       |
 
-- The Weibull Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the Weibull distribution, producing...
+- The Weibull Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the Weibull distribution, producing an output in $[0, 1]$.
 - **Trading note:** Weibull distribution; flexible lifetime/reliability model. Used for drawdown duration analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

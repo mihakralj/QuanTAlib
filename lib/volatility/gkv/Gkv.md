@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [gkv.pine](gkv.pine)                       |
 
-- Garman-Klass Volatility (GKV) is a range-based volatility estimator that uses all four OHLC prices to provide more efficient volatility estimates t...
+- Garman-Klass Volatility (GKV) is a range-based volatility estimator that uses all four OHLC prices to provide more efficient volatility estimates than traditional close-to-close methods.
 - **Similar:** [YZV](../yzv/yzv.md), [HV](../hv/hv.md) | **Complementary:** Options pricing | **Trading note:** Garman-Klass; full OHLC, more efficient than close-to-close.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

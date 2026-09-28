@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 2` bars                          |
 | **PineScript**   | [fcb.pine](fcb.pine)                       |
 
-- Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest ...
+- Fractal Chaos Bands filter raw price action through Bill Williams' fractal detection logic, tracking the highest confirmed fractal high and lowest confirmed fractal low over a lookback period.
 - **Similar:** [DC](../dc/dc.md), [PC](../pc/pc.md) | **Complementary:** Williams Fractals for additional confirmation | **Trading note:** Based on Bill Williams' fractal theory; bands update only on fractal pivots, creating a staircase pattern.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `maxPeriod` bars                          |
 | **PineScript**   | [ichimoku.pine](ichimoku.pine)                       |
 
-- Ichimoku Kinko Hyo ("One Glance Equilibrium Chart") is a comprehensive trend-following system that provides five distinct components revealing tren...
+- Ichimoku Kinko Hyo ("One Glance Equilibrium Chart") is a comprehensive trend-following system that provides five distinct components revealing trend direction, momentum, support/resistance levels, and potential future price zones simultaneously.
 - **Similar:** [Alligator](../alligator/Alligator.md), [AMAT](../amat/Amat.md) | **Complementary:** Volume for cloud breakout confirmation | **Trading note:** Five-line system: Tenkan, Kijun, Senkou A/B, Chikou. Cloud defines support/resistance zones.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

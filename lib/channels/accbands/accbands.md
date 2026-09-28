@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [accbands.pine](accbands.pine)                       |
 
-- Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating chann...
+- Acceleration Bands construct a volatility envelope using the intra-bar high-low range rather than close-to-close standard deviation, creating channels that accommodate the full price excursion of the underlying asset.
 - **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** ADX for trend strength | **Trading note:** Wider than Bollinger Bands; effective for breakout trading using high-low range volatility.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

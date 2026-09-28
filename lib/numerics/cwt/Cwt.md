@@ -12,7 +12,7 @@
 | **Warmup**       | windowSize (2K+1) bars, where K = round(3 × scale) |
 | **PineScript**   | [cwt.pine](cwt.pine)                       |
 
-- CWT computes the magnitude of the Continuous Wavelet Transform at a specified scale using the Morlet wavelet, providing a time-frequency decomposit...
+- CWT computes the magnitude of the Continuous Wavelet Transform at a specified scale using the Morlet wavelet, providing a time-frequency decomposition that measures the energy content of a specific frequency band at each point in time.
 - **Similar:** [DWT](../dwt/Dwt.md), [FFT](../fft/Fft.md) | **Trading note:** Continuous Wavelet Transform; multi-resolution time-frequency analysis for cycle detection.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

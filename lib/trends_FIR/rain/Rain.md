@@ -13,7 +13,7 @@
 | **PineScript**   | [rain.pine](rain.pine)                       |
 | **Signature**    | [rain_signature](rain_signature.md) |
 
-- RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across ...
+- RAIN recursively applies SMA 10 times, producing 10 layers of progressively smoother price representation, then computes a weighted average across all layers.
 - **Similar:** [ALMA](../alma/alma.md), [FWMA](../fwma/fwma.md) | **Complementary:** ATR | **Trading note:** Raised-cosine MA; smooth taper at edges. Good sidelobe suppression for noise reduction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

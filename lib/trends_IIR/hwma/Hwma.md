@@ -13,7 +13,7 @@
 | **PineScript**   | [hwma.pine](hwma.pine)                       |
 | **Signature**    | [hwma_signature](hwma_signature.md) |
 
-- HWMA is an Infinite Impulse Response (IIR) filter that applies triple exponential smoothing with level (F), velocity (V), and acceleration (A) comp...
+- HWMA is an Infinite Impulse Response (IIR) filter that applies triple exponential smoothing with level (F), velocity (V), and acceleration (A) components.
 - **Similar:** [HOLT](../holt/holt.md) | **Complementary:** Seasonal analysis | **Trading note:** Holt-Winters MA; triple exponential smoothing with seasonal component.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

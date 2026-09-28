@@ -12,7 +12,7 @@
 | **Warmup**       | `⌈20 + 80 × period^0.36⌉` bars                          |
 | **PineScript**   | [Jbands.pine](Jbands.pine)                       |
 
-- JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new pri...
+- JBANDS expose the internal adaptive envelope mechanism of the Jurik Moving Average (JMA), producing asymmetric bands that snap instantly to new price extremes and decay exponentially during consolidation.
 - **Similar:** [BBands](../bbands/bbands.md), [KC](../kc/kc.md) | **Complementary:** Momentum oscillators for reversal timing | **Trading note:** Uses JMA (Jurik Moving Average) as center line for smoother, lower-lag bands compared to standard Bollinger.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

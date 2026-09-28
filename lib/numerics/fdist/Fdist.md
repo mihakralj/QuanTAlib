@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [fdist.pine](fdist.pine)                       |
 
-- The F-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the F-distribution (Fisher-Snedecor distr...
+- The F-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the F-distribution (Fisher-Snedecor distribution), producing an output in $[0, 1]$.
 - **Trading note:** F-distribution; used in ANOVA and regression significance tests. Compares model variances.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

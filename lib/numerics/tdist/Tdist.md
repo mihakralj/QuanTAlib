@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [tdist.pine](tdist.pine)                       |
 
-- The Student's t-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of Student's t-distribution, produ...
+- The Student's t-Distribution CDF transforms a min-max normalized price into the cumulative distribution function of Student's t-distribution, producing an output in $[0, 1]$.
 - **Trading note:** Student's t-distribution; used for hypothesis testing with small samples. Fatter tails than normal.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

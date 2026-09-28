@@ -13,7 +13,7 @@
 | **PineScript**   | [alaguerre.pine](alaguerre.pine)                       |
 | **Signature**    | [alaguerre_signature](alaguerre_signature.md) |
 
-- The Adaptive Laguerre Filter extends Ehlers' four-element all-pass cascade by replacing the fixed damping factor with a per-bar adaptive alpha deri...
+- The Adaptive Laguerre Filter extends Ehlers' four-element all-pass cascade by replacing the fixed damping factor with a per-bar adaptive alpha derived from tracking-error normalization.
 - **Similar:** [Laguerre](../laguerre/Laguerre.md), [SSF2](../ssf2/Ssf2.md) | **Complementary:** RSI for momentum | **Trading note:** Adaptive Laguerre filter by Ehlers; adjusts damping based on market conditions.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

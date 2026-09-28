@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [trim.pine](trim.pine)                       |
 
-- The Trimmed Mean Moving Average computes a rolling average after discarding a configurable percentage of the most extreme values from each tail of ...
+- The Trimmed Mean Moving Average computes a rolling average after discarding a configurable percentage of the most extreme values from each tail of the sorted lookback window.
 - **Similar:** [Wins](../wins/Wins.md), [Median](../median/Median.md) | **Trading note:** Trimmed mean; excludes extreme percentiles. Robust average for volatile data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

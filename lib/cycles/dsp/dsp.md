@@ -12,7 +12,7 @@
 | **Warmup**       | `slowPeriod * 3` bars                          |
 | **PineScript**   | [dsp.pine](dsp.pine)                       |
 
-- DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price...
+- DSP creates a zero-centered oscillator by subtracting a half-cycle EMA from a quarter-cycle EMA, isolating the dominant cyclical component of price while cancelling longer-term trends.
 - **Similar:** [SSFDSP](../ssfdsp/Ssfdsp.md), [Ccyc](../ccyc/Ccyc.md) | **Complementary:** ATR for volatility filter | **Trading note:** Digital Signal Processing filter; separates signal from noise in price data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

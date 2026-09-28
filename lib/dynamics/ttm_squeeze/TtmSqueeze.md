@@ -11,7 +11,7 @@
 | **Output range** | Varies (see docs)                     |
 | **Warmup**       | `Math.Max(Math.Max(bbPeriod, kcPeriod), momPeriod)` bars                          |
 
-- John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside K...
+- John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside KC, a "squeeze" is on, signaling imminent breakout.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 John Carter's TTM Squeeze detects low-volatility compression by comparing Bollinger Band width against Keltner Channel width: when BB fits inside KC, a "squeeze" is on, signaling imminent breakout. The momentum component uses linear regression of price deviation from the Donchian midline to indicate direction. The indicator outputs a boolean squeeze state plus a continuous momentum histogram, requiring BB(20,2.0) and KC(20,1.5) as default parameters with a combined warmup of 20 bars.

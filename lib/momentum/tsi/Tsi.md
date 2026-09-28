@@ -12,7 +12,7 @@
 | **Warmup**       | `longPeriod + shortPeriod + signalPeriod` bars (51 default)                          |
 | **PineScript**   | [tsi.pine](tsi.pine)                       |
 
-- The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price mom...
+- The True Strength Index (TSI) is a momentum oscillator developed by William Blau that uses double-smoothed exponential moving averages of price momentum to reduce noise and identify trend strength and direction.
 - **Similar:** [MACD](../macd/Macd.md), [PMO](../pmo/Pmo.md) | **Complementary:** Signal line crossovers | **Trading note:** True Strength Index; double-smoothed momentum ratio. Range ±100. Good for divergence analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

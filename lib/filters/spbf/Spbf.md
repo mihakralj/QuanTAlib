@@ -12,7 +12,7 @@
 | **Warmup**       | `max(longPeriod, rmsPeriod)` bars (default 60) |
 | **PineScript**   | [spbf.pine](spbf.pine)                       |
 
-- The **Super Passband Filter** is John Ehlers' wide-band bandpass constructed by differencing two z-transformed EMAs with Ehlers-style smoothing ($\...
+- The **Super Passband Filter** is John Ehlers' wide-band bandpass constructed by differencing two z-transformed EMAs with Ehlers-style smoothing ($\alpha = 5/N$).
 - **Similar:** [Bilateral](../bilateral/Bilateral.md), [RMed](../rmed/Rmed.md) | **Complementary:** ATR for volatility context | **Trading note:** Spectral bilateral filter; edge-preserving smoother in frequency domain.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

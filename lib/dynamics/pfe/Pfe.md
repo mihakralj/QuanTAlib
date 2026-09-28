@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [pfe.pine](pfe.pine)                       |
 
-- Polarized Fractal Efficiency (PFE) quantifies trend strength by comparing the Euclidean distance a price series actually travels bar-to-bar against...
+- Polarized Fractal Efficiency (PFE) quantifies trend strength by comparing the Euclidean distance a price series actually travels bar-to-bar against the straight-line distance between the endpoints over the same window.
 - **Similar:** [ADX](../adx/Adx.md), [VHF](../vhf/Vhf.md) | **Complementary:** Moving average for trend direction | **Trading note:** Polarized Fractal Efficiency; measures how efficiently price travels. ±100 scale.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

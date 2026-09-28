@@ -13,7 +13,7 @@
 | **PineScript**   | [qrma.pine](qrma.pine)                       |
 | **Signature**    | [qrma_signature](qrma_signature.md) |
 
-- QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at t...
+- QRMA fits a second-degree polynomial $y = a + bx + cx^2$ to the most recent $N$ bars via ordinary least squares, then returns the fitted value at the endpoint (newest bar).
 - **Similar:** [LSMA](../lsma/lsma.md), [PMA](../pma/Pma.md) | **Complementary:** Trend indicators | **Trading note:** Quadratic Regression MA; 2nd-order polynomial fit. Captures parabolic acceleration.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

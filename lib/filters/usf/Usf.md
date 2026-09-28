@@ -13,7 +13,7 @@
 | **PineScript**   | [usf.pine](usf.pine)                       |
 | **Signature**    | [usf_signature](usf_signature.md) |
 
-- The Ultimate Smoother Filter (USF) is a zero-lag smoothing filter introduced by John Ehlers in the April 2024 issue of *Technical Analysis of Stock...
+- The Ultimate Smoother Filter (USF) is a zero-lag smoothing filter introduced by John Ehlers in the April 2024 issue of *Technical Analysis of Stocks & Commodities*.
 - **Similar:** [SSF2](../ssf2/Ssf2.md), [Kalman](../kalman/Kalman.md) | **Complementary:** ATR for volatility | **Trading note:** Universal Smoothing Filter; combines multiple filter approaches adaptively.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

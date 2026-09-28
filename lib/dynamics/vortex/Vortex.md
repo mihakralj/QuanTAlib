@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [vortex.pine](vortex.pine)                       |
 
-- The Vortex Indicator measures upward and downward trend momentum by computing the ratio of positive and negative vortex movements to true range ove...
+- The Vortex Indicator measures upward and downward trend momentum by computing the ratio of positive and negative vortex movements to true range over a rolling window.
 - **Similar:** [ADX](../adx/Adx.md), [Aroon](../aroon/Aroon.md) | **Complementary:** Volume for confirmation | **Trading note:** VI+ and VI− oscillate around 1.0; crossovers signal trend changes. Inspired by Viktor Schauberger's vortex theory.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

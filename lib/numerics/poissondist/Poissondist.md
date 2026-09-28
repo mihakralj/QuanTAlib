@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [poissondist.pine](poissondist.pine)                       |
 
-- The Poisson Distribution CDF computes the probability $P(X \le k)$ for a Poisson random variable whose rate parameter $\lambda$ is derived from the...
+- The Poisson Distribution CDF computes the probability $P(X \le k)$ for a Poisson random variable whose rate parameter $\lambda$ is derived from the min-max normalized price.
 - **Trading note:** Poisson distribution; models count of rare events. Trade signal frequency analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

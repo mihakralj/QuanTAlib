@@ -12,7 +12,7 @@
 | **Warmup**       | `rsiPeriod + smoothFactor + darPeriod * 2` bars                          |
 | **PineScript**   | [qqe.pine](qqe.pine)                       |
 
-- Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands aro...
+- Quantitative Qualitative Estimation applies a multi-stage smoothing pipeline to RSI and then constructs dynamic volatility-based trailing bands around the smoothed result.
 - **Similar:** [RSI](../../momentum/rsi/Rsi.md), [StochRSI](../stochrsi/Stochrsi.md) | **Complementary:** ATR | **Trading note:** Quantitative Qualitative Estimation; smoothed RSI with dynamic trailing levels. Reduces false signals.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

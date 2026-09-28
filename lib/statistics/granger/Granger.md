@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [granger.pine](granger.pine)                       |
 
-- The Granger Causality test asks a precise, falsifiable question: does knowing the history of series X improve your ability to predict series Y, bey...
+- The Granger Causality test asks a precise, falsifiable question: does knowing the history of series X improve your ability to predict series Y, beyond what Y's own history already provides? The answer arrives as an F-statistic from comparing two OLS regression models.
 - **Similar:** [Cointegration](../cointegration/Cointegration.md), [Correl](../correl/Correl.md) | **Trading note:** Granger causality test; determines if one time series can forecast another. Lead-lag detection.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

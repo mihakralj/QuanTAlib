@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [cv.pine](cv.pine)                       |
 
-- Conditional Volatility (CV) implements the GARCH(1,1) model for volatility forecasting, the most widely used time-varying volatility model in finan...
+- Conditional Volatility (CV) implements the GARCH(1,1) model for volatility forecasting, the most widely used time-varying volatility model in financial econometrics.
 - **Similar:** [HV](../hv/hv.md) | **Complementary:** Volatility analysis | **Trading note:** Coefficient of Variation; ratio of std dev to mean.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

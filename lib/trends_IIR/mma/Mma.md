@@ -13,7 +13,7 @@
 | **PineScript**   | [mma.pine](mma.pine)                       |
 | **Signature**    | [mma_signature](mma_signature.md) |
 
-- MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the ...
+- MMA (Modified Moving Average) uses a **simple mean** as a baseline, then adds a **weighted correction** based on the position of values within the buffer.
 - **Similar:** [SMMA](../rma/Rma.md), [EMA](../ema/Ema.md) | **Complementary:** RSI/ATR (use MMA internally) | **Trading note:** Modified MA (identical to SMMA/RMA); Wilders smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

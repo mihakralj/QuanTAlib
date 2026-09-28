@@ -12,7 +12,7 @@
 | **Warmup**       | 1 bar                          |
 | **PineScript**   | [stc.pine](stc.pine)                       |
 
-- The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden withi...
+- The Schaff Trend Cycle is a cyclometric oscillator that applies double-Stochastic normalization to MACD, extracting the cyclical phase hidden within the trend itself.
 - **Similar:** [MACD](../../momentum/macd/Macd.md), [Stoch](../stoch/Stoch.md) | **Complementary:** ADX | **Trading note:** Schaff Trend Cycle; double Stochastic of MACD. Faster trend detection. 25/75 signal levels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

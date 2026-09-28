@@ -12,7 +12,7 @@
 | **Warmup**       | `slowPeriod` bars                          |
 | **PineScript**   | [amat.pine](amat.pine)                       |
 
-- The Archer Moving Averages Trends indicator is a triple-confirmation trend identification system that uses dual EMAs to produce discrete directiona...
+- The Archer Moving Averages Trends indicator is a triple-confirmation trend identification system that uses dual EMAs to produce discrete directional signals (+1 bullish, -1 bearish, 0 neutral).
 - **Similar:** [Alligator](../alligator/Alligator.md), [Ichimoku](../ichimoku/Ichimoku.md) | **Complementary:** ADX for trend strength | **Trading note:** Archer Moving Average Trend; uses MA crossover zones to classify trend phases.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

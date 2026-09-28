@@ -12,7 +12,7 @@
 | **Warmup**       | `> SlowPeriod` bars                          |
 | **PineScript**   | [aobv.pine](aobv.pine)                       |
 
-- Archer On-Balance Volume (AOBV) applies dual exponential smoothing to the classic On-Balance Volume indicator, creating a responsive yet noise-filt...
+- Archer On-Balance Volume (AOBV) applies dual exponential smoothing to the classic On-Balance Volume indicator, creating a responsive yet noise-filtered momentum signal.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

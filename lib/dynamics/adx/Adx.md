@@ -12,7 +12,7 @@
 | **Warmup**       | `period * 2` bars                          |
 | **PineScript**   | [adx.pine](adx.pine)                       |
 
-- The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price exp...
+- The Average Directional Index is the industry-standard measure of trend strength, ignoring direction entirely to focus on the velocity of price expansion.
 - **Similar:** [ADXR](../adxr/Adxr.md), [DX](../dx/Dx.md) | **Complementary:** Moving averages for direction | **Trading note:** Wilder's trend strength gauge; >25 trending, <20 ranging. Does not indicate direction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

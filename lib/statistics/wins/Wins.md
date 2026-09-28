@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [wins.pine](wins.pine)                       |
 
-- The Winsorized Mean Moving Average computes a rolling average after replacing (not discarding) the most extreme values in each tail with the bounda...
+- The Winsorized Mean Moving Average computes a rolling average after replacing (not discarding) the most extreme values in each tail with the boundary values at the trim point.
 - **Similar:** [Trim](../trim/Trim.md), [Percentile](../percentile/Percentile.md) | **Trading note:** Winsorized mean; replaces extreme values instead of removing them. Preserves sample size.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

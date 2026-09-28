@@ -13,7 +13,7 @@
 | **PineScript**   | [cheby1.pine](cheby1.pine)                       |
 | **Signature**    | [cheby1_signature](cheby1_signature.md) |
 
-- The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with...
+- The Chebyshev Type I filter minimizes the error between the idealized and the actual filter characteristic over the range of the passband, but with ripples in the passband.
 - **Similar:** [Cheby2](../cheby2/Cheby2.md), [Elliptic](../elliptic/Elliptic.md) | **Complementary:** ATR for stop distance | **Trading note:** Chebyshev Type I; passband ripple for sharper transition. Steeper than Butterworth.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

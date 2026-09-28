@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [hv.pine](hv.pine)                       |
 
-- Historical Volatility (HV), also known as close-to-close volatility or realized volatility, is the classical measure of price volatility using the ...
+- Historical Volatility (HV), also known as close-to-close volatility or realized volatility, is the classical measure of price volatility using the standard deviation of logarithmic returns.
 - **Similar:** [RVI](../rvi/rvi.md), [ATR](../atr/atr.md) | **Complementary:** Implied volatility for HV/IV ratio | **Trading note:** Historical Volatility; annualized std dev of log returns.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

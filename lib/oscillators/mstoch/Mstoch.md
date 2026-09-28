@@ -12,7 +12,7 @@
 | **Warmup**       | 1 bar                          |
 | **PineScript**   | [mstoch.pine](mstoch.pine)                       |
 
-- The MESA Stochastic applies John Ehlers' Roofing Filter as a preprocessing stage before computing a stochastic oscillator, then smooths the stochas...
+- The MESA Stochastic applies John Ehlers' Roofing Filter as a preprocessing stage before computing a stochastic oscillator, then smooths the stochastic output with a Super Smoother.
 - **Similar:** [Stoch](../stoch/Stoch.md), [KDJ](../kdj/Kdj.md) | **Complementary:** MACD | **Trading note:** Modified Stochastic; enhanced stochastic oscillator with additional smoothing or lookback variation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

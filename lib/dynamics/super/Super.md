@@ -12,7 +12,7 @@
 | **Warmup**       | `> period + 1` bars                          |
 | **PineScript**   | [super.pine](super.pine)                       |
 
-- SuperTrend is a trend-following overlay that uses ATR-scaled bands around the HL2 midpoint, switching between upper and lower bands based on close ...
+- SuperTrend is a trend-following overlay that uses ATR-scaled bands around the HL2 midpoint, switching between upper and lower bands based on close price breakouts.
 - **Similar:** [SAR](../../reversals/sar/Sar.md), [Ghla](../ghla/Ghla.md) | **Complementary:** ADX for trend strength | **Trading note:** SuperTrend; ATR-based trailing stop that flips direction. Popular in crypto and forex.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

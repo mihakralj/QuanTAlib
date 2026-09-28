@@ -14,9 +14,7 @@
                      + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))
                      + sigPeriod - 2` bars                          |
 
-- The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smo...
-                     + Math.Max(Math.Max(s1, s2), Math.Max(s3, s4))
-                     + sigPeriod - 2` bars of warmup before first valid output (IsHot = true).
+- The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smooths each with an independent SMA, then combines them using linearly increasing weights (1, 2, 3, 4) to produce a single composite momentum line.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
 The Know Sure Thing is a multi-timeframe momentum oscillator that computes four Rate of Change values at progressively longer lookback periods, smooths each with an independent SMA, then combines them using linearly increasing weights (1, 2, 3, 4) to produce a single composite momentum line. A signal line (SMA of the KST) provides crossover triggers. The weighted summation ensures longer-term momentum dominates the output while shorter-term components contribute responsiveness, creating a momentum indicator that reflects multiple cycle lengths simultaneously.

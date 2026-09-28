@@ -12,7 +12,7 @@
 | **Warmup**       | `Math.Max(hpLength, ssfLength) + 3` bars (default 43)                          |
 | **PineScript**   | [ebsw.pine](ebsw.pine)                       |
 
-- EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Co...
+- EBSW is a refined cycle oscillator that combines a high-pass filter (trend removal), a Super-Smoother filter (noise removal), and Automatic Gain Control to produce a normalized $[-1, +1]$ output representing the current position within the dominant market cycle.
 - **Similar:** [HT_TrendMode](../../dynamics/ht_trendmode/HtTrendmode.md), [VHF](../../dynamics/vhf/Vhf.md) | **Complementary:** ADX for trend strength | **Trading note:** Even Better Sine Wave; classifies market as trending or cycling.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

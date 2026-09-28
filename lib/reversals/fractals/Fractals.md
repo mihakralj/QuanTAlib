@@ -12,7 +12,7 @@
 | **Warmup**       | 1 bar                          |
 | **PineScript**   | [fractals.pine](fractals.pine)                       |
 
-- Williams Fractals detect local price extremes using a strict five-bar pattern: an Up Fractal marks a bar whose high exceeds the highs of the two ba...
+- Williams Fractals detect local price extremes using a strict five-bar pattern: an Up Fractal marks a bar whose high exceeds the highs of the two bars before and after it; a Down Fractal marks a bar whose low undercuts the lows of the two bars before and after it.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

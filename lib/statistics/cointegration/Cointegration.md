@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [cointegration.pine](cointegration.pine)                       |
 
-- The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an...
+- The Cointegration indicator measures the long-run equilibrium relationship between two price series using the Engle-Granger two-step method with an Augmented Dickey-Fuller (ADF) test.
 - **Similar:** [Correl](../correl/Correl.md), [Granger](../granger/Granger.md) | **Trading note:** Tests if two series share a long-run equilibrium. Foundation of statistical arbitrage (pairs trading).
 - Validated against TradingView PineScript reference and statistical property tests.
 

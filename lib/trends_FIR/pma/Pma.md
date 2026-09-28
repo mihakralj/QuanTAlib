@@ -13,7 +13,7 @@
 | **PineScript**   | [pma.pine](pma.pine)                       |
 | **Signature**    | [pma_signature](pma_signature.md) |
 
-- PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predi...
+- PMA (Predictive Moving Average) is a lag-cancellation filter that uses linear extrapolation of dual WMA (Weighted Moving Average) cascades to predict price direction.
 - **Similar:** [LSMA](../lsma/lsma.md), [Polyfit](../../statistics/polyfit/Polyfit.md) | **Complementary:** R² for trend quality | **Trading note:** Polynomial MA; fits nth-degree polynomial. Captures curves better than linear regression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

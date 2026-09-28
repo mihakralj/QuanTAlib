@@ -12,7 +12,7 @@
 | **Warmup**       | `> period` bars                          |
 | **PineScript**   | [vf.pine](vf.pine)                       |
 
-- Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with wa...
+- Volume Force (VF) quantifies the strength of volume behind price movements by multiplying price change by volume and applying EMA smoothing with warmup compensation.
 - **Similar:** [MFI](../mfi/Mfi.md), [CMF](../cmf/Cmf.md) | **Complementary:** RSI | **Trading note:** Volume Force; measures directional volume pressure. Positive = buyers dominant.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

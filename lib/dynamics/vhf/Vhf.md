@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [vhf.pine](vhf.pine)                       |
 
-- VHF (Vertical Horizontal Filter) measures trend strength by dividing the price range over $N$ periods by the total absolute bar-to-bar path distanc...
+- VHF (Vertical Horizontal Filter) measures trend strength by dividing the price range over $N$ periods by the total absolute bar-to-bar path distance over the same window.
 - **Similar:** [ADX](../adx/Adx.md), [Chop](../chop/Chop.md) | **Complementary:** Moving averages for direction | **Trading note:** Vertical Horizontal Filter; ratio of price range to cumulative movement. High = trending.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

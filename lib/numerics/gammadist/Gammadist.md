@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [gammadist.pine](gammadist.pine)                       |
 
-- The Gamma Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the gamma distribution, producing an ...
+- The Gamma Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the gamma distribution, producing an output in $[0, 1]$.
 - **Trading note:** Gamma distribution; models waiting times and aggregate claims. Used in risk modeling.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

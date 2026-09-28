@@ -12,7 +12,7 @@
 | **Warmup**       | `⌈3/alpha⌉` bars (default 15)                          |
 | **PineScript**   | [apchannel.pine](apchannel.pine)                       |
 
-- APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes wh...
+- APCHANNEL applies exponential smoothing independently to price highs and lows, creating a dynamic envelope that "remembers" significant extremes while gradually fading their influence over time.
 - **Similar:** [RegChannel](../regchannel/regchannel.md) | **Complementary:** Volume for breakout confirmation | **Trading note:** Based on pivot points; useful for identifying median price paths and potential support/resistance.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

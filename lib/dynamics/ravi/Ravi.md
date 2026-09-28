@@ -12,7 +12,7 @@
 | **Warmup**       | `longPeriod` bars (default 65)                          |
 | **PineScript**   | [ravi.pine](ravi.pine)                       |
 
-- RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a lon...
+- RAVI (Range Action Verification Index) measures trend strength by computing the absolute percentage divergence between a short-period SMA and a long-period SMA.
 - **Similar:** [ADX](../adx/Adx.md), [Chop](../chop/Chop.md) | **Complementary:** Moving average crossover for entries | **Trading note:** Range Action Verification Index; ratio of fast/slow MA difference to slow MA. Trend filter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

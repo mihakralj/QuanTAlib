@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [vr.pine](vr.pine)                       |
 
-- Volatility Ratio (VR) measures the current bar's True Range relative to its Average True Range (ATR), providing a normalized indicator of short-ter...
+- Volatility Ratio (VR) measures the current bar's True Range relative to its Average True Range (ATR), providing a normalized indicator of short-term volatility expansion or contraction.
 - **Similar:** [HV](../hv/hv.md), [ATR](../atr/atr.md) | **Complementary:** Volatility regimes | **Trading note:** Volatility Ratio; current vs historical for regime detection.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

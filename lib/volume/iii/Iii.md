@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [iii.pine](iii.pine)                       |
 
-- The Intraday Intensity Index (III) measures buying and selling pressure by analyzing where the close price falls within the high-low range, weighte...
+- The Intraday Intensity Index (III) measures buying and selling pressure by analyzing where the close price falls within the high-low range, weighted by volume.
 - **Similar:** [CMF](../cmf/Cmf.md), [MFI](../mfi/Mfi.md) | **Complementary:** Volume | **Trading note:** Intraday Intensity Index; measures close position within H-L range relative to volume.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

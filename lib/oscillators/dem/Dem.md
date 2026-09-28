@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [dem.pine](dem.pine)                       |
 
-- DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures sequential demand pressure by comparing each bar's high and low aga...
+- DEM (DeMarker Oscillator) is a bounded [0, 1] momentum oscillator that measures sequential demand pressure by comparing each bar's high and low against the previous bar's high and low.
 - **Similar:** [MACD](../../momentum/macd/Macd.md), [AO](../ao/Ao.md) | **Complementary:** Volume | **Trading note:** DeMarker; compares current high/low to previous. Overbought >0.7, oversold <0.3.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

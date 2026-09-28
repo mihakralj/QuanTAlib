@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [decaychannel.pine](decaychannel.pine)                       |
 
-- Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that exp...
+- Decay Channel combines the absolute price boundaries of Donchian Channels with exponential decay toward the midpoint, creating an envelope that expands instantly on new volatility but contracts smoothly during consolidation.
 - **Similar:** [DC](../dc/dc.md), [PC](../pc/pc.md) | **Complementary:** Trend indicators like ADX | **Trading note:** Bands decay toward price when no new extremes form, reducing lag compared to traditional channels.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

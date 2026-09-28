@@ -12,7 +12,7 @@
 | **Warmup**       | `order + 1` bars                          |
 | **PineScript**   | [lms.pine](lms.pine)                       |
 
-- The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm i...
+- The **Least Mean Squares (LMS) Adaptive Filter** is the Widrow-Hoff adaptive FIR filter, the simplest and most widely deployed adaptive algorithm in signal processing.
 - **Similar:** [RLS](../rls/Rls.md), [Kalman](../kalman/Kalman.md) | **Complementary:** Error metrics for convergence monitoring | **Trading note:** Least Mean Squares adaptive filter; tracks changing signal statistics. Low computational cost.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

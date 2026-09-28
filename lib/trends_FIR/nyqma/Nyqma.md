@@ -13,7 +13,7 @@
 | **PineScript**   | [nyqma.pine](nyqma.pine)                       |
 | **Signature**    | [nyqma_signature](nyqma_signature.md) |
 
-- NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\...
+- NYQMA combines a primary LWMA (Linear Weighted Moving Average) with a secondary LWMA applied to the first, using lag-compensating extrapolation: $\text{NYQMA} = (1+\alpha) \cdot \text{MA}_1 - \alpha \cdot \text{MA}_2$, where $\alpha = N_2 / (N_1 - N_2)$.
 - **Similar:** [Lanczos](../lanczos/Lanczos.md), [SinEma](../sinema/sinema.md) | **Complementary:** Cycle detection | **Trading note:** Nyquist MA; designed around Nyquist frequency. Optimal for eliminating aliased cycles.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

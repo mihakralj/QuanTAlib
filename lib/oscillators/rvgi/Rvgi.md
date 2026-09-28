@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [rvgi.pine](rvgi.pine)                       |
 
-- The Relative Vigor Index measures the conviction of a price move by comparing closing strength (close minus open) to the total intrabar range (high...
+- The Relative Vigor Index measures the conviction of a price move by comparing closing strength (close minus open) to the total intrabar range (high minus low), smoothed through a symmetrically weighted moving average and then averaged over a lookback period.
 - **Similar:** [AO](../ao/Ao.md), [Fisher](../fisher/Fisher.md) | **Complementary:** Volume | **Trading note:** Relative Vigor Index; compares close−open to high−low. Rising = bullish vigor. Signal-line crossovers.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

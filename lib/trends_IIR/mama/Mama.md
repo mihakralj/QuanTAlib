@@ -14,7 +14,7 @@
 | **Signature**    | [mama_signature](mama_signature.md) |
 
 
-- MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of th...
+- MAMA (MESA Adaptive Moving Average) is a unique adaptive moving average that uses the Hilbert Transform to determine the phase rate of change of the market cycle.
 - **Similar:** [FRAMA](../frama/frama.md), [KAMA](../kama/kama.md) | **Complementary:** FAMA crossover | **Trading note:** MESA Adaptive MA by Ehlers; Hilbert Transform cycle-adaptive smoothing.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

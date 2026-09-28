@@ -13,7 +13,7 @@
 | **PineScript**   | [gdema.pine](gdema.pine)                       |
 | **Signature**    | [gdema_signature](gdema_signature.md) |
 
-- GDEMA extends the standard DEMA (Double Exponential Moving Average) with a tunable gain factor $v$ that controls the aggressiveness of lag compensa...
+- GDEMA extends the standard DEMA (Double Exponential Moving Average) with a tunable gain factor $v$ that controls the aggressiveness of lag compensation.
 - **Similar:** [DEMA](../dema/dema.md), [T3](../t3/t3.md) | **Complementary:** Signal crossovers | **Trading note:** Generalized DEMA; tunable volume factor between EMA and DEMA behavior.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

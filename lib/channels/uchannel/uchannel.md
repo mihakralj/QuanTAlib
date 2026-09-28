@@ -12,7 +12,7 @@
 | **Warmup**       | `Math.Max(strPeriod, centerPeriod)` bars                          |
 | **PineScript**   | [uchannel.pine](uchannel.pine)                       |
 
-- Ehlers Ultimate Channel applies the Ultrasmooth Filter (USF) twice: once to the close price for the centerline and once to True Range for band widt...
+- Ehlers Ultimate Channel applies the Ultrasmooth Filter (USF) twice: once to the close price for the centerline and once to True Range for band width, creating a channel where both the trend estimate and the volatility measure share the same low-lag, zero-overshoot filter characteristics.
 - **Similar:** [DC](../dc/dc.md), [PC](../pc/pc.md) | **Complementary:** Volume for breakout confirmation | **Trading note:** Upper/lower channel based on recent price extremes.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [binomdist.pine](binomdist.pine)                       |
 
-- BINOMDIST computes the cumulative distribution function of the Binomial distribution, mapping a min-max normalized price to a success probability $...
+- BINOMDIST computes the cumulative distribution function of the Binomial distribution, mapping a min-max normalized price to a success probability $p$ and evaluating $P(X \leq k)$ for $X \sim \text{Binomial}(n, p)$.
 - **Trading note:** Binomial distribution; models success/failure sequences. Win streak probability in trading.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -13,7 +13,7 @@
 | **PineScript**   | [qema.pine](qema.pine)                       |
 | **Signature**    | [qema_signature](qema_signature.md) |
 
-- QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them us...
+- QEMA (Quad Exponential Moving Average) is a zero-lag smoothing filter that cascades four EMAs with geometrically ramped alphas and combines them using minimum-energy weights.
 - **Similar:** [DEMA](../dema/dema.md), [TEMA](../tema/tema.md) | **Complementary:** Signal line crossovers | **Trading note:** Quadruple EMA; 4th-order lag reduction with overshoot risk.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

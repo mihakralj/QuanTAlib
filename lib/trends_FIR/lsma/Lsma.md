@@ -13,7 +13,7 @@
 | **PineScript**   | [lsma.pine](lsma.pine)                       |
 | **Signature**    | [lsma_signature](lsma_signature.md) |
 
-- LSMA (Least Squares Moving Average), also known as the Moving Linear Regression or Endpoint Moving Average, calculates the least squares regression...
+- LSMA (Least Squares Moving Average), also known as the Moving Linear Regression or Endpoint Moving Average, calculates the least squares regression line for the preceding time periods.
 - **Similar:** [Linear Regression](../../statistics/linreg/LinReg.md), [ALMA](../alma/Alma.md) | **Complementary:** R-squared for regression quality | **Trading note:** Least Squares MA; linear regression value at current bar, minimizing squared deviations.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

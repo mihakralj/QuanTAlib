@@ -12,7 +12,7 @@
 | **Warmup**       | `slowPeriod` bars                          |
 | **PineScript**   | [pvo.pine](pvo.pine)                       |
 
-- The Percentage Volume Oscillator (PVO) measures the difference between two exponential moving averages of volume, expressed as a percentage of the ...
+- The Percentage Volume Oscillator (PVO) measures the difference between two exponential moving averages of volume, expressed as a percentage of the slower EMA.
 - **Similar:** [PPO](../../momentum/ppo/Ppo.md), [VO](../vo/Vo.md) | **Complementary:** Price oscillators | **Trading note:** Percentage Volume Oscillator; MACD concept applied to volume. Detects volume surges.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

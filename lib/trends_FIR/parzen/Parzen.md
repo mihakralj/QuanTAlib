@@ -13,7 +13,7 @@
 | **PineScript**   | [parzen.pine](parzen.pine)                       |
 | **Signature**    | [parzen_signature](parzen_signature.md) |
 
-- PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppre...
+- PARZEN applies the Parzen (de la Vallée-Poussin) window function as FIR filter weights, producing a moving average with exceptional sidelobe suppression ($-24$ dB/octave rolloff) and a smooth bell-shaped kernel.
 - **Similar:** [GWMA](../gwma/gwma.md), [BWMA](../bwma/Bwma.md) | **Complementary:** ATR | **Trading note:** Parzen-window MA; piecewise-cubic taper. Very smooth with low spectral leakage.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

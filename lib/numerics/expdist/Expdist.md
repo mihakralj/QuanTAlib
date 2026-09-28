@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [expdist.pine](expdist.pine)                       |
 
-- The Exponential Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the exponential distribution, p...
+- The Exponential Distribution CDF transforms a min-max normalized price into the cumulative distribution function of the exponential distribution, producing an output in $[0, 1]$.
 - **Trading note:** Exponential distribution; models time between events. Used for trade arrival rate analysis.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

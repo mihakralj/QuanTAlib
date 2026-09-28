@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [sdchannel.pine](sdchannel.pine)                       |
 
-- Standard Deviation Channel plots a linear regression line through price data with parallel bands at a specified number of standard deviations of re...
+- Standard Deviation Channel plots a linear regression line through price data with parallel bands at a specified number of standard deviations of residuals above and below.
 - **Similar:** [BBands](../bbands/bbands.md), [RegChannel](../regchannel/regchannel.md) | **Complementary:** LinReg slope for trend direction | **Trading note:** Standard deviation channel around linear regression; tighter than Bollinger for trending markets.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

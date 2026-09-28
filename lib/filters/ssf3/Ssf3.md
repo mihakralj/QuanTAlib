@@ -13,7 +13,7 @@
 | **PineScript**   | [ssf3.pine](ssf3.pine)                       |
 | **Signature**    | [ssf3_signature](ssf3_signature.md) |
 
-- The 3-Pole Super Smoother Filter (SSF3) extends Ehlers' Super Smoother concept to third order, providing -60 dB/decade rolloff compared to -40 dB/d...
+- The 3-Pole Super Smoother Filter (SSF3) extends Ehlers' Super Smoother concept to third order, providing -60 dB/decade rolloff compared to -40 dB/decade for the 2-pole variant (SSF2).
 - **Similar:** [SSF2](../ssf2/Ssf2.md), [Butter3](../butter3/Butter3.md) | **Complementary:** Cycle analysis | **Trading note:** Ehlers' 3-pole Super Smoother; even smoother than 2-pole but more lag.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

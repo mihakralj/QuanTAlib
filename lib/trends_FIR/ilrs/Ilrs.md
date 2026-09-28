@@ -13,7 +13,7 @@
 | **PineScript**   | [ilrs.pine](ilrs.pine)                       |
 | **Signature**    | [ilrs_signature](ilrs_signature.md) |
 
-- ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smooth...
+- ILRS computes the linear regression slope over a rolling window, then accumulates it via discrete integration (running sum) to reconstruct a smoothed price-level signal.
 - **Similar:** [LSMA](../lsma/lsma.md), [LinReg](../../statistics/linreg/LinReg.md) | **Complementary:** R² for fit quality | **Trading note:** Integral of Linear Regression Slope; smoothed trend derived from cumulative regression.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

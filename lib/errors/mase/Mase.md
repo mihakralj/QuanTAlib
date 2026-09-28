@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [mase.pine](mase.pine)                       |
 
-- Mean Absolute Scaled Error (MASE) normalizes forecast errors by the average error of a naive "random walk" forecast (using the previous value as th...
+- Mean Absolute Scaled Error (MASE) normalizes forecast errors by the average error of a naive "random walk" forecast (using the previous value as the prediction).
 - **Similar:** [MAE](../mae/Mae.md), [RAE](../rae/Rae.md) | **Trading note:** Mean Absolute Scaled Error; compares forecast to naïve random-walk baseline. <1 = better than naïve.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

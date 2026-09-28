@@ -12,7 +12,7 @@
 | **Warmup**       | `Math.Max(Math.Max(jawPeriod, teethPeriod), lipsPeriod)` bars                          |
 | **PineScript**   | [alligator.pine](alligator.pine)                       |
 
-- The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display o...
+- The Williams Alligator is a trend-following system that uses three Smoothed Moving Averages (SMMA/RMA) with different periods and forward display offsets to visualize market phases.
 - **Similar:** [AMAT](../amat/Amat.md), [Ichimoku](../ichimoku/Ichimoku.md) | **Complementary:** Fractal indicator for entry signals | **Trading note:** Bill Williams' Alligator; three displaced SMAs (Jaw/Teeth/Lips) indicate trend state.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

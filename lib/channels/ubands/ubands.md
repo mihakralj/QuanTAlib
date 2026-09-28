@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [ubands.pine](ubands.pine)                       |
 
-- Ehlers Ultimate Bands replace the conventional SMA foundation of Bollinger Bands with the Ultrasmooth Filter (USF), a 2-pole IIR filter with zero o...
+- Ehlers Ultimate Bands replace the conventional SMA foundation of Bollinger Bands with the Ultrasmooth Filter (USF), a 2-pole IIR filter with zero overshoot and minimal lag.
 - **Similar:** [BBands](../bbands/bbands.md), [SDChannel](../sdchannel/sdchannel.md) | **Complementary:** RSI for overbought/oversold | **Trading note:** Uncertainty bands; statistical confidence intervals around a moving average.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

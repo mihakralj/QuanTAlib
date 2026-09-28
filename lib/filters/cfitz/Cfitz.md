@@ -12,7 +12,7 @@
 | **Warmup**       | `2` bars                          |
 | **PineScript**   | [cfitz.pine](cfitz.pine)                       |
 
-- The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-var...
+- The **Christiano-Fitzgerald Band-Pass Filter** is an asymmetric full-sample filter that approximates the ideal spectral band-pass by using time-varying weights that adapt to each bar's position in the sample.
 - **Similar:** [BaxterKing](../baxterking/BaxterKing.md), [HP](../hp/Hp.md) | **Complementary:** Trend indicators | **Trading note:** Christiano-Fitzgerald bandpass filter; asymmetric, optimal for finite samples.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [squeeze.pine](squeeze.pine)                       |
 
-- Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultan...
+- Squeeze Momentum combines Bollinger Band and Keltner Channel width analysis to detect low-volatility compression ("squeeze") states, while simultaneously measuring directional momentum via linear regression of a detrended price series.
 - **Similar:** [TTM_Squeeze](../../dynamics/ttm_squeeze/TtmSqueeze.md), [BBB](../bbb/Bbb.md) | **Complementary:** Momentum histogram | **Trading note:** Squeeze indicator; detects low-volatility compression. Bollinger inside Keltner = squeeze on.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

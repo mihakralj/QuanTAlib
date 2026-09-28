@@ -12,7 +12,7 @@
 | **Warmup**       | `maxLen` bars (192 default)                          |
 | **PineScript**   | [cfb.pine](cfb.pine)                       |
 
-- The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars...
+- The Composite Fractal Behavior index measures trend duration by analyzing fractal efficiency across 96 simultaneous lookback periods (2 to 192 bars by default).
 - **Similar:** [RSI](../rsi/Rsi.md), [CMO](../cmo/Cmo.md) | **Complementary:** Volume for confirmation | **Trading note:** Composite Force Index; combines price change magnitude and direction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

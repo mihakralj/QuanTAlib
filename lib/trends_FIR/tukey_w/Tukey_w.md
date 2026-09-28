@@ -13,7 +13,7 @@
 | **PineScript**   | [tukey_w.pine](tukey_w.pine)                       |
 | **Signature**    | [tukey_w_signature](tukey_w_signature.md) |
 
-- TUKEY_W applies the Tukey (tapered cosine) window as FIR filter weights, offering a single parameter $\alpha$ that controls the fraction of the win...
+- TUKEY_W applies the Tukey (tapered cosine) window as FIR filter weights, offering a single parameter $\alpha$ that controls the fraction of the window that is cosine-tapered.
 - **Similar:** [HanMA](../hanma/hanma.md), [BWMA](../bwma/Bwma.md) | **Trading note:** Tukey-window MA; adjustable taper parameter between rectangular and Hann.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `2K+1` bars (default 25)         |
 | **PineScript**   | [baxterking.pine](baxterking.pine)                       |
 
-- The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncati...
+- The **Baxter-King Band-Pass Filter** is a symmetric finite impulse response (FIR) filter that approximates the ideal spectral band-pass by truncating the infinite sinc-like impulse response at lag $K$ and normalizing the weights to sum to zero.
 - **Similar:** [Cfitz](../cfitz/Cfitz.md), [BPF](../bpf/Bpf.md) | **Complementary:** Hilbert Transform for phase | **Trading note:** Baxter-King bandpass filter; isolates business cycle frequencies. Symmetric FIR.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

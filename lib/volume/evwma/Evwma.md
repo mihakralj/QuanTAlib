@@ -12,7 +12,7 @@
 | **Warmup**       | `> period` bars                          |
 | **PineScript**   | [evwma.pine](evwma.pine)                       |
 
-- EVWMA (Elastic Volume Weighted Moving Average) is a volume-adaptive moving average that weights each bar's contribution to the average by its volum...
+- EVWMA (Elastic Volume Weighted Moving Average) is a volume-adaptive moving average that weights each bar's contribution to the average by its volume relative to a rolling volume sum.
 - **Similar:** [VWMA](../vwma/Vwma.md), [VWAP](../vwap/Vwap.md) | **Complementary:** OBV | **Trading note:** Elastic Volume-Weighted MA; adapts weighting dynamically based on volume flow.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

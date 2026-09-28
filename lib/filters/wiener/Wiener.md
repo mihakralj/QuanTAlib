@@ -13,7 +13,7 @@
 | **PineScript**   | [wiener.pine](wiener.pine)                       |
 | **Signature**    | [wiener_signature](wiener_signature.md) |
 
-- The Wiener Filter is an optimal linear filter that attempts to minimize the mean square error between the estimated random process and the desired ...
+- The Wiener Filter is an optimal linear filter that attempts to minimize the mean square error between the estimated random process and the desired process.
 - **Similar:** [Kalman](../kalman/Kalman.md), [RLS](../rls/Rls.md) | **Complementary:** Noise estimation | **Trading note:** Wiener filter; optimal linear filter minimizing MSE. Assumes stationary signals.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

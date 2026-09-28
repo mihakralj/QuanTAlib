@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [midprice.pine](midprice.pine)                       |
 
-- MIDPRICE computes the center of a rolling price channel by averaging the highest High and lowest Low over the past $N$ bars: $(\text{Highest}(H, N)...
+- MIDPRICE computes the center of a rolling price channel by averaging the highest High and lowest Low over the past $N$ bars: $(\text{Highest}(H, N) + \text{Lowest}(L, N)) \times 0.5$.
 - **Similar:** [MidPoint](../midpoint/Midpoint.md), [TypPrice](../typprice/typprice.md) | **Trading note:** (High+Low)/2; common price proxy for indicators avoiding close bias.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

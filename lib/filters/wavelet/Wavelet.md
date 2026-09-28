@@ -14,7 +14,7 @@
 | **Signature**    | [wavelet_signature](wavelet_signature.md) |
 
 
-- The Wavelet Denoising Filter applies an *à trous* (with holes) Haar wavelet decomposition with soft thresholding to remove high-frequency noise fro...
+- The Wavelet Denoising Filter applies an *à trous* (with holes) Haar wavelet decomposition with soft thresholding to remove high-frequency noise from price series while preserving trend structure and edges.
 - **Similar:** [SGF](../sgf/Sgf.md), [Modf](../modf/Modf.md) | **Complementary:** Multi-timeframe analysis | **Trading note:** Wavelet denoising; multi-resolution analysis separates signal at different time scales.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

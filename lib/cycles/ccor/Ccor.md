@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [ccor.pine](ccor.pine)                       |
 
-- CCOR extracts cycle phase by computing Pearson correlation of a price window against cosine (Real) and negative-sine (Imaginary) reference waves of...
+- CCOR extracts cycle phase by computing Pearson correlation of a price window against cosine (Real) and negative-sine (Imaginary) reference waves of a presumed fixed period, converting the resulting phasor to an angle with a monotonic constraint, and classifying the market state as trending or cycling based on the angle rate of change.
 - **Similar:** [Ccyc](../ccyc/Ccyc.md), [CG](../cg/cg.md) | **Complementary:** Hilbert Transform for phase analysis | **Trading note:** Cycle correlation; detects dominant cycle period in price data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

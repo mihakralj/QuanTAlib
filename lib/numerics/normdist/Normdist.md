@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [normdist.pine](normdist.pine)                       |
 
-- The Normal Distribution CDF transforms a z-score normalized price into the cumulative distribution function of the Gaussian distribution, producing...
+- The Normal Distribution CDF transforms a z-score normalized price into the cumulative distribution function of the Gaussian distribution, producing an output in $[0, 1]$.
 - **Trading note:** Normal (Gaussian) distribution; foundational for z-scores, confidence intervals, and VaR calculations.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

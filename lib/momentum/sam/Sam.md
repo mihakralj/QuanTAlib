@@ -12,7 +12,7 @@
 | **Warmup**       | `MaxCyclePeriod * 2` bars                          |
 | **PineScript**   | [sam.pine](sam.pine)                       |
 
-- The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length,...
+- The Smoothed Adaptive Momentum oscillator measures price momentum over an adaptively determined lookback period equal to the dominant cycle length, then smooths the result with a 2-pole Super Smoother filter.
 - **Similar:** [MOM](../mom/Mom.md), [ROC](../roc/Roc.md) | **Complementary:** Moving average for trend | **Trading note:** Simple Accumulative Momentum; cumulative sum of momentum values.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

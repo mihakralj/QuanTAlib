@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [wavg.pine](wavg.pine)                       |
 
-- The Weighted Average computes a rolling linearly-weighted mean where the most recent observation receives weight $N$ and the oldest receives weight...
+- The Weighted Average computes a rolling linearly-weighted mean where the most recent observation receives weight $N$ and the oldest receives weight 1, making it mathematically identical to the Weighted Moving Average (WMA) but categorized as a statistical measure.
 - **Similar:** [WMA](../../trends_FIR/wma/wma.md), [EMA](../../trends_IIR/ema/ema.md) | **Trading note:** Weighted average with custom weights; flexible aggregation for composite indicators.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

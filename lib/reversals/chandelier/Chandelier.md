@@ -12,7 +12,7 @@
 | **Warmup**       | `period + 1` bars                          |
 | **PineScript**   | [chandelier.pine](chandelier.pine)                       |
 
-- The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) ov...
+- The Chandelier Exit computes ATR-based trailing stop levels that hang from the highest high (for longs) or rise from the lowest low (for shorts) over a lookback period.
 - **Similar:** [SAR](../sar/Sar.md), [Super](../../dynamics/super/Super.md) | **Complementary:** ADX for trend strength | **Trading note:** Chandelier Exit; ATR-based trailing stop from highest high. Risk management tool.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [aroon.pine](aroon.pine)                       |
 
-- The Aroon indicator measures the temporal freshness of price extremes, answering not "how much did price move?" but "how long ago did it make a new...
+- The Aroon indicator measures the temporal freshness of price extremes, answering not "how much did price move?" but "how long ago did it make a new high or low?" Aroon Up tracks the recency of the highest high within the lookback window; Aroon Down tracks the recency of the lowest low.
 - **Similar:** [AroonOsc](../aroonosc/AroonOsc.md), [ADX](../adx/Adx.md) | **Complementary:** Volume for confirmation | **Trading note:** Aroon Up/Down measures time since highest high or lowest low; 100 = new high/low this period.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

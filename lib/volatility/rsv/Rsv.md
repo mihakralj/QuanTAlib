@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [rsv.pine](rsv.pine)                       |
 
-- Rogers-Satchell Volatility (RSV) is a drift-adjusted OHLC-based volatility estimator that uses all four price points (Open, High, Low, Close) to pr...
+- Rogers-Satchell Volatility (RSV) is a drift-adjusted OHLC-based volatility estimator that uses all four price points (Open, High, Low, Close) to provide more accurate volatility estimates than simpler range-based methods.
 - **Similar:** [HV](../hv/hv.md) | **Complementary:** Options pricing | **Trading note:** Rogers-Satchell volatility; handles drift without bias.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

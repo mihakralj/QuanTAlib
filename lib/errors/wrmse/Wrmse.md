@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [wrmse.pine](wrmse.pine)                       |
 
-- WRMSE extends the classic RMSE by incorporating weights for each observation, enabling analysts to emphasize critical data points such as recent ob...
+- WRMSE extends the classic RMSE by incorporating weights for each observation, enabling analysts to emphasize critical data points such as recent observations, high-volume periods, or specific market regimes.
 - **Similar:** [RMSE](../rmse/Rmse.md), [WMAPE](../wmape/Wmape.md) | **Trading note:** Weighted RMSE; emphasizes accuracy at specific points. Useful for time-decay weighting.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

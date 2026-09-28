@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [imi.pine](imi.pine)                       |
 
-- The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-clo...
+- The Intraday Momentum Index measures buying and selling pressure using the open-to-close relationship within each bar, rather than the close-to-close changes used by RSI.
 - **Similar:** [RSI](../../momentum/rsi/Rsi.md), [MFI](../../volume/mfi/Mfi.md) | **Complementary:** Volume | **Trading note:** Intraday Momentum Index; RSI variant using open-close relationship. Measures intrabar conviction.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

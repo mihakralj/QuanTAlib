@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [voss.pine](voss.pine)                       |
 
-- The Voss Predictive Filter is a two-stage signal processing pipeline that extracts a dominant cycle from noisy price data and then predicts its fut...
+- The Voss Predictive Filter is a two-stage signal processing pipeline that extracts a dominant cycle from noisy price data and then predicts its future trajectory using negative group delay.
 - **Similar:** [BPF](../bpf/Bpf.md), [Roofing](../roofing/Roofing.md) | **Complementary:** Cycle period indicators | **Trading note:** Voss predictive filter; attempts to predict the next cycle value. Zero-lag by design.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

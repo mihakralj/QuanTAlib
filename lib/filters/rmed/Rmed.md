@@ -13,7 +13,7 @@
 | **PineScript**   | [rmed.pine](rmed.pine)                       |
 | **Signature**    | [rmed_signature](rmed_signature.md) |
 
-- RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing sm...
+- RMED applies exponential smoothing to a 5-bar running median, creating a nonlinear IIR filter that rejects impulsive spike noise while providing smooth recursive tracking.
 - **Similar:** [Bilateral](../bilateral/Bilateral.md), [Loess](../loess/Loess.md) | **Complementary:** ATR for volatility | **Trading note:** Running median filter; non-linear, completely removes impulse noise. Preserves edges.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

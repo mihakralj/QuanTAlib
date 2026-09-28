@@ -13,7 +13,7 @@
 | **PineScript**   | [nma.pine](nma.pine)                       |
 | **Signature**    | [nma_signature](nma_signature.md) |
 
-- NMA is an adaptive IIR filter whose smoothing ratio is derived from a volatility-weighted square-root kernel analysis of log-price movements over a...
+- NMA is an adaptive IIR filter whose smoothing ratio is derived from a volatility-weighted square-root kernel analysis of log-price movements over a lookback window.
 - **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** Noise filters | **Trading note:** Noise-elimination MA; adapts to signal-to-noise ratio.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

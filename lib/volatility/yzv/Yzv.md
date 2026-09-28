@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [yzv.pine](yzv.pine)                       |
 
-- Yang-Zhang Volatility is a sophisticated volatility estimator that combines overnight (close-to-open) returns with Rogers-Satchell intraday volatil...
+- Yang-Zhang Volatility is a sophisticated volatility estimator that combines overnight (close-to-open) returns with Rogers-Satchell intraday volatility to capture the full spectrum of price dynamics.
 - **Similar:** [GKV](../gkv/gkv.md), [HV](../hv/hv.md) | **Complementary:** HV/IV comparison | **Trading note:** Yang-Zhang; most efficient OHLC estimator, handles gaps and drift.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

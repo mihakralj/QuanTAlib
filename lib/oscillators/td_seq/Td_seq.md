@@ -12,7 +12,7 @@
 | **Warmup**       | `comparePeriod + 1` bars                          |
 | **PineScript**   | [td_seq.pine](td_seq.pine)                       |
 
-- TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that d...
+- TD Sequential is Tom DeMark's exhaustion counting system that identifies potential trend reversals through two phases: a 9-count Setup phase that detects overextended trends, and a 13-count Countdown phase that pinpoints probable reversal timing.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

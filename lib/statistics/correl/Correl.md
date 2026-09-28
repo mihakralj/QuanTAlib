@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [correl.pine](correl.pine)                       |
 
-- The Pearson Correlation Coefficient measures the linear relationship between two variables, returning a value from -1 (perfect negative correlation...
+- The Pearson Correlation Coefficient measures the linear relationship between two variables, returning a value from -1 (perfect negative correlation) to +1 (perfect positive correlation).
 - **Similar:** [Spearman](../spearman/Spearman.md), [Kendall](../kendall/Kendall.md) | **Trading note:** Pearson correlation; measures linear relationship strength. Used for portfolio diversification and pairs trading.
 - Validated against TradingView reference behavior and mathematical invariants.
 

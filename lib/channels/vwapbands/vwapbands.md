@@ -12,7 +12,7 @@
 | **Warmup**       | `2` bars                          |
 | **PineScript**   | [vwapbands.pine](vwapbands.pine)                       |
 
-- VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-l...
+- VWAP Bands extend the Volume Weighted Average Price with dual standard deviation bands at $\pm 1\sigma$ and $\pm 2\sigma$ levels, creating a five-line channel system anchored to volume-weighted fair value.
 - **Similar:** [VwapSD](../vwapsd/vwapsd.md), [BBands](../bbands/bbands.md) | **Complementary:** Volume profile | **Trading note:** VWAP with deviation bands; institutional benchmark for intraday fair value.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [polyfit.pine](polyfit.pine)                       |
 
-- Polynomial Fitting computes a rolling polynomial regression of configurable degree over a lookback window, returning the fitted value at the curren...
+- Polynomial Fitting computes a rolling polynomial regression of configurable degree over a lookback window, returning the fitted value at the current bar.
 - **Similar:** [LinReg](../linreg/LinReg.md), [TSF](../../trends_FIR/tsf/Tsf.md) | **Trading note:** Polynomial curve fitting; captures non-linear trends. Higher order = more responsive but risk of overfitting.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

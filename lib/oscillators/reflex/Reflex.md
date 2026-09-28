@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [reflex.pine](reflex.pine)                       |
 
-- REFLEX is a zero-lag oscillator that measures the reversal tendency of price by comparing a Super-Smoother-filtered price against a linear extrapol...
+- REFLEX is a zero-lag oscillator that measures the reversal tendency of price by comparing a Super-Smoother-filtered price against a linear extrapolation from $N$ bars ago.
 - **Similar:** [Trendflex](../trendflex/Trendflex.md), [Deco](../deco/Deco.md) | **Complementary:** Cycle indicators | **Trading note:** Ehlers' Reflex indicator; cycle-mode oscillator using Super Smoother. Leading turns at zero crossings.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

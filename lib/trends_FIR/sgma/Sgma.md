@@ -13,7 +13,7 @@
 | **PineScript**   | [sgma.pine](sgma.pine)                       |
 | **Signature**    | [sgma_signature](sgma_signature.md) |
 
-- SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inf...
+- SGMA is a Finite Impulse Response (FIR) filter that uses polynomial fitting to smooth data while preserving higher moments (peaks, valleys, and inflection points).
 - **Similar:** [SGF](../../filters/sgf/Sgf.md), [LSMA](../lsma/lsma.md) | **Trading note:** Savitzky-Golay MA; polynomial smoothing that preserves higher moments. Good for derivative estimation.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

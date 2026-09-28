@@ -13,7 +13,7 @@
 | **PineScript**   | [trama.pine](trama.pine)                       |
 | **Signature**    | [trama_signature](trama_signature.md) |
 
-- TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars th...
+- TRAMA is an adaptive EMA where the smoothing factor derives from the "trend regularity" of the lookback window, measured as the fraction of bars that produce either a new highest-high (HH) or a new lowest-low (LL).
 - **Similar:** [KAMA](../kama/kama.md), [VIDYA](../vidya/vidya.md) | **Complementary:** Volatility filters | **Trading note:** Triangular Adaptive MA; uses triangular window in adaptive mode.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

@@ -12,7 +12,7 @@
 | **Warmup**       | 1 bar                          |
 | **PineScript**   | [dymi.pine](dymi.pine)                       |
 
-- DYMI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator be...
+- DYMI is a volatility-adaptive RSI: when recent price swings are large relative to longer-term swings, the RSI period shortens and the indicator becomes more responsive; when price action tightens, the period extends and the output smooths.
 - **Similar:** [RSI](../../momentum/rsi/Rsi.md), [Stoch](../stoch/Stoch.md) | **Complementary:** ATR | **Trading note:** Dynamic Momentum Index; RSI with variable lookback based on volatility. Faster in calm, slower in volatile markets.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

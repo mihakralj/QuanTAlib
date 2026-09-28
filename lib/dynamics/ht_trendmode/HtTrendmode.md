@@ -12,7 +12,7 @@
 | **Warmup**       | `LOOKBACK` bars                          |
 | **PineScript**   | [ht_trendmode.pine](ht_trendmode.pine)                       |
 
-- The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (ou...
+- The Hilbert Transform Trend Mode indicator is a binary regime classifier that determines whether price action is dominated by trending behavior (output = 1) or cyclical/mean-reverting behavior (output = 0).
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

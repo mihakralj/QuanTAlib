@@ -12,7 +12,7 @@
 | **Warmup**       | `adx.WarmupPeriod + period - 1` bars                          |
 | **PineScript**   | [adxr.pine](adxr.pine)                       |
 
-- The Average Directional Movement Rating is a smoothed version of ADX that dampens short-term fluctuations in trend strength by averaging the curren...
+- The Average Directional Movement Rating is a smoothed version of ADX that dampens short-term fluctuations in trend strength by averaging the current ADX with a historical ADX value.
 - **Similar:** [ADX](../adx/Adx.md), [DX](../dx/Dx.md) | **Complementary:** Aroon for trend timing | **Trading note:** Smoothed ADX; slower but fewer false signals. Used in Wilder's Directional Movement System.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

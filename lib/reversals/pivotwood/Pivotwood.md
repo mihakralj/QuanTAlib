@@ -12,7 +12,7 @@
 | **Warmup**       | `2` bars                          |
 | **PineScript**   | [pivotwood.pine](pivotwood.pine)                       |
 
-- Woodie's Pivot Points weight the closing price twice in the pivot calculation, biasing the central pivot toward where the market actually settled r...
+- Woodie's Pivot Points weight the closing price twice in the pivot calculation, biasing the central pivot toward where the market actually settled rather than treating high, low, and close equally.
 - No configurable parameters; computation is stateless per bar.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

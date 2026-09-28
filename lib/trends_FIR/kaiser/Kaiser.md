@@ -13,7 +13,7 @@
 | **PineScript**   | [kaiser.pine](kaiser.pine)                       |
 | **Signature**    | [kaiser_signature](kaiser_signature.md) |
 
-- KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade...
+- KAISER applies the Kaiser-Bessel window function as FIR filter weights, providing a single parameter ($\beta$) that continuously controls the trade-off between main lobe width (transition band sharpness) and sidelobe attenuation (stopband rejection).
 - **Similar:** [ALMA](../alma/alma.md), [BLMA](../blma/blma.md) | **Complementary:** Cycle analysis | **Trading note:** Kaiser-windowed MA; adjustable sidelobe suppression via beta parameter.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

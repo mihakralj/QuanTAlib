@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [brar.pine](brar.pine)                       |
 
-- BRAR is a dual-output sentiment oscillator from the Japanese technical analysis tradition that decomposes market pressure into two independent rati...
+- BRAR is a dual-output sentiment oscillator from the Japanese technical analysis tradition that decomposes market pressure into two independent ratios: BR (Buying Ratio), which measures upside thrust relative to the previous close, and AR (Atmosphere Ratio), which measures intraday range asymmetry relative to the open.
 - **Similar:** [ERI](../eri/Eri.md), [FI](../fi/Fi.md) | **Complementary:** Volume | **Trading note:** BRAR (Buying/Selling Power); AR measures opening vs H/L, BR measures close vs H/L. Popular in Asian markets.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

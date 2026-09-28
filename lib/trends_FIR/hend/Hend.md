@@ -13,7 +13,7 @@
 | **PineScript**   | [hend.pine](hend.pine)                       |
 | **Signature**    | [hend_signature](hend_signature.md) |
 
-- HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without disto...
+- HEND is a symmetric FIR filter derived from the Henderson (1916) closed-form weight formula, designed to pass cubic polynomial trends without distortion while maximally suppressing irregular noise.
 - **Similar:** [LSMA](../lsma/lsma.md), [TSF](../tsf/Tsf.md) | **Complementary:** StdDev | **Trading note:** Henderson MA; used by Australian Bureau of Statistics. Optimal for extracting smooth trend from noisy data.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

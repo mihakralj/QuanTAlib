@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [cti.pine](cti.pine)                       |
 
-- The Correlation Trend Indicator computes the Pearson correlation coefficient between the price series and a linear time index over a rolling window...
+- The Correlation Trend Indicator computes the Pearson correlation coefficient between the price series and a linear time index over a rolling window, producing a bounded oscillator in the range $[-1, +1]$.
 - **Similar:** [LinReg](../../statistics/linreg/LinReg.md), [CFO](../cfo/Cfo.md) | **Complementary:** ADX | **Trading note:** Correlation Trend Indicator; Pearson correlation of price vs time. +1 = perfect uptrend, −1 = downtrend.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 

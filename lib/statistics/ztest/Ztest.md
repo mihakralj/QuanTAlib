@@ -12,7 +12,7 @@
 | **Warmup**       | `period` bars                          |
 | **PineScript**   | [ztest.pine](ztest.pine)                       |
 
-- ZTEST computes the **one-sample t-statistic**, measuring how many standard errors the rolling sample mean deviates from a hypothesized population m...
+- ZTEST computes the **one-sample t-statistic**, measuring how many standard errors the rolling sample mean deviates from a hypothesized population mean $\mu_0$.
 - **Similar:** [JB](../jb/Jb.md), [Zscore](../zscore/Zscore.md) | **Trading note:** Z-test; tests if sample mean differs from population mean. Used to validate trading edge significance.
 - Validated against manual computation, PineScript parity, and testable statistical properties.
 

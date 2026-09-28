@@ -12,7 +12,7 @@
 | **Warmup**       | `bufferSize` bars                          |
 | **PineScript**   | [dwt.pine](dwt.pine)                       |
 
-- The Discrete Wavelet Transform decomposes a price series into multi-resolution frequency components using the a trous (with holes) stationary Haar ...
+- The Discrete Wavelet Transform decomposes a price series into multi-resolution frequency components using the a trous (with holes) stationary Haar wavelet.
 - **Similar:** [CWT](../cwt/Cwt.md), [FFT](../fft/Fft.md) | **Trading note:** Discrete Wavelet Transform; decomposes signal into frequency bands at different scales.
 - Validated against TA-Lib, Skender, and Tulip reference implementations where available.
 
